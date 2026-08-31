@@ -74,16 +74,51 @@ curl -s localhost:3000/api/health     # expect {"ok":true,...,"demo":false}
 `"demo": false` confirms production mode: only your real admin account
 exists and the login page shows no demo hint.
 
-## Step 4 — HTTPS (5 min)
+## Step 4 — HTTPS (5–15 min)
+
+**Shared server?** If this VPS already hosts other websites, something is
+already bound to ports 80/443 — do NOT install or start Caddy (skip
+`caddy` in the Step 3 install line). Find out what serves the existing
+sites:
 
 ```bash
+ss -ltnp | grep -E ':80 |:443 '
+```
+
+Then pick the matching route:
+
+- **nginx** (most common): use the ready vhost —
+  ```bash
+  cp /opt/etablix/deploy/nginx-etablix.conf /etc/nginx/sites-available/etablix.conf
+  ln -s /etc/nginx/sites-available/etablix.conf /etc/nginx/sites-enabled/
+  nginx -t && systemctl reload nginx
+  apt-get install -y certbot python3-certbot-nginx
+  certbot --nginx -d etablix.com -d www.etablix.com
+  ```
+- **Apache**: create a vhost with `ProxyPass / http://127.0.0.1:3000/`
+  (enable `proxy proxy_http`), then `certbot --apache -d etablix.com -d www.etablix.com`.
+- **Caddy already running**: append the two site blocks from
+  `deploy/Caddyfile` to the existing `/etc/caddy/Caddyfile` and
+  `systemctl reload caddy`.
+- **A hosting panel** (CloudPanel/aaPanel/Plesk/Hestia…): add etablix.com
+  in the panel as a **reverse proxy** site to `127.0.0.1:3000` and enable
+  Let's Encrypt there.
+
+Also check port 3000 is free before starting the app
+(`ss -ltn | grep :3000`); if taken, set `PORT=3001` in `/etc/etablix.env`
+and proxy to 3001 instead.
+
+**Dedicated server** (nothing else on 80/443):
+
+```bash
+apt-get install -y caddy
 cp /opt/etablix/deploy/Caddyfile /etc/caddy/Caddyfile
 systemctl reload caddy
 ```
 
-Once the Step 2 DNS has propagated (usually minutes), Caddy obtains
-Let's Encrypt certificates automatically. Check: `https://etablix.com`
-loads with a padlock, and `https://www.etablix.com` redirects to the apex.
+Either way, once the Step 2 DNS has propagated (usually minutes),
+certificates are issued automatically. Check: `https://etablix.com` loads
+with a padlock, and `https://www.etablix.com` redirects to the apex.
 
 ## Step 5 — Notifications via your own mailbox SMTP (10 min)
 
