@@ -24,6 +24,7 @@ import playbookRoutes from "./routes/playbook.js";
 import userRoutes from "./routes/users.js";
 import integrationRoutes from "./routes/integrations.js";
 import commsRoutes from "./routes/comms.js";
+import adminRoutes from "./routes/admin.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
@@ -49,6 +50,7 @@ app.use("/api/playbook", playbookRoutes); // Commercial-in-Confidence, employees
 app.use("/api/users", userRoutes); // employee account management, admin only
 app.use("/api/integrations", integrationRoutes); // CONSTRUX/VERYX platform connections, admin only
 app.use("/api/comms", commsRoutes); // communication event engine: catalogue, deliveries, in-app feed
+app.use("/api/admin", adminRoutes); // platform administration (purge demo data), admin only
 
 app.use("/api", (req, res) => res.status(404).json({ error: "Unknown endpoint." }));
 

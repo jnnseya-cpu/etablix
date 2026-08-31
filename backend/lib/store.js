@@ -126,7 +126,7 @@ function seed() {
 
   const p = (i) => projects[i].id;
 
-  return {
+  const data = {
     users: seedUsers(),
     leads: [
       {
@@ -228,6 +228,17 @@ function seed() {
       { id: id(), projectId: p(1), sensor: "ENV-03", kind: "noise", location: "Village east boundary", value: 82, unit: "dB", threshold: 80, status: "alert", readAt: now - 1200000 },
     ],
   };
+  if (!isDemoMode) {
+    // Production: real employees only, no demo business records. The agent
+    // catalogue is reference data and stays; everything else starts empty.
+    for (const k of [
+      "leads", "subcontractors", "projects", "schedule", "budget", "rfis",
+      "inspections", "ncrs", "risks", "agentRuns", "apiKeys", "sensors",
+    ]) {
+      data[k] = [];
+    }
+  }
+  return data;
 }
 
 let db = null;
@@ -290,6 +301,15 @@ export function update(name, rowId, patch) {
   const row = collection(name).find((r) => r.id === rowId);
   if (!row) return null;
   Object.assign(row, patch);
+  persist();
+  return row;
+}
+
+export function remove(name, rowId) {
+  const rows = collection(name);
+  const idx = rows.findIndex((r) => r.id === rowId);
+  if (idx === -1) return null;
+  const [row] = rows.splice(idx, 1);
   persist();
   return row;
 }

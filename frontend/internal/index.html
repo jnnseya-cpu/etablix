@@ -147,6 +147,12 @@
         </table>
       </div>
     </div>
+    <div class="section-block" style="border:1.5px solid var(--danger);border-radius:10px;padding:18px 20px;">
+      <h3 style="color:var(--danger);">Danger zone — start with real business data</h3>
+      <p class="panel-sub" style="margin-bottom:12px;">Permanently deletes every demo and test business record: enquiries, supplier registrations, projects, schedule, budget, RFIs, quality, risks, agent runs, telemetry, alerts, the delivery log and all uploaded files. <b>Keeps</b> employee accounts, the CONSTRUX/VERYX platform connections and the agent catalogue. Run this once before real business starts. It cannot be undone (last resort: restore last night's backup).</p>
+      <button class="btn-run" id="purge-btn" style="border-color:var(--danger);color:var(--danger);">Clear all demo &amp; test data</button>
+      <span class="muted" id="purge-result" style="margin-left:10px;"></span>
+    </div>
     <div class="section-block">
       <h3>Platform connections — CONSTRUX &amp; VERYX</h3>
       <p class="panel-sub" style="margin-bottom:14px;">Paste each platform's API credentials to link the real products into this Control Desk. Keys are stored server-side only and never shown again in full. VERYX keys come from the veryxjnn.com workspace (Settings → API keys, <code>vx_…</code>); CONSTRUX tokens from your construxvg.com account.</p>

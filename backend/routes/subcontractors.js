@@ -1,6 +1,8 @@
 import { Router } from "express";
-import { collection, insert, update } from "../lib/store.js";
-import { requireAuth } from "../middleware/auth.js";
+import fs from "node:fs";
+import { collection, insert, update, remove } from "../lib/store.js";
+import { requireAuth, requireRole } from "../middleware/auth.js";
+import { ROLES } from "../../shared/constants.js";
 import { acceptDocuments, describeFiles } from "../lib/uploads.js";
 import { notifyApplication, acknowledgeApplication, notifyApplicationStatus } from "../lib/notify.js";
 import { emit } from "../lib/comms.js";
@@ -50,6 +52,23 @@ router.patch("/:id", requireAuth, (req, res) => {
 });
 
 /**
+ * DELETE /api/subcontractors/:id — admin: permanently remove a
+ * registration and its uploaded documents. Use `restricted` status
+ * instead when you want to keep the record but bar the supplier from
+ * the working directory and broadcasts.
+ */
+router.delete("/:id", requireAuth, requireRole(ROLES.ADMIN), (req, res) => {
+  const application = remove("subcontractors", req.params.id);
+  if (!application) return res.status(404).json({ error: "Application not found." });
+  for (const doc of application.documents || []) {
+    try {
+      fs.unlinkSync(path.join(UPLOAD_DIR, doc.stored));
+    } catch {}
+  }
+  res.json({ deleted: true, id: application.id });
+});
+
+/**
  * POST /api/subcontractors/broadcast — internal: one-click message to
  * selected suppliers, with optional attachments (multipart). Each
  * supplier receives an individually addressed branded email; every send
@@ -68,7 +87,10 @@ router.post("/broadcast", requireAuth, acceptDocuments, async (req, res) => {
   if (message.length < 10) return res.status(400).json({ error: "Enter a message (at least 10 characters)." });
   if (!Array.isArray(ids) || !ids.length) return res.status(400).json({ error: "Select at least one supplier." });
 
-  const suppliers = collection("subcontractors").filter((s) => ids.includes(s.id) && s.email);
+  // Restricted suppliers never receive broadcasts, even if selected.
+  const suppliers = collection("subcontractors").filter(
+    (s) => ids.includes(s.id) && s.email && s.status !== "restricted"
+  );
   if (!suppliers.length) return res.status(400).json({ error: "No matching suppliers with an email address." });
 
   const attachments = (req.files || []).map((f) => ({

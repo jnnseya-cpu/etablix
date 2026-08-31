@@ -297,6 +297,7 @@ td select {
 }
 .team-form input:focus, .team-form select:focus { outline: none; border-color: var(--orange); }
 
+.pill.restricted { background: rgba(192,57,43,0.16); color: var(--danger); border: 1px solid rgba(192,57,43,0.35); }
 .pill.info { background: rgba(156,122,60,0.15); color: var(--orange-dark); }
 .pill.success { background: rgba(31,157,97,0.15); color: var(--success); }
 .pill.warning { background: rgba(176,122,30,0.16); color: #a86e00; }

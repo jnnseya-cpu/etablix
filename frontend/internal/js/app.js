@@ -310,6 +310,24 @@ document.addEventListener("click", async (e) => {
   }
 });
 
+// ---------- Delete records (admin) ----------
+
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest("button[data-del]");
+  if (!btn) return;
+  if (!confirm(`Permanently delete this ${btn.dataset.delLabel}? Its uploaded documents are removed too. This cannot be undone.\n\nTip: to keep the record but bar a supplier from the directory and broadcasts, set its status to "restricted" instead.`)) return;
+  btn.disabled = true;
+  try {
+    await api(`${btn.dataset.delEndpoint}/${btn.dataset.del}`, { method: "DELETE" });
+    await load();
+    supplierRows = supplierRows.filter((s) => s.id !== btn.dataset.del);
+    renderSuppliers?.();
+  } catch (err) {
+    alert(err.message);
+    btn.disabled = false;
+  }
+});
+
 // ---------- Supplier directory + one-click broadcast ----------
 
 let supplierRows = [];
@@ -558,6 +576,32 @@ document.addEventListener("submit", async (e) => {
   }
 });
 
+document.getElementById("purge-btn")?.addEventListener("click", async () => {
+  const typed = prompt('This permanently deletes ALL demo and test business records and uploaded files (employee accounts and platform connections are kept).\n\nType DELETE to confirm:');
+  if (typed !== "DELETE") return;
+  const btn = document.getElementById("purge-btn");
+  btn.disabled = true;
+  btn.textContent = "Clearing…";
+  try {
+    const { cleared, filesDeleted } = await api("/api/admin/purge-demo-data", {
+      method: "POST",
+      body: JSON.stringify({ confirm: "DELETE" }),
+    });
+    const total = Object.values(cleared).reduce((a, b) => a + b, 0);
+    document.getElementById("purge-result").textContent = `Done — ${total} records and ${filesDeleted} file(s) removed. The platform is clean for real business.`;
+    loaded.clear();
+    supSelected.clear();
+    supplierRows = [];
+    await load();
+    refreshBell();
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Clear all demo & test data";
+  }
+});
+
 async function loadTeam() {
   loadIntegrations().catch((err) => {
     document.getElementById("integrations-body").innerHTML = `<p class="error-note">${esc(err.message)}</p>`;
@@ -679,7 +723,7 @@ function renderEnquiries() {
         <td>${esc(l.location || "—")}</td>
         <td>${when(l.createdAt)}</td>
         <td>${documentLinks(l.documents)}</td>
-        <td>${statusSelect(l.status, LEAD_STATUS, "/api/leads", l.id)}</td>
+        <td>${statusSelect(l.status, LEAD_STATUS, "/api/leads", l.id)}${user.role === "admin" ? `<div style="margin-top:6px;"><button class="btn-run" data-del="${l.id}" data-del-endpoint="/api/leads" data-del-label="enquiry from ${esc(l.company)}">Delete</button></div>` : ""}</td>
       </tr>`
     );
   tbody.innerHTML = rows.length ? rows.join("") : emptyRow();
@@ -700,7 +744,7 @@ function renderApplications() {
         <td>${esc(a.territories || "—")}</td>
         <td>${when(a.createdAt)}</td>
         <td>${documentLinks(a.documents)}</td>
-        <td>${statusSelect(a.status, APPLICATION_STATUS, "/api/subcontractors", a.id)}</td>
+        <td>${statusSelect(a.status, APPLICATION_STATUS, "/api/subcontractors", a.id)}${user.role === "admin" ? `<div style="margin-top:6px;"><button class="btn-run" data-del="${a.id}" data-del-endpoint="/api/subcontractors" data-del-label="registration from ${esc(a.legalName)}">Delete</button></div>` : ""}</td>
       </tr>`
     );
   tbody.innerHTML = rows.length ? rows.join("") : emptyRow();

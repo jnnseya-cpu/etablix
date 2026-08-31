@@ -63,6 +63,7 @@ export const APPLICATION_STATUS = [
   "prequalified",
   "approved",
   "declined",
+  "restricted",
 ];
 
 export const PROJECT_STATUS = [
