@@ -621,8 +621,8 @@ h3 { font-size: 1.28rem; }
 }
 .cta-band h2 { color: var(--white); max-width: 22em; margin: 0 auto 18px; }
 .cta-band p { max-width: 40em; margin: 0 auto 34px; color: rgba(255, 255, 255, 0.92); font-size: 1.1rem; }
-.cta-band .btn-primary { background: var(--ink); }
-.cta-band .btn-primary:hover { background: #000; }
+.cta-band .btn-primary { background: var(--ink); color: #fff; }
+.cta-band .btn-primary:hover { background: #000; color: #fff; }
 .cta-band .btn-outline { border-color: rgba(255, 255, 255, 0.7); color: var(--white); }
 .cta-band .btn-outline:hover { background: var(--white); color: var(--orange-dark); border-color: var(--white); }
 .cta-band .hero-actions { justify-content: center; }
