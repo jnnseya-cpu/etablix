@@ -1,0 +1,42 @@
+# Render blueprint for ETABLIX — one web service with a persistent disk.
+# In the Render dashboard: New → Blueprint → point at this repository.
+# After the first deploy, fill in the sync:false env vars (admin login,
+# SMTP) under the service's Environment tab, then add etablix.com under
+# Settings → Custom Domains and follow the DNS instructions shown there.
+
+services:
+  - type: web
+    name: etablix
+    runtime: node
+    plan: starter
+    buildCommand: npm ci --omit=dev
+    startCommand: node backend/server.js
+    healthCheckPath: /api/health
+    autoDeploy: true
+    disk:
+      name: etablix-data
+      mountPath: /opt/render/project/src/backend/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ETABLIX_TOKEN_SECRET
+        generateValue: true            # keeps employee sessions valid across restarts
+      - key: ETABLIX_ADMIN_EMAIL
+        sync: false                    # your real admin login — set in dashboard
+      - key: ETABLIX_ADMIN_PASSWORD
+        sync: false                    # strong password — set in dashboard
+      - key: ETABLIX_ADMIN_NAME
+        sync: false                    # e.g. "Justin Nseya"
+      - key: SMTP_HOST
+        sync: false                    # e.g. smtp.zoho.eu / smtp.gmail.com
+      - key: SMTP_PORT
+        sync: false                    # 587 (STARTTLS) or 465 (TLS)
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: NOTIFY_TO
+        value: contact@etablix.com
+      - key: NOTIFY_FROM
+        value: "ETABLIX Website <no-reply@etablix.com>"

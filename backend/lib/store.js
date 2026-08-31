@@ -20,6 +20,52 @@ export function id() {
   return crypto.randomBytes(8).toString("hex");
 }
 
+/**
+ * Production mode: set ETABLIX_ADMIN_EMAIL and ETABLIX_ADMIN_PASSWORD and
+ * the store seeds ONLY that administrator — no demo accounts. Without
+ * them (local development), the three demo accounts are seeded.
+ */
+export const isDemoMode = !(
+  process.env.ETABLIX_ADMIN_EMAIL && process.env.ETABLIX_ADMIN_PASSWORD
+);
+
+function seedUsers() {
+  if (!isDemoMode) {
+    return [
+      {
+        id: id(),
+        name: process.env.ETABLIX_ADMIN_NAME || "ETABLIX Administrator",
+        email: process.env.ETABLIX_ADMIN_EMAIL.toLowerCase(),
+        role: ROLES.ADMIN,
+        password: hashPassword(process.env.ETABLIX_ADMIN_PASSWORD),
+      },
+    ];
+  }
+  return [
+    {
+      id: id(),
+      name: "Alex Morgan",
+      email: "admin@etablix.com",
+      role: ROLES.ADMIN,
+      password: hashPassword("etablix-admin-2026"),
+    },
+    {
+      id: id(),
+      name: "Dana Okafor",
+      email: "pm@etablix.com",
+      role: ROLES.PROJECT_MANAGER,
+      password: hashPassword("etablix-pm-2026"),
+    },
+    {
+      id: id(),
+      name: "Sam Reyes",
+      email: "qa@etablix.com",
+      role: ROLES.QA_INSPECTOR,
+      password: hashPassword("etablix-qa-2026"),
+    },
+  ];
+}
+
 function seed() {
   const now = Date.now();
   const day = 86400000;
@@ -81,29 +127,7 @@ function seed() {
   const p = (i) => projects[i].id;
 
   return {
-    users: [
-      {
-        id: id(),
-        name: "Alex Morgan",
-        email: "admin@etablix.com",
-        role: ROLES.ADMIN,
-        password: hashPassword("etablix-admin-2026"),
-      },
-      {
-        id: id(),
-        name: "Dana Okafor",
-        email: "pm@etablix.com",
-        role: ROLES.PROJECT_MANAGER,
-        password: hashPassword("etablix-pm-2026"),
-      },
-      {
-        id: id(),
-        name: "Sam Reyes",
-        email: "qa@etablix.com",
-        role: ROLES.QA_INSPECTOR,
-        password: hashPassword("etablix-qa-2026"),
-      },
-    ],
+    users: seedUsers(),
     leads: [
       {
         id: id(),

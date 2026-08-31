@@ -115,6 +115,13 @@ real database means replacing one module.
 
 ## Going live (etablix.com)
 
+> Ready-made deployment kit: `render.yaml` (Render blueprint, one-click),
+> `Dockerfile` (any container host), and `deploy/` (VPS route: Caddyfile,
+> systemd unit, env template, backup script, step-by-step guide and launch
+> checklist). Production mode: set `ETABLIX_ADMIN_EMAIL` +
+> `ETABLIX_ADMIN_PASSWORD` and the demo accounts are never seeded and the
+> login page shows no demo hint.
+
 The whole product is one Node.js server — public site, Control Desk, APIs
 and storage — so deployment is a single service:
 

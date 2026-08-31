@@ -10,7 +10,7 @@
 import express from "express";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { load } from "./lib/store.js";
+import { load, isDemoMode } from "./lib/store.js";
 
 import authRoutes from "./routes/auth.js";
 import leadRoutes from "./routes/leads.js";
@@ -27,10 +27,13 @@ const root = path.join(__dirname, "..");
 
 const app = express();
 app.disable("x-powered-by");
+app.set("trust proxy", 1); // correct client IPs behind Caddy/nginx/platform proxies
 app.use(express.json({ limit: "200kb" }));
 
 // --- API ---
-app.get("/api/health", (req, res) => res.json({ ok: true, service: "etablix" }));
+app.get("/api/health", (req, res) =>
+  res.json({ ok: true, service: "etablix", demo: isDemoMode })
+);
 app.use("/api/auth", authRoutes);
 app.use("/api/leads", leadRoutes);
 app.use("/api/subcontractors", subcontractorRoutes);

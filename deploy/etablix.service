@@ -1,0 +1,28 @@
+# systemd unit for ETABLIX.
+#   1. Copy to /etc/systemd/system/etablix.service
+#   2. Create /etc/etablix.env from deploy/etablix.env.example (chmod 600)
+#   3. systemctl daemon-reload && systemctl enable --now etablix
+
+[Unit]
+Description=ETABLIX — Integrated Site Services (website, Control Desk, APIs)
+After=network.target
+
+[Service]
+Type=simple
+User=etablix
+Group=etablix
+WorkingDirectory=/opt/etablix
+EnvironmentFile=/etc/etablix.env
+ExecStart=/usr/bin/node backend/server.js
+Restart=always
+RestartSec=3
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/etablix/backend/data
+
+[Install]
+WantedBy=multi-user.target
