@@ -248,6 +248,26 @@ export function persist() {
   fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
 }
 
+/**
+ * Key-value settings (e.g. platform integration credentials). Created
+ * lazily so existing databases pick it up without migration.
+ */
+export function getSettings() {
+  const data = load();
+  if (!data.settings || typeof data.settings !== "object") {
+    data.settings = {};
+    persist();
+  }
+  return data.settings;
+}
+
+export function saveSettings(patch) {
+  const settings = getSettings();
+  Object.assign(settings, patch);
+  persist();
+  return settings;
+}
+
 export function collection(name) {
   const data = load();
   if (!Array.isArray(data[name])) throw new Error(`Unknown collection: ${name}`);

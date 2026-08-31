@@ -115,9 +115,27 @@ const bar = (pct) =>
 const block = (title, tableHtml) =>
   `<div class="section-block"><h3>${title}</h3><div class="table-wrap">${tableHtml}</div></div>`;
 
+const sourceBadge = (source) => {
+  if (!source) return "";
+  if (source.mode === "live")
+    return `<span class="pill approved" title="Data fetched from the connected platform">LIVE · ${esc(source.platform)}</span>`;
+  const note = source.note ? ` title="${esc(source.note)}"` : "";
+  return `<span class="pill"${note}>Workspace data</span>`;
+};
+
+async function linkBadge(product) {
+  try {
+    const link = await api(`/api/${product}/link`);
+    document.getElementById(`${product}-badge`).innerHTML = link.connected
+      ? `<span class="pill approved" title="${esc(link.summary || "")}">CONNECTED</span>`
+      : "";
+  } catch {}
+}
+
 // ---------- CONSTRUX panel ----------
 
 async function loadConstrux() {
+  linkBadge("construx");
   const [proj, sched, rfiRes, insRes, ncrRes, senRes] = await Promise.all([
     api("/api/construx/projects"),
     api("/api/construx/schedule"),
@@ -177,6 +195,7 @@ async function loadConstrux() {
 // ---------- VERYX panel ----------
 
 async function loadVeryx() {
+  linkBadge("veryx");
   const [summary, riskRes, agentRes, usage] = await Promise.all([
     api("/api/veryx/summary"),
     api("/api/veryx/risks"),
@@ -220,11 +239,12 @@ async function loadVeryx() {
     .join("")}</tbody></table>`;
 
   document.getElementById("veryx-body").innerHTML =
+    `<p style="margin-bottom:14px;">${sourceBadge(riskRes.source)}</p>` +
     kpis +
     block("Risk register — highest exposure first", risks) +
     block("AI agent console", agents) +
     block("Recent agent runs", runs) +
-    block("Platform API keys — customer access to the VERYX Platform API", keys);
+    block("Platform API keys", keys);
 }
 
 document.addEventListener("click", async (e) => {
@@ -248,7 +268,56 @@ document.addEventListener("click", async (e) => {
 
 const roleLabel = (r) => String(r).replace(/_/g, " ");
 
+async function loadIntegrations() {
+  const { integrations } = await api("/api/integrations");
+  document.getElementById("integrations-body").innerHTML = integrations
+    .map((i) => {
+      const status = i.connected
+        ? `<span class="pill approved">Connected</span>`
+        : i.lastTest && !i.lastTest.ok
+          ? `<span class="pill declined">Failed</span>`
+          : `<span class="pill">Not connected</span>`;
+      return `<form class="team-form" data-integration="${esc(i.platform)}" style="margin-bottom:8px;">
+        <b style="font-family:var(--font-head);min-width:90px;align-self:center;">${esc(i.label)}</b>
+        <input name="baseUrl" value="${esc(i.baseUrl)}" placeholder="API base URL" style="flex:2;">
+        <input name="apiKey" type="password" placeholder="${i.keyPreview ? `Key saved (${esc(i.keyPreview)}) — paste to replace` : "Paste API key / token"}" autocomplete="off">
+        <button class="btn-block" type="submit" style="width:auto;padding:11px 18px;">Save &amp; test</button>
+        <span style="align-self:center;">${status}</span>
+      </form>
+      ${i.lastTest ? `<p class="muted" style="margin:-2px 0 14px;">${esc(i.lastTest.summary)}</p>` : ""}`;
+    })
+    .join("");
+}
+
+document.addEventListener("submit", async (e) => {
+  const form = e.target.closest("form[data-integration]");
+  if (!form) return;
+  e.preventDefault();
+  const btn = form.querySelector("button");
+  btn.disabled = true;
+  btn.textContent = "Testing…";
+  try {
+    const name = form.dataset.integration;
+    await api(`/api/integrations/${name}`, {
+      method: "PUT",
+      body: JSON.stringify({ baseUrl: form.baseUrl.value, apiKey: form.apiKey.value }),
+    });
+    await api(`/api/integrations/${name}/test`, { method: "POST" });
+    await loadIntegrations();
+    // A new connection changes what the product tabs should show.
+    loaded.delete("construx");
+    loaded.delete("veryx");
+  } catch (err) {
+    alert(err.message);
+    btn.disabled = false;
+    btn.textContent = "Save & test";
+  }
+});
+
 async function loadTeam() {
+  loadIntegrations().catch((err) => {
+    document.getElementById("integrations-body").innerHTML = `<p class="error-note">${esc(err.message)}</p>`;
+  });
   const { users, roles } = await api("/api/users");
 
   const roleSelect = document.getElementById("team-role");

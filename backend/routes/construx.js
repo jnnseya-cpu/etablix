@@ -6,6 +6,7 @@
 import { Router } from "express";
 import { collection } from "../lib/store.js";
 import { requireAuth } from "../middleware/auth.js";
+import { publicIntegration } from "../lib/platforms.js";
 
 const router = Router();
 router.use(requireAuth);
@@ -15,6 +16,12 @@ function findProject(id) {
 }
 
 /** GET /api/construx/projects — the live portfolio. */
+/** GET /api/construx/link — connection badge for every employee. */
+router.get("/link", (req, res) => {
+  const { label, connected, lastTest } = publicIntegration("construx");
+  res.json({ label, connected, summary: lastTest?.summary || null });
+});
+
 router.get("/projects", (req, res) => {
   res.json({ projects: collection("projects") });
 });
