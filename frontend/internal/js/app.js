@@ -81,13 +81,260 @@ document.getElementById("logout").addEventListener("click", () => {
 });
 
 const tabs = document.getElementById("tabs");
+const loaded = new Set();
+const lazyLoaders = { construx: loadConstrux, veryx: loadVeryx, team: loadTeam };
+
 tabs.addEventListener("click", (e) => {
   const btn = e.target.closest("button[data-panel]");
   if (!btn) return;
+  const panel = btn.dataset.panel;
   tabs.querySelectorAll("button").forEach((b) => b.classList.toggle("active", b === btn));
   document.querySelectorAll(".panel").forEach((p) =>
-    p.classList.toggle("active", p.id === `panel-${btn.dataset.panel}`)
+    p.classList.toggle("active", p.id === `panel-${panel}`)
   );
+  // The search box only filters the intake tables.
+  document.getElementById("intake-toolbar").style.display =
+    panel === "enquiries" || panel === "applications" ? "" : "none";
+  if (lazyLoaders[panel] && !loaded.has(panel)) {
+    loaded.add(panel);
+    lazyLoaders[panel]().catch((err) => {
+      loaded.delete(panel);
+      const body = document.getElementById(`${panel}-body`);
+      if (body) body.innerHTML = `<p class="error-note">${esc(err.message)}</p>`;
+    });
+  }
+});
+
+// Team management is admin-only; hide the tab from everyone else.
+if (user.role === "admin") document.getElementById("team-tab").hidden = false;
+
+const money = (n) => "£" + Number(n || 0).toLocaleString("en-GB");
+const pill = (v) => `<span class="pill ${esc(v)}">${esc(String(v).replace(/_/g, " "))}</span>`;
+const bar = (pct) =>
+  `<div class="progress-track"><div class="progress-fill" style="width:${Math.min(100, Number(pct) || 0)}%"></div></div><span class="muted">${Number(pct) || 0}%</span>`;
+const block = (title, tableHtml) =>
+  `<div class="section-block"><h3>${title}</h3><div class="table-wrap">${tableHtml}</div></div>`;
+
+// ---------- CONSTRUX panel ----------
+
+async function loadConstrux() {
+  const [proj, sched, rfiRes, insRes, ncrRes, senRes] = await Promise.all([
+    api("/api/construx/projects"),
+    api("/api/construx/schedule"),
+    api("/api/construx/rfis"),
+    api("/api/construx/inspections"),
+    api("/api/construx/ncrs"),
+    api("/api/construx/sensors"),
+  ]);
+  const byId = Object.fromEntries(proj.projects.map((p) => [p.id, p.code]));
+  const code = (pid) => esc(byId[pid] || "—");
+
+  const projects = `<table><thead><tr><th>Code</th><th>Project</th><th>Sector</th><th>Status</th><th>Value</th><th>Progress</th><th>Manager</th></tr></thead><tbody>${proj.projects
+    .map(
+      (p) => `<tr><td><b>${esc(p.code)}</b></td><td>${esc(p.name)}<div class="muted">${esc(p.client)} · ${esc(p.startDate)} → ${esc(p.endDate)}</div></td><td>${esc(p.sector)}</td><td>${pill(p.status)}</td><td>${money(p.value)}</td><td>${bar(p.progress)}</td><td>${esc(p.manager)}</td></tr>`
+    )
+    .join("")}</tbody></table>`;
+
+  const schedule = `<table><thead><tr><th>Project</th><th>Activity</th><th>Phase</th><th>Window</th><th>Progress</th><th>Critical</th></tr></thead><tbody>${sched.schedule
+    .map(
+      (s) => `<tr><td><b>${code(s.projectId)}</b></td><td>${esc(s.activity)}</td><td>${esc(s.phase)}</td><td class="muted">${esc(s.start)} → ${esc(s.end)}</td><td>${bar(s.progress)}</td><td>${s.critical ? pill("critical") : '<span class="muted">—</span>'}</td></tr>`
+    )
+    .join("")}</tbody></table>`;
+
+  const rfis = `<table><thead><tr><th>RFI</th><th>Project</th><th>Subject</th><th>Priority</th><th>Raised by</th><th>Status</th></tr></thead><tbody>${rfiRes.rfis
+    .map(
+      (r) => `<tr><td><b>${esc(r.number)}</b></td><td>${code(r.projectId)}</td><td>${esc(r.subject)}</td><td>${pill(r.priority)}</td><td>${esc(r.raisedBy)}</td><td>${pill(r.status)}</td></tr>`
+    )
+    .join("")}</tbody></table>`;
+
+  const inspections = `<table><thead><tr><th>Ref</th><th>Inspection</th><th>Inspector</th><th>Date</th><th>Items / failures</th><th>Score</th><th>Status</th></tr></thead><tbody>${insRes.inspections
+    .map(
+      (i) => `<tr><td><b>${esc(i.ref)}</b></td><td>${esc(i.type)}</td><td>${esc(i.inspector)}</td><td class="muted">${esc(i.date)}</td><td>${i.items} / ${i.failures}</td><td>${i.score ?? "—"}</td><td>${pill(i.status)}</td></tr>`
+    )
+    .join("")}</tbody></table>`;
+
+  const ncrs = `<table><thead><tr><th>Ref</th><th>Non-conformance</th><th>Severity</th><th>Assigned to</th><th>Status</th></tr></thead><tbody>${ncrRes.ncrs
+    .map(
+      (n) => `<tr><td><b>${esc(n.ref)}</b></td><td>${esc(n.title)}</td><td>${pill(n.severity)}</td><td>${esc(n.assignedTo)}</td><td>${pill(n.status)}</td></tr>`
+    )
+    .join("")}</tbody></table>`;
+
+  const sensors = `<table><thead><tr><th>Sensor</th><th>Project</th><th>Location</th><th>Reading</th><th>Threshold</th><th>Status</th></tr></thead><tbody>${senRes.sensors
+    .map(
+      (s) => `<tr><td><b>${esc(s.sensor)}</b></td><td>${code(s.projectId)}</td><td>${esc(s.location)}</td><td>${s.value} ${esc(s.unit)}</td><td class="muted">${s.threshold} ${esc(s.unit)}</td><td>${pill(s.status)}</td></tr>`
+    )
+    .join("")}</tbody></table>`;
+
+  document.getElementById("construx-body").innerHTML =
+    block("Portfolio", projects) +
+    block("Schedule — key activities", schedule) +
+    block("RFIs", rfis) +
+    block("Quality — inspections", inspections) +
+    block("Quality — non-conformances", ncrs) +
+    block("Site telemetry", sensors);
+}
+
+// ---------- VERYX panel ----------
+
+async function loadVeryx() {
+  const [summary, riskRes, agentRes, usage] = await Promise.all([
+    api("/api/veryx/summary"),
+    api("/api/veryx/risks"),
+    api("/api/veryx/agents"),
+    api("/api/veryx/usage"),
+  ]);
+
+  const kpis = `<div class="kpis">
+    <div class="kpi accent"><b>${summary.openRisks}</b><span>Open risks</span></div>
+    <div class="kpi"><b>${summary.topRiskScore}</b><span>Top risk score</span></div>
+    <div class="kpi"><b>${summary.agentRuns}</b><span>Agent runs</span></div>
+    <div class="kpi"><b>${summary.acuBalance}</b><span>ACU balance</span></div>
+    <div class="kpi green"><b>${summary.apiCallsUsed}</b><span>API calls this month</span></div>
+  </div>`;
+
+  const risks = `<table><thead><tr><th>Ref</th><th>Risk</th><th>Category</th><th>P × I = Score</th><th>Owner</th><th>Status</th></tr></thead><tbody>${riskRes.risks
+    .map(
+      (r) => `<tr><td><b>${esc(r.ref)}</b></td><td>${esc(r.title)}<div class="muted brief">${esc(r.mitigation)}</div></td><td>${esc(r.category)}</td><td><b>${r.probability} × ${r.impact} = ${r.score}</b></td><td>${esc(r.owner)}</td><td>${pill(r.status)}</td></tr>`
+    )
+    .join("")}</tbody></table>`;
+
+  const agents = `<table><thead><tr><th>Agent</th><th>What it does</th><th>ACU cost</th><th></th></tr></thead><tbody>${agentRes.agents
+    .map(
+      (a) => `<tr><td><b>${esc(a.name)}</b></td><td class="muted">${esc(a.description)}</td><td>${a.acuCost} ACU</td><td><button class="btn-run" data-agent="${esc(a.type)}">Run now</button></td></tr>`
+    )
+    .join("")}</tbody></table>`;
+
+  const runs = agentRes.runs.length
+    ? `<table><thead><tr><th>When</th><th>Agent</th><th>Triggered by</th><th>Result</th><th>Status</th></tr></thead><tbody>${[...agentRes.runs]
+        .reverse()
+        .map(
+          (r) => `<tr><td class="muted">${when(r.createdAt)}</td><td><b>${esc(r.agentName)}</b></td><td>${esc(r.triggeredBy)}</td><td class="muted">${esc(r.summary)}</td><td>${pill(r.status)}</td></tr>`
+        )
+        .join("")}</tbody></table>`
+    : '<p class="empty-note">No agent runs yet — run one from the console above.</p>';
+
+  const keys = `<table><thead><tr><th>Key</th><th>Workspace</th><th>Env</th><th>Scopes</th><th>Calls used</th><th>ACU balance</th></tr></thead><tbody>${usage.keys
+    .map(
+      (k) => `<tr><td><code>${esc(k.keyPreview)}</code></td><td>${esc(k.workspace)}</td><td>${pill(k.env)}</td><td class="muted">${k.scopes.join(", ")}</td><td>${k.used} / ${k.monthlyQuota}</td><td>${k.acuBalance}</td></tr>`
+    )
+    .join("")}</tbody></table>`;
+
+  document.getElementById("veryx-body").innerHTML =
+    kpis +
+    block("Risk register — highest exposure first", risks) +
+    block("AI agent console", agents) +
+    block("Recent agent runs", runs) +
+    block("Platform API keys — customer access to the VERYX Platform API", keys);
+}
+
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest("button.btn-run");
+  if (!btn) return;
+  btn.disabled = true;
+  btn.textContent = "Running…";
+  try {
+    await api(`/api/veryx/agents/${btn.dataset.agent}/run`, { method: "POST" });
+    loaded.delete("veryx");
+    await loadVeryx();
+    loaded.add("veryx");
+  } catch (err) {
+    alert(err.message);
+    btn.disabled = false;
+    btn.textContent = "Run now";
+  }
+});
+
+// ---------- Team panel (admin only) ----------
+
+const roleLabel = (r) => String(r).replace(/_/g, " ");
+
+async function loadTeam() {
+  const { users, roles } = await api("/api/users");
+
+  const roleSelect = document.getElementById("team-role");
+  roleSelect.innerHTML = roles
+    .map((r) => `<option value="${esc(r)}">${esc(roleLabel(r))}</option>`)
+    .join("");
+
+  const tbody = document.querySelector("#team-table tbody");
+  tbody.innerHTML = users
+    .map((u) => {
+      const self = u.id === user.id;
+      const roleCell = self
+        ? `<b>${esc(roleLabel(u.role))}</b>`
+        : `<select data-user-role="${u.id}">${roles
+            .map((r) => `<option value="${esc(r)}" ${r === u.role ? "selected" : ""}>${esc(roleLabel(r))}</option>`)
+            .join("")}</select>`;
+      const actions = self
+        ? '<span class="muted">you</span>'
+        : `<button class="btn-run" data-user-reset="${u.id}">Reset password</button>
+           <button class="btn-run" data-user-toggle="${u.id}" data-active="${u.active}">${u.active ? "Deactivate" : "Reactivate"}</button>`;
+      const statusPill = `<span class="pill ${u.active ? "approved" : "declined"}">${u.active ? "Active" : "Deactivated"}</span>`;
+      return `<tr><td><b>${esc(u.name)}</b></td><td>${esc(u.email)}</td><td>${roleCell}</td><td class="muted">${when(u.createdAt)}</td><td>${statusPill}</td><td>${actions}</td></tr>`;
+    })
+    .join("");
+}
+
+const teamError = (msg) => {
+  const el = document.getElementById("team-error");
+  el.textContent = msg || "";
+  el.classList.toggle("show", Boolean(msg));
+};
+
+document.getElementById("team-form")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  teamError("");
+  const f = e.target;
+  try {
+    await api("/api/users", {
+      method: "POST",
+      body: JSON.stringify({
+        name: f.name.value,
+        email: f.email.value,
+        role: f.role.value,
+        password: f.password.value,
+      }),
+    });
+    f.reset();
+    await loadTeam();
+  } catch (err) {
+    teamError(err.message);
+  }
+});
+
+document.addEventListener("click", async (e) => {
+  const reset = e.target.closest("button[data-user-reset]");
+  const toggle = e.target.closest("button[data-user-toggle]");
+  if (!reset && !toggle) return;
+  try {
+    if (reset) {
+      const pw = prompt("New password for this employee (min 10 characters):");
+      if (!pw) return;
+      await api(`/api/users/${reset.dataset.userReset}`, { method: "PATCH", body: JSON.stringify({ password: pw }) });
+      alert("Password updated. Hand it to the employee securely.");
+    } else {
+      const active = toggle.dataset.active === "true";
+      if (active && !confirm("Deactivate this account? They will no longer be able to sign in.")) return;
+      await api(`/api/users/${toggle.dataset.userToggle}`, { method: "PATCH", body: JSON.stringify({ active: !active }) });
+    }
+    await loadTeam();
+  } catch (err) {
+    alert(err.message);
+  }
+});
+
+document.addEventListener("change", async (e) => {
+  const sel = e.target.closest("select[data-user-role]");
+  if (!sel) return;
+  sel.disabled = true;
+  try {
+    await api(`/api/users/${sel.dataset.userRole}`, { method: "PATCH", body: JSON.stringify({ role: sel.value }) });
+  } catch (err) {
+    alert(err.message);
+    await loadTeam();
+  } finally {
+    sel.disabled = false;
+  }
 });
 
 // ---------- Data ----------

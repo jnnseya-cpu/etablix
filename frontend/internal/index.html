@@ -37,9 +37,12 @@
   <nav class="tabs" id="tabs" style="padding:0;background:transparent;border-bottom:1px solid var(--line);margin-bottom:20px;">
     <button data-panel="enquiries" class="active">Project enquiries</button>
     <button data-panel="applications">Supplier applications</button>
+    <button data-panel="construx">CONSTRUX · Projects</button>
+    <button data-panel="veryx">VERYX · Risk &amp; agents</button>
+    <button data-panel="team" id="team-tab" hidden>Team</button>
   </nav>
 
-  <div class="desk-toolbar">
+  <div class="desk-toolbar" id="intake-toolbar">
     <input type="search" id="search" placeholder="Search reference, company or contact" aria-label="Search reference, company or contact">
   </div>
 
@@ -62,6 +65,43 @@
         </thead>
         <tbody></tbody>
       </table>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-construx">
+    <div class="panel-title">CONSTRUX — project delivery</div>
+    <div class="panel-sub">The operating system ETABLIX runs on every engagement: live portfolio, critical path, RFIs, quality and site telemetry.</div>
+    <div id="construx-body"><p class="empty-note">Loading…</p></div>
+  </section>
+
+  <section class="panel" id="panel-veryx">
+    <div class="panel-title">VERYX — enterprise execution intelligence</div>
+    <div class="panel-sub">The portfolio lens: risk register, AI agent console and Platform API usage. The public key-authenticated API is documented at <a class="doc-link" href="/api/public/v1/openapi.json" target="_blank" rel="noopener">/api/public/v1/openapi.json</a>.</div>
+    <div id="veryx-body"><p class="empty-note">Loading…</p></div>
+  </section>
+
+  <section class="panel" id="panel-team">
+    <div class="panel-title">Team — employee accounts</div>
+    <div class="panel-sub">Administrators create each employee account and hand over the initial password — there is deliberately no public sign-up. Employees sign in at <b>etablix.com/internal/login.html</b> and should change nothing else: role decides what they can do.</div>
+    <div class="section-block">
+      <h3>Add an employee</h3>
+      <form id="team-form" class="team-form">
+        <input required minlength="2" name="name" placeholder="Full name">
+        <input required type="email" name="email" placeholder="work@etablix.com">
+        <select name="role" id="team-role"></select>
+        <input required minlength="10" type="text" name="password" placeholder="Initial password (min 10 chars)" autocomplete="new-password">
+        <button class="btn-block" type="submit" style="width:auto;padding:12px 22px;">Create account</button>
+      </form>
+      <div class="login-error" id="team-error" style="margin-top:12px;"></div>
+    </div>
+    <div class="section-block">
+      <h3>Accounts</h3>
+      <div class="table-wrap">
+        <table id="team-table">
+          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Created</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
   </section>
 

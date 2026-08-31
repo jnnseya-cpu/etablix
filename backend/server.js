@@ -21,6 +21,7 @@ import veryxPublicRoutes from "./routes/veryx-public.js";
 import statsRoutes from "./routes/stats.js";
 import fileRoutes from "./routes/files.js";
 import playbookRoutes from "./routes/playbook.js";
+import userRoutes from "./routes/users.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
@@ -43,6 +44,7 @@ app.use("/api/public/v1", veryxPublicRoutes); // VERYX Platform API (key-authent
 app.use("/api/stats", statsRoutes);
 app.use("/api/files", fileRoutes);
 app.use("/api/playbook", playbookRoutes); // Commercial-in-Confidence, employees only
+app.use("/api/users", userRoutes); // employee account management, admin only
 
 app.use("/api", (req, res) => res.status(404).json({ error: "Unknown endpoint." }));
 

@@ -290,6 +290,21 @@ td select {
 .section-block { margin-bottom: 34px; }
 .section-block h3 { font-family: var(--font-head); font-weight: 800; font-size: 1.05rem; margin-bottom: 12px; }
 
+.team-form { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; }
+.team-form input, .team-form select {
+  padding: 11px 14px; border: 1.5px solid var(--line); border-radius: 7px;
+  font-size: 0.92rem; font-family: inherit; background: var(--white); min-width: 200px; flex: 1;
+}
+.team-form input:focus, .team-form select:focus { outline: none; border-color: var(--orange); }
+
+.btn-run {
+  background: var(--white); color: var(--orange-dark); border: 1.5px solid var(--orange);
+  padding: 7px 14px; border-radius: 6px; font-family: var(--font-head);
+  font-weight: 700; font-size: 0.78rem; white-space: nowrap;
+}
+.btn-run:hover { background: var(--orange); color: #fff; }
+.btn-run:disabled { opacity: 0.55; cursor: wait; }
+
 @media (max-width: 700px) {
   .topbar { padding: 0 16px; }
   .topbar .env-tag { display: none; }

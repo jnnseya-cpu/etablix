@@ -15,6 +15,9 @@ router.post("/login", (req, res) => {
   if (!user || !verifyPassword(data.password, user.password)) {
     return res.status(401).json({ error: "Invalid email or password." });
   }
+  if (user.active === false) {
+    return res.status(401).json({ error: "This account has been deactivated. Contact your administrator." });
+  }
 
   res.json({
     token: issueToken(user),
