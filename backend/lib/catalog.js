@@ -51,6 +51,8 @@ export const CATEGORIES = [
       E("supplier.tender_invited", "Invited to tender", "info", "email inapp push", "ETABLIX — invitation to tender: {{item}}", "{{company}} is invited to tender for the package: {{item}}. The enquiry pack and return date are attached.", { a: "supplier" }),
       E("supplier.bid_received", "Bid received", "info", "inapp", "Bid received — {{company}} for {{item}}", "A tender return has been received from {{company}} for {{item}}.", {}),
       E("supplier.bid_outcome", "Bid outcome", "info", "email inapp", "ETABLIX — tender outcome for {{item}}", "The tender for {{item}} has concluded. The outcome for your submission is: {{outcome}}. Thank you for the quality of your return.", { a: "supplier" }),
+      E("supplier.message", "Direct message to suppliers", "info", "email", "ETABLIX — {{subject}}", "{{message}}", { a: "supplier" }),
+      E("supplier.message.sent", "Supplier message dispatched", "info", "inapp", "Message sent to {{value}} suppliers — {{subject}}", "{{actor}} sent \"{{subject}}\" to {{value}} suppliers ({{outcome}}).", {}),
     ],
   },
   {

@@ -101,10 +101,10 @@ export function renderEvent(code, vars = {}, { greeting, detailsText } = {}) {
   return { subject, text, html, event: ev };
 }
 
-async function sendEmail(to, subject, text, html) {
+async function sendEmail(to, subject, text, html, attachments) {
   if (transport) {
     try {
-      await transport.sendMail({ from: FROM, to, subject, text, html, replyTo: TO_INTERNAL });
+      await transport.sendMail({ from: FROM, to, subject, text, html, replyTo: TO_INTERNAL, attachments });
       return { status: "sent", provider: "smtp" };
     } catch (err) {
       console.error("Email delivery failed, writing to outbox:", err.message);
@@ -126,14 +126,14 @@ function appendOutbox(to, subject, text) {
  *   emit("supplier.approved", { email, greeting, vars, detailsText, test })
  * email: external recipient (omit → internal address). greeting: "Dear X,".
  */
-export async function emit(code, { email, greeting, vars = {}, detailsText, test = false } = {}) {
+export async function emit(code, { email, greeting, vars = {}, detailsText, test = false, attachments } = {}) {
   const { subject, text, html, event } = renderEvent(code, vars, { greeting, detailsText });
   const results = [];
 
   for (const channel of event.channels) {
     if (channel === "email") {
       const to = email || TO_INTERNAL;
-      const r = await sendEmail(to, subject, text, html);
+      const r = await sendEmail(to, subject, text, html, attachments);
       results.push({ channel, to, ...r });
     } else if (channel === "inapp") {
       insert("notifications", {

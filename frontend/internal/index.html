@@ -38,6 +38,7 @@
   <nav class="tabs" id="tabs" style="padding:0;background:transparent;border-bottom:1px solid var(--line);margin-bottom:20px;">
     <button data-panel="enquiries" class="active">Project enquiries</button>
     <button data-panel="applications">Supplier applications</button>
+    <button data-panel="suppliers">Suppliers</button>
     <button data-panel="construx">CONSTRUX · Projects</button>
     <button data-panel="veryx">VERYX · Risk &amp; agents</button>
     <button data-panel="comms" id="comms-tab" hidden>Communications</button>
@@ -67,6 +68,41 @@
         </thead>
         <tbody></tbody>
       </table>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-suppliers">
+    <div class="panel-title">Supplier directory</div>
+    <div class="panel-sub">Your working supply chain — approved and prequalified suppliers. Filter by requirement and location, select, and send a branded message to everyone selected in one click, with attachments if needed. Every send is individually addressed and recorded in the deliveries log.</div>
+    <div class="team-form" style="margin-bottom:16px;">
+      <select id="sup-filter-status">
+        <option value="usable">Approved + prequalified</option>
+        <option value="approved">Approved only</option>
+        <option value="prequalified">Prequalified only</option>
+        <option value="all">All registrations</option>
+      </select>
+      <select id="sup-filter-capability"><option value="">All requirements</option></select>
+      <input id="sup-filter-location" placeholder="Location / territory contains…">
+    </div>
+    <div class="table-wrap" style="margin-bottom:22px;">
+      <table id="suppliers-table">
+        <thead><tr><th style="width:34px;"><input type="checkbox" id="sup-select-all" title="Select all shown"></th><th>Company</th><th>Requirement</th><th>Location / territories</th><th>Contact</th><th>Status</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="section-block">
+      <h3>Message selected suppliers <span class="muted" id="sup-selected-count" style="font-weight:400;">· 0 selected</span></h3>
+      <form id="sup-message-form">
+        <div class="team-form" style="margin-bottom:10px;">
+          <input name="subject" required minlength="3" placeholder="Subject — e.g. Tender opportunity: welfare compound, North East England" style="flex:2;">
+        </div>
+        <textarea name="message" required minlength="10" placeholder="Your message. Each supplier receives an individually addressed, ETABLIX-branded email — recipients never see each other." style="width:100%;min-height:110px;padding:12px 14px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;font-size:0.93rem;margin-bottom:10px;"></textarea>
+        <div class="team-form">
+          <input type="file" name="documents" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" style="border-style:dashed;">
+          <button class="btn-block" type="submit" style="width:auto;padding:12px 24px;">Send to selected</button>
+        </div>
+        <div class="login-error" id="sup-message-error" style="margin-top:12px;"></div>
+      </form>
     </div>
   </section>
 

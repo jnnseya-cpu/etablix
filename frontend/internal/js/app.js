@@ -1,7 +1,7 @@
 /* ETABLIX Control Desk — commercial intake: project enquiries and
    supplier applications, with search, documents and status control. */
 
-import { LEAD_STATUS, APPLICATION_STATUS } from "/shared/constants.js";
+import { LEAD_STATUS, APPLICATION_STATUS, CAPABILITIES } from "/shared/constants.js";
 
 const token = sessionStorage.getItem("etablix.token");
 const user = JSON.parse(sessionStorage.getItem("etablix.user") || "null");
@@ -82,7 +82,7 @@ document.getElementById("logout").addEventListener("click", () => {
 
 const tabs = document.getElementById("tabs");
 const loaded = new Set();
-const lazyLoaders = { construx: loadConstrux, veryx: loadVeryx, team: loadTeam, comms: loadComms };
+const lazyLoaders = { construx: loadConstrux, veryx: loadVeryx, team: loadTeam, comms: loadComms, suppliers: loadSuppliers };
 
 tabs.addEventListener("click", (e) => {
   const btn = e.target.closest("button[data-panel]");
@@ -307,6 +307,125 @@ document.addEventListener("click", async (e) => {
     alert(err.message);
     btn.disabled = false;
     btn.textContent = "Run now";
+  }
+});
+
+// ---------- Supplier directory + one-click broadcast ----------
+
+let supplierRows = [];
+const supSelected = new Set();
+
+function supplierFilters() {
+  return {
+    status: document.getElementById("sup-filter-status").value,
+    capability: document.getElementById("sup-filter-capability").value,
+    location: document.getElementById("sup-filter-location").value.trim().toLowerCase(),
+  };
+}
+
+function filteredSuppliers() {
+  const f = supplierFilters();
+  return supplierRows.filter((s) => {
+    if (f.status === "usable" && !["approved", "prequalified"].includes(s.status)) return false;
+    if (f.status === "approved" && s.status !== "approved") return false;
+    if (f.status === "prequalified" && s.status !== "prequalified") return false;
+    if (f.capability && s.capability !== f.capability) return false;
+    if (f.location && !`${s.territories || ""}`.toLowerCase().includes(f.location)) return false;
+    return true;
+  });
+}
+
+function renderSuppliers() {
+  const rows = filteredSuppliers();
+  const shownIds = new Set(rows.map((r) => r.id));
+  for (const id of [...supSelected]) if (!shownIds.has(id)) supSelected.delete(id);
+  document.querySelector("#suppliers-table tbody").innerHTML = rows.length
+    ? rows
+        .map(
+          (s) => `<tr>
+          <td><input type="checkbox" data-sup="${s.id}" ${supSelected.has(s.id) ? "checked" : ""}></td>
+          <td><b>${esc(s.legalName)}</b>${s.tradingName ? `<div class="muted">t/a ${esc(s.tradingName)}</div>` : ""}</td>
+          <td>${esc(s.capability || "—")}</td>
+          <td>${esc(s.territories || "—")}</td>
+          <td>${esc(s.contact)}<div class="muted">${esc(s.email)}</div></td>
+          <td><span class="pill ${s.status === "approved" ? "approved" : s.status === "prequalified" ? "prequalified" : ""}">${esc(String(s.status).replace(/_/g, " "))}</span></td>
+        </tr>`
+        )
+        .join("")
+    : '<tr><td colspan="6" class="empty-note">No suppliers match these filters yet — approved and prequalified registrations appear here.</td></tr>';
+  document.getElementById("sup-selected-count").textContent = `· ${supSelected.size} selected`;
+  document.getElementById("sup-select-all").checked = rows.length > 0 && rows.every((r) => supSelected.has(r.id));
+}
+
+async function loadSuppliers() {
+  const capSelect = document.getElementById("sup-filter-capability");
+  if (capSelect.options.length <= 1) {
+    capSelect.innerHTML =
+      '<option value="">All requirements</option>' +
+      CAPABILITIES.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+  }
+  const { applications } = await api("/api/subcontractors");
+  supplierRows = applications;
+  renderSuppliers();
+}
+
+["sup-filter-status", "sup-filter-capability"].forEach((id) =>
+  document.getElementById(id)?.addEventListener("change", renderSuppliers)
+);
+document.getElementById("sup-filter-location")?.addEventListener("input", renderSuppliers);
+
+document.addEventListener("change", (e) => {
+  const cb = e.target.closest('input[data-sup]');
+  if (cb) {
+    cb.checked ? supSelected.add(cb.dataset.sup) : supSelected.delete(cb.dataset.sup);
+    renderSuppliers();
+    return;
+  }
+  if (e.target.id === "sup-select-all") {
+    const rows = filteredSuppliers();
+    if (e.target.checked) rows.forEach((r) => supSelected.add(r.id));
+    else rows.forEach((r) => supSelected.delete(r.id));
+    renderSuppliers();
+  }
+});
+
+document.getElementById("sup-message-form")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const errEl = document.getElementById("sup-message-error");
+  errEl.classList.remove("show");
+  if (!supSelected.size) {
+    errEl.textContent = "Select at least one supplier in the table above.";
+    errEl.classList.add("show");
+    return;
+  }
+  const form = e.target;
+  const btn = form.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  btn.textContent = "Sending…";
+  try {
+    const fd = new FormData();
+    fd.append("subject", form.subject.value);
+    fd.append("message", form.message.value);
+    fd.append("ids", JSON.stringify([...supSelected]));
+    for (const file of form.documents.files) fd.append("documents", file);
+    const res = await fetch("/api/subcontractors/broadcast", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: fd,
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body.error || `Request failed (${res.status})`);
+    alert(`Message sent to ${body.sent} of ${body.recipients} supplier(s)${body.attachments ? ` with ${body.attachments} attachment(s)` : ""}.`);
+    form.reset();
+    supSelected.clear();
+    renderSuppliers();
+    refreshBell();
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.classList.add("show");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Send to selected";
   }
 });
 
