@@ -25,21 +25,83 @@ const LIVE = { mode: "live", platform: "veryxjnn.com" };
 const WORKSPACE = { mode: "workspace" };
 
 /**
- * Fetch from the platform when connected; otherwise (or on failure, or if
- * the response shape is not what we expect) fall back to workspace data —
- * a surprising live payload must never break the Control Desk.
+ * Adaptive extraction — real platform responses vary in envelope and
+ * field naming, so find the payload wherever it lives and normalise the
+ * fields the Control Desk renders. A payload we truly cannot read falls
+ * back to workspace data; it must never break the Control Desk.
  */
-async function fromPlatform(path, fallback, validate = Array.isArray) {
+function firstArray(obj, names = [], depth = 0) {
+  if (Array.isArray(obj)) return obj;
+  if (!obj || typeof obj !== "object" || depth > 2) return null;
+  for (const k of [...names, "data", "items", "results", "rows", "list"]) {
+    if (Array.isArray(obj[k])) return obj[k];
+  }
+  for (const k of [...names, "data", "items", "results"]) {
+    if (obj[k] && typeof obj[k] === "object") {
+      const inner = firstArray(obj[k], names, depth + 1);
+      if (inner) return inner;
+    }
+  }
+  return null;
+}
+
+const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : null);
+
+const normRisk = (r, i) => {
+  const probability = num(r.probability ?? r.likelihood ?? r.prob);
+  const impact = num(r.impact ?? r.consequence ?? r.severity_score);
+  return {
+    ref: r.ref || r.reference || r.code || (r.id ? `RSK-${String(r.id).slice(0, 6).toUpperCase()}` : `RSK-${i + 1}`),
+    title: r.title || r.name || r.summary || r.description || "Untitled risk",
+    category: r.category || r.type || "—",
+    probability: probability ?? "—",
+    impact: impact ?? "—",
+    score: num(r.score ?? r.riskScore ?? r.risk_score) ?? (probability && impact ? probability * impact : 0),
+    status: r.status || r.state || "open",
+    mitigation: r.mitigation || r.mitigationPlan || r.mitigation_plan || r.response || "",
+    owner: r.owner || r.ownerName || r.owner_name || r.assignee || "—",
+  };
+};
+
+const normAgent = (a, i) => ({
+  type: a.type || a.slug || a.code || String(a.id ?? `agent-${i + 1}`),
+  name: a.name || a.title || a.type || `Agent ${i + 1}`,
+  description: a.description || a.summary || a.about || "",
+  acuCost: num(a.acuCost ?? a.acu_cost ?? a.cost ?? a.acu) ?? "—",
+});
+
+const normUsage = (u) => ({
+  workspace: u.workspace || u.workspaceName || u.workspace_name || "VERYX workspace",
+  env: u.env || u.environment || "live",
+  scopes: Array.isArray(u.scopes) ? u.scopes : [],
+  monthlyQuota: num(u.monthlyQuota ?? u.monthly_quota ?? u.quota) ?? 0,
+  used: num(u.used ?? u.callsUsed ?? u.calls_used ?? u.usage) ?? 0,
+  acuBalance: num(u.acuBalance ?? u.acu_balance ?? u.acu) ?? 0,
+});
+
+async function fromPlatform(path, fallback, extract) {
   if (!isConnected("veryx")) return { source: WORKSPACE, value: fallback() };
   try {
     const body = await platformFetch("veryx", path);
-    const value = body?.data ?? body;
-    if (!validate(value)) throw new Error("unexpected response shape");
+    const value = extract(body);
+    if (value == null) {
+      const keys = body && typeof body === "object" ? Object.keys(body).slice(0, 6).join(", ") : typeof body;
+      throw new Error(`unexpected response shape (top-level: ${keys})`);
+    }
     return { source: LIVE, value };
   } catch (err) {
     return { source: { ...WORKSPACE, note: `Live fetch failed: ${err.message}` }, value: fallback() };
   }
 }
+
+const extractRisks = (p) => {
+  const arr = firstArray(p, ["risks"]);
+  return arr ? arr.map(normRisk) : null;
+};
+const extractAgents = (p) => {
+  const arr = firstArray(p, ["agents"]);
+  return arr ? arr.map(normAgent) : null;
+};
 
 /** Route async handlers through a catch so a failure returns JSON, never a crash. */
 const safe = (fn) => (req, res) =>
@@ -56,15 +118,17 @@ router.get("/link", (req, res) => {
 
 /** GET /api/veryx/risks — risk register, highest score first. */
 router.get("/risks", safe(async (req, res) => {
-  const { source, value } = await fromPlatform("/risks", () =>
-    [...collection("risks")].sort((a, b) => b.score - a.score)
+  const { source, value } = await fromPlatform(
+    "/risks",
+    () => [...collection("risks")].sort((a, b) => b.score - a.score),
+    extractRisks
   );
-  res.json({ source, risks: value });
+  res.json({ source, risks: [...value].sort((a, b) => (b.score || 0) - (a.score || 0)) });
 }));
 
 /** GET /api/veryx/agents — AI agent catalogue with ACU cost. */
 router.get("/agents", safe(async (req, res) => {
-  const { source, value } = await fromPlatform("/agents", () => collection("agents"));
+  const { source, value } = await fromPlatform("/agents", () => collection("agents"), extractAgents);
   // Run history is always the local audit trail, whichever source ran the agent.
   res.json({ source, agents: value, runs: collection("agentRuns") });
 }));
@@ -111,22 +175,12 @@ router.get("/usage", safe(async (req, res) => {
   if (isConnected("veryx")) {
     try {
       const body = await platformFetch("veryx", "/usage");
-      const u = body.data || {};
+      const raw = body?.data && typeof body.data === "object" ? body.data : body || {};
+      const u = normUsage(raw.usage && typeof raw.usage === "object" ? raw.usage : raw);
       const { keyPreview } = publicIntegration("veryx");
       return res.json({
         source: LIVE,
-        keys: [
-          {
-            id: "live",
-            keyPreview: keyPreview || "vx_…",
-            workspace: u.workspace || "VERYX workspace",
-            env: u.env || "live",
-            scopes: u.scopes || [],
-            monthlyQuota: u.monthlyQuota ?? 0,
-            used: u.used ?? 0,
-            acuBalance: u.acuBalance ?? 0,
-          },
-        ],
+        keys: [{ id: "live", keyPreview: keyPreview || "vx_…", ...u }],
       });
     } catch (err) {
       // fall through to workspace keys below
@@ -147,14 +201,16 @@ router.get("/usage", safe(async (req, res) => {
 
 /** GET /api/veryx/summary — OS KPIs for the dashboard. */
 router.get("/summary", safe(async (req, res) => {
-  const { source, value: risks } = await fromPlatform("/risks", () => collection("risks"));
+  const { source, value: risks } = await fromPlatform("/risks", () => collection("risks"), extractRisks);
   let acuBalance;
   let apiCallsUsed;
   if (source.mode === "live") {
     try {
-      const usage = (await platformFetch("veryx", "/usage")).data || {};
-      acuBalance = usage.acuBalance ?? 0;
-      apiCallsUsed = usage.used ?? 0;
+      const body = await platformFetch("veryx", "/usage");
+      const raw = body?.data && typeof body.data === "object" ? body.data : body || {};
+      const usage = normUsage(raw.usage && typeof raw.usage === "object" ? raw.usage : raw);
+      acuBalance = usage.acuBalance;
+      apiCallsUsed = usage.used;
     } catch {
       acuBalance = 0;
       apiCallsUsed = 0;
