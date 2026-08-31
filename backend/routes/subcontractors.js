@@ -2,7 +2,7 @@ import { Router } from "express";
 import { collection, insert, update } from "../lib/store.js";
 import { requireAuth } from "../middleware/auth.js";
 import { acceptDocuments, describeFiles } from "../lib/uploads.js";
-import { notifyApplication } from "../lib/notify.js";
+import { notifyApplication, acknowledgeApplication, notifyApplicationStatus } from "../lib/notify.js";
 import { validateSubcontractorApplication } from "../../shared/validation.js";
 import { APPLICATION_STATUS } from "../../shared/constants.js";
 
@@ -18,6 +18,7 @@ router.post("/", acceptDocuments, (req, res) => {
     status: "submitted",
   });
   notifyApplication(application);
+  acknowledgeApplication(application);
   res.status(201).json({ id: application.id, message: "Application received." });
 });
 
@@ -37,8 +38,11 @@ router.patch("/:id", requireAuth, (req, res) => {
       .status(400)
       .json({ error: `Status must be one of: ${APPLICATION_STATUS.join(", ")}` });
   }
+  const existing = collection("subcontractors").find((a) => a.id === req.params.id);
+  if (!existing) return res.status(404).json({ error: "Application not found." });
+  const changed = existing.status !== status;
   const application = update("subcontractors", req.params.id, { status });
-  if (!application) return res.status(404).json({ error: "Application not found." });
+  if (changed) notifyApplicationStatus(application); // emails the supplier their outcome
   res.json({ application });
 });
 

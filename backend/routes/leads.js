@@ -2,7 +2,7 @@ import { Router } from "express";
 import { collection, insert, update } from "../lib/store.js";
 import { requireAuth } from "../middleware/auth.js";
 import { acceptDocuments, describeFiles } from "../lib/uploads.js";
-import { notifyLead } from "../lib/notify.js";
+import { notifyLead, acknowledgeLead } from "../lib/notify.js";
 import { validateLead } from "../../shared/validation.js";
 import { LEAD_STATUS } from "../../shared/constants.js";
 
@@ -18,6 +18,7 @@ router.post("/", acceptDocuments, (req, res) => {
     status: "new",
   });
   notifyLead(lead);
+  acknowledgeLead(lead);
   res.status(201).json({ id: lead.id, message: "Enquiry received." });
 });
 
