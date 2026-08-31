@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMax slice">
+  <defs>
+    <linearGradient id="gsky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#101317"/>
+      <stop offset="0.55" stop-color="#232628"/>
+      <stop offset="0.8" stop-color="#6b5a33"/>
+      <stop offset="1" stop-color="#a98a45"/>
+    </linearGradient>
+    <radialGradient id="gsun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#f0d9a2" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#f0d9a2" stop-opacity="0"/>
+    </radialGradient>
+    <g id="gpylon" stroke="#0d0f12" fill="none" stroke-width="5">
+      <path d="M-50 0 L-12 -220 L12 -220 L50 0"/>
+      <path d="M-12 -220 L-7 -280 L7 -280 L12 -220"/>
+      <path d="M-40 -50 L40 -50 M-32 -110 L32 -110 M-22 -170 L22 -170"/>
+      <path d="M-40 -50 L32 -110 M40 -50 L-32 -110 M-32 -110 L22 -170 M32 -110 L-22 -170"/>
+      <path d="M-76 -170 L-22 -170 M22 -170 L76 -170" stroke-width="6"/>
+      <path d="M-76 -170 l0 22 M76 -170 l0 22" stroke-width="4"/>
+      <path d="M-58 -205 L-12 -205 M12 -205 L58 -205" stroke-width="5"/>
+      <path d="M-58 -205 l0 18 M58 -205 l0 18" stroke-width="4"/>
+    </g>
+  </defs>
+  <rect width="1200" height="700" fill="url(#gsky)"/>
+  <ellipse cx="840" cy="560" rx="360" ry="200" fill="url(#gsun)"/>
+  <g fill="#14171b" opacity="0.5">
+    <ellipse cx="300" cy="180" rx="300" ry="18"/>
+    <ellipse cx="900" cy="120" rx="260" ry="14"/>
+  </g>
+  <!-- Substation gantry structure -->
+  <g stroke="#0d0f12" stroke-width="7" fill="none">
+    <path d="M140 620 L140 340 M340 620 L340 340 M540 620 L540 340"/>
+    <path d="M110 340 L570 340" stroke-width="9"/>
+    <path d="M140 380 L340 340 M340 380 L140 340 M340 380 L540 340 M540 380 L340 340"/>
+    <path d="M140 420 L340 380 M340 420 L140 380 M340 420 L540 380 M540 420 L340 380" stroke-width="5"/>
+  </g>
+  <!-- Insulator strings + conductors -->
+  <g stroke="#0d0f12" stroke-width="4" fill="none">
+    <path d="M190 340 l0 46 M290 340 l0 46 M390 340 l0 46 M490 340 l0 46"/>
+    <path d="M190 386 C 320 470 420 470 490 386"/>
+    <path d="M190 386 C 90 470 40 500 -20 520"/>
+  </g>
+  <g fill="#0d0f12">
+    <circle cx="190" cy="390" r="7"/><circle cx="290" cy="390" r="7"/><circle cx="390" cy="390" r="7"/><circle cx="490" cy="390" r="7"/>
+  </g>
+  <!-- Transformer block -->
+  <g fill="#101317">
+    <rect x="640" y="500" width="180" height="120" rx="6"/>
+    <rect x="660" y="460" width="20" height="46" rx="8"/>
+    <rect x="700" y="450" width="20" height="56" rx="8"/>
+    <rect x="740" y="460" width="20" height="46" rx="8"/>
+    <rect x="828" y="540" width="80" height="80" rx="4" opacity="0.9"/>
+  </g>
+  <!-- Pylon line to horizon -->
+  <use href="#gpylon" transform="translate(1060,620) scale(1.0)"/>
+  <use href="#gpylon" transform="translate(940,610) scale(0.72)"/>
+  <use href="#gpylon" transform="translate(860,602) scale(0.5)"/>
+  <path d="M1010 400 C 960 440 950 440 923 452 M1108 400 C 1050 450 1010 460 975 465" stroke="#0d0f12" stroke-width="3" fill="none" opacity="0.8"/>
+  <!-- Ground -->
+  <rect x="0" y="618" width="1200" height="82" fill="#0b0d10"/>
+  <!-- Engineer figures with drawing -->
+  <g transform="translate(600,648)">
+    <path d="M0 0 l0 -30 M0 -30 a6 6 0 1 1 0.1 0 M-7 -12 l14 -4" stroke="#07080a" stroke-width="8" fill="none"/>
+    <rect x="-7" y="-27" width="14" height="12" fill="#9c7a3c" opacity="0.9"/>
+  </g>
+  <g transform="translate(646,652) scale(0.94)">
+    <path d="M0 0 l0 -30 M0 -30 a6 6 0 1 1 0.1 0 M-8 -14 l16 0" stroke="#07080a" stroke-width="8" fill="none"/>
+    <rect x="-7" y="-27" width="14" height="12" fill="#b08d4a" opacity="0.9"/>
+    <rect x="6" y="-18" width="18" height="12" fill="#e8e0cc" opacity="0.85" transform="rotate(-8 6 -18)"/>
+  </g>
+  <radialGradient id="gvig" cx="0.5" cy="0.4" r="0.9">
+    <stop offset="0.6" stop-color="#000" stop-opacity="0"/>
+    <stop offset="1" stop-color="#000" stop-opacity="0.5"/>
+  </radialGradient>
+  <rect width="1200" height="700" fill="url(#gvig)"/>
+</svg>

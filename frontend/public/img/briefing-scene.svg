@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMax slice">
+  <defs>
+    <linearGradient id="bsky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#15171a"/>
+      <stop offset="0.6" stop-color="#2a2c2e"/>
+      <stop offset="0.85" stop-color="#7a6337"/>
+      <stop offset="1" stop-color="#b1904a"/>
+    </linearGradient>
+    <radialGradient id="bglow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#f3ddab" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="#f3ddab" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="700" fill="url(#bsky)"/>
+  <ellipse cx="900" cy="600" rx="420" ry="220" fill="url(#bglow)"/>
+  <!-- crane silhouette background -->
+  <g stroke="#101214" fill="#101214">
+    <rect x="838" y="180" width="12" height="380" fill="none" stroke-width="7"/>
+    <path d="M838 200 L850 220 M850 200 L838 220 M838 240 L850 260 M850 240 L838 260 M838 280 L850 300 M850 280 L838 300 M838 320 L850 340 M850 320 L838 340 M838 360 L850 380 M850 360 L838 380 M838 400 L850 420 M850 400 L838 420 M838 440 L850 460 M850 440 L838 460 M838 480 L850 500 M850 480 L838 500 M838 520 L850 540 M850 520 L838 540" stroke-width="3" fill="none"/>
+    <path d="M700 172 L844 172 L1120 172" stroke-width="8" fill="none"/>
+    <path d="M844 120 L844 172 M844 120 L700 172 M844 120 L940 172 M844 120 L1030 172 M844 120 L1120 172" stroke-width="4" fill="none"/>
+    <path d="M700 172 l0 22 M736 172 l0 16" stroke-width="4" fill="none"/>
+    <path d="M1040 172 l0 110" stroke-width="3" fill="none"/>
+    <rect x="1030" y="282" width="20" height="22" stroke-width="0"/>
+  </g>
+  <!-- site office cabin -->
+  <g>
+    <rect x="60" y="420" width="330" height="150" fill="#0e1013"/>
+    <rect x="60" y="420" width="330" height="6" fill="#1f2225"/>
+    <g fill="#f2cf85">
+      <rect x="84" y="450" width="60" height="44" opacity="0.95"/>
+      <rect x="162" y="450" width="60" height="44" opacity="0.8"/>
+      <rect x="240" y="450" width="60" height="44" opacity="0.9"/>
+    </g>
+    <rect x="318" y="450" width="42" height="120" fill="#f6dfa2" opacity="0.9"/>
+    <path d="M40 570 L410 570" stroke="#0a0c0e" stroke-width="6"/>
+  </g>
+  <!-- plan table with three figures -->
+  <g transform="translate(560,610)">
+    <rect x="-110" y="-58" width="220" height="10" fill="#0b0d0f"/>
+    <path d="M-96 -48 l-8 48 M96 -48 l8 48 M-60 -48 l-4 48 M60 -48 l4 48" stroke="#0b0d0f" stroke-width="7"/>
+    <rect x="-92" y="-66" width="184" height="10" fill="#e9dfc4" opacity="0.92"/>
+    <path d="M-70 -61 l30 0 M-20 -61 l44 0 M40 -61 l30 0" stroke="#9c7a3c" stroke-width="2.5" opacity="0.8"/>
+    <!-- figures -->
+    <g stroke="#0a0c0e" stroke-width="10" fill="none">
+      <path d="M-140 0 l0 -46 M-140 -46 a8 8 0 1 1 0.1 0 M-140 -30 l24 -14"/>
+      <path d="M0 4 l0 -50 M0 -50 a8 8 0 1 1 0.1 0 M-12 -26 l24 0"/>
+      <path d="M142 0 l0 -46 M142 -46 a8 8 0 1 1 0.1 0 M142 -30 l-26 -12"/>
+    </g>
+    <rect x="-149" y="-42" width="18" height="16" fill="#a8824a" opacity="0.9"/>
+    <rect x="-9" y="-46" width="18" height="16" fill="#8f7440" opacity="0.9"/>
+    <rect x="133" y="-42" width="18" height="16" fill="#b8934e" opacity="0.9"/>
+  </g>
+  <!-- ground -->
+  <rect x="0" y="640" width="1200" height="60" fill="#08090b"/>
+  <radialGradient id="bvig" cx="0.5" cy="0.42" r="0.9">
+    <stop offset="0.6" stop-color="#000" stop-opacity="0"/>
+    <stop offset="1" stop-color="#000" stop-opacity="0.5"/>
+  </radialGradient>
+  <rect width="1200" height="700" fill="url(#bvig)"/>
+</svg>

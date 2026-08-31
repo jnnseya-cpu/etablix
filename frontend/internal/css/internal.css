@@ -6,9 +6,9 @@
   --ink-3: #2a323d;
   --paper: #f4f5f7;
   --white: #ffffff;
-  --orange: #f26a1b;
-  --orange-dark: #d4550c;
-  --amber: #ffb020;
+  --orange: #9c7a3c;
+  --orange-dark: #7c6130;
+  --amber: #c9a96a;
   --slate: #5b6672;
   --slate-light: #97a1ac;
   --line: #e3e6ea;
@@ -42,8 +42,8 @@ button { font-family: inherit; cursor: pointer; }
   padding: 24px;
   background:
     linear-gradient(115deg, rgba(20,24,29,0.96) 40%, rgba(20,24,29,0.85)),
-    repeating-linear-gradient(0deg, transparent, transparent 47px, rgba(242,106,27,0.1) 47px, rgba(242,106,27,0.1) 48px),
-    repeating-linear-gradient(90deg, transparent, transparent 47px, rgba(242,106,27,0.1) 47px, rgba(242,106,27,0.1) 48px),
+    repeating-linear-gradient(0deg, transparent, transparent 47px, rgba(156,122,60,0.1) 47px, rgba(156,122,60,0.1) 48px),
+    repeating-linear-gradient(90deg, transparent, transparent 47px, rgba(156,122,60,0.1) 47px, rgba(156,122,60,0.1) 48px),
     #1d232b;
 }
 
@@ -148,7 +148,7 @@ button { font-family: inherit; cursor: pointer; }
 .topbar .brand-block { display: flex; align-items: center; gap: 12px; }
 .topbar .desk-label {
   font-family: var(--font-head); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.18em;
-  text-transform: uppercase; color: var(--amber); border: 1px solid rgba(255,176,32,0.4);
+  text-transform: uppercase; color: var(--amber); border: 1px solid rgba(201,169,106,0.4);
   padding: 3px 10px; border-radius: 100px; white-space: nowrap;
 }
 .topbar .desk-strap {
@@ -246,12 +246,12 @@ tbody tr:hover { background: #fafbfc; }
   letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 10px; border-radius: 100px;
   background: #eef0f3; color: var(--slate);
 }
-.pill.new, .pill.submitted, .pill.scheduled, .pill.mobilization { background: rgba(255,176,32,0.18); color: #a86e00; }
+.pill.new, .pill.submitted, .pill.scheduled, .pill.mobilization { background: rgba(201,169,106,0.18); color: #a86e00; }
 .pill.contacted, .pill.under_review, .pill.in_progress { background: rgba(59,130,246,0.14); color: #1d4ed8; }
 .pill.qualified, .pill.prequalified, .pill.curing, .pill.closeout { background: rgba(139,92,246,0.14); color: #6d28d9; }
 .pill.won, .pill.approved, .pill.passed, .pill.ok, .pill.closed, .pill.completed, .pill.answered { background: rgba(31,157,97,0.15); color: var(--success); }
 .pill.lost, .pill.declined, .pill.failed, .pill.alert, .pill.open, .pill.critical { background: rgba(192,57,43,0.12); color: var(--danger); }
-.pill.major { background: rgba(242,106,27,0.15); color: var(--orange-dark); }
+.pill.major { background: rgba(156,122,60,0.15); color: var(--orange-dark); }
 .pill.minor { background: #eef0f3; color: var(--slate); }
 
 td select {

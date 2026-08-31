@@ -2,6 +2,7 @@ import { Router } from "express";
 import { collection, insert, update } from "../lib/store.js";
 import { requireAuth } from "../middleware/auth.js";
 import { acceptDocuments, describeFiles } from "../lib/uploads.js";
+import { notifyApplication } from "../lib/notify.js";
 import { validateSubcontractorApplication } from "../../shared/validation.js";
 import { APPLICATION_STATUS } from "../../shared/constants.js";
 
@@ -16,6 +17,7 @@ router.post("/", acceptDocuments, (req, res) => {
     documents: describeFiles(req.files),
     status: "submitted",
   });
+  notifyApplication(application);
   res.status(201).json({ id: application.id, message: "Application received." });
 });
 

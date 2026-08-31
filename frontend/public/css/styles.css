@@ -4,18 +4,21 @@
    ============================================================ */
 
 :root {
-  --ink: #14181d;
-  --ink-2: #1d232b;
-  --ink-3: #2a323d;
-  --paper: #f7f6f2;
-  --white: #ffffff;
-  --orange: #f26a1b;
-  --orange-dark: #d4550c;
-  --amber: #ffb020;
-  --slate: #5b6672;
-  --slate-light: #97a1ac;
-  --line: #e4e1da;
-  --line-dark: #333c47;
+  /* ETABLIX system: premium charcoal, stone and bronze.
+     The logo mark carries the deep-green + gold identity. */
+  --ink: #191a1c;           /* charcoal */
+  --ink-2: #222427;
+  --ink-3: #2e3134;
+  --paper: #f4f1ea;         /* stone */
+  --white: #fdfcf9;
+  --orange: #9c7a3c;        /* bronze (primary accent) */
+  --orange-dark: #7c6130;   /* deep bronze */
+  --amber: #c9a96a;         /* light bronze */
+  --green: #0f3d2e;         /* logo deep green */
+  --slate: #635f56;
+  --slate-light: #98948a;
+  --line: #e2ddd0;
+  --line-dark: #3b3e42;
   --success: #1f9d61;
   --radius: 10px;
   --shadow: 0 12px 32px rgba(20, 24, 29, 0.10);
@@ -149,10 +152,10 @@ h3 { font-size: 1.28rem; }
 .btn:hover { transform: translateY(-2px); }
 
 .btn-primary {
-  background: var(--orange);
-  color: var(--white);
+  background: linear-gradient(160deg, #ddb84a, var(--orange) 55%, var(--orange-dark));
+  color: #14200f;
 }
-.btn-primary:hover { background: var(--orange-dark); }
+.btn-primary:hover { background: var(--orange-dark); color: #fff; }
 
 .btn-outline {
   border-color: var(--ink);
@@ -204,12 +207,27 @@ h3 { font-size: 1.28rem; }
   gap: 10px;
 }
 .logo .logo-mark {
-  width: 34px;
-  height: 34px;
-  background: var(--orange);
-  clip-path: polygon(0 100%, 0 35%, 50% 0, 100% 35%, 100% 100%, 65% 100%, 65% 60%, 35% 60%, 35% 100%);
+  width: 38px;
+  height: 38px;
+  display: block;
+  border-radius: 8px;
 }
-.logo span { color: var(--orange); }
+.logo .logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  color: inherit;
+}
+.logo .logo-text small {
+  font-family: var(--font-head);
+  font-size: 0.53rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-top: 4px;
+  white-space: nowrap;
+}
 
 .main-nav {
   display: flex;
@@ -228,13 +246,13 @@ h3 { font-size: 1.28rem; }
 .main-nav a.active { color: var(--orange); }
 .main-nav .nav-cta {
   margin-left: 10px;
-  background: var(--orange);
-  color: var(--white);
+  background: linear-gradient(160deg, #ddb84a, var(--orange) 55%, var(--orange-dark));
+  color: #14200f;
   font-family: var(--font-head);
   font-weight: 700;
   padding: 11px 22px;
 }
-.main-nav .nav-cta:hover { background: var(--orange-dark); }
+.main-nav .nav-cta:hover { background: var(--orange-dark); color: #fff; }
 
 .nav-toggle {
   display: none;
@@ -262,8 +280,8 @@ h3 { font-size: 1.28rem; }
   position: relative;
   background:
     linear-gradient(115deg, rgba(20, 24, 29, 0.97) 38%, rgba(20, 24, 29, 0.72)),
-    repeating-linear-gradient(0deg, transparent, transparent 47px, rgba(242, 106, 27, 0.10) 47px, rgba(242, 106, 27, 0.10) 48px),
-    repeating-linear-gradient(90deg, transparent, transparent 47px, rgba(242, 106, 27, 0.10) 47px, rgba(242, 106, 27, 0.10) 48px),
+    repeating-linear-gradient(0deg, transparent, transparent 47px, rgba(156, 122, 60, 0.10) 47px, rgba(156, 122, 60, 0.10) 48px),
+    repeating-linear-gradient(90deg, transparent, transparent 47px, rgba(156, 122, 60, 0.10) 47px, rgba(156, 122, 60, 0.10) 48px),
     var(--ink-2);
   color: var(--white);
   overflow: hidden;
@@ -327,7 +345,7 @@ h3 { font-size: 1.28rem; }
 .page-hero {
   background:
     linear-gradient(115deg, rgba(20, 24, 29, 0.97) 45%, rgba(20, 24, 29, 0.8)),
-    repeating-linear-gradient(45deg, transparent, transparent 34px, rgba(242, 106, 27, 0.08) 34px, rgba(242, 106, 27, 0.08) 36px),
+    repeating-linear-gradient(45deg, transparent, transparent 34px, rgba(156, 122, 60, 0.08) 34px, rgba(156, 122, 60, 0.08) 36px),
     var(--ink-2);
   color: var(--white);
   padding: 88px 0 72px;
@@ -361,7 +379,7 @@ h3 { font-size: 1.28rem; }
   width: 52px;
   height: 52px;
   border-radius: 8px;
-  background: rgba(242, 106, 27, 0.1);
+  background: rgba(156, 122, 60, 0.1);
   color: var(--orange);
   display: flex;
   align-items: center;
@@ -470,7 +488,7 @@ h3 { font-size: 1.28rem; }
 .product-banner.construx {
   background:
     linear-gradient(160deg, rgba(20, 24, 29, 0.55), rgba(20, 24, 29, 0.92) 70%),
-    repeating-linear-gradient(90deg, transparent, transparent 30px, rgba(242, 106, 27, 0.22) 30px, rgba(242, 106, 27, 0.22) 32px),
+    repeating-linear-gradient(90deg, transparent, transparent 30px, rgba(156, 122, 60, 0.22) 30px, rgba(156, 122, 60, 0.22) 32px),
     linear-gradient(135deg, #2a323d, #1d232b);
 }
 .product-banner.veryx {
@@ -536,7 +554,7 @@ h3 { font-size: 1.28rem; }
   font-family: var(--font-head);
   font-size: 2.4rem;
   font-weight: 900;
-  color: rgba(242, 106, 27, 0.22);
+  color: rgba(156, 122, 60, 0.22);
   display: block;
   margin-bottom: 10px;
   line-height: 1;
@@ -594,7 +612,7 @@ h3 { font-size: 1.28rem; }
 
 .cta-band {
   background:
-    linear-gradient(115deg, rgba(212, 85, 12, 0.96), rgba(242, 106, 27, 0.9)),
+    linear-gradient(115deg, rgba(212, 85, 12, 0.96), rgba(156, 122, 60, 0.9)),
     repeating-linear-gradient(45deg, transparent, transparent 26px, rgba(255, 255, 255, 0.09) 26px, rgba(255, 255, 255, 0.09) 28px),
     var(--orange);
   color: var(--white);
@@ -888,7 +906,7 @@ h3 { font-size: 1.28rem; }
   font-family: var(--font-display);
   font-size: 2.6rem;
   font-weight: 700;
-  color: rgba(242,106,27,0.85);
+  color: rgba(156,122,60,0.85);
   line-height: 1;
 }
 .offer-row h3 { margin-bottom: 10px; font-size: 1.2rem; }
@@ -928,7 +946,7 @@ h3 { font-size: 1.28rem; }
 .compare th:last-child { color: var(--orange-dark); }
 .compare td:first-child { font-weight: 700; white-space: nowrap; }
 .compare td:nth-child(2) { color: var(--slate); }
-.compare td:last-child { color: var(--ink); background: rgba(242,106,27,0.045); }
+.compare td:last-child { color: var(--ink); background: rgba(156,122,60,0.045); }
 .compare tr:last-child td { border-bottom: none; }
 
 /* ---------- Topline ---------- */
@@ -1115,6 +1133,43 @@ h3 { font-size: 1.28rem; }
 .policy-body table { width: 100%; border-collapse: collapse; font-size: 0.92rem; margin-bottom: 18px; }
 .policy-body th, .policy-body td { text-align: left; padding: 10px 12px; border: 1px solid var(--line); vertical-align: top; color: var(--slate); }
 .policy-body th { background: #f0eee8; color: var(--ink); font-family: var(--font-head); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* ---------- Scene gallery ---------- */
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+.gallery figure {
+  margin: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--ink);
+  box-shadow: var(--shadow);
+}
+.gallery img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+.gallery figure:hover img { transform: scale(1.03); }
+.gallery figcaption {
+  padding: 14px 18px;
+  font-family: var(--font-head);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--amber);
+  background: var(--ink);
+}
+@media (max-width: 860px) {
+  .gallery { grid-template-columns: 1fr; }
+  .gallery img { height: 220px; }
+}
 
 /* ---------- Reveal animation ---------- */
 

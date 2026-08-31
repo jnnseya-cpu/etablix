@@ -38,7 +38,7 @@ export const SERVICES = [
   "Managed Procurement Desk",
   "Workforce village delivery",
   "Management Integrator",
-  "Integrated Site Services Contractor",
+  "Prime Service Contractor",
   "CONSTRUX demonstration",
   "VERYX demonstration",
 ];

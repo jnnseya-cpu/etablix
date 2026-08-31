@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Commercial Playbook — ETABLIX Internal</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/internal/css/internal.css">
+<style>
+  .pb { max-width: 880px; margin: 0 auto; background: var(--white); border: 1px solid var(--line); border-radius: 12px; padding: 40px 44px; }
+  .pb .classification {
+    display: inline-block; font-family: var(--font-head); font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.16em; text-transform: uppercase; color: #c0392b;
+    border: 1.5px solid #c0392b; border-radius: 100px; padding: 5px 14px; margin-bottom: 18px;
+  }
+  .pb h1 { font-family: "Barlow Condensed", var(--font-head), sans-serif; font-size: 2.2rem; text-transform: uppercase; margin-bottom: 26px; }
+  .pb h2 { font-family: var(--font-head); font-size: 1.25rem; margin: 34px 0 12px; }
+  .pb h3 { font-family: var(--font-head); font-size: 1.02rem; margin: 24px 0 10px; }
+  .pb p, .pb li { color: var(--slate); font-size: 0.95rem; line-height: 1.65; }
+  .pb ul, .pb ol { margin: 0 0 14px 22px; }
+  .pb li { margin-bottom: 8px; }
+  .pb table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 0 0 18px; }
+  .pb th, .pb td { text-align: left; padding: 10px 14px; border: 1px solid var(--line); vertical-align: top; }
+  .pb th { background: #f0ede6; font-family: var(--font-head); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--slate); }
+  .pb .pb-warn { background: rgba(156,122,60,0.08); border-left: 4px solid var(--orange); padding: 14px 18px; border-radius: 6px; color: var(--ink); }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand-block">
+    <a class="logo" href="/internal/index.html"><img class="logo-mark" src="/img/logo-mark-reverse.svg" alt=""><span>ETABL</span><span>IX</span></a>
+    <span class="desk-label">COMMERCIAL PLAYBOOK</span>
+  </div>
+  <div class="desk-strap">Commercial-in-Confidence</div>
+  <div class="user-box">
+    <a class="btn-ghost" href="/internal/index.html" style="text-decoration:none;">Control Desk</a>
+    <button class="btn-ghost" id="logout">Sign out</button>
+  </div>
+</header>
+
+<main class="main">
+  <article class="pb" id="pb">
+    <p class="empty-note">Loading playbook…</p>
+  </article>
+</main>
+
+<script type="module">
+  const token = sessionStorage.getItem("etablix.token");
+  if (!token) location.replace("/internal/login.html");
+
+  document.getElementById("logout").addEventListener("click", () => {
+    sessionStorage.clear();
+    location.replace("/internal/login.html");
+  });
+
+  fetch("/api/playbook", { headers: { Authorization: `Bearer ${token}` } })
+    .then((res) => {
+      if (res.status === 401) {
+        sessionStorage.clear();
+        location.replace("/internal/login.html");
+        throw new Error("unauthorised");
+      }
+      return res.json();
+    })
+    .then(({ title, classification, html }) => {
+      document.getElementById("pb").innerHTML =
+        `<span class="classification">${classification}</span><h1>${title}</h1>${html}`;
+    })
+    .catch((err) => {
+      if (err.message !== "unauthorised") {
+        document.getElementById("pb").innerHTML =
+          '<p class="error-note">Could not load the playbook. Try again.</p>';
+      }
+    });
+</script>
+</body>
+</html>

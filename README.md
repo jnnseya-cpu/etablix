@@ -113,6 +113,34 @@ real database means replacing one module.
   a working implementation of the same contract runs locally at
   `/api/public/v1`.
 
+## Going live (etablix.com)
+
+The whole product is one Node.js server — public site, Control Desk, APIs
+and storage — so deployment is a single service:
+
+1. **Host**: any Node 18+ host works. Simplest routes: a VPS
+   (`git clone` → `npm install` → run under systemd/pm2 behind Caddy or
+   nginx for HTTPS), or a platform service (Render / Railway / Fly.io)
+   pointed at this repo with `npm start` as the start command.
+2. **Persistent storage**: the JSON store (`backend/data/db.json`) and
+   uploaded documents (`backend/data/uploads/`) live on disk — attach a
+   persistent volume/disk mounted over `backend/data/` so submissions
+   survive restarts. (On a VPS this is automatic.)
+3. **Environment variables**:
+   - `ETABLIX_TOKEN_SECRET` — required in production (any long random
+     string); keeps employee sessions valid across restarts.
+   - `PORT` — if your host assigns one.
+   - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `NOTIFY_TO`,
+     `NOTIFY_FROM` — to email each enquiry/registration to
+     contact@etablix.com. Until SMTP is configured, notifications queue in
+     `backend/data/outbox.log` and everything is always visible in the
+     Control Desk.
+4. **Domain**: point `etablix.com` (and `www`) at the host; serve HTTPS
+   (Caddy/nginx certbot on a VPS, automatic on platform hosts).
+5. **Replace seed data**: change the demo employee accounts in
+   `backend/lib/store.js` (or delete `db.json` after editing the seed) and
+   remove the demo VERYX API key before launch.
+
 ## Contact
 
 ETABLIX — Groupe Nseya House, Kingstanding, Birmingham, B44 8DJ ·

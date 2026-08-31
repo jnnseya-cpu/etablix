@@ -1,4 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="12" fill="#14181d"/>
-  <path d="M12 52 L12 26 L32 12 L52 26 L52 52 L40 52 L40 36 L24 36 L24 52 Z" fill="#f26a1b"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 132">
+  <rect width="132" height="132" rx="24" fill="#f4f1ea"/>
+  <g transform="translate(0,6)">
+    <g fill="#1c2621">
+      <polygon points="12,32 26,14 26,106 12,106"/>
+      <polygon points="32,14 88,14 74,38 32,38"/>
+      <polygon points="32,48 78,48 64,72 32,72"/>
+      <polygon points="32,82 88,82 74,106 32,106"/>
+    </g>
+    <g fill="#c9a35c">
+      <rect x="13" y="41" width="10" height="10"/>
+      <rect x="13" y="75" width="10" height="10"/>
+      <polygon points="96,14 124,14 110,38 82,38"/>
+      <polygon points="86,48 110,48 96,72 72,72"/>
+      <polygon points="96,82 124,82 110,106 82,106"/>
+    </g>
+  </g>
 </svg>

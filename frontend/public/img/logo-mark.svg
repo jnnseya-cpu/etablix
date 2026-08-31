@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 120">
+  <!-- ETABLIX mark: layered E — one accountable point of control,
+       three integrated layers, gold directional forms -->
+  <g fill="#1c2621">
+    <polygon points="8,32 22,14 22,106 8,106"/>
+    <polygon points="28,14 86,14 72,38 28,38"/>
+    <polygon points="28,48 76,48 62,72 28,72"/>
+    <polygon points="28,82 86,82 72,106 28,106"/>
+  </g>
+  <g fill="#c9a35c">
+    <rect x="9" y="41" width="10" height="10"/>
+    <rect x="9" y="75" width="10" height="10"/>
+    <polygon points="94,14 124,14 110,38 80,38"/>
+    <polygon points="84,48 108,48 94,72 70,72"/>
+    <polygon points="94,82 124,82 110,106 80,106"/>
+  </g>
+</svg>
