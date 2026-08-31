@@ -1,0 +1,164 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMax slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#070b16"/>
+      <stop offset="0.42" stop-color="#131b2e"/>
+      <stop offset="0.68" stop-color="#3a2a24"/>
+      <stop offset="0.84" stop-color="#8a4517"/>
+      <stop offset="1" stop-color="#c86a1e"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffd9a0" stop-opacity="0.95"/>
+      <stop offset="0.35" stop-color="#f9a558" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#f9a558" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="flood" cx="0.5" cy="0" r="1">
+      <stop offset="0" stop-color="#ffe9c2" stop-opacity="0.85"/>
+      <stop offset="0.5" stop-color="#ffd794" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#ffd794" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#12141c"/>
+      <stop offset="1" stop-color="#07080d"/>
+    </linearGradient>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.05 0"/>
+      <feComposite operator="over" in2="SourceGraphic"/>
+    </filter>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2"/>
+    </filter>
+
+    <!-- Transmission pylon -->
+    <g id="pylon" stroke="#0c0f18" fill="none" stroke-width="6">
+      <path d="M-60 0 L-14 -260 L14 -260 L60 0"/>
+      <path d="M-14 -260 L-8 -330 L8 -330 L14 -260"/>
+      <path d="M-48 -60 L48 -60 M-38 -130 L38 -130 M-26 -200 L26 -200"/>
+      <path d="M-48 -60 L38 -130 M48 -60 L-38 -130 M-38 -130 L26 -200 M38 -130 L-26 -200"/>
+      <path d="M-90 -200 L-26 -200 M26 -200 L90 -200" stroke-width="7"/>
+      <path d="M-90 -200 l0 26 M90 -200 l0 26" stroke-width="5"/>
+      <path d="M-70 -240 L-14 -240 M14 -240 L70 -240" stroke-width="6"/>
+      <path d="M-70 -240 l0 22 M70 -240 l0 22" stroke-width="5"/>
+    </g>
+
+    <!-- Tower crane -->
+    <g id="crane" stroke="#0a0d15" fill="#0a0d15">
+      <rect x="-9" y="-420" width="18" height="420" fill="none" stroke-width="8"/>
+      <path d="M-9 -400 L9 -380 M9 -400 L-9 -380 M-9 -360 L9 -340 M9 -360 L-9 -340 M-9 -320 L9 -300 M9 -320 L-9 -300 M-9 -280 L9 -260 M9 -280 L-9 -260 M-9 -240 L9 -220 M9 -240 L-9 -220 M-9 -200 L9 -180 M9 -200 L-9 -180 M-9 -160 L9 -140 M9 -160 L-9 -140 M-9 -120 L9 -100 M9 -120 L-9 -100 M-9 -80 L9 -60 M9 -80 L-9 -60 M-9 -40 L9 -20 M9 -40 L-9 -20" stroke-width="3.4" fill="none"/>
+      <rect x="-16" y="-448" width="32" height="30" stroke-width="0"/>
+      <path d="M-150 -430 L0 -430 L330 -430" stroke-width="9" fill="none"/>
+      <path d="M0 -500 L0 -430 M0 -500 L-150 -430 M0 -500 L110 -430 M0 -500 L220 -430 M0 -500 L330 -430" stroke-width="4.5" fill="none"/>
+      <path d="M-150 -430 l0 26 M-118 -430 l0 20 M-86 -430 l0 20" stroke-width="5" fill="none"/>
+      <path d="M240 -430 l0 130" stroke-width="3.5" fill="none"/>
+      <rect x="228" y="-302" width="24" height="26" stroke-width="0"/>
+      <circle cx="0" cy="-508" r="7" stroke-width="0"/>
+    </g>
+
+    <!-- Wind turbine -->
+    <g id="turbine" stroke="#141a2b" fill="none" stroke-width="5">
+      <path d="M0 0 L0 -150"/>
+      <g stroke-width="4">
+        <path d="M0 -150 L4 -218"/>
+        <path d="M0 -150 L56 -116"/>
+        <path d="M0 -150 L-60 -122"/>
+      </g>
+      <circle cx="0" cy="-150" r="5" fill="#141a2b" stroke="none"/>
+    </g>
+
+    <!-- Cabin block (two-storey stack) -->
+    <g id="cabins">
+      <rect x="0" y="-64" width="150" height="64" fill="#0b0e16"/>
+      <rect x="0" y="-64" width="150" height="3" fill="#1d2434"/>
+      <rect x="0" y="-33" width="150" height="3" fill="#1d2434"/>
+      <g fill="#ffb85c">
+        <rect x="10" y="-56" width="14" height="10" opacity="0.9"/>
+        <rect x="34" y="-56" width="14" height="10" opacity="0.55"/>
+        <rect x="58" y="-56" width="14" height="10" opacity="0.85"/>
+        <rect x="82" y="-56" width="14" height="10" opacity="0.3"/>
+        <rect x="106" y="-56" width="14" height="10" opacity="0.9"/>
+        <rect x="10" y="-25" width="14" height="10" opacity="0.5"/>
+        <rect x="34" y="-25" width="14" height="10" opacity="0.95"/>
+        <rect x="58" y="-25" width="14" height="10" opacity="0.35"/>
+        <rect x="82" y="-25" width="14" height="10" opacity="0.85"/>
+        <rect x="130" y="-25" width="12" height="10" opacity="0.65"/>
+      </g>
+    </g>
+
+    <!-- Light mast -->
+    <g id="mast">
+      <path d="M0 0 L0 -170" stroke="#0a0d15" stroke-width="6"/>
+      <rect x="-16" y="-182" width="32" height="12" fill="#0a0d15"/>
+      <ellipse cx="0" cy="-176" rx="120" ry="150" fill="url(#flood)"/>
+    </g>
+  </defs>
+
+  <!-- Sky -->
+  <rect width="1920" height="1080" fill="url(#sky)"/>
+  <ellipse cx="1310" cy="880" rx="520" ry="300" fill="url(#sun)"/>
+  <circle cx="1310" cy="880" r="46" fill="#ffe0b0" opacity="0.9" filter="url(#soft)"/>
+  <!-- Cloud bands -->
+  <g fill="#0d1322" opacity="0.55" filter="url(#soft)">
+    <ellipse cx="420" cy="300" rx="420" ry="26"/>
+    <ellipse cx="1500" cy="220" rx="380" ry="20"/>
+    <ellipse cx="980" cy="420" rx="560" ry="22" opacity="0.7"/>
+    <ellipse cx="300" cy="560" rx="360" ry="16" opacity="0.6"/>
+  </g>
+
+  <!-- Far ridge with turbines -->
+  <path d="M0 780 L260 740 L520 764 L820 726 L1140 758 L1460 722 L1720 752 L1920 736 L1920 1080 L0 1080 Z" fill="#0e1322"/>
+  <use href="#turbine" transform="translate(300,742) scale(0.75)"/>
+  <use href="#turbine" transform="translate(560,760) scale(0.6)"/>
+  <use href="#turbine" transform="translate(1560,730) scale(0.7)"/>
+
+  <!-- Pylon line marching to the horizon -->
+  <g opacity="0.9">
+    <use href="#pylon" transform="translate(1690,880) scale(1.05)"/>
+    <use href="#pylon" transform="translate(1445,860) scale(0.8)"/>
+    <use href="#pylon" transform="translate(1255,845) scale(0.6)"/>
+    <use href="#pylon" transform="translate(1115,835) scale(0.45)"/>
+    <path d="M1600 660 C1500 690 1560 700 1445 668 C1360 692 1385 696 1255 690 C1200 704 1210 706 1115 700"
+          transform="translate(0,0)" fill="none" stroke="#0c0f18" stroke-width="3" opacity="0.85"/>
+    <path d="M1780 620 C1690 660 1520 690 1462 662" fill="none" stroke="#0c0f18" stroke-width="3" opacity="0.8"/>
+  </g>
+
+  <!-- Cranes -->
+  <use href="#crane" transform="translate(430,905) scale(1.12)"/>
+  <use href="#crane" transform="translate(915,895) scale(0.82) scale(-1,1)"/>
+  <use href="#crane" transform="translate(120,915) scale(0.62)"/>
+
+  <!-- Compound: cabins, masts, fence -->
+  <g>
+    <use href="#cabins" transform="translate(590,955)"/>
+    <use href="#cabins" transform="translate(760,955)"/>
+    <use href="#cabins" transform="translate(1000,958) scale(0.9)"/>
+    <use href="#mast" transform="translate(560,952)"/>
+    <use href="#mast" transform="translate(1170,955) scale(0.85)"/>
+    <!-- fence -->
+    <g stroke="#0a0d15" stroke-width="3">
+      <path d="M80 955 L1880 955" stroke-width="2" opacity="0.9"/>
+      <path d="M100 955 l0 -26 M160 955 l0 -26 M220 955 l0 -26 M280 955 l0 -26 M340 955 l0 -26 M400 955 l0 -26 M460 955 l0 -26 M520 955 l0 -26 M1240 955 l0 -26 M1300 955 l0 -26 M1360 955 l0 -26 M1420 955 l0 -26 M1480 955 l0 -26 M1540 955 l0 -26 M1600 955 l0 -26 M1660 955 l0 -26 M1720 955 l0 -26 M1780 955 l0 -26 M1840 955 l0 -26"/>
+      <path d="M84 933 L1880 933" stroke-width="2" opacity="0.7"/>
+    </g>
+  </g>
+
+  <!-- Foreground ground -->
+  <rect x="0" y="952" width="1920" height="128" fill="url(#ground)"/>
+  <!-- Two site figures, hi-vis hint -->
+  <g transform="translate(1420,1005)">
+    <path d="M0 0 l0 -34 M-7 -12 l14 0 M0 -34 a7 7 0 1 1 0.1 0" stroke="#07080d" stroke-width="9" fill="none"/>
+    <rect x="-8" y="-30" width="16" height="14" fill="#b3541c" opacity="0.85"/>
+  </g>
+  <g transform="translate(1476,1008) scale(0.9)">
+    <path d="M0 0 l0 -34 M-8 -14 l16 -4 M0 -34 a7 7 0 1 1 0.1 0" stroke="#07080d" stroke-width="9" fill="none"/>
+    <rect x="-8" y="-30" width="16" height="14" fill="#c05e1e" opacity="0.85"/>
+  </g>
+
+  <!-- Vignette + grain -->
+  <rect width="1920" height="1080" fill="#05070c" opacity="0" filter="url(#grain)"/>
+  <radialGradient id="vig" cx="0.5" cy="0.42" r="0.85">
+    <stop offset="0.62" stop-color="#000" stop-opacity="0"/>
+    <stop offset="1" stop-color="#000" stop-opacity="0.55"/>
+  </radialGradient>
+  <rect width="1920" height="1080" fill="url(#vig)"/>
+</svg>

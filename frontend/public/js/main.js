@@ -32,28 +32,30 @@ const observer = new IntersectionObserver(
 document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
 
 /**
- * Wire a form to a public API endpoint.
- * Used by contact.html and subcontractors.html.
+ * Wire a form to a public API endpoint. Sends multipart/form-data built
+ * from the form itself, so file inputs (supporting documents) upload too.
+ * Used by the enquiry and supplier-registration forms.
  */
-export async function submitForm(form, endpoint, buildPayload) {
+export async function submitForm(form, endpoint, successMessage) {
   const button = form.querySelector("button[type=submit]");
   const feedback = form.querySelector("[data-feedback]");
   button.disabled = true;
   button.textContent = "Sending…";
   feedback.textContent = "";
   feedback.className = "";
+  feedback.removeAttribute("style");
 
   try {
     const res = await fetch(endpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(buildPayload(new FormData(form))),
+      body: new FormData(form),
     });
     const body = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(body.error || "Something went wrong. Please try again.");
     form.reset();
     feedback.className = "form-success";
-    feedback.textContent = "✓ Received. Our team will get back to you within 2 business days.";
+    feedback.textContent =
+      successMessage || "✓ Received. Our team will review your brief and respond.";
   } catch (err) {
     feedback.className = "form-success";
     feedback.style.borderColor = "#c0392b";

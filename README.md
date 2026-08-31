@@ -1,9 +1,11 @@
-# ETABLIX
+# ETABLIX — Integrated Site Services
 
-Marketing website, employee portal and platform APIs for **ETABLIX** — a
-full-cycle construction company that also builds and sells its own
-construction technology: **Construx®** (project delivery platform) and
-**Veryx®** (the operating system, with AI agents and a metered public API).
+Website, Control Desk and platform APIs for **ETABLIX** (Integrated Site
+Services), part of **Groupe Nseya**. ETABLIX plans, procures, integrates and
+controls every critical temporary-site and workforce-accommodation service —
+from first mobilisation to final reinstatement — and builds two technology
+products: **CONSTRUX** (Construction AI Operating System) and **VERYX**
+(Enterprise Execution Intelligence).
 
 ## Quick start
 
@@ -14,12 +16,12 @@ npm start          # or: npm run dev (auto-restart on change)
 
 | Surface | URL |
 |---|---|
-| Public marketing site | http://localhost:3000/ |
-| Employee portal | http://localhost:3000/internal/login.html |
+| Public website | http://localhost:3000/ |
+| ETABLIX Control Desk (employee login) | http://localhost:3000/internal/login.html |
 | API health check | http://localhost:3000/api/health |
-| Veryx Platform API (public, key-authenticated) | http://localhost:3000/api/public/v1/ping |
+| VERYX Platform API (key-authenticated) | http://localhost:3000/api/public/v1/ping |
 
-### Demo employee accounts
+### Demo employee accounts (seed data — replace in production)
 
 | Role | Email | Password |
 |---|---|---|
@@ -27,19 +29,30 @@ npm start          # or: npm run dev (auto-restart on change)
 | Project Manager | `pm@etablix.com` | `etablix-pm-2026` |
 | QA Inspector | `qa@etablix.com` | `etablix-qa-2026` |
 
-### Demo Veryx Platform API key
+### Demo VERYX Platform API key
 
 ```
 vx_test_demo_2f8a1c9e77b34d5f     (test env, all six scopes, 250 ACU)
 ```
 
-```bash
-curl -H "Authorization: Bearer vx_test_demo_2f8a1c9e77b34d5f" \
-  http://localhost:3000/api/public/v1/ping
-```
+> Set `ETABLIX_TOKEN_SECRET` in production and replace the seed users/keys.
 
-> Demo credentials are seed data for local development only. Set
-> `ETABLIX_TOKEN_SECRET` in production and replace the seed users/keys.
+## Site map
+
+**Public** — cinematic landing page (`/`) carrying the full commercial story:
+problem, what we deliver, lifecycle, Managed Procurement Desk, three
+engagement models, illustrative frameworks (interface exposure, control
+intensity), sectors, CONSTRUX/VERYX, supply chain, founder, Site Systems
+Diagnostic, business enquiry form and supplier registration form. Supporting
+pages: `/about`, `/what-we-offer`, `/how-it-works`, `/contact`,
+`/subcontractors`, `/construx`, `/veryx`, and governance pages
+`/policies/privacy`, `/policies/terms`, `/policies/cookies`,
+`/policies/supplier-code`, `/policies/modern-slavery`.
+
+**Internal — ETABLIX Control Desk** (`/internal`): commercial intake, one
+operating view. KPIs (new actions, project enquiries, supplier applications,
+stored documents), searchable enquiry and application tables with references
+(ENQ-/SUP-), uploaded-document downloads and inline status control.
 
 ## Architecture
 
@@ -47,60 +60,60 @@ curl -H "Authorization: Bearer vx_test_demo_2f8a1c9e77b34d5f" \
 etablix/
 ├── backend/            Express server + JSON API
 │   ├── server.js       Static serving + route mounting
-│   ├── lib/            auth (scrypt + HMAC tokens), JSON-file store w/ seed
+│   ├── lib/            auth (scrypt + HMAC tokens), JSON store w/ seed,
+│   │                   uploads (multer: PDF/Word/Excel/image, 10 MB, ×5)
 │   ├── middleware/     requireAuth / requireRole
 │   └── routes/
 │       ├── auth.js             POST /api/auth/login · GET /api/auth/me
-│       ├── leads.js            Public POST, internal GET/PATCH
-│       ├── subcontractors.js   Public POST, internal GET/PATCH
+│       ├── leads.js            Public multipart POST · internal GET/PATCH
+│       ├── subcontractors.js   Public multipart POST · internal GET/PATCH
+│       ├── files.js            Authenticated document downloads
 │       ├── construx.js         Internal: projects, schedule, budget, RFIs,
 │       │                       quality (inspections, NCRs), sensors
 │       ├── veryx.js            Internal: risks, AI agents (+run), usage
 │       ├── veryx-public.js     VERYX Platform API — /api/public/v1/*
-│       └── stats.js            Dashboard KPIs
+│       │                       (vx_ keys, scopes, metering, ACU, openapi.json)
+│       └── stats.js            KPIs
 ├── shared/             Constants + validation used by BOTH browser & server
-│   ├── constants.js    Trades, sectors, roles, statuses
-│   └── validation.js   Lead / subcontractor / login validation
+│   ├── constants.js    Company, sectors, services, capabilities, statuses
+│   └── validation.js   Enquiry / supplier-registration / login validation
 └── frontend/
-    ├── public/         Marketing site (7 pages, vanilla HTML/CSS/JS)
-    │   index · services · construx · veryx · customers ·
-    │   subcontractors · contact
-    └── internal/       Employee portal (login + tabbed dashboard)
+    ├── public/         Public website (vanilla HTML/CSS/JS, SVG scene art,
+    │   │               inline SVG framework charts)
+    │   └── policies/   Privacy, terms, cookies, supplier code, modern slavery
+    └── internal/       Control Desk (login + intake dashboard)
 ```
 
 **Shared code:** `shared/` is served to the browser at `/shared/*` and
-imported by Node — the subcontractor trade list and all form validation run
-identically on both sides, with the server as the source of truth.
+imported by Node — the service, sector and capability lists and all form
+validation run identically on both sides, with the server as the source of
+truth.
+
+**Uploads:** both public forms accept optional supporting documents
+(PDF, Word, Excel, images; max 10 MB each, five per submission). Files are
+stored outside the web root and downloadable only with an authenticated
+Control Desk session.
 
 **Data:** a seeded JSON-file store (`backend/data/db.json`, gitignored).
-Routes only touch the `collection/insert/update` helpers in
-`backend/lib/store.js`, so swapping in Postgres later means replacing one
-module.
+Routes only touch the helpers in `backend/lib/store.js`, so swapping in a
+real database means replacing one module.
 
-**Auth:** employee sessions use scrypt-hashed passwords and HMAC-signed
-expiring tokens (12 h) — standard library only. The Veryx Platform API uses
-environment-scoped `vx_` keys with per-scope authorization, monthly call
-metering (HTTP 429 over quota) and prepaid ACU for agent runs (HTTP 402
-when empty).
+## Product APIs
 
-## The two products
+- **CONSTRUX** (construxvg.com) — "the API is the product": command-and-query
+  over project resources, self-documented by `GET /v1/routes` (820 endpoints,
+  39 public), RFC 7807 problem+json errors with correlation/trace ids and
+  Idempotency-Key support, MFA-protected bearer/refresh auth, 182
+  notification events, and tested anti-enumeration behaviour. Documented on
+  `/construx#api`.
+- **VERYX** (veryxjnn.com) — key-authenticated Platform API: `/ping`,
+  `/projects`, `/tasks`, `/risks`, `/agents`, `POST /agents/{type}/run`,
+  `/usage`, with six scopes, monthly call metering (HTTP 429), prepaid ACU
+  for agent runs (HTTP 402) and `openapi.json`. Documented on `/veryx#api`;
+  a working implementation of the same contract runs locally at
+  `/api/public/v1`.
 
-- **Construx®** — command-and-query project delivery: scheduling, cost &
-  commitment control, field ops, RFIs/submittals, procurement, and the
-  quality module (ITPs with counterparty approval, inspections that raise
-  NCRs on failure, snags closed with photo evidence, CDM documents).
-  Marketing + API story: `frontend/public/construx.html`.
-- **Veryx®** — the OS: projects/portfolios, schedule tasks, risk register
-  and AI agents (Schedule Health Scan, Risk Triage, Daily Site Digest, Bid
-  Leveler), exposed over the key-authenticated Platform API. Marketing +
-  API docs: `frontend/public/veryx.html`; local implementation of the
-  contract: `backend/routes/veryx-public.js` (incl. `/openapi.json`).
+## Contact
 
-## Website → workspace flow
-
-Public **contact** and **subcontractor prequalification** forms POST to the
-API; submissions appear instantly in the employee dashboard (Leads and
-Subcontractor Applications tabs), where staff advance them through their
-pipelines inline. The Construx tab shows the delivery portfolio, critical
-path, RFIs and quality records; the Veryx tab shows the risk register, lets
-staff run AI agents (drawing down ACU), and reports Platform API usage.
+ETABLIX — Groupe Nseya House, Kingstanding, Birmingham, B44 8DJ ·
+contact@etabiix.com · +44 7493 216101.

@@ -145,14 +145,39 @@ button { font-family: inherit; cursor: pointer; }
 .topbar .logo { font-family: var(--font-head); font-weight: 900; font-size: 1.2rem; display:flex; align-items:center; gap:9px; color:#fff; text-decoration:none; }
 .topbar .logo span:last-child { color: var(--orange); }
 .topbar .logo .logo-mark { width: 26px; height: 26px; }
-.topbar .env-tag {
-  font-family: var(--font-head); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em;
+.topbar .brand-block { display: flex; align-items: center; gap: 12px; }
+.topbar .desk-label {
+  font-family: var(--font-head); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.18em;
   text-transform: uppercase; color: var(--amber); border: 1px solid rgba(255,176,32,0.4);
-  padding: 3px 10px; border-radius: 100px;
+  padding: 3px 10px; border-radius: 100px; white-space: nowrap;
+}
+.topbar .desk-strap {
+  font-family: "Barlow Condensed", var(--font-head), sans-serif;
+  font-weight: 700; font-size: 1.05rem; letter-spacing: 0.04em; text-transform: uppercase;
+  color: #cfd6dd; white-space: nowrap;
 }
 .topbar .user-box { display: flex; align-items: center; gap: 14px; font-size: 0.88rem; }
+.topbar .user-box .who { text-align: right; }
 .topbar .user-box .who b { display: block; line-height: 1.2; }
-.topbar .user-box .who span { color: var(--slate-light); font-size: 0.75rem; text-transform: capitalize; }
+.topbar .user-box .who .signed-label { color: var(--slate-light); font-size: 0.72rem; display: block; }
+
+.desk-toolbar { margin-bottom: 16px; }
+.desk-toolbar input[type="search"] {
+  width: 100%;
+  max-width: 460px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 12px 16px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--ink);
+}
+.desk-toolbar input[type="search"]:focus { outline: none; border-color: var(--orange); }
+
+.doc-link { color: var(--orange); font-weight: 600; font-size: 0.84rem; text-decoration: none; }
+.doc-link:hover { text-decoration: underline; }
+.brief { max-width: 34em; }
 .btn-ghost {
   background: transparent; color: #cfd6dd; border: 1px solid var(--line-dark);
   padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.84rem;
@@ -249,4 +274,8 @@ td select {
   .topbar .env-tag { display: none; }
   .main { padding: 20px 14px 50px; }
   .tabs { padding: 0 10px; }
+}
+
+@media (max-width: 860px) {
+  .topbar .desk-strap { display: none; }
 }

@@ -1,4 +1,5 @@
 node_modules/
 backend/data/db.json
+backend/data/uploads/
 .env
 *.log

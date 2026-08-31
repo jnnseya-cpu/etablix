@@ -1,16 +1,21 @@
 import { Router } from "express";
 import { collection, insert, update } from "../lib/store.js";
 import { requireAuth } from "../middleware/auth.js";
+import { acceptDocuments, describeFiles } from "../lib/uploads.js";
 import { validateLead } from "../../shared/validation.js";
 import { LEAD_STATUS } from "../../shared/constants.js";
 
 const router = Router();
 
-/** POST /api/leads — public: submit a project enquiry from the website. */
-router.post("/", (req, res) => {
+/** POST /api/leads — public: business project enquiry (multipart, optional documents). */
+router.post("/", acceptDocuments, (req, res) => {
   const { ok, errors, data } = validateLead(req.body);
   if (!ok) return res.status(400).json({ error: errors[0], errors });
-  const lead = insert("leads", { ...data, status: "new" });
+  const lead = insert("leads", {
+    ...data,
+    documents: describeFiles(req.files),
+    status: "new",
+  });
   res.status(201).json({ id: lead.id, message: "Enquiry received." });
 });
 

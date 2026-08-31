@@ -3,16 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ETABLIX — Build with Certainty | Construction, Construx & Veryx</title>
-<meta name="description" content="ETABLIX delivers commercial, industrial and institutional construction on time and on budget — powered by our own technology: the Construx project delivery platform and the Veryx operating system with AI agents.">
+<title>ETABLIX — Integrated Site Services | One Site. One Accountable Operating System.</title>
+<meta name="description" content="ETABLIX, part of Groupe Nseya, plans, procures, integrates and controls every critical temporary-site and workforce-accommodation service — from first mobilisation to final reinstatement. Powered by CONSTRUX and VERYX.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/styles.css">
+<style>
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 4px; }
+  .chip {
+    font-family: var(--font-head); font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,0.28); color: #dfe4e9;
+    border-radius: 100px; padding: 5px 12px;
+  }
+  .rule-list { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  .rule-list li {
+    font-family: var(--font-head); font-size: 0.78rem; font-weight: 600;
+    background: rgba(255,255,255,0.06); border: 1px solid var(--line-dark);
+    color: #cfd6dd; border-radius: 100px; padding: 7px 16px;
+  }
+</style>
 </head>
 <body>
 
+<div class="topline"><b>ETABLIX</b> · INTEGRATED SITE SERVICES · PART OF <b>GROUPE NSEYA</b></div>
 <header class="site-header">
   <div class="container nav-wrap">
     <a class="logo" href="/"><span class="logo-mark"></span>ETABL<span>IX</span></a>
@@ -20,206 +36,577 @@
       <span></span><span></span><span></span>
     </button>
     <nav class="main-nav">
-      <a href="/services" >Services</a>
+      <a href="/about">About</a>
+      <a href="/what-we-offer">What we offer</a>
+      <a href="/how-it-works">How it works</a>
       <a href="/construx">Construx</a>
       <a href="/veryx">Veryx</a>
-      <a href="/customers">Who We Serve</a>
-      <a href="/subcontractors">Subcontractors</a>
+      <a href="/subcontractors">Supply chain</a>
       <a href="/internal/login.html">Employee Login</a>
-      <a class="nav-cta" href="/contact">Start Your Project</a>
+      <a class="nav-cta" href="#contact">Book services</a>
     </nav>
   </div>
 </header>
 
-<!-- ============ HERO ============ -->
-<section class="hero">
+<!-- ============ CINEMATIC HERO ============ -->
+<section class="hero-cinema">
+  <img class="scene" src="/img/hero-scene.svg" alt="Construction site at dusk: tower cranes, transmission pylons, wind turbines and a lit workforce accommodation compound behind the site fence.">
+  <div class="scrim"></div>
   <div class="container">
-    <div class="hero-inner">
-      <span class="eyebrow">General Contracting · Design-Build · Construction Technology</span>
-      <h1>We build the projects other contractors <em>won't touch.</em></h1>
-      <p>ETABLIX delivers complex commercial, industrial and institutional construction — on schedule, on budget, and provably to spec. Every project runs on <strong>Construx</strong>, our project delivery and quality platform, and reports into <strong>Veryx</strong>, our operating system with AI agents watching schedule and risk. That's not marketing. That's how we operate.</p>
+    <div class="hero-copy">
+      <span class="slate">A Groupe Nseya company · Integrated site services</span>
+      <h1>One site.<br>One accountable<br><em>operating system.</em></h1>
+      <p class="hero-sub">ETABLIX plans, procures, integrates and controls every critical temporary-site and workforce-accommodation service — from first mobilisation to final reinstatement.</p>
       <div class="hero-actions">
-        <a class="btn btn-primary btn-arrow" href="/contact">Start Your Project</a>
-        <a class="btn btn-outline on-dark" href="/subcontractors">Become a Trade Partner</a>
+        <a class="btn btn-primary btn-arrow" href="#diagnostic">Start with a site diagnostic</a>
+        <a class="btn btn-outline on-dark" href="#models">Explore our delivery model</a>
       </div>
     </div>
   </div>
-  <div class="hero-strip">
+  <div class="hero-meta">
     <div class="container">
-      <div class="stat"><b data-count="240">240+</b><span>Projects delivered</span></div>
-      <div class="stat"><b data-count="98">98%</b><span>Delivered on or ahead of schedule</span></div>
-      <div class="stat"><b>$1.2B</b><span>Constructed value managed</span></div>
-      <div class="stat"><b data-count="0.42">0.42</b><span>EMR safety rating — top decile</span></div>
+      <div><b>Founder-led</b><span>Senior project leadership</span></div>
+      <div><b>Lifecycle-wide</b><span>Set-up to closeout</span></div>
+      <div><b>Intelligence-backed</b><span>CONSTRUX + VERYX</span></div>
     </div>
   </div>
 </section>
 
-<!-- ============ TRUST BAND ============ -->
-<div class="trust-band">
+<!-- ============ THE PROBLEM ============ -->
+<section class="section">
   <div class="container">
-    <span class="trust-label">Trusted by owners &amp; developers across 8 sectors</span>
-    <span class="badge">MERIDIAN</span>
-    <span class="badge">CALDWELL HEALTH</span>
-    <span class="badge">LUMEN DEV</span>
-    <span class="badge">WESTFIELD SD</span>
-    <span class="badge">ARCTURUS REIT</span>
+    <div class="sec-label reveal"><span class="num">01</span><span class="lbl">The problem we solve</span></div>
+    <div class="section-head reveal" style="max-width:900px;">
+      <h2>The project rarely fails because every supplier is incompetent.<br><span style="color:var(--orange);">It fails because nobody owns the complete system.</span></h2>
+    </div>
+    <div class="grid-3">
+      <div class="step reveal"><h3>Complex construction environments</h3><p>Many packages. One coordinated site strategy.</p></div>
+      <div class="step reveal"><h3>Leadership at the interface</h3><p>Interfaces are where cost leaks, programmes slip and accountability dissolves. We put senior leadership exactly there.</p></div>
+      <div class="step reveal"><h3>Technical delivery and assurance</h3><p>Every service specified, procured, mobilised, operated and removed against a documented baseline — with evidence to rely on.</p></div>
+    </div>
   </div>
-</div>
+</section>
 
-<!-- ============ SERVICES ============ -->
-<section class="section" id="services">
+<!-- ============ WHAT WE DELIVER ============ -->
+<section class="section dark" id="deliver">
   <div class="container">
+    <div class="sec-label reveal"><span class="num">02</span><span class="lbl">What we deliver</span></div>
     <div class="section-head reveal">
-      <span class="kicker">What We Do</span>
-      <h2>Full-cycle construction. One accountable partner.</h2>
-      <p>From the first feasibility number to the final handover file, ETABLIX carries your project with a single point of accountability — no finger-pointing between designer, builder and manager.</p>
+      <h2>From fragmented site services to one controlled outcome.</h2>
+      <p>We manage and integrate the enabling works, temporary infrastructure and support services required to establish, operate and demobilise the project site — separate from the client's core asset construction.</p>
     </div>
     <div class="grid-3">
       <div class="card reveal">
-        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg></div>
-        <h3>General Contracting</h3>
-        <p>Hard-bid or negotiated, we execute with disciplined cost control, an elite trade partner network, and schedule certainty backed by data — not promises.</p>
-        <a class="card-link" href="/services#gc">Explore GC services →</a>
+        <h3>Temporary &amp; enabling civil works</h3>
+        <p>Site-establishment earthworks, temporary drainage, cabin and equipment bases, temporary roads, hardstanding, compounds, hoarding, fencing and reinstatement within the agreed site-services scope.</p>
       </div>
       <div class="card reveal">
-        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3zM18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5zM2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg></div>
-        <h3>Design-Build</h3>
-        <p>One contract, one team, zero gaps. We compress schedules by up to 30% by overlapping design and construction — with cost locked early, not discovered late.</p>
-        <a class="card-link" href="/services#design-build">Explore design-build →</a>
+        <h3>Temporary MEP &amp; building services</h3>
+        <p>Temporary power, lighting, water, drainage, HVAC, plumbing, fire and controls serving project offices, welfare, compounds and workforce accommodation — not the permanent MEP installation of the core asset.</p>
       </div>
       <div class="card reveal">
-        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg></div>
-        <h3>Construction Management</h3>
-        <p>Acting as your agent, we run procurement, trades, schedule and cost with full transparency — every decision visible to you in real time through Construx.</p>
-        <a class="card-link" href="/services#cm">Explore CM services →</a>
+        <h3>Cleaning &amp; soft FM</h3>
+        <p>Construction and final cleaning, offices and welfare facilities, accommodation housekeeping, laundry, hygiene consumables, waste interfaces and planned service schedules.</p>
       </div>
       <div class="card reveal">
-        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
-        <h3>Pre-Construction &amp; Estimating</h3>
-        <p>Feasibility, constructability, value engineering and estimates accurate to ±3% at design development. We kill budget surprises before ground breaks.</p>
-        <a class="card-link" href="/services#precon">Explore pre-construction →</a>
+        <h3>Workforce living systems</h3>
+        <p>Village strategy, accommodation, catering, transport, recreation, medical response and facilities operations.</p>
       </div>
       <div class="card reveal">
-        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></div>
-        <h3>Renovation &amp; Fit-Out</h3>
-        <p>Occupied-facility specialists. Hospitals that never close, retail that keeps trading, offices that keep working — we build around your operations.</p>
-        <a class="card-link" href="/services#fitout">Explore fit-out →</a>
+        <h3>Site-services lifecycle</h3>
+        <p>Set-up, welfare, utilities, security, logistics, day-to-day operations, demobilisation and reinstatement under one plan.</p>
       </div>
       <div class="card reveal">
-        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20M4 20V9l4-2v13M12 20V5l6 3v12M18 20V8"/></svg></div>
-        <h3>Civil &amp; Sitework</h3>
-        <p>Earthworks, deep foundations, utilities and hardscape — self-performed where it protects your critical path, subcontracted where it protects your budget.</p>
-        <a class="card-link" href="/services#civil">Explore civil works →</a>
+        <h3>Requirements &amp; procurement</h3>
+        <p>Demand modelling, scopes, specifications, supplier packaging, tender evaluation, risk allocation and mobilisation readiness.</p>
+      </div>
+    </div>
+    <div class="card reveal" style="margin-top:26px;">
+      <h3>Management integration</h3>
+      <p>A single control layer for site-service interfaces, suppliers, cost, programme, HSE, performance, evidence and client reporting.</p>
+    </div>
+    <div class="lifecycle reveal" style="margin-top:44px;">
+      <span class="stage">DIAGNOSE</span><span class="arrow">→</span>
+      <span class="stage">DEFINE</span><span class="arrow">→</span>
+      <span class="stage">PROCURE</span><span class="arrow">→</span>
+      <span class="stage">MOBILISE</span><span class="arrow">→</span>
+      <span class="stage">OPERATE</span><span class="arrow">→</span>
+      <span class="stage">REMOVE</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MANAGED PROCUREMENT DESK ============ -->
+<section class="section" id="desk">
+  <div class="container">
+    <div class="sec-label reveal"><span class="num">03</span><span class="lbl">Managed procurement desk</span></div>
+    <div class="section-head reveal">
+      <h2>One desk. One control point. Fewer supplier relationships.</h2>
+      <p>We aggregate the recurring site-services stack — welfare cabins, fencing, hoarding, security, waste, temporary water and power — under one requirements baseline, mobilisation plan and commercial control process.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><h3>Specify</h3><p>One coordinated service brief and package matrix.</p></div>
+      <div class="step reveal"><h3>Source</h3><p>Prequalified specialists, comparable returns and negotiated terms.</p></div>
+      <div class="step reveal"><h3>Control</h3><p>Mobilisation, changes, performance, invoices and evidence.</p></div>
+      <div class="step reveal"><h3>Off-hire</h3><p>Dates, removals and demobilisation tracked before costs leak.</p></div>
+    </div>
+    <div class="card reveal" style="margin-top:30px;">
+      <h3 style="font-size:0.8rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--orange);font-family:var(--font-head);">Commercial structure</h3>
+      <p>Management fee plus disclosed or agreed supplier margin. Supplier costs remain back-to-back, prefunded or client-direct unless working-capital protection is expressly agreed.</p>
+      <a class="card-link" href="/what-we-offer#desk">See the managed desk model →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ENGAGEMENT MODELS ============ -->
+<section class="section dark" id="models">
+  <div class="container">
+    <div class="sec-label reveal"><span class="num">04</span><span class="lbl">Commercial flexibility</span></div>
+    <div class="section-head reveal">
+      <h2>Three ways to engage.<br>One standard of control.</h2>
+    </div>
+    <div class="grid-3">
+      <div class="model-card reveal">
+        <div class="model-tag">Model 01 · Low Risk</div>
+        <h3>Advisory</h3>
+        <p>We develop the site-services strategy, scope, requirements and procurement package. Your team retains contracting control.</p>
+        <ul>
+          <li>Site-services strategy</li>
+          <li>Technical requirements</li>
+          <li>Tender and evaluation pack</li>
+          <li>Independent assurance</li>
+        </ul>
+        <div class="model-price">Fixed fee or milestones</div>
+      </div>
+      <div class="model-card featured reveal">
+        <div class="model-tag">Model 02 · Core Offer</div>
+        <h3>Management Integrator</h3>
+        <p>We procure, coordinate and manage specialist site-service suppliers through one governance and reporting system.</p>
+        <ul>
+          <li>Single management interface</li>
+          <li>Integrated supplier control</li>
+          <li>EVM and performance reporting</li>
+          <li>Change and risk governance</li>
+        </ul>
+        <div class="model-price">Management fee + agreed costs</div>
+      </div>
+      <div class="model-card reveal">
+        <div class="model-tag">Model 03 · Selective</div>
+        <h3>Integrated Site Services Contractor</h3>
+        <p>We contract with approved suppliers and provide the agreed support-services scope under one contract, subject to funding, credit, liability and mobilisation gates.</p>
+        <ul>
+          <li>Single commercial contract</li>
+          <li>Accountability for the agreed scope</li>
+          <li>Managed specialist supply chain</li>
+          <li>Defined risk and contingency</li>
+        </ul>
+        <div class="model-price">Lump sum or target cost</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============ PRODUCTS ============ -->
-<section class="section dark" id="products">
+<!-- ============ WHY INTEGRATION MATTERS ============ -->
+<section class="section">
   <div class="container">
+    <div class="sec-label reveal"><span class="num">05</span><span class="lbl">Why integration matters</span></div>
     <div class="section-head reveal">
-      <span class="kicker">Our Technology</span>
-      <h2>We didn't just adopt construction tech. We built it — and we sell it.</h2>
-      <p>Construx and Veryx were forged on our own job sites, then hardened across hundreds of projects. Now contractors, developers and owners license them to run their own operations.</p>
+      <h2>Control the interfaces before they control the project.</h2>
+      <p>The diagrams show the operating logic behind our model. They are illustrative management frameworks — not claims of historic project performance.</p>
+    </div>
+    <div class="grid-2">
+      <div class="chart-card reveal">
+        <h3>Interface exposure</h3>
+        <div class="chart-sub">Fragmented vs integrated delivery · <em>Illustrative</em></div>
+        <svg viewBox="0 0 640 300" role="img" aria-label="Diagram comparing fragmented delivery, where every supplier connects to every other supplier, with the ETABLIX integrator model where suppliers connect through one integration layer.">
+          <!-- Fragmented mesh -->
+          <g stroke="#c0392b" stroke-width="1.3" opacity="0.55">
+            <path d="M160 60 L60 130 M160 60 L260 130 M160 60 L80 220 M160 60 L240 220 M160 60 L160 250
+                     M60 130 L260 130 M60 130 L240 220 M60 130 L160 250 M60 130 L80 220
+                     M260 130 L80 220 M260 130 L160 250 M260 130 L240 220
+                     M80 220 L240 220 M80 220 L160 250 M240 220 L160 250"/>
+          </g>
+          <g fill="#f7f6f2" stroke="#c0392b" stroke-width="2">
+            <circle cx="160" cy="60" r="15"/><circle cx="60" cy="130" r="15"/><circle cx="260" cy="130" r="15"/>
+            <circle cx="80" cy="220" r="15"/><circle cx="240" cy="220" r="15"/><circle cx="160" cy="250" r="15"/>
+          </g>
+          <text x="160" y="288" text-anchor="middle" font-family="Archivo,sans-serif" font-size="12" font-weight="700" fill="#c0392b">FRAGMENTED PACKAGES</text>
+          <text x="160" y="24" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#5b6672">High coordination exposure</text>
+
+          <!-- Integrated hub -->
+          <g stroke="#f26a1b" stroke-width="2">
+            <path d="M480 155 L480 60 M480 155 L390 110 M480 155 L570 110 M480 155 L390 210 M480 155 L570 210 M480 155 L480 250"/>
+          </g>
+          <g fill="#f7f6f2" stroke="#5b6672" stroke-width="2">
+            <circle cx="480" cy="60" r="15"/><circle cx="390" cy="110" r="15"/><circle cx="570" cy="110" r="15"/>
+            <circle cx="390" cy="210" r="15"/><circle cx="570" cy="210" r="15"/><circle cx="480" cy="250" r="15"/>
+          </g>
+          <rect x="448" y="131" width="64" height="48" rx="8" fill="#f26a1b"/>
+          <text x="480" y="160" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13" font-weight="800" fill="#fff">ETX</text>
+          <text x="480" y="288" text-anchor="middle" font-family="Archivo,sans-serif" font-size="12" font-weight="700" fill="#f26a1b">ETABLIX INTEGRATOR</text>
+          <text x="480" y="24" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#5b6672">Controlled interface structure</text>
+        </svg>
+        <div class="chart-tagline">One requirements baseline, one interface register, one reporting rhythm and one accountable integration layer.</div>
+      </div>
+      <div class="chart-card reveal">
+        <h3>Control intensity</h3>
+        <div class="chart-sub">Lifecycle management profile · <em>Illustrative</em></div>
+        <svg viewBox="0 0 640 300" role="img" aria-label="Curve showing governance intensity rising before mobilisation, staying active through operations and closing with documented removal and reinstatement.">
+          <defs>
+            <linearGradient id="ci" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#f26a1b" stop-opacity="0.45"/>
+              <stop offset="1" stop-color="#f26a1b" stop-opacity="0.03"/>
+            </linearGradient>
+          </defs>
+          <g stroke="#e4e1da" stroke-width="1">
+            <path d="M50 60 H610 M50 115 H610 M50 170 H610 M50 225 H610"/>
+          </g>
+          <g stroke="#97a1ac" stroke-width="1" stroke-dasharray="4 5">
+            <path d="M162 40 V240 M274 40 V240 M386 40 V240 M498 40 V240"/>
+          </g>
+          <path d="M50 225 C100 210 130 150 162 118 C200 78 240 62 274 58 C330 54 420 56 470 64 C520 72 560 120 610 205 L610 240 L50 240 Z" fill="url(#ci)"/>
+          <path d="M50 225 C100 210 130 150 162 118 C200 78 240 62 274 58 C330 54 420 56 470 64 C520 72 560 120 610 205" fill="none" stroke="#f26a1b" stroke-width="3.5" stroke-linecap="round"/>
+          <circle cx="274" cy="58" r="5" fill="#f26a1b"/>
+          <text x="274" y="40" text-anchor="middle" font-family="Inter,sans-serif" font-size="10.5" fill="#5b6672">peak: pre-mobilisation gates</text>
+          <line x1="50" y1="240" x2="610" y2="240" stroke="#14181d" stroke-width="2"/>
+          <g font-family="Archivo,sans-serif" font-size="11" font-weight="700" fill="#5b6672" text-anchor="middle">
+            <text x="106" y="264">DEFINE</text>
+            <text x="218" y="264">PROCURE</text>
+            <text x="330" y="264">MOBILISE</text>
+            <text x="442" y="264">OPERATE</text>
+            <text x="554" y="264">CLOSEOUT</text>
+          </g>
+          <text x="30" y="150" font-family="Inter,sans-serif" font-size="10.5" fill="#97a1ac" transform="rotate(-90 30 150)" text-anchor="middle">Governance intensity</text>
+        </svg>
+        <div class="chart-tagline">Governance intensity rises before mobilisation, stays active through operations and closes with documented removal and reinstatement.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WHO WE WORK WITH ============ -->
+<section class="section dark" id="sectors">
+  <div class="container">
+    <div class="sec-label reveal"><span class="num">06</span><span class="lbl">Who we work with</span></div>
+    <div class="section-head reveal">
+      <h2>Built for high-interface, high-consequence projects.</h2>
+      <p>We are most valuable where many service packages, a substantial workforce and unforgiving milestones create operational exposure.</p>
+    </div>
+    <div class="grid-3">
+      <div class="card reveal"><h3>Grid &amp; power</h3><p>Substations, transmission, HV works and complex EPC environments.</p></div>
+      <div class="card reveal"><h3>Renewable energy</h3><p>Offshore wind, onshore energy and remote mobilisation programmes.</p></div>
+      <div class="card reveal"><h3>Data centres</h3><p>Fast-track sites where logistics, welfare and uptime cannot drift.</p></div>
+      <div class="card reveal"><h3>Rail &amp; major civils</h3><p>Multi-package infrastructure with constrained access and interfaces.</p></div>
+      <div class="card reveal"><h3>Industrial &amp; mining</h3><p>Remote, high-workforce and operationally demanding locations.</p></div>
+      <div class="card reveal"><h3>Developers &amp; EPCs</h3><p>Owners and contractors needing one integrated site-services strategy.</p></div>
+    </div>
+    <div class="fit-strip reveal">
+      <span class="fit-label">Strong project fit</span>
+      <div class="fit-item"><b>100+</b><span>workforce</span></div>
+      <div class="fit-item"><b>12+</b><span>months</span></div>
+      <div class="fit-item"><b>5+</b><span>interfaces</span></div>
+      <div class="fit-item"><b>1</b><span>accountable system</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TECHNOLOGY PRODUCTS ============ -->
+<section class="section" id="products">
+  <div class="container">
+    <div class="sec-label reveal"><span class="num">07</span><span class="lbl">Technology products</span></div>
+    <div class="section-head reveal">
+      <h2>Operational expertise, digitally multiplied.</h2>
+      <p>Our platforms do not replace leadership. They give leaders stronger controls, earlier warnings and a defensible evidence trail.</p>
     </div>
     <div class="grid-2">
       <a class="product-banner construx reveal" href="/construx">
-        <span class="tag">Construx® — Project Delivery Platform</span>
-        <h3>CONSTRUX</h3>
-        <p>Command-and-query project delivery: scheduling, cost, RFIs, quality (ITPs, inspections, NCRs, snags), CDM documents and lessons — behind an API of 820 endpoints where the API <em>is</em> the product.</p>
-        <span class="card-link">See the platform →</span>
+        <span class="tag">CONSTRUX · Construction AI Operating System</span>
+        <h3>Control the project.<br>Protect the outcome.</h3>
+        <p>Connect commercial, programme, site, safety, supplier and information controls into one project intelligence layer.</p>
+        <div class="chip-row">
+          <span class="chip">Contract &amp; commercial</span><span class="chip">Programme &amp; EVM</span><span class="chip">Site evidence</span><span class="chip">BIM &amp; digital twin</span><span class="chip">Safety &amp; compliance</span><span class="chip">Change control</span>
+        </div>
+        <span class="card-link">Request a CONSTRUX demonstration →</span>
       </a>
       <a class="product-banner veryx reveal" href="/veryx">
-        <span class="tag">Veryx® — The Operating System</span>
-        <h3>VERYX</h3>
-        <p>Your portfolio as an OS: projects, schedule tasks and a live risk register — plus AI agents that scan schedule health, triage risk and level bids, metered by ACU over a simple key-authenticated API.</p>
-        <span class="card-link">See the OS →</span>
+        <span class="tag">VERYX · Enterprise Execution Intelligence</span>
+        <h3>See across the portfolio.<br>Act before exposure grows.</h3>
+        <p>Give executive teams a governed view of delivery risk, performance, scenarios and decisions across projects and markets.</p>
+        <div class="chip-row">
+          <span class="chip">Portfolio risk</span><span class="chip">Executive dashboards</span><span class="chip">Supplier exposure</span><span class="chip">Scenario intelligence</span><span class="chip">Multi-country oversight</span><span class="chip">Governance</span>
+        </div>
+        <span class="card-link">Explore VERYX for your enterprise →</span>
       </a>
     </div>
   </div>
 </section>
 
-<!-- ============ WHO WE SERVE ============ -->
-<section class="section" id="sectors">
+<!-- ============ SUPPLY CHAIN ============ -->
+<section class="section dark" id="supply-chain">
   <div class="container">
+    <div class="sec-label reveal"><span class="num">08</span><span class="lbl">Specialist supply chain</span></div>
     <div class="section-head reveal">
-      <span class="kicker">Who We Work With</span>
-      <h2>Owners who measure. Developers who move fast.</h2>
-      <p>Our best clients have one thing in common: they hold their builder to numbers. Schedules with float analysis, budgets with commitment tracking, quality with inspection scores. If that's you, we should talk.</p>
+      <h2>Building the team behind the complete system.</h2>
+      <p>We seek capable subcontractors who want access to complex projects — and can operate inside disciplined commercial, safety and reporting controls.</p>
     </div>
     <div class="grid-4">
-      <div class="sector reveal"><h3>Commercial &amp; Office</h3><p>Towers, campuses and workplace fit-outs delivered around live tenancies.</p></div>
-      <div class="sector reveal"><h3>Industrial &amp; Logistics</h3><p>Distribution hubs, cold storage and light manufacturing — speed-to-rack is everything.</p></div>
-      <div class="sector reveal"><h3>Healthcare &amp; Life Sciences</h3><p>ICRA-compliant builds in facilities that never stop caring for patients.</p></div>
-      <div class="sector reveal"><h3>Education &amp; Institutional</h3><p>Schools and civic buildings delivered inside summer windows and public budgets.</p></div>
-      <div class="sector reveal"><h3>Multi-Unit Residential</h3><p>Mid- and high-rise residential with repeatable floor cycles and tight trade sequencing.</p></div>
-      <div class="sector reveal"><h3>Retail &amp; Hospitality</h3><p>Flagships, hotels and restaurant rollouts — open on the date printed on the invitation.</p></div>
-      <div class="sector reveal"><h3>Public Sector</h3><p>Infrastructure and government work with airtight compliance and documentation.</p></div>
-      <div class="sector reveal"><h3>Energy &amp; Utilities</h3><p>Substations, plant buildings and utility works built to the strictest safety regimes.</p></div>
+      <div class="step reveal"><h3>Temporary &amp; enabling civil works</h3><p>Site-establishment earthworks, temporary drainage, cabin bases, temporary roads, hardstanding, compounds, fencing and reinstatement.</p></div>
+      <div class="step reveal"><h3>Temporary MEP &amp; building services</h3><p>Temporary power, lighting, water, drainage, HVAC, plumbing, fire and controls for compounds, welfare, offices and accommodation.</p></div>
+      <div class="step reveal"><h3>Cleaning &amp; soft FM</h3><p>Construction cleaning, welfare and office cleaning, laundry, hygiene, consumables and facilities support.</p></div>
+      <div class="step reveal"><h3>Modular &amp; accommodation</h3><p>Cabins, offices, welfare blocks, worker villages and relocatable buildings.</p></div>
+      <div class="step reveal"><h3>Security &amp; access</h3><p>Guarding, CCTV, access control, perimeter systems and gate operations.</p></div>
+      <div class="step reveal"><h3>Logistics &amp; transport</h3><p>People movement, materials, fleet, lifting, storage and last-mile coordination.</p></div>
+      <div class="step reveal"><h3>Catering &amp; living services</h3><p>Catering, housekeeping, recreation, wellbeing and workforce-village operations.</p></div>
+      <div class="step reveal"><h3>Environmental &amp; closeout</h3><p>Waste, ecology, temporary works removal, land reinstatement and evidence.</p></div>
     </div>
-    <div style="text-align:center; margin-top:44px;">
-      <a class="btn btn-outline btn-arrow" href="/customers">See who we serve in detail</a>
-    </div>
-  </div>
-</section>
-
-<!-- ============ SUBCONTRACTORS ============ -->
-<section class="section dark" id="partners">
-  <div class="container">
-    <div class="split">
+    <div class="split" style="margin-top:44px;align-items:start;">
       <div class="reveal">
-        <span class="kicker">Trade Partners</span>
-        <h2>Great subcontractors deserve a better general contractor.</h2>
-        <p>We're actively prequalifying trade partners in concrete, steel, electrical, mechanical, envelope and finishes. Here's our end of the deal:</p>
+        <h3 style="margin-bottom:14px;">The ETABLIX partner standard</h3>
         <ul class="checklist">
-          <li><b>Paid in 15 days, not 90.</b><span>Approved invoices are paid fast. Your cash flow is our schedule insurance.</span></li>
-          <li><b>A real pipeline, not one-off bids.</b><span>Prequalified partners see our 18-month project pipeline and negotiate work early.</span></li>
-          <li><b>Coordinated sites, zero chaos.</b><span>Construx gives you the schedule, drawings and RFIs on your phone. No more building from stale PDFs.</span></li>
-          <li><b>Quality decided by data.</b><span>Veryx inspections are scored and photographed. Disputes end at the evidence.</span></li>
+          <li><b>Verified competence, capacity and insurance</b></li>
+          <li><b>Robust HSE, quality and ethical systems</b></li>
+          <li><b>Transparent pricing and change control</b></li>
+          <li><b>Digital reporting and auditable evidence</b></li>
+          <li><b>Mobilisation, continuity and closeout discipline</b></li>
         </ul>
-        <div class="hero-actions" style="margin-top:30px;">
-          <a class="btn btn-primary btn-arrow" href="/subcontractors">Prequalify Your Company</a>
-        </div>
       </div>
       <div class="reveal">
-        <div class="quote-card">
-          <blockquote>ETABLIX is the only GC we work with where the schedule on my phone is the actual schedule. We bid their work first, every time.</blockquote>
-          <cite>Maria Kovac <span>Ironline Steel Erectors — trade partner since 2022</span></cite>
-        </div>
-        <div class="quote-card" style="margin-top:24px;">
-          <blockquote>They found $2.1M in value engineering before we broke ground, and finished five weeks early. The Veryx handover file made our lender's sign-off trivial.</blockquote>
-          <cite>J. Whitmore <span>VP Development, Meridian Industrial Partners</span></cite>
+        <div class="card">
+          <h3>Join our supply chain</h3>
+          <p>Registration is the first step — not a guarantee of work. Suppliers are assessed against project-specific capacity, competence, safety, quality, insurance and commercial requirements.</p>
+          <a class="btn btn-primary btn-arrow" style="margin-top:18px;" href="#partner-signup">Register your capability</a>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============ PROCESS ============ -->
+<!-- ============ FOUNDER ============ -->
 <section class="section">
   <div class="container">
-    <div class="section-head center reveal">
-      <span class="kicker">How We Deliver</span>
-      <h2>Certainty is a process, not a personality.</h2>
-    </div>
-    <div class="steps">
-      <div class="step reveal"><h3>Define</h3><p>Feasibility, target budget and risk register in pre-construction. Estimate accuracy to ±3% before you commit.</p></div>
-      <div class="step reveal"><h3>Plan</h3><p>CPM schedule with float analysis in Construx, procurement locked against long-lead risk, trades prequalified.</p></div>
-      <div class="step reveal"><h3>Build</h3><p>Daily logs, live cost tracking and sensor-monitored quality. You see what we see — the same dashboard, same numbers.</p></div>
-      <div class="step reveal"><h3>Prove</h3><p>Veryx handover: every inspection, test result and as-built document, indexed and audit-ready on day one.</p></div>
+    <div class="sec-label reveal"><span class="num">09</span><span class="lbl">Experience behind the system</span></div>
+    <div class="split" style="align-items:start;">
+      <div class="reveal">
+        <h2>Built by leadership that understands unmanaged interfaces.</h2>
+        <p style="color:var(--slate);margin-top:16px;">Justin Ngolu Nseya, MCIOB, brings senior project, construction and commercial leadership across grid infrastructure, offshore wind, transport and major public programmes. His experience includes GE Vernova Grid Solutions assignments across the UK, Ireland and Europe, the 1.4GW Sofia Offshore Wind programme, National Grid infrastructure, rail and regional capital delivery.</p>
+        <p class="disclaimer">Experience references describe the founder's professional background and do not imply endorsement by former employers or clients.</p>
+        <a class="card-link" href="/about">More about ETABLIX →</a>
+      </div>
+      <div class="reveal">
+        <div class="founder-card">
+          <div class="role">Founder &amp; Managing Director</div>
+          <h3>Justin Ngolu Nseya</h3>
+          <div class="creds">MCIOB</div>
+          <ul>
+            <li>MSc BIM Management</li>
+            <li>BSc Construction Management</li>
+            <li>Chartered construction leadership</li>
+            <li>EPC · Grid · Offshore wind · Infrastructure</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ============ CTA ============ -->
+<!-- ============ DIAGNOSTIC ============ -->
+<section class="section dark" id="diagnostic">
+  <div class="container">
+    <div class="sec-label reveal"><span class="num">10</span><span class="lbl">Start with clarity</span></div>
+    <div class="split" style="align-items:start;">
+      <div class="reveal">
+        <h2>The Site Systems Diagnostic</h2>
+        <p style="margin-top:16px;">A focused paid engagement exposing scope gaps, interfaces, mobilisation risks and the most effective delivery model before commitments harden.</p>
+        <div class="hero-actions" style="margin-top:26px;">
+          <a class="btn btn-primary btn-arrow" href="#contact">Book a diagnostic</a>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="steps" style="grid-template-columns:1fr;gap:12px;">
+          <div class="step"><h3>Requirements and demand review</h3></div>
+          <div class="step"><h3>Package and interface map</h3></div>
+          <div class="step"><h3>Commercial and delivery-risk register</h3></div>
+          <div class="step"><h3>Procurement and mobilisation roadmap</h3></div>
+          <div class="step"><h3>Executive recommendation</h3></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BOOK SERVICES ============ -->
+<section class="section" id="contact">
+  <div class="container">
+    <div class="sec-label reveal"><span class="num">11</span><span class="lbl">Book our services &amp; products</span></div>
+    <div class="section-head reveal">
+      <h2>Tell us what must be delivered — or controlled.</h2>
+      <p>Request a Site Systems Diagnostic, an integrated delivery discussion, or a CONSTRUX/VERYX demonstration. Your brief allows us to prepare the right commercial conversation.</p>
+    </div>
+    <div class="split" style="align-items:start;">
+      <form class="form-card reveal" id="lead-form">
+        <h3 style="margin-bottom:20px;">Business project enquiry</h3>
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="l-name">Full name *</label>
+            <input id="l-name" name="name" required autocomplete="name">
+          </div>
+          <div class="form-field">
+            <label for="l-email">Business email *</label>
+            <input id="l-email" name="email" type="email" required autocomplete="email">
+          </div>
+          <div class="form-field">
+            <label for="l-company">Company *</label>
+            <input id="l-company" name="company" required autocomplete="organization">
+          </div>
+          <div class="form-field">
+            <label for="l-phone">Telephone</label>
+            <input id="l-phone" name="phone" autocomplete="tel">
+          </div>
+          <div class="form-field">
+            <label for="l-service">Required service *</label>
+            <select id="l-service" name="service" required>
+              <option value="">Select one</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="l-sector">Project sector</label>
+            <select id="l-sector" name="sector">
+              <option value="">Select sector</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="l-location">Project location</label>
+            <input id="l-location" name="location">
+          </div>
+          <div class="form-field">
+            <label for="l-start">Required start date</label>
+            <input id="l-start" name="startDate" type="date">
+          </div>
+          <div class="form-field full">
+            <label for="l-brief">Project brief *</label>
+            <textarea id="l-brief" name="brief" required placeholder="What must be delivered — or controlled?"></textarea>
+          </div>
+          <div class="form-field full">
+            <label for="l-docs">Supporting documents (optional · PDF, Word, Excel or image · max 10 MB each)</label>
+            <input id="l-docs" name="documents" type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,image/*">
+          </div>
+        </div>
+        <div style="margin-top:26px;">
+          <button class="btn btn-primary btn-arrow" type="submit" data-label="Send project enquiry">Send project enquiry</button>
+        </div>
+        <div data-feedback></div>
+      </form>
+      <div class="reveal">
+        <div class="card">
+          <h3 style="font-size:0.8rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--orange);font-family:var(--font-head);">Direct contact</h3>
+          <h3>Commercial &amp; project enquiries</h3>
+          <ul>
+            <li><a href="mailto:contact@etabiix.com" style="color:var(--orange);font-weight:600;">contact@etabiix.com</a></li>
+            <li><a href="tel:+447493216101">+44 7493 216101</a></li>
+            <li>Groupe Nseya House, Kingstanding, Birmingham, B44 8DJ</li>
+            <li>Serving UK, Ireland, Europe and selected international programmes</li>
+          </ul>
+          <p style="margin-top:14px;"><b>Telephone meetings</b><br>Provided after initial project qualification.</p>
+        </div>
+        <div class="card" style="margin-top:22px;">
+          <h3>What happens next</h3>
+          <ul>
+            <li>We review your brief.</li>
+            <li>We confirm fit and confidentiality requirements.</li>
+            <li>We schedule a discovery call.</li>
+            <li>We issue the proposed scope and commercial basis.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SUPPLIER REGISTRATION ============ -->
+<section class="section dark" id="partner-signup">
+  <div class="container">
+    <div class="sec-label reveal"><span class="num">12</span><span class="lbl">Subcontractor registration</span></div>
+    <div class="section-head reveal">
+      <h2>Qualified specialists: register your capability.</h2>
+      <p>Registration is the first step — not a guarantee of work. Suppliers are assessed against project-specific capacity, competence, safety, quality, insurance and commercial requirements.</p>
+    </div>
+    <form class="form-card reveal" id="sub-form" style="max-width:920px;">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="s-legal">Legal company name *</label>
+          <input id="s-legal" name="legalName" required>
+        </div>
+        <div class="form-field">
+          <label for="s-trading">Trading name</label>
+          <input id="s-trading" name="tradingName">
+        </div>
+        <div class="form-field">
+          <label for="s-contact">Contact person *</label>
+          <input id="s-contact" name="contact" required>
+        </div>
+        <div class="form-field">
+          <label for="s-email">Business email *</label>
+          <input id="s-email" name="email" type="email" required>
+        </div>
+        <div class="form-field">
+          <label for="s-phone">Telephone *</label>
+          <input id="s-phone" name="phone" required>
+        </div>
+        <div class="form-field">
+          <label for="s-reg">Company registration number *</label>
+          <input id="s-reg" name="regNumber" required>
+        </div>
+        <div class="form-field">
+          <label for="s-capability">Primary capability *</label>
+          <select id="s-capability" name="capability" required>
+            <option value="">Select capability</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="s-territories">Operating territories *</label>
+          <input id="s-territories" name="territories" placeholder="e.g. UK &amp; Ireland" required>
+        </div>
+        <div class="form-field">
+          <label for="s-largest">Largest contract delivered</label>
+          <input id="s-largest" name="largestContract" placeholder="e.g. £1.5M">
+        </div>
+        <div class="form-field">
+          <label for="s-mob">Mobilisation lead time</label>
+          <input id="s-mob" name="mobilisation" placeholder="e.g. 4–6 weeks">
+        </div>
+        <div class="form-field full">
+          <label for="s-statement">Capability statement *</label>
+          <textarea id="s-statement" name="statement" required placeholder="Capability, capacity, accreditations, notable programmes…"></textarea>
+        </div>
+        <div class="form-field full">
+          <label for="s-docs">Supporting documents (optional · capability, insurance, HSE or accreditations)</label>
+          <input id="s-docs" name="documents" type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,image/*">
+        </div>
+        <div class="form-field full">
+          <label style="display:flex;align-items:flex-start;gap:10px;font-weight:600;text-transform:none;letter-spacing:0;">
+            <input type="checkbox" name="confirmed" style="width:18px;height:18px;accent-color:var(--orange);margin-top:2px;flex-shrink:0;">
+            I confirm the information is accurate and supporting competence, HSE, quality, insurance and financial records can be provided. *
+          </label>
+        </div>
+      </div>
+      <div style="margin-top:26px;">
+        <button class="btn btn-primary btn-arrow" type="submit" data-label="Submit supplier registration">Submit supplier registration</button>
+      </div>
+      <div data-feedback></div>
+    </form>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
 <section class="cta-band">
   <div class="container">
-    <h2>Your next project deserves numbers, not narratives.</h2>
-    <p>Tell us what you're building. Within 5 business days you'll have a feasibility read, a schedule frame and a straight answer on whether we're the right builder for it.</p>
+    <p style="font-family:var(--font-head);font-size:0.78rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:18px;color:rgba(255,255,255,0.85);">One site. One village. One accountable system.</p>
+    <h2>Bring us in before fragmented scopes become expensive interfaces.</h2>
+    <p>For urgent or confidential requirements, contact the Managing Director's office: <a href="mailto:contact@etabiix.com?subject=Confidential%20ETABLIX%20enquiry" style="color:#fff;text-decoration:underline;">contact@etabiix.com</a></p>
     <div class="hero-actions">
-      <a class="btn btn-primary btn-arrow" href="/contact">Start Your Project</a>
-      <a class="btn btn-outline" href="/subcontractors">Join Our Trade Network</a>
+      <a class="btn btn-primary btn-arrow" href="#contact">Book services ↗</a>
+      <a class="btn btn-outline" href="/construx">Construx / Veryx ↗</a>
+      <a class="btn btn-outline" href="#partner-signup">Supplier registration ↗</a>
     </div>
   </div>
 </section>
@@ -229,43 +616,72 @@
     <div class="footer-grid">
       <div class="footer-about">
         <a class="logo" href="/"><span class="logo-mark"></span>ETABL<span>IX</span></a>
-        <p>Full-cycle construction and construction technology. We build complex projects with certainty — and sell the platforms that make it possible: Construx® and Veryx®.</p>
+        <p>ETABLIX — Integrated Site Services, part of Groupe Nseya. We plan, procure, integrate and control every critical temporary-site and workforce-accommodation service — from first mobilisation to final reinstatement.</p>
+        <p style="font-size:0.88rem;">Groupe Nseya House, Kingstanding, Birmingham, B44 8DJ<br>
+        <a href="mailto:contact@etabiix.com">contact@etabiix.com</a> · <a href="tel:+447493216101">+44 7493 216101</a></p>
       </div>
       <div>
         <h4>Company</h4>
         <ul>
-          <li><a href="/services">Services</a></li>
-          <li><a href="/customers">Who We Serve</a></li>
-          <li><a href="/subcontractors">Trade Partners</a></li>
+          <li><a href="/about">About us</a></li>
+          <li><a href="/what-we-offer">What we offer</a></li>
+          <li><a href="/how-it-works">How it works</a></li>
           <li><a href="/contact">Contact</a></li>
         </ul>
       </div>
       <div>
-        <h4>Products</h4>
+        <h4>Governance</h4>
         <ul>
-          <li><a href="/construx">Construx® Platform</a></li>
-          <li><a href="/veryx">Veryx® Verification</a></li>
-          <li><a href="/construx#api">Construx API</a></li>
-          <li><a href="/veryx#api">Veryx API</a></li>
+          <li><a href="/policies/privacy">Privacy</a></li>
+          <li><a href="/policies/terms">Website terms</a></li>
+          <li><a href="/policies/cookies">Cookies</a></li>
         </ul>
       </div>
       <div>
-        <h4>Get In Touch</h4>
+        <h4>Responsible delivery</h4>
         <ul>
-          <li>hello@etablix.com</li>
-          <li>+1 (555) 010-4820</li>
-          <li>4820 Ironworks Avenue, Suite 300</li>
-          <li><a href="/internal/login.html">Employee Login</a></li>
+          <li><a href="/policies/supplier-code">Supplier code</a></li>
+          <li><a href="/policies/modern-slavery">Modern slavery</a></li>
+          <li><a href="/subcontractors#register">Supplier registration</a></li>
+          <li><a href="/internal/login.html">Employee login</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 ETABLIX. All rights reserved. Construx® and Veryx® are trademarks of ETABLIX.</span>
-      <span>Licensed · Bonded · Insured</span>
+      <span>© 2026 ETABLIX — Integrated Site Services, part of Groupe Nseya. CONSTRUX and VERYX are ETABLIX products.</span>
+      <span>One site. One village. One accountable system.</span>
     </div>
   </div>
 </footer>
 
-<script src="/js/main.js" type="module"></script>
+<script type="module">
+  import { submitForm } from "/js/main.js";
+  import { SERVICES, SECTORS, CAPABILITIES } from "/shared/constants.js";
+
+  function fill(select, options) {
+    for (const value of options) {
+      const opt = document.createElement("option");
+      opt.textContent = value;
+      select.appendChild(opt);
+    }
+  }
+  fill(document.getElementById("l-service"), SERVICES);
+  fill(document.getElementById("l-sector"), SECTORS);
+  fill(document.getElementById("s-capability"), CAPABILITIES);
+
+  const leadForm = document.getElementById("lead-form");
+  leadForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    submitForm(leadForm, "/api/leads",
+      "✓ Enquiry received. We review your brief, confirm fit and confidentiality requirements, then schedule a discovery call.");
+  });
+
+  const subForm = document.getElementById("sub-form");
+  subForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    submitForm(subForm, "/api/subcontractors",
+      "✓ Registration received. Suppliers are assessed against project-specific capacity, competence, safety, quality, insurance and commercial requirements.");
+  });
+</script>
 </body>
 </html>

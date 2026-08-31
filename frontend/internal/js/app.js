@@ -1,4 +1,5 @@
-/* ETABLIX internal dashboard. Session-token auth against the JSON API. */
+/* ETABLIX Control Desk — commercial intake: project enquiries and
+   supplier applications, with search, documents and status control. */
 
 import { LEAD_STATUS, APPLICATION_STATUS } from "/shared/constants.js";
 
@@ -32,22 +33,19 @@ const esc = (s) =>
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
   })[c]);
 
-const money = (n) =>
-  typeof n === "number" ? "$" + (n / 1e6).toFixed(1) + "M" : "—";
+const when = (ts) => (ts ? new Date(ts).toLocaleDateString("en-GB") : "—");
 
-const when = (ts) => (ts ? new Date(ts).toLocaleDateString() : "—");
+const reference = (prefix, id) => `${prefix}-${String(id).slice(0, 6).toUpperCase()}`;
 
-const pill = (status) =>
-  `<span class="pill ${esc(status)}">${esc(String(status).replace(/_/g, " "))}</span>`;
-
-function renderTable(el, headers, rows, emptyText) {
-  if (!rows.length) {
-    el.innerHTML = `<tr><td class="empty-note">${esc(emptyText)}</td></tr>`;
-    return;
-  }
-  el.innerHTML =
-    `<thead><tr>${headers.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead>` +
-    `<tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody>`;
+function documentLinks(docs = []) {
+  if (!docs.length) return '<span class="muted">—</span>';
+  return docs
+    .map(
+      (d) =>
+        `<a href="/api/files/${encodeURIComponent(d.stored)}?token=${encodeURIComponent(token)}"
+            target="_blank" rel="noopener" class="doc-link">${esc(d.name)}</a>`
+    )
+    .join("<br>");
 }
 
 function statusSelect(current, options, endpoint, id) {
@@ -66,6 +64,7 @@ document.addEventListener("change", async (e) => {
       method: "PATCH",
       body: JSON.stringify({ status: sel.value }),
     });
+    refreshKpis();
   } catch (err) {
     alert(err.message);
   } finally {
@@ -76,8 +75,6 @@ document.addEventListener("change", async (e) => {
 // ---------- Shell ----------
 
 document.getElementById("user-name").textContent = user.name;
-document.getElementById("user-role").textContent = user.role.replace(/_/g, " ");
-document.getElementById("hello-name").textContent = `, ${user.name.split(" ")[0]}`;
 document.getElementById("logout").addEventListener("click", () => {
   sessionStorage.clear();
   location.replace("/internal/login.html");
@@ -93,283 +90,95 @@ tabs.addEventListener("click", (e) => {
   );
 });
 
-function kpi(label, value, cls = "") {
-  return `<div class="kpi ${cls}"><b>${value}</b><span>${esc(label)}</span></div>`;
+// ---------- Data ----------
+
+let leads = [];
+let applications = [];
+let query = "";
+
+function matches(row, fields) {
+  if (!query) return true;
+  const q = query.toLowerCase();
+  return fields.some((f) => String(f || "").toLowerCase().includes(q));
 }
 
-// ---------- Overview ----------
-
-async function loadOverview() {
-  const [stats, veryx] = await Promise.all([api("/api/stats"), api("/api/veryx/summary")]);
-  document.getElementById("overview-kpis").innerHTML =
-    kpi("Active projects", stats.activeProjects, "accent") +
-    kpi("Portfolio value", money(stats.portfolioValue), "accent") +
-    kpi("New leads", stats.newLeads) +
-    kpi("Pending sub applications", stats.pendingApplications) +
-    kpi("Open RFIs", stats.openRfis) +
-    kpi("Open risks", veryx.openRisks, "green") +
-    kpi("ACU balance", veryx.acuBalance, "green");
+function emptyRow() {
+  return '<tr><td colspan="7" class="empty-note">No records match this view.</td></tr>';
 }
 
-// ---------- Leads ----------
-
-function leadRows(leads, editable) {
-  return leads.map((l) => [
-    `<b>${esc(l.name)}</b><div class="muted">${esc(l.email)}</div>`,
-    esc(l.company),
-    esc(l.sector || "—"),
-    esc(l.budget || "—"),
-    esc(l.message).slice(0, 160) + (l.message.length > 160 ? "…" : ""),
-    when(l.createdAt),
-    editable ? statusSelect(l.status, LEAD_STATUS, "/api/leads", l.id) : pill(l.status),
-  ]);
+function renderEnquiries() {
+  const tbody = document.querySelector("#enquiries-table tbody");
+  const rows = leads
+    .filter((l) => matches(l, [reference("ENQ", l.id), l.company, l.name]))
+    .map(
+      (l) => `<tr>
+        <td><b>${reference("ENQ", l.id)}</b></td>
+        <td><b>${esc(l.company)}</b><div class="muted">${esc(l.name)} · ${esc(l.email)}${l.phone ? " · " + esc(l.phone) : ""}</div></td>
+        <td>${esc(l.service || "—")}<div class="muted">${esc(l.sector || "")}${l.startDate ? " · start " + esc(l.startDate) : ""}</div>
+            <div class="muted brief">${esc(l.brief).slice(0, 180)}${l.brief && l.brief.length > 180 ? "…" : ""}</div></td>
+        <td>${esc(l.location || "—")}</td>
+        <td>${when(l.createdAt)}</td>
+        <td>${documentLinks(l.documents)}</td>
+        <td>${statusSelect(l.status, LEAD_STATUS, "/api/leads", l.id)}</td>
+      </tr>`
+    );
+  tbody.innerHTML = rows.length ? rows.join("") : emptyRow();
 }
 
-async function loadLeads() {
-  const { leads } = await api("/api/leads");
-  const headers = ["Contact", "Company", "Sector", "Budget", "Message", "Received", "Status"];
-  renderTable(document.getElementById("leads-table"), headers, leadRows(leads, true), "No leads yet.");
-  renderTable(
-    document.getElementById("overview-leads"),
-    headers,
-    leadRows(leads.slice(0, 3), false),
-    "No leads yet."
-  );
+function renderApplications() {
+  const tbody = document.querySelector("#applications-table tbody");
+  const rows = applications
+    .filter((a) => matches(a, [reference("SUP", a.id), a.legalName, a.tradingName, a.contact]))
+    .map(
+      (a) => `<tr>
+        <td><b>${reference("SUP", a.id)}</b></td>
+        <td><b>${esc(a.legalName)}</b>${a.tradingName ? `<div class="muted">t/a ${esc(a.tradingName)}</div>` : ""}
+            <div class="muted">${esc(a.contact)} · ${esc(a.email)} · ${esc(a.phone)}</div>
+            <div class="muted">Reg. ${esc(a.regNumber)}</div></td>
+        <td>${esc(a.capability)}<div class="muted">${a.largestContract ? "Largest: " + esc(a.largestContract) + " · " : ""}${a.mobilisation ? "Mobilise: " + esc(a.mobilisation) : ""}</div>
+            <div class="muted brief">${esc(a.statement).slice(0, 160)}${a.statement && a.statement.length > 160 ? "…" : ""}</div></td>
+        <td>${esc(a.territories || "—")}</td>
+        <td>${when(a.createdAt)}</td>
+        <td>${documentLinks(a.documents)}</td>
+        <td>${statusSelect(a.status, APPLICATION_STATUS, "/api/subcontractors", a.id)}</td>
+      </tr>`
+    );
+  tbody.innerHTML = rows.length ? rows.join("") : emptyRow();
 }
 
-// ---------- Subcontractor applications ----------
-
-function subRows(apps, editable) {
-  return apps.map((a) => [
-    `<b>${esc(a.company)}</b><div class="muted">${esc(a.contact)} · ${esc(a.email)}</div>`,
-    esc(a.trade),
-    esc(a.crewSize || "—"),
-    `${a.licensed ? "✓ licensed" : "✗ unlicensed"}<br>${a.insured ? "✓ insured" : "✗ uninsured"}`,
-    esc(a.experience).slice(0, 140) + (a.experience.length > 140 ? "…" : ""),
-    when(a.createdAt),
-    editable ? statusSelect(a.status, APPLICATION_STATUS, "/api/subcontractors", a.id) : pill(a.status),
-  ]);
+function refreshKpis() {
+  const newActions =
+    leads.filter((l) => l.status === "new").length +
+    applications.filter((a) => a.status === "submitted").length;
+  const documents =
+    leads.reduce((n, l) => n + (l.documents?.length || 0), 0) +
+    applications.reduce((n, a) => n + (a.documents?.length || 0), 0);
+  document.getElementById("kpi-actions").textContent = newActions;
+  document.getElementById("kpi-enquiries").textContent = leads.length;
+  document.getElementById("kpi-applications").textContent = applications.length;
+  document.getElementById("kpi-documents").textContent = documents;
 }
 
-async function loadSubs() {
-  const { applications } = await api("/api/subcontractors");
-  const headers = ["Company", "Trade", "Crew", "Compliance", "Experience", "Received", "Status"];
-  renderTable(document.getElementById("subs-table"), headers, subRows(applications, true), "No applications yet.");
-  renderTable(
-    document.getElementById("overview-subs"),
-    headers,
-    subRows(applications.slice(0, 3), false),
-    "No applications yet."
-  );
-}
-
-// ---------- Construx ----------
-
-async function loadConstrux() {
-  const [{ projects }, { schedule }, { rfis }, { inspections }, { ncrs }, { sensors }] =
-    await Promise.all([
-      api("/api/construx/projects"),
-      api("/api/construx/schedule?critical=true"),
-      api("/api/construx/rfis"),
-      api("/api/construx/inspections"),
-      api("/api/construx/ncrs"),
-      api("/api/construx/sensors"),
-    ]);
-
-  const byId = Object.fromEntries(projects.map((p) => [p.id, p]));
-  const proj = (pid) => (byId[pid] ? byId[pid].code : "—");
-
-  document.getElementById("construx-kpis").innerHTML =
-    kpi("Projects in delivery", projects.length, "accent") +
-    kpi("Critical activities", schedule.length) +
-    kpi("Open RFIs", rfis.filter((r) => r.status === "open").length) +
-    kpi("Open NCRs", ncrs.filter((n) => n.status === "open").length) +
-    kpi("Sensor alerts", sensors.filter((s) => s.status === "alert").length);
-
-  renderTable(
-    document.getElementById("projects-table"),
-    ["Code", "Project", "Client", "Status", "Value", "Progress", "Manager"],
-    projects.map((p) => [
-      `<b>${esc(p.code)}</b>`,
-      `${esc(p.name)}<div class="muted">${esc(p.sector)}</div>`,
-      esc(p.client),
-      pill(p.status),
-      money(p.value),
-      `<div class="progress-track"><div class="progress-fill" style="width:${p.progress}%"></div></div><span class="muted">${p.progress}%</span>`,
-      esc(p.manager),
-    ]),
-    "No projects."
-  );
-
-  renderTable(
-    document.getElementById("schedule-table"),
-    ["Project", "Activity", "Phase", "Start", "End", "Progress"],
-    schedule.map((s) => [
-      proj(s.projectId),
-      `<b>${esc(s.activity)}</b>`,
-      esc(s.phase),
-      esc(s.start),
-      esc(s.end),
-      `<div class="progress-track"><div class="progress-fill" style="width:${s.progress}%"></div></div><span class="muted">${s.progress}%</span>`,
-    ]),
-    "No critical activities."
-  );
-
-  renderTable(
-    document.getElementById("rfis-table"),
-    ["Ref", "Project", "Subject", "Raised by", "Priority", "Status"],
-    rfis.map((r) => [
-      `<b>${esc(r.number)}</b>`,
-      proj(r.projectId),
-      esc(r.subject),
-      esc(r.raisedBy),
-      pill(r.priority),
-      pill(r.status),
-    ]),
-    "No RFIs."
-  );
-
-  renderTable(
-    document.getElementById("inspections-table"),
-    ["Ref", "Project", "Inspection", "Inspector", "Date", "Items", "Score", "Status"],
-    inspections.map((i) => [
-      `<b>${esc(i.ref)}</b>`,
-      proj(i.projectId),
-      esc(i.type),
-      esc(i.inspector),
-      esc(i.date),
-      `${i.items} <span class="muted">(${i.failures} failed)</span>`,
-      i.score == null ? "—" : `${i.score}%`,
-      pill(i.status),
-    ]),
-    "No inspections."
-  );
-
-  renderTable(
-    document.getElementById("ncrs-table"),
-    ["Ref", "Project", "Non-conformance", "Assigned to", "Severity", "Status"],
-    ncrs.map((n) => [
-      `<b>${esc(n.ref)}</b>`,
-      proj(n.projectId),
-      esc(n.title),
-      esc(n.assignedTo),
-      pill(n.severity),
-      pill(n.status),
-    ]),
-    "No NCRs."
-  );
-
-  renderTable(
-    document.getElementById("sensors-table"),
-    ["Sensor", "Project", "Type", "Location", "Reading", "Threshold", "Status"],
-    sensors.map((s) => [
-      `<b>${esc(s.sensor)}</b>`,
-      proj(s.projectId),
-      esc(s.kind.replace(/_/g, " ")),
-      esc(s.location),
-      `${s.value} ${esc(s.unit)}`,
-      `${s.threshold} ${esc(s.unit)}`,
-      pill(s.status),
-    ]),
-    "No sensors online."
-  );
-}
-
-// ---------- Veryx ----------
-
-async function loadVeryx() {
-  const [summary, { risks }, { agents, runs }, { keys }] = await Promise.all([
-    api("/api/veryx/summary"),
-    api("/api/veryx/risks"),
-    api("/api/veryx/agents"),
-    api("/api/veryx/usage"),
-  ]);
-
-  document.getElementById("veryx-kpis").innerHTML =
-    kpi("Open risks", summary.openRisks, "accent") +
-    kpi("Top risk score", summary.topRiskScore, "accent") +
-    kpi("Agent runs", summary.agentRuns, "green") +
-    kpi("ACU balance", summary.acuBalance, "green") +
-    kpi("API calls this month", summary.apiCallsUsed);
-
-  renderTable(
-    document.getElementById("risks-table"),
-    ["Ref", "Risk", "Category", "P×I", "Score", "Owner", "Mitigation", "Status"],
-    risks.map((r) => [
-      `<b>${esc(r.ref)}</b>`,
-      esc(r.title),
-      esc(r.category),
-      `${r.probability} × ${r.impact}`,
-      `<b>${r.score}</b>`,
-      esc(r.owner),
-      esc(r.mitigation),
-      pill(r.status),
-    ]),
-    "No risks registered."
-  );
-
-  renderTable(
-    document.getElementById("agents-table"),
-    ["Agent", "What it does", "ACU / run", ""],
-    agents.map((a) => [
-      `<b>${esc(a.name)}</b><div class="muted">${esc(a.type)}</div>`,
-      esc(a.description),
-      `<b>${a.acuCost}</b>`,
-      `<button class="btn-ghost" style="color:var(--orange);border-color:var(--orange);" data-run="${esc(a.type)}">Run now</button>`,
-    ]),
-    "No agents in the catalogue."
-  );
-
-  renderTable(
-    document.getElementById("runs-table"),
-    ["Agent", "Triggered by", "When", "ACU", "Status", "Summary"],
-    [...runs].reverse().slice(0, 10).map((r) => [
-      `<b>${esc(r.agentName)}</b>`,
-      esc(r.triggeredBy),
-      when(r.createdAt),
-      r.acuCost,
-      pill(r.status),
-      esc(r.summary),
-    ]),
-    "No runs yet — trigger an agent above."
-  );
-
-  renderTable(
-    document.getElementById("keys-table"),
-    ["Key", "Workspace", "Env", "Scopes", "Quota used", "ACU balance"],
-    keys.map((k) => [
-      `<code>${esc(k.keyPreview)}</code>`,
-      esc(k.workspace),
-      `<span class="pill ${k.env === "test" ? "under_review" : "approved"}">${esc(k.env)}</span>`,
-      k.scopes.map((s) => `<code class="muted">${esc(s)}</code>`).join("<br>"),
-      `${k.used} / ${k.monthlyQuota}`,
-      `<b>${k.acuBalance}</b>`,
-    ]),
-    "No API keys issued."
-  );
-}
-
-document.addEventListener("click", async (e) => {
-  const btn = e.target.closest("button[data-run]");
-  if (!btn) return;
-  btn.disabled = true;
-  btn.textContent = "Running…";
-  try {
-    await api(`/api/veryx/agents/${btn.dataset.run}/run`, { method: "POST" });
-    await loadVeryx();
-  } catch (err) {
-    alert(err.message);
-    btn.disabled = false;
-    btn.textContent = "Run now";
-  }
+document.getElementById("search").addEventListener("input", (e) => {
+  query = e.target.value.trim();
+  renderEnquiries();
+  renderApplications();
 });
 
-// ---------- Boot ----------
+async function load() {
+  const [leadRes, appRes] = await Promise.all([
+    api("/api/leads"),
+    api("/api/subcontractors"),
+  ]);
+  leads = leadRes.leads;
+  applications = appRes.applications;
+  refreshKpis();
+  renderEnquiries();
+  renderApplications();
+}
 
-Promise.allSettled([loadOverview(), loadLeads(), loadSubs(), loadConstrux(), loadVeryx()]).then(
-  (results) => {
-    for (const r of results) {
-      if (r.status === "rejected") console.error(r.reason);
-    }
-  }
-);
+load().catch((err) => {
+  console.error(err);
+  document.querySelector("#enquiries-table tbody").innerHTML =
+    `<tr><td colspan="7" class="error-note">${esc(err.message)}</td></tr>`;
+});

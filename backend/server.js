@@ -19,6 +19,7 @@ import construxRoutes from "./routes/construx.js";
 import veryxRoutes from "./routes/veryx.js";
 import veryxPublicRoutes from "./routes/veryx-public.js";
 import statsRoutes from "./routes/stats.js";
+import fileRoutes from "./routes/files.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
@@ -36,6 +37,7 @@ app.use("/api/construx", construxRoutes);
 app.use("/api/veryx", veryxRoutes);
 app.use("/api/public/v1", veryxPublicRoutes); // VERYX Platform API (key-authenticated)
 app.use("/api/stats", statsRoutes);
+app.use("/api/files", fileRoutes);
 
 app.use("/api", (req, res) => res.status(404).json({ error: "Unknown endpoint." }));
 

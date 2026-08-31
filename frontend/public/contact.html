@@ -3,16 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Start Your Project — Contact ETABLIX</title>
-<meta name="description" content="Tell ETABLIX what you're building. Within 5 business days you'll have a feasibility read, a schedule frame and a straight answer.">
+<title>Contact — Book Our Services &amp; Products | ETABLIX</title>
+<meta name="description" content="Tell us what must be delivered — or controlled. Request a Site Systems Diagnostic, an integrated delivery discussion, or a CONSTRUX/VERYX demonstration.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
 
+<div class="topline"><b>ETABLIX</b> · INTEGRATED SITE SERVICES · PART OF <b>GROUPE NSEYA</b></div>
 <header class="site-header">
   <div class="container nav-wrap">
     <a class="logo" href="/"><span class="logo-mark"></span>ETABL<span>IX</span></a>
@@ -20,13 +21,14 @@
       <span></span><span></span><span></span>
     </button>
     <nav class="main-nav">
-      <a href="/services">Services</a>
+      <a href="/about">About</a>
+      <a href="/what-we-offer">What we offer</a>
+      <a href="/how-it-works">How it works</a>
       <a href="/construx">Construx</a>
       <a href="/veryx">Veryx</a>
-      <a href="/customers">Who We Serve</a>
-      <a href="/subcontractors">Subcontractors</a>
+      <a href="/subcontractors">Supply chain</a>
       <a href="/internal/login.html">Employee Login</a>
-      <a class="nav-cta" href="/contact">Start Your Project</a>
+      <a class="nav-cta" href="/contact">Book services</a>
     </nav>
   </div>
 </header>
@@ -34,78 +36,105 @@
 <section class="page-hero">
   <div class="container">
     <div class="breadcrumb"><a href="/">Home</a> / Contact</div>
-    <h1>Tell us what you're building.</h1>
-    <p class="lead">Drawings, a napkin sketch, or just a problem statement — all valid starting points. Within five business days you'll have a feasibility read, a schedule frame, and a straight answer on fit.</p>
+    <span class="eyebrow" style="display:inline-block;font-family:var(--font-head);font-size:0.82rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--amber);border:1px solid rgba(255,176,32,0.4);border-radius:100px;padding:8px 18px;margin-bottom:22px;">Book our services &amp; products</span>
+    <h1>Tell us what must be delivered — <em style="font-style:normal;color:var(--orange)">or controlled.</em></h1>
+    <p class="lead">Request a Site Systems Diagnostic, an integrated delivery discussion, or a CONSTRUX/VERYX demonstration. Your brief allows us to prepare the right commercial conversation.</p>
   </div>
 </section>
 
-<section class="section">
+<!-- Diagnostic summary -->
+<section class="section tight" id="diagnostic">
+  <div class="container">
+    <div class="card reveal" style="border-left:5px solid var(--orange);">
+      <h3 style="font-size:0.8rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--orange);font-family:var(--font-head);">Start with clarity — the Site Systems Diagnostic</h3>
+      <p>A focused paid engagement exposing scope gaps, interfaces, mobilisation risks and the most effective delivery model before commitments harden: <b>requirements and demand review · package and interface map · commercial and delivery-risk register · procurement and mobilisation roadmap · executive recommendation.</b> Select "Site Systems Diagnostic" as the required service below.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section tight" id="enquiry">
   <div class="container">
     <div class="split" style="align-items:start;">
-      <div class="reveal">
-        <span class="kicker">What Happens Next</span>
-        <h2>No sales funnel. A build funnel.</h2>
-        <ul class="checklist">
-          <li><b>Day 1 — We read everything you send</b><span>A project executive (not a salesperson) reviews your submission.</span></li>
-          <li><b>Day 2–3 — Feasibility pass</b><span>Order-of-magnitude cost, schedule frame, and the three biggest risks we see.</span></li>
-          <li><b>Day 5 — The straight answer</b><span>A call where we tell you whether we're the right builder — and if not, who might be.</span></li>
-        </ul>
-        <div class="card" style="margin-top:30px;">
-          <h3>Prefer direct?</h3>
-          <ul>
-            <li>hello@etablix.com</li>
-            <li>+1 (555) 010-4820</li>
-            <li>4820 Ironworks Avenue, Suite 300</li>
-          </ul>
-          <p style="margin-top:14px;">Product demos for Construx® and Veryx® — mention it in the message and we'll route you to the platform team.</p>
-        </div>
-      </div>
       <form class="form-card reveal" id="lead-form">
+        <h3 style="margin-bottom:20px;">Business project enquiry</h3>
         <div class="form-grid">
           <div class="form-field">
             <label for="l-name">Full name *</label>
-            <input id="l-name" name="name" required placeholder="Your name">
+            <input id="l-name" name="name" required autocomplete="name">
+          </div>
+          <div class="form-field">
+            <label for="l-email">Business email *</label>
+            <input id="l-email" name="email" type="email" required autocomplete="email">
           </div>
           <div class="form-field">
             <label for="l-company">Company *</label>
-            <input id="l-company" name="company" required placeholder="Your organization">
+            <input id="l-company" name="company" required autocomplete="organization">
           </div>
           <div class="form-field">
-            <label for="l-email">Email *</label>
-            <input id="l-email" name="email" type="email" required placeholder="you@company.com">
+            <label for="l-phone">Telephone</label>
+            <input id="l-phone" name="phone" autocomplete="tel">
           </div>
           <div class="form-field">
-            <label for="l-phone">Phone</label>
-            <input id="l-phone" name="phone" placeholder="+1 555 000 0000">
+            <label for="l-service">Required service *</label>
+            <select id="l-service" name="service" required>
+              <option value="">Select one</option>
+            </select>
           </div>
           <div class="form-field">
-            <label for="l-sector">Sector</label>
+            <label for="l-sector">Project sector</label>
             <select id="l-sector" name="sector">
-              <option value="">Select a sector…</option>
+              <option value="">Select sector</option>
             </select>
           </div>
           <div class="form-field">
-            <label for="l-budget">Estimated budget</label>
-            <select id="l-budget" name="budget">
-              <option value="">Select…</option>
-              <option>Under $5M</option>
-              <option>$5M – $10M</option>
-              <option>$10M – $25M</option>
-              <option>$25M – $75M</option>
-              <option>$75M+</option>
-            </select>
+            <label for="l-location">Project location</label>
+            <input id="l-location" name="location">
+          </div>
+          <div class="form-field">
+            <label for="l-start">Required start date</label>
+            <input id="l-start" name="startDate" type="date">
           </div>
           <div class="form-field full">
-            <label for="l-message">Project details *</label>
-            <textarea id="l-message" name="message" required placeholder="What are you building, where, and when do you need it? Include a link to drawings if you have them."></textarea>
+            <label for="l-brief">Project brief *</label>
+            <textarea id="l-brief" name="brief" required placeholder="What must be delivered — or controlled?"></textarea>
+          </div>
+          <div class="form-field full">
+            <label for="l-docs">Supporting documents (optional · PDF, Word, Excel or image · max 10 MB each)</label>
+            <input id="l-docs" name="documents" type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,image/*">
           </div>
         </div>
         <div style="margin-top:26px;">
-          <button class="btn btn-primary btn-arrow" type="submit" data-label="Send Project Enquiry">Send Project Enquiry</button>
+          <button class="btn btn-primary btn-arrow" type="submit" data-label="Send project enquiry">Send project enquiry</button>
         </div>
         <div data-feedback></div>
-        <p class="form-note">Fields marked * are required. Your enquiry goes straight to our project executive team.</p>
       </form>
+      <div class="reveal">
+        <div class="card">
+          <h3 style="font-size:0.8rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--orange);font-family:var(--font-head);">Direct contact</h3>
+          <h3>Commercial &amp; project enquiries</h3>
+          <ul>
+            <li><a href="mailto:contact@etabiix.com" style="color:var(--orange);font-weight:600;">contact@etabiix.com</a></li>
+            <li><a href="tel:+447493216101">+44 7493 216101</a></li>
+            <li>Groupe Nseya House, Kingstanding, Birmingham, B44 8DJ</li>
+            <li>Serving UK, Ireland, Europe and selected international programmes</li>
+          </ul>
+          <p style="margin-top:14px;"><b>Telephone meetings</b><br>Provided after initial project qualification.</p>
+        </div>
+        <div class="card" style="margin-top:22px;">
+          <h3>What happens next</h3>
+          <ul>
+            <li>We review your brief.</li>
+            <li>We confirm fit and confidentiality requirements.</li>
+            <li>We schedule a discovery call.</li>
+            <li>We issue the proposed scope and commercial basis.</li>
+          </ul>
+        </div>
+        <div class="card" style="margin-top:22px;">
+          <h3>Urgent or confidential requirements</h3>
+          <p>Contact the Managing Director's office directly:</p>
+          <p style="margin-top:8px;"><a href="mailto:contact@etabiix.com?subject=Confidential%20ETABLIX%20enquiry" style="color:var(--orange);font-weight:600;">contact@etabiix.com</a></p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -115,66 +144,63 @@
     <div class="footer-grid">
       <div class="footer-about">
         <a class="logo" href="/"><span class="logo-mark"></span>ETABL<span>IX</span></a>
-        <p>Full-cycle construction and construction technology. We build complex projects with certainty — and sell the platforms that make it possible: Construx® and Veryx®.</p>
+        <p>ETABLIX — Integrated Site Services, part of Groupe Nseya. We plan, procure, integrate and control every critical temporary-site and workforce-accommodation service — from first mobilisation to final reinstatement.</p>
+        <p style="font-size:0.88rem;">Groupe Nseya House, Kingstanding, Birmingham, B44 8DJ<br>
+        <a href="mailto:contact@etabiix.com">contact@etabiix.com</a> · <a href="tel:+447493216101">+44 7493 216101</a></p>
       </div>
       <div>
         <h4>Company</h4>
         <ul>
-          <li><a href="/services">Services</a></li>
-          <li><a href="/customers">Who We Serve</a></li>
-          <li><a href="/subcontractors">Trade Partners</a></li>
+          <li><a href="/about">About us</a></li>
+          <li><a href="/what-we-offer">What we offer</a></li>
+          <li><a href="/how-it-works">How it works</a></li>
           <li><a href="/contact">Contact</a></li>
         </ul>
       </div>
       <div>
-        <h4>Products</h4>
+        <h4>Governance</h4>
         <ul>
-          <li><a href="/construx">Construx® Platform</a></li>
-          <li><a href="/veryx">Veryx® Verification</a></li>
-          <li><a href="/construx#api">Construx API</a></li>
-          <li><a href="/veryx#api">Veryx API</a></li>
+          <li><a href="/policies/privacy">Privacy</a></li>
+          <li><a href="/policies/terms">Website terms</a></li>
+          <li><a href="/policies/cookies">Cookies</a></li>
         </ul>
       </div>
       <div>
-        <h4>Get In Touch</h4>
+        <h4>Responsible delivery</h4>
         <ul>
-          <li>hello@etablix.com</li>
-          <li>+1 (555) 010-4820</li>
-          <li>4820 Ironworks Avenue, Suite 300</li>
-          <li><a href="/internal/login.html">Employee Login</a></li>
+          <li><a href="/policies/supplier-code">Supplier code</a></li>
+          <li><a href="/policies/modern-slavery">Modern slavery</a></li>
+          <li><a href="/subcontractors#register">Supplier registration</a></li>
+          <li><a href="/internal/login.html">Employee login</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 ETABLIX. All rights reserved. Construx® and Veryx® are trademarks of ETABLIX.</span>
-      <span>Licensed · Bonded · Insured</span>
+      <span>© 2026 ETABLIX — Integrated Site Services, part of Groupe Nseya. CONSTRUX and VERYX are ETABLIX products.</span>
+      <span>One site. One village. One accountable system.</span>
     </div>
   </div>
 </footer>
 
 <script type="module">
   import { submitForm } from "/js/main.js";
-  import { SECTORS } from "/shared/constants.js";
+  import { SERVICES, SECTORS } from "/shared/constants.js";
 
-  const select = document.getElementById("l-sector");
-  for (const sector of SECTORS) {
-    const opt = document.createElement("option");
-    opt.textContent = sector;
-    select.appendChild(opt);
+  function fill(select, options) {
+    for (const value of options) {
+      const opt = document.createElement("option");
+      opt.textContent = value;
+      select.appendChild(opt);
+    }
   }
+  fill(document.getElementById("l-service"), SERVICES);
+  fill(document.getElementById("l-sector"), SECTORS);
 
   const form = document.getElementById("lead-form");
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-    submitForm(form, "/api/leads", (fd) => ({
-      name: fd.get("name"),
-      company: fd.get("company"),
-      email: fd.get("email"),
-      phone: fd.get("phone"),
-      sector: fd.get("sector"),
-      budget: fd.get("budget"),
-      message: fd.get("message"),
-    }));
+    submitForm(form, "/api/leads",
+      "✓ Enquiry received. We review your brief, confirm fit and confidentiality requirements, then schedule a discovery call.");
   });
 </script>
 </body>

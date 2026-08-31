@@ -3,7 +3,7 @@
  * instant feedback) and on the server (as the source of truth).
  */
 
-import { TRADES, SECTORS } from "./constants.js";
+import { SECTORS, SERVICES, CAPABILITIES } from "./constants.js";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PHONE_RE = /^[+\d][\d\s().-]{6,19}$/;
@@ -23,7 +23,11 @@ function requireText(value, min, max, label, errors) {
   return v;
 }
 
-/** Validate a public contact / project enquiry. Returns {ok, errors, data}. */
+function optionalText(value, max) {
+  return (typeof value === "string" ? value.trim() : "").slice(0, max);
+}
+
+/** Validate a business project enquiry. Returns {ok, errors, data}. */
 export function validateLead(input = {}) {
   const errors = [];
   const data = {
@@ -31,35 +35,44 @@ export function validateLead(input = {}) {
     company: requireText(input.company, 2, 160, "Company", errors),
     email: (input.email || "").trim().toLowerCase(),
     phone: (input.phone || "").trim(),
+    service: (input.service || "").trim(),
     sector: (input.sector || "").trim(),
-    budget: (input.budget || "").trim().slice(0, 60),
-    message: requireText(input.message, 10, 4000, "Project details", errors),
+    location: optionalText(input.location, 160),
+    startDate: optionalText(input.startDate, 40),
+    brief: requireText(input.brief, 10, 4000, "Project brief", errors),
   };
-  if (!isEmail(data.email)) errors.push("A valid email address is required.");
-  if (data.phone && !isPhone(data.phone)) errors.push("Phone number looks invalid.");
-  if (data.sector && !SECTORS.includes(data.sector)) errors.push("Unknown sector.");
+  if (!isEmail(data.email)) errors.push("A valid business email address is required.");
+  if (data.phone && !isPhone(data.phone)) errors.push("Telephone number looks invalid.");
+  if (!SERVICES.includes(data.service)) errors.push("Please select the required service.");
+  if (data.sector && !SECTORS.includes(data.sector)) errors.push("Unknown project sector.");
   return { ok: errors.length === 0, errors, data };
 }
 
-/** Validate a subcontractor prequalification application. */
+/** Validate a supplier / subcontractor registration. */
 export function validateSubcontractorApplication(input = {}) {
   const errors = [];
   const data = {
-    company: requireText(input.company, 2, 160, "Company name", errors),
-    contact: requireText(input.contact, 2, 120, "Contact name", errors),
+    legalName: requireText(input.legalName, 2, 200, "Legal company name", errors),
+    tradingName: optionalText(input.tradingName, 200),
+    contact: requireText(input.contact, 2, 120, "Contact person", errors),
     email: (input.email || "").trim().toLowerCase(),
     phone: (input.phone || "").trim(),
-    trade: (input.trade || "").trim(),
-    crewSize: (input.crewSize || "").trim().slice(0, 40),
-    licensed: Boolean(input.licensed),
-    insured: Boolean(input.insured),
-    experience: requireText(input.experience, 10, 4000, "Experience summary", errors),
+    regNumber: requireText(input.regNumber, 2, 40, "Company registration number", errors),
+    capability: (input.capability || "").trim(),
+    territories: requireText(input.territories, 2, 240, "Operating territories", errors),
+    largestContract: optionalText(input.largestContract, 80),
+    mobilisation: optionalText(input.mobilisation, 80),
+    statement: requireText(input.statement, 10, 4000, "Capability statement", errors),
+    confirmed: Boolean(input.confirmed),
   };
-  if (!isEmail(data.email)) errors.push("A valid email address is required.");
-  if (!data.phone || !isPhone(data.phone)) errors.push("A valid phone number is required.");
-  if (!TRADES.includes(data.trade)) errors.push("Please select your primary trade.");
-  if (!data.licensed) errors.push("Confirmation of trade licensing is required.");
-  if (!data.insured) errors.push("Confirmation of active insurance is required.");
+  if (!isEmail(data.email)) errors.push("A valid business email address is required.");
+  if (!data.phone || !isPhone(data.phone)) errors.push("A valid telephone number is required.");
+  if (!CAPABILITIES.includes(data.capability)) errors.push("Please select your primary capability.");
+  if (!data.confirmed) {
+    errors.push(
+      "Please confirm the information is accurate and supporting records can be provided."
+    );
+  }
   return { ok: errors.length === 0, errors, data };
 }
 

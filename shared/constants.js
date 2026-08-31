@@ -5,10 +5,14 @@
 
 export const COMPANY = {
   name: "ETABLIX",
-  tagline: "Build with certainty.",
-  email: "hello@etablix.com",
-  phone: "+1 (555) 010-4820",
-  address: "4820 Ironworks Avenue, Suite 300",
+  group: "A Groupe Nseya company",
+  strapline: "Integrated Site Services",
+  tagline: "One site. One accountable operating system.",
+  email: "contact@etabiix.com",
+  phone: "+44 7493 216101",
+  address: "Groupe Nseya House, Kingstanding, Birmingham, B44 8DJ",
+  location: "Birmingham, United Kingdom",
+  territories: "Serving UK, Ireland, Europe and selected international programmes",
 };
 
 export const ROLES = {
@@ -19,29 +23,36 @@ export const ROLES = {
 };
 
 export const SECTORS = [
-  "Commercial & Office",
-  "Industrial & Logistics",
-  "Healthcare & Life Sciences",
-  "Education & Institutional",
-  "Multi-Unit Residential",
-  "Retail & Hospitality",
-  "Public Sector & Infrastructure",
-  "Energy & Utilities",
+  "Grid / power",
+  "Renewable energy",
+  "Data centre",
+  "Rail / major civils",
+  "Industrial / mining",
+  "Developer / EPC",
 ];
 
-export const TRADES = [
-  "Concrete & Formwork",
-  "Structural Steel & Metalwork",
-  "Earthworks & Excavation",
-  "Electrical",
-  "Mechanical & HVAC",
-  "Plumbing & Fire Protection",
-  "Roofing & Waterproofing",
-  "Facades, Glazing & Cladding",
-  "Drywall & Interior Finishes",
-  "Flooring & Tiling",
-  "Painting & Coatings",
-  "Landscaping & Sitework",
+/** Services a client can request in the business enquiry form. */
+export const SERVICES = [
+  "Site Systems Diagnostic",
+  "Site infrastructure strategy",
+  "Managed Procurement Desk",
+  "Workforce village delivery",
+  "Management Integrator",
+  "Integrated Site Services Contractor",
+  "CONSTRUX demonstration",
+  "VERYX demonstration",
+];
+
+/** Specialist supply-chain capability categories. */
+export const CAPABILITIES = [
+  "Temporary & enabling civil works",
+  "Temporary MEP & building services",
+  "Cleaning & soft FM",
+  "Modular & accommodation",
+  "Security & access",
+  "Logistics & transport",
+  "Catering & living services",
+  "Environmental & closeout",
 ];
 
 export const LEAD_STATUS = ["new", "contacted", "qualified", "won", "lost"];

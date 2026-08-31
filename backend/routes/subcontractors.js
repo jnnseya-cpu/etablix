@@ -1,16 +1,21 @@
 import { Router } from "express";
 import { collection, insert, update } from "../lib/store.js";
 import { requireAuth } from "../middleware/auth.js";
+import { acceptDocuments, describeFiles } from "../lib/uploads.js";
 import { validateSubcontractorApplication } from "../../shared/validation.js";
 import { APPLICATION_STATUS } from "../../shared/constants.js";
 
 const router = Router();
 
-/** POST /api/subcontractors — public: trade partner prequalification. */
-router.post("/", (req, res) => {
+/** POST /api/subcontractors — public: supplier registration (multipart, optional documents). */
+router.post("/", acceptDocuments, (req, res) => {
   const { ok, errors, data } = validateSubcontractorApplication(req.body);
   if (!ok) return res.status(400).json({ error: errors[0], errors });
-  const application = insert("subcontractors", { ...data, status: "submitted" });
+  const application = insert("subcontractors", {
+    ...data,
+    documents: describeFiles(req.files),
+    status: "submitted",
+  });
   res.status(201).json({ id: application.id, message: "Application received." });
 });
 
