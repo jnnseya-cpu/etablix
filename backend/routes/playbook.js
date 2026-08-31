@@ -107,6 +107,27 @@ const PLAYBOOK_HTML = `
 <li>Project requires founder-funded mobilisation or exposes household finances</li>
 <li>Ethical, labour, worker-accommodation, environmental or community standards cannot be maintained</li>
 </ul>
+<h2>Go-to-market — first 24 months</h2>
+<h3>Phase 1 (months 0–6): Establish and sell Advisory</h3>
+<ul>
+<li>Incorporate ETABLIX LTD; brand, site, capability statement; place base insurances; register CIS/VAT.</li>
+<li>Accreditations that unlock buyers: Constructionline Gold, an SSIP scheme (e.g. SafeContractor/Acclaim), and begin Achilles UVDB — the qualification system through which UK utilities and transmission owners buy. Start ISO 9001/45001/14001 gap-work early; they gate tier-one tender lists.</li>
+<li>Direct outreach to the founder's energy-sector network (GE Vernova alumni, EPCs, transmission-owner supply-chain teams) selling Requirements Packages and mobilisation-readiness reviews — deliberately seeding future integrator procurements.</li>
+<li><b>Target:</b> 4–6 advisory assignments, £60k–£120k revenue, two written case studies.</li>
+</ul>
+<h3>Phase 2 (months 6–18): First Integrator appointments</h3>
+<ul>
+<li>Convert at least one advisory client into a Management Integrator appointment on a live project (target: substation/converter-station compound or data-centre campus).</li>
+<li>Stand up the CONSTRUX Site Services module on the first project; recruit a site-services manager and a QS; build the supplier framework (target 40+ vetted suppliers across 15 categories).</li>
+<li>Open the DRC file: one paid village feasibility/requirements study for a mining or energy client in the copper belt, delivered with Kinshasa partners — establishing ETABLIX RDC before committing capital.</li>
+<li><b>Target:</b> £400k–£800k fee revenue run-rate; positive contribution after direct costs.</li>
+</ul>
+<h3>Phase 3 (months 18–24): Prime, selectively</h3>
+<ul>
+<li>Bid Prime Service Contractor only on projects that pass the gates above, ideally with an existing client, starting with a bounded scope (e.g. the worker village only) before whole-site prime contracts.</li>
+<li><b>Target exit-rate at month 24:</b> £2m–£4m annualised revenue across the three models, CONSTRUX licensed on every live project, and one DRC village mandate in mobilisation.</li>
+</ul>
+
 <p class="pb-warn">The closing discipline: cash-flow structure — not headline contract value — determines survival. Every commercial decision is tested against one question: does this keep ETABLIX funded one month ahead of its committed supplier exposure?</p>
 `;
 
