@@ -19,6 +19,7 @@
   </div>
   <div class="desk-strap">Commercial intake. One operating view.</div>
   <div class="user-box">
+    <button class="btn-ghost" id="bell" title="Notifications">Alerts <span class="bell-count" id="bell-count" hidden>0</span></button>
     <a class="btn-ghost" href="/internal/playbook.html" style="text-decoration:none;">Commercial Playbook</a>
     <div class="who"><span class="signed-label">Signed in as</span><b id="user-name">—</b></div>
     <button class="btn-ghost" id="logout">Sign out</button>
@@ -39,6 +40,7 @@
     <button data-panel="applications">Supplier applications</button>
     <button data-panel="construx">CONSTRUX · Projects</button>
     <button data-panel="veryx">VERYX · Risk &amp; agents</button>
+    <button data-panel="comms" id="comms-tab" hidden>Communications</button>
     <button data-panel="team" id="team-tab" hidden>Team</button>
   </nav>
 
@@ -78,6 +80,12 @@
     <div class="panel-title">VERYX — enterprise execution intelligence <span id="veryx-badge"></span></div>
     <div class="panel-sub">The portfolio lens: risk register, AI agent console and Platform API usage. Connect the real platform in <b>Team → Platform connections</b> and this tab switches to live veryxjnn.com data. The public key-authenticated API contract: <a class="doc-link" href="/api/public/v1/openapi.json" target="_blank" rel="noopener">openapi.json</a>.</div>
     <div id="veryx-body"><p class="empty-note">Loading…</p></div>
+  </section>
+
+  <section class="panel" id="panel-comms">
+    <div class="panel-title">Communication Event Architecture</div>
+    <div class="panel-sub">One event engine — every catalogued event fans out across email, in-app, SMS and push. Email and in-app are wired live; SMS and push are recorded in sandbox until a provider key is added. Mandatory notices are operational/security events that bypass opt-outs. <b>Preview</b> renders the branded email exactly as a recipient receives it; <b>Send test to me</b> fires the event to your own address across its channels.</div>
+    <div id="comms-body"><p class="empty-note">Loading…</p></div>
   </section>
 
   <section class="panel" id="panel-team">

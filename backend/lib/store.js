@@ -270,7 +270,12 @@ export function saveSettings(patch) {
 
 export function collection(name) {
   const data = load();
-  if (!Array.isArray(data[name])) throw new Error(`Unknown collection: ${name}`);
+  if (!Array.isArray(data[name])) {
+    // Collections added after a database was first seeded (e.g.
+    // notifications, deliveries) are created lazily — no migration needed.
+    data[name] = [];
+    persist();
+  }
   return data[name];
 }
 

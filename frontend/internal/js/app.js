@@ -82,7 +82,7 @@ document.getElementById("logout").addEventListener("click", () => {
 
 const tabs = document.getElementById("tabs");
 const loaded = new Set();
-const lazyLoaders = { construx: loadConstrux, veryx: loadVeryx, team: loadTeam };
+const lazyLoaders = { construx: loadConstrux, veryx: loadVeryx, team: loadTeam, comms: loadComms };
 
 tabs.addEventListener("click", (e) => {
   const btn = e.target.closest("button[data-panel]");
@@ -105,8 +105,54 @@ tabs.addEventListener("click", (e) => {
   }
 });
 
-// Team management is admin-only; hide the tab from everyone else.
-if (user.role === "admin") document.getElementById("team-tab").hidden = false;
+// Team management and the communications console are admin-only.
+if (user.role === "admin") {
+  document.getElementById("team-tab").hidden = false;
+  document.getElementById("comms-tab").hidden = false;
+}
+
+// ---------- Notification bell (all employees) ----------
+
+let bellOpen = false;
+
+async function refreshBell() {
+  try {
+    const { unread } = await api("/api/comms/notifications");
+    const count = document.getElementById("bell-count");
+    count.hidden = !unread;
+    count.textContent = unread;
+  } catch {}
+}
+
+document.getElementById("bell").addEventListener("click", async () => {
+  let panel = document.getElementById("bell-panel");
+  if (bellOpen) {
+    panel?.remove();
+    bellOpen = false;
+    return;
+  }
+  bellOpen = true;
+  const { notifications } = await api("/api/comms/notifications");
+  panel = document.createElement("div");
+  panel.id = "bell-panel";
+  panel.innerHTML =
+    `<div class="bell-head">Notifications</div>` +
+    (notifications.length
+      ? notifications
+          .map(
+            (n) => `<div class="bell-item"><span class="pill ${esc(n.severity)}">${esc(n.severity)}</span>
+              <div><b>${esc(n.title)}</b><div class="muted">${esc(n.body)}</div>
+              <div class="muted" style="font-size:0.72rem;">${esc(n.category || "")} · ${new Date(n.createdAt).toLocaleString("en-GB")}${n.test ? " · test" : ""}</div></div></div>`
+          )
+          .join("")
+      : '<div class="bell-item"><span class="muted">No notifications yet.</span></div>');
+  document.body.appendChild(panel);
+  await api("/api/comms/notifications/read", { method: "POST" }).catch(() => {});
+  refreshBell();
+});
+
+refreshBell();
+setInterval(refreshBell, 60000);
 
 const money = (n) => "£" + Number(n || 0).toLocaleString("en-GB");
 const pill = (v) => `<span class="pill ${esc(v)}">${esc(String(v).replace(/_/g, " "))}</span>`;
@@ -261,6 +307,85 @@ document.addEventListener("click", async (e) => {
     alert(err.message);
     btn.disabled = false;
     btn.textContent = "Run now";
+  }
+});
+
+// ---------- Communications console (admin only) ----------
+
+const chanPill = (c) => `<span class="pill ${c === "email" || c === "inapp" ? "approved" : ""}" title="${c === "sms" || c === "push" ? "Sandbox until a provider key is added" : "Wired live"}">${esc(c)}</span>`;
+
+async function loadComms() {
+  const [{ categories, stats }, { deliveries }] = await Promise.all([
+    api("/api/comms/catalog"),
+    api("/api/comms/deliveries"),
+  ]);
+
+  const kpis = `<div class="kpis">
+    <div class="kpi accent"><b>${stats.events}</b><span>Catalogue events · ${stats.categories} categories</span></div>
+    <div class="kpi"><b>${stats.mandatory}</b><span>Mandatory notices (bypass opt-outs)</span></div>
+    <div class="kpi"><b>${stats.delivered}</b><span>Messages delivered</span></div>
+    <div class="kpi green"><b>4</b><span>Channels wired — email · in-app · sms · push</span></div>
+  </div>`;
+
+  const coverage = `<table>
+    <thead><tr><th>Channel</th><th>Catalogue events</th><th>Delivered</th><th>Status</th></tr></thead><tbody>
+    <tr><td><b>email</b></td><td>${stats.channels.email.events} events</td><td>${stats.channels.email.sent} sent</td><td><span class="pill approved">LIVE · SMTP</span></td></tr>
+    <tr><td><b>in-app</b></td><td>${stats.channels.inapp.events} events</td><td>${stats.channels.inapp.sent} delivered</td><td><span class="pill approved">LIVE · Control Desk</span></td></tr>
+    <tr><td><b>sms</b></td><td>${stats.channels.sms.events} events</td><td>${stats.channels.sms.sent} sent</td><td><span class="pill">Sandbox — add provider key</span></td></tr>
+    <tr><td><b>push</b></td><td>${stats.channels.push.events} events</td><td>${stats.channels.push.sent} sent</td><td><span class="pill">Sandbox — add provider key</span></td></tr>
+    </tbody></table>`;
+
+  const recent = deliveries.length
+    ? `<div class="table-wrap"><table>
+        <thead><tr><th>When</th><th>Channel</th><th>Event</th><th>To</th><th>Status</th><th>Provider</th></tr></thead><tbody>${deliveries
+          .map(
+            (d) => `<tr><td class="muted">${new Date(d.createdAt).toLocaleString("en-GB")}</td><td>${chanPill(d.channel)}</td>
+              <td><b>${esc(d.code)}</b>${d.test ? ' <span class="muted">(test)</span>' : ""}<div class="muted brief">${esc(d.subject)}</div></td>
+              <td class="muted">${esc(d.to)}</td><td>${pill(d.status === "sent" || d.status === "delivered" ? "ok" : d.status === "failed" ? "failed" : "minor")} ${esc(d.status)}</td><td class="muted">${esc(d.provider)}</td></tr>`
+          )
+          .join("")}</tbody></table></div>`
+    : '<p class="empty-note">No deliveries yet — submissions, status changes and tests all appear here.</p>';
+
+  const catalogue = categories
+    .map(
+      (c) => `<div class="section-block"><h3>${esc(c.name)} <span class="muted" style="font-weight:400;">· ${c.events.length} events</span></h3>
+      <div class="table-wrap"><table>
+      <thead><tr><th>Event</th><th>Code</th><th>Subject</th><th>Severity</th><th>Channels</th><th>Template QA</th></tr></thead><tbody>${c.events
+        .map(
+          (e) => `<tr><td><b>${esc(e.name)}</b>${e.mandatory ? ' <span class="pill critical" title="Bypasses opt-outs">mandatory</span>' : ""}<div class="muted" style="font-size:0.72rem;">audience: ${esc(e.audience)}</div></td>
+            <td class="muted"><code>${esc(e.code)}</code></td><td class="muted">${esc(e.subject)}</td>
+            <td>${pill(e.severity === "critical" ? "critical" : e.severity === "warning" ? "major" : e.severity === "success" ? "ok" : "minor")} ${esc(e.severity)}</td>
+            <td>${e.channels.map(chanPill).join(" ")}</td>
+            <td style="white-space:nowrap;"><a class="btn-run" style="text-decoration:none;display:inline-block;" href="/api/comms/preview/${encodeURIComponent(e.code)}?token=${encodeURIComponent(token)}" target="_blank" rel="noopener">Preview email</a>
+            <button class="btn-run" data-fire="${esc(e.code)}">Send test to me</button></td></tr>`
+        )
+        .join("")}</tbody></table></div></div>`
+    )
+    .join("");
+
+  document.getElementById("comms-body").innerHTML =
+    kpis +
+    block("Channel coverage — how catalogue events fire by default", coverage) +
+    `<div class="section-block"><h3>Recent deliveries <span class="muted" style="font-weight:400;">· every event × channel × recipient</span></h3>${recent}</div>` +
+    catalogue;
+}
+
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest("button[data-fire]");
+  if (!btn) return;
+  btn.disabled = true;
+  btn.textContent = "Firing…";
+  try {
+    const { results } = await api("/api/comms/test", { method: "POST", body: JSON.stringify({ code: btn.dataset.fire }) });
+    alert(results.map((r) => `${r.channel} → ${r.status}`).join("\n"));
+    loaded.delete("comms");
+    await loadComms();
+    loaded.add("comms");
+    refreshBell();
+  } catch (err) {
+    alert(err.message);
+    btn.disabled = false;
+    btn.textContent = "Send test to me";
   }
 });
 

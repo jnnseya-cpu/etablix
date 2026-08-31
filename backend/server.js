@@ -23,6 +23,7 @@ import fileRoutes from "./routes/files.js";
 import playbookRoutes from "./routes/playbook.js";
 import userRoutes from "./routes/users.js";
 import integrationRoutes from "./routes/integrations.js";
+import commsRoutes from "./routes/comms.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
@@ -47,8 +48,18 @@ app.use("/api/files", fileRoutes);
 app.use("/api/playbook", playbookRoutes); // Commercial-in-Confidence, employees only
 app.use("/api/users", userRoutes); // employee account management, admin only
 app.use("/api/integrations", integrationRoutes); // CONSTRUX/VERYX platform connections, admin only
+app.use("/api/comms", commsRoutes); // communication event engine: catalogue, deliveries, in-app feed
 
 app.use("/api", (req, res) => res.status(404).json({ error: "Unknown endpoint." }));
+
+// A failing route must answer with JSON, never take the process down.
+app.use((err, req, res, next) => {
+  console.error("Request error:", err);
+  if (res.headersSent) return next(err);
+  res.status(err.status || 500).json({ error: err.message || "Internal error." });
+});
+process.on("unhandledRejection", (err) => console.error("Unhandled rejection:", err));
+process.on("uncaughtException", (err) => console.error("Uncaught exception:", err));
 
 // --- Static frontends ---
 app.use("/shared", express.static(path.join(root, "shared")));
