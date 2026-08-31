@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employee Login — ETABLIX</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/internal/css/internal.css">
+</head>
+<body>
+
+<div class="login-page">
+  <div class="login-card">
+    <a class="logo" href="/"><span class="logo-mark"></span><span>ETABL</span><span>IX</span></a>
+    <p class="sub">Employee portal — sign in to your workspace.</p>
+    <div class="login-error" id="error"></div>
+    <form id="login-form">
+      <div class="field">
+        <label for="email">Work email</label>
+        <input id="email" name="email" type="email" autocomplete="username" required placeholder="you@etablix.com">
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="••••••••••••">
+      </div>
+      <button class="btn-block" type="submit" id="submit">Sign In</button>
+    </form>
+    <div class="demo-hint">
+      <b>Demo accounts</b><br>
+      Admin: <code>admin@etablix.com</code> / <code>etablix-admin-2026</code><br>
+      PM: <code>pm@etablix.com</code> / <code>etablix-pm-2026</code><br>
+      QA: <code>qa@etablix.com</code> / <code>etablix-qa-2026</code>
+    </div>
+    <a class="back-link" href="/">← Back to etablix.com</a>
+  </div>
+</div>
+
+<script type="module">
+  // Already signed in? Straight to the dashboard.
+  if (sessionStorage.getItem("etablix.token")) {
+    location.replace("/internal/index.html");
+  }
+
+  const form = document.getElementById("login-form");
+  const error = document.getElementById("error");
+  const submit = document.getElementById("submit");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    error.classList.remove("show");
+    submit.disabled = true;
+    submit.textContent = "Signing in…";
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: form.email.value,
+          password: form.password.value,
+        }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error || "Sign-in failed. Try again.");
+      sessionStorage.setItem("etablix.token", body.token);
+      sessionStorage.setItem("etablix.user", JSON.stringify(body.user));
+      location.replace("/internal/index.html");
+    } catch (err) {
+      error.textContent = err.message;
+      error.classList.add("show");
+      submit.disabled = false;
+      submit.textContent = "Sign In";
+    }
+  });
+</script>
+</body>
+</html>

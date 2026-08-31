@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subcontractors &amp; Trade Partners — Prequalify | ETABLIX</title>
+<meta name="description" content="ETABLIX is prequalifying subcontractors in concrete, steel, electrical, mechanical, envelope and finishes. 15-day payment, a real pipeline, coordinated sites. Apply now.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="logo" href="/"><span class="logo-mark"></span>ETABL<span>IX</span></a>
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="main-nav">
+      <a href="/services">Services</a>
+      <a href="/construx">Construx</a>
+      <a href="/veryx">Veryx</a>
+      <a href="/customers">Who We Serve</a>
+      <a href="/subcontractors">Subcontractors</a>
+      <a href="/internal/login.html">Employee Login</a>
+      <a class="nav-cta" href="/contact">Start Your Project</a>
+    </nav>
+  </div>
+</header>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="/">Home</a> / Trade Partners</div>
+    <h1>Bring your best crews. We'll bring the <em style="font-style:normal;color:var(--orange)">pipeline.</em></h1>
+    <p class="lead">ETABLIX is actively prequalifying subcontractors across twelve trades. We pay in 15 days, we plan sites you can actually work on, and we hand our best partners an 18-month pipeline instead of one-off bid invites.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-arrow" href="#apply">Prequalify Now</a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="kicker">The Deal</span>
+      <h2>Why the best trades bid our work first.</h2>
+    </div>
+    <div class="grid-4">
+      <div class="card reveal">
+        <h3>Paid in 15 days</h3>
+        <p>Approved invoices paid in 15 days — not 60, not 90, not "when the owner pays us." Your cash flow is our schedule insurance, and we treat it that way.</p>
+      </div>
+      <div class="card reveal">
+        <h3>A real pipeline</h3>
+        <p>Prequalified partners see our 18-month project pipeline in Construx and negotiate work early — often before drawings are finished.</p>
+      </div>
+      <div class="card reveal">
+        <h3>Sites that are ready</h3>
+        <p>Two-week lookaheads you can trust, predecessor work verified before you mobilize, and drawings on your phone that are actually current.</p>
+      </div>
+      <div class="card reveal">
+        <h3>Disputes end at data</h3>
+        <p>Veryx inspections are scored and photographed at the moment of work. Back-charge arguments become five-minute conversations.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section dark">
+  <div class="container">
+    <div class="split">
+      <div class="reveal">
+        <span class="kicker">Trades We're Hiring</span>
+        <h2>Twelve trades. Open prequalification.</h2>
+        <p>Priority demand right now is in structure, envelope and MEP — but strong companies in any trade below should apply. Rollout and fit-out programs also need multi-region capacity.</p>
+        <div class="grid-2" style="gap:12px;" id="trade-list">
+          <!-- populated from /shared/constants.js -->
+        </div>
+      </div>
+      <div class="reveal">
+        <span class="kicker">What We Expect</span>
+        <h2 style="font-size:1.6rem;">The bar, stated plainly.</h2>
+        <ul class="checklist">
+          <li><b>Licensed &amp; insured</b><span>Current trade licenses, GL and workers' comp at our project minimums, bonding capacity for larger scopes.</span></li>
+          <li><b>A safety record you'll show us</b><span>EMR and OSHA logs for the last three years. We build zero-harm sites and staff them accordingly.</span></li>
+          <li><b>Quality you can systematize</b><span>Willingness to work to ITP checklists in Veryx — your foremen self-check against the same list our inspectors use.</span></li>
+          <li><b>Digital-ready crews</b><span>Foremen use Construx mobile for schedules, drawings and daily coordination. We train your team, free, at onboarding.</span></li>
+          <li><b>Capacity you can prove</b><span>Realistic concurrent-project limits. We'd rather know your ceiling than discover it.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="apply">
+  <div class="container">
+    <div class="section-head center reveal">
+      <span class="kicker">Prequalification</span>
+      <h2>Apply in three minutes. Hear back in five days.</h2>
+      <p>This is a first-pass application, not the full package. If there's a fit, our procurement team will follow up for financials, references and insurance certificates.</p>
+    </div>
+    <form class="form-card reveal" id="sub-form" style="max-width:860px;margin:0 auto;">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="s-company">Company name *</label>
+          <input id="s-company" name="company" required placeholder="Ironline Steel Erectors">
+        </div>
+        <div class="form-field">
+          <label for="s-contact">Contact person *</label>
+          <input id="s-contact" name="contact" required placeholder="Full name">
+        </div>
+        <div class="form-field">
+          <label for="s-email">Email *</label>
+          <input id="s-email" name="email" type="email" required placeholder="bids@yourcompany.com">
+        </div>
+        <div class="form-field">
+          <label for="s-phone">Phone *</label>
+          <input id="s-phone" name="phone" required placeholder="+1 555 000 0000">
+        </div>
+        <div class="form-field">
+          <label for="s-trade">Primary trade *</label>
+          <select id="s-trade" name="trade" required>
+            <option value="">Select your trade…</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="s-crew">Typical crew size</label>
+          <select id="s-crew" name="crewSize">
+            <option value="">Select…</option>
+            <option>1-10</option>
+            <option>10-25</option>
+            <option>25-50</option>
+            <option>50-100</option>
+            <option>100+</option>
+          </select>
+        </div>
+        <div class="form-field full">
+          <label for="s-exp">Experience summary *</label>
+          <textarea id="s-exp" name="experience" required placeholder="Years in trade, notable projects, largest contract completed, regions covered, certifications…"></textarea>
+        </div>
+        <div class="form-field">
+          <label style="display:flex;align-items:center;gap:10px;font-weight:600;">
+            <input type="checkbox" name="licensed" style="width:18px;height:18px;accent-color:var(--orange);"> We hold current trade licensing *
+          </label>
+        </div>
+        <div class="form-field">
+          <label style="display:flex;align-items:center;gap:10px;font-weight:600;">
+            <input type="checkbox" name="insured" style="width:18px;height:18px;accent-color:var(--orange);"> We carry active GL &amp; workers' comp *
+          </label>
+        </div>
+      </div>
+      <div style="margin-top:26px;">
+        <button class="btn btn-primary btn-arrow" type="submit" data-label="Submit Prequalification">Submit Prequalification</button>
+      </div>
+      <div data-feedback></div>
+      <p class="form-note">Fields marked * are required. Your information goes directly to ETABLIX procurement and is never shared or sold.</p>
+    </form>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="container">
+    <h2>Build a book of business, not a stack of bids.</h2>
+    <p>Our strongest partners started with one scope and now negotiate work across our pipeline. That seat is earned — and it's open.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-arrow" href="#apply">Prequalify Your Company</a>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-about">
+        <a class="logo" href="/"><span class="logo-mark"></span>ETABL<span>IX</span></a>
+        <p>Full-cycle construction and construction technology. We build complex projects with certainty — and sell the platforms that make it possible: Construx® and Veryx®.</p>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="/services">Services</a></li>
+          <li><a href="/customers">Who We Serve</a></li>
+          <li><a href="/subcontractors">Trade Partners</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Products</h4>
+        <ul>
+          <li><a href="/construx">Construx® Platform</a></li>
+          <li><a href="/veryx">Veryx® Verification</a></li>
+          <li><a href="/construx#api">Construx API</a></li>
+          <li><a href="/veryx#api">Veryx API</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Get In Touch</h4>
+        <ul>
+          <li>hello@etablix.com</li>
+          <li>+1 (555) 010-4820</li>
+          <li>4820 Ironworks Avenue, Suite 300</li>
+          <li><a href="/internal/login.html">Employee Login</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ETABLIX. All rights reserved. Construx® and Veryx® are trademarks of ETABLIX.</span>
+      <span>Licensed · Bonded · Insured</span>
+    </div>
+  </div>
+</footer>
+
+<script type="module">
+  import { submitForm } from "/js/main.js";
+  import { TRADES } from "/shared/constants.js";
+
+  // Render the trade list and the select from the shared constants —
+  // the same list the backend validates against.
+  const list = document.getElementById("trade-list");
+  const select = document.getElementById("s-trade");
+  for (const trade of TRADES) {
+    const tile = document.createElement("div");
+    tile.className = "step";
+    tile.style.padding = "16px 18px";
+    tile.innerHTML = `<h3 style="font-size:0.95rem;margin:0;">${trade}</h3>`;
+    list.appendChild(tile);
+    const opt = document.createElement("option");
+    opt.textContent = trade;
+    select.appendChild(opt);
+  }
+
+  const form = document.getElementById("sub-form");
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    submitForm(form, "/api/subcontractors", (fd) => ({
+      company: fd.get("company"),
+      contact: fd.get("contact"),
+      email: fd.get("email"),
+      phone: fd.get("phone"),
+      trade: fd.get("trade"),
+      crewSize: fd.get("crewSize"),
+      licensed: fd.get("licensed") === "on",
+      insured: fd.get("insured") === "on",
+      experience: fd.get("experience"),
+    }));
+  });
+</script>
+</body>
+</html>

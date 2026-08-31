@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Veryx® — The Operating System for Construction Business | ETABLIX</title>
+<meta name="description" content="Veryx® by ETABLIX: your portfolio as an operating system — projects, schedule tasks, a live risk register and AI agents, all over a simple key-authenticated REST API with metered usage and prepaid ACU.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+<style>
+  .code-block {
+    background: #0e1116;
+    border: 1px solid var(--line-dark);
+    border-radius: 10px;
+    padding: 22px 24px;
+    overflow-x: auto;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: 0.84rem;
+    line-height: 1.7;
+    color: #d8dee6;
+  }
+  .code-block .c { color: #6a737d; }
+  .code-block .s { color: #7ee2a8; }
+  .method { display:inline-block; font-family: var(--font-head); font-weight:800; font-size:0.72rem; padding:3px 9px; border-radius:5px; margin-right:8px; }
+  .method.get { background: rgba(31,157,97,0.15); color: #4fd695; }
+  .method.post { background: rgba(242,106,27,0.15); color: var(--orange); }
+  .kicker.green { color: var(--success); }
+  .kicker.green::before { background: var(--success); }
+  .scope-pill {
+    display:inline-block; font-family: Consolas, monospace; font-size: 0.8rem;
+    background: rgba(31,157,97,0.12); color:#2f8f63; border:1px solid rgba(31,157,97,0.3);
+    border-radius: 100px; padding: 5px 14px; margin: 0 8px 10px 0;
+  }
+  .dark .scope-pill { color:#4fd695; }
+  .api-table td, .api-table th { border-color: var(--line-dark) !important; }
+  .api-table th { background: var(--ink-3) !important; color: var(--slate-light) !important; }
+  .api-table td { color: #d8dee6; }
+  .api-table td:first-child { font-family: Consolas, monospace; font-size: 0.85rem; white-space: nowrap; }
+  .api-table td .scope { font-family: Consolas, monospace; font-size: 0.78rem; color: #4fd695; }
+  .api-table td.desc { color: var(--slate-light); font-size: 0.88rem; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="logo" href="/"><span class="logo-mark"></span>ETABL<span>IX</span></a>
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="main-nav">
+      <a href="/services">Services</a>
+      <a href="/construx">Construx</a>
+      <a href="/veryx">Veryx</a>
+      <a href="/customers">Who We Serve</a>
+      <a href="/subcontractors">Subcontractors</a>
+      <a href="/internal/login.html">Employee Login</a>
+      <a class="nav-cta" href="/contact">Start Your Project</a>
+    </nav>
+  </div>
+</header>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="/">Home</a> / Products / Veryx®</div>
+    <span style="display:inline-block;font-family:var(--font-head);font-size:0.82rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#4fd695;border:1px solid rgba(31,157,97,0.5);border-radius:100px;padding:8px 18px;margin-bottom:22px;">Veryx® — The Operating System</span>
+    <h1>Run your construction business like an operating system.</h1>
+    <p class="lead">Veryx® holds your portfolio as live, programmable state: projects, schedule tasks and a risk register scored in real time — plus AI agents that scan schedule health, triage risk and level bids on demand. Everything is reachable over a simple, key-authenticated REST API. Calls are metered against your plan; agent runs draw down prepaid ACU.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-arrow" href="/contact">Request Your Workspace</a>
+      <a class="btn btn-outline on-dark" href="#api">Explore the Platform API</a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="kicker green">Core Capabilities</span>
+      <h2>The state of your business, always current. Always callable.</h2>
+    </div>
+    <div class="grid-3">
+      <div class="card reveal">
+        <h3>Projects &amp; Portfolios</h3>
+        <p>Every project and portfolio as structured, queryable state — status, value, progress, ownership — instead of a folder of month-old spreadsheets.</p>
+        <ul><li>Portfolio roll-ups in one call</li><li>Live progress &amp; value tracking</li><li>Owner and PM assignment</li></ul>
+      </div>
+      <div class="card reveal">
+        <h3>Schedule Tasks</h3>
+        <p>Schedule activities across the portfolio, filterable by project, with phase, criticality and progress — the feed your planners, ERP and dashboards all share.</p>
+        <ul><li>Critical-path flagging</li><li>Per-project task queries</li><li>Progress against baseline</li></ul>
+      </div>
+      <div class="card reveal">
+        <h3>Risk Register</h3>
+        <p>Risks scored by probability × impact, ranked highest first, each with a named owner and a written mitigation. The register your Monday meeting should have been reading all along.</p>
+        <ul><li>Probability × impact scoring</li><li>Owner &amp; mitigation on every risk</li><li>Highest exposure surfaces first</li></ul>
+      </div>
+    </div>
+    <div class="grid-3" style="margin-top:26px;">
+      <div class="card reveal">
+        <h3>AI Agents</h3>
+        <p>A catalogue of agents that do real work against your live data — schedule health scans, risk triage, daily digests, bid leveling — each with a published ACU cost. Run them from the console or a single API call.</p>
+        <ul><li>Schedule Health Scan · Risk Triage</li><li>Daily Site Digest · Bid Leveler</li><li>Published ACU rate per run</li></ul>
+      </div>
+      <div class="card reveal">
+        <h3>Metered Usage &amp; ACU</h3>
+        <p>Every API call is metered against your plan's monthly quota; agent runs consume prepaid ACU at the agent's published rate. Watch both live in your workspace — no invoice surprises.</p>
+        <ul><li>Monthly API quota per plan</li><li>Prepaid ACU for agent runs</li><li>HTTP 402 when empty, never silent overage</li></ul>
+      </div>
+      <div class="card reveal">
+        <h3>Environment-Scoped Keys</h3>
+        <p>Test and production keys, created in seconds, revocable instantly, and scoped to exactly what each integration needs — nothing more.</p>
+        <ul><li>Separate test / production keys</li><li>Six granular scopes</li><li>Instant revocation</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section dark" id="api">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="kicker green">VERYX Platform API</span>
+      <h2>Connect your own systems to the OS.</h2>
+      <p>Read projects, tasks and risks, run AI agents and track usage — over a simple, key-authenticated REST API. Calls are metered against your plan; agent runs draw down prepaid ACU.</p>
+    </div>
+
+    <div class="steps" style="grid-template-columns:repeat(3,1fr);margin-bottom:44px;">
+      <div class="step reveal"><h3>Get a key</h3><p>Sign in → Business → API &amp; Developers → Create API key. The secret is shown once.</p></div>
+      <div class="step reveal"><h3>Authenticate</h3><p>Send <code style="color:var(--amber);">Authorization: Bearer vx_…</code> (or the <code style="color:var(--amber);">X-API-Key</code> header) on every request.</p></div>
+      <div class="step reveal"><h3>Call the OS</h3><p>Hit the endpoints below. Watch usage and ACU in your workspace.</p></div>
+    </div>
+
+    <div class="split" style="align-items:start;">
+      <div class="reveal">
+        <h3 style="margin-bottom:12px;">Base URL &amp; authentication</h3>
+        <div class="code-block">Base URL   https://www.veryxjnn.com/api/public/v1
+Auth       Authorization: Bearer vx_live_xxx
+           <span class="c">(or)</span>  X-API-Key: vx_live_xxx
+
+curl -H <span class="s">"Authorization: Bearer vx_test_..."</span> \
+  https://www.veryxjnn.com/api/public/v1/ping</div>
+
+        <h3 style="margin:26px 0 12px;">Endpoints</h3>
+        <div class="spec-table-wrap" style="background:var(--ink-2);border-color:var(--line-dark);">
+          <table class="spec-table api-table" style="min-width:0;">
+            <tr><th>Path</th><th>Scope</th><th>Description</th></tr>
+            <tr><td><span class="method get">GET</span>/ping</td><td>—</td><td class="desc">Verify a key and see the workspace it unlocks.</td></tr>
+            <tr><td><span class="method get">GET</span>/projects</td><td><span class="scope">read:projects</span></td><td class="desc">List the workspace projects and portfolios.</td></tr>
+            <tr><td><span class="method get">GET</span>/tasks</td><td><span class="scope">read:tasks</span></td><td class="desc">List schedule tasks (optionally by <code>?project_id=</code>).</td></tr>
+            <tr><td><span class="method get">GET</span>/risks</td><td><span class="scope">read:risks</span></td><td class="desc">Read the risk register, highest score first.</td></tr>
+            <tr><td><span class="method get">GET</span>/agents</td><td><span class="scope">read:agents</span></td><td class="desc">List the AI agents you can run and their ACU cost.</td></tr>
+            <tr><td><span class="method post">POST</span>/agents/{type}/run</td><td><span class="scope">run:agents</span></td><td class="desc">Run an AI agent. Consumes prepaid ACU.</td></tr>
+            <tr><td><span class="method get">GET</span>/usage</td><td><span class="scope">read:usage</span></td><td class="desc">Your monthly quota, usage and ACU balance.</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="reveal">
+        <h3 style="margin-bottom:12px;">Scopes</h3>
+        <div>
+          <span class="scope-pill">read:projects</span><span class="scope-pill">read:tasks</span><span class="scope-pill">read:risks</span><span class="scope-pill">read:agents</span><span class="scope-pill">run:agents</span><span class="scope-pill">read:usage</span>
+        </div>
+        <h3 style="margin:26px 0 12px;">Limits &amp; pricing</h3>
+        <ul class="checklist">
+          <li><b>Metered against your plan</b><span>Each call counts toward your plan's monthly API quota (see Business → API &amp; Developers).</span></li>
+          <li><b>Per-endpoint rate limiting</b><span>Protects the platform; exceed it and you get HTTP 429.</span></li>
+          <li><b>Agent runs consume prepaid ACU</b><span>At the agent's published rate; an empty balance returns HTTP 402.</span></li>
+          <li><b>Environment-scoped keys</b><span>Test / production separation, revocable instantly.</span></li>
+        </ul>
+        <div class="code-block" style="margin-top:22px;"><span class="c"># Run the Schedule Health Scan agent</span>
+curl -X POST \
+  https://www.veryxjnn.com/api/public/v1/agents/schedule-health/run \
+  -H <span class="s">"Authorization: Bearer vx_live_..."</span>
+
+<span class="c"># → 201 { "data": { "status": "completed", … },</span>
+<span class="c">#         "acuBalance": 238 }</span>
+<span class="c"># → 402 when your ACU balance is empty</span></div>
+        <p style="color:var(--slate-light);font-size:0.9rem;margin-top:16px;">Machine-readable contract: <code style="color:var(--amber);">/api/public/v1/openapi.json</code> — import it into Postman or generate an SDK.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="split">
+      <div class="reveal">
+        <span class="kicker green">Why It Wins</span>
+        <h2>Your systems stop asking people for status.</h2>
+        <p>Most construction businesses run on status meetings because their data lives in documents. Veryx inverts that: the state is live, and both people and software read the same source. Your BI stack, your ERP, your Monday briefing — all pulling from the OS, not from memory.</p>
+        <ul class="checklist">
+          <li><b>One source of state</b><span>Projects, tasks and risks stay consistent because there is exactly one copy.</span></li>
+          <li><b>Agents that pay for themselves</b><span>A 12-ACU Schedule Health Scan is cheaper than one hour of a planner's time — and runs every morning.</span></li>
+          <li><b>Costs you can see coming</b><span>Metered quota and prepaid ACU mean the bill is a dashboard, not a surprise.</span></li>
+        </ul>
+      </div>
+      <div class="reveal">
+        <div class="quote-card">
+          <blockquote>We wired Veryx risks into our Slack and the Schedule Health agent into our Monday review. The first week, it flagged a float burn our planner hadn't seen yet. It paid for the year right there.</blockquote>
+          <cite>Operations Director <span>Regional design-build contractor, Veryx customer</span></cite>
+        </div>
+        <div class="quote-card" style="margin-top:24px;">
+          <blockquote>The API was up and answering in an afternoon — key, ping, projects, done. Our ERP consultant billed us four hours instead of four weeks.</blockquote>
+          <cite>CFO <span>Mid-market GC, Veryx customer</span></cite>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="container">
+    <h2>Connect your systems to the OS.</h2>
+    <p>Request a workspace and you'll be calling /ping with your own key the same day — with demo data loaded so your integration work starts immediately.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-arrow" href="/contact">Request Your Workspace</a>
+      <a class="btn btn-outline" href="/construx">Pair It with Construx®</a>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-about">
+        <a class="logo" href="/"><span class="logo-mark"></span>ETABL<span>IX</span></a>
+        <p>Full-cycle construction and construction technology. We build complex projects with certainty — and sell the platforms that make it possible: Construx® and Veryx®.</p>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="/services">Services</a></li>
+          <li><a href="/customers">Who We Serve</a></li>
+          <li><a href="/subcontractors">Trade Partners</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Products</h4>
+        <ul>
+          <li><a href="/construx">Construx® Platform</a></li>
+          <li><a href="/veryx">Veryx® OS</a></li>
+          <li><a href="/construx#api">Construx API</a></li>
+          <li><a href="/veryx#api">Veryx Platform API</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Get In Touch</h4>
+        <ul>
+          <li>hello@etablix.com</li>
+          <li>+1 (555) 010-4820</li>
+          <li>4820 Ironworks Avenue, Suite 300</li>
+          <li><a href="/internal/login.html">Employee Login</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ETABLIX. All rights reserved. Construx® and Veryx® are trademarks of ETABLIX.</span>
+      <span>Licensed · Bonded · Insured</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/js/main.js" type="module"></script>
+</body>
+</html>

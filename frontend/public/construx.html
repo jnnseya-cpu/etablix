@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Construx® — The Construction Operating System | ETABLIX</title>
+<meta name="description" content="Construx® by ETABLIX: CPM scheduling, cost & commitment control, RFIs, submittals, daily logs and a REST API — one source of truth from bid to closeout.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+<style>
+  .code-block {
+    background: #0e1116;
+    border: 1px solid var(--line-dark);
+    border-radius: 10px;
+    padding: 22px 24px;
+    overflow-x: auto;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: 0.84rem;
+    line-height: 1.7;
+    color: #d8dee6;
+  }
+  .code-block .c { color: #6a737d; }
+  .code-block .k { color: #ffb020; }
+  .code-block .s { color: #7ee2a8; }
+  .endpoint-row td:first-child { font-family: Consolas, monospace; font-size: 0.85rem; }
+  .method { display:inline-block; font-family: var(--font-head); font-weight:800; font-size:0.72rem; padding:3px 9px; border-radius:5px; margin-right:8px; }
+  .method.get { background: rgba(31,157,97,0.15); color: var(--success); }
+  .method.post { background: rgba(242,106,27,0.15); color: var(--orange); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="logo" href="/"><span class="logo-mark"></span>ETABL<span>IX</span></a>
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="main-nav">
+      <a href="/services">Services</a>
+      <a href="/construx">Construx</a>
+      <a href="/veryx">Veryx</a>
+      <a href="/customers">Who We Serve</a>
+      <a href="/subcontractors">Subcontractors</a>
+      <a href="/internal/login.html">Employee Login</a>
+      <a class="nav-cta" href="/contact">Start Your Project</a>
+    </nav>
+  </div>
+</header>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="/">Home</a> / Products / Construx®</div>
+    <span class="eyebrow" style="display:inline-block;font-family:var(--font-head);font-size:0.82rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--amber);border:1px solid rgba(255,176,32,0.4);border-radius:100px;padding:8px 18px;margin-bottom:22px;">Construx® — Project Delivery Platform</span>
+    <h1>Every project has a single source of truth. Or it has excuses.</h1>
+    <p class="lead">Construx® is the project delivery platform built by a contractor, for contractors. Scheduling, cost control, field management, procurement and a full quality module — ITPs, inspections, NCRs, snags and CDM documents — battle-tested on $1.2B of ETABLIX projects and now licensed to builders and owners who want the same certainty. And because the API is the product, everything the console does, your systems can do too.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-arrow" href="/contact">Request a Demo</a>
+      <a class="btn btn-outline on-dark" href="#api">Explore the API</a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="kicker">Core Modules</span>
+      <h2>One platform. The whole project lifecycle.</h2>
+    </div>
+    <div class="grid-3">
+      <div class="card reveal">
+        <h3>CPM Scheduling</h3>
+        <p>Critical-path scheduling with float analysis, baselines, two-week lookaheads and float-burn alerts. Slippage is flagged the day it appears.</p>
+        <ul><li>Baseline vs. actual variance</li><li>Critical-path auto-highlighting</li><li>Trade-level lookaheads on mobile</li></ul>
+      </div>
+      <div class="card reveal">
+        <h3>Cost &amp; Commitment Control</h3>
+        <p>Budgeted, committed and spent tracked to the cost-code level, reconciled continuously — not at month-end when it's too late to act.</p>
+        <ul><li>Live budget vs. committed vs. spent</li><li>Change-order pipeline with approvals</li><li>Cash-flow forecasting curves</li></ul>
+      </div>
+      <div class="card reveal">
+        <h3>Field Operations</h3>
+        <p>Daily logs, manpower counts, weather, photos, and issues captured on-site in seconds — offline-first, synced when the signal returns.</p>
+        <ul><li>Offline-first mobile apps</li><li>Geotagged, timestamped photo log</li><li>Toolbox-talk &amp; safety records</li></ul>
+      </div>
+      <div class="card reveal">
+        <h3>RFIs &amp; Submittals</h3>
+        <p>Structured workflows with ball-in-court tracking and response-time analytics. The average Construx RFI turns around in 3.2 days.</p>
+        <ul><li>Ball-in-court accountability</li><li>Drawing-pinned RFIs</li><li>Submittal register with lead-time risk</li></ul>
+      </div>
+      <div class="card reveal">
+        <h3>Procurement &amp; Buyout</h3>
+        <p>Bid packages, leveling sheets and buyout status against budget — with long-lead items tracked from PO to site delivery.</p>
+        <ul><li>Bid leveling &amp; award workflow</li><li>Long-lead item tracker</li><li>Trade partner scorecards</li></ul>
+      </div>
+      <div class="card reveal">
+        <h3>Quality — ITPs, Inspections &amp; NCRs</h3>
+        <p>Inspection &amp; test plans authored, then approved by the other side — the author can't approve their own criteria. A failed inspection raises an NCR automatically; snags close only with photographic evidence.</p>
+        <ul><li>ITP creation with counterparty approval</li><li>Failure → NCR, with disposition + justification to close</li><li>Snag closure requires photo evidence</li></ul>
+      </div>
+      <div class="card reveal">
+        <h3>CDM &amp; Compliance Documents</h3>
+        <p>Draft project-specific CDM documentation from live project data — and the platform names any section it could not fill, so a human always knows what's left.</p>
+        <ul><li>Project-specific CDM drafting</li><li>Gaps declared, never papered over</li><li>Full document audit trail</li></ul>
+      </div>
+      <div class="card reveal">
+        <h3>Lessons &amp; Analytics</h3>
+        <p>Lessons captured against the project that produced them, portfolio dashboards for executives, and a read-only owner portal that ends the monthly-report ritual.</p>
+        <ul><li>Lessons tied to their source project</li><li>Portfolio KPI roll-ups</li><li>Owner-level transparency access</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section dark">
+  <div class="container">
+    <div class="split">
+      <div class="reveal">
+        <span class="kicker">Why It Wins</span>
+        <h2>Built on job sites, not in boardrooms.</h2>
+        <p>Construx exists because we couldn't find software that survived contact with a real project. So we built it, broke it, and rebuilt it across 240+ of our own jobs. Every feature earned its place by saving schedule or money on an actual site.</p>
+        <ul class="checklist">
+          <li><b>Deployed in days, not quarters</b><span>Import your schedule and budget; your team is working in Construx within a week.</span></li>
+          <li><b>Adopted by field crews</b><span>If a foreman won't use it, it doesn't ship. Daily-log completion across our sites: 99.2%.</span></li>
+          <li><b>Data you own</b><span>Full export at any time — your project record is yours, contractually and technically.</span></li>
+        </ul>
+      </div>
+      <div class="reveal">
+        <div class="quote-card">
+          <blockquote>We licensed Construx for our own portfolio after seeing it as an owner on an ETABLIX job. Our monthly reporting cycle went from three weeks of spreadsheet forensics to a login.</blockquote>
+          <cite>Director of Construction <span>Arcturus REIT</span></cite>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="kicker">Technical Specifications</span>
+      <h2>Enterprise-grade under the hood.</h2>
+    </div>
+    <div class="spec-table-wrap reveal">
+      <table class="spec-table">
+        <tr><th>Area</th><th>Specification</th></tr>
+        <tr><td>Deployment</td><td>Cloud (multi-tenant SaaS) or dedicated single-tenant instance for enterprise portfolios</td></tr>
+        <tr><td>Mobile</td><td>iOS &amp; Android, offline-first with conflict-safe sync; full field feature set without connectivity</td></tr>
+        <tr><td>Interoperability</td><td>REST API (JSON), webhook events, scheduled exports; IFC/BIM model linking; CSV/XER schedule import (Primavera P6, MS Project)</td></tr>
+        <tr><td>Integrations</td><td>Accounting (ERP cost-code sync), document management, Veryx® quality data natively linked to schedule activities</td></tr>
+        <tr><td>Security</td><td>SSO (SAML 2.0 / OIDC), role-based access control, encryption in transit (TLS 1.3) and at rest (AES-256), full audit logging</td></tr>
+        <tr><td>Reliability</td><td>99.9% uptime SLA, geo-redundant backups, disaster recovery RPO &lt; 1 hour</td></tr>
+        <tr><td>Licensing</td><td>Per-project or unlimited enterprise; owner read-only seats always free</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section dark" id="api">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="kicker">Construx API</span>
+      <h2>The API is the product.</h2>
+      <p>The Construx console talks to exactly the same public API as any other consumer. It holds no privileged path into the platform and is subject to the same roles, scopes and attribute rules as your own integrations.</p>
+    </div>
+    <div class="split" style="align-items:start;">
+      <div class="reveal">
+        <h3 style="margin-bottom:12px;">Shape</h3>
+        <p style="color:var(--slate-light);">Command-and-query over project resources. <code style="color:var(--amber);">GET /v1/routes</code> lists every endpoint — <strong style="color:#fff;">820 of them, 39 reachable without a credential</strong> — and that list <em>is</em> the documentation rather than a copy of it.</p>
+        <div class="code-block" style="margin-top:18px;">POST  /v1/projects/:projectId/lessons
+<span class="c">      Capture a lesson against the project that produced it</span>
+POST  /v1/projects/:projectId/quality/plans
+<span class="c">      Create an inspection and test plan for a work package</span>
+POST  /v1/projects/:projectId/quality/plans/:planId/approve
+<span class="c">      Approve an ITP — the other side agreeing the criteria,</span>
+<span class="c">      which its author cannot do</span>
+POST  /v1/projects/:projectId/quality/inspections
+<span class="c">      Record an inspection against an ITP stage;</span>
+<span class="c">      a failure raises an NCR</span>
+POST  /v1/projects/:projectId/quality/ncrs
+<span class="c">      Raise a non-conformance</span>
+POST  /v1/projects/:projectId/quality/ncrs/:ncrId/close
+<span class="c">      Close an NCR with a disposition and a justification</span>
+POST  /v1/projects/:projectId/quality/snags/:snagId/close
+<span class="c">      Close a snag with photographic evidence</span>
+POST  /v1/projects/:projectId/cdm/documents
+<span class="c">      Draft a project-specific CDM document, naming any</span>
+<span class="c">      section it could not fill</span></div>
+        <h3 style="margin:26px 0 12px;">Errors</h3>
+        <p style="color:var(--slate-light);">RFC 7807 <code style="color:var(--amber);">application/problem+json</code>, with per-field detail where a schema rejected the body. Every response carries <code style="color:var(--amber);">x-correlation-id</code> and <code style="color:var(--amber);">x-trace-id</code>, and a command accepts an <code style="color:var(--amber);">Idempotency-Key</code> so a retried request returns the original result rather than performing the state change twice.</p>
+        <div class="code-block" style="margin-top:18px;">{
+  <span class="s">"type"</span>: <span class="s">"https://construxvg.com/problems/access-denied"</span>,
+  <span class="s">"title"</span>: <span class="s">"ACCESS_DENIED"</span>,
+  <span class="s">"status"</span>: 403,
+  <span class="s">"detail"</span>: <span class="s">"No role of PM holds \"C\" on PROJECT_SETUP"</span>,
+  <span class="s">"traceId"</span>: <span class="s">"…"</span>,
+  <span class="s">"correlationId"</span>: <span class="s">"…"</span>
+}</div>
+      </div>
+      <div class="reveal">
+        <h3 style="margin-bottom:12px;">Authentication</h3>
+        <p style="color:var(--slate-light);">Bearer access tokens with a short lifetime and rotating refresh tokens, behind an MFA challenge. A public route may begin an authentication and never complete one — an invariant with a test behind it, because a demonstration endpoint once returned a working session to anonymous callers.</p>
+        <h3 style="margin:26px 0 12px;">Communication events</h3>
+        <p style="color:var(--slate-light);"><strong style="color:#fff;">182 notification events across 15 categories</strong>, fanning out over email, in-app, SMS, push and WhatsApp. 31 of them are mandatory and override a recipient's preferences, because a person is entitled to be told their account was locked whatever they have muted.</p>
+        <h3 style="margin:26px 0 12px;">What the API will not do</h3>
+        <p style="color:var(--slate-light);">It will not tell you which project ids exist. An id that does not exist and one belonging to another tenancy both answer <code style="color:var(--amber);">200</code> with an empty list on the generic entity read — a <code style="color:var(--amber);">404</code> for unknown and a <code style="color:var(--amber);">403</code> for forbidden would together be an enumeration oracle. That behaviour is tested, so nobody "fixes" it.</p>
+        <div class="quote-card" style="margin-top:26px;">
+          <blockquote>Command-and-query, tenancy-safe by design, and self-documenting from the live route table. Integrations built against Construx don't rot — the documentation can't drift from the API because it is the API.</blockquote>
+          <cite>Platform Engineering <span>ETABLIX — Construx team</span></cite>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="container">
+    <h2>See your next project in Construx.</h2>
+    <p>Book a 30-minute demo with a working project — not slides. We'll load your actual schedule if you bring one.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-arrow" href="/contact">Request a Demo</a>
+      <a class="btn btn-outline" href="/veryx">Pair It with Veryx®</a>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-about">
+        <a class="logo" href="/"><span class="logo-mark"></span>ETABL<span>IX</span></a>
+        <p>Full-cycle construction and construction technology. We build complex projects with certainty — and sell the platforms that make it possible: Construx® and Veryx®.</p>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="/services">Services</a></li>
+          <li><a href="/customers">Who We Serve</a></li>
+          <li><a href="/subcontractors">Trade Partners</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Products</h4>
+        <ul>
+          <li><a href="/construx">Construx® Platform</a></li>
+          <li><a href="/veryx">Veryx® Verification</a></li>
+          <li><a href="/construx#api">Construx API</a></li>
+          <li><a href="/veryx#api">Veryx API</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Get In Touch</h4>
+        <ul>
+          <li>hello@etablix.com</li>
+          <li>+1 (555) 010-4820</li>
+          <li>4820 Ironworks Avenue, Suite 300</li>
+          <li><a href="/internal/login.html">Employee Login</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ETABLIX. All rights reserved. Construx® and Veryx® are trademarks of ETABLIX.</span>
+      <span>Licensed · Bonded · Insured</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/js/main.js" type="module"></script>
+</body>
+</html>
