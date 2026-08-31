@@ -128,7 +128,19 @@ const PLAYBOOK_HTML = `
 <li><b>Target exit-rate at month 24:</b> £2m–£4m annualised revenue across the three models, CONSTRUX licensed on every live project, and one DRC village mandate in mobilisation.</li>
 </ul>
 
-<p class="pb-warn">The closing discipline: cash-flow structure — not headline contract value — determines survival. Every commercial decision is tested against one question: does this keep ETABLIX funded one month ahead of its committed supplier exposure?</p>
+<h2>Company set-up checklist</h2>
+<table>
+<tr><th>Workstream</th><th>Actions</th></tr>
+<tr><td>Legal</td><td>Companies House incorporation (ETABLIX LTD); name and trade-mark clearance (UKIPO classes 35/37/43); domains; shareholders' agreement placing ETABLIX within the Groupe Nseya structure; construction counsel engaged for the contract suite.</td></tr>
+<tr><td>Tax &amp; finance</td><td>CIS contractor registration; VAT registration with domestic-reverse-charge procedures; gross payment status application; business banking with a segregated client-float account; management-accounting pack mirroring the CONSTRUX dashboard; invoice-finance facility scoped.</td></tr>
+<tr><td>Insurance</td><td>Professional indemnity (advisory/management scope), public liability, employers' liability, contractors' all-risks (Prime mode), consider trade-credit cover.</td></tr>
+<tr><td>Compliance &amp; HSE</td><td>CDM 2015 competence file; H&amp;S policy and arrangements; SSIP accreditation; Constructionline; Achilles UVDB (utilities); ISO 9001/45001/14001 roadmap.</td></tr>
+<tr><td>Product</td><td>CONSTRUX Site Services &amp; Village module specification into the dev backlog: control accounts, EVM engine, valuation workflow, supplier portal, occupancy management, executive dashboard.</td></tr>
+<tr><td>People</td><td>Founder as MD; first hires in order — Site Services Manager, Quantity Surveyor/commercial manager, then Operations Director before the first Prime contract.</td></tr>
+<tr><td>DRC</td><td>ETABLIX RDC SARL (RCCM/OHADA) when the first paid study lands; local accounting, tax and labour advice; BitriPay rails for local supplier and payroll payments.</td></tr>
+</table>
+
+<p class="pb-warn">The closing discipline: in this company, cash-flow structure — not headline contract value — determines survival. Every commercial decision is tested against one question: does this keep ETABLIX funded one month ahead of its committed supplier exposure?</p>
 `;
 
 /** GET /api/playbook — the commercial playbook (employees only). */
