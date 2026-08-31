@@ -116,4 +116,4 @@ real database means replacing one module.
 ## Contact
 
 ETABLIX — Groupe Nseya House, Kingstanding, Birmingham, B44 8DJ ·
-contact@etabiix.com · +44 7493 216101.
+contact@etablix.com · +44 7493 216101.

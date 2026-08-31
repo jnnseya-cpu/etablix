@@ -8,7 +8,7 @@ export const COMPANY = {
   group: "A Groupe Nseya company",
   strapline: "Integrated Site Services",
   tagline: "One site. One accountable operating system.",
-  email: "contact@etabiix.com",
+  email: "contact@etablix.com",
   phone: "+44 7493 216101",
   address: "Groupe Nseya House, Kingstanding, Birmingham, B44 8DJ",
   location: "Birmingham, United Kingdom",
