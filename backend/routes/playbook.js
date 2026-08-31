@@ -107,6 +107,21 @@ const PLAYBOOK_HTML = `
 <li>Project requires founder-funded mobilisation or exposes household finances</li>
 <li>Ethical, labour, worker-accommodation, environmental or community standards cannot be maintained</li>
 </ul>
+<h2>Go-to-market strategy — the asset-stack playbook</h2>
+<p><b>Core thesis: account-based selling to people who already know us, with software as the proof.</b> ETABLIX's first market is not "the UK construction industry" — it is a named list of 20–30 accounts: GE Vernova alumni, the EPCs and transmission-owner supply-chain teams the founder dealt with, and the Project Directors who lived the supplier-coordination pain we solve. We do not advertise to this market; we write to it. Each asset gets a distinct GTM job:</p>
+<table>
+<tr><th>Asset</th><th>GTM role</th></tr>
+<tr><td>Network + GE Vernova experience</td><td><b>The door.</b> The wedge product is the paid Requirements Package — the document the founder authored inside GE Vernova, now sold to their peers. Low-risk for the buyer (£10–35k, fixed fee), and it deliberately creates the integrator procurement ETABLIX then wins. Every advisory sale is a rigged pipeline for Model B.</td></tr>
+<tr><td>MarketWar OS</td><td><b>The outbound engine.</b> ETABLIX becomes MarketWar's first flagship internal customer. Point the agents at: competitive teardowns of every site-services and camp-management player bidding in our space; monitoring of Achilles UVDB, Constructionline and tender portals for live opportunities; enrichment of the 30-account list (who is mobilising what, where, when — planning applications and DCO consents are public and predict site-services demand 12–18 months out); and a LinkedIn authority campaign in the founder's voice on interface risk, prelims escalation and village management. A GTM capability tier-one competitors literally cannot buy.</td></tr>
+<tr><td>CONSTRUX</td><td><b>The demo and the Trojan horse.</b> In every pitch the dashboard is shown live — nobody else walks into a Construction Director's office with their own platform. Every advisory deliverable is delivered inside CONSTRUX, not as Word documents, so the client's baseline already lives on our OS when the project mobilises. For clients who insist on self-managing suppliers, sell CONSTRUX Site Services standalone: software revenue today, integrator conversions later — once the dashboard shows them their own interface failures.</td></tr>
+<tr><td>VERYX</td><td><b>The enterprise wrapper.</b> Its design system and outreach machinery become ETABLIX's collateral factory — capability statements, exec email sequences, institution-grade decks — so a one-person venture presents like an institution from day one. And it opens the second door into every account: CONSTRUX sells at project altitude, VERYX at portfolio altitude; land at either, expand to the other.</td></tr>
+</table>
+<ul>
+<li><b>Sequencing:</b> UK energy first (RIIO-T3 substations, converter stations, data centres) because that is where the contacts and accreditation path point; DRC in parallel but capital-light — one paid village feasibility study for a copper-belt client, sourced through the Kinshasa network, establishes ETABLIX RDC before committing money.</li>
+<li><b>Partner channel:</b> modular-cabin firms, caterers and security companies that lack a management layer become referral partners — we make them look integrated rather than competing with them; later, they become supply-chain members and CONSTRUX licensees.</li>
+<li><b>Cadence:</b> 30 named accounts; one authority post weekly; two Requirements Package proposals a month; first integrator conversion by month 9; Prime only through existing clients.</li>
+</ul>
+
 <h2>Go-to-market — first 24 months</h2>
 <h3>Phase 1 (months 0–6): Establish and sell Advisory</h3>
 <ul>
