@@ -1,36 +1,38 @@
 # ETABLIX go-live runbook — VPS route
 
-Tailored to the chosen launch configuration: **VPS hosting (Hetzner or
-DigitalOcean) · transactional SMTP now, real mailbox later · etablix.com
-registered with registrar access.** Steps are ordered; each takes minutes.
-Total: roughly one evening.
+Tailored to the confirmed launch configuration: **your existing VPS ·
+Outlook for email · your own mailbox SMTP for notifications ·
+etablix.com registered with registrar access.** Steps are ordered; each
+takes minutes.
 
 ---
 
 ## Step 0 — Inbound email first (10 min, do this today)
 
 The website publishes **contact@etablix.com** everywhere. Until a real
-mailbox exists, any client who emails that address would bounce — which is
-worse than no website. Fix it before launch:
+mailbox exists on the domain, any client who emails that address would
+bounce — which is worse than no website. Fix it before launch:
 
 1. Log in to your registrar and open **Email forwarding** (most registrars
    include it free).
-2. Forward `contact@etablix.com` → your personal inbox
-   (e.g. jnbankwa@gmail.com).
-3. Send yourself a test email to contact@etablix.com and confirm it
-   arrives.
+2. Forward `contact@etablix.com` → your Outlook address.
+3. Send a test email to contact@etablix.com from another account and
+   confirm it lands in your Outlook inbox.
 
-When you later buy Google Workspace or Zoho, remove the forward and create
-the real mailbox — nothing on the website changes.
+When you later create a real mailbox on the domain, remove the forward —
+nothing on the website changes.
 
-## Step 1 — Create the server (10 min)
+## Step 1 — Your server (2 min)
 
-- **Hetzner**: Cloud Console → New server → Ubuntu 24.04, shared vCPU
-  **CX22** (2 vCPU / 4 GB, ~€4/mo) — more than enough. Falkenstein or
-  Nuremberg region is fine for UK traffic.
-  *(DigitalOcean equivalent: Basic Droplet, 1–2 GB, Ubuntu 24.04, London.)*
-- Add your SSH key at creation.
-- Note the server's public IPv4 address → referred to below as `SERVER_IP`.
+You already have the server. Just confirm two things:
+
+- It runs **Ubuntu 22.04 or 24.04** (`lsb_release -a`). Other distros work
+  too — only the install commands differ.
+- Note its **public IPv4 address** → referred to below as `SERVER_IP`
+  (`curl -4 ifconfig.me` from the server shows it).
+
+If anything else already runs on ports 80/443 on this server, tell me
+before Step 4 — the Caddyfile assumes they're free.
 
 ## Step 2 — Point DNS now (5 min; propagates while you work)
 
@@ -41,7 +43,7 @@ At your registrar, create:
 | A | `@` | `SERVER_IP` |
 | A | `www` | `SERVER_IP` |
 
-Keep any existing MX/forwarding records from Step 0.
+Keep the email-forwarding/MX records from Step 0 — don't delete those.
 
 ## Step 3 — Install the app (20 min)
 
@@ -61,7 +63,7 @@ cp deploy/etablix.env.example /etc/etablix.env
 chmod 600 /etc/etablix.env
 openssl rand -hex 32        # → paste as ETABLIX_TOKEN_SECRET in the next step
 nano /etc/etablix.env       # fill in: secret, ETABLIX_ADMIN_EMAIL/PASSWORD/NAME
-                            # (SMTP_* can wait for Step 5)
+                            # (SMTP_* comes in Step 5)
 
 # Service
 cp deploy/etablix.service /etc/systemd/system/
@@ -83,55 +85,102 @@ Once the Step 2 DNS has propagated (usually minutes), Caddy obtains
 Let's Encrypt certificates automatically. Check: `https://etablix.com`
 loads with a padlock, and `https://www.etablix.com` redirects to the apex.
 
-## Step 5 — Outbound notifications via Brevo (15 min)
+## Step 5 — Notifications via your own mailbox SMTP (10 min)
 
-Brevo's free tier (300 emails/day) is far beyond form-notification needs.
+You chose to send through your own email account's SMTP. Two Outlook
+realities to plan around:
 
-1. Create a free account at brevo.com → **SMTP & API → SMTP** → note the
-   server, port, login and SMTP key.
-2. Under **Senders & Domains → Domains**, add `etablix.com` and create the
-   DNS records Brevo shows you (its DKIM CNAMEs/TXT and SPF include) at
-   your registrar, then verify. This keeps notifications out of spam.
-3. Add to `/etc/etablix.env`:
+- **The From address must be the mailbox you authenticate with.** Outlook
+  will not send as `no-reply@etablix.com` — so `NOTIFY_FROM` must be your
+  Outlook address. Fine for self-notifications.
+- **An app password is required** (with two-step verification enabled on
+  the Microsoft account): Microsoft account → Security → App passwords.
+  Your normal password will be rejected for SMTP.
 
-   ```
-   SMTP_HOST=smtp-relay.brevo.com
-   SMTP_PORT=587
-   SMTP_USER=<your Brevo login>
-   SMTP_PASS=<your SMTP key>
-   NOTIFY_TO=contact@etablix.com
-   NOTIFY_FROM=ETABLIX Website <no-reply@etablix.com>
-   ```
+Add to `/etc/etablix.env` (personal Outlook.com shown; for Microsoft 365
+use `smtp.office365.com` and ensure SMTP AUTH is enabled for the mailbox):
 
-4. `systemctl restart etablix`
+```
+SMTP_HOST=smtp-mail.outlook.com
+SMTP_PORT=587
+SMTP_USER=<your Outlook address>
+SMTP_PASS=<app password>
+NOTIFY_TO=contact@etablix.com
+NOTIFY_FROM=<your Outlook address>
+```
 
-`NOTIFY_TO=contact@etablix.com` works because of the Step 0 forward.
-(Note: anything submitted before SMTP was configured is preserved in
-`/opt/etablix/backend/data/outbox.log` and in the Control Desk.)
+Then `systemctl restart etablix`. `NOTIFY_TO=contact@etablix.com` works
+because of the Step 0 forward — the notification goes out via Outlook and
+comes back to your Outlook inbox through the forward.
 
-## Step 6 — Backups (5 min)
+**Fallback:** personal-mailbox SMTP has daily sending limits and Microsoft
+occasionally blocks it from new server IPs. If notifications stop, nothing
+is lost (every submission is in the Control Desk and queued in
+`backend/data/outbox.log`) — switching to a free transactional sender
+(e.g. Brevo) is a five-line env change.
+
+## Step 6 — Backups (5 min) — what this actually is
+
+**The problem it solves:** everything clients submit — every enquiry,
+every supplier registration, every uploaded insurance certificate — lives
+in one folder on this server: `/opt/etablix/backend/data` (the database
+file + the uploaded documents). If the server dies, is hacked, or you
+delete something by mistake, that folder *is* the business record. Backups
+mean you can always get it back.
+
+Two layers, both cheap:
+
+**Layer 1 — nightly copy on the server** (the script already in the repo):
 
 ```bash
 cp /opt/etablix/deploy/backup.sh /opt/etablix-backup.sh && chmod +x /opt/etablix-backup.sh
 echo '15 2 * * * root /opt/etablix-backup.sh' > /etc/cron.d/etablix-backup
-/opt/etablix-backup.sh      # first archive, proves it works
+/opt/etablix-backup.sh      # run once now — proves it works
 ```
 
-Also enable the provider's server snapshots (Hetzner: Backups toggle,
-+20% of server cost) for whole-box recovery.
+What it does: every night at 02:15 it zips the data folder into
+`/var/backups/etablix/etablix-data-<date>.tar.gz` and deletes archives
+older than 30 days. Restoring = unpacking one file back into place.
 
-## Step 7 — Launch verification (15 min)
+**Layer 2 — provider snapshots** (protects against the whole server
+dying): in your VPS provider's control panel, enable automatic
+backups/snapshots for the server (Hetzner: the "Backups" toggle, ~20% of
+the server price; DigitalOcean: similar). One click, done.
 
-- [ ] `/api/health` on the live domain returns `"demo": false`
-- [ ] Sign in at `https://etablix.com/internal/login.html` with your real
-      admin; no demo hint visible; Commercial Playbook loads
-- [ ] Submit a test **project enquiry** with a document from the live site
-      → appears in the Control Desk with reference + downloadable file
-      → notification email arrives at your inbox
-- [ ] Submit a test **supplier registration** the same way
-- [ ] Delete the two test records via status (or leave marked as test)
-- [ ] `https://www.etablix.com` → redirects to `https://etablix.com`
-- [ ] Email to contact@etablix.com from another account reaches you
+**"Done" looks like:** the test run printed
+`backup written: /var/backups/etablix/etablix-data-....tar.gz`, and the
+provider panel shows backups enabled.
+
+## Step 7 — Launch verification (15 min) — what this actually is
+
+This is the dress rehearsal: you act as a client, a subcontractor and an
+employee once each, on the real live site, proving the entire chain works
+before you send the link to anyone. In order:
+
+1. **The site is live and secure:** open `https://etablix.com` — padlock,
+   correct pages; `https://www.etablix.com` redirects to it.
+2. **Production mode is on:** `https://etablix.com/api/health` in a
+   browser shows `"demo": false`.
+3. **Employee side works:** sign in at
+   `https://etablix.com/internal/login.html` with your real admin login.
+   Confirm there is **no** demo-accounts hint on the login page, the
+   Control Desk loads, and the Commercial Playbook opens.
+4. **The client journey works end-to-end:** on the live site, submit a
+   test project enquiry with a small PDF attached. Confirm: (a) the
+   success message; (b) it appears in the Control Desk with an ENQ-
+   reference; (c) the PDF downloads from the Documents column; (d) a
+   notification email arrives in your Outlook.
+5. **The subcontractor journey works:** same test via the supplier
+   registration form → SUP- reference, document, email.
+6. **Inbound email works:** from another account, email
+   contact@etablix.com and confirm it reaches your Outlook (the Step 0
+   forward).
+7. **Tidy up:** set the two test records' status to `lost` / `declined`
+   in the Control Desk so they don't sit in "new actions".
+
+If all seven pass, the site is genuinely live — every route a real client
+or supplier can take has been proven once. **"Done" looks like:** two
+notification emails in your inbox, two test records closed in the desk.
 
 ## Updating the live site later
 
@@ -139,11 +188,11 @@ Also enable the provider's server snapshots (Hetzner: Backups toggle,
 cd /opt/etablix && git pull && npm ci --omit=dev && systemctl restart etablix
 ```
 
-## When the real mailbox arrives (Google Workspace / Zoho)
+## When the real mailbox arrives (Microsoft 365 / Zoho on etablix.com)
 
-1. Create the mailbox, switch the registrar's MX records to the provider,
-   remove the Step 0 forward.
-2. Merge the provider's SPF include into the existing SPF record
-   (one TXT record containing both provider and Brevo includes).
-3. Optionally switch `SMTP_*` from Brevo to the mailbox provider —
-   or keep Brevo for notifications; both work.
+1. Create `contact@etablix.com` as a real mailbox, switch the registrar's
+   MX records to the provider, remove the Step 0 forward.
+2. Add the provider's SPF/DKIM records per their instructions.
+3. Update `SMTP_*` in `/etc/etablix.env` to the new mailbox and set
+   `NOTIFY_FROM=no-reply@etablix.com` (now legitimate), then
+   `systemctl restart etablix`.
