@@ -72,6 +72,18 @@ const PLAYBOOK_HTML = `
 <h2>EVM — the payment gate</h2>
 <p>Suppliers are paid on Earned Value, evidenced by measurable quantities, completed deliverables, inspections, weighted milestones, photographic records and approved variations — never on bare invoices or self-declared percent-complete. SPI or CPI below 0.95 triggers recovery / commercial review.</p>
 
+<h2>Risk register — top enterprise risks</h2>
+<table>
+<tr><th>Top risk</th><th>Mitigation</th></tr>
+<tr><td>Client payment default or delay</td><td>Credit-check every client; investment-grade or secured only in Prime mode; rolling reserve as condition precedent; suspension rights; trade-credit insurance.</td></tr>
+<tr><td>Supplier insolvency or default</td><td>Framework of pre-vetted suppliers with dual-sourcing on critical packages; performance bonds on major packages; step-in rights.</td></tr>
+<tr><td>Interface / scope-gap liability</td><td>Single responsibility matrix in every contract; CONSTRUX interface register; PI insurance sized to advisory and management scope.</td></tr>
+<tr><td>HSE incident on managed sites</td><td>Explicit CDM role allocation in every appointment; competent-person support; never accept safety duties by drafting accident.</td></tr>
+<tr><td>Cash-flow crunch in Prime mode</td><td>The cash-flow architecture above; committed-exposure rule; invoice-finance facility as backstop.</td></tr>
+<tr><td>Key-person concentration (founder)</td><td>Early hire of an operations director and a commercial manager; documented playbooks in CONSTRUX.</td></tr>
+<tr><td>Regulatory change (retention ban, payment reform)</td><td>Contract templates reviewed by construction counsel annually; security model not retention-dependent.</td></tr>
+</table>
+
 <h2>Gates to be passed before the first Prime bid</h2>
 <ol>
 <li>Funded mobilisation advance and rolling-reserve mechanism agreed in principle with the client</li>
