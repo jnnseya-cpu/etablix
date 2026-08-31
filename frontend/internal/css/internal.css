@@ -60,19 +60,40 @@ button { font-family: inherit; cursor: pointer; }
   font-family: var(--font-head);
   font-size: 1.6rem;
   font-weight: 900;
+  letter-spacing: -0.02em;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   color: var(--ink);
   text-decoration: none;
-  margin-bottom: 6px;
+  margin-bottom: 14px;
 }
-.logo .logo-mark {
-  width: 32px; height: 32px; background: var(--orange);
-  clip-path: polygon(0 100%, 0 35%, 50% 0, 100% 35%, 100% 100%, 65% 100%, 65% 60%, 35% 60%, 35% 100%);
+.logo .logo-mark { display: block; border-radius: 8px; }
+.login-card .logo .logo-mark { width: 42px; height: 42px; }
+.logo .logo-text { display: flex; flex-direction: column; line-height: 1; color: inherit; }
+.logo .logo-text small {
+  font-family: var(--font-head);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-top: 4px;
+  white-space: nowrap;
 }
-.login-card .logo span:last-child { color: var(--orange); }
-.login-card .sub { color: var(--slate); font-size: 0.92rem; margin-bottom: 30px; }
+.login-card .topline {
+  font-family: var(--font-head);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--slate-light);
+  margin-bottom: 26px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.login-card .topline b { color: var(--orange-dark); }
+.login-card .sub { color: var(--slate); font-size: 0.92rem; margin-bottom: 26px; }
 
 .field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 18px; }
 .field label { font-family: var(--font-head); font-weight: 700; font-size: 0.82rem; }
@@ -142,9 +163,9 @@ button { font-family: inherit; cursor: pointer; }
   top: 0;
   z-index: 50;
 }
-.topbar .logo { font-family: var(--font-head); font-weight: 900; font-size: 1.2rem; display:flex; align-items:center; gap:9px; color:#fff; text-decoration:none; }
-.topbar .logo span:last-child { color: var(--orange); }
-.topbar .logo .logo-mark { width: 26px; height: 26px; }
+.topbar .logo { font-family: var(--font-head); font-weight: 900; font-size: 1.2rem; letter-spacing: -0.02em; display:flex; align-items:center; gap:9px; color:#fff; text-decoration:none; }
+.topbar .logo .logo-mark { width: 30px; height: 30px; }
+.topbar .logo .logo-text small { font-size: 0.46rem; color: var(--amber); margin-top: 3px; }
 .topbar .brand-block { display: flex; align-items: center; gap: 12px; }
 .topbar .desk-label {
   font-family: var(--font-head); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.18em;
