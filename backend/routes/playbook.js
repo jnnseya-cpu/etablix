@@ -66,6 +66,9 @@ const PLAYBOOK_HTML = `
 <h2>Retention — modernised</h2>
 <p>5% of interim certified work, capped at 5% of the supplier contract; 2.5% released at practical completion / accepted demobilisation, 2.5% at end of the 12-month defects period. No retention on pure supply, low-risk services or professional consultants. Alternatives to prefer: retention bonds, performance bonds, PCGs, defects escrow, warranties, service credits; reduced or zero retention for proven framework suppliers. Check the UK retention-prohibition implementation position at the date of every new supplier contract.</p>
 
+<h2>Supplier payment discipline — application contents</h2>
+<p>Monthly supplier applications must contain: progress measurement, labour and plant records, delivery evidence, inspection/acceptance records, updated programme, forecast-to-complete, change documentation, defect status, EVM coding and CIS/VAT information. Payment only against certified, verified work — 30-day terms from the contractual due date, electronic payment, early notification of disputes, no retrospective deductions, approved variations into the next valuation.</p>
+
 <h2>EVM — the payment gate</h2>
 <p>Suppliers are paid on Earned Value, evidenced by measurable quantities, completed deliverables, inspections, weighted milestones, photographic records and approved variations — never on bare invoices or self-declared percent-complete. SPI or CPI below 0.95 triggers recovery / commercial review.</p>
 

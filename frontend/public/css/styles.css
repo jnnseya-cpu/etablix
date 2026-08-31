@@ -472,7 +472,7 @@ h3 { font-size: 1.28rem; }
 
 .product-banner {
   border-radius: 14px;
-  padding: 48px 44px;
+  padding: 96px 44px 48px;
   display: flex;
   flex-direction: column;
   gap: 18px;
