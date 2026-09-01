@@ -343,3 +343,33 @@ td select {
 @media (max-width: 860px) {
   .topbar .desk-strap { display: none; }
 }
+
+/* ============================================================
+   V2 — PREMIUM REFINEMENT LAYER (portal)
+   ============================================================ */
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 240px 240px;
+}
+
+::selection { background: #c9a35c; color: #14181d; }
+:focus-visible { outline: 2px solid #c9a35c; outline-offset: 2px; }
+
+.login-card { border-radius: 4px; box-shadow: 0 34px 90px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,169,106,0.18); }
+.login-card .topline b { letter-spacing: 0.2em; }
+.field input, .desk-toolbar input[type="search"], td select, .team-form input, .team-form select { border-radius: 2px; }
+.btn-block { border-radius: 2px; background: #c9a35c; color: #14181d; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.9rem; }
+.btn-block:hover { background: var(--ink); color: #fff; }
+.btn-ghost, .btn-run { border-radius: 2px; }
+.kpi, .table-wrap, .demo-hint, #bell-panel { border-radius: 3px; }
+.kpi b { font-variant-numeric: tabular-nums; }
+.kpi { transition: border-color 0.2s ease; }
+.kpi:hover { border-color: #c9a35c; }
+.tabs button { letter-spacing: 0.02em; }
