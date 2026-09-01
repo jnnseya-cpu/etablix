@@ -29,6 +29,30 @@
     <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
       <feGaussianBlur stdDeviation="2"/>
     </filter>
+    <filter id="dof" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1.6"/>
+    </filter>
+    <filter id="bloomS" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="7"/>
+    </filter>
+    <filter id="bloomL" x="-120%" y="-120%" width="340%" height="340%">
+      <feGaussianBlur stdDeviation="20"/>
+    </filter>
+    <linearGradient id="haze" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c86a1e" stop-opacity="0"/>
+      <stop offset="0.55" stop-color="#e08a3a" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#e08a3a" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="splittone" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1e3c5a" stop-opacity="0.12"/>
+      <stop offset="0.5" stop-color="#1e3c5a" stop-opacity="0"/>
+      <stop offset="0.82" stop-color="#c87830" stop-opacity="0.07"/>
+      <stop offset="1" stop-color="#c87830" stop-opacity="0.10"/>
+    </linearGradient>
+    <radialGradient id="sheen" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffc072" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#ffc072" stop-opacity="0"/>
+    </radialGradient>
 
     <!-- Transmission pylon -->
     <g id="pylon" stroke="#0c0f18" fill="none" stroke-width="6">
@@ -95,8 +119,19 @@
 
   <!-- Sky -->
   <rect width="1920" height="1080" fill="url(#sky)"/>
+  <g fill="#dfe8ff">
+    <circle cx="140" cy="60" r="1.4" opacity="0.5"/><circle cx="360" cy="120" r="1.1" opacity="0.35"/>
+    <circle cx="520" cy="48" r="1.6" opacity="0.55"/><circle cx="700" cy="150" r="1" opacity="0.3"/>
+    <circle cx="880" cy="70" r="1.3" opacity="0.45"/><circle cx="1060" cy="34" r="1.5" opacity="0.5"/>
+    <circle cx="1240" cy="110" r="1" opacity="0.3"/><circle cx="1420" cy="58" r="1.4" opacity="0.42"/>
+    <circle cx="1610" cy="132" r="1.1" opacity="0.32"/><circle cx="1780" cy="76" r="1.5" opacity="0.5"/>
+    <circle cx="240" cy="200" r="1" opacity="0.26"/><circle cx="1500" cy="196" r="1" opacity="0.24"/>
+    <circle cx="960" cy="212" r="1.1" opacity="0.25"/><circle cx="80" cy="152" r="1.2" opacity="0.36"/>
+  </g>
   <ellipse cx="1310" cy="880" rx="520" ry="300" fill="url(#sun)"/>
+  <ellipse cx="1310" cy="878" rx="200" ry="120" fill="#f9a558" opacity="0.28" filter="url(#bloomL)"/>
   <circle cx="1310" cy="880" r="46" fill="#ffe0b0" opacity="0.9" filter="url(#soft)"/>
+  <circle cx="1310" cy="880" r="70" fill="#ffd9a0" opacity="0.35" filter="url(#bloomS)"/>
   <!-- Cloud bands -->
   <g fill="#0d1322" opacity="0.55" filter="url(#soft)">
     <ellipse cx="420" cy="300" rx="420" ry="26"/>
@@ -106,13 +141,27 @@
   </g>
 
   <!-- Far ridge with turbines -->
-  <path d="M0 780 L260 740 L520 764 L820 726 L1140 758 L1460 722 L1720 752 L1920 736 L1920 1080 L0 1080 Z" fill="#0e1322"/>
+  <g filter="url(#dof)" opacity="0.88">
+  <path d="M0 780 L260 740 L520 764 L820 726 L1140 758 L1460 722 L1720 752 L1920 736 L1920 1080 L0 1080 Z" fill="#161d30"/>
+  </g>
+  <!-- distant worksite lights along the ridge -->
+  <g fill="#ffc981" filter="url(#soft)">
+    <circle cx="210" cy="768" r="2.4" opacity="0.7"/><circle cx="238" cy="770" r="1.8" opacity="0.5"/>
+    <circle cx="640" cy="778" r="2" opacity="0.6"/><circle cx="668" cy="780" r="1.6" opacity="0.4"/>
+    <circle cx="700" cy="776" r="2.2" opacity="0.65"/><circle cx="1010" cy="764" r="2" opacity="0.55"/>
+    <circle cx="1042" cy="766" r="1.7" opacity="0.42"/><circle cx="1650" cy="762" r="2.2" opacity="0.6"/>
+    <circle cx="1684" cy="764" r="1.7" opacity="0.45"/><circle cx="1836" cy="756" r="2" opacity="0.5"/>
+  </g>
+  <g filter="url(#dof)" opacity="0.8">
   <use href="#turbine" transform="translate(300,742) scale(0.75)"/>
   <use href="#turbine" transform="translate(560,760) scale(0.6)"/>
   <use href="#turbine" transform="translate(1560,730) scale(0.7)"/>
+  </g>
+  <!-- horizon haze band -->
+  <rect x="0" y="640" width="1920" height="260" fill="url(#haze)"/>
 
   <!-- Pylon line marching to the horizon -->
-  <g opacity="0.9">
+  <g opacity="0.82" filter="url(#dof)">
     <use href="#pylon" transform="translate(1690,880) scale(1.05)"/>
     <use href="#pylon" transform="translate(1445,860) scale(0.8)"/>
     <use href="#pylon" transform="translate(1255,845) scale(0.6)"/>
@@ -125,7 +174,12 @@
   <!-- Cranes -->
   <use href="#crane" transform="translate(430,905) scale(1.12)"/>
   <use href="#crane" transform="translate(915,895) scale(0.82) scale(-1,1)"/>
-  <use href="#crane" transform="translate(120,915) scale(0.62)"/>
+  <g filter="url(#dof)" opacity="0.85"><use href="#crane" transform="translate(120,915) scale(0.62)"/></g>
+  <g>
+    <circle cx="430" cy="336" r="4" fill="#ff3b30"/><circle cx="430" cy="336" r="9" fill="#ff3b30" opacity="0.4" filter="url(#bloomS)"/>
+    <circle cx="915" cy="478" r="3.4" fill="#ff3b30"/><circle cx="915" cy="478" r="8" fill="#ff3b30" opacity="0.35" filter="url(#bloomS)"/>
+    <circle cx="120" cy="600" r="2.6" fill="#ff3b30" opacity="0.8"/>
+  </g>
 
   <!-- Compound: cabins, masts, fence -->
   <g>
@@ -142,8 +196,21 @@
     </g>
   </g>
 
+  <!-- warm light spill from the compound -->
+  <g filter="url(#bloomS)" opacity="0.45">
+    <use href="#cabins" transform="translate(590,955)"/>
+    <use href="#cabins" transform="translate(760,955)"/>
+    <use href="#cabins" transform="translate(1000,958) scale(0.9)"/>
+  </g>
   <!-- Foreground ground -->
   <rect x="0" y="952" width="1920" height="128" fill="url(#ground)"/>
+  <ellipse cx="1310" cy="1010" rx="300" ry="46" fill="url(#sheen)"/>
+  <ellipse cx="700" cy="1000" rx="360" ry="30" fill="url(#sheen)" opacity="0.5"/>
+  <!-- faint tyre tracks -->
+  <g stroke="#1a1d26" stroke-width="5" fill="none" opacity="0.55">
+    <path d="M300 1080 C500 1030 700 1010 940 998"/>
+    <path d="M360 1080 C560 1036 740 1018 960 1006"/>
+  </g>
   <!-- Two site figures, hi-vis hint -->
   <g transform="translate(1420,1005)">
     <path d="M0 0 l0 -34 M-7 -12 l14 0 M0 -34 a7 7 0 1 1 0.1 0" stroke="#07080d" stroke-width="9" fill="none"/>
@@ -154,6 +221,8 @@
     <rect x="-8" y="-30" width="16" height="14" fill="#c05e1e" opacity="0.85"/>
   </g>
 
+  <!-- cinema split-tone grade -->
+  <rect width="1920" height="1080" fill="url(#splittone)"/>
   <!-- Vignette + grain -->
   <rect width="1920" height="1080" fill="#05070c" opacity="0" filter="url(#grain)"/>
   <radialGradient id="vig" cx="0.5" cy="0.42" r="0.85">

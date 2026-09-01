@@ -73,4 +73,16 @@
     <stop offset="1" stop-color="#000" stop-opacity="0.5"/>
   </radialGradient>
   <rect width="1200" height="700" fill="url(#gvig)"/>
+  <linearGradient id="v2split" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#1e3c5a" stop-opacity="0.12"/>
+    <stop offset="0.5" stop-color="#1e3c5a" stop-opacity="0"/>
+    <stop offset="0.85" stop-color="#c87830" stop-opacity="0.08"/>
+    <stop offset="1" stop-color="#c87830" stop-opacity="0.11"/>
+  </linearGradient>
+  <radialGradient id="v2vig" cx="0.5" cy="0.42" r="0.9">
+    <stop offset="0.58" stop-color="#000" stop-opacity="0"/>
+    <stop offset="1" stop-color="#000" stop-opacity="0.42"/>
+  </radialGradient>
+  <rect width="1200" height="700" fill="url(#v2split)"/>
+  <rect width="1200" height="700" fill="url(#v2vig)"/>
 </svg>
