@@ -22,7 +22,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUTBOX = path.join(__dirname, "..", "data", "outbox.log");
 
 const TO_INTERNAL = process.env.NOTIFY_TO || "contact@etablix.com";
-const FROM = process.env.NOTIFY_FROM || "ETABLIX Website <no-reply@etablix.com>";
+// Recipients must see "ETABLIX" as the sender, never a bare mailbox name.
+// A plain address in NOTIFY_FROM gets the company display name wrapped on.
+const rawFrom = process.env.NOTIFY_FROM || "no-reply@etablix.com";
+const FROM = rawFrom.includes("<") ? rawFrom : `ETABLIX <${rawFrom}>`;
 
 const transport = process.env.SMTP_HOST
   ? nodemailer.createTransport({
