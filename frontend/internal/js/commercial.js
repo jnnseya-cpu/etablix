@@ -87,66 +87,122 @@ document.addEventListener("click", (e) => {
 
 async function cosPricing() {
   const m = cosModel;
-  const modelA = `<table><thead><tr><th>Deliverable</th><th>Indicative fee</th></tr></thead><tbody>${m.modelA.items
-    .map((i) => `<tr><td>${esc(i.deliverable)}</td><td><b>${money(i.low)} – ${money(i.high)}</b></td></tr>`)
+  const modelA = `<table><thead><tr><th>Deliverable</th><th>Indicative fee</th><th></th></tr></thead><tbody>${m.modelA.items
+    .map(
+      (i, idx) =>
+        `<tr><td>${esc(i.deliverable)}</td><td><b>${money(i.low)} – ${money(i.high)}</b></td>
+        <td><button class="btn-run" data-quote-a="${idx}" title="Opens a pre-filled fee quotation in Documents">Quote this →</button></td></tr>`
+    )
     .join("")}</tbody></table>`;
 
   const modelB = `<table><thead><tr><th>Component</th><th>Basis</th></tr></thead><tbody>${m.modelB.components
     .map((c) => `<tr><td><b>${esc(c.component)}</b></td><td>${esc(c.basis)}</td></tr>`)
     .join("")}</tbody></table><p class="muted" style="margin-top:10px;">${esc(m.modelB.note)}</p>`;
 
-  const bCalc = `<div class="team-form" style="flex-wrap:wrap;margin-bottom:8px;">
-    <input type="number" id="b-supplier" placeholder="Procured supplier value £" min="0">
-    <input type="number" id="b-months" placeholder="Duration (months)" min="1" value="12">
-    <input type="number" id="b-proc" placeholder="Procurement %" min="3" max="5" step="0.5" value="4">
-    <input type="number" id="b-monthly" placeholder="Monthly mgmt fee £" min="0" value="15000">
-    <input type="number" id="b-mob" placeholder="Mobilisation fee £" min="0" value="25000">
-    <input type="number" id="b-cx" placeholder="CONSTRUX £/month" min="0" value="2500">
-  </div><div id="b-result" class="muted">Enter the procured supplier value to build the Model B fee.</div>`;
+  const bField = (id, label, value, extra = "") =>
+    `<label style="display:flex;flex-direction:column;gap:3px;font-size:0.78rem;" class="muted">${label}
+      <input type="number" id="${id}" min="0" ${value !== null ? `value="${value}"` : ""} ${extra} style="width:170px;font-size:0.95rem;"></label>`;
+  const bCalc = `<div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:12px;">
+    ${bField("b-supplier", "Procured supplier value £", null)}
+    ${bField("b-months", "Duration (months)", 12, 'min="1"')}
+    ${bField("b-proc", "Procurement fee %  (3–5)", 4, 'min="3" max="5" step="0.5"')}
+    ${bField("b-monthly", "Monthly management fee £", 15000)}
+    ${bField("b-mob", "Mobilisation & planning fee £", 25000)}
+    ${bField("b-cx", "CONSTRUX platform £ / month", 2500)}
+  </div>
+  <div id="b-result"></div>
+  <button class="btn-block" id="b-to-quote" style="width:auto;padding:11px 22px;margin-top:12px;">Turn this into a fee proposal (QUO) →</button>`;
 
   const stackInputs = m.modelC.stack
-    .map((s) => `<label style="display:flex;align-items:center;gap:6px;font-size:0.85rem;">${esc(s.component)} <input type="number" data-c-stack="${s.id}" value="${s.pct}" min="0" max="20" step="0.5" style="width:70px;"> %</label>`)
+    .map(
+      (s) => `<label style="display:flex;flex-direction:column;gap:3px;font-size:0.78rem;" class="muted">${esc(s.component)} %
+      <input type="number" data-c-stack="${s.id}" value="${s.pct}" min="0" max="20" step="0.5" style="width:150px;font-size:0.95rem;"></label>`
+    )
     .join("");
-  const cCalc = `<div class="team-form" style="flex-wrap:wrap;align-items:center;margin-bottom:10px;">
-    <input type="number" id="c-direct" placeholder="Forecast direct supplier cost £" min="0" value="1000000" style="flex:1.4;">
+  const cCalc = `<div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:12px;align-items:end;">
+    <label style="display:flex;flex-direction:column;gap:3px;font-size:0.78rem;" class="muted">Forecast direct supplier cost £
+      <input type="number" id="c-direct" min="0" value="1000000" style="width:220px;font-size:0.95rem;"></label>
     ${stackInputs}
   </div><div id="c-result"></div>
-  <p class="muted" style="margin-top:10px;">${esc(m.modelC.pricingBands)}</p>
+  <button class="btn-block" id="c-to-quote" style="width:auto;padding:11px 22px;margin-top:12px;">Draft this as a client price build-up (QUO) →</button>
+  <p class="muted" style="margin-top:12px;">${esc(m.modelC.pricingBands)}</p>
   <p class="muted" style="margin-top:6px;">${esc(m.modelC.contingencyRule)}</p>`;
 
   return (
     `<div class="section-block" style="border-left:3px solid var(--danger,#c0392b);padding-left:16px;"><h3>Naming rule</h3><p class="muted">${esc(m.namingRule)}</p></div>` +
-    block(m.modelA.name + " — fee bands", wrapT(modelA)) +
+    block(m.modelA.name + " — fee bands · every row opens a ready-made quotation", wrapT(modelA)) +
     block(m.modelB.name, wrapT(modelB)) +
-    block("Model B fee builder", bCalc) +
+    block("Model B fee builder — price it, then generate the proposal", bCalc) +
     block(m.modelC.name + " — price build-up calculator", cCalc) +
     `<div class="section-block" style="border-left:3px solid var(--amber,#9c7a3c);padding-left:16px;"><h3>The closing discipline</h3><p class="muted">${esc(m.closingDiscipline)}</p></div>`
   );
 }
 
+/** Jump to Documents with a pre-filled form — the calculators' output. */
+async function openDocPrefill(templateId, data, lines) {
+  cosSection = "docs";
+  await loadCommercial();
+  const tpl = docTemplates.find((t) => t.id === templateId);
+  if (!tpl) return;
+  const holder = document.getElementById("doc-form-holder");
+  holder.innerHTML = docFormHtml(tpl);
+  const tbody = document.querySelector("#doc-lines tbody");
+  document.getElementById("doc-add-line")?.addEventListener("click", () => tbody.insertAdjacentHTML("beforeend", lineRow()));
+  const form = document.getElementById("doc-generate");
+  for (const [k, v] of Object.entries(data || {})) {
+    const el = form.querySelector(`[name="${k}"]`);
+    if (el) el.value = v;
+  }
+  for (const l of lines || []) {
+    tbody.insertAdjacentHTML("beforeend", lineRow());
+    const tr = tbody.lastElementChild;
+    tr.querySelector('[data-line="description"]').value = l.description;
+    tr.querySelector('[data-line="qty"]').value = l.qty;
+    tr.querySelector('[data-line="rate"]').value = l.rate;
+  }
+  if (!(lines || []).length && tbody) tbody.insertAdjacentHTML("beforeend", lineRow());
+  holder.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 function wireCalculators() {
   const num = (id) => Number(document.getElementById(id)?.value) || 0;
-  const recalcB = () => {
-    const sv = num("b-supplier"), months = num("b-months") || 1;
-    const proc = (Math.min(5, Math.max(3, num("b-proc") || 4)) / 100) * sv;
-    const mgmt = num("b-monthly") * months, cx = num("b-cx") * months, mob = num("b-mob");
-    const total = proc + mgmt + cx + mob;
-    document.getElementById("b-result").innerHTML = sv
-      ? `<table class="table-wrap" style="font-size:0.9rem;"><tr><td>Mobilisation & planning</td><td style="text-align:right;"><b>${money(mob)}</b></td></tr>
-         <tr><td>Procurement fee (${(num("b-proc") || 4)}% of ${money(sv)})</td><td style="text-align:right;"><b>${money(proc)}</b></td></tr>
-         <tr><td>Integration & management (${months} months)</td><td style="text-align:right;"><b>${money(mgmt)}</b></td></tr>
-         <tr><td>CONSTRUX platform (${months} months)</td><td style="text-align:right;"><b>${money(cx)}</b></td></tr>
-         <tr><td style="border-top:2px solid currentColor;"><b>Total ETABLIX fee (excl. embedded personnel & closeout)</b></td><td style="border-top:2px solid currentColor;text-align:right;"><b>${money(total)}</b></td></tr></table>`
-      : "Enter the procured supplier value to build the Model B fee.";
+
+  const bParts = () => {
+    const sv = num("b-supplier");
+    const months = num("b-months") || 1;
+    const procPct = Math.min(5, Math.max(3, num("b-proc") || 4));
+    return {
+      sv, months, procPct,
+      mob: num("b-mob"),
+      proc: (procPct / 100) * sv,
+      monthly: num("b-monthly"),
+      mgmt: num("b-monthly") * months,
+      cxRate: num("b-cx"),
+      cx: num("b-cx") * months,
+    };
   };
-  const recalcC = () => {
+  const recalcB = () => {
+    const p = bParts();
+    const total = p.mob + p.proc + p.mgmt + p.cx;
+    document.getElementById("b-result").innerHTML = `<div class="table-wrap"><table style="font-size:0.9rem;"><tbody>
+       <tr><td>Mobilisation &amp; planning fee</td><td style="text-align:right;"><b>${money(p.mob)}</b></td></tr>
+       <tr><td>Procurement fee — ${p.procPct}% of ${money(p.sv)} procured supplier value</td><td style="text-align:right;"><b>${money(p.proc)}</b></td></tr>
+       <tr><td>Integration &amp; management — ${p.months} months × ${money(p.monthly)}</td><td style="text-align:right;"><b>${money(p.mgmt)}</b></td></tr>
+       <tr><td>CONSTRUX platform &amp; reporting — ${p.months} months × ${money(p.cxRate)}</td><td style="text-align:right;"><b>${money(p.cx)}</b></td></tr>
+       <tr><td style="border-top:2px solid currentColor;"><b>Total ETABLIX fee</b> <span class="muted">(excl. embedded personnel &amp; closeout — scoped at appointment)</span></td><td style="border-top:2px solid currentColor;text-align:right;"><b>${money(total)}</b></td></tr>
+       </tbody></table></div>${p.sv ? "" : '<p class="muted" style="margin-top:6px;">Enter the procured supplier value above and every line updates live.</p>'}`;
+  };
+
+  const cRows = () => {
     const direct = num("c-direct");
     const rows = cosModel.modelC.stack.map((s) => {
       const pct = Number(document.querySelector(`[data-c-stack="${s.id}"]`)?.value) || 0;
       return { ...s, pct, value: (pct / 100) * direct };
     });
-    const addPct = rows.reduce((a, r) => a + r.pct, 0);
-    const total = direct + rows.reduce((a, r) => a + r.value, 0);
+    return { direct, rows, addPct: rows.reduce((a, r) => a + r.pct, 0), total: direct + rows.reduce((a, r) => a + r.value, 0) };
+  };
+  const recalcC = () => {
+    const { direct, rows, addPct, total } = cRows();
     document.getElementById("c-result").innerHTML = `<div class="table-wrap"><table>
       <thead><tr><th>Component</th><th>Rate</th><th>Amount</th><th>What it pays for</th></tr></thead><tbody>
       <tr><td><b>Direct supplier and labour costs</b></td><td>100%</td><td><b>${money(direct)}</b></td><td class="muted">The audited base</td></tr>
@@ -154,12 +210,53 @@ function wireCalculators() {
       <tr><td><b>Contract value</b></td><td><b>+${addPct}%</b></td><td><b>${money(total)}</b></td><td></td></tr>
       </tbody></table></div>`;
   };
+
   ["b-supplier", "b-months", "b-proc", "b-monthly", "b-mob", "b-cx"].forEach((id) =>
     document.getElementById(id)?.addEventListener("input", recalcB));
   document.getElementById("c-direct")?.addEventListener("input", recalcC);
   document.querySelectorAll("[data-c-stack]").forEach((i) => i.addEventListener("input", recalcC));
   recalcB();
   recalcC();
+
+  // Model A rows → a ready-made quotation in Documents.
+  document.querySelectorAll("button[data-quote-a]").forEach((btn) =>
+    btn.addEventListener("click", () => {
+      const item = cosModel.modelA.items[Number(btn.dataset.quoteA)];
+      openDocPrefill(
+        "quotation",
+        { project: item.deliverable, model: "Model A — Advisory", assumptions: "Fixed fee for the defined deliverable. Client-supplied information relied upon as provided. Site visits, travel and expenses included within the UK mainland. Excludes statutory fees and third-party design." },
+        [{ description: `${item.deliverable} — fixed fee`, qty: 1, rate: Math.round((item.low + item.high) / 2 / 100) * 100 }]
+      );
+    })
+  );
+
+  // Model B builder → the full fee proposal, lines carried over.
+  document.getElementById("b-to-quote")?.addEventListener("click", () => {
+    const p = bParts();
+    openDocPrefill(
+      "quotation",
+      { model: "Model B — Management Integrator", assumptions: `Based on a procured supplier value of ${money(p.sv)} over ${p.months} months. Supplier contracts remain with the client. Embedded site personnel at cost + agreed margin and the demobilisation fee are scoped at appointment. Fees exclude VAT.` },
+      [
+        { description: "Mobilisation and planning fee (fixed)", qty: 1, rate: p.mob },
+        { description: `Procurement fee — ${p.procPct}% of procured supplier value`, qty: 1, rate: Math.round(p.proc) },
+        { description: "Monthly integration and management fee", qty: p.months, rate: p.monthly },
+        { description: "CONSTRUX platform and reporting (per month)", qty: p.months, rate: p.cxRate },
+      ]
+    );
+  });
+
+  // Model C stack → the transparent price build-up as a client document.
+  document.getElementById("c-to-quote")?.addEventListener("click", () => {
+    const { direct, rows } = cRows();
+    openDocPrefill(
+      "quotation",
+      { model: "Model C — Prime Service Contractor", assumptions: "Transparent price build-up on forecast direct supplier cost. Contingency is held against a joint risk register with a defined drawdown process; unused contingency is returned or shared per the agreed mechanism. Subject to the mobilisation advance and rolling-reserve provisions. Excludes VAT." },
+      [
+        { description: "Direct supplier and labour costs (forecast, audited base)", qty: 1, rate: direct },
+        ...rows.map((r) => ({ description: `${r.component} — ${r.pct}% on direct cost`, qty: 1, rate: Math.round(r.value) })),
+      ]
+    );
+  });
 }
 
 // ------------------------------------------------------------------- docs
