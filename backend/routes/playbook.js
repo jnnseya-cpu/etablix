@@ -125,7 +125,7 @@ const PLAYBOOK_HTML = `
 <h2>Go-to-market — first 24 months</h2>
 <h3>Phase 1 (months 0–6): Establish and sell Advisory</h3>
 <ul>
-<li>Trading entity in place — ETABLIX is a trading name of NN GLOBAL LTD (Company No. 15405437); brand, site, capability statement; place base insurances; register CIS/VAT.</li>
+<li>Trading entity in place — ETABLIX is a trading name of JNN GLOBAL LTD (Company No. 15405437); brand, site, capability statement; place base insurances; register CIS/VAT.</li>
 <li>Accreditations that unlock buyers: Constructionline Gold, an SSIP scheme (e.g. SafeContractor/Acclaim), and begin Achilles UVDB — the qualification system through which UK utilities and transmission owners buy. Start ISO 9001/45001/14001 gap-work early; they gate tier-one tender lists.</li>
 <li>Direct outreach to the founder's energy-sector network (GE Vernova alumni, EPCs, transmission-owner supply-chain teams) selling Requirements Packages and mobilisation-readiness reviews — deliberately seeding future integrator procurements.</li>
 <li><b>Target:</b> 4–6 advisory assignments, £60k–£120k revenue, two written case studies.</li>
@@ -146,7 +146,7 @@ const PLAYBOOK_HTML = `
 <h2>Company set-up checklist</h2>
 <table>
 <tr><th>Workstream</th><th>Actions</th></tr>
-<tr><td>Legal</td><td>Companies House registration (ETABLIX, trading name of NN GLOBAL LTD, Company No. 15405437); name and trade-mark clearance (UKIPO classes 35/37/43); domains; shareholders' agreement placing ETABLIX within the Groupe Nseya structure; construction counsel engaged for the contract suite.</td></tr>
+<tr><td>Legal</td><td>Companies House registration (ETABLIX, trading name of JNN GLOBAL LTD, Company No. 15405437); name and trade-mark clearance (UKIPO classes 35/37/43); domains; shareholders' agreement placing ETABLIX within the Groupe Nseya structure; construction counsel engaged for the contract suite.</td></tr>
 <tr><td>Tax &amp; finance</td><td>CIS contractor registration; VAT registration with domestic-reverse-charge procedures; gross payment status application; business banking with a segregated client-float account; management-accounting pack mirroring the CONSTRUX dashboard; invoice-finance facility scoped.</td></tr>
 <tr><td>Insurance</td><td>Professional indemnity (advisory/management scope), public liability, employers' liability, contractors' all-risks (Prime mode), consider trade-credit cover.</td></tr>
 <tr><td>Compliance &amp; HSE</td><td>CDM 2015 competence file; H&amp;S policy and arrangements; SSIP accreditation; Constructionline; Achilles UVDB (utilities); ISO 9001/45001/14001 roadmap.</td></tr>
