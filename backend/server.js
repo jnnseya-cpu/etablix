@@ -29,6 +29,7 @@ import automationRoutes from "./routes/automation.js";
 import commercialRoutes from "./routes/commercial.js";
 import orgRoutes from "./routes/org.js";
 import docsRoutes from "./routes/docs.js";
+import agentRoutes from "./routes/agents.js";
 import { startScheduler } from "./lib/automation.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -60,6 +61,7 @@ app.use("/api/automation", automationRoutes); // delivery automation: rules, run
 app.use("/api/commercial", commercialRoutes); // Commercial OS: pricing, bids, cash-flow, EVM, retention, GTM
 app.use("/api/org", orgRoutes); // organisation structure, AI-agent workforce, positions
 app.use("/api/docs", docsRoutes); // document studio: invoices, applications, POs, notices
+app.use("/api/agents", agentRoutes); // AI-agent workforce: provider connection, runs, approvals
 
 app.use("/api", (req, res) => res.status(404).json({ error: "Unknown endpoint." }));
 

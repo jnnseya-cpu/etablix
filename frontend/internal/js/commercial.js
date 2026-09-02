@@ -846,11 +846,14 @@ document.addEventListener("change", async (e) => {
 // =====================================================================
 
 export async function loadOrganisation() {
-  const [org, veryxLink, construxLink] = await Promise.all([
+  const [org, agentsRes, veryxLink, construxLink] = await Promise.all([
     api("/api/org"),
+    api("/api/agents").catch(() => ({ provider: { connected: false }, agents: [], runs: [] })),
     api("/api/veryx/link").catch(() => ({ connected: false })),
     api("/api/construx/link").catch(() => ({ connected: false })),
   ]);
+  const provider = agentsRes.provider || { connected: false };
+  const agentForms = Object.fromEntries((agentsRes.agents || []).map((a) => [a.id, a.fields]));
 
   const list = (items) => `<ul style="margin:6px 0 0;padding-left:18px;font-size:0.88rem;line-height:1.6;">${items.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>`;
 
@@ -870,8 +873,45 @@ export async function loadOrganisation() {
     if (b === "engine") return pill("ENGINE · LIVE", "approved");
     if (b === "veryx") return veryxLink.connected ? pill("VERYX · CONNECTED", "approved") : pill("VERYX · connect key", "");
     if (b === "construx") return construxLink.connected ? pill("CONSTRUX · CONNECTED", "approved") : pill("CONSTRUX · awaiting token", "");
-    return pill("PLATFORM AI", "");
+    return provider.connected ? pill("AI · LIVE", "approved") : pill("AI · connect key", "");
   };
+
+  const providerStatus = provider.connected
+    ? pill(`CONNECTED · ${provider.model}`, "approved")
+    : provider.lastTest && !provider.lastTest.ok
+      ? pill("FAILED", "declined")
+      : pill("Not connected", "");
+  const providerBlock = `
+    ${isAdmin ? `<form id="ai-provider-form" class="team-form" style="flex-wrap:wrap;">
+      <b style="font-family:var(--font-head);min-width:90px;align-self:center;">AI engine</b>
+      <input name="apiKey" type="password" placeholder="${provider.keyPreview ? `Key saved (${esc(provider.keyPreview)}) — paste to replace` : "Paste Anthropic API key (sk-ant-…)"}" autocomplete="off" style="flex:2;">
+      <input name="model" value="${esc(provider.model || "claude-opus-5")}" placeholder="Model" style="max-width:190px;">
+      <button class="btn-block" type="submit" style="width:auto;padding:11px 18px;">Save &amp; test</button>
+      <span style="align-self:center;">${providerStatus}</span>
+    </form>` : `<p>AI engine: ${providerStatus}</p>`}
+    ${provider.lastTest ? `<p class="muted" style="margin:6px 0 0;">${esc(provider.lastTest.summary)}</p>` : ""}
+    <p class="muted" style="margin:8px 0 0;">One key powers all seven agents. An administrator creates it at <b>console.anthropic.com</b> → API keys and pastes it here — stored server-side only, never shown again in full, exactly like the platform keys. Every run lands in the approval queue below: a named human approves or rejects before anything is acted on.</p>`;
+
+  const runFormHtml = (a) => {
+    const fields = agentForms[a.id] || [];
+    if (!fields.length) return "";
+    return `<details style="margin-top:10px;"><summary style="cursor:pointer;font-weight:700;font-size:0.88rem;color:var(--amber,#9c7a3c);">▶ Run this agent now</summary>
+      <form data-agent-run="${a.id}" style="margin-top:10px;">
+        <input name="__title" placeholder="Name this run — e.g. 'Chesterfield welfare package quotes'" style="width:100%;margin-bottom:8px;">
+        ${fields
+          .map((f) =>
+            f.type === "text"
+              ? `<input name="${f.name}" ${f.required ? "required" : ""} placeholder="${esc(f.label)}" style="width:100%;margin-bottom:8px;">`
+              : `<label class="muted" style="font-size:0.8rem;">${esc(f.label)}${f.required ? " *" : ""}</label><textarea name="${f.name}" ${f.required ? "required" : ""} style="width:100%;min-height:90px;padding:10px 12px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;font-size:0.88rem;margin-bottom:8px;"></textarea>`
+          )
+          .join("")}
+        <button class="btn-block" type="submit" style="width:auto;padding:11px 22px;" ${provider.connected ? "" : "disabled"}>${provider.connected ? "Run agent" : "Connect the AI engine first"}</button>
+        <span class="login-error" data-agent-error style="display:block;margin-top:8px;"></span>
+      </form>
+      <div data-agent-output="${a.id}"></div>
+    </details>`;
+  };
+
   const agentCards = org.agents
     .map(
       (a) => `<div class="section-block">
@@ -880,9 +920,25 @@ export async function loadOrganisation() {
       <details><summary style="cursor:pointer;font-size:0.85rem;font-weight:600;">Inputs</summary>${list(a.inputs)}</details>
       <details><summary style="cursor:pointer;font-size:0.85rem;font-weight:600;">Outputs</summary>${list(a.outputs)}</details>
       <p style="font-size:0.85rem;margin-top:8px;border-left:3px solid var(--danger,#c0392b);padding-left:10px;"><b>Approval boundary:</b> ${esc(a.boundary)}</p>
+      ${runFormHtml(a)}
     </div>`
     )
     .join("");
+
+  const runStatusPill = (s) =>
+    s === "approved" ? pill("approved", "approved") : s === "rejected" ? pill("rejected", "declined") : pill("awaiting approval", "");
+  const runsTable = (agentsRes.runs || []).length
+    ? wrapT(`<table><thead><tr><th>When</th><th>Agent</th><th>Run</th><th>By</th><th>Status</th><th></th></tr></thead><tbody>${agentsRes.runs
+        .map(
+          (r) => `<tr><td class="muted" style="white-space:nowrap;">${new Date(r.createdAt).toLocaleString("en-GB")}</td>
+          <td>${esc(r.agentName)}</td><td><b>${esc(r.title)}</b><div class="muted" style="font-size:0.78rem;">${esc(r.preview || "")}…</div></td>
+          <td class="muted">${esc(r.runBy)}${r.decidedBy ? `<div style="font-size:0.72rem;">decided: ${esc(r.decidedBy)}</div>` : ""}</td>
+          <td>${runStatusPill(r.status)}</td>
+          <td style="white-space:nowrap;"><button class="btn-run" data-run-open="${r.id}">Open</button>${isAdmin ? ` <button class="btn-run" data-run-del="${r.id}">Delete</button>` : ""}</td></tr>`
+        )
+        .join("")}</tbody></table>`)
+    : '<p class="empty-note">No agent runs yet — run any agent above and its output arrives here for a named human to approve or reject.</p>';
+  const runsBlock = `${runsTable}<div id="agent-run-viewer"></div>`;
 
   const matrix = wrapT(`<table><thead><tr><th>Function</th><th>AI replacement potential</th><th>Human control required</th></tr></thead><tbody>${org.aiMatrix
     .map(([f, p, h]) => `<tr><td>${esc(f)}</td><td><b>${esc(p)}</b></td><td class="muted">${esc(h)}</td></tr>`)
@@ -915,7 +971,9 @@ export async function loadOrganisation() {
   document.getElementById("organisation-body").innerHTML =
     `<p style="border-left:3px solid var(--amber,#9c7a3c);padding-left:12px;font-size:0.92rem;">${esc(org.principle)}</p>` +
     block("Launch core — four people, AI-amplified", coreCards) +
+    block("AI engine — one connection powers every agent", providerBlock) +
     block("The AI-agent workforce — seven agents, each inside an approval boundary", agentCards) +
+    block("Agent runs — the approval queue", runsBlock) +
     block("Fractional professional assurance", fractional) +
     block("Contract-funded appointments — recruited against secured work, priced into the contract", contractFunded) +
     block("What AI genuinely replaces — and what humans always keep", matrix) +
@@ -926,3 +984,111 @@ export async function loadOrganisation() {
       `<p class="muted" style="margin-top:10px;"><b>Safe operating principle:</b> ${org.operatingPrinciple.map(esc).join(" · ")}</p>`) +
     block("The mature organisation — the growth map, not the payroll", mature);
 }
+
+// --- AI provider connection (admin) ---
+
+document.addEventListener("submit", async (e) => {
+  const form = e.target.closest("#ai-provider-form");
+  if (!form) return;
+  e.preventDefault();
+  const btn = form.querySelector("button");
+  btn.disabled = true;
+  btn.textContent = "Testing…";
+  try {
+    await api("/api/agents/provider", { method: "PUT", body: JSON.stringify({ apiKey: form.apiKey.value, model: form.model.value }) });
+    const { result } = await api("/api/agents/provider/test", { method: "POST" });
+    if (!result.ok) alert(result.summary);
+    await loadOrganisation();
+  } catch (err) {
+    alert(err.message);
+    btn.disabled = false;
+    btn.textContent = "Save & test";
+  }
+});
+
+// --- Run an agent ---
+
+document.addEventListener("submit", async (e) => {
+  const form = e.target.closest("form[data-agent-run]");
+  if (!form) return;
+  e.preventDefault();
+  const btn = form.querySelector("button[type=submit]");
+  const errEl = form.querySelector("[data-agent-error]");
+  errEl.classList.remove("show");
+  btn.disabled = true;
+  btn.textContent = "Running — this can take a minute…";
+  try {
+    const inputs = {};
+    for (const el of form.querySelectorAll("input[name], textarea[name]")) {
+      if (el.name !== "__title") inputs[el.name] = el.value;
+    }
+    const { run } = await api(`/api/agents/${form.dataset.agentRun}/run`, {
+      method: "POST",
+      body: JSON.stringify({ title: form.__title.value, inputs }),
+    });
+    const holder = document.querySelector(`[data-agent-output="${form.dataset.agentRun}"]`);
+    holder.innerHTML = renderRunView(run);
+    holder.scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.classList.add("show");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Run agent";
+  }
+});
+
+function renderRunView(run) {
+  const decide =
+    run.status === "awaiting_approval"
+      ? `<div style="margin-top:10px;">
+          <button class="btn-block" data-run-decide="approve" data-run-id="${run.id}" style="width:auto;padding:10px 20px;">Approve</button>
+          <button class="btn-run" data-run-decide="reject" data-run-id="${run.id}" style="margin-left:8px;">Reject</button>
+          <span class="muted" style="margin-left:10px;font-size:0.8rem;">Approval is recorded against your name — nothing is acted on until a human approves.</span>
+        </div>`
+      : `<p class="muted" style="margin-top:10px;">${esc(run.status)}${run.decidedBy ? ` by ${esc(run.decidedBy)}` : ""}${run.decisionNote ? ` — "${esc(run.decisionNote)}"` : ""}</p>`;
+  return `<div class="section-block" style="border:1.5px solid var(--amber,#9c7a3c);border-radius:10px;padding:16px 18px;margin-top:12px;">
+    <h3>${esc(run.title)} <span class="muted" style="font-weight:400;font-size:0.78rem;">· ${esc(run.agentName)} · ${esc(run.model || "")}${run.usage ? ` · ${run.usage.input + run.usage.output} tokens` : ""}</span></h3>
+    ${run.truncated ? '<p class="muted" style="color:var(--danger,#c0392b);">Output hit the length limit — the end may be cut off; re-run with a narrower scope if needed.</p>' : ""}
+    <pre style="white-space:pre-wrap;font-family:inherit;font-size:0.88rem;line-height:1.6;background:var(--paper,#f7f5f0);border:1px solid var(--line);border-radius:7px;padding:14px 16px;max-height:520px;overflow:auto;">${esc(run.output || "")}</pre>
+    ${decide}
+  </div>`;
+}
+
+document.addEventListener("click", async (e) => {
+  const open = e.target.closest("button[data-run-open]");
+  const decide = e.target.closest("button[data-run-decide]");
+  const del = e.target.closest("button[data-run-del]");
+  if (open) {
+    try {
+      const { run } = await api(`/api/agents/runs/${open.dataset.runOpen}`);
+      document.getElementById("agent-run-viewer").innerHTML = renderRunView(run);
+      document.getElementById("agent-run-viewer").scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch (err) {
+      alert(err.message);
+    }
+    return;
+  }
+  if (decide) {
+    const approve = decide.dataset.runDecide === "approve";
+    const note = approve ? "" : prompt("Why is this run rejected? (recorded on the run)") || "";
+    if (!approve && note === null) return;
+    decide.disabled = true;
+    try {
+      await api(`/api/agents/runs/${decide.dataset.runId}/decision`, {
+        method: "POST",
+        body: JSON.stringify({ decision: approve ? "approve" : "reject", note }),
+      });
+      await loadOrganisation();
+    } catch (err) {
+      alert(err.message);
+      decide.disabled = false;
+    }
+    return;
+  }
+  if (del) {
+    if (!confirm("Delete this agent run from the log?")) return;
+    await api(`/api/agents/runs/${del.dataset.runDel}`, { method: "DELETE" }).catch((err) => alert(err.message));
+    await loadOrganisation();
+  }
+});
