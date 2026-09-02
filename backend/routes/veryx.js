@@ -64,7 +64,7 @@ const normRisk = (r, i) => {
 };
 
 const normAgent = (a, i) => ({
-  type: a.type || a.slug || a.code || String(a.id ?? `agent-${i + 1}`),
+  type: a.type || a.agentType || a.agent_type || a.slug || a.code || a.key || String(a.id ?? `agent-${i + 1}`),
   name: a.name || a.title || a.type || `Agent ${i + 1}`,
   description: a.description || a.summary || a.about || "",
   acuCost: num(a.acuCost ?? a.acu_cost ?? a.cost ?? a.acu) ?? "—",
@@ -137,10 +137,27 @@ router.get("/agents", safe(async (req, res) => {
 router.post("/agents/:type/run", safe(async (req, res) => {
   if (isConnected("veryx")) {
     try {
-      const body = await platformFetch("veryx", `/agents/${encodeURIComponent(req.params.type)}/run`, {
-        method: "POST",
-        timeoutMs: 20000,
-      });
+      // The platform may read the agent type from the path or from the
+      // body (under different key spellings) — send it every way, and
+      // fall back to the collection-style run endpoint if the per-agent
+      // path is not how this deployment routes runs.
+      const type = req.params.type;
+      const runPayload = { type, agent_type: type, agentType: type, agent: type };
+      let body;
+      try {
+        body = await platformFetch("veryx", `/agents/${encodeURIComponent(type)}/run`, {
+          method: "POST",
+          timeoutMs: 20000,
+          body: runPayload,
+        });
+      } catch (first) {
+        if (!/unknown agent|not found|no route|cannot post/i.test(first.message)) throw first;
+        body = await platformFetch("veryx", "/agents/run", {
+          method: "POST",
+          timeoutMs: 20000,
+          body: runPayload,
+        });
+      }
       const platformRun = body.data || {};
       const run = insert("agentRuns", {
         agentType: req.params.type,
