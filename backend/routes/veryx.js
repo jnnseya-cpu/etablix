@@ -67,7 +67,7 @@ const normAgent = (a, i) => ({
   type: a.type || a.agentType || a.agent_type || a.slug || a.code || a.key || String(a.id ?? `agent-${i + 1}`),
   name: a.name || a.title || a.type || `Agent ${i + 1}`,
   description: a.description || a.summary || a.about || "",
-  acuCost: num(a.acuCost ?? a.acu_cost ?? a.cost ?? a.acu) ?? "—",
+  acuCost: num(a.acuCost ?? a.acu_per_run ?? a.acu_cost ?? a.cost ?? a.acu) ?? "—",
 });
 
 const normUsage = (u) => ({
@@ -141,38 +141,41 @@ router.post("/agents/:type/run", safe(async (req, res) => {
       // body (under different key spellings) — send it every way, and
       // fall back to the collection-style run endpoint if the per-agent
       // path is not how this deployment routes runs.
+      // Platform contract (from the VERYX codebase): the agent type
+      // lives in the URL path, the body is { input: {...} }, and the
+      // result comes back as { execution_id, status, acu_consumed,
+      // duration_ms, output, error } under the data envelope.
       const type = req.params.type;
-      const runPayload = { type, agent_type: type, agentType: type, agent: type };
-      // Deployments route runs differently — try each known shape until
-      // one answers. Only "wrong path/agent" errors move to the next
-      // candidate; real failures (quota, ACU, auth) surface immediately.
-      const candidates = [`/agents/${encodeURIComponent(type)}/run`, "/agents/run", "/runs"];
-      const routeMiss = /http 404|unknown agent|not found|no route|cannot post|method not allowed|http 405/i;
-      let body;
-      let lastErr;
-      for (const path of candidates) {
-        try {
-          body = await platformFetch("veryx", path, { method: "POST", timeoutMs: 20000, body: runPayload });
-          lastErr = null;
-          break;
-        } catch (err) {
-          lastErr = err;
-          if (!routeMiss.test(err.message)) throw err;
-        }
-      }
-      if (lastErr) throw lastErr;
-      const platformRun = body.data || {};
+      const body = await platformFetch("veryx", `/agents/${encodeURIComponent(type)}/run`, {
+        method: "POST",
+        timeoutMs: 65000, // the platform allows a run up to 60s
+        body: { input: { invoked_from: "etablix-control-desk" } },
+      });
+      const r = body.data || body || {};
+      const outputNote =
+        r.error ||
+        (typeof r.output === "string" ? r.output : r.output ? JSON.stringify(r.output).slice(0, 300) : "") ||
+        "Run executed on the VERYX platform.";
       const run = insert("agentRuns", {
-        agentType: req.params.type,
-        agentName: platformRun.agentName || req.params.type,
-        acuCost: platformRun.acuCost ?? null,
+        agentType: type,
+        agentName: r.agent || type,
+        acuCost: r.acu_consumed ?? null,
         triggeredBy: req.user.name,
-        status: platformRun.status || "completed",
-        summary: platformRun.summary || "Run executed on the VERYX platform.",
+        status: r.status || "completed",
+        summary: `${outputNote}${r.duration_ms ? ` (${r.duration_ms} ms · ${r.acu_consumed ?? "?"} ACU)` : ""}`,
         source: "veryxjnn.com",
       });
       return res.status(201).json({ run, source: LIVE });
     } catch (err) {
+      // A bare 404 means the live platform build predates the public
+      // run endpoint — the route exists in the VERYX codebase, so the
+      // fix is a VERYX redeploy, not anything on this side.
+      if (/http 404/i.test(err.message)) {
+        return res.status(502).json({
+          error:
+            "The live VERYX platform doesn't serve the agent-run endpoint yet — its latest build (which has it) hasn't been deployed to veryxjnn.com. Deploy VERYX and this button works; until then, run agents inside veryxjnn.com itself.",
+        });
+      }
       // 402 (out of ACU) and 429 (quota) from the platform surface as errors.
       return res.status(502).json({ error: err.message });
     }
