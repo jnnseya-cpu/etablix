@@ -143,21 +143,24 @@ router.post("/agents/:type/run", safe(async (req, res) => {
       // path is not how this deployment routes runs.
       const type = req.params.type;
       const runPayload = { type, agent_type: type, agentType: type, agent: type };
+      // Deployments route runs differently — try each known shape until
+      // one answers. Only "wrong path/agent" errors move to the next
+      // candidate; real failures (quota, ACU, auth) surface immediately.
+      const candidates = [`/agents/${encodeURIComponent(type)}/run`, "/agents/run", "/runs"];
+      const routeMiss = /http 404|unknown agent|not found|no route|cannot post|method not allowed|http 405/i;
       let body;
-      try {
-        body = await platformFetch("veryx", `/agents/${encodeURIComponent(type)}/run`, {
-          method: "POST",
-          timeoutMs: 20000,
-          body: runPayload,
-        });
-      } catch (first) {
-        if (!/unknown agent|not found|no route|cannot post/i.test(first.message)) throw first;
-        body = await platformFetch("veryx", "/agents/run", {
-          method: "POST",
-          timeoutMs: 20000,
-          body: runPayload,
-        });
+      let lastErr;
+      for (const path of candidates) {
+        try {
+          body = await platformFetch("veryx", path, { method: "POST", timeoutMs: 20000, body: runPayload });
+          lastErr = null;
+          break;
+        } catch (err) {
+          lastErr = err;
+          if (!routeMiss.test(err.message)) throw err;
+        }
       }
+      if (lastErr) throw lastErr;
       const platformRun = body.data || {};
       const run = insert("agentRuns", {
         agentType: req.params.type,
