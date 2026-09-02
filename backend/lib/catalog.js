@@ -141,6 +141,18 @@ export const CATEGORIES = [
     ],
   },
   {
+    id: "automation",
+    name: "Delivery automation",
+    events: [
+      E("automation.digest", "Daily operating digest", "info", "email inapp", "ETABLIX daily digest — {{date}}", "Automated daily digest for {{date}}: {{outcome}}", {}),
+      E("enquiry.stale", "Enquiry needs action", "warning", "email inapp", "Enquiry {{reference}} untouched for {{value}} days", "Enquiry {{reference}} ({{company}}) is still marked new after {{value}} days. Contact the client or update its status.", {}),
+      E("application.stale", "Supplier application awaiting review", "warning", "email inapp", "Supplier application {{reference}} awaiting review", "Registration {{reference}} ({{company}}) has waited {{value}} days without assessment. Review it in the Control Desk.", {}),
+      E("exposure.breach", "Committed exposure exceeds cover", "critical", "email inapp sms", "EXPOSURE RULE BREACH — {{project}}", "Committed supplier exposure on {{project}} ({{amount}}) exceeds cash reserve plus confirmed receivables. No new supplier commitments until cover is restored.", { m: true }),
+      E("bid.screened", "Opportunity screened", "info", "inapp", "Bid screen — {{item}}: {{outcome}}", "{{actor}} screened opportunity {{item}} for {{company}}. Verdict: {{outcome}}.", {}),
+      E("gate.passed", "Prime-bid gate passed", "success", "inapp", "Prime gate passed — {{item}}", "{{actor}} marked the prime-bid gate complete: {{item}}.", {}),
+    ],
+  },
+  {
     id: "privacy",
     name: "Legal & privacy",
     events: [

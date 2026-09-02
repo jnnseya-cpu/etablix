@@ -17,9 +17,29 @@ export const COMPANY = {
 
 export const ROLES = {
   ADMIN: "admin",
+  COMMERCIAL_MANAGER: "commercial_manager",
+  OPERATIONS_DIRECTOR: "operations_director",
   PROJECT_MANAGER: "project_manager",
   SITE_ENGINEER: "site_engineer",
   QA_INSPECTOR: "qa_inspector",
+};
+
+/**
+ * Access levels for the internal Commercial OS.
+ *   COMMERCIAL — pricing studio, bid/no-bid screen, GTM accounts,
+ *                prime-bid gates and the company set-up checklist.
+ *   DELIVERY_FINANCE — cash-flow desk, valuations, EVM gate, retention
+ *                      ledger and the enterprise risk register.
+ * Admin always has both; roles listed here are in addition to admin.
+ */
+export const ACCESS = {
+  COMMERCIAL: [ROLES.ADMIN, ROLES.COMMERCIAL_MANAGER, ROLES.OPERATIONS_DIRECTOR],
+  DELIVERY_FINANCE: [
+    ROLES.ADMIN,
+    ROLES.COMMERCIAL_MANAGER,
+    ROLES.OPERATIONS_DIRECTOR,
+    ROLES.PROJECT_MANAGER,
+  ],
 };
 
 export const SECTORS = [

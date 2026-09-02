@@ -10,6 +10,7 @@ import { collection, insert, update } from "../lib/store.js";
 import { hashPassword } from "../lib/auth.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 import { ROLES } from "../../shared/constants.js";
+import { POSITIONS } from "../lib/organisation.js";
 
 const router = Router();
 router.use(requireAuth, requireRole(ROLES.ADMIN));
@@ -21,13 +22,14 @@ const publicUser = (u) => ({
   name: u.name,
   email: u.email,
   role: u.role,
+  position: u.position || "",
   active: u.active !== false,
   createdAt: u.createdAt || null,
 });
 
 /** GET /api/users — list all employee accounts. */
 router.get("/", (req, res) => {
-  res.json({ users: collection("users").map(publicUser), roles: VALID_ROLES });
+  res.json({ users: collection("users").map(publicUser), roles: VALID_ROLES, positions: POSITIONS });
 });
 
 /** POST /api/users — create an employee account. */
@@ -45,7 +47,8 @@ router.post("/", (req, res) => {
     return res.status(409).json({ error: "An account with that email already exists." });
   }
 
-  const user = insert("users", { name, email, role, active: true, password: hashPassword(password) });
+  const position = String(req.body.position || "").trim().slice(0, 120);
+  const user = insert("users", { name, email, role, position, active: true, password: hashPassword(password) });
   res.status(201).json({ user: publicUser(user) });
 });
 
@@ -66,6 +69,9 @@ router.patch("/:id", (req, res) => {
   }
   if (req.body.active !== undefined) {
     patch.active = Boolean(req.body.active);
+  }
+  if (req.body.position !== undefined) {
+    patch.position = String(req.body.position).trim().slice(0, 120);
   }
 
   // Guardrails: never lock the business out of its own system.

@@ -41,6 +41,9 @@
     <button data-panel="suppliers">Suppliers</button>
     <button data-panel="construx">CONSTRUX · Projects</button>
     <button data-panel="veryx">VERYX · Risk &amp; agents</button>
+    <button data-panel="commercial" id="commercial-tab" hidden>Commercial OS</button>
+    <button data-panel="automation">Automation</button>
+    <button data-panel="organisation">Organisation</button>
     <button data-panel="comms" id="comms-tab" hidden>Communications</button>
     <button data-panel="team" id="team-tab" hidden>Team</button>
   </nav>
@@ -118,6 +121,24 @@
     <div id="veryx-body"><p class="empty-note">Loading…</p></div>
   </section>
 
+  <section class="panel" id="panel-commercial">
+    <div class="panel-title">Commercial OS <span class="muted" style="font-weight:400;font-size:0.8rem;">· Commercial-in-Confidence</span></div>
+    <div class="panel-sub">The Commercial Playbook as working tools: pricing built from the stack, every opportunity screened against the no-bid triggers, the cash-flow architecture enforced, suppliers paid on Earned Value only, and documents generated numbered and compliant. The closing discipline: <b>does this keep ETABLIX funded one month ahead of its committed supplier exposure?</b></div>
+    <div id="commercial-body"><p class="empty-note">Loading…</p></div>
+  </section>
+
+  <section class="panel" id="panel-automation">
+    <div class="panel-title">Delivery automation <span id="automation-badge"></span></div>
+    <div class="panel-sub">The system that watches so people don't have to. On its schedule it pulls live platform data, pings every connection, sweeps the pipeline for stalled work, enforces the EVM and exposure guardrails and sends the daily digest — every finding fires a real catalogued event across email and in-app. Humans decide; the engine notices.</div>
+    <div id="automation-body"><p class="empty-note">Loading…</p></div>
+  </section>
+
+  <section class="panel" id="panel-organisation">
+    <div class="panel-title">Organisation — people & AI agents</div>
+    <div class="panel-sub">ETABLIX runs lean: a small permanent leadership core, fractional professional assurance, a project-funded management team, a subcontracted physical workforce, AI-driven administrative production — and human-controlled decisions and approvals, always.</div>
+    <div id="organisation-body"><p class="empty-note">Loading…</p></div>
+  </section>
+
   <section class="panel" id="panel-comms">
     <div class="panel-title">Communication Event Architecture</div>
     <div class="panel-sub">One event engine — every catalogued event fans out across email, in-app, SMS and push. Email and in-app are wired live; SMS and push are recorded in sandbox until a provider key is added. Mandatory notices are operational/security events that bypass opt-outs. <b>Preview</b> renders the branded email exactly as a recipient receives it; <b>Send test to me</b> fires the event to your own address across its channels.</div>
@@ -132,7 +153,8 @@
       <form id="team-form" class="team-form">
         <input required minlength="2" name="name" placeholder="Full name">
         <input required type="email" name="email" placeholder="work@etablix.com">
-        <select name="role" id="team-role"></select>
+        <select name="position" id="team-position" title="Position — picking one suggests the right access level"></select>
+        <select name="role" id="team-role" title="Control Desk access level"></select>
         <input required minlength="10" type="text" name="password" placeholder="Initial password (min 10 chars)" autocomplete="new-password">
         <button class="btn-block" type="submit" style="width:auto;padding:12px 22px;">Create account</button>
       </form>

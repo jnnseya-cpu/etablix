@@ -1,7 +1,8 @@
 /* ETABLIX Control Desk — commercial intake: project enquiries and
    supplier applications, with search, documents and status control. */
 
-import { LEAD_STATUS, APPLICATION_STATUS, CAPABILITIES } from "/shared/constants.js";
+import { LEAD_STATUS, APPLICATION_STATUS, CAPABILITIES, ACCESS } from "/shared/constants.js";
+import { loadCommercial, loadAutomation, loadOrganisation } from "/internal/js/commercial.js";
 
 const token = sessionStorage.getItem("etablix.token");
 const user = JSON.parse(sessionStorage.getItem("etablix.user") || "null");
@@ -82,7 +83,10 @@ document.getElementById("logout").addEventListener("click", () => {
 
 const tabs = document.getElementById("tabs");
 const loaded = new Set();
-const lazyLoaders = { construx: loadConstrux, veryx: loadVeryx, team: loadTeam, comms: loadComms, suppliers: loadSuppliers };
+const lazyLoaders = {
+  construx: loadConstrux, veryx: loadVeryx, team: loadTeam, comms: loadComms, suppliers: loadSuppliers,
+  commercial: loadCommercial, automation: loadAutomation, organisation: loadOrganisation,
+};
 
 tabs.addEventListener("click", (e) => {
   const btn = e.target.closest("button[data-panel]");
@@ -109,6 +113,11 @@ tabs.addEventListener("click", (e) => {
 if (user.role === "admin") {
   document.getElementById("team-tab").hidden = false;
   document.getElementById("comms-tab").hidden = false;
+}
+// The Commercial OS opens for the roles that carry commercial or
+// delivery-finance responsibility; the server enforces the same list.
+if (ACCESS.DELIVERY_FINANCE.includes(user.role)) {
+  document.getElementById("commercial-tab").hidden = false;
 }
 
 // ---------- Notification bell (all employees) ----------
@@ -606,12 +615,34 @@ async function loadTeam() {
   loadIntegrations().catch((err) => {
     document.getElementById("integrations-body").innerHTML = `<p class="error-note">${esc(err.message)}</p>`;
   });
-  const { users, roles } = await api("/api/users");
+  const { users, roles, positions = [] } = await api("/api/users");
 
   const roleSelect = document.getElementById("team-role");
   roleSelect.innerHTML = roles
     .map((r) => `<option value="${esc(r)}">${esc(roleLabel(r))}</option>`)
     .join("");
+
+  // Position picker — grouped by organisation area; choosing a position
+  // suggests the matching access level (still changeable).
+  const posSelect = document.getElementById("team-position");
+  if (posSelect && posSelect.options.length === 0) {
+    const groups = [...new Set(positions.map((p) => p.group))];
+    posSelect.innerHTML =
+      '<option value="">Position (from the organisation)…</option>' +
+      groups
+        .map(
+          (g) =>
+            `<optgroup label="${esc(g)}">${positions
+              .filter((p) => p.group === g)
+              .map((p) => `<option value="${esc(p.title)}" data-access="${esc(p.accessRole || "")}">${esc(p.title)}</option>`)
+              .join("")}</optgroup>`
+        )
+        .join("");
+    posSelect.addEventListener("change", () => {
+      const access = posSelect.selectedOptions[0]?.dataset.access;
+      if (access && roles.includes(access)) roleSelect.value = access;
+    });
+  }
 
   const tbody = document.querySelector("#team-table tbody");
   tbody.innerHTML = users
@@ -627,7 +658,7 @@ async function loadTeam() {
         : `<button class="btn-run" data-user-reset="${u.id}">Reset password</button>
            <button class="btn-run" data-user-toggle="${u.id}" data-active="${u.active}">${u.active ? "Deactivate" : "Reactivate"}</button>`;
       const statusPill = `<span class="pill ${u.active ? "approved" : "declined"}">${u.active ? "Active" : "Deactivated"}</span>`;
-      return `<tr><td><b>${esc(u.name)}</b></td><td>${esc(u.email)}</td><td>${roleCell}</td><td class="muted">${when(u.createdAt)}</td><td>${statusPill}</td><td>${actions}</td></tr>`;
+      return `<tr><td><b>${esc(u.name)}</b>${u.position ? `<div class="muted" style="font-size:0.78rem;">${esc(u.position)}</div>` : ""}</td><td>${esc(u.email)}</td><td>${roleCell}</td><td class="muted">${when(u.createdAt)}</td><td>${statusPill}</td><td>${actions}</td></tr>`;
     })
     .join("");
 }
@@ -649,6 +680,7 @@ document.getElementById("team-form")?.addEventListener("submit", async (e) => {
         name: f.name.value,
         email: f.email.value,
         role: f.role.value,
+        position: f.position.value,
         password: f.password.value,
       }),
     });

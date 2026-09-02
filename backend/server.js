@@ -25,6 +25,11 @@ import userRoutes from "./routes/users.js";
 import integrationRoutes from "./routes/integrations.js";
 import commsRoutes from "./routes/comms.js";
 import adminRoutes from "./routes/admin.js";
+import automationRoutes from "./routes/automation.js";
+import commercialRoutes from "./routes/commercial.js";
+import orgRoutes from "./routes/org.js";
+import docsRoutes from "./routes/docs.js";
+import { startScheduler } from "./lib/automation.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
@@ -51,6 +56,10 @@ app.use("/api/users", userRoutes); // employee account management, admin only
 app.use("/api/integrations", integrationRoutes); // CONSTRUX/VERYX platform connections, admin only
 app.use("/api/comms", commsRoutes); // communication event engine: catalogue, deliveries, in-app feed
 app.use("/api/admin", adminRoutes); // platform administration (purge demo data), admin only
+app.use("/api/automation", automationRoutes); // delivery automation: rules, runs, scheduler
+app.use("/api/commercial", commercialRoutes); // Commercial OS: pricing, bids, cash-flow, EVM, retention, GTM
+app.use("/api/org", orgRoutes); // organisation structure, AI-agent workforce, positions
+app.use("/api/docs", docsRoutes); // document studio: invoices, applications, POs, notices
 
 app.use("/api", (req, res) => res.status(404).json({ error: "Unknown endpoint." }));
 
@@ -76,6 +85,7 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 load(); // ensure the store is seeded before accepting traffic
+startScheduler(); // delivery automation: scheduled sweeps, guardrails and the daily digest
 app.listen(PORT, () => {
   console.log(`ETABLIX running on http://localhost:${PORT}`);
   console.log(`  Public site:      http://localhost:${PORT}/`);
