@@ -13,4 +13,5 @@
   <url><loc>https://etablix.com/policies/cookies</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
   <url><loc>https://etablix.com/policies/supplier-code</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
   <url><loc>https://etablix.com/policies/modern-slavery</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://etablix.com/diagnostic-sample</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>
