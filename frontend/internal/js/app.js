@@ -729,6 +729,57 @@ document.addEventListener("change", async (e) => {
 // ---------- Prequalification scorecard ----------
 
 let prequalCriteria = null;
+let pqqSections = null;
+
+async function loadPrequalDefs() {
+  if (prequalCriteria) return;
+  const defs = await api("/api/subcontractors/prequal-criteria");
+  prequalCriteria = defs.criteria;
+  pqqSections = defs.pqqSections || [];
+}
+
+/** The supplier's PQQ answers, grouped by criterion, for the assessor. */
+function pqqAnswersHtml(app_) {
+  if (!app_.pqq) {
+    return `<div style="border-left:3px solid var(--line);padding:8px 0 8px 14px;margin:10px 0;font-size:0.85rem;" class="muted">
+      No questionnaire returned yet — this assessment would rest on the registration alone. Use <b>Send PQQ</b> on the row above to collect evidence first.</div>`;
+  }
+  const a = app_.pqq.answers || {};
+  const fmt = (f) => {
+    const v = a[f.id];
+    if (f.type === "declaration") return v === true ? "✓ Accepted" : "✗ NOT accepted";
+    return v ? esc(String(v)) : '<span class="muted">—</span>';
+  };
+  return `<details style="margin:10px 0;border:1.5px solid var(--line);border-radius:8px;padding:10px 14px;">
+    <summary style="cursor:pointer;font-weight:600;font-size:0.9rem;">Questionnaire answers — submitted ${when(app_.pqq.submittedAt)} · ${app_.pqq.documents?.length || 0} document(s) attached</summary>
+    ${pqqSections.map((s) => `<div style="margin-top:10px;">
+      <b style="font-size:0.85rem;">${esc(s.title)}</b>
+      <table style="font-size:0.82rem;margin-top:4px;"><tbody>
+        ${s.fields.map((f) => `<tr><td class="muted" style="padding:3px 12px 3px 0;vertical-align:top;width:40%;">${esc(f.label)}</td><td style="padding:3px 0;">${fmt(f)}</td></tr>`).join("")}
+      </tbody></table>
+    </div>`).join("")}
+  </details>`;
+}
+
+document.addEventListener("click", async (e) => {
+  const send = e.target.closest("button[data-pqq-send]");
+  if (!send) return;
+  const app_ = applications.find((a) => a.id === send.dataset.pqqSend);
+  if (!app_) return;
+  if (app_.pqqSentAt && !confirm("A questionnaire link was already sent. Re-sending issues a NEW link and invalidates the old one. Continue?")) return;
+  send.disabled = true;
+  send.textContent = "Sending…";
+  try {
+    const { link } = await api(`/api/subcontractors/${app_.id}/pqq/send`, { method: "POST" });
+    await load();
+    refreshBell();
+    alert(`Questionnaire sent to ${app_.email}.\nLink (valid 30 days): ${link}`);
+  } catch (err) {
+    alert(err.message);
+    send.disabled = false;
+    send.textContent = "Send PQQ";
+  }
+});
 
 function prequalOutcome(scores) {
   // Mirrors backend/lib/prequal.js for the live preview only — the
@@ -748,12 +799,13 @@ document.addEventListener("click", async (e) => {
   if (!btn) return;
   const app_ = applications.find((a) => a.id === btn.dataset.assess);
   if (!app_) return;
-  if (!prequalCriteria) prequalCriteria = (await api("/api/subcontractors/prequal-criteria")).criteria;
+  await loadPrequalDefs();
   const prior = app_.assessment?.scores || {};
   const holder = document.getElementById("assess-holder");
   holder.innerHTML = `<div class="section-block" style="border:1.5px solid var(--amber,#9c7a3c);border-radius:10px;padding:18px 22px;margin-top:18px;">
     <h3>Prequalification assessment — ${esc(app_.legalName)}</h3>
     <p class="muted" style="margin:4px 0 12px;">Score each criterion 0 (no evidence / unacceptable) to 5 (strong, evidenced). Four criteria are <b>critical</b>: a zero fails the assessment outright; below 2 caps it at conditional. The registered documents are in the table above.</p>
+    ${pqqAnswersHtml(app_)}
     <div class="table-wrap"><table style="font-size:0.88rem;"><thead><tr><th>Criterion</th><th>Weight</th><th>Evidence to look for</th><th style="width:70px;">Score</th></tr></thead><tbody>
       ${prequalCriteria.map((c) => `<tr>
         <td><b>${esc(c.label)}</b>${c.critical ? ' <span class="pill critical" title="Zero fails outright; below 2 caps at conditional">critical</span>' : ""}</td>
@@ -880,7 +932,8 @@ function renderApplications() {
         <td>${documentLinks(a.documents)}</td>
         <td>${statusSelect(a.status, APPLICATION_STATUS, "/api/subcontractors", a.id)}
             ${a.assessment ? `<div style="margin-top:6px;"><span class="pill ${a.assessment.outcome === "prequalify" ? "approved" : a.assessment.outcome === "fail" || a.assessment.outcome === "decline" ? "declined" : ""}" title="${esc(a.assessment.reason || "")} — assessed by ${esc(a.assessment.assessor)}">${esc(a.assessment.outcome)} · ${a.assessment.weightedPct}%</span></div>` : ""}
-            ${ACCESS.DELIVERY_FINANCE.includes(user.role) ? `<div style="margin-top:6px;"><button class="btn-run" data-assess="${a.id}">${a.assessment ? "Re-assess" : "Assess"}</button></div>` : ""}
+            ${a.pqq ? `<div style="margin-top:6px;"><span class="pill approved" title="Questionnaire submitted ${when(a.pqq.submittedAt)} with ${a.pqq.documents?.length || 0} document(s)">PQQ received</span></div>` : a.pqqSentAt ? `<div style="margin-top:6px;"><span class="pill" title="Sent by ${esc(a.pqqSentBy || "")} — link valid 30 days">PQQ sent ${when(a.pqqSentAt)}</span></div>` : ""}
+            ${ACCESS.DELIVERY_FINANCE.includes(user.role) ? `<div style="margin-top:6px;"><button class="btn-run" data-assess="${a.id}">${a.assessment ? "Re-assess" : "Assess"}</button> <button class="btn-run" data-pqq-send="${a.id}" title="Email the supplier the twelve-section evidence questionnaire">${a.pqqSentAt || a.pqq ? "Re-send PQQ" : "Send PQQ"}</button></div>` : ""}
             ${user.role === "admin" ? `<div style="margin-top:6px;"><button class="btn-run" data-del="${a.id}" data-del-endpoint="/api/subcontractors" data-del-label="registration from ${esc(a.legalName)}">Delete</button></div>` : ""}</td>
       </tr>`
     );

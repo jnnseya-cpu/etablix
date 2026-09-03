@@ -231,6 +231,12 @@ Boundary: you cannot close defects or accept work — authorised human acceptanc
 export async function draftPrequal(application, criteria) {
   const { model } = getProvider();
   const docs = (application.documents || []).map((d) => d.name).join(", ") || "none uploaded";
+  const pqqText = application.pqq
+    ? "\n\nCOMPLETED PREQUALIFICATION QUESTIONNAIRE (supplier's own answers — verify claims against the uploaded certificates):\n" +
+      Object.entries(application.pqq.answers)
+        .map(([k, v]) => `${k}: ${v === true ? "DECLARED/ACCEPTED" : v === false ? "NOT ACCEPTED" : v || "(blank)"}`)
+        .join("\n")
+    : "\n\nNo PQQ completed yet — only the basic registration below is available, so score strictly on what it evidences and recommend issuing the PQQ.";
   const registration = [
     `Legal name: ${application.legalName}${application.tradingName ? ` (t/a ${application.tradingName})` : ""}`,
     `Company registration number: ${application.regNumber || "not given"}`,
@@ -240,7 +246,7 @@ export async function draftPrequal(application, criteria) {
     `Mobilisation lead time: ${application.mobilisation || "not given"}`,
     `Capability statement: ${application.statement || "none"}`,
     `Documents uploaded (filenames only — contents not reviewed): ${docs}`,
-  ].join("\n");
+  ].join("\n") + pqqText;
 
   const criteriaText = criteria
     .map((c) => `- id "${c.id}" (weight ${c.weight}${c.critical ? ", CRITICAL" : ""}): ${c.label}. Evidence sought: ${c.evidence}`)

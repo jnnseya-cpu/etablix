@@ -10,14 +10,101 @@ import path from "node:path";
 import { UPLOAD_DIR } from "../lib/uploads.js";
 import { validateSubcontractorApplication } from "../../shared/validation.js";
 import { APPLICATION_STATUS, ACCESS } from "../../shared/constants.js";
-import { PREQUAL_CRITERIA, assessScores } from "../lib/prequal.js";
+import { PREQUAL_CRITERIA, PQQ_SECTIONS, PQQ_DOCUMENTS_CHECKLIST, assessScores } from "../lib/prequal.js";
 import { draftPrequal } from "../lib/ai.js";
+import crypto from "node:crypto";
 
 const router = Router();
 
+const SITE_URL = (process.env.SITE_URL || "https://etablix.com").replace(/\/+$/, "");
+const PQQ_VALID_DAYS = 30;
+
+const findByPqqToken = (token) => {
+  if (!/^[a-f0-9]{32}$/.test(String(token || ""))) return null;
+  const app_ = collection("subcontractors").find((a) => a.pqqToken === token);
+  if (!app_) return null;
+  if (Date.now() - (app_.pqqSentAt || 0) > PQQ_VALID_DAYS * 86400000) return null;
+  return app_;
+};
+
+/**
+ * POST /api/subcontractors/:id/pqq/send — issue the prequalification
+ * questionnaire to a supplier: a tokenised link, valid 30 days,
+ * delivered through the branded email engine.
+ */
+router.post("/:id/pqq/send", requireAuth, requireRole(...ACCESS.DELIVERY_FINANCE), async (req, res) => {
+  const application = collection("subcontractors").find((a) => a.id === req.params.id);
+  if (!application) return res.status(404).json({ error: "Application not found." });
+  if (!application.email) return res.status(400).json({ error: "This registration has no email address." });
+  const token = crypto.randomBytes(16).toString("hex");
+  update("subcontractors", application.id, { pqqToken: token, pqqSentAt: Date.now(), pqqSentBy: req.user.name });
+  const link = `${SITE_URL}/pqq?t=${token}`;
+  await emit("supplier.pqq.sent", {
+    email: application.email,
+    greeting: application.contact,
+    vars: { company: application.legalName, link, value: PQQ_VALID_DAYS },
+    detailsText: `Your questionnaire link (valid ${PQQ_VALID_DAYS} days):\n${link}\n\nPlease have ready: ${PQQ_DOCUMENTS_CHECKLIST.join("; ")}.`,
+  });
+  res.json({ sent: true, link });
+});
+
+/** GET /api/subcontractors/pqq/:token — public: the questionnaire for a valid token. */
+router.get("/pqq/:token", (req, res) => {
+  const application = findByPqqToken(req.params.token);
+  if (!application) return res.status(404).json({ error: "This questionnaire link is invalid or has expired. Contact contact@etablix.com for a new one." });
+  res.json({
+    company: application.legalName,
+    contact: application.contact,
+    capability: application.capability,
+    sections: PQQ_SECTIONS,
+    documentsChecklist: PQQ_DOCUMENTS_CHECKLIST,
+    submitted: Boolean(application.pqq),
+  });
+});
+
+/** POST /api/subcontractors/pqq/:token — public: submit answers + documents (multipart). */
+router.post("/pqq/:token", acceptDocuments, async (req, res) => {
+  const application = findByPqqToken(req.params.token);
+  if (!application) return res.status(404).json({ error: "This questionnaire link is invalid or has expired." });
+
+  let answers = {};
+  try {
+    answers = JSON.parse(req.body.answers || "{}");
+  } catch {
+    return res.status(400).json({ error: "Invalid submission." });
+  }
+  const clean = {};
+  const missing = [];
+  for (const section of PQQ_SECTIONS) {
+    for (const f of section.fields) {
+      const raw = answers[f.id];
+      if (f.type === "declaration") {
+        clean[f.id] = raw === true || raw === "true";
+        if (f.required && !clean[f.id]) missing.push(f.label);
+      } else {
+        clean[f.id] = String(raw ?? "").trim().slice(0, f.type === "textarea" ? 2000 : 300);
+        if (f.required && !clean[f.id]) missing.push(f.label);
+      }
+    }
+  }
+  if (missing.length) return res.status(400).json({ error: `Please complete: ${missing[0]}${missing.length > 1 ? ` (and ${missing.length - 1} more)` : ""}` });
+
+  const pqqDocuments = describeFiles(req.files);
+  update("subcontractors", application.id, {
+    pqq: { answers: clean, documents: pqqDocuments, submittedAt: Date.now() },
+    // PQQ documents join the registration's evidence pack.
+    documents: [...(application.documents || []), ...pqqDocuments],
+    status: application.status === "submitted" ? "under_review" : application.status,
+  });
+  emit("supplier.pqq.received", {
+    vars: { company: application.legalName, value: pqqDocuments.length },
+  }).catch(() => {});
+  res.json({ ok: true, message: "Questionnaire received. Our team will assess it and confirm the outcome by email." });
+});
+
 /** GET /api/subcontractors/prequal-criteria — the scorecard definition. */
 router.get("/prequal-criteria", requireAuth, (req, res) => {
-  res.json({ criteria: PREQUAL_CRITERIA });
+  res.json({ criteria: PREQUAL_CRITERIA, pqqSections: PQQ_SECTIONS });
 });
 
 /**

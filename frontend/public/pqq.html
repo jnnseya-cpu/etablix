@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prequalification Questionnaire — ETABLIX</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+<style>
+  .pqq-wrap { max-width: 860px; margin: 0 auto; padding: 56px 20px 90px; }
+  .pqq-section { background: var(--card, #fdfcf9); border: 1px solid var(--line); border-top: 3px solid var(--orange); border-radius: 8px; padding: 22px 26px; margin-bottom: 18px; }
+  .pqq-section h3 { font-family: var(--font-head); font-size: 1.15rem; margin-bottom: 4px; }
+  .pqq-section .crit { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--orange); font-weight: 700; }
+  .pqq-field { margin-top: 14px; }
+  .pqq-field label { display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 5px; }
+  .pqq-field label .req { color: var(--orange); }
+  .pqq-field input[type="text"], .pqq-field input[type="number"], .pqq-field select, .pqq-field textarea {
+    width: 100%; padding: 11px 13px; border: 1.5px solid var(--line); border-radius: 7px; font-family: inherit; font-size: 0.92rem;
+  }
+  .pqq-field textarea { min-height: 84px; }
+  .pqq-dec { display: flex; gap: 10px; align-items: flex-start; font-size: 0.9rem; margin-top: 12px; }
+  .pqq-dec input { margin-top: 3px; }
+  .pqq-note { background: rgba(156,122,60,0.08); border-left: 3px solid var(--orange); padding: 14px 18px; border-radius: 4px; font-size: 0.9rem; line-height: 1.6; margin-bottom: 24px; }
+  .pqq-error { color: #b03a2e; font-weight: 600; margin-top: 14px; display: none; }
+  .pqq-error.show { display: block; }
+</style>
+</head>
+<body>
+
+<div class="topline"><b>ETABLIX</b> · INTEGRATED SITE SERVICES · PART OF <b>GROUPE NSEYA</b></div>
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="logo" href="/"><img class="logo-mark" src="/img/logo-mark-reverse.svg" alt="ETABLIX"><span class="logo-text">ETABLIX<small>Integrated Site Services</small></span></a>
+  </div>
+</header>
+
+<div class="pqq-wrap">
+  <div id="pqq-head">
+    <h1 style="font-family:var(--font-head);font-size:clamp(1.8rem,4vw,2.6rem);line-height:1.05;">Prequalification questionnaire</h1>
+    <p style="color:var(--muted,#5b6470);margin:12px 0 26px;max-width:640px;line-height:1.6;" id="pqq-intro">Loading your questionnaire…</p>
+  </div>
+  <form id="pqq-form" hidden>
+    <div id="pqq-sections"></div>
+    <div class="pqq-section">
+      <h3>Supporting documents</h3>
+      <p style="font-size:0.88rem;color:var(--muted,#5b6470);margin-top:6px;">Attach what you hold from this checklist — certificates beat statements:</p>
+      <ul id="pqq-checklist" style="font-size:0.85rem;line-height:1.7;margin:8px 0 12px 18px;color:var(--muted,#5b6470);"></ul>
+      <input type="file" id="pqq-files" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" style="border:1.5px dashed var(--line);padding:14px;border-radius:7px;width:100%;">
+    </div>
+    <button class="btn btn-primary" type="submit" style="padding:14px 34px;">Submit questionnaire</button>
+    <div class="pqq-error" id="pqq-error"></div>
+  </form>
+  <div id="pqq-done" hidden>
+    <div class="pqq-note" style="border-left-color:#1f9d61;">
+      <b>Questionnaire received — thank you.</b><br>
+      Our team will assess your submission against our twelve prequalification criteria and confirm the outcome by email. Questions: <a href="mailto:contact@etablix.com">contact@etablix.com</a>.
+    </div>
+  </div>
+</div>
+
+<script>
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
+  const token = new URLSearchParams(location.search).get("t") || "";
+  const intro = document.getElementById("pqq-intro");
+
+  async function boot() {
+    const res = await fetch(`/api/subcontractors/pqq/${encodeURIComponent(token)}`);
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) { intro.textContent = body.error || "This link is invalid or has expired."; return; }
+    intro.innerHTML = `For <b>${esc(body.company)}</b> (${esc(body.capability)}). This is the evidence stage of ETABLIX prequalification — your answers feed directly into our twelve-criterion assessment. Registration is not a guarantee of work; assessment is against project-specific capacity, competence, safety, quality, insurance and commercial requirements.${body.submitted ? "<br><b>You have already submitted — re-submitting replaces your previous answers.</b>" : ""}`;
+    const holder = document.getElementById("pqq-sections");
+    holder.innerHTML = body.sections.map((s) => `
+      <div class="pqq-section">
+        <span class="crit">Criterion: ${esc(s.criterion)}</span>
+        <h3>${esc(s.title)}</h3>
+        ${s.fields.map((f) => {
+          if (f.type === "declaration") return `<label class="pqq-dec"><input type="checkbox" data-f="${f.id}"> <span>${esc(f.label)}${f.required ? ' <span class="req">*</span>' : ""}</span></label>`;
+          if (f.type === "select") return `<div class="pqq-field"><label>${esc(f.label)}${f.required ? ' <span class="req">*</span>' : ""}</label><select data-f="${f.id}"><option value="">Select…</option>${f.options.map((o) => `<option>${esc(o)}</option>`).join("")}</select></div>`;
+          if (f.type === "textarea") return `<div class="pqq-field"><label>${esc(f.label)}${f.required ? ' <span class="req">*</span>' : ""}</label><textarea data-f="${f.id}"></textarea></div>`;
+          return `<div class="pqq-field"><label>${esc(f.label)}${f.required ? ' <span class="req">*</span>' : ""}</label><input type="${f.type}" data-f="${f.id}"></div>`;
+        }).join("")}
+      </div>`).join("");
+    document.getElementById("pqq-checklist").innerHTML = body.documentsChecklist.map((d) => `<li>${esc(d)}</li>`).join("");
+    document.getElementById("pqq-form").hidden = false;
+  }
+
+  document.getElementById("pqq-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const err = document.getElementById("pqq-error");
+    err.classList.remove("show");
+    const btn = e.target.querySelector("button[type=submit]");
+    btn.disabled = true; btn.textContent = "Submitting…";
+    try {
+      const answers = {};
+      for (const el of document.querySelectorAll("[data-f]")) {
+        answers[el.dataset.f] = el.type === "checkbox" ? el.checked : el.value;
+      }
+      const fd = new FormData();
+      fd.append("answers", JSON.stringify(answers));
+      for (const file of document.getElementById("pqq-files").files) fd.append("documents", file);
+      const res = await fetch(`/api/subcontractors/pqq/${encodeURIComponent(token)}`, { method: "POST", body: fd });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error || `Submission failed (${res.status})`);
+      document.getElementById("pqq-form").hidden = true;
+      document.getElementById("pqq-done").hidden = false;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (e2) {
+      err.textContent = e2.message;
+      err.classList.add("show");
+      btn.disabled = false; btn.textContent = "Submit questionnaire";
+    }
+  });
+
+  boot().catch(() => (intro.textContent = "Something went wrong loading the questionnaire — please try again."));
+</script>
+
+<footer class="site-footer"><div class="container"><div class="footer-bottom" style="border-top:0;">
+  <span style="font-size:0.78rem;opacity:0.8;">ETABLIX is a trading name of JNN GLOBAL LTD · Registered in England &amp; Wales · Company No. 15405437 · Registered office: Groupe Nseya House, Kingstanding, Birmingham B44 8DJ, United Kingdom</span>
+</div></div></footer>
+
+</body>
+</html>
