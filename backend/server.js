@@ -77,9 +77,20 @@ process.on("unhandledRejection", (err) => console.error("Unhandled rejection:", 
 process.on("uncaughtException", (err) => console.error("Uncaught exception:", err));
 
 // --- Static frontends ---
-app.use("/shared", express.static(path.join(root, "shared")));
-app.use("/internal", express.static(path.join(root, "frontend", "internal")));
-app.use(express.static(path.join(root, "frontend", "public"), { extensions: ["html"] }));
+// HTML/JS/CSS revalidate on every load (a cheap 304 when unchanged), so a
+// deploy never leaves browsers running a stale page against a new API.
+// Images and fonts may cache for a day.
+const staticOpts = {
+  setHeaders(res, filePath) {
+    res.setHeader(
+      "Cache-Control",
+      /\.(html|js|mjs|css|json)$/.test(filePath) ? "no-cache" : "public, max-age=86400"
+    );
+  },
+};
+app.use("/shared", express.static(path.join(root, "shared"), staticOpts));
+app.use("/internal", express.static(path.join(root, "frontend", "internal"), staticOpts));
+app.use(express.static(path.join(root, "frontend", "public"), { extensions: ["html"], ...staticOpts }));
 
 // JSON errors for the API, plain 500 elsewhere.
 app.use((err, req, res, next) => {
