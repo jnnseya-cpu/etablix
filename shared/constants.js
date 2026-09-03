@@ -63,15 +63,37 @@ export const SERVICES = [
   "VERYX demonstration",
 ];
 
-/** Specialist supply-chain capability categories. */
+/**
+ * Specialist supply-chain capability categories, ordered by site
+ * lifecycle (design → establish → utilities → operate → closeout).
+ * The first eight original labels are preserved verbatim — existing
+ * supplier registrations keep their category without migration.
+ */
 export const CAPABILITIES = [
+  // Design & planning
+  "Design, survey & temporary works engineering",
+  // Establish the site
   "Temporary & enabling civil works",
+  "Ground protection, trackway & wheel-wash",
+  "Fencing, hoarding & signage",
+  "Traffic management",
+  // Utilities & connectivity
+  "Temporary power, generators & fuel",
   "Temporary MEP & building services",
-  "Cleaning & soft FM",
+  "Water, wastewater & sanitation",
+  "IT, telecoms & connectivity",
+  // Buildings & equipment
   "Modular & accommodation",
+  "Plant, equipment & furniture hire",
+  // Operate the site
   "Security & access",
-  "Logistics & transport",
   "Catering & living services",
+  "Cleaning & soft FM",
+  "Waste management & recycling",
+  "Medical & first-aid services",
+  "Logistics & transport",
+  "Maintenance & fault response",
+  // Closeout
   "Environmental & closeout",
 ];
 
