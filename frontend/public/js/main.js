@@ -96,6 +96,10 @@ export async function submitForm(form, endpoint, successMessage) {
   try {
     const post = async () => {
       const data = new FormData(form);
+      // Autofill can populate the hidden honeypot for a real person; a
+      // JS-driven submission is vouched for by the solved challenge, so
+      // clear it. Direct (non-JS) bot posts never run this line.
+      data.set("website", "");
       const { token, pow } = await takeChallenge(form);
       data.set("hct", token);
       data.set("pow", pow);

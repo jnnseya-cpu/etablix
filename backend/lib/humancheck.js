@@ -53,10 +53,12 @@ function verify(token, pow) {
 export function requireHuman(req, res, next) {
   if (String(req.body?.website || "").trim()) {
     // Honeypot tripped — automated submission; no retry hint.
+    console.warn(`human-check: honeypot tripped on ${req.originalUrl}`);
     return res.status(400).json({ error: "This submission could not be accepted." });
   }
   const fail = verify(req.body?.hct, req.body?.pow);
   if (fail) {
+    console.warn(`human-check: rejected (${fail}) on ${req.originalUrl}`);
     return res.status(400).json({
       error: "We couldn't verify this submission — please try again.",
       code: `human_${fail}`,
