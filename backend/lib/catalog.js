@@ -149,6 +149,7 @@ export const CATEGORIES = [
       E("application.stale", "Supplier application awaiting review", "warning", "email inapp", "Supplier application {{reference}} awaiting review", "Registration {{reference}} ({{company}}) has waited {{value}} days without assessment. Review it in the Control Desk.", {}),
       E("exposure.breach", "Committed exposure exceeds cover", "critical", "email inapp sms", "EXPOSURE RULE BREACH — {{project}}", "Committed supplier exposure on {{project}} ({{amount}}) exceeds cash reserve plus confirmed receivables. No new supplier commitments until cover is restored.", { m: true }),
       E("bid.screened", "Opportunity screened", "info", "inapp", "Bid screen — {{item}}: {{outcome}}", "{{actor}} screened opportunity {{item}} for {{company}}. Verdict: {{outcome}}.", {}),
+      E("supplier.assessed", "Supplier prequalification assessed", "info", "email inapp", "Prequalification — {{company}}: {{outcome}} ({{value}})", "{{actor}} completed the twelve-criterion prequalification assessment for {{company}}. Weighted result {{value}}, outcome: {{outcome}}. Scores and notes are on the registration record.", {}),
       E("gate.passed", "Prime-bid gate passed", "success", "inapp", "Prime gate passed — {{item}}", "{{actor}} marked the prime-bid gate complete: {{item}}.", {}),
     ],
   },

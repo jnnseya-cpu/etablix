@@ -9,9 +9,60 @@ import { emit } from "../lib/comms.js";
 import path from "node:path";
 import { UPLOAD_DIR } from "../lib/uploads.js";
 import { validateSubcontractorApplication } from "../../shared/validation.js";
-import { APPLICATION_STATUS } from "../../shared/constants.js";
+import { APPLICATION_STATUS, ACCESS } from "../../shared/constants.js";
+import { PREQUAL_CRITERIA, assessScores } from "../lib/prequal.js";
 
 const router = Router();
+
+/** GET /api/subcontractors/prequal-criteria — the scorecard definition. */
+router.get("/prequal-criteria", requireAuth, (req, res) => {
+  res.json({ criteria: PREQUAL_CRITERIA });
+});
+
+/**
+ * POST /api/subcontractors/:id/assessment — record a prequalification
+ * assessment. Twelve scores (0–5), optional notes; the engine computes
+ * the weighted outcome and, when applyStatus is true, moves the
+ * registration to the recommended status (which emails the supplier
+ * through the normal status flow).
+ */
+router.post("/:id/assessment", requireAuth, requireRole(...ACCESS.DELIVERY_FINANCE), (req, res) => {
+  const existing = collection("subcontractors").find((a) => a.id === req.params.id);
+  if (!existing) return res.status(404).json({ error: "Application not found." });
+
+  const result = assessScores(req.body?.scores || {});
+  if (!result.ok) {
+    return res.status(400).json({ error: `Score every criterion 0–5. Missing: ${result.missing.join(", ")}` });
+  }
+
+  const assessment = {
+    scores: Object.fromEntries(PREQUAL_CRITERIA.map((c) => [c.id, Number(req.body.scores[c.id])])),
+    notes: String(req.body?.notes || "").trim().slice(0, 2000),
+    weightedPct: result.weightedPct,
+    outcome: result.outcome,
+    reason: result.reason,
+    assessor: req.user.name,
+    at: Date.now(),
+  };
+
+  const patch = { assessment };
+  const applyStatus = req.body?.applyStatus !== false;
+  const statusChanged = applyStatus && existing.status !== result.recommendedStatus;
+  if (applyStatus) patch.status = result.recommendedStatus;
+  const application = update("subcontractors", req.params.id, patch);
+  if (statusChanged) notifyApplicationStatus(application); // supplier hears the outcome through the normal flow
+
+  emit("supplier.assessed", {
+    vars: {
+      company: existing.legalName,
+      actor: req.user.name,
+      value: `${result.weightedPct}%`,
+      outcome: result.outcome,
+    },
+  }).catch(() => {});
+
+  res.json({ application, recommendedStatus: result.recommendedStatus, applied: applyStatus });
+});
 
 /** POST /api/subcontractors — public: supplier registration (multipart, optional documents). */
 router.post("/", acceptDocuments, (req, res) => {

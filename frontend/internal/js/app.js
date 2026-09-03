@@ -726,6 +726,81 @@ document.addEventListener("change", async (e) => {
   }
 });
 
+// ---------- Prequalification scorecard ----------
+
+let prequalCriteria = null;
+
+function prequalOutcome(scores) {
+  // Mirrors backend/lib/prequal.js for the live preview only — the
+  // server's computation is the one that counts.
+  const rows = prequalCriteria.map((c) => ({ ...c, score: Number(scores[c.id] ?? 3) }));
+  const pct = Math.round(rows.reduce((a, r) => a + (r.score / 5) * r.weight, 0));
+  const cz = rows.filter((r) => r.critical && r.score === 0);
+  const cl = rows.filter((r) => r.critical && r.score < 2);
+  if (cz.length) return { pct, outcome: "FAIL — critical criterion at zero" };
+  if (pct >= 70 && !cl.length) return { pct, outcome: "PREQUALIFY" };
+  if (pct >= 50) return { pct, outcome: cl.length ? "CONDITIONAL — critical criterion below 2" : "CONDITIONAL — actions required" };
+  return { pct, outcome: "DECLINE" };
+}
+
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest("button[data-assess]");
+  if (!btn) return;
+  const app_ = applications.find((a) => a.id === btn.dataset.assess);
+  if (!app_) return;
+  if (!prequalCriteria) prequalCriteria = (await api("/api/subcontractors/prequal-criteria")).criteria;
+  const prior = app_.assessment?.scores || {};
+  const holder = document.getElementById("assess-holder");
+  holder.innerHTML = `<div class="section-block" style="border:1.5px solid var(--amber,#9c7a3c);border-radius:10px;padding:18px 22px;margin-top:18px;">
+    <h3>Prequalification assessment — ${esc(app_.legalName)}</h3>
+    <p class="muted" style="margin:4px 0 12px;">Score each criterion 0 (no evidence / unacceptable) to 5 (strong, evidenced). Four criteria are <b>critical</b>: a zero fails the assessment outright; below 2 caps it at conditional. The registered documents are in the table above.</p>
+    <div class="table-wrap"><table style="font-size:0.88rem;"><thead><tr><th>Criterion</th><th>Weight</th><th>Evidence to look for</th><th style="width:70px;">Score</th></tr></thead><tbody>
+      ${prequalCriteria.map((c) => `<tr>
+        <td><b>${esc(c.label)}</b>${c.critical ? ' <span class="pill critical" title="Zero fails outright; below 2 caps at conditional">critical</span>' : ""}</td>
+        <td>${c.weight}%</td>
+        <td class="muted" style="font-size:0.8rem;">${esc(c.evidence)}</td>
+        <td><select data-pq="${c.id}">${[0,1,2,3,4,5].map((n) => `<option value="${n}" ${Number(prior[c.id] ?? 3) === n ? "selected" : ""}>${n}</option>`).join("")}</select></td>
+      </tr>`).join("")}
+    </tbody></table></div>
+    <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:12px;">
+      <b id="pq-preview" style="font-family:var(--font-head);font-size:1.05rem;"></b>
+      <label style="font-size:0.85rem;"><input type="checkbox" id="pq-apply" checked> Apply the recommended status (emails the supplier their outcome)</label>
+    </div>
+    <textarea id="pq-notes" placeholder="Assessment notes — what was reviewed, conditions attached, actions required…" style="width:100%;min-height:70px;padding:10px 12px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;font-size:0.9rem;margin-top:10px;">${esc(app_.assessment?.notes || "")}</textarea>
+    <div style="margin-top:12px;">
+      <button class="btn-block" id="pq-submit" style="width:auto;padding:12px 24px;">Record assessment</button>
+      <button class="btn-run" id="pq-cancel" style="margin-left:8px;">Cancel</button>
+    </div>
+  </div>`;
+  const refresh = () => {
+    const scores = Object.fromEntries([...holder.querySelectorAll("select[data-pq]")].map((s) => [s.dataset.pq, s.value]));
+    const { pct, outcome } = prequalOutcome(scores);
+    document.getElementById("pq-preview").textContent = `Weighted ${pct}% → ${outcome}`;
+  };
+  holder.querySelectorAll("select[data-pq]").forEach((s) => s.addEventListener("change", refresh));
+  refresh();
+  document.getElementById("pq-cancel").addEventListener("click", () => (holder.innerHTML = ""));
+  document.getElementById("pq-submit").addEventListener("click", async () => {
+    const submit = document.getElementById("pq-submit");
+    submit.disabled = true;
+    try {
+      const scores = Object.fromEntries([...holder.querySelectorAll("select[data-pq]")].map((s) => [s.dataset.pq, Number(s.value)]));
+      const { recommendedStatus, applied } = await api(`/api/subcontractors/${app_.id}/assessment`, {
+        method: "POST",
+        body: JSON.stringify({ scores, notes: document.getElementById("pq-notes").value, applyStatus: document.getElementById("pq-apply").checked }),
+      });
+      holder.innerHTML = "";
+      await load();
+      refreshBell();
+      alert(`Assessment recorded. Recommended status: ${recommendedStatus.replace(/_/g, " ")}${applied ? " (applied — supplier notified)" : " (not applied)"}.`);
+    } catch (err) {
+      alert(err.message);
+      submit.disabled = false;
+    }
+  });
+  holder.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
 // ---------- Data ----------
 
 let leads = [];
@@ -776,7 +851,10 @@ function renderApplications() {
         <td>${esc(a.territories || "—")}</td>
         <td>${when(a.createdAt)}</td>
         <td>${documentLinks(a.documents)}</td>
-        <td>${statusSelect(a.status, APPLICATION_STATUS, "/api/subcontractors", a.id)}${user.role === "admin" ? `<div style="margin-top:6px;"><button class="btn-run" data-del="${a.id}" data-del-endpoint="/api/subcontractors" data-del-label="registration from ${esc(a.legalName)}">Delete</button></div>` : ""}</td>
+        <td>${statusSelect(a.status, APPLICATION_STATUS, "/api/subcontractors", a.id)}
+            ${a.assessment ? `<div style="margin-top:6px;"><span class="pill ${a.assessment.outcome === "prequalify" ? "approved" : a.assessment.outcome === "fail" || a.assessment.outcome === "decline" ? "declined" : ""}" title="${esc(a.assessment.reason || "")} — assessed by ${esc(a.assessment.assessor)}">${esc(a.assessment.outcome)} · ${a.assessment.weightedPct}%</span></div>` : ""}
+            ${ACCESS.DELIVERY_FINANCE.includes(user.role) ? `<div style="margin-top:6px;"><button class="btn-run" data-assess="${a.id}">${a.assessment ? "Re-assess" : "Assess"}</button></div>` : ""}
+            ${user.role === "admin" ? `<div style="margin-top:6px;"><button class="btn-run" data-del="${a.id}" data-del-endpoint="/api/subcontractors" data-del-label="registration from ${esc(a.legalName)}">Delete</button></div>` : ""}</td>
       </tr>`
     );
   tbody.innerHTML = rows.length ? rows.join("") : emptyRow();
