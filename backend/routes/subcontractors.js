@@ -11,12 +11,32 @@ import { UPLOAD_DIR } from "../lib/uploads.js";
 import { validateSubcontractorApplication } from "../../shared/validation.js";
 import { APPLICATION_STATUS, ACCESS } from "../../shared/constants.js";
 import { PREQUAL_CRITERIA, assessScores } from "../lib/prequal.js";
+import { draftPrequal } from "../lib/ai.js";
 
 const router = Router();
 
 /** GET /api/subcontractors/prequal-criteria — the scorecard definition. */
 router.get("/prequal-criteria", requireAuth, (req, res) => {
   res.json({ criteria: PREQUAL_CRITERIA });
+});
+
+/**
+ * POST /api/subcontractors/:id/assessment/draft — Agent 7 drafts the
+ * scorecard from the registration data. Nothing is saved: the draft
+ * returns to the browser for a named human to adjust and record.
+ */
+router.post("/:id/assessment/draft", requireAuth, requireRole(...ACCESS.DELIVERY_FINANCE), async (req, res) => {
+  const application = collection("subcontractors").find((a) => a.id === req.params.id);
+  if (!application) return res.status(404).json({ error: "Application not found." });
+  try {
+    const draft = await draftPrequal(application, PREQUAL_CRITERIA);
+    res.json({ draft });
+  } catch (err) {
+    const msg = /authentication|invalid.*key/i.test(err.message)
+      ? "The AI engine key was rejected — check it under Organisation → AI engine."
+      : err.message;
+    res.status(502).json({ error: msg });
+  }
 });
 
 /**

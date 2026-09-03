@@ -763,9 +763,11 @@ document.addEventListener("click", async (e) => {
       </tr>`).join("")}
     </tbody></table></div>
     <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:12px;">
+      <button class="btn-run" id="pq-ai" title="Agent 7 — Assurance &amp; Evidence drafts scores from the registration; you adjust and record">🤖 Draft with Agent 7</button>
       <b id="pq-preview" style="font-family:var(--font-head);font-size:1.05rem;"></b>
       <label style="font-size:0.85rem;"><input type="checkbox" id="pq-apply" checked> Apply the recommended status (emails the supplier their outcome)</label>
     </div>
+    <div id="pq-ai-note"></div>
     <textarea id="pq-notes" placeholder="Assessment notes — what was reviewed, conditions attached, actions required…" style="width:100%;min-height:70px;padding:10px 12px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;font-size:0.9rem;margin-top:10px;">${esc(app_.assessment?.notes || "")}</textarea>
     <div style="margin-top:12px;">
       <button class="btn-block" id="pq-submit" style="width:auto;padding:12px 24px;">Record assessment</button>
@@ -780,6 +782,31 @@ document.addEventListener("click", async (e) => {
   holder.querySelectorAll("select[data-pq]").forEach((s) => s.addEventListener("change", refresh));
   refresh();
   document.getElementById("pq-cancel").addEventListener("click", () => (holder.innerHTML = ""));
+  document.getElementById("pq-ai").addEventListener("click", async () => {
+    const aiBtn = document.getElementById("pq-ai");
+    aiBtn.disabled = true;
+    aiBtn.textContent = "Agent 7 reviewing…";
+    try {
+      const { draft } = await api(`/api/subcontractors/${app_.id}/assessment/draft`, { method: "POST" });
+      for (const sel of holder.querySelectorAll("select[data-pq]")) {
+        if (draft.scores[sel.dataset.pq] !== undefined) sel.value = draft.scores[sel.dataset.pq];
+        const cell = sel.closest("tr")?.children[2];
+        const why = draft.rationale[sel.dataset.pq];
+        if (cell && why) cell.innerHTML = `<span class="muted" style="font-size:0.8rem;">${esc(why)}</span>`;
+      }
+      refresh();
+      document.getElementById("pq-ai-note").innerHTML = `<div style="border-left:3px solid var(--amber,#9c7a3c);padding:8px 0 8px 14px;margin-top:12px;font-size:0.85rem;">
+        <b>Agent 7 draft — a human decision is still required.</b> ${esc(draft.note)}
+        ${draft.missingEvidence.length ? `<div style="margin-top:6px;"><b>Verify before recording:</b> ${draft.missingEvidence.map(esc).join(" · ")}</div>` : ""}
+      </div>`;
+      aiBtn.textContent = "Re-draft with Agent 7";
+    } catch (err) {
+      alert(err.message);
+      aiBtn.textContent = "🤖 Draft with Agent 7";
+    } finally {
+      aiBtn.disabled = false;
+    }
+  });
   document.getElementById("pq-submit").addEventListener("click", async () => {
     const submit = document.getElementById("pq-submit");
     submit.disabled = true;

@@ -221,6 +221,67 @@ Boundary: you cannot close defects or accept work — authorised human acceptanc
   },
 };
 
+/**
+ * Agent 7 pre-assessment: draft prequalification scores from a
+ * supplier registration. Returns suggested 0–5 scores per criterion
+ * with rationale and a missing-evidence list — a DRAFT only; the named
+ * human assessor adjusts and records. Scores conservatively: what is
+ * not evidenced in the registration scores low, and says so.
+ */
+export async function draftPrequal(application, criteria) {
+  const { model } = getProvider();
+  const docs = (application.documents || []).map((d) => d.name).join(", ") || "none uploaded";
+  const registration = [
+    `Legal name: ${application.legalName}${application.tradingName ? ` (t/a ${application.tradingName})` : ""}`,
+    `Company registration number: ${application.regNumber || "not given"}`,
+    `Primary capability: ${application.capability}`,
+    `Territories: ${application.territories || "not given"}`,
+    `Largest contract to date: ${application.largestContract || "not given"}`,
+    `Mobilisation lead time: ${application.mobilisation || "not given"}`,
+    `Capability statement: ${application.statement || "none"}`,
+    `Documents uploaded (filenames only — contents not reviewed): ${docs}`,
+  ].join("\n");
+
+  const criteriaText = criteria
+    .map((c) => `- id "${c.id}" (weight ${c.weight}${c.critical ? ", CRITICAL" : ""}): ${c.label}. Evidence sought: ${c.evidence}`)
+    .join("\n");
+
+  const response = await client().messages.create({
+    model,
+    max_tokens: 4000,
+    system: `${COMPANY_BRIEF}
+
+You are Agent 7 — Assurance & Evidence, drafting a supplier prequalification pre-assessment for a human assessor. Score each criterion 0–5 based ONLY on what the registration evidences. Rules:
+- Be conservative: a claim without evidence scores at most 2; no information at all scores 0–1. Never assume documents contain what their filenames suggest — note them as "to verify" instead.
+- Your draft is a starting point the human will adjust after reviewing the actual documents; say what they must check.
+- Respond with ONLY a JSON object, no prose before or after, in exactly this shape:
+{"scores": {"<criterion id>": <0-5 integer>, ...}, "rationale": {"<criterion id>": "<one short sentence>", ...}, "missingEvidence": ["<item>", ...], "note": "<2-3 sentence overall summary for the assessor>"}`,
+    messages: [{ role: "user", content: `Prequalification criteria:\n${criteriaText}\n\nSupplier registration:\n${registration}` }],
+  });
+
+  const text = response.content.filter((b) => b.type === "text").map((b) => b.text).join("");
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error("Agent 7 returned no structured draft — try again.");
+  let draft;
+  try {
+    draft = JSON.parse(match[0]);
+  } catch {
+    throw new Error("Agent 7's draft could not be parsed — try again.");
+  }
+  const scores = {};
+  for (const c of criteria) {
+    const v = Number(draft.scores?.[c.id]);
+    scores[c.id] = Number.isInteger(v) && v >= 0 && v <= 5 ? v : 1;
+  }
+  return {
+    scores,
+    rationale: draft.rationale || {},
+    missingEvidence: Array.isArray(draft.missingEvidence) ? draft.missingEvidence.slice(0, 20) : [],
+    note: String(draft.note || "").slice(0, 1000),
+    model: response.model,
+  };
+}
+
 /** Run one agent for real. Returns { output, model, usage }. */
 export async function runAgent(agentId, inputs, runBy) {
   const brief = AGENT_BRIEFS[agentId];
