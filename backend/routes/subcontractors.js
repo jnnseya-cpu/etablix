@@ -49,6 +49,11 @@ router.post("/:id/pqq/send", requireAuth, requireRole(...ACCESS.DELIVERY_FINANCE
   res.json({ sent: true, link });
 });
 
+/** GET /api/subcontractors/pqq — no token: point at the emailed link, not "Unknown endpoint". */
+router.get(["/pqq", "/pqq/"], (req, res) => {
+  res.status(404).json({ error: "This questionnaire opens from the personal link in your invitation email (etablix.com/pqq?t=…). Contact contact@etablix.com if you need a new one." });
+});
+
 /** GET /api/subcontractors/pqq/:token — public: the questionnaire for a valid token. */
 router.get("/pqq/:token", (req, res) => {
   const application = findByPqqToken(req.params.token);

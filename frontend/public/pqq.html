@@ -68,6 +68,10 @@
   const intro = document.getElementById("pqq-intro");
 
   async function boot() {
+    if (!token) {
+      intro.innerHTML = "This questionnaire opens from the personal link in your invitation email — it looks like <b>etablix.com/pqq?t=…</b> and is unique to your company. Please open it directly from the email, or write to <a href=\"mailto:contact@etablix.com\">contact@etablix.com</a> if you need a new link.";
+      return;
+    }
     const res = await fetch(`/api/subcontractors/pqq/${encodeURIComponent(token)}`);
     const body = await res.json().catch(() => ({}));
     if (!res.ok) { intro.textContent = body.error || "This link is invalid or has expired."; return; }
