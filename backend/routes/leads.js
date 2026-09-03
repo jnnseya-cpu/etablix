@@ -9,11 +9,12 @@ import { acceptDocuments, describeFiles } from "../lib/uploads.js";
 import { notifyLead, acknowledgeLead } from "../lib/notify.js";
 import { validateLead } from "../../shared/validation.js";
 import { LEAD_STATUS } from "../../shared/constants.js";
+import { requireHuman } from "../lib/humancheck.js";
 
 const router = Router();
 
-/** POST /api/leads — public: business project enquiry (multipart, optional documents). */
-router.post("/", acceptDocuments, (req, res) => {
+/** POST /api/leads — public: business project enquiry (multipart, optional documents). Human-verified. */
+router.post("/", acceptDocuments, requireHuman, (req, res) => {
   const { ok, errors, data } = validateLead(req.body);
   if (!ok) return res.status(400).json({ error: errors[0], errors });
   const lead = insert("leads", {

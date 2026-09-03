@@ -31,6 +31,7 @@ import orgRoutes from "./routes/org.js";
 import docsRoutes from "./routes/docs.js";
 import agentRoutes from "./routes/agents.js";
 import { startScheduler } from "./lib/automation.js";
+import { issueChallenge } from "./lib/humancheck.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
@@ -44,6 +45,7 @@ app.use(express.json({ limit: "200kb" }));
 app.get("/api/health", (req, res) =>
   res.json({ ok: true, service: "etablix", demo: isDemoMode })
 );
+app.get("/api/human-check", (req, res) => res.json(issueChallenge())); // anti-bot challenge for the public forms
 app.use("/api/auth", authRoutes);
 app.use("/api/leads", leadRoutes);
 app.use("/api/subcontractors", subcontractorRoutes);

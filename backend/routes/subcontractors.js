@@ -12,6 +12,7 @@ import { validateSubcontractorApplication } from "../../shared/validation.js";
 import { APPLICATION_STATUS, ACCESS } from "../../shared/constants.js";
 import { PREQUAL_CRITERIA, PQQ_SECTIONS, PQQ_DOCUMENTS_CHECKLIST, assessScores } from "../lib/prequal.js";
 import { draftPrequal } from "../lib/ai.js";
+import { requireHuman } from "../lib/humancheck.js";
 import crypto from "node:crypto";
 
 const router = Router();
@@ -171,8 +172,8 @@ router.post("/:id/assessment", requireAuth, requireRole(...ACCESS.DELIVERY_FINAN
   res.json({ application, recommendedStatus: result.recommendedStatus, applied: applyStatus });
 });
 
-/** POST /api/subcontractors — public: supplier registration (multipart, optional documents). */
-router.post("/", acceptDocuments, (req, res) => {
+/** POST /api/subcontractors — public: supplier registration (multipart, optional documents). Human-verified. */
+router.post("/", acceptDocuments, requireHuman, (req, res) => {
   const { ok, errors, data } = validateSubcontractorApplication(req.body);
   if (!ok) return res.status(400).json({ error: errors[0], errors });
   const application = insert("subcontractors", {

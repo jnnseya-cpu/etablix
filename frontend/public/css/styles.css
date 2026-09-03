@@ -661,6 +661,17 @@ h3 { font-size: 1.28rem; }
 }
 .form-field textarea { resize: vertical; min-height: 120px; }
 .form-note { font-size: 0.83rem; color: var(--slate); margin-top: 14px; }
+/* Honeypot — invisible to people, present for bots. Kept off-screen
+   (not display:none) so naive scripts still see and fill it. */
+.hp-field {
+  position: absolute !important;
+  left: -6000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.human-note { font-size: 0.78rem; color: var(--slate); margin-top: 12px; opacity: 0.8; }
 .form-success {
   background: rgba(31, 157, 97, 0.1);
   border: 1.5px solid var(--success);

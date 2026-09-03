@@ -32,6 +32,54 @@ const observer = new IntersectionObserver(
 document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
 
 /**
+ * Human verification for the public forms. On the first real interaction
+ * with a form (pointer, key or focus — a person, not a script), fetch a
+ * challenge from the server and solve its proof-of-work in the
+ * background. The solved token rides along with the submission; the
+ * server also enforces a minimum fill time and a honeypot. Invisible to
+ * people, expensive for bots.
+ */
+const humanChallenges = new Map(); // form → Promise<{token, pow, readyAt}>
+
+async function solveChallenge() {
+  const res = await fetch("/api/human-check");
+  if (!res.ok) throw new Error("Verification unavailable. Please reload and try again.");
+  const { token, powPrefix, minWaitMs } = await res.json();
+  const encoder = new TextEncoder();
+  for (let pow = 0; ; pow++) {
+    const digest = await crypto.subtle.digest("SHA-256", encoder.encode(`${token}:${pow}`));
+    const hex = [...new Uint8Array(digest).slice(0, 4)]
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+    if (hex.startsWith(powPrefix)) return { token, pow: String(pow), readyAt: Date.now() + minWaitMs };
+  }
+}
+
+function armHumanCheck(form) {
+  const arm = () => {
+    if (!humanChallenges.has(form)) humanChallenges.set(form, solveChallenge().catch(() => null));
+  };
+  for (const type of ["pointerdown", "keydown", "focusin", "touchstart"]) {
+    form.addEventListener(type, arm, { passive: true });
+  }
+}
+
+// Every public form with a feedback area is human-verified.
+document.querySelectorAll("form").forEach((f) => {
+  if (f.querySelector("[data-feedback]")) armHumanCheck(f);
+});
+
+async function takeChallenge(form) {
+  const challenge = await (humanChallenges.get(form) || solveChallenge().catch(() => null));
+  humanChallenges.delete(form); // single-use — the next submit gets a fresh one
+  humanChallenges.set(form, solveChallenge().catch(() => null));
+  if (!challenge) throw new Error("Verification unavailable. Please reload the page and try again.");
+  const wait = challenge.readyAt - Date.now();
+  if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+  return challenge;
+}
+
+/**
  * Wire a form to a public API endpoint. Sends multipart/form-data built
  * from the form itself, so file inputs (supporting documents) upload too.
  * Used by the enquiry and supplier-registration forms.
@@ -46,11 +94,20 @@ export async function submitForm(form, endpoint, successMessage) {
   feedback.removeAttribute("style");
 
   try {
-    const res = await fetch(endpoint, {
-      method: "POST",
-      body: new FormData(form),
-    });
-    const body = await res.json().catch(() => ({}));
+    const post = async () => {
+      const data = new FormData(form);
+      const { token, pow } = await takeChallenge(form);
+      data.set("hct", token);
+      data.set("pow", pow);
+      const res = await fetch(endpoint, { method: "POST", body: data });
+      const body = await res.json().catch(() => ({}));
+      return { res, body };
+    };
+    let { res, body } = await post();
+    if (!res.ok && /^human_/.test(body.code || "")) {
+      // Stale or restarted-server challenge — recover once with a fresh one.
+      ({ res, body } = await post());
+    }
     if (!res.ok) throw new Error(body.error || "Something went wrong. Please try again.");
     form.reset();
     feedback.className = "form-success";
