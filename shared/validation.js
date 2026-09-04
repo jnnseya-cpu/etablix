@@ -3,7 +3,7 @@
  * instant feedback) and on the server (as the source of truth).
  */
 
-import { SECTORS, SERVICES, CAPABILITIES } from "./constants.js";
+import { SECTORS, SERVICES, CAPABILITIES, CAPABILITIES_MAX } from "./constants.js";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PHONE_RE = /^[+\d][\d\s().-]{6,19}$/;
@@ -48,6 +48,17 @@ export function validateLead(input = {}) {
   return { ok: errors.length === 0, errors, data };
 }
 
+/**
+ * Services selected on a registration: repeated multipart "capabilities"
+ * fields (array, or a lone string when one box is ticked), deduplicated
+ * and restricted to the published list.
+ */
+function normaliseCapabilities(input) {
+  const raw = input.capabilities ?? input.capability ?? [];
+  const list = Array.isArray(raw) ? raw : [raw];
+  return [...new Set(list.map((v) => String(v).trim()))].filter((v) => CAPABILITIES.includes(v));
+}
+
 /** Validate a supplier / subcontractor registration. */
 export function validateSubcontractorApplication(input = {}) {
   const errors = [];
@@ -58,7 +69,7 @@ export function validateSubcontractorApplication(input = {}) {
     email: (input.email || "").trim().toLowerCase(),
     phone: (input.phone || "").trim(),
     regNumber: requireText(input.regNumber, 2, 40, "Company registration number", errors),
-    capability: (input.capability || "").trim(),
+    capabilities: normaliseCapabilities(input),
     territories: requireText(input.territories, 2, 240, "Operating territories", errors),
     largestContract: optionalText(input.largestContract, 80),
     mobilisation: optionalText(input.mobilisation, 80),
@@ -67,7 +78,11 @@ export function validateSubcontractorApplication(input = {}) {
   };
   if (!isEmail(data.email)) errors.push("A valid business email address is required.");
   if (!data.phone || !isPhone(data.phone)) errors.push("A valid telephone number is required.");
-  if (!CAPABILITIES.includes(data.capability)) errors.push("Please select your primary capability.");
+  if (!data.capabilities.length) errors.push("Select at least one service you provide.");
+  else if (data.capabilities.length > CAPABILITIES_MAX)
+    errors.push(`Select at most ${CAPABILITIES_MAX} services.`);
+  // Joined string keeps every existing display, email and filter working.
+  data.capability = data.capabilities.join("; ");
   if (!data.confirmed) {
     errors.push(
       "Please confirm the information is accurate and supporting records can be provided."

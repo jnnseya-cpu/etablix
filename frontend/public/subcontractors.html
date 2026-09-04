@@ -244,11 +244,9 @@
           <label for="s-reg">Company registration number *</label>
           <input id="s-reg" name="regNumber" required>
         </div>
-        <div class="form-field">
-          <label for="s-capability">Primary capability *</label>
-          <select id="s-capability" name="capability" required>
-            <option value="">Select capability</option>
-          </select>
+        <div class="form-field full">
+          <label>Services you provide * <span class="cap-count" id="s-capability-count">(select up to 5)</span></label>
+          <div class="cap-grid" id="s-capability"></div>
         </div>
         <div class="form-field">
           <label for="s-territories">Operating territories *</label>
@@ -344,15 +342,9 @@
 </footer>
 
 <script type="module">
-  import { submitForm } from "/js/main.js";
-  import { CAPABILITIES } from "/shared/constants.js";
+  import { submitForm, renderCapabilityGrid } from "/js/main.js";
 
-  const select = document.getElementById("s-capability");
-  for (const capability of CAPABILITIES) {
-    const opt = document.createElement("option");
-    opt.textContent = capability;
-    select.appendChild(opt);
-  }
+  renderCapabilityGrid(document.getElementById("s-capability"), document.getElementById("s-capability-count"));
 
   const form = document.getElementById("sub-form");
   form.addEventListener("submit", (e) => {

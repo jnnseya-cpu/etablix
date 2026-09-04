@@ -176,7 +176,7 @@ export const SAMPLE_VARS = {
   actor: "Dana Okafor",
   email: "alex@example.com",
   company: "Northshore EPC Ltd",
-  capability: "Modular & accommodation",
+  capability: "Modular-building suppliers",
   service: "Management Integrator",
   reference: "SUP-1A2B3C",
   item: "Welfare compound readiness review",

@@ -661,6 +661,37 @@ h3 { font-size: 1.28rem; }
 }
 .form-field textarea { resize: vertical; min-height: 120px; }
 .form-note { font-size: 0.83rem; color: var(--slate); margin-top: 14px; }
+/* Services-you-provide checkbox grid on the supplier registration form. */
+.cap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 8px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  padding: 14px 16px;
+  background: var(--white);
+}
+.cap-opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  cursor: pointer;
+  line-height: 1.35;
+}
+.cap-opt input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--orange);
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+.cap-opt input:disabled + span { opacity: 0.45; }
+.cap-count { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--slate); }
+
 /* Honeypot — invisible to people, present for bots. Kept off-screen
    (not display:none) so naive scripts still see and fill it. */
 .hp-field {

@@ -64,38 +64,34 @@ export const SERVICES = [
 ];
 
 /**
- * Specialist supply-chain capability categories, ordered by site
- * lifecycle (design → establish → utilities → operate → closeout).
- * The first eight original labels are preserved verbatim — existing
- * supplier registrations keep their category without migration.
+ * The supplier types ETABLIX recruits, as suppliers describe
+ * themselves. Registrations select up to CAPABILITIES_MAX of these;
+ * older records keep their original single-category string.
  */
 export const CAPABILITIES = [
-  // Design & planning
-  "Design, survey & temporary works engineering",
-  // Establish the site
-  "Temporary & enabling civil works",
-  "Ground protection, trackway & wheel-wash",
-  "Fencing, hoarding & signage",
-  "Traffic management",
-  // Utilities & connectivity
-  "Temporary power, generators & fuel",
-  "Temporary MEP & building services",
-  "Water, wastewater & sanitation",
-  "IT, telecoms & connectivity",
-  // Buildings & equipment
-  "Modular & accommodation",
-  "Plant, equipment & furniture hire",
-  // Operate the site
-  "Security & access",
-  "Catering & living services",
-  "Cleaning & soft FM",
-  "Waste management & recycling",
-  "Medical & first-aid services",
-  "Logistics & transport",
-  "Maintenance & fault response",
-  // Closeout
-  "Environmental & closeout",
+  "Temporary civil-works contractors",
+  "Temporary MEP contractors",
+  "Modular-building suppliers",
+  "Temporary-power companies",
+  "Security providers",
+  "Catering companies",
+  "Waste contractors",
+  "Cleaning and facilities companies",
+  "Logistics providers",
+  "Bus and workforce-transport companies",
+  "Water and sewage specialists",
+  "Camp and accommodation suppliers",
+  "Fencing and hoarding contractors",
+  "Traffic-management providers",
+  "Trackway and ground-protection specialists",
+  "Plant and equipment hirers",
+  "Site connectivity and telecoms providers",
+  "Site medical and first-aid providers",
+  "Temporary-works designers",
+  "Maintenance and fault-response teams",
 ];
+
+export const CAPABILITIES_MAX = 5;
 
 export const LEAD_STATUS = ["new", "contacted", "qualified", "won", "lost"];
 

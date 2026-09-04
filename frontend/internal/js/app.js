@@ -356,7 +356,8 @@ function filteredSuppliers() {
     if (f.status === "usable" && !["approved", "prequalified"].includes(s.status)) return false;
     if (f.status === "approved" && s.status !== "approved") return false;
     if (f.status === "prequalified" && s.status !== "prequalified") return false;
-    if (f.capability && s.capability !== f.capability) return false;
+    // Multi-service registrations store "A; B; C" — match on containment.
+    if (f.capability && !(s.capability || "").includes(f.capability)) return false;
     if (f.location && !`${s.territories || ""}`.toLowerCase().includes(f.location)) return false;
     return true;
   });

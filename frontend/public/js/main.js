@@ -31,6 +31,33 @@ const observer = new IntersectionObserver(
 );
 document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
 
+import { CAPABILITIES, CAPABILITIES_MAX } from "/shared/constants.js";
+
+/**
+ * The "services you provide" checkbox grid on the supplier registration
+ * forms: every published supplier type, up to CAPABILITIES_MAX ticked.
+ * At the limit the remaining boxes disable until one is unticked.
+ */
+export function renderCapabilityGrid(grid, counter) {
+  grid.innerHTML = CAPABILITIES.map(
+    (c) => `<label class="cap-opt"><input type="checkbox" name="capabilities" value="${c}"><span>${c}</span></label>`
+  ).join("");
+  const boxes = [...grid.querySelectorAll("input")];
+  const refresh = () => {
+    const picked = boxes.filter((b) => b.checked).length;
+    for (const b of boxes) if (!b.checked) b.disabled = picked >= CAPABILITIES_MAX;
+    if (counter) {
+      counter.textContent = picked
+        ? `(${picked} of ${CAPABILITIES_MAX} selected)`
+        : `(select up to ${CAPABILITIES_MAX})`;
+    }
+  };
+  grid.addEventListener("change", refresh);
+  const form = grid.closest("form");
+  if (form) form.addEventListener("reset", () => setTimeout(refresh, 0));
+  refresh();
+}
+
 /**
  * Human verification for the public forms. On the first real interaction
  * with a form (pointer, key or focus — a person, not a script), fetch a
