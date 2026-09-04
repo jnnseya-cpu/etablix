@@ -96,12 +96,28 @@ const STATUS_EVENTS = {
   declined: "supplier.declined",
 };
 
-export function notifyApplicationStatus(app) {
+/**
+ * @param shortfalls Criterion labels that fell short in a RECORDED
+ * assessment (never raw scores or assessor notes). When present, the
+ * decline / conditional email names the areas to develop — category
+ * level only. A manual status change passes nothing and keeps the
+ * neutral wording: no evidence, no cited feedback.
+ */
+export function notifyApplicationStatus(app, { shortfalls } = {}) {
   const code = STATUS_EVENTS[app.status];
   if (!code || !app.email) return;
+  let detailsText;
+  if (shortfalls?.length) {
+    const list = shortfalls.map((s) => `• ${s}`).join("\n");
+    detailsText =
+      app.status === "declined"
+        ? `The areas that did not meet our current requirements were:\n${list}\n\nIf you can evidence these in future, you are welcome to register again — applications are reassessed in full.`
+        : `The areas requiring further evidence before prequalification can be confirmed:\n${list}\n\nPlease send the supporting evidence to contact@etablix.com, quoting your reference ${ref("SUP", app.id)}.`;
+  }
   emit(code, {
     email: app.email,
     greeting: app.contact,
     vars: { reference: ref("SUP", app.id), company: app.legalName, capability: app.capability },
+    detailsText,
   }).catch((err) => console.error(err));
 }

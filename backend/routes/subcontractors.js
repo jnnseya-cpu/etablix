@@ -163,7 +163,14 @@ router.post("/:id/assessment", requireAuth, requireRole(...ACCESS.DELIVERY_FINAN
   const statusChanged = applyStatus && existing.status !== result.recommendedStatus;
   if (applyStatus) patch.status = result.recommendedStatus;
   const application = update("subcontractors", req.params.id, patch);
-  if (statusChanged) notifyApplicationStatus(application); // supplier hears the outcome through the normal flow
+  // A decline or conditional outcome from a recorded assessment carries
+  // its evidence: every criterion at 2 or below becomes a named area to
+  // develop (labels only) in the supplier's email.
+  const shortfalls =
+    result.outcome === "decline" || result.outcome === "fail" || result.outcome === "conditional"
+      ? PREQUAL_CRITERIA.filter((c) => assessment.scores[c.id] <= 2).map((c) => c.label)
+      : undefined;
+  if (statusChanged) notifyApplicationStatus(application, { shortfalls }); // supplier hears the outcome through the normal flow
 
   emit("supplier.assessed", {
     vars: {
