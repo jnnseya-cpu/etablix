@@ -11,9 +11,12 @@
  */
 
 import { Router } from "express";
-import { collection, insert, update } from "../lib/store.js";
+import fs from "node:fs";
+import path from "node:path";
+import { collection, insert, update, remove } from "../lib/store.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
-import { ACCESS } from "../../shared/constants.js";
+import { ACCESS, ROLES } from "../../shared/constants.js";
+import { UPLOAD_DIR } from "../lib/uploads.js";
 import { emit } from "../lib/comms.js";
 import { certificationMaths, maskAccount } from "../lib/supplierflow.js";
 
@@ -178,6 +181,22 @@ router.post("/:id/paid", ...finance, async (req, res) => {
   }
 
   res.json({ application: updated });
+});
+
+/**
+ * DELETE /api/payments/:id — admin: permanently remove a payment
+ * application and its evidence files. For test records and genuine
+ * errors only — a real paid application is the audit trail; keep it.
+ */
+router.delete("/:id", requireAuth, requireRole(ROLES.ADMIN), (req, res) => {
+  const payApp = remove("payApps", req.params.id);
+  if (!payApp) return res.status(404).json({ error: "Application not found." });
+  for (const doc of payApp.documents || []) {
+    try {
+      fs.unlinkSync(path.join(UPLOAD_DIR, doc.stored));
+    } catch {}
+  }
+  res.json({ deleted: true, id: payApp.id });
 });
 
 export default router;

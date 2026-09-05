@@ -536,6 +536,7 @@ function renderPayments() {
           ${p.status === "received" ? `<button class="btn-run" data-pay-certify="${p.id}">Certify</button>` : ""}
           ${p.status === "certified" ? `<button class="btn-run" data-pay-paid="${p.id}">Mark paid</button>` : ""}
           <button class="btn-run" data-pay-account="${p.supplierId}" title="Payment structure on file — full details, for call-back verification">${p.bankVerified ? "Account" : "Verify account"}</button>
+          ${user.role === "admin" ? `<button class="btn-run" data-pay-del="${p.id}" title="Admin: permanently remove this application and its evidence files — for test records and errors only; a real paid application is the audit trail">Delete</button>` : ""}
         </td>
       </tr>`).join("")
     : '<tr><td colspan="8" class="empty-note">No applications for payment yet. Suppliers raise them in their portal once onboarded — use “Onboard” on an approved or prequalified registration.</td></tr>';
@@ -553,7 +554,19 @@ document.addEventListener("click", async (e) => {
   const certify = e.target.closest("button[data-pay-certify]");
   const paid = e.target.closest("button[data-pay-paid]");
   const account = e.target.closest("button[data-pay-account]");
-  if (!certify && !paid && !account) return;
+  const payDel = e.target.closest("button[data-pay-del]");
+  if (!certify && !paid && !account && !payDel) return;
+
+  if (payDel) {
+    const row = payRows.find((x) => x.id === payDel.dataset.payDel);
+    if (!confirm(`Permanently delete ${row?.number || "this application"} and its evidence files? A real paid application is your audit trail — delete test records and errors only.`)) return;
+    payDel.disabled = true;
+    try {
+      await api(`/api/payments/${payDel.dataset.payDel}`, { method: "DELETE" });
+      await loadPayments();
+    } catch (err) { alert(err.message); payDel.disabled = false; }
+    return;
+  }
 
   if (account) {
     account.disabled = true;
