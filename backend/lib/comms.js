@@ -38,8 +38,14 @@ const transport = process.env.SMTP_HOST
     })
   : null;
 
+// A placeholder with no value renders as nothing — raw {{tokens}} must
+// never reach a recipient. The double-space/dangling-separator tidy-up
+// keeps the surrounding sentence readable.
 export const interpolate = (str, vars = {}) =>
-  String(str || "").replace(/\{\{(\w+)\}\}/g, (m, k) => (vars[k] !== undefined ? String(vars[k]) : m));
+  String(str || "")
+    .replace(/\{\{(\w+)\}\}/g, (m, k) => (vars[k] !== undefined ? String(vars[k]) : ""))
+    .replace(/ {2,}/g, " ")
+    .replace(/ ([,.;:!?])/g, "$1");
 
 const escHtml = (s) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);

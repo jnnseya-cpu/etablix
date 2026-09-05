@@ -103,7 +103,6 @@ export const CATEGORIES = [
     events: [
       E("valuation.due", "Monthly valuation due", "info", "email inapp", "Valuation cycle — day 20 submissions due for {{project}}", "Supplier applications for {{project}} are due today (day 20 of the cycle). Verification runs days 21–23.", {}),
       E("application.received", "Supplier application received", "info", "inapp", "Payment application received — {{company}}", "A payment application has been received from {{company}} on {{project}}.", {}),
-      E("payment.certified", "Payment certified", "success", "email inapp", "Payment certified — {{company}} on {{project}}", "Certified value for {{company}} this cycle: {{amount}}. Payment follows the contractual due date.", { a: "supplier" }),
       E("payment.notice", "Pay-less notice issued", "warning", "email inapp", "Payment notice — {{project}}", "A payment/pay-less notice has been issued for your application on {{project}}. The assessment detail is attached.", { a: "supplier", m: true }),
       E("reserve.low", "Cash reserve below one month", "critical", "email inapp sms", "Rolling reserve below threshold — {{project}}", "The rolling cash reserve on {{project}} has fallen below one month of committed supplier expenditure. Condition-precedent mechanics apply.", { m: true }),
       E("evm.breach", "EVM performance breach", "warning", "email inapp", "EVM alert — {{item}} below 0.95 on {{project}}", "{{item}} on {{project}} is below 0.95. Recovery / commercial review is triggered.", {}),
