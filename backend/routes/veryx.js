@@ -146,6 +146,11 @@ router.post("/agents/:type/run", safe(async (req, res) => {
       // result comes back as { execution_id, status, acu_consumed,
       // duration_ms, output, error } under the data envelope.
       const type = req.params.type;
+      // A page rendered before the current build can send a run with no
+      // agent type — stop it here rather than bothering the platform.
+      if (!type || type === "undefined" || type === "null") {
+        return res.status(400).json({ error: "No agent type reached the server — refresh the Control Desk (Ctrl+Shift+R) and run agents from the VERYX tab's Run now buttons." });
+      }
       const body = await platformFetch("veryx", `/agents/${encodeURIComponent(type)}/run`, {
         method: "POST",
         timeoutMs: 65000, // the platform allows a run up to 60s
