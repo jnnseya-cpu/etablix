@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supplier Portal — ETABLIX</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+<style>
+  .sp-wrap { max-width: 900px; margin: 0 auto; padding: 56px 20px 90px; }
+  .sp-card { background: var(--card, #fdfcf9); border: 1px solid var(--line); border-top: 3px solid var(--orange); border-radius: 8px; padding: 22px 26px; margin-bottom: 18px; }
+  .sp-card h3 { font-family: var(--font-head); font-size: 1.15rem; margin-bottom: 4px; }
+  .sp-field { margin-top: 14px; }
+  .sp-field label { display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 5px; }
+  .sp-field label .req { color: var(--orange); }
+  .sp-field input, .sp-field select, .sp-field textarea { width: 100%; padding: 11px 13px; border: 1.5px solid var(--line); border-radius: 7px; font-family: inherit; font-size: 0.92rem; }
+  .sp-field textarea { min-height: 84px; }
+  .sp-dec { display: flex; gap: 10px; align-items: flex-start; font-size: 0.9rem; margin-top: 12px; }
+  .sp-dec input { margin-top: 3px; }
+  .sp-note { background: rgba(156,122,60,0.08); border-left: 3px solid var(--orange); padding: 14px 18px; border-radius: 4px; font-size: 0.9rem; line-height: 1.6; margin: 0 0 18px; }
+  .sp-error { color: #b03a2e; font-weight: 600; margin-top: 14px; display: none; }
+  .sp-error.show { display: block; }
+  .sp-pill { display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; border: 1.5px solid var(--line); }
+  .sp-pill.ok { border-color: #1f9d61; color: #1f9d61; }
+  .sp-pill.wait { border-color: var(--orange); color: var(--orange); }
+  .sp-table-wrap { overflow-x: auto; }
+  .sp-table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 0.88rem; }
+  .sp-table th { text-align: left; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted, #5b6470); border-bottom: 2px solid var(--ink, #16130f); padding: 8px 12px 8px 0; }
+  .sp-table td { border-bottom: 1px solid var(--line); padding: 9px 12px 9px 0; vertical-align: top; }
+  .sp-terms { font-size: 0.85rem; line-height: 1.7; color: var(--muted, #5b6470); margin: 8px 0 0 18px; }
+</style>
+</head>
+<body>
+
+<div class="topline"><b>ETABLIX</b> · INTEGRATED SITE SERVICES · PART OF <b>GROUPE NSEYA</b></div>
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="logo" href="/"><img class="logo-mark" src="/img/logo-mark-reverse.svg" alt="ETABLIX"><span class="logo-text">ETABLIX<small>Supplier Portal</small></span></a>
+  </div>
+</header>
+
+<div class="sp-wrap">
+  <h1 style="font-family:var(--font-head);font-size:clamp(1.8rem,4vw,2.6rem);line-height:1.05;">Supplier portal</h1>
+  <p style="color:var(--muted,#5b6470);margin:12px 0 26px;max-width:680px;line-height:1.6;" id="sp-intro">Loading…</p>
+
+  <!-- Onboarding -->
+  <form id="sp-onboarding" hidden>
+    <div class="sp-note"><b>One-time onboarding.</b> Set up how you get paid and accept the framework terms. We verify bank details by a call-back to the director contact you give — no payment moves before that. Keep this portal link private to your commercial team.</div>
+    <div id="sp-ob-sections"></div>
+    <button class="btn btn-primary" type="submit" style="padding:14px 34px;">Complete onboarding</button>
+    <div class="sp-error" id="sp-ob-error"></div>
+  </form>
+
+  <!-- Active portal -->
+  <div id="sp-home" hidden>
+    <div class="sp-card">
+      <h3 id="sp-company"></h3>
+      <div style="margin-top:8px;display:flex;gap:10px;flex-wrap:wrap;">
+        <span class="sp-pill ok">Onboarded</span>
+        <span class="sp-pill" id="sp-bank-pill"></span>
+        <span class="sp-pill" id="sp-status-pill"></span>
+      </div>
+      <p style="font-size:0.85rem;color:var(--muted,#5b6470);margin-top:12px;">Payment account on file: <b id="sp-bank-masked"></b>. To change payment details, contact <a href="mailto:contact@etablix.com">contact@etablix.com</a> — changes are re-verified by call-back before any payment.</p>
+    </div>
+
+    <div class="sp-card">
+      <h3>Raise an application for payment</h3>
+      <p style="font-size:0.88rem;color:var(--muted,#5b6470);margin-top:4px;">Applications are certified against evidence — attach delivery records, inspection sign-offs, progress photos, timesheets. You will receive our payment notice with the certified sum and its basis, then the remittance when paid.</p>
+      <form id="sp-app-form">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;">
+          <div class="sp-field"><label>Valuation period <span class="req">*</span></label><input name="period" placeholder="e.g. 2026-09" required></div>
+          <div class="sp-field"><label>ETABLIX order / package ref <span class="req">*</span></label><input name="poRef" placeholder="e.g. PO-2026-014" required></div>
+          <div class="sp-field"><label>Applied for this period (£) <span class="req">*</span></label><input name="claimed" type="number" step="0.01" min="0.01" required></div>
+          <div class="sp-field"><label>Gross value to date (£)</label><input name="grossToDate" type="number" step="0.01" min="0"></div>
+        </div>
+        <div class="sp-field"><label>Work covered by this application <span class="req">*</span></label><textarea name="description" required placeholder="What was delivered, where, and the basis of the valuation…"></textarea></div>
+        <div class="sp-field"><label>Evidence (delivery records, sign-offs, photos, timesheets)</label><input type="file" id="sp-app-files" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" style="border:1.5px dashed var(--line);padding:14px;border-radius:7px;"></div>
+        <button class="btn btn-primary" type="submit" style="margin-top:14px;padding:12px 28px;">Submit application</button>
+        <div class="sp-error" id="sp-app-error"></div>
+      </form>
+    </div>
+
+    <div class="sp-card">
+      <h3>Your applications</h3>
+      <div class="sp-table-wrap"><table class="sp-table"><thead><tr>
+        <th>Number</th><th>Period · Order</th><th>Applied</th><th>Certified</th><th>Net payable</th><th>Status</th>
+      </tr></thead><tbody id="sp-apps"></tbody></table></div>
+    </div>
+
+    <div class="sp-card">
+      <h3>Framework terms in brief</h3>
+      <ul class="sp-terms" id="sp-terms"></ul>
+    </div>
+  </div>
+
+  <div id="sp-done" hidden>
+    <div class="sp-note" style="border-left-color:#1f9d61;"><b>Onboarding received — thank you.</b><br>
+    We verify your bank details by a call-back to the director contact you provided. Once verified, reload this page to raise applications for payment.</div>
+  </div>
+</div>
+
+<script>
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
+  const money = (n) => n == null ? "—" : "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 2 });
+  const token = new URLSearchParams(location.search).get("t") || "";
+  const intro = document.getElementById("sp-intro");
+  const api = `/api/subcontractors/portal/${encodeURIComponent(token)}`;
+
+  const STATUS_LABEL = { received: "Received — being assessed", certified: "Certified — payment notice issued", paid: "Paid" };
+
+  function renderApps(list) {
+    document.getElementById("sp-apps").innerHTML = list.length ? list.map((p) => `<tr>
+      <td><b>${esc(p.number)}</b></td>
+      <td>${esc(p.period)} · ${esc(p.poRef)}</td>
+      <td>${money(p.claimed)}</td>
+      <td>${p.certified == null ? "—" : money(p.certified) + (p.retention ? `<div style=\"font-size:0.75rem;color:var(--muted,#5b6470);\">retention ${money(p.retention)}${p.cisDeduction ? " · CIS " + money(p.cisDeduction) : ""}</div>` : "")}</td>
+      <td><b>${money(p.netPayable)}</b></td>
+      <td><span class="sp-pill ${p.status === "paid" ? "ok" : "wait"}">${esc(STATUS_LABEL[p.status] || p.status)}</span>
+          ${p.certReasons ? `<div style=\"font-size:0.78rem;color:var(--muted,#5b6470);margin-top:4px;\">${esc(p.certReasons)}</div>` : ""}</td>
+    </tr>`).join("") : '<tr><td colspan="6" style="color:var(--muted,#5b6470);">No applications yet.</td></tr>';
+  }
+
+  async function boot() {
+    if (!token) { intro.textContent = "This portal opens from the personal link in your onboarding email. Contact contact@etablix.com if you need it re-sent."; return; }
+    const res = await fetch(api);
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) { intro.textContent = body.error || "This portal link is invalid."; return; }
+
+    if (!body.onboarded) {
+      intro.innerHTML = `Welcome, <b>${esc(body.company)}</b>. Complete your one-time onboarding to activate applications for payment.`;
+      const holder = document.getElementById("sp-ob-sections");
+      holder.innerHTML = body.sections.map((s) => `<div class="sp-card">
+        <h3>${esc(s.title)}</h3>
+        ${s.note ? `<p style="font-size:0.85rem;color:var(--muted,#5b6470);margin-top:4px;">${esc(s.note)}</p>` : ""}
+        ${s.fields.map((f) => {
+          if (f.type === "declaration") return `<label class="sp-dec"><input type="checkbox" data-f="${f.id}"> <span>${esc(f.label)} <span class="req">*</span></span></label>`;
+          if (f.type === "select") return `<div class="sp-field"><label>${esc(f.label)}${f.required ? ' <span class="req">*</span>' : ""}</label><select data-f="${f.id}"><option value="">Select…</option>${f.options.map((o) => `<option>${esc(o)}</option>`).join("")}</select></div>`;
+          return `<div class="sp-field"><label>${esc(f.label)}${f.required ? ' <span class="req">*</span>' : ""}</label><input type="text" data-f="${f.id}"></div>`;
+        }).join("")}
+      </div>`).join("");
+      document.getElementById("sp-onboarding").hidden = false;
+      return;
+    }
+
+    intro.innerHTML = `Signed in as <b>${esc(body.company)}</b> — ${esc(body.contact)}.`;
+    document.getElementById("sp-company").textContent = body.company;
+    document.getElementById("sp-bank-masked").textContent = body.bankOnFile || "—";
+    const bankPill = document.getElementById("sp-bank-pill");
+    bankPill.textContent = body.bankVerified ? "Bank verified" : "Bank verification pending";
+    bankPill.className = "sp-pill " + (body.bankVerified ? "ok" : "wait");
+    const statusPill = document.getElementById("sp-status-pill");
+    statusPill.textContent = body.status.replace(/_/g, " ");
+    statusPill.className = "sp-pill ok";
+    document.getElementById("sp-terms").innerHTML = body.terms.map((t) => `<li>${esc(t)}</li>`).join("");
+    renderApps(body.applications);
+    document.getElementById("sp-home").hidden = false;
+  }
+
+  document.getElementById("sp-onboarding").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const err = document.getElementById("sp-ob-error");
+    err.classList.remove("show");
+    const btn = e.target.querySelector("button[type=submit]");
+    btn.disabled = true; btn.textContent = "Submitting…";
+    try {
+      const answers = {};
+      for (const el of document.querySelectorAll("#sp-ob-sections [data-f]")) {
+        answers[el.dataset.f] = el.type === "checkbox" ? el.checked : el.value;
+      }
+      const res = await fetch(`${api}/onboarding`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ answers }) });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error || "Submission failed.");
+      document.getElementById("sp-onboarding").hidden = true;
+      document.getElementById("sp-done").hidden = false;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (e2) {
+      err.textContent = e2.message; err.classList.add("show");
+      btn.disabled = false; btn.textContent = "Complete onboarding";
+    }
+  });
+
+  document.getElementById("sp-app-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const err = document.getElementById("sp-app-error");
+    err.classList.remove("show");
+    const btn = e.target.querySelector("button[type=submit]");
+    btn.disabled = true; btn.textContent = "Submitting…";
+    try {
+      const fd = new FormData(e.target);
+      for (const file of document.getElementById("sp-app-files").files) fd.append("documents", file);
+      const res = await fetch(`${api}/applications`, { method: "POST", body: fd });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error || "Submission failed.");
+      e.target.reset();
+      const state = await (await fetch(api)).json();
+      renderApps(state.applications || []);
+      alert(body.message);
+    } catch (e2) {
+      err.textContent = e2.message; err.classList.add("show");
+    } finally {
+      btn.disabled = false; btn.textContent = "Submit application";
+    }
+  });
+
+  boot().catch(() => (intro.textContent = "Something went wrong loading the portal — please try again."));
+</script>
+
+<footer class="site-footer"><div class="container"><div class="footer-bottom" style="border-top:0;">
+  <span style="font-size:0.78rem;opacity:0.8;">ETABLIX is a trading name of JNN GLOBAL LTD · Registered in England &amp; Wales · Company No. 15405437 · Registered office: Groupe Nseya House, Kingstanding, Birmingham B44 8DJ, United Kingdom</span>
+</div></div></footer>
+
+</body>
+</html>

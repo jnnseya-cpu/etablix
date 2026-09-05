@@ -30,6 +30,7 @@ import commercialRoutes from "./routes/commercial.js";
 import orgRoutes from "./routes/org.js";
 import docsRoutes from "./routes/docs.js";
 import agentRoutes from "./routes/agents.js";
+import paymentRoutes from "./routes/payments.js";
 import { startScheduler } from "./lib/automation.js";
 import { issueChallenge } from "./lib/humancheck.js";
 
@@ -64,6 +65,7 @@ app.use("/api/commercial", commercialRoutes); // Commercial OS: pricing, bids, c
 app.use("/api/org", orgRoutes); // organisation structure, AI-agent workforce, positions
 app.use("/api/docs", docsRoutes); // document studio: invoices, applications, POs, notices
 app.use("/api/agents", agentRoutes); // AI-agent workforce: provider connection, runs, approvals
+app.use("/api/payments", paymentRoutes); // supplier payments: certify, verify bank, remittance
 
 app.use("/api", (req, res) => res.status(404).json({ error: "Unknown endpoint." }));
 

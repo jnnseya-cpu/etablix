@@ -395,7 +395,134 @@ async function loadSuppliers() {
   const { applications } = await api("/api/subcontractors");
   supplierRows = applications;
   renderSuppliers();
+  loadPayments().catch(() => {
+    // Role without finance access: hide the payments block quietly.
+    const block = document.getElementById("payments-block");
+    if (block) block.style.display = "none";
+  });
 }
+
+// ---------- Applications for payment (supplier portal → certify → pay) ----------
+
+let payRows = [];
+
+function renderPayments() {
+  const tbody = document.querySelector("#payments-table tbody");
+  if (!tbody) return;
+  tbody.innerHTML = payRows.length
+    ? payRows.map((p) => `<tr>
+        <td><b>${esc(p.number)}</b>${p.documents?.length ? `<div class="muted" style="font-size:0.75rem;">${p.documents.length} evidence file(s)</div>` : ""}</td>
+        <td>${esc(p.supplier)}
+            <div style="margin-top:3px;"><span class="pill ${p.bankVerified ? "approved" : "critical"}" title="${p.bankVerified ? "Account verified by call-back" : "Payment blocked until a named person verifies the account by call-back"}">${p.bankVerified ? "bank verified" : "VERIFY BANK"}</span></div></td>
+        <td>${esc(p.period)}<div class="muted">${esc(p.poRef)}</div></td>
+        <td>${money(p.claimed)}</td>
+        <td>${p.certified == null ? "—" : `${money(p.certified)} → <b>${money(p.netPayable)}</b><div class="muted" style="font-size:0.75rem;">ret ${money(p.retention)}${p.cisDeduction ? " · CIS " + money(p.cisDeduction) : ""}</div>`}</td>
+        <td>${when(p.paymentDueDate)}</td>
+        <td><span class="pill ${p.status === "paid" ? "approved" : p.status === "certified" ? "prequalified" : ""}">${esc(p.status)}</span></td>
+        <td>
+          ${p.status === "received" ? `<button class="btn-run" data-pay-certify="${p.id}">Certify</button>` : ""}
+          ${p.status === "certified" ? `<button class="btn-run" data-pay-paid="${p.id}">Mark paid</button>` : ""}
+          <button class="btn-run" data-pay-account="${p.supplierId}" title="Payment structure on file — full details, for call-back verification">${p.bankVerified ? "Account" : "Verify account"}</button>
+        </td>
+      </tr>`).join("")
+    : '<tr><td colspan="8" class="empty-note">No applications for payment yet. Suppliers raise them in their portal once onboarded — use “Onboard” on an approved or prequalified registration.</td></tr>';
+}
+
+async function loadPayments() {
+  const { applications, kpis } = await api("/api/payments");
+  payRows = applications;
+  const k = document.getElementById("pay-kpis");
+  if (k) k.textContent = `· ${kpis.open} open (${money(kpis.openValue)}) · certified awaiting payment ${money(kpis.certifiedUnpaid)}`;
+  renderPayments();
+}
+
+document.addEventListener("click", async (e) => {
+  const certify = e.target.closest("button[data-pay-certify]");
+  const paid = e.target.closest("button[data-pay-paid]");
+  const account = e.target.closest("button[data-pay-account]");
+  if (!certify && !paid && !account) return;
+
+  if (account) {
+    account.disabled = true;
+    try {
+      const a = await api(`/api/payments/suppliers/${account.dataset.payAccount}/account`);
+      const ans = a.answers;
+      const detail = [
+        `PAYMENT STRUCTURE — ${a.company}`,
+        `Bank: ${ans.bank_name}`,
+        `Account name: ${ans.bank_account_name}`,
+        `Sort code: ${ans.bank_sort} · Account: ${ans.bank_account}`,
+        `Remittance email: ${ans.remit_email}`,
+        `CIS: ${ans.cis_status}${ans.cis_utr ? ` · UTR ${ans.cis_utr}` : ""} · VAT ${ans.vat_number}`,
+        `Director call-back contact: ${ans.director_contact}`,
+        ``,
+        a.bankVerified
+          ? `VERIFIED by ${a.bankVerifiedBy} on ${when(a.bankVerifiedAt)}.`
+          : `NOT VERIFIED. Call the director contact above, confirm the account details verbally, then confirm below.`,
+      ].join("\n");
+      if (a.bankVerified) {
+        alert(detail);
+      } else if (confirm(`${detail}\n\nHas the call-back been completed and the details confirmed by the director contact? OK = verified.`)) {
+        await api(`/api/payments/suppliers/${account.dataset.payAccount}/verify-bank`, { method: "POST", body: JSON.stringify({ calledBack: true }) });
+        await loadPayments();
+        alert("Account verified — payments to this supplier are now unblocked.");
+      }
+    } catch (err) { alert(err.message); } finally { account.disabled = false; }
+    return;
+  }
+
+  if (paid) {
+    const ref = prompt("Bank payment reference (from your banking, optional):") ?? "";
+    paid.disabled = true;
+    try {
+      await api(`/api/payments/${paid.dataset.payPaid}/paid`, { method: "POST", body: JSON.stringify({ paymentRef: ref }) });
+      await loadPayments();
+      refreshBell();
+      alert("Marked paid — remittance emailed to the supplier.");
+    } catch (err) { alert(err.message); paid.disabled = false; }
+    return;
+  }
+
+  // Certify: inline form under the table.
+  const p = payRows.find((x) => x.id === certify.dataset.payCertify);
+  if (!p) return;
+  const holder = document.getElementById("pay-holder");
+  holder.innerHTML = `<div class="section-block" style="border:1.5px solid var(--amber,#9c7a3c);border-radius:10px;padding:18px 22px;margin-top:14px;">
+    <h3>Certify ${esc(p.number)} — ${esc(p.supplier)}</h3>
+    <p class="muted" style="margin:4px 0 10px;">Applied for <b>${money(p.claimed)}</b> · period ${esc(p.period)} · order ${esc(p.poRef)}. Evidence: ${p.documents?.length ? p.documents.map((d) => esc(d.name)).join(", ") : "none uploaded"}.</p>
+    <p class="muted" style="font-size:0.83rem;margin-bottom:10px;">${esc(p.description || "")}</p>
+    <div class="team-form" style="margin-bottom:10px;">
+      <input id="pc-certified" type="number" step="0.01" min="0" value="${p.claimed}" placeholder="Certified sum (£)">
+      <input id="pc-cis" type="number" step="0.01" min="0" placeholder="CIS deduction (£, labour at verified rate)">
+    </div>
+    <textarea id="pc-reasons" placeholder="Basis of certification — REQUIRED if certifying less than claimed; this wording goes to the supplier as the payment/pay-less notice." style="width:100%;min-height:70px;padding:10px 12px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;font-size:0.9rem;"></textarea>
+    <p class="muted" style="font-size:0.8rem;margin-top:8px;">Retention is computed automatically: 5% of the certified sum, capped at 5% of order value in the retention ledger.</p>
+    <div style="margin-top:10px;">
+      <button class="btn-block" id="pc-submit" style="width:auto;padding:12px 24px;">Certify &amp; issue payment notice</button>
+      <button class="btn-run" id="pc-cancel" style="margin-left:8px;">Cancel</button>
+    </div>
+  </div>`;
+  document.getElementById("pc-cancel").addEventListener("click", () => (holder.innerHTML = ""));
+  document.getElementById("pc-submit").addEventListener("click", async () => {
+    const btn = document.getElementById("pc-submit");
+    btn.disabled = true;
+    try {
+      await api(`/api/payments/${p.id}/certify`, {
+        method: "POST",
+        body: JSON.stringify({
+          certified: Number(document.getElementById("pc-certified").value),
+          cisDeduction: Number(document.getElementById("pc-cis").value) || 0,
+          reasons: document.getElementById("pc-reasons").value,
+        }),
+      });
+      holder.innerHTML = "";
+      await loadPayments();
+      refreshBell();
+      alert("Certified — payment notice emailed to the supplier and the retention ledger updated.");
+    } catch (err) { alert(err.message); btn.disabled = false; }
+  });
+  holder.scrollIntoView({ behavior: "smooth", block: "start" });
+});
 
 ["sup-filter-status", "sup-filter-capability"].forEach((id) =>
   document.getElementById(id)?.addEventListener("change", renderSuppliers)
@@ -763,6 +890,25 @@ function pqqAnswersHtml(app_) {
 }
 
 document.addEventListener("click", async (e) => {
+  const onboard = e.target.closest("button[data-onboard]");
+  if (onboard) {
+    const app_ = applications.find((a) => a.id === onboard.dataset.onboard);
+    if (!app_) return;
+    if (app_.portalSentAt && !confirm("Re-sending issues a NEW portal link and invalidates the old one. Continue?")) return;
+    onboard.disabled = true;
+    onboard.textContent = "Sending…";
+    try {
+      const { link } = await api(`/api/subcontractors/${app_.id}/onboarding/send`, { method: "POST" });
+      await load();
+      refreshBell();
+      alert(`Supplier portal sent to ${app_.email}.\n${link}`);
+    } catch (err) {
+      alert(err.message);
+      onboard.disabled = false;
+      onboard.textContent = "Onboard";
+    }
+    return;
+  }
   const send = e.target.closest("button[data-pqq-send]");
   if (!send) return;
   const app_ = applications.find((a) => a.id === send.dataset.pqqSend);
@@ -934,7 +1080,8 @@ function renderApplications() {
         <td>${statusSelect(a.status, APPLICATION_STATUS, "/api/subcontractors", a.id)}
             ${a.assessment ? `<div style="margin-top:6px;"><span class="pill ${a.assessment.outcome === "prequalify" ? "approved" : a.assessment.outcome === "fail" || a.assessment.outcome === "decline" ? "declined" : ""}" title="${esc(a.assessment.reason || "")} — assessed by ${esc(a.assessment.assessor)}">${esc(a.assessment.outcome)} · ${a.assessment.weightedPct}%</span></div>` : ""}
             ${a.pqq ? `<div style="margin-top:6px;"><span class="pill approved" title="Questionnaire submitted ${when(a.pqq.submittedAt)} with ${a.pqq.documents?.length || 0} document(s)">PQQ received</span></div>` : a.pqqSentAt ? `<div style="margin-top:6px;"><span class="pill" title="Sent by ${esc(a.pqqSentBy || "")} — link valid 30 days">PQQ sent ${when(a.pqqSentAt)}</span></div>` : ""}
-            ${ACCESS.DELIVERY_FINANCE.includes(user.role) ? `<div style="margin-top:6px;"><button class="btn-run" data-assess="${a.id}">${a.assessment ? "Re-assess" : "Assess"}</button> <button class="btn-run" data-pqq-send="${a.id}" title="Email the supplier the twelve-section evidence questionnaire">${a.pqqSentAt || a.pqq ? "Re-send PQQ" : "Send PQQ"}</button></div>` : ""}
+            ${a.onboarding ? `<div style="margin-top:6px;"><span class="pill ${a.bankVerified ? "approved" : "critical"}" title="${a.bankVerified ? "Payment account verified by call-back" : "Onboarded — verify the payment account by call-back in Suppliers → Applications for payment"}">${a.bankVerified ? "onboarded · bank verified" : "onboarded · VERIFY BANK"}</span></div>` : a.portalSentAt ? `<div style="margin-top:6px;"><span class="pill" title="Portal issued by ${esc(a.portalSentBy || "")}">portal sent ${when(a.portalSentAt)}</span></div>` : ""}
+            ${ACCESS.DELIVERY_FINANCE.includes(user.role) ? `<div style="margin-top:6px;"><button class="btn-run" data-assess="${a.id}">${a.assessment ? "Re-assess" : "Assess"}</button> <button class="btn-run" data-pqq-send="${a.id}" title="Email the supplier the twelve-section evidence questionnaire">${a.pqqSentAt || a.pqq ? "Re-send PQQ" : "Send PQQ"}</button>${["prequalified", "approved"].includes(a.status) ? ` <button class="btn-run" data-onboard="${a.id}" title="Issue the supplier portal: payment structure, framework terms, then applications for payment">${a.portalSentAt ? "Re-send portal" : "Onboard"}</button>` : ""}</div>` : ""}
             ${user.role === "admin" ? `<div style="margin-top:6px;"><button class="btn-run" data-del="${a.id}" data-del-endpoint="/api/subcontractors" data-del-label="registration from ${esc(a.legalName)}">Delete</button></div>` : ""}</td>
       </tr>`
     );

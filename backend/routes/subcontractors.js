@@ -13,6 +13,8 @@ import { APPLICATION_STATUS, ACCESS } from "../../shared/constants.js";
 import { PREQUAL_CRITERIA, PQQ_SECTIONS, PQQ_DOCUMENTS_CHECKLIST, assessScores } from "../lib/prequal.js";
 import { draftPrequal } from "../lib/ai.js";
 import { requireHuman } from "../lib/humancheck.js";
+import { ONBOARDING_SECTIONS, SUPPLIER_TERMS, SENSITIVE_FIELDS, maskAccount } from "../lib/supplierflow.js";
+import { getSettings, saveSettings } from "../lib/store.js";
 import crypto from "node:crypto";
 
 const router = Router();
@@ -106,6 +108,146 @@ router.post("/pqq/:token", acceptDocuments, async (req, res) => {
     vars: { company: application.legalName, value: pqqDocuments.length },
   }).catch(() => {});
   res.json({ ok: true, message: "Questionnaire received. Our team will assess it and confirm the outcome by email." });
+});
+
+// ------------------------------------------------- supplier portal (post-PQQ)
+
+const findByPortalToken = (token) => {
+  if (!/^[a-f0-9]{32}$/.test(String(token || ""))) return null;
+  const app_ = collection("subcontractors").find((a) => a.portalToken === token);
+  if (!app_ || app_.status === "restricted" || app_.status === "declined") return null;
+  return app_;
+};
+
+const nextAppNumber = () => {
+  const counters = { ...(getSettings().pay_counters || {}) };
+  const key = `PAY-${new Date().getFullYear()}`;
+  counters[key] = (counters[key] || 0) + 1;
+  saveSettings({ pay_counters: counters });
+  return `${key}-${String(counters[key]).padStart(3, "0")}`;
+};
+
+/** What a supplier may see of their own payment application. */
+const publicPayApp = (p) => ({
+  id: p.id, number: p.number, period: p.period, poRef: p.poRef, description: p.description,
+  claimed: p.claimed, grossToDate: p.grossToDate, status: p.status,
+  certified: p.certified, retention: p.retention, cisDeduction: p.cisDeduction,
+  netPayable: p.netPayable, certReasons: p.certReasons, paymentDueDate: p.paymentDueDate,
+  receivedAt: p.receivedAt, paidAt: p.paidAt, documents: (p.documents || []).map((d) => d.name),
+});
+
+/**
+ * POST /api/subcontractors/:id/onboarding/send — issue (or re-issue)
+ * the supplier portal: onboarding first, applications for payment once
+ * bank details are verified. Re-sending rotates the token.
+ */
+router.post("/:id/onboarding/send", requireAuth, requireRole(...ACCESS.DELIVERY_FINANCE), async (req, res) => {
+  const application = collection("subcontractors").find((a) => a.id === req.params.id);
+  if (!application) return res.status(404).json({ error: "Application not found." });
+  if (!["prequalified", "approved"].includes(application.status)) {
+    return res.status(400).json({ error: "Onboarding is for prequalified or approved suppliers — assess the registration first." });
+  }
+  if (!application.email) return res.status(400).json({ error: "This registration has no email address." });
+  const token = crypto.randomBytes(16).toString("hex");
+  update("subcontractors", application.id, { portalToken: token, portalSentAt: Date.now(), portalSentBy: req.user.name });
+  const link = `${SITE_URL}/supplier-portal?t=${token}`;
+  await emit("supplier.onboarding.sent", {
+    email: application.email,
+    greeting: application.contact,
+    vars: { company: application.legalName },
+    detailsText: `Your supplier portal (keep this link private to your commercial team):\n${link}\n\nFramework terms in brief:\n${SUPPLIER_TERMS.map((t) => `• ${t}`).join("\n")}`,
+  });
+  res.json({ sent: true, link });
+});
+
+/** GET /api/subcontractors/portal/:token — public: portal state for this supplier. */
+router.get("/portal/:token", (req, res) => {
+  const application = findByPortalToken(req.params.token);
+  if (!application) return res.status(404).json({ error: "This portal link is invalid, or the account is not active. Contact contact@etablix.com." });
+  const mine = collection("payApps").filter((p) => p.supplierId === application.id).sort((a, b) => b.receivedAt - a.receivedAt);
+  res.json({
+    company: application.legalName,
+    contact: application.contact,
+    status: application.status,
+    onboarded: Boolean(application.onboarding),
+    bankVerified: Boolean(application.bankVerified),
+    bankOnFile: application.onboarding ? maskAccount(application.onboarding.answers.bank_account) : null,
+    sections: application.onboarding ? undefined : ONBOARDING_SECTIONS,
+    terms: SUPPLIER_TERMS,
+    applications: mine.map(publicPayApp),
+  });
+});
+
+/** POST /api/subcontractors/portal/:token/onboarding — public: payment structure + declarations. */
+router.post("/portal/:token/onboarding", async (req, res) => {
+  const application = findByPortalToken(req.params.token);
+  if (!application) return res.status(404).json({ error: "This portal link is invalid." });
+  const answers = req.body?.answers || {};
+  const clean = {};
+  const missing = [];
+  for (const section of ONBOARDING_SECTIONS) {
+    for (const f of section.fields) {
+      const raw = answers[f.id];
+      if (f.type === "declaration") {
+        clean[f.id] = raw === true || raw === "true";
+        if (f.required && !clean[f.id]) missing.push(f.label);
+      } else {
+        clean[f.id] = String(raw ?? "").trim().slice(0, 300);
+        if (f.required && !clean[f.id]) missing.push(f.label);
+        else if (f.pattern && clean[f.id] && !new RegExp(f.pattern).test(clean[f.id].replace(/\s/g, ""))) {
+          missing.push(`${f.label} (check the format)`);
+        }
+      }
+    }
+  }
+  if (missing.length) return res.status(400).json({ error: `Please complete: ${missing[0]}${missing.length > 1 ? ` (and ${missing.length - 1} more)` : ""}` });
+
+  // New or changed bank details always re-lock payment until a human re-verifies.
+  update("subcontractors", application.id, {
+    onboarding: { answers: clean, submittedAt: Date.now() },
+    bankVerified: false,
+  });
+  emit("supplier.onboarding.received", {
+    vars: { company: application.legalName },
+    detailsText: `Director call-back contact given: ${clean.director_contact}\nCIS status declared: ${clean.cis_status}\nAccount: ${maskAccount(clean.bank_account)} — full details visible to Delivery & Finance in the Control Desk.`,
+  }).catch(() => {});
+  res.json({ ok: true, message: "Onboarding received. We verify bank details by call-back before any payment — you can raise applications for payment as soon as that's done." });
+});
+
+/** POST /api/subcontractors/portal/:token/applications — public: raise an application for payment (multipart, evidence). */
+router.post("/portal/:token/applications", acceptDocuments, async (req, res) => {
+  const application = findByPortalToken(req.params.token);
+  if (!application) return res.status(404).json({ error: "This portal link is invalid." });
+  if (!application.onboarding) return res.status(400).json({ error: "Complete onboarding before raising an application for payment." });
+
+  const period = String(req.body.period || "").trim().slice(0, 20);
+  const poRef = String(req.body.poRef || "").trim().slice(0, 60);
+  const description = String(req.body.description || "").trim().slice(0, 2000);
+  const claimed = Number(req.body.claimed);
+  const grossToDate = Number(req.body.grossToDate) || 0;
+  if (!period) return res.status(400).json({ error: "Give the valuation period (e.g. 2026-09)." });
+  if (!poRef) return res.status(400).json({ error: "Give the ETABLIX order / package reference from your PO." });
+  if (!Number.isFinite(claimed) || claimed <= 0) return res.status(400).json({ error: "Enter the sum applied for this period (£)." });
+  if (description.length < 10) return res.status(400).json({ error: "Describe the work this application covers — this is assessed against evidence." });
+
+  const payApp = insert("payApps", {
+    number: nextAppNumber(),
+    supplierId: application.id,
+    supplier: application.legalName,
+    period, poRef, description,
+    claimed: Number(claimed.toFixed(2)),
+    grossToDate: Number(grossToDate.toFixed(2)),
+    documents: describeFiles(req.files),
+    status: "received",
+    receivedAt: Date.now(),
+    // HGCRA-compliant terms accepted at onboarding: 30 days from a compliant application.
+    paymentDueDate: Date.now() + 30 * 86400000,
+  });
+  emit("payment.application.received", {
+    vars: { reference: payApp.number, company: application.legalName, value: `£${payApp.claimed.toLocaleString("en-GB")}` },
+    detailsText: `Period: ${period}\nOrder ref: ${poRef}\nGross to date claimed: £${grossToDate.toLocaleString("en-GB")}\nEvidence files: ${payApp.documents.length}\n\n${description}`,
+  }).catch(() => {});
+  res.status(201).json({ ok: true, application: publicPayApp(payApp), message: `Application ${payApp.number} received. You will get our payment notice once it is assessed.` });
 });
 
 /** GET /api/subcontractors/prequal-criteria — the scorecard definition. */
