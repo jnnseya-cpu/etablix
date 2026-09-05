@@ -303,12 +303,14 @@ async function loadVeryx() {
 }
 
 document.addEventListener("click", async (e) => {
-  const btn = e.target.closest("button.btn-run");
+  // Only the VERYX "Run now" buttons — .btn-run is a shared style class
+  // used by many other actions, which must never trigger an agent run.
+  const btn = e.target.closest("button[data-agent]");
   if (!btn) return;
   btn.disabled = true;
   btn.textContent = "Running…";
   try {
-    await api(`/api/veryx/agents/${btn.dataset.agent}/run`, { method: "POST" });
+    await api(`/api/veryx/agents/${encodeURIComponent(btn.dataset.agent)}/run`, { method: "POST" });
     loaded.delete("veryx");
     await loadVeryx();
     loaded.add("veryx");
