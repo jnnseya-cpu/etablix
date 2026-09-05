@@ -48,6 +48,23 @@ export const ONBOARDING_SECTIONS = [
   ]},
 ];
 
+/**
+ * Mutual confidentiality undertaking accepted in the portal before an
+ * enquiry pack opens. Electronic acceptance is recorded with the
+ * signatory's name, position and timestamp. Have construction counsel
+ * review this wording periodically, per the enterprise risk register.
+ */
+export const NDA_TEXT = [
+  "This Confidentiality Undertaking is made between JNN GLOBAL LTD trading as ETABLIX (Company No. 15405437) (\"ETABLIX\") and the supplier named in the acceptance record (\"the Supplier\"), in connection with the enquiry to which it is attached (\"the Purpose\").",
+  "1. Confidential Information means all information disclosed by either party in connection with the Purpose — including project identities, client identities, requirements, specifications, programmes, commercial terms and pricing — whether marked confidential or not.",
+  "2. Each party shall use the other's Confidential Information solely for the Purpose, and shall disclose it only to its personnel and professional advisers who need it for the Purpose and are bound by equivalent obligations.",
+  "3. Neither party shall disclose the existence or content of the enquiry, nor the identity of ETABLIX's client or project, to any third party without prior written consent.",
+  "4. These obligations do not apply to information that is or becomes public other than by breach, was lawfully known before disclosure, is independently developed, or must be disclosed by law or a regulator.",
+  "5. The Supplier's pricing and tender return will be treated by ETABLIX as the Supplier's Confidential Information on the same terms.",
+  "6. On request, each party shall return or destroy the other's Confidential Information, save for copies required by law or professional regulation.",
+  "7. This undertaking takes effect on electronic acceptance, continues for three years, does not oblige either party to enter any further contract, and is governed by the laws of England and Wales.",
+];
+
 /** Field ids whose values are sensitive — masked outside finance views. */
 export const SENSITIVE_FIELDS = ["bank_sort", "bank_account"];
 

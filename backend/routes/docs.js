@@ -167,7 +167,7 @@ router.get("/templates", requireAuth, deliveryFinance, (req, res) =>
 
 // ---------------------------------------------------------------- generation
 
-function nextNumber(prefix) {
+export function nextNumber(prefix) {
   const counters = { ...(getSettings().doc_counters || {}) };
   const year = new Date().getFullYear();
   const key = `${prefix}-${year}`;

@@ -13,7 +13,7 @@ import { APPLICATION_STATUS, ACCESS } from "../../shared/constants.js";
 import { PREQUAL_CRITERIA, PQQ_SECTIONS, PQQ_DOCUMENTS_CHECKLIST, assessScores } from "../lib/prequal.js";
 import { draftPrequal } from "../lib/ai.js";
 import { requireHuman } from "../lib/humancheck.js";
-import { ONBOARDING_SECTIONS, SUPPLIER_TERMS, SENSITIVE_FIELDS, maskAccount } from "../lib/supplierflow.js";
+import { ONBOARDING_SECTIONS, SUPPLIER_TERMS, NDA_TEXT, maskAccount } from "../lib/supplierflow.js";
 import { getSettings, saveSettings } from "../lib/store.js";
 import crypto from "node:crypto";
 
@@ -160,11 +160,29 @@ router.post("/:id/onboarding/send", requireAuth, requireRole(...ACCESS.DELIVERY_
   res.json({ sent: true, link });
 });
 
+/** What a supplier may see of one of their engagements. The scope and
+ * documents stay sealed until the NDA is accepted (when required). */
+const publicEngagement = (e) => {
+  const ndaOpen = !e.ndaRequired || Boolean(e.nda);
+  return {
+    id: e.id, title: e.title, returnBy: e.returnBy, status: e.status,
+    ndaRequired: e.ndaRequired, ndaAccepted: Boolean(e.nda),
+    // Project identity and requirement open only once confidentiality holds.
+    project: ndaOpen ? e.project : null,
+    scope: ndaOpen ? e.scope : null,
+    documents: ndaOpen ? (e.documents || []).map((d) => ({ name: d.name, stored: d.stored })) : (e.documents || []).length,
+    quote: e.quote ? { sum: e.quote.sum, programme: e.quote.programme, notes: e.quote.notes, at: e.quote.at } : null,
+    poNumber: e.poNumber, agreedSum: e.agreedSum,
+    decisionNote: e.status === "declined" ? e.decisionNote : undefined,
+  };
+};
+
 /** GET /api/subcontractors/portal/:token — public: portal state for this supplier. */
 router.get("/portal/:token", (req, res) => {
   const application = findByPortalToken(req.params.token);
   if (!application) return res.status(404).json({ error: "This portal link is invalid, or the account is not active. Contact contact@etablix.com." });
   const mine = collection("payApps").filter((p) => p.supplierId === application.id).sort((a, b) => b.receivedAt - a.receivedAt);
+  const engagements = collection("engagements").filter((e) => e.supplierId === application.id).sort((a, b) => b.createdAt - a.createdAt);
   res.json({
     company: application.legalName,
     contact: application.contact,
@@ -174,8 +192,69 @@ router.get("/portal/:token", (req, res) => {
     bankOnFile: application.onboarding ? maskAccount(application.onboarding.answers.bank_account) : null,
     sections: application.onboarding ? undefined : ONBOARDING_SECTIONS,
     terms: SUPPLIER_TERMS,
+    ndaText: NDA_TEXT,
+    engagements: engagements.map(publicEngagement),
     applications: mine.map(publicPayApp),
   });
+});
+
+/** POST .../engagements/:eid/nda — public: electronically accept the confidentiality undertaking. */
+router.post("/portal/:token/engagements/:eid/nda", (req, res) => {
+  const application = findByPortalToken(req.params.token);
+  if (!application) return res.status(404).json({ error: "This portal link is invalid." });
+  const engagement = collection("engagements").find((e) => e.id === req.params.eid && e.supplierId === application.id);
+  if (!engagement) return res.status(404).json({ error: "Enquiry not found." });
+  if (engagement.nda) return res.json({ ok: true, engagement: publicEngagement(engagement) });
+  const name = String(req.body?.name || "").trim().slice(0, 120);
+  const position = String(req.body?.position || "").trim().slice(0, 120);
+  if (name.length < 3 || position.length < 2 || req.body?.accepted !== true) {
+    return res.status(400).json({ error: "Give the signatory's full name and position, and tick the acceptance." });
+  }
+  const updated = update("engagements", engagement.id, {
+    nda: { name, position, at: Date.now() },
+    status: engagement.status === "sent" ? "nda_accepted" : engagement.status,
+  });
+  emit("supplier.nda_accepted", {
+    vars: { company: application.legalName, item: engagement.title, actor: `${name} (${position})` },
+  }).catch(() => {});
+  res.json({ ok: true, engagement: publicEngagement(updated) });
+});
+
+/** GET .../engagements/:eid/files/:stored — public: download an enquiry document, NDA-gated. */
+router.get("/portal/:token/engagements/:eid/files/:stored", (req, res) => {
+  const application = findByPortalToken(req.params.token);
+  if (!application) return res.status(404).send("Invalid link.");
+  const engagement = collection("engagements").find((e) => e.id === req.params.eid && e.supplierId === application.id);
+  if (!engagement) return res.status(404).send("Not found.");
+  if (engagement.ndaRequired && !engagement.nda) return res.status(403).send("Accept the confidentiality undertaking first.");
+  const doc = (engagement.documents || []).find((d) => d.stored === req.params.stored);
+  if (!doc) return res.status(404).send("Not found.");
+  res.download(path.join(UPLOAD_DIR, doc.stored), doc.name);
+});
+
+/** POST .../engagements/:eid/quote — public: submit the priced return (multipart). */
+router.post("/portal/:token/engagements/:eid/quote", acceptDocuments, async (req, res) => {
+  const application = findByPortalToken(req.params.token);
+  if (!application) return res.status(404).json({ error: "This portal link is invalid." });
+  const engagement = collection("engagements").find((e) => e.id === req.params.eid && e.supplierId === application.id);
+  if (!engagement) return res.status(404).json({ error: "Enquiry not found." });
+  if (engagement.ndaRequired && !engagement.nda) return res.status(400).json({ error: "Accept the confidentiality undertaking before pricing." });
+  if (["po_issued", "declined"].includes(engagement.status)) return res.status(400).json({ error: "This enquiry has already been decided." });
+  const sum = Number(req.body.sum);
+  const programme = String(req.body.programme || "").trim().slice(0, 300);
+  const notes = String(req.body.notes || "").trim().slice(0, 4000);
+  if (!Number.isFinite(sum) || sum <= 0) return res.status(400).json({ error: "Enter your price (£, excl. VAT)." });
+  if (!programme) return res.status(400).json({ error: "Give your programme / lead time (e.g. mobilise in 4 weeks, 12-week duration)." });
+
+  const updated = update("engagements", engagement.id, {
+    quote: { sum: Number(sum.toFixed(2)), programme, notes, documents: describeFiles(req.files), at: Date.now() },
+    status: "quoted",
+  });
+  emit("supplier.bid_received", {
+    vars: { company: application.legalName, item: engagement.title, value: `£${updated.quote.sum.toLocaleString("en-GB")}` },
+    detailsText: `Programme: ${programme}${notes ? `\nClarifications / exclusions:\n${notes}` : ""}${updated.quote.documents.length ? `\nAttachments: ${updated.quote.documents.map((d) => d.name).join(", ")}` : ""}`,
+  }).catch(() => {});
+  res.json({ ok: true, engagement: publicEngagement(updated), message: "Quotation received. We will confirm the outcome — a purchase order if agreed." });
 });
 
 /** POST /api/subcontractors/portal/:token/onboarding — public: payment structure + declarations. */

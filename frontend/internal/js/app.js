@@ -400,7 +400,118 @@ async function loadSuppliers() {
     const block = document.getElementById("payments-block");
     if (block) block.style.display = "none";
   });
+  loadEngagements().catch(() => {
+    const block = document.getElementById("engagements-block");
+    if (block) block.style.display = "none";
+  });
 }
+
+// ---------- Enquiries & orders (NDA → quote → PO) ----------
+
+let engRows = [];
+
+const ENG_LABEL = { sent: "sent", nda_accepted: "NDA accepted", quoted: "QUOTED — decide", po_issued: "PO issued", declined: "declined" };
+
+function renderEngagements() {
+  const tbody = document.querySelector("#engagements-table tbody");
+  if (!tbody) return;
+  tbody.innerHTML = engRows.length
+    ? engRows.map((e) => `<tr>
+        <td><b>${esc(e.title)}</b><div class="muted">${esc(e.project)}${e.documents?.length ? ` · ${e.documents.length} doc(s)` : ""}</div></td>
+        <td>${esc(e.supplier)}${e.supplierOnboarded ? "" : '<div class="muted" style="font-size:0.75rem;">not onboarded yet</div>'}</td>
+        <td>${esc(e.returnBy)}</td>
+        <td>${e.ndaRequired ? (e.nda ? `<span class="pill approved" title="Accepted by ${esc(e.nda.name)} (${esc(e.nda.position)}) on ${when(e.nda.at)}">signed</span>` : '<span class="pill">pending</span>') : '<span class="muted">n/a</span>'}</td>
+        <td>${e.quote ? `<b>${money(e.quote.sum)}</b><div class="muted" style="font-size:0.75rem;">${esc(e.quote.programme)}</div>` : "—"}</td>
+        <td><span class="pill ${e.status === "po_issued" ? "approved" : e.status === "quoted" ? "critical" : e.status === "declined" ? "declined" : ""}">${esc(ENG_LABEL[e.status] || e.status)}</span>${e.poNumber ? `<div class="muted" style="font-size:0.75rem;">${esc(e.poNumber)} · ${money(e.agreedSum)}</div>` : ""}</td>
+        <td>${e.status === "quoted" ? `<button class="btn-run" data-eng-accept="${e.id}">Accept → PO</button> <button class="btn-run" data-eng-decline="${e.id}">Decline</button>` : ""}
+            ${user.role === "admin" ? `<button class="btn-run" data-eng-del="${e.id}">Delete</button>` : ""}</td>
+      </tr>`).join("")
+    : '<tr><td colspan="7" class="empty-note">No enquiries yet — send the first one above.</td></tr>';
+}
+
+async function loadEngagements() {
+  const { engagements } = await api("/api/engagements");
+  engRows = engagements;
+  const sel = document.getElementById("eng-supplier");
+  if (sel) {
+    const usable = supplierRows.filter((s) => ["prequalified", "approved"].includes(s.status));
+    sel.innerHTML = '<option value="">Select supplier…</option>' +
+      usable.map((s) => `<option value="${s.id}">${esc(s.legalName)} — ${esc((s.capability || "").split(";")[0])}</option>`).join("");
+  }
+  renderEngagements();
+}
+
+document.getElementById("eng-ai")?.addEventListener("click", async () => {
+  const btn = document.getElementById("eng-ai");
+  const scope = document.getElementById("eng-scope");
+  btn.disabled = true;
+  btn.textContent = "Agent drafting…";
+  try {
+    const { draft } = await api("/api/engagements/draft-scope", {
+      method: "POST",
+      body: JSON.stringify({
+        title: document.getElementById("eng-title").value,
+        project: document.getElementById("eng-project").value,
+        brief: scope.value,
+      }),
+    });
+    scope.value = draft.scope;
+    scope.style.minHeight = "260px";
+    alert("Detailed scope drafted from your brief — review and edit it before sending. Nothing goes to the supplier unreviewed.");
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "🤖 Expand into a detailed scope of works";
+  }
+});
+
+document.getElementById("eng-form")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = e.target.querySelector("button[type=submit]");
+  btn.disabled = true; btn.textContent = "Sending…";
+  try {
+    const fd = new FormData();
+    fd.set("supplierId", document.getElementById("eng-supplier").value);
+    fd.set("title", document.getElementById("eng-title").value);
+    fd.set("project", document.getElementById("eng-project").value);
+    fd.set("scope", document.getElementById("eng-scope").value);
+    fd.set("returnBy", document.getElementById("eng-return").value);
+    fd.set("ndaRequired", document.getElementById("eng-nda").checked ? "true" : "false");
+    for (const f of document.getElementById("eng-files").files) fd.append("documents", f);
+    const res = await fetch("/api/engagements", { method: "POST", body: fd, headers: { Authorization: `Bearer ${token}` } });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body.error || "Send failed.");
+    e.target.reset();
+    await loadEngagements();
+    refreshBell();
+    alert("Enquiry sent — the supplier prices it in their portal.");
+  } catch (err) { alert(err.message); } finally { btn.disabled = false; btn.textContent = "Send enquiry"; }
+});
+
+document.addEventListener("click", async (e) => {
+  const accept = e.target.closest("button[data-eng-accept]");
+  const decline = e.target.closest("button[data-eng-decline]");
+  const del = e.target.closest("button[data-eng-del]");
+  if (!accept && !decline && !del) return;
+  try {
+    if (del) {
+      if (!confirm("Delete this engagement permanently?")) return;
+      await api(`/api/engagements/${del.dataset.engDel}`, { method: "DELETE" });
+    } else if (decline) {
+      const note = prompt("Feedback to the supplier (optional — sent with the outcome):") ?? "";
+      await api(`/api/engagements/${decline.dataset.engDecline}/decision`, { method: "POST", body: JSON.stringify({ action: "decline", note }) });
+    } else {
+      const row = engRows.find((x) => x.id === accept.dataset.engAccept);
+      const sum = prompt("Agreed sum (£, excl. VAT) — accepting issues the purchase order that forms the contract:", row?.quote?.sum ?? "");
+      if (sum === null) return;
+      const { poNumber } = await api(`/api/engagements/${accept.dataset.engAccept}/decision`, { method: "POST", body: JSON.stringify({ action: "accept", agreedSum: Number(sum) }) });
+      alert(`${poNumber} issued and emailed to the supplier. The formal document is in the Commercial Playbook document register.`);
+    }
+    await loadEngagements();
+    refreshBell();
+  } catch (err) { alert(err.message); }
+});
 
 // ---------- Applications for payment (supplier portal → certify → pay) ----------
 

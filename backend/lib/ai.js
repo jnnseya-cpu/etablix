@@ -288,6 +288,35 @@ You are Agent 7 — Assurance & Evidence, drafting a supplier prequalification p
   };
 }
 
+/**
+ * Agent 3 support for procurement: expand a short package brief into a
+ * deep, priceable scope of works for the supplier enquiry pack. A
+ * DRAFT — the buyer reviews and edits before anything is sent.
+ */
+export async function draftScope({ title, project, brief }) {
+  const { model } = getProvider();
+  const response = await client().messages.create({
+    model,
+    max_tokens: 4000,
+    system: `${COMPANY_BRIEF}
+
+You draft the SCOPE OF WORKS section of an ETABLIX supplier enquiry pack — the text a specialist subcontractor prices against. Write a complete, detailed, unambiguous requirement in plain text (no markdown), under these exact numbered headings:
+1. DESCRIPTION OF THE REQUIREMENT — what, where, for how long.
+2. SCOPE & DELIVERABLES — itemised, with quantities where stated and "TBC by supplier" where genuinely open.
+3. INTERFACES & ATTENDANCES — what ETABLIX/others provide, what the supplier provides.
+4. HSE & COMPLIANCE — CDM 2015 duties, RAMS before mobilisation, site rules, relevant standards.
+5. QUALITY & EVIDENCE — inspection, delivery and completion evidence required for certification.
+6. PROGRAMME — key dates from the brief; reporting cadence.
+7. COMMERCIAL BASIS — fixed price against this scope; ETABLIX framework terms apply (certified payment with evidence, 30-day terms, 5% capped retention, documented change control); domestic reverse charge where CIS applies.
+8. EXCLUSIONS & CLARIFICATIONS REQUIRED — what is excluded, and numbered questions the supplier must answer with their price.
+Use ONLY facts given in the brief — never invent quantities, dates, locations or client identities; where the brief is silent, say "to be confirmed" or put it in section 8. Do not name the end client unless the brief does.`,
+    messages: [{ role: "user", content: `Package title: ${title}\nProject: ${project}\nBuyer's brief:\n${brief}` }],
+  });
+  const text = response.content.filter((b) => b.type === "text").map((b) => b.text).join("").trim();
+  if (!text) throw new Error("The agent returned no draft — try again.");
+  return { scope: text.slice(0, 6000), model: response.model };
+}
+
 /** Run one agent for real. Returns { output, model, usage }. */
 export async function runAgent(agentId, inputs, runBy) {
   const brief = AGENT_BRIEFS[agentId];

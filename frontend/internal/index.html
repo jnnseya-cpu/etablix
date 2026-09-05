@@ -108,6 +108,29 @@
         <div class="login-error" id="sup-message-error" style="margin-top:12px;"></div>
       </form>
     </div>
+    <div class="section-block" id="engagements-block">
+      <h3>Enquiries &amp; orders</h3>
+      <p class="muted" style="font-size:0.85rem;margin:4px 0 12px;">Issue an NDA-gated enquiry pack to a prequalified or approved supplier; they price it in their portal; accepting the quote issues the purchase order that forms their contract.</p>
+      <form id="eng-form">
+        <div class="team-form" style="margin-bottom:10px;">
+          <select id="eng-supplier" required><option value="">Select supplier…</option></select>
+          <input id="eng-title" required minlength="3" placeholder="Package title — e.g. Welfare compound, 200-person">
+          <input id="eng-project" required minlength="2" placeholder="Project (codename if confidential)">
+          <input id="eng-return" type="date" required title="Return date">
+        </div>
+        <textarea id="eng-scope" required minlength="10" placeholder="The requirement the supplier prices — scope, quantities, dates, site constraints…" style="width:100%;min-height:80px;padding:10px 12px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;font-size:0.9rem;margin-bottom:10px;"></textarea>
+        <div style="margin-bottom:10px;"><button class="btn-run" type="button" id="eng-ai" title="The AI engine expands your lines above into a full eight-section scope of works — review and edit before sending">🤖 Expand into a detailed scope of works</button></div>
+        <div class="team-form">
+          <input type="file" id="eng-files" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.dwg" style="border-style:dashed;">
+          <label style="font-size:0.85rem;display:flex;align-items:center;gap:8px;"><input type="checkbox" id="eng-nda" checked> NDA before the pack opens</label>
+          <button class="btn-block" type="submit" style="width:auto;padding:12px 24px;">Send enquiry</button>
+        </div>
+      </form>
+      <div class="table-wrap" style="margin-top:14px;"><table id="engagements-table">
+        <thead><tr><th>Package</th><th>Supplier</th><th>Return by</th><th>NDA</th><th>Quote</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </div>
     <div class="section-block" id="payments-block">
       <h3>Applications for payment <span class="muted" id="pay-kpis" style="font-weight:400;"></span></h3>
       <p class="muted" style="font-size:0.85rem;margin:4px 0 12px;">Raised by suppliers in their portal, certified here against evidence, paid only to call-back-verified accounts. Certifying keeps the retention ledger in the Commercial Playbook current.</p>

@@ -31,6 +31,7 @@ import orgRoutes from "./routes/org.js";
 import docsRoutes from "./routes/docs.js";
 import agentRoutes from "./routes/agents.js";
 import paymentRoutes from "./routes/payments.js";
+import engagementRoutes from "./routes/engagements.js";
 import { startScheduler } from "./lib/automation.js";
 import { issueChallenge } from "./lib/humancheck.js";
 
@@ -66,6 +67,7 @@ app.use("/api/org", orgRoutes); // organisation structure, AI-agent workforce, p
 app.use("/api/docs", docsRoutes); // document studio: invoices, applications, POs, notices
 app.use("/api/agents", agentRoutes); // AI-agent workforce: provider connection, runs, approvals
 app.use("/api/payments", paymentRoutes); // supplier payments: certify, verify bank, remittance
+app.use("/api/engagements", engagementRoutes); // NDA-gated enquiries, quotes, PO award
 
 app.use("/api", (req, res) => res.status(404).json({ error: "Unknown endpoint." }));
 
