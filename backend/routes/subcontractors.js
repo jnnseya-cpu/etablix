@@ -13,6 +13,7 @@ import { APPLICATION_STATUS, ACCESS } from "../../shared/constants.js";
 import { PREQUAL_CRITERIA, PQQ_SECTIONS, PQQ_DOCUMENTS_CHECKLIST, assessScores } from "../lib/prequal.js";
 import { draftPrequal } from "../lib/ai.js";
 import { requireHuman } from "../lib/humancheck.js";
+import { lookupCompany, describeCheck, isConfigured as chConfigured } from "../lib/companieshouse.js";
 import { ONBOARDING_SECTIONS, SUPPLIER_TERMS, NDA_TEXT, maskAccount } from "../lib/supplierflow.js";
 import { getSettings, saveSettings } from "../lib/store.js";
 import crypto from "node:crypto";
@@ -335,15 +336,45 @@ router.get("/prequal-criteria", requireAuth, (req, res) => {
 });
 
 /**
+ * GET /api/subcontractors/:id/companies-house — verify the declared
+ * registration number against the live Companies House register. The
+ * result is stored on the application so the scorecard remembers it.
+ */
+router.get("/:id/companies-house", requireAuth, requireRole(...ACCESS.DELIVERY_FINANCE), async (req, res) => {
+  const application = collection("subcontractors").find((a) => a.id === req.params.id);
+  if (!application) return res.status(404).json({ error: "Application not found." });
+  try {
+    const check = await lookupCompany(application.regNumber);
+    const summary = describeCheck(check, application.legalName);
+    if (check.configured) update("subcontractors", application.id, { chCheck: { ...check, summary } });
+    res.json({ check, summary });
+  } catch (err) {
+    res.status(502).json({ error: err.message });
+  }
+});
+
+/**
  * POST /api/subcontractors/:id/assessment/draft — Agent 7 drafts the
  * scorecard from the registration data. Nothing is saved: the draft
  * returns to the browser for a named human to adjust and record.
+ * When Companies House is configured, the live register check rides
+ * along in the agent's briefing.
  */
 router.post("/:id/assessment/draft", requireAuth, requireRole(...ACCESS.DELIVERY_FINANCE), async (req, res) => {
   const application = collection("subcontractors").find((a) => a.id === req.params.id);
   if (!application) return res.status(404).json({ error: "Application not found." });
   try {
-    const draft = await draftPrequal(application, PREQUAL_CRITERIA);
+    let chSummary = null;
+    if (chConfigured()) {
+      try {
+        const check = await lookupCompany(application.regNumber);
+        chSummary = describeCheck(check, application.legalName);
+        update("subcontractors", application.id, { chCheck: { ...check, summary: chSummary } });
+      } catch {
+        chSummary = "Companies House check failed on this attempt — verify the registration number manually.";
+      }
+    }
+    const draft = await draftPrequal(application, PREQUAL_CRITERIA, { chSummary });
     res.json({ draft });
   } catch (err) {
     const msg = /authentication|invalid.*key/i.test(err.message)

@@ -17,6 +17,13 @@ document.querySelectorAll(".main-nav a").forEach((a) => {
   if (href === here) a.classList.add("active");
 });
 
+// First-party page-view beacon — counts only (path + referrer host),
+// no cookies and no identifiers, so no consent banner is needed.
+try {
+  const hit = JSON.stringify({ p: location.pathname, r: document.referrer || "" });
+  navigator.sendBeacon?.("/api/stats/hit", new Blob([hit], { type: "application/json" }));
+} catch {}
+
 // Reveal-on-scroll.
 const observer = new IntersectionObserver(
   (entries) => {

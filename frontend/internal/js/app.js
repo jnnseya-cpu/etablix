@@ -1079,6 +1079,10 @@ document.addEventListener("click", async (e) => {
   holder.innerHTML = `<div class="section-block" style="border:1.5px solid var(--amber,#9c7a3c);border-radius:10px;padding:18px 22px;margin-top:18px;">
     <h3>Prequalification assessment — ${esc(app_.legalName)}</h3>
     <p class="muted" style="margin:4px 0 12px;">Score each criterion 0 (no evidence / unacceptable) to 5 (strong, evidenced). Four criteria are <b>critical</b>: a zero fails the assessment outright; below 2 caps it at conditional. The registered documents are in the table above.</p>
+    <div style="border-left:3px solid var(--line);padding:8px 0 8px 14px;margin:10px 0;font-size:0.85rem;">
+      <b>Companies House:</b> <span id="pq-ch-result" class="muted">${esc(app_.chCheck?.summary || "not checked yet")}</span>
+      <button class="btn-run" id="pq-ch" style="margin-left:8px;">${app_.chCheck ? "Re-check register" : "Check register"}</button>
+    </div>
     ${pqqAnswersHtml(app_)}
     <div class="table-wrap"><table style="font-size:0.88rem;"><thead><tr><th>Criterion</th><th>Weight</th><th>Evidence to look for</th><th style="width:70px;">Score</th></tr></thead><tbody>
       ${prequalCriteria.map((c) => `<tr>
@@ -1108,6 +1112,22 @@ document.addEventListener("click", async (e) => {
   holder.querySelectorAll("select[data-pq]").forEach((s) => s.addEventListener("change", refresh));
   refresh();
   document.getElementById("pq-cancel").addEventListener("click", () => (holder.innerHTML = ""));
+  document.getElementById("pq-ch").addEventListener("click", async () => {
+    const chBtn = document.getElementById("pq-ch");
+    const out = document.getElementById("pq-ch-result");
+    chBtn.disabled = true;
+    out.textContent = "Checking the live register…";
+    try {
+      const { summary } = await api(`/api/subcontractors/${app_.id}/companies-house`);
+      out.textContent = summary;
+      out.className = /NOT FOUND|FLAGS/.test(summary) ? "" : "muted";
+      chBtn.textContent = "Re-check register";
+    } catch (err) {
+      out.textContent = err.message;
+    } finally {
+      chBtn.disabled = false;
+    }
+  });
   document.getElementById("pq-ai").addEventListener("click", async () => {
     const aiBtn = document.getElementById("pq-ai");
     aiBtn.disabled = true;
@@ -1245,6 +1265,20 @@ async function load() {
   renderEnquiries();
   renderApplications();
 }
+
+// First-party site traffic — 30-day view, straight from the beacon data.
+(async () => {
+  try {
+    const t = await api("/api/stats/traffic");
+    const strip = document.getElementById("traffic-strip");
+    if (!strip || !t.total) return;
+    const last7 = t.days.slice(-7).reduce((s, d) => s + d.total, 0);
+    strip.innerHTML = `<b>etablix.com traffic:</b> ${t.total.toLocaleString()} views / 30 days · ${last7.toLocaleString()} last 7 days` +
+      (t.topReferrers.length ? ` · from: ${t.topReferrers.slice(0, 4).map(([r, n]) => `${esc(r)} (${n})`).join(", ")}` : "") +
+      (t.topPaths.length ? ` · top pages: ${t.topPaths.slice(0, 4).map(([p, n]) => `${esc(p)} (${n})`).join(", ")}` : "");
+    strip.style.display = "block";
+  } catch {}
+})();
 
 load().catch((err) => {
   console.error(err);

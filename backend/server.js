@@ -34,6 +34,7 @@ import paymentRoutes from "./routes/payments.js";
 import engagementRoutes from "./routes/engagements.js";
 import { startScheduler } from "./lib/automation.js";
 import { issueChallenge } from "./lib/humancheck.js";
+import { reportError } from "./lib/alerts.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
@@ -72,13 +73,21 @@ app.use("/api/engagements", engagementRoutes); // NDA-gated enquiries, quotes, P
 app.use("/api", (req, res) => res.status(404).json({ error: "Unknown endpoint." }));
 
 // A failing route must answer with JSON, never take the process down.
+// Every 5xx also emails the team through the comms engine (throttled).
 app.use((err, req, res, next) => {
   console.error("Request error:", err);
+  reportError(err, `${req.method} ${req.path}`);
   if (res.headersSent) return next(err);
   res.status(err.status || 500).json({ error: err.message || "Internal error." });
 });
-process.on("unhandledRejection", (err) => console.error("Unhandled rejection:", err));
-process.on("uncaughtException", (err) => console.error("Uncaught exception:", err));
+process.on("unhandledRejection", (err) => {
+  console.error("Unhandled rejection:", err);
+  reportError(err, "unhandled rejection");
+});
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught exception:", err);
+  reportError(err, "uncaught exception");
+});
 
 // --- Static frontends ---
 // HTML/JS/CSS revalidate on every load (a cheap 304 when unchanged), so a
@@ -99,6 +108,7 @@ app.use(express.static(path.join(root, "frontend", "public"), { extensions: ["ht
 // JSON errors for the API, plain 500 elsewhere.
 app.use((err, req, res, next) => {
   console.error(err);
+  reportError(err, `${req.method} ${req.path}`);
   res.status(500).json({ error: "Internal server error." });
 });
 

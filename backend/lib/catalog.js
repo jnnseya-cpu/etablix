@@ -159,6 +159,7 @@ export const CATEGORIES = [
       E("supplier.pqq.sent", "PQQ issued to supplier", "info", "email inapp", "ETABLIX — prequalification questionnaire for {{company}}", "Thank you for registering with ETABLIX. To progress your prequalification, please complete our questionnaire — the secure link is below and remains valid for {{value}} days. It covers financial standing, references, HSE, insurance, quality, ethical standards and working requirements, with document uploads at the end.", { a: "supplier" }),
       E("supplier.pqq.received", "PQQ received", "success", "email inapp", "PQQ received — {{company}}", "{{company}} has completed the prequalification questionnaire ({{value}} document(s) attached). It is ready to assess in the Control Desk — Agent 7 can draft the scorecard from the answers.", {}),
       E("gate.passed", "Prime-bid gate passed", "success", "inapp", "Prime gate passed — {{item}}", "{{actor}} marked the prime-bid gate complete: {{item}}.", {}),
+      E("platform.error", "Platform error detected", "critical", "email inapp", "ETABLIX platform error — {{item}}", "The platform hit an error in {{item}}: {{message}}. Detail below; repeats of the same error are throttled to one alert per hour.", { m: true }),
     ],
   },
   {
