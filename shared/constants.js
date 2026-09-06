@@ -89,6 +89,7 @@ export const CAPABILITIES = [
   "Site medical and first-aid providers",
   "Temporary-works designers",
   "Maintenance and fault-response teams",
+  "Environmental and closeout specialists",
 ];
 
 export const CAPABILITIES_MAX = 5;
