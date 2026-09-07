@@ -29,8 +29,29 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-/** Below this many characters per page, a document is something to look at. */
-const TEXT_PER_PAGE = 800;
+/**
+ * Below this many characters per page, a PDF is something to look at.
+ *
+ * Measured rather than guessed: a page of prose in these packs runs to
+ * about 3,600 characters, a Gantt print to 1,800, an annotation-heavy A1
+ * drawing to 800–1,000, a scan to none.
+ *
+ * The threshold sits deliberately high, because the two mistakes are not
+ * equal. Sending a sparse text PDF as a page to look at costs some payload
+ * and reads correctly anyway. Sending a drawing down the text path
+ * produces label soup that reports itself as a successful extraction —
+ * silent, and the whole reason this module exists. So the doubt goes to
+ * looking at it.
+ */
+const TEXT_PER_PAGE = 2000;
+
+/**
+ * Drawings are lettered in capitals. It is a drafting convention rather
+ * than an accident, and it holds across CAD packages: these test drawings
+ * come out at 87–98% capitals against 7% for prose. It catches a drawing
+ * so covered in notes that it clears the density threshold.
+ */
+const DRAWING_CAPS_RATIO = 0.6;
 
 /** Formats the model can be shown directly. */
 const IMAGE_TYPES = {
@@ -47,6 +68,14 @@ const IMAGE_TYPES = {
  * for the written inputs and the model's reply.
  */
 export const MAX_VISUAL_BYTES = 15 * 1024 * 1024;
+
+/**
+ * Pages of one document the model is asked to look at. A drawing set is
+ * a handful of sheets; a scanned tender pack can be hundreds, and
+ * sending that whole would fail the request outright rather than
+ * degrade. Cap it and say which pages were sent.
+ */
+export const MAX_VISUAL_PAGES = 100;
 
 export const isImage = (name) => Boolean(IMAGE_TYPES[path.extname(String(name || "")).toLowerCase()]);
 
@@ -84,9 +113,17 @@ export function classify(name, extracted) {
   if (ext !== ".pdf") return extracted?.text ? "text" : "unreadable";
 
   const pages = extracted?.pages || 1;
-  const chars = (extracted?.text || "").length;
+  const text = extracted?.text || "";
+  const chars = text.length;
+
   // A scan yields nothing and a drawing yields labels; both are looked at.
-  return chars / pages < TEXT_PER_PAGE ? "visual" : "text";
+  if (chars / pages < TEXT_PER_PAGE) return "visual";
+
+  const letters = (text.match(/[A-Za-z]/g) || []).length;
+  const caps = (text.match(/[A-Z]/g) || []).length;
+  if (letters > 200 && caps / letters > DRAWING_CAPS_RATIO) return "visual";
+
+  return "text";
 }
 
 /**
@@ -97,7 +134,7 @@ export function classify(name, extracted) {
  * nothing can open, comes back with the reason, so the basis of
  * preparation can say what was received and what was actually read.
  */
-export async function visualBlocks(files = [], classifications = new Map()) {
+export async function visualBlocks(files = [], classifications = new Map(), pageCounts = new Map()) {
   const blocks = [];
   const seen = [];
   let budget = MAX_VISUAL_BYTES;
@@ -119,6 +156,15 @@ export async function visualBlocks(files = [], classifications = new Map()) {
           name,
           sent: false,
           reason: `too large to send with the rest of this run (${Math.round(buffer.length / 1e6)} MB). Send it on its own, or supply a reduced-size PDF.`,
+        });
+        continue;
+      }
+      const pages = pageCounts.get(name) || 0;
+      if (pages > MAX_VISUAL_PAGES) {
+        seen.push({
+          name,
+          sent: false,
+          reason: `${pages} pages is too many to look at in one run (limit ${MAX_VISUAL_PAGES}). Send the sheets that matter — a drawing set rather than the whole scanned pack.`,
         });
         continue;
       }

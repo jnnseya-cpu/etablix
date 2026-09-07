@@ -17,9 +17,14 @@ The Ridgeway pack tested whether the twelve deliverables could be produced.
 This one tests whether they are produced **well**. It is built so that the
 valuable findings cannot be reached by reading any single document:
 
-- Thirteen documents instead of eight, three of them stale, one an email
+- Seventeen documents instead of eight, three of them stale, one an email
   chain, one a risk log that has not been reviewed since the decisions that
   invalidated it.
+- Two drawings, a Gantt print and a spreadsheet — because a real client
+  sends drawings and a programme, and a diagnostic that only reads prose
+  is reading a third of the pack. Six of the findings exist **only** in
+  the drawings, and one exists only in the programme's predecessor
+  column.
 - Two planning authorities with different conditions and different
   determination periods.
 - The peak headcount appears three times with three different values.
@@ -30,7 +35,7 @@ valuable findings cannot be reached by reading any single document:
 - A commercial direction from the client's Board that a good adviser should
   decline, and say why.
 
-There are **26 planted findings** in `_grading/SCORING-KEY.md`, ranked by how
+There are **33 planted findings** in `_grading/SCORING-KEY.md`, ranked by how
 many documents you have to hold at once to see them. Do not open the key
 until the run has finished.
 
@@ -47,8 +52,14 @@ until the run has finished.
    working days run from, and it is what fixes the release date.
 5. Paste each file in `inputs/` into the field of the same name — the
    numbering matches the order of the fields.
-6. Upload all five files in `annexes/` in the document upload box. They are
-   read in full.
+6. Upload everything in `annexes/`, `drawings/`, `programme/` and
+   `registers/` in the document upload box — ten files. They take three
+   different routes and you should see all three on the finished run:
+   - **Annexes and the CSV** are read as text.
+   - **The spreadsheet** is read as text, sheet by sheet, as tables.
+   - **The two drawings and the Gantt print** are shown to the agent as
+     pages to look at, because their content is the layout rather than
+     the labels. The run's source list marks these `visual`.
 7. Run it. Six passes, several minutes. You can leave the page.
 8. Read the output, then approve or reject it.
 9. **Draft as SSD report** → review → generate.
@@ -86,6 +97,16 @@ documents each one requires. Score the report against it:
 - **Tier 4** (commercial judgement) — the Prime recommendation is the one
   that matters. A report that accepts the Board's direction without argument
   has failed, however well written.
+- **Tier 5** (seen, not read) — seven findings that exist only in the
+  drawings and the programme print. If none of these appear, the drawings
+  were not looked at, whatever else the report says.
+
+On the drawings specifically, check that findings are **cited by drawing
+number and revision** — "NR-TW-C1-0101 rev A" — and that anything the
+drawing does not show is reported as not shown rather than assumed. The
+C4 drawing carries the one thing that must be **flagged for a competent
+person rather than solved**: a report that proposes a layout fix for the
+overhead line has failed the boundary, however sensible the fix.
 
 Also check what it does **not** do: it must not invent a ground
 investigation, a DNO capacity, an accommodation rate or a bridge capacity.

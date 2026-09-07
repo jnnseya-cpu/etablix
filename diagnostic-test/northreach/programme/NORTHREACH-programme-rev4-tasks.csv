@@ -1,0 +1,30 @@
+ID,Task,Start,Finish,Duration (d),Predecessors,Owner,Notes
+1,PROJECT NORTHREACH — Rev 4,2026-09-01,2030-01-31,1248,,Marrowbridge,
+2,PRE-CONSTRUCTION,2026-09-01,2027-04-05,157,,,
+3,Detailed design — converter station,2026-09-01,2027-06-30,217,,Marrowbridge,
+4,Highway design — A6188 bellmouth,,,,,Framework consultant,NOT COMMISSIONED
+5,Stage 1 Road Safety Audit,,,30,4,Ainsdale DC panel,Cannot start without task 4
+6,Section 278 application and agreement,,,110,5,Ainsdale DC,NOT SUBMITTED
+7,CEMP — joint submission both authorities,2026-10-01,2026-11-26,40,,Consents,8 weeks assumed for both
+8,Construction Logistics Plan approval,2026-05-14,,,,Consents,SUBMITTED 14/05/2026 — NOT APPROVED
+9,Ecological surveys — badger Parcel 7,2026-12-01,2027-01-29,44,,Environment,Survey window Dec–Jun
+10,Badger licence application and determination,,,80,9,Natural England,No licence issued 1 Jul–30 Nov
+11,Vegetation clearance Parcels 4-9,2026-11-02,2027-02-26,84,,Enabling contractor,No clearance 1 Mar–31 Aug
+12,MOBILISATION,2027-04-06,2027-06-29,61,,,
+13,Access to C1 main compound,2027-04-06,2027-04-06,0,3,Marrowbridge,MILESTONE M01
+14,Archaeological evaluation C1 footprint,2027-04-06,2027-05-03,20,13,Archaeologist,4 weeks per condition 34
+15,Compound establishment C1,2027-04-19,2027-06-11,40,13,TW01,
+16,Access to C2 Wetherfield,2027-05-04,2027-05-04,0,,Marrowbridge,MILESTONE M02
+17,Compound establishment C2-C5,2027-05-04,2027-06-29,41,16,TW01,
+18,All compounds complete,2027-06-29,2027-06-29,0,15;17,Marrowbridge,MILESTONE M03
+19,CONSTRUCTION,2027-08-02,2029-03-05,415,,,
+20,Cable trench excavation,2027-08-02,2028-06-30,239,18,PW01,
+21,First cable pull — Ryeford,2028-02-07,2028-02-07,0,20,PW01,MILESTONE M06 — drums via Ryeford Bridge
+22,Ryeford Bridge structural assessment,,,130,,Bridge owner,NOT INSTRUCTED — 26 weeks quoted
+23,Converter hall steel erection,2028-04-03,2028-12-15,185,15,PW02,
+24,TWO-SHIFT WORKING COMMENCES,2028-05-01,2029-03-05,220,,Operations,06:00-14:30 / 14:00-22:30 all parcels
+25,Converter hall envelope complete,2028-12-18,2028-12-18,0,23,PW02,MILESTONE M08
+26,Cable jointing complete,2029-03-05,2029-03-05,0,20,PW05,MILESTONE M09
+27,Energisation,2029-11-12,2029-11-12,0,26,NTP,MILESTONE M10 — FIXED OUTAGE WINDOW
+28,Terminal float,2029-10-15,2029-11-12,20,26,,4 weeks
+29,Reinstatement and demobilisation,2029-11-13,2030-01-31,57,27,TW01?,MILESTONE M11

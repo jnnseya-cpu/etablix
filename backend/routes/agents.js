@@ -86,7 +86,12 @@ async function workPipeline(runId, agent, inputs, runBy, visualFiles = []) {
   try {
     // Build the pages here rather than in the request, so a large
     // drawing set is read on the pipeline's time and not the browser's.
-    const { blocks, seen } = await visualBlocks(visualFiles, new Map(visualFiles.map((f) => [f.originalname || f.filename, "visual"])));
+    const named = (f) => f.originalname || f.filename;
+    const { blocks, seen } = await visualBlocks(
+      visualFiles,
+      new Map(visualFiles.map((f) => [named(f), "visual"])),
+      new Map((collection("agentTasks").find((r) => r.id === runId)?.sources || []).map((sc) => [sc.name, sc.pages || 0]))
+    );
     if (seen.length) {
       const run = collection("agentTasks").find((r) => r.id === runId);
       update("agentTasks", runId, {
