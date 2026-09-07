@@ -14,10 +14,12 @@
  */
 
 import { Router } from "express";
-import { collection, insert } from "../lib/store.js";
-import { requireAuth } from "../middleware/auth.js";
+import { collection, insert, update, remove } from "../lib/store.js";
+import { requireAuth, requireRole } from "../middleware/auth.js";
 import { isConnected, platformFetch, publicIntegration } from "../lib/platforms.js";
 import { portfolio } from "../lib/portfolio.js";
+import { workload, allocationRows, people, DEPARTMENTS } from "../lib/resources.js";
+import { ACCESS } from "../../shared/constants.js";
 
 const router = Router();
 router.use(requireAuth);
@@ -265,5 +267,46 @@ router.get("/summary", safe(async (req, res) => {
  * not something the VERYX platform holds on our behalf.
  */
 router.get("/portfolio", (req, res) => res.json(portfolio()));
+
+/**
+ * GET /resources — the workload rollup, the allocation list, and the
+ * people and projects an allocation can be made against.
+ */
+router.get("/resources", (req, res) => {
+  res.json({
+    workload: workload(),
+    allocations: allocationRows(),
+    people: people(),
+    departments: DEPARTMENTS,
+    projects: collection("projects").map((p) => ({ id: p.id, code: p.code, name: p.name })),
+  });
+});
+
+/** POST /resources/allocations — commit a person's hours to a project. */
+router.post("/resources/allocations", requireRole(...ACCESS.DELIVERY_FINANCE), (req, res) => {
+  const userId = String(req.body?.userId || "").trim();
+  const projectId = String(req.body?.projectId || "").trim();
+  const hours = Number(req.body?.hours);
+  const note = String(req.body?.note || "").trim().slice(0, 200);
+
+  if (!people().some((p) => p.id === userId)) return res.status(400).json({ error: "Choose an active employee." });
+  if (!collection("projects").some((p) => p.id === projectId)) return res.status(400).json({ error: "Choose a project." });
+  if (!Number.isFinite(hours) || hours <= 0 || hours > 400) {
+    return res.status(400).json({ error: "Allocated hours must be between 1 and 400 a month." });
+  }
+
+  const existing = collection("allocations").find((a) => a.userId === userId && a.projectId === projectId);
+  const row = existing
+    ? update("allocations", existing.id, { hours: Math.round(hours), note, by: req.user.name, at: Date.now() })
+    : insert("allocations", { userId, projectId, hours: Math.round(hours), note, by: req.user.name, at: Date.now() });
+  res.status(existing ? 200 : 201).json({ allocation: row, replaced: Boolean(existing) });
+});
+
+/** DELETE /resources/allocations/:id — release the hours. */
+router.delete("/resources/allocations/:id", requireRole(...ACCESS.DELIVERY_FINANCE), (req, res) => {
+  const row = remove("allocations", req.params.id);
+  if (!row) return res.status(404).json({ error: "Allocation not found." });
+  res.json({ deleted: true });
+});
 
 export default router;

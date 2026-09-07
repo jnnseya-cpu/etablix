@@ -7,6 +7,7 @@
 
 import { Router } from "express";
 import { collection, insert, update } from "../lib/store.js";
+import { DEPARTMENTS } from "../lib/resources.js";
 import { hashPassword } from "../lib/auth.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 import { ROLES } from "../../shared/constants.js";
@@ -23,13 +24,15 @@ const publicUser = (u) => ({
   email: u.email,
   role: u.role,
   position: u.position || "",
+  department: u.department || "",
+  capacityHours: Number(u.capacityHours) || 0,
   active: u.active !== false,
   createdAt: u.createdAt || null,
 });
 
 /** GET /api/users — list all employee accounts. */
 router.get("/", (req, res) => {
-  res.json({ users: collection("users").map(publicUser), roles: VALID_ROLES, positions: POSITIONS });
+  res.json({ users: collection("users").map(publicUser), roles: VALID_ROLES, positions: POSITIONS, departments: DEPARTMENTS });
 });
 
 /** POST /api/users — create an employee account. */
@@ -72,6 +75,20 @@ router.patch("/:id", (req, res) => {
   }
   if (req.body.position !== undefined) {
     patch.position = String(req.body.position).trim().slice(0, 120);
+  }
+  // Department and monthly capacity are what make a person countable in
+  // the resource workload rollup. An empty department clears it.
+  if (req.body.department !== undefined) {
+    const d = String(req.body.department).trim();
+    if (d && !DEPARTMENTS.includes(d)) return res.status(400).json({ error: "Choose a valid department." });
+    patch.department = d;
+  }
+  if (req.body.capacityHours !== undefined) {
+    const h = Number(req.body.capacityHours);
+    if (!Number.isFinite(h) || h < 0 || h > 400) {
+      return res.status(400).json({ error: "Capacity must be between 0 and 400 hours a month." });
+    }
+    patch.capacityHours = Math.round(h);
   }
 
   // Guardrails: never lock the business out of its own system.

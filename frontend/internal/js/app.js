@@ -464,6 +464,112 @@ function trendChart(series, note) {
     <p class="muted" style="font-size:0.8rem;">Average percent complete across the portfolio, one point per calendar month. Latest: <b>${last.avgProgress}%</b> across ${last.projects} project${last.projects === 1 ? "" : "s"}.</p>`;
 }
 
+
+/** Resource workload — the ninth panel, live only once real capacity exists. */
+async function workloadPanel() {
+  const d = await api("/api/veryx/resources");
+  const w = d.workload;
+
+  if (w.setupNote) {
+    return `<p class="empty-note">${esc(w.setupNote)}</p>`;
+  }
+
+  const max = Math.max(...w.departments.map((x) => Math.max(x.capacity, x.allocated)), 1);
+  const bars = w.departments
+    .map((x) => {
+      const fill = x.over ? HEALTH_FILL.critical : x.utilisation >= 85 ? HEALTH_FILL.warning : SERIES;
+      return `<tr>
+      <td style="white-space:nowrap;"><b>${esc(x.department)}</b><div class="muted" style="font-size:0.76rem;">${x.people} ${x.people === 1 ? "person" : "people"}</div></td>
+      <td style="width:100%;">
+        <div title="${esc(x.department)}: ${x.allocated} of ${x.capacity} hours a month allocated" style="position:relative;background:${TRACK};height:18px;border-radius:3px;overflow:hidden;">
+          <div style="width:${Math.min(100, (x.allocated / max) * 100)}%;height:100%;background:${fill};border-radius:3px 0 0 3px;"></div>
+          <div aria-hidden="true" style="position:absolute;top:0;left:${Math.min(100, (x.capacity / max) * 100)}%;width:2px;height:100%;background:var(--ink);opacity:0.55;"></div>
+        </div>
+      </td>
+      <td class="muted" style="white-space:nowrap;font-size:0.82rem;">${x.allocated} / ${x.capacity} h · <b>${Math.round(x.utilisation)}%</b>${x.over ? ' <span class="pill alert" style="font-size:0.68rem;">over</span>' : ""}</td>
+    </tr>`;
+    })
+    .join("");
+
+  const allocTable = d.allocations.length
+    ? wrapT2(`<table><thead><tr><th>Person</th><th>Department</th><th>Project</th><th>Hours / month</th><th>Note</th><th></th></tr></thead><tbody>${d.allocations
+        .map(
+          (a) => `<tr${a.valid ? "" : ' style="opacity:0.6;"'}>
+        <td><b>${esc(a.person)}</b></td>
+        <td class="muted">${esc(a.department || "—")}</td>
+        <td>${esc(a.project)}<div class="muted" style="font-size:0.76rem;">${esc(a.projectName)}</div></td>
+        <td><b>${a.hours}</b></td>
+        <td class="muted">${esc(a.note || "—")}</td>
+        <td><button class="btn-run" data-alloc-del="${a.id}">Release</button></td>
+      </tr>`
+        )
+        .join("")}</tbody></table>`)
+    : '<p class="empty-note">No hours allocated yet.</p>';
+
+  const form = `<form id="alloc-form" class="team-form" style="flex-wrap:wrap;">
+      <select name="userId" required><option value="">Person…</option>${d.people
+        .filter((p) => p.hasCapacity)
+        .map((p) => `<option value="${p.id}">${esc(p.name)} · ${esc(p.department)} (${p.capacityHours}h)</option>`)
+        .join("")}</select>
+      <select name="projectId" required><option value="">Project…</option>${d.projects
+        .map((p) => `<option value="${p.id}">${esc(p.code)} — ${esc(p.name)}</option>`)
+        .join("")}</select>
+      <input name="hours" type="number" min="1" max="400" required placeholder="Hours / month" style="width:140px;">
+      <input name="note" placeholder="Note (optional)">
+      <button class="btn-block" type="submit" style="width:auto;padding:12px 20px;">Allocate</button>
+    </form>
+    <p class="muted" style="font-size:0.8rem;margin-top:8px;">Allocating the same person to the same project again replaces the previous figure rather than adding to it.</p>`;
+
+  const caveats = [];
+  if (w.totals.peopleUnrecorded) {
+    caveats.push(
+      `<b>${w.totals.peopleUnrecorded}</b> active ${w.totals.peopleUnrecorded === 1 ? "employee has" : "employees have"} no department or monthly capacity recorded and are not counted: ${w.unrecorded.map((u) => esc(u.name)).join(", ")}. Set both in <b>Team</b>.`
+    );
+  }
+  if (w.orphaned.length) {
+    caveats.push(`<b>${w.orphaned.length}</b> allocation${w.orphaned.length === 1 ? "" : "s"} could not be counted — ${esc(w.orphaned[0].reason)}.`);
+  }
+
+  return (
+    `<p class="muted" style="font-size:0.82rem;margin:0 0 12px;">Hours allocated against hours available, by department. The bar is allocated; the vertical rule is that department's capacity. Amber from 85%, red past capacity.</p>` +
+    wrapT2(`<table><tbody>${bars}</tbody></table>`) +
+    (caveats.length ? `<p class="muted" style="font-size:0.8rem;margin-top:10px;">${caveats.join("<br>")}</p>` : "") +
+    `<div style="margin-top:18px;"><b style="font-size:0.9rem;">Allocations</b></div>` +
+    allocTable +
+    form
+  );
+}
+
+const wrapT2 = (t) => `<div class="table-wrap">${t}</div>`;
+
+document.addEventListener("submit", async (e) => {
+  const form = e.target.closest("#alloc-form");
+  if (!form) return;
+  e.preventDefault();
+  const body = Object.fromEntries([...form.querySelectorAll("[name]")].map((i) => [i.name, i.value]));
+  try {
+    await api("/api/veryx/resources/allocations", { method: "POST", body: JSON.stringify(body) });
+    loaded.delete("veryx");
+    await loadVeryx();
+    loaded.add("veryx");
+  } catch (err) {
+    alert(err.message);
+  }
+});
+
+document.addEventListener("click", async (e) => {
+  const del = e.target.closest("button[data-alloc-del]");
+  if (!del) return;
+  try {
+    await api(`/api/veryx/resources/allocations/${del.dataset.allocDel}`, { method: "DELETE" });
+    loaded.delete("veryx");
+    await loadVeryx();
+    loaded.add("veryx");
+  } catch (err) {
+    alert(err.message);
+  }
+});
+
 async function loadPortfolio() {
   const d = await api("/api/veryx/portfolio");
   const k = d.kpis;
@@ -547,7 +653,8 @@ async function loadPortfolio() {
     block("Projects by sector", sectorBars(d.sectors)) +
     block("Critical path & imminent activities", ms) +
     block("Risks & issues", issues) +
-    block("Monthly progress trend", trendChart(d.trend, d.trendNote))
+    block("Monthly progress trend", trendChart(d.trend, d.trendNote)) +
+    block("Resource workload by department", await workloadPanel())
   );
 }
 
@@ -1230,7 +1337,7 @@ async function loadTeam() {
   loadIntegrations().catch((err) => {
     document.getElementById("integrations-body").innerHTML = `<p class="error-note">${esc(err.message)}</p>`;
   });
-  const { users, roles, positions = [] } = await api("/api/users");
+  const { users, roles, positions = [], departments = [] } = await api("/api/users");
 
   const roleSelect = document.getElementById("team-role");
   roleSelect.innerHTML = roles
@@ -1273,10 +1380,37 @@ async function loadTeam() {
         : `<button class="btn-run" data-user-reset="${u.id}">Reset password</button>
            <button class="btn-run" data-user-toggle="${u.id}" data-active="${u.active}">${u.active ? "Deactivate" : "Reactivate"}</button>`;
       const statusPill = `<span class="pill ${u.active ? "approved" : "declined"}">${u.active ? "Active" : "Deactivated"}</span>`;
-      return `<tr><td><b>${esc(u.name)}</b>${u.position ? `<div class="muted" style="font-size:0.78rem;">${esc(u.position)}</div>` : ""}</td><td>${esc(u.email)}</td><td>${roleCell}</td><td class="muted">${when(u.createdAt)}</td><td>${statusPill}</td><td>${actions}</td></tr>`;
+      // Department and monthly capacity are what make this person count
+      // in the VERYX resource workload rollup.
+      const capacityCell = `<select data-user-dept="${u.id}" style="font-size:0.78rem;">
+          <option value="">Department…</option>
+          ${departments.map((d) => `<option value="${esc(d)}" ${d === u.department ? "selected" : ""}>${esc(d)}</option>`).join("")}
+        </select>
+        <input data-user-capacity="${u.id}" type="number" min="0" max="400" value="${u.capacityHours || ""}"
+               placeholder="h / month" title="Hours a month genuinely available for project work"
+               style="font-size:0.78rem;width:96px;margin-top:4px;">`;
+      return `<tr><td><b>${esc(u.name)}</b>${u.position ? `<div class="muted" style="font-size:0.78rem;">${esc(u.position)}</div>` : ""}</td><td>${esc(u.email)}</td><td>${roleCell}</td><td>${capacityCell}</td><td class="muted">${when(u.createdAt)}</td><td>${statusPill}</td><td>${actions}</td></tr>`;
     })
     .join("");
 }
+
+
+/* Department and capacity save on change — they feed the workload rollup. */
+document.addEventListener("change", async (e) => {
+  const dept = e.target.closest("select[data-user-dept]");
+  const cap = e.target.closest("input[data-user-capacity]");
+  const el = dept || cap;
+  if (!el) return;
+  const id = dept ? dept.dataset.userDept : cap.dataset.userCapacity;
+  const body = dept ? { department: dept.value } : { capacityHours: Number(cap.value) || 0 };
+  try {
+    await api(`/api/users/${id}`, { method: "PATCH", body: JSON.stringify(body) });
+    loaded.delete("veryx"); // the workload rollup has changed
+  } catch (err) {
+    alert(err.message);
+    await loadTeam();
+  }
+});
 
 const teamError = (msg) => {
   const el = document.getElementById("team-error");
