@@ -96,8 +96,11 @@ const lazyLoaders = {
  * find the cash-flow desk" — so the hash is the address of a tool, not
  * decoration. Unknown or hidden panels fall through silently: a link to
  * a tab this role cannot see should do nothing, not throw.
+ *
+ * Resolves once the panel has finished loading, so a caller can write
+ * into it afterwards without racing its render.
  */
-export function openPanel(panel, section) {
+export async function openPanel(panel, section) {
   const btn = tabs.querySelector(`button[data-panel="${CSS.escape(panel)}"]`);
   if (!btn || btn.hidden) return false;
   if (section) {
@@ -108,7 +111,7 @@ export function openPanel(panel, section) {
     // from the playbook index does.
     loaded.delete(panel);
   }
-  btn.click();
+  await activatePanel(btn);
   return true;
 }
 
@@ -121,7 +124,18 @@ window.addEventListener("hashchange", applyHash);
 
 tabs.addEventListener("click", (e) => {
   const btn = e.target.closest("button[data-panel]");
-  if (!btn) return;
+  if (btn) activatePanel(btn);
+});
+
+/**
+ * Show a panel and load it if it has not been loaded yet.
+ *
+ * Returns the loader's promise, so a caller that wants to write into
+ * the panel afterwards — pre-filling a document form, say — can wait
+ * for the panel to finish rendering instead of racing it and having
+ * its work overwritten a moment later.
+ */
+function activatePanel(btn) {
   const panel = btn.dataset.panel;
   if (location.hash.replace(/^#/, "").split("/")[0] !== panel) {
     history.replaceState(null, "", `#${panel}`);
@@ -135,13 +149,14 @@ tabs.addEventListener("click", (e) => {
     panel === "enquiries" || panel === "applications" ? "" : "none";
   if (lazyLoaders[panel] && !loaded.has(panel)) {
     loaded.add(panel);
-    lazyLoaders[panel]().catch((err) => {
+    return lazyLoaders[panel]().catch((err) => {
       loaded.delete(panel);
       const body = document.getElementById(`${panel}-body`);
       if (body) body.innerHTML = `<p class="error-note">${esc(err.message)}</p>`;
     });
   }
-});
+  return Promise.resolve();
+}
 
 // Team management and the communications console are admin-only.
 if (user.role === "admin") {

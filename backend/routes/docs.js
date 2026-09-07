@@ -18,6 +18,7 @@ import { requireAuth, requireRole } from "../middleware/auth.js";
 import { ROLES, ACCESS } from "../../shared/constants.js";
 import { collection, insert, remove, getSettings, saveSettings } from "../lib/store.js";
 import { verifyToken } from "../lib/auth.js";
+import { AGENT_BRIEFS } from "../lib/ai.js";
 
 const router = Router();
 
@@ -62,7 +63,58 @@ const VAT_MODES = [
 const F = (name, label, type = "text", opts = {}) => ({ name, label, type, ...opts });
 const LINES = (label = "Line items") => F("lines", label, "lines");
 
+
+/**
+ * The twelve deliverables of a Site Systems Diagnostic, in the order the
+ * website promises them and the order Agent 8 is required to produce
+ * them. One list drives the document fields, the specimen's contents
+ * page, and the splitter that turns an approved agent run into a draft —
+ * so the promise, the agent and the document can never drift apart.
+ */
+export const DIAGNOSTIC_SECTIONS = [
+  ["s1", "Site-service package map"],
+  ["s2", "Scope-gap assessment"],
+  ["s3", "Supplier-interface matrix"],
+  ["s4", "Workforce-demand profile"],
+  ["s5", "Temporary-utility demand assessment"],
+  ["s6", "Welfare and accommodation requirements"],
+  ["s7", "Mobilisation constraints"],
+  ["s8", "Procurement strategy"],
+  ["s9", "Preliminary risk register"],
+  ["s10", "Indicative cost structure"],
+  ["s11", "Recommended delivery model"],
+  ["s12", "30/60/90-day mobilisation actions"],
+];
+
+/** The two sections the client-facing specimen shows in full. */
+export const SPECIMEN_SECTIONS = ["s3", "s7"];
+
 export const TEMPLATES = [
+  {
+    id: "diagnostic", prefix: "SSD", name: "Site Systems Diagnostic report",
+    description: "The paid entry engagement as an issued document: the one-paragraph findings and all twelve deliverables, branded and numbered in the SSD series. Draft it from an approved Agent 8 run rather than typing it.",
+    fields: [
+      F("client", "Client / organisation", "text", { required: true }),
+      F("project", "Project / site", "text", { required: true }),
+      F("siteRef", "Site reference or location", "text"),
+      F("basis", "Basis of preparation", "textarea", { placeholder: "Information relied on, and what was not provided" }),
+      F("findings", "Findings in one paragraph", "textarea", { required: true }),
+      ...DIAGNOSTIC_SECTIONS.map(([id, label], i) => F(id, `${i + 1}. ${label}`, "textarea")),
+    ],
+  },
+  {
+    id: "specimen", prefix: "SPEC", name: "Diagnostic specimen extract (client-safe)",
+    // What the picker calls it is internal shorthand; what the reader sees is not.
+    documentTitle: "Site Systems Diagnostic — illustrative extract",
+    description: "An illustrative extract for a prospective client: the findings paragraph, two sections in full, and a contents list of the rest. Watermarked SPECIMEN on every page and labelled as a worked example ETABLIX has not delivered — so it can never be mistaken for real client work.",
+    fields: [
+      F("project", "Illustrative project name", "text", { required: true, placeholder: "Worked example — keep it obviously illustrative" }),
+      F("findings", "Findings in one paragraph", "textarea", { required: true }),
+      F("s3", "Shown in full — Supplier-interface matrix", "textarea", { required: true }),
+      F("s7", "Shown in full — Mobilisation constraints (the consent chain)", "textarea", { required: true }),
+      F("note", "Closing note to the reader (optional)", "textarea"),
+    ],
+  },
   {
     id: "invoice", prefix: "INV", name: "Invoice",
     description: "VAT-aware sales invoice with automatic numbering, reverse-charge wording and your bank details.",
@@ -237,6 +289,69 @@ function namingBreach(data) {
   return null;
 }
 
+/**
+ * The draft behind "Draft from an approved agent run".
+ *
+ * Only an approved run is offered: the agent drafts, a competent person
+ * approves, and only then does it become a document ETABLIX would put
+ * its name on. The reply is a draft, not a document — the person still
+ * reviews every section and presses Generate.
+ */
+router.get("/from-run/:id", requireAuth, deliveryFinance, (req, res) => {
+  const run = collection("agentTasks").find((r) => r.id === req.params.id);
+  if (!run) return res.status(404).json({ error: "Run not found." });
+  if (run.agent !== "diagnostic") {
+    return res.status(400).json({ error: "Only a Site Systems Diagnostic run can draft this document." });
+  }
+  if (run.status !== "approved") {
+    return res.status(409).json({
+      error: "This run has not been approved yet. Approve it in Organisation first — an unreviewed run does not become an issued report.",
+    });
+  }
+
+  const { data, missing, matched } = splitDiagnostic(run.output);
+  res.json({
+    template: "diagnostic",
+    runTitle: run.title,
+    matched,
+    missing,
+    data: {
+      ...data,
+      project: String(run.inputs?.project || run.title || "").slice(0, 300),
+      client: String(run.inputs?.client || "").slice(0, 300),
+      basis: basisFromRun(run),
+    },
+  });
+});
+
+/**
+ * What the report was prepared from — assembled from the run itself
+ * rather than typed, so the basis of preparation records the documents
+ * that were actually read and names the fields that were left empty.
+ */
+function basisFromRun(run) {
+  const brief = AGENT_BRIEFS.diagnostic;
+  const supplied = [];
+  const notSupplied = [];
+  for (const f of brief?.fields || []) {
+    // The client and project names identify the report; they are not
+    // information it was prepared from.
+    if (f.type !== "textarea") continue;
+    const v = String(run.inputs?.[f.name] || "").trim();
+    const label = f.label.split(" — ")[0];
+    (v ? supplied : notSupplied).push(label);
+  }
+  const files = (run.sources || []).filter((f) => !f.error).map((f) => f.name);
+  const parts = [];
+  if (supplied.length) parts.push(`Prepared from the information supplied by the client: ${supplied.join(", ")}.`);
+  if (files.length) parts.push(`Documents read in full: ${files.join(", ")}.`);
+  if (notSupplied.length) parts.push(`Not provided, and therefore not relied on: ${notSupplied.join(", ")}.`);
+  parts.push(
+    "No site visit was undertaken. Where documents contradicted one another the contradiction is reported rather than resolved. Every load, ratio, rate and duration is a first-pass planning figure requiring validation by a competent person before use."
+  );
+  return parts.join(" ");
+}
+
 router.post("/generate", requireAuth, deliveryFinance, (req, res) => {
   const tpl = TEMPLATES.find((t) => t.id === req.body?.template);
   if (!tpl) return res.status(400).json({ error: "Unknown template." });
@@ -277,6 +392,92 @@ router.delete("/:id", requireAuth, admin, (req, res) => {
 
 // ------------------------------------------------------------------ rendering
 
+/**
+ * The heading a reader sees. Template names are written for the person
+ * choosing one — "(client-safe)", "/ subcontract order" — which is the
+ * wrong register for the top of an issued document, so a template may
+ * carry its own reader-facing title.
+ */
+function headingFor(doc) {
+  const tpl = TEMPLATES.find((t) => t.id === doc.template);
+  return tpl?.documentTitle || doc.templateName;
+}
+
+/**
+ * A template that names its own heading has already said what the
+ * document is; appending the project as well produces two em-dashes and
+ * a sentence nobody wrote. The project stays in the meta table.
+ */
+function headingSuffix(doc) {
+  const tpl = TEMPLATES.find((t) => t.id === doc.template);
+  if (tpl?.documentTitle || !doc.data.project) return "";
+  return " — " + esc(doc.data.project);
+}
+
+/**
+ * Turn an approved Agent 8 run into a diagnostic draft.
+ *
+ * The agent is required to produce thirteen blocks under numbered
+ * headings — a findings paragraph and the twelve deliverables. This
+ * finds each heading in the raw output and hands back the text between
+ * it and the next one, so the person issuing the report reviews and
+ * edits thirteen filled fields instead of retyping them.
+ *
+ * It matches on the heading NUMBER rather than its wording, because a
+ * model will decorate a heading (`## 7. Mobilisation constraints`,
+ * `**7 · MOBILISATION CONSTRAINTS**`) far more readily than it will
+ * renumber it. Anything it cannot find is reported as missing rather
+ * than left silently blank — an empty section in a diagnostic is a
+ * failed engagement, and the person needs to see which one.
+ */
+export function splitDiagnostic(output) {
+  const lines = String(output || "").replace(/\r\n/g, "\n").split("\n");
+
+  // A heading line: optional markdown hashes or bold, a number 0-12, a
+  // separator, then title text. The title must not read as a sentence,
+  // which is what keeps "10. Issue the DNO enquiry" inside section 12
+  // from being mistaken for the start of section 10.
+  const HEADING = /^\s*(?:#{1,4}\s*)?(?:\*\*|__)?\s*(\d{1,2})\s*[.)·:—-]\s*([^\n]*?)\s*(?:\*\*|__)?\s*$/;
+
+  const found = new Map();
+  const marks = [];
+  for (let i = 0; i < lines.length; i += 1) {
+    const m = HEADING.exec(lines[i]);
+    if (!m) continue;
+    const n = Number(m[1]);
+    if (n < 0 || n > 12 || found.has(n)) continue;
+    const title = m[2].trim();
+    // Headings are short and unpunctuated; list items are neither.
+    const decorated = /^\s*#/.test(lines[i]) || /^\s*(?:\*\*|__)/.test(lines[i]);
+    const headingish = title.length > 2 && title.length <= 70 && !/[.;]$/.test(title);
+    if (!decorated && !headingish) continue;
+    found.set(n, marks.length);
+    marks.push({ n, at: i });
+  }
+
+  const data = {};
+  const missing = [];
+  const take = (n) => {
+    const idx = found.get(n);
+    if (idx === undefined) return "";
+    const start = marks[idx].at + 1;
+    const end = idx + 1 < marks.length ? marks[idx + 1].at : lines.length;
+    return lines.slice(start, end).join("\n").trim();
+  };
+
+  const findings = take(0);
+  if (findings) data.findings = findings;
+  else missing.push("Findings in one paragraph");
+
+  DIAGNOSTIC_SECTIONS.forEach(([id, label], i) => {
+    const body = take(i + 1);
+    if (body) data[id] = body;
+    else missing.push(`${i + 1}. ${label}`);
+  });
+
+  return { data, missing, matched: 13 - missing.length };
+}
+
 /** Rendered documents open in a new tab, so auth arrives as ?token=. */
 function tokenAuth(req, res, next) {
   const payload = verifyToken(req.query.token || "");
@@ -309,6 +510,98 @@ const linesTable = (lines, cols = ["Description", "Qty", "Rate", "Amount"]) => {
 };
 
 const para = (label, text) => (text ? `<div class="blk"><h3>${label}</h3><p>${esc(text).replace(/\n/g, "<br>")}</p></div>` : "");
+
+
+/**
+ * Render an agent's section text as document HTML.
+ *
+ * Agent output is prose with markdown-ish tables and bullets. Dropping it
+ * into a <p> would waste the structure the agent was told to produce, so
+ * pipe tables become real tables, dashes become lists, and everything is
+ * escaped first — this text originates from a model and is never trusted
+ * as markup.
+ */
+function richText(text) {
+  const src = String(text || "").replace(/\r\n/g, "\n").trim();
+  if (!src) return "";
+  const out = [];
+  const lines = src.split("\n");
+  let i = 0;
+
+  /**
+   * Escape first, then re-introduce the two marks an agent actually
+   * emits. Every piece of text in this renderer goes through here —
+   * cells and list items included — so bold never survives as literal
+   * asterisks in one place while working in another.
+   */
+  const inline = (s) =>
+    esc(s)
+      .replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
+      .replace(/(^|[\s(])\*(\S(?:[^*]*\S)?)\*(?=[\s.,;:)]|$)/g, "$1<i>$2</i>");
+
+  const isRow = (l) => l.trim().startsWith("|") && l.trim().endsWith("|");
+  const cells = (l) => l.trim().slice(1, -1).split("|").map((c) => inline(c.trim()));
+  const isDivider = (l) => /^\s*\|[\s:|-]+\|\s*$/.test(l);
+  const isBullet = (l) => /^\s*(?:[-*\u2022]|\d+[.)])\s+/.test(l);
+  const isHeading = (l) => /^\s*#{3,6}\s+\S/.test(l);
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    if (isHeading(line)) {
+      out.push(`<h4 class="rt-h">${inline(line.replace(/^\s*#{3,6}\s+/, "").trim())}</h4>`);
+      i += 1;
+      continue;
+    }
+
+    if (isRow(line) && i + 1 < lines.length && isDivider(lines[i + 1])) {
+      const head = cells(line);
+      i += 2;
+      const body = [];
+      while (i < lines.length && isRow(lines[i])) { body.push(cells(lines[i])); i += 1; }
+      out.push(
+        `<table class="lines"><thead><tr>${head.map((h) => `<th>${h}</th>`).join("")}</tr></thead><tbody>` +
+          body.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("") +
+          "</tbody></table>"
+      );
+      continue;
+    }
+
+    if (isBullet(line)) {
+      const ordered = /^\s*\d+[.)]\s+/.test(line);
+      const items = [];
+      while (i < lines.length && isBullet(lines[i])) {
+        const parts = [lines[i].replace(/^\s*(?:[-*\u2022]|\d+[.)])\s+/, "").trim()];
+        i += 1;
+        // A wrapped continuation line is part of the item above it, not a new paragraph.
+        while (i < lines.length && lines[i].trim() && !isBullet(lines[i]) && !isRow(lines[i]) && !isHeading(lines[i]) && /^\s{2,}\S/.test(lines[i])) {
+          parts.push(lines[i].trim());
+          i += 1;
+        }
+        items.push(inline(parts.join(" ")));
+      }
+      out.push(`<${ordered ? "ol" : "ul"} class="rt">${items.map((t) => `<li>${t}</li>`).join("")}</${ordered ? "ol" : "ul"}>`);
+      continue;
+    }
+
+    // A markdown rule carries no meaning once the text is sectioned, and
+    // leaks as a literal "---" if left in.
+    if (/^\s*(?:-{3,}|\*{3,}|_{3,})\s*$/.test(line)) { i += 1; continue; }
+
+    if (!line.trim()) { i += 1; continue; }
+
+    const para = [];
+    while (i < lines.length && lines[i].trim() && !isRow(lines[i]) && !isBullet(lines[i]) && !isHeading(lines[i])) {
+      para.push(lines[i].trim());
+      i += 1;
+    }
+    out.push(`<p>${inline(para.join(" "))}</p>`);
+  }
+  return out.join("\n");
+}
+
+const section = (n, label, text) =>
+  text ? `<div class="blk"><h3>${n} · ${label}</h3>${richText(text)}</div>` : "";
 
 function renderBody(doc) {
   const d = doc.data;
@@ -381,6 +674,38 @@ function renderBody(doc) {
       <p class="legalnote">This instruction is issued through the contract change process. ${d.contingency ? "The value is drawn against the referenced joint risk-register item under the defined drawdown process." : "No contingency drawdown is made by this instruction."} Do not proceed beyond the instructed scope.</p>`;
   }
 
+  if (doc.template === "diagnostic") {
+    return `
+      <table class="meta">${t("Client", d.client)}${t("Project / site", d.project)}${t("Site reference", d.siteRef)}${t("Prepared by", doc.issuedBy)}</table>
+      ${d.findings ? `<div class="blk"><h3>Findings in one paragraph</h3>${richText(d.findings)}</div>` : ""}
+      ${DIAGNOSTIC_SECTIONS.map(([id, label], i) => section(i + 1, label, d[id])).join("")}
+      ${d.basis ? `<div class="blk"><h3>Basis of preparation</h3>${richText(d.basis)}</div>` : ""}
+      <p class="legalnote">Every load, ratio, rate and duration in this report is a first-pass planning figure requiring validation by a competent person before use. Where information was not provided it is identified as missing rather than assumed. This report is decision support: it is not a design, a price or an instruction, and nothing safety-critical is resolved within it.</p>`;
+  }
+
+  if (doc.template === "specimen") {
+    const shown = new Set(SPECIMEN_SECTIONS);
+    const contents = DIAGNOSTIC_SECTIONS.map(
+      ([id, label], i) =>
+        `<tr><td class="num">${i + 1}</td><td>${esc(label)}</td><td class="st">${shown.has(id) ? "Shown in full" : "In the full report"}</td></tr>`
+    ).join("");
+    return `
+      <table class="meta">${t("Illustrative project", d.project)}${t("Document type", "Specimen extract")}</table>
+      <div class="specimen-notice">
+        <b>Illustrative worked example.</b> This extract demonstrates the format, depth and method of a Site Systems Diagnostic.
+        It is <b>not a project ETABLIX has delivered</b>, and the client, site, figures and findings within it are invented for
+        illustration. No part of it describes real work, a real client or a real contract.
+      </div>
+      <div class="blk"><h3>Findings in one paragraph</h3>${richText(d.findings)}</div>
+      <div class="blk"><h3>3 · Supplier-interface matrix <span class="tag">shown in full</span></h3>${richText(d.s3)}</div>
+      <div class="blk"><h3>7 · Mobilisation constraints <span class="tag">shown in full</span></h3>${richText(d.s7)}</div>
+      <div class="blk"><h3>What the full report contains</h3>
+        <table class="lines contents"><tbody>${contents}</tbody></table>
+        <p class="legalnote" style="margin-top:10px;">Twelve deliverables, typically 25–40 pages, issued within ten working days of information handover and presented to your leadership. Fixed fee, defined deliverable, yours to keep whatever you decide afterwards.</p>
+      </div>
+      ${d.note ? `<div class="blk"><h3>A note on the figures</h3>${richText(d.note)}</div>` : ""}`;
+  }
+
   if (doc.template === "report") {
     return `
       <table class="meta">${t("Client", d.client)}${t("Project / site", d.project)}${t("Week ending", d.weekEnding)}</table>
@@ -418,6 +743,24 @@ router.get("/:id/render", tokenAuth, (req, res) => {
   tr.grand td { border-top: 2px solid #14181d; padding-top: 10px; font-size: 15px; }
   .tr { text-align: right; }
   .blk { margin: 22px 0 0; }
+  /* Agent-authored section content. */
+  ul.rt, ol.rt { margin: 8px 0 0; padding-left: 20px; font-size: 13.5px; line-height: 1.65; }
+  h4.rt-h { font-family: Arial, sans-serif; font-size: 12.5px; letter-spacing: 0.4px; margin: 16px 0 2px; color: #14181d; }
+  ul.rt li, ol.rt li { margin-bottom: 5px; }
+  .blk table.lines { font-size: 12.5px; }
+  .blk table.lines td, .blk table.lines th { padding-right: 12px; }
+  table.contents td.num { width: 26px; color: #9c7a3c; font-family: Arial, sans-serif; font-weight: bold; }
+  table.contents td.st { text-align: right; font-family: Arial, sans-serif; font-size: 11px; color: #5b6672; white-space: nowrap; }
+  .tag { font-family: Arial, sans-serif; font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase; color: #9c7a3c; border: 1px solid #9c7a3c; border-radius: 100px; padding: 2px 8px; vertical-align: middle; margin-left: 6px; }
+  .specimen-notice { border-left: 4px solid #c0392b; background: #fdf6f5; padding: 14px 18px; margin: 4px 0 22px; font-size: 13.5px; line-height: 1.6; }
+  /* SPECIMEN watermark — fixed, so it repeats on every printed page and
+     survives a screenshot or a single forwarded sheet. */
+  .wm { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .wm span { position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%) rotate(-32deg);
+    font-family: Arial Black, Arial, sans-serif; font-size: 118px; letter-spacing: 14px;
+    color: rgba(192, 57, 43, 0.10); white-space: nowrap; }
+  .page { position: relative; z-index: 1; }
+  @media print { .wm span { color: rgba(192, 57, 43, 0.13); } }
   .blk h3 { font-family: Arial, sans-serif; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: #9c7a3c; margin: 0 0 6px; }
   .blk p { margin: 0; font-size: 13.5px; line-height: 1.6; }
   .legalnote { font-size: 12px; color: #5b6672; line-height: 1.55; border-left: 3px solid #9c7a3c; padding-left: 12px; margin: 18px 0 0; }
@@ -425,14 +768,14 @@ router.get("/:id/render", tokenAuth, (req, res) => {
   .toolbar { position: fixed; top: 14px; right: 16px; }
   .toolbar button { font-family: Arial, sans-serif; font-size: 13px; padding: 9px 20px; background: #14181d; color: #fff; border: 0; border-radius: 4px; cursor: pointer; }
   @media print { .toolbar { display: none; } .page { padding: 0; } }
-</style></head><body>
+</style></head><body>${doc.template === "specimen" ? '<div class="wm"><span>SPECIMEN</span></div>' : ""}
 <div class="toolbar"><button onclick="print()">Print / save as PDF</button></div>
 <div class="page">
   <div class="head">
     <div class="wordmark">ETABLIX<small>INTEGRATED SITE SERVICES · PART OF GROUPE NSEYA</small></div>
     <div class="docid"><b>${esc(doc.number)}</b><span>${esc(doc.templateName)}<br>${dateStr}<br>Issued by ${esc(doc.issuedBy)}</span></div>
   </div>
-  <h2 class="doctitle">${esc(doc.templateName)}${doc.data.project ? " — " + esc(doc.data.project) : ""}</h2>
+  <h2 class="doctitle">${esc(headingFor(doc))}${headingSuffix(doc)}</h2>
   ${renderBody(doc)}
   <div class="foot">
     ETABLIX is a trading name of JNN GLOBAL LTD · Registered in England &amp; Wales · Company No. 15405437<br>

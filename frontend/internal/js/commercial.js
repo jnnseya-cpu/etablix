@@ -5,6 +5,11 @@
    the retention ledger, the GTM account tracker, the document studio,
    and the AI-agent roster with its human approval boundaries. */
 
+// app.js imports this module, so this is a cycle — safe because
+// openPanel is a hoisted function declaration and is only ever called
+// after both modules have finished evaluating.
+import { openPanel } from "/internal/js/app.js";
+
 const token = sessionStorage.getItem("etablix.token");
 const user = JSON.parse(sessionStorage.getItem("etablix.user") || "null");
 
@@ -186,6 +191,11 @@ async function cosPricing() {
 
 /** Jump to Documents with a pre-filled form — the calculators' output. */
 async function openDocPrefill(templateId, data, lines) {
+  // The callers are no longer all inside the Commercial OS — an approved
+  // agent run drafts from Organisation — so the panel has to be brought
+  // to the front, and its own load waited out, or the form is filled in
+  // a tab nobody is looking at and then overwritten.
+  await openPanel("commercial");
   cosSection = "docs";
   await loadCommercial();
   const tpl = docTemplates.find((t) => t.id === templateId);
@@ -1319,11 +1329,22 @@ function renderRunView(run) {
           <span class="muted" style="margin-left:10px;font-size:0.8rem;">Approval is recorded against your name — nothing is acted on until a human approves.</span>
         </div>`
       : `<p class="muted" style="margin-top:10px;">${esc(run.status)}${run.decidedBy ? ` by ${esc(run.decidedBy)}` : ""}${run.decisionNote ? ` — "${esc(run.decisionNote)}"` : ""}</p>`;
+  // An approved diagnostic is one click from being an issued report: the
+  // twelve sections are split out of the output and land in the document
+  // form for review, rather than being retyped from this box.
+  const draft =
+    run.agent === "diagnostic" && run.status === "approved"
+      ? `<div style="margin-top:10px;">
+          <button class="btn-block" data-run-draft="${run.id}" style="width:auto;padding:10px 20px;">Draft as SSD report</button>
+          <span class="muted" style="margin-left:10px;font-size:0.8rem;">Opens the Site Systems Diagnostic document with all twelve sections filled from this run. You review and edit before it is generated.</span>
+        </div>`
+      : "";
   return `<div class="section-block" style="border:1.5px solid var(--amber,#9c7a3c);border-radius:10px;padding:16px 18px;margin-top:12px;">
     <h3>${esc(run.title)} <span class="muted" style="font-weight:400;font-size:0.78rem;">· ${esc(run.agentName)} · ${esc(run.model || "")}${run.usage ? ` · ${run.usage.input + run.usage.output} tokens` : ""}</span></h3>
     ${run.truncated ? '<p class="muted" style="color:var(--danger,#c0392b);">Output hit the length limit — the end may be cut off; re-run with a narrower scope if needed.</p>' : ""}
     <pre style="white-space:pre-wrap;font-family:inherit;font-size:0.88rem;line-height:1.6;background:var(--paper,#f7f5f0);border:1px solid var(--line);border-radius:7px;padding:14px 16px;max-height:520px;overflow:auto;">${esc(run.output || "")}</pre>
     ${decide}
+    ${draft}
   </div>`;
 }
 
@@ -1331,6 +1352,27 @@ document.addEventListener("click", async (e) => {
   const open = e.target.closest("button[data-run-open]");
   const decide = e.target.closest("button[data-run-decide]");
   const del = e.target.closest("button[data-run-del]");
+  const draft = e.target.closest("button[data-run-draft]");
+  if (draft) {
+    draft.disabled = true;
+    try {
+      const d = await api(`/api/docs/from-run/${draft.dataset.runDraft}`);
+      // Say what did not come across before the form scrolls away — a
+      // blank section in a diagnostic is a failed engagement, not a tidy
+      // omission.
+      if (d.missing.length) {
+        alert(
+          `${d.matched} of 13 sections were found in this run.\n\nNot found, and left blank for you to complete:\n· ${d.missing.join("\n· ")}\n\nThe agent may have been cut off, or used different headings.`
+        );
+      }
+      await openDocPrefill(d.template, d.data);
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      draft.disabled = false;
+    }
+    return;
+  }
   if (open) {
     try {
       const { run } = await api(`/api/agents/runs/${open.dataset.runOpen}`);
@@ -1351,7 +1393,17 @@ document.addEventListener("click", async (e) => {
         method: "POST",
         body: JSON.stringify({ decision: approve ? "approve" : "reject", note }),
       });
+      const id = decide.dataset.runId;
       await loadOrganisation();
+      // Reloading the panel empties the viewer. Put the decided run back
+      // in it, so an approval leads straight to what it unlocks rather
+      // than to a blank space and a second search for the row.
+      const { run } = await api(`/api/agents/runs/${id}`).catch(() => ({ run: null }));
+      const viewer = document.getElementById("agent-run-viewer");
+      if (run && viewer) {
+        viewer.innerHTML = renderRunView(run);
+        viewer.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
     } catch (err) {
       alert(err.message);
       decide.disabled = false;

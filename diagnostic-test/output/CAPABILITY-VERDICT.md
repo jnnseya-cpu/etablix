@@ -92,3 +92,37 @@ rather than by five-twelfths of one plus whatever the person remembers.
   agent brief is written and loads correctly; its first live run should be
   against these same eight inputs, and the output compared against this report
   as the benchmark.
+
+## The loop, after this test
+
+The four missing deliverables were only half the problem. Even with the
+agent written, issuing a diagnostic meant reading its output in one panel and
+retyping thirteen sections into another — which is how a ten-working-day
+promise quietly becomes fifteen.
+
+The loop is now one path through the Control Desk:
+
+1. **Organisation → AI agent console → Site Systems Diagnostic.** Eight input
+   fields, plus the client and project name the report will carry. Client
+   documents are uploaded and read in full rather than pasted.
+2. **Approve the run.** Nothing becomes a document until a named person
+   approves it, and the approval is recorded against them.
+3. **Draft as SSD report.** The twelve deliverables and the findings paragraph
+   are split out of the agent's output and land in the Site Systems Diagnostic
+   document with every field filled. Anything the splitter could not find is
+   named on screen rather than left silently blank.
+4. **Review, edit, generate.** The document is numbered in the SSD series and
+   renders branded, with the validation notice on it.
+
+The basis of preparation writes itself from the run: which of the eight inputs
+were supplied, which documents were read in full, and — the part that matters —
+which were **not provided and therefore not relied on**. A gap in the inputs
+appears in the issued report automatically instead of depending on someone
+remembering to mention it.
+
+A second template, **Diagnostic specimen extract**, produces the client-safe
+version: the findings paragraph, sections 3 and 7 in full, a contents list of
+the remaining ten, a diagonal SPECIMEN watermark that repeats on every printed
+page, and a notice on the cover stating that it is an invented worked example
+ETABLIX has not delivered. That is what goes to a prospect; the SSD report
+itself does not.
