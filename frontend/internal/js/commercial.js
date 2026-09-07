@@ -51,6 +51,7 @@ const COS_SECTIONS = [
   ["evm", "EVM gate"],
   ["retention", "Retention"],
   ["gtm", "GTM accounts"],
+  ["dps", "DPS pipeline"],
   ["risks", "Risk register"],
   ["gates", "Gates & set-up"],
 ];
@@ -72,7 +73,7 @@ async function renderCosSection() {
   try {
     const renderers = {
       pricing: cosPricing, docs: cosDocs, bids: cosBids, cashflow: cosCashflow, evm: cosEvm,
-      retention: cosRetention, gtm: cosGtm, risks: cosRisks, gates: cosGates,
+      retention: cosRetention, gtm: cosGtm, dps: cosDps, risks: cosRisks, gates: cosGates,
     };
     el.innerHTML = await renderers[cosSection]();
     if (cosSection === "pricing") wireCalculators();
@@ -1198,5 +1199,162 @@ document.addEventListener("click", async (e) => {
     if (!confirm("Delete this agent run from the log?")) return;
     await api(`/api/agents/runs/${del.dataset.runDel}`, { method: "DELETE" }).catch((err) => alert(err.message));
     await loadOrganisation();
+  }
+});
+
+
+// -------------------------------------------------------------- DPS pipeline
+
+
+async function cosDps() {
+  const { pipeline, stages, evidence, requirements, kpis } = await api("/api/commercial/dps");
+  const today = new Date().toISOString().slice(0, 10);
+
+  const kpiRow = `<div class="kpis">
+    <div class="kpi accent"><b>${kpis.live}</b><span>Live in pipeline</span></div>
+    <div class="kpi green"><b>${kpis.submittable}</b><span>Ready to submit today</span></div>
+    <div class="kpi"><b>${kpis.preparing}</b><span>Preparing</span></div>
+    <div class="kpi"><b>${kpis.submitted}</b><span>Submitted</span></div>
+    <div class="kpi"><b>${kpis.accepted}</b><span>Accepted</span></div>
+  </div>`;
+
+  const stageSel = (d) =>
+    `<select data-dps-stage="${d.id}">${stages
+      .map((s) => `<option value="${s}" ${s === d.stage ? "selected" : ""}>${s}</option>`)
+      .join("")}</select>`;
+
+  const gap = (d) => {
+    if (!d.readiness.totalCount) return '<span class="muted">—</span>';
+    if (d.readiness.ready) return pill(`Ready — all ${d.readiness.totalCount} met`, "ok");
+    return (
+      `<div style="margin-bottom:5px;">${pill(`${d.readiness.readyCount} of ${d.readiness.totalCount} met`, "warning")}</div>` +
+      d.readiness.missing.map((m) => `<span class="pill alert" style="margin:0 3px 3px 0;">${esc(m.label)}</span>`).join("")
+    );
+  };
+
+  const closing = (d) => {
+    if (!d.closingDate) return '<span class="muted">—</span>';
+    const days = Math.round((new Date(d.closingDate) - new Date(today)) / 864e5);
+    const cls = days < 0 ? "alert" : days < 90 ? "warning" : "";
+    return `${esc(d.closingDate)}<div class="muted">${pill(days < 0 ? "closed" : `${days} days`, cls)}</div>`;
+  };
+
+  const rows = pipeline
+    .map(
+      (d) => `<tr${["excluded", "lapsed", "rejected"].includes(d.stage) ? ' style="opacity:0.6;"' : ""}>
+      <td><b>${esc(d.name)}</b><div class="muted">${esc(d.buyer || "")}</div>
+        ${d.fit ? `<div class="muted" style="margin-top:5px;font-size:0.8rem;">${esc(d.fit)}</div>` : ""}</td>
+      <td>${esc(d.lot || "—")}<div class="muted" style="margin-top:4px;">${esc(d.value || "")}${d.location ? ` · ${esc(d.location)}` : ""}</div></td>
+      <td>${d.portalUrl ? `<a href="${esc(d.portalUrl)}" target="_blank" rel="noopener">${esc(d.portal || "Portal")}</a>` : esc(d.portal || "—")}
+        ${d.reference ? `<div class="muted" style="margin-top:4px;font-size:0.76rem;">Ref ${esc(d.reference)}</div>` : ""}</td>
+      <td>${closing(d)}</td>
+      <td>${gap(d)}</td>
+      <td>${stageSel(d)}<div class="muted" style="margin-top:4px;">${esc(d.owner || "")}</div></td>
+      <td><input data-dps-notes="${d.id}" value="${esc(d.notes || "")}" placeholder="Notes" style="width:180px;">
+        ${isAdmin ? `<br><button class="btn-run" data-dps-del="${d.id}" style="margin-top:5px;">Delete</button>` : ""}</td>
+    </tr>`
+    )
+    .join("");
+
+  const table = pipeline.length
+    ? wrapT(`<table><thead><tr><th style="min-width:230px;">Route to market</th><th>Lot / value</th><th>Portal</th><th>Closing</th><th style="min-width:200px;">Still missing</th><th>Stage / owner</th><th>Notes</th></tr></thead><tbody>${rows}</tbody></table>`)
+    : '<p class="empty-note">No routes recorded yet.</p>';
+
+  const evidenceGrid = evidence
+    .map(
+      (e) => `<label style="display:flex;gap:8px;align-items:flex-start;padding:7px 0;">
+        <input type="checkbox" data-dps-ev="${e.id}" ${e.held ? "checked" : ""}>
+        <span>${esc(e.label)}${e.by ? `<div class="muted" style="font-size:0.76rem;">${esc(e.by)} · ${new Date(e.at).toLocaleDateString("en-GB")}</div>` : ""}</span>
+      </label>`
+    )
+    .join("");
+
+  const reqOptions = Object.entries(requirements)
+    .map(([k, r]) => `<label style="display:inline-flex;gap:5px;align-items:center;margin:0 12px 6px 0;font-size:0.82rem;">
+      <input type="checkbox" name="requires" value="${k}"> ${esc(r.label)}</label>`)
+    .join("");
+
+  return (
+    kpiRow +
+    `<p class="panel-sub" style="margin:-6px 0 18px;">A DPS admits new suppliers for its whole life — so the constraint is the selection stage, not the closing date. <b>Still missing</b> is computed live: insurance, SSIP and Constructionline resolve from <b>Gates &amp; set-up</b>, so ticking one there clears it on every route that needs it. Requirement lists are our reading of each notice — confirm against the real selection questionnaire and correct the row.</p>` +
+    block("Pipeline", table) +
+    block(
+      "Evidence register — what the set-up checklist does not carry",
+      `<p class="muted" style="margin-bottom:10px;">Tick only what genuinely exists and can be produced on request. These feed the <b>Still missing</b> column directly.</p>
+       <div style="columns:2;column-gap:34px;">${evidenceGrid}</div>`
+    ) +
+    block(
+      "Add a route to market",
+      `<form id="dps-form">
+        <div class="team-form" style="flex-wrap:wrap;margin-bottom:10px;">
+          <input name="name" required placeholder="DPS / framework name" style="flex:2;min-width:240px;">
+          <input name="buyer" placeholder="Buying authority" style="flex:1.2;">
+          <input name="portal" placeholder="Portal — e.g. in-Tend, Jaggaer">
+          <input name="portalUrl" type="url" placeholder="Portal URL">
+        </div>
+        <div class="team-form" style="flex-wrap:wrap;margin-bottom:10px;">
+          <input name="lot" placeholder="Lot / category" style="flex:2;min-width:220px;">
+          <input name="value" placeholder="Value">
+          <input name="location" placeholder="Location">
+          <input name="closingDate" type="date" title="Closing date">
+          <input name="priority" type="number" min="1" max="99" placeholder="Priority" style="width:100px;">
+        </div>
+        <textarea name="fit" placeholder="Why it fits — or why it does not" style="width:100%;min-height:60px;padding:10px 12px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;font-size:0.9rem;margin-bottom:10px;"></textarea>
+        <div style="margin-bottom:10px;"><span class="muted" style="font-size:0.8rem;display:block;margin-bottom:6px;">What its selection stage demands:</span>${reqOptions}</div>
+        <button class="btn-block" type="submit" style="width:auto;padding:12px 22px;">Add to pipeline</button>
+      </form>`
+    )
+  );
+}
+
+document.addEventListener("submit", async (e) => {
+  const form = e.target.closest("#dps-form");
+  if (!form) return;
+  e.preventDefault();
+  const body = Object.fromEntries([...form.querySelectorAll("input[name]:not([type=checkbox]), textarea[name]")].map((i) => [i.name, i.value]));
+  body.requires = [...form.querySelectorAll('input[name="requires"]:checked')].map((i) => i.value);
+  try {
+    await api("/api/commercial/dps", { method: "POST", body: JSON.stringify(body) });
+    renderCosSection();
+  } catch (err) {
+    alert(err.message);
+  }
+});
+
+document.addEventListener("change", async (e) => {
+  const stage = e.target.closest("select[data-dps-stage]");
+  const ev = e.target.closest("input[data-dps-ev]");
+  try {
+    if (stage) {
+      await api(`/api/commercial/dps/${stage.dataset.dpsStage}`, { method: "PATCH", body: JSON.stringify({ stage: stage.value }) });
+      renderCosSection();
+    } else if (ev) {
+      await api(`/api/commercial/dps-evidence/${ev.dataset.dpsEv}`, { method: "PATCH", body: JSON.stringify({ held: ev.checked }) });
+      renderCosSection();
+    }
+  } catch (err) {
+    alert(err.message);
+  }
+});
+
+document.addEventListener("blur", async (e) => {
+  const notes = e.target.closest?.("input[data-dps-notes]");
+  if (!notes) return;
+  try {
+    await api(`/api/commercial/dps/${notes.dataset.dpsNotes}`, { method: "PATCH", body: JSON.stringify({ notes: notes.value }) });
+  } catch (err) {
+    alert(err.message);
+  }
+}, true);
+
+document.addEventListener("click", async (e) => {
+  const del = e.target.closest("button[data-dps-del]");
+  if (!del) return;
+  if (!confirm("Remove this route from the pipeline?")) return;
+  try {
+    await api(`/api/commercial/dps/${del.dataset.dpsDel}`, { method: "DELETE" });
+    renderCosSection();
+  } catch (err) {
+    alert(err.message);
   }
 });

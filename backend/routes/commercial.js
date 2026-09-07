@@ -12,6 +12,8 @@
  *   /valuations   the monthly valuation cycle + exposure rule
  *   /evm          the EVM payment gate (SPI/CPI ≥ 0.95)
  *   /retentions   the modernised retention ledger
+ *   /dps          the DPS pipeline — public-sector routes to market,
+ *                 with readiness computed against the set-up checklist
  *
  * Access levels come from shared ACCESS: COMMERCIAL for pricing, bids,
  * GTM, gates and set-up; DELIVERY_FINANCE (adds project managers) for
@@ -23,6 +25,7 @@ import { requireAuth, requireRole } from "../middleware/auth.js";
 import { ROLES, ACCESS } from "../../shared/constants.js";
 import { collection, insert, update, remove, getSettings, saveSettings } from "../lib/store.js";
 import { emit } from "../lib/comms.js";
+import { DPS_STAGES, DPS_REQUIREMENTS, DPS_EVIDENCE, DPS_SEED, readiness } from "../lib/dps.js";
 
 const router = Router();
 router.use(requireAuth);
@@ -581,6 +584,112 @@ router.delete("/retentions/:id", admin, (req, res) => {
   const row = remove("retentions", req.params.id);
   if (!row) return res.status(404).json({ error: "Record not found." });
   res.json({ deleted: true });
+});
+
+// --------------------------------------------------- DPS pipeline
+
+/**
+ * The public-sector routes to market. A DPS admits new suppliers for
+ * its whole life, so the binding constraint is the selection stage,
+ * not the closing date — every row therefore carries the readiness it
+ * demands, resolved live against the set-up checklist and the evidence
+ * register rather than restated by hand.
+ */
+const dpsState = () => ({
+  setup: getSettings().setup_checklist || {},
+  evidence: getSettings().dps_evidence || {},
+});
+
+const withReadiness = (row) => {
+  const { setup, evidence } = dpsState();
+  return { ...row, readiness: readiness(row, setup, evidence) };
+};
+
+router.get("/dps", commercial, (req, res) => {
+  const rows = collection("dps");
+  if (!rows.length) for (const d of DPS_SEED) insert("dps", d);
+  const { evidence } = dpsState();
+  const all = [...collection("dps")]
+    .map(withReadiness)
+    .sort((a, b) => (a.priority || 50) - (b.priority || 50) || String(a.closingDate).localeCompare(String(b.closingDate)));
+  const live = all.filter((d) => !["excluded", "lapsed", "rejected"].includes(d.stage));
+  const today = new Date().toISOString().slice(0, 10);
+  res.json({
+    pipeline: all,
+    stages: DPS_STAGES,
+    evidence: DPS_EVIDENCE.map((e) => ({ ...e, ...evidence[e.id], held: evidence[e.id]?.held ?? e.heldByDefault })),
+    requirements: DPS_REQUIREMENTS,
+    kpis: {
+      live: live.length,
+      submittable: live.filter((d) => d.readiness.ready).length,
+      preparing: all.filter((d) => d.stage === "preparing").length,
+      submitted: all.filter((d) => d.stage === "submitted").length,
+      accepted: all.filter((d) => d.stage === "accepted").length,
+      closingSoon: live.filter((d) => d.closingDate && d.closingDate >= today && d.closingDate <= new Date(Date.now() + 180 * 864e5).toISOString().slice(0, 10)).length,
+    },
+  });
+});
+
+router.post("/dps", commercial, (req, res) => {
+  const b = req.body || {};
+  if (!clampStr(b.name)) return res.status(400).json({ error: "Name the DPS or framework." });
+  const requires = Array.isArray(b.requires) ? b.requires.filter((k) => k in DPS_REQUIREMENTS) : [];
+  const row = insert("dps", {
+    name: clampStr(b.name, 200),
+    buyer: clampStr(b.buyer, 160),
+    portal: clampStr(b.portal, 120),
+    portalUrl: clampStr(b.portalUrl, 400),
+    reference: clampStr(b.reference, 80),
+    closingDate: clampStr(b.closingDate, 10),
+    lot: clampStr(b.lot, 400),
+    value: clampStr(b.value, 60),
+    location: clampStr(b.location, 120),
+    stage: DPS_STAGES.includes(b.stage) ? b.stage : "watching",
+    priority: Number.isFinite(Number(b.priority)) ? Number(b.priority) : 50,
+    fit: clampStr(b.fit, 1200),
+    notes: clampStr(b.notes, 2000),
+    requires,
+    owner: clampStr(b.owner, 60) || req.user.name,
+  });
+  res.status(201).json({ entry: withReadiness(row) });
+});
+
+router.patch("/dps/:id", commercial, async (req, res) => {
+  const patch = {};
+  for (const k of ["name", "buyer", "portal", "portalUrl", "lot", "value", "location", "owner", "reference"]) {
+    if (k in req.body) patch[k] = clampStr(req.body[k], 400);
+  }
+  for (const k of ["fit", "notes"]) if (k in req.body) patch[k] = clampStr(req.body[k], 2000);
+  if ("closingDate" in req.body) patch.closingDate = clampStr(req.body.closingDate, 10);
+  if ("priority" in req.body && Number.isFinite(Number(req.body.priority))) patch.priority = Number(req.body.priority);
+  if (Array.isArray(req.body.requires)) patch.requires = req.body.requires.filter((k) => k in DPS_REQUIREMENTS);
+  if ("stage" in req.body && DPS_STAGES.includes(req.body.stage)) {
+    patch.stage = req.body.stage;
+    patch.stageChangedAt = Date.now();
+  }
+  patch.lastTouch = Date.now();
+  const row = update("dps", req.params.id, patch);
+  if (!row) return res.status(404).json({ error: "Pipeline entry not found." });
+  if (patch.stage === "submitted") {
+    await emit("gate.passed", { vars: { actor: req.user.name, item: `DPS application submitted — ${row.name}` } }).catch(() => {});
+  }
+  res.json({ entry: withReadiness(row) });
+});
+
+router.delete("/dps/:id", admin, (req, res) => {
+  const row = remove("dps", req.params.id);
+  if (!row) return res.status(404).json({ error: "Pipeline entry not found." });
+  res.json({ deleted: true });
+});
+
+/** Evidence the selection stages ask for that the set-up checklist does not carry. */
+router.patch("/dps-evidence/:id", commercial, (req, res) => {
+  const item = DPS_EVIDENCE.find((e) => e.id === req.params.id);
+  if (!item) return res.status(404).json({ error: "Unknown evidence item." });
+  const state = { ...(getSettings().dps_evidence || {}) };
+  state[item.id] = { held: Boolean(req.body?.held), by: req.user.name, at: Date.now() };
+  saveSettings({ dps_evidence: state });
+  res.json({ ok: true });
 });
 
 export default router;
