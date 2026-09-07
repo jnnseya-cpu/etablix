@@ -108,6 +108,36 @@ export const TEMPLATES = [
     ],
   },
   {
+    id: "capability", prefix: "CAP", name: "Capability statement (selection stage)",
+    documentTitle: "Statement of capability",
+    description: "The answer to a PQQ, DPS selection questionnaire or ITT capability section, structured so the company's position and the individual's experience can never be confused. Refuses to generate with an unfilled placeholder in it, or with delivery experience claimed for the company.",
+    fields: [
+      F("client", "Buyer / framework being answered", "text", { required: true, placeholder: "e.g. CHIC Development DPS — Right to Participate" }),
+      F("project", "Reference or lot", "text", { placeholder: "The buyer's reference for this submission" }),
+      F("companyPosition", "The company — what it is, plainly", "textarea", {
+        required: true,
+        placeholder: "Incorporation, what ETABLIX does, and what it does not yet hold. Say it straight; a buyer respects a new company that is honest far more than one that is vague.",
+      }),
+      F("insurance", "Insurance position", "textarea", { placeholder: "What is held, what is being placed, and by when. Never state cover that is not in force." }),
+      F("accreditations", "Accreditations and memberships", "textarea", { placeholder: "Only what is genuinely held. \u201CPending\u201D or \u201Cin progress with a target date\u201D is an acceptable answer. A claimed accreditation that is checked is not." }),
+      F("person1Name", "Key person 1 — name and role in ETABLIX", "text", { required: true }),
+      F("person1Exp", "Key person 1 — relevant experience", "textarea", {
+        required: true,
+        placeholder: "Written as the individual's experience: role held, employer, what they were responsible for, scale. This is the substance of the submission.",
+      }),
+      F("person2Name", "Key person 2 — name and role", "text"),
+      F("person2Exp", "Key person 2 — relevant experience", "textarea"),
+      F("method", "How ETABLIX would deliver this scope", "textarea", {
+        required: true,
+        placeholder: "The method, drawing on the experience above. This is where a new company competes on equal terms — the approach is assessed, not the trading history.",
+      }),
+      F("capacity", "Capacity and resourcing for this contract", "textarea", { placeholder: "Who does the work, what is retained or subcontracted, and how it scales. Honest capacity beats overstated capacity at the first contract review." }),
+      F("declare", "What is declared rather than claimed", "textarea", {
+        placeholder: "The gaps you are telling them about before they find them: trading history, accounts, references. Declaring a weakness costs a few marks; concealing one that is then discovered costs the framework.",
+      }),
+    ],
+  },
+  {
     id: "inforequest", prefix: "IRQ", name: "Diagnostic information request",
     documentTitle: "Site Systems Diagnostic — information request",
     description: "What the client sends before the ten working days start, and in what format. Issue this the moment a diagnostic is agreed: the clock starts when the last item lands, and a drawing sent in the wrong format is the difference between reading it and guessing at it.",
@@ -297,6 +327,42 @@ const NAMING_RULES = [
 ];
 
 /** Returns the first naming-rule breach across every text field, or null. */
+/**
+ * The two ways a capability statement destroys a company.
+ *
+ * The first is a placeholder that goes out unfilled. "[TO SUPPLY]" in a
+ * PQQ is worse than a gap you declared, because it says nobody read the
+ * document before sending it.
+ *
+ * The second is worse and quieter: claiming as the company's what is
+ * actually an individual's. A new company saying "our Director led the
+ * procurement of X" is normal, verifiable and expected at selection
+ * stage. The same company saying "we delivered X" is not true, and one
+ * checked reference ends both the bid and the relationship. The template
+ * keeps the two apart by structure; this keeps them apart by refusal.
+ */
+const COMPANY_CLAIM =
+  /\b(?:etablix|jnn\s+global(?:\s+ltd)?|we|our\s+company|the\s+company)\s+(?:has\s+|have\s+|had\s+)?(?:successfully\s+)?(?:delivered|completed|constructed|built|managed|operated|ran|executed)\b/i;
+
+function capabilityBreach(data, templateId) {
+  if (templateId !== "capability") return null;
+  for (const [key, value] of Object.entries(data)) {
+    if (typeof value !== "string" || !value) continue;
+    if (/\[TO SUPPLY\]|\[TBC\]|\bXXX\b/i.test(value)) {
+      return `"${key}" still contains a placeholder. Fill it or delete the sentence — an unfilled bracket in a submission says nobody read it before sending.`;
+    }
+    // The personnel-experience fields are meant to describe an individual.
+    if (COMPANY_CLAIM.test(value) && !/^(company|insurance|accred)/i.test(key)) {
+      return (
+        "This claims delivery experience for ETABLIX rather than for a named individual. " +
+        "The company was incorporated recently and has no project record of its own; the experience belongs to the person who holds it. " +
+        'Write it as "Our Director, [name], led …" — that is a normal, verifiable answer at selection stage. "We delivered …" is not, and a single checked reference ends the bid.'
+      );
+    }
+  }
+  return null;
+}
+
 function namingBreach(data) {
   for (const value of Object.values(data)) {
     if (typeof value !== "string" || !value) continue;
@@ -394,7 +460,7 @@ router.post("/generate", requireAuth, deliveryFinance, (req, res) => {
     else if (f.type === "number") data[f.name] = toNum(input[f.name]);
     else data[f.name] = clampStr(input[f.name], f.type === "textarea" ? 4000 : 300);
   }
-  const breach = namingBreach(data);
+  const breach = namingBreach(data) || capabilityBreach(data, tpl.id);
   if (breach) return res.status(400).json({ error: breach });
 
   // The ten working days are the promise, so the date is computed once
@@ -743,6 +809,36 @@ function renderBody(doc) {
       ${d.appendix ? `<div class="blk"><h3>Appendix A · Document reconciliation ledger</h3><p class="rt-lede">Which of your own documents disagree with which. Set out as the documents state it.</p>${richText(d.appendix)}</div>` : ""}
       ${d.basis ? `<div class="blk"><h3>Basis of preparation</h3>${richText(d.basis)}</div>` : ""}
       <p class="legalnote">Every load, ratio, rate and duration in this report is a first-pass planning figure requiring validation by a competent person before use. Where information was not provided it is identified as missing rather than assumed. This report is decision support: it is not a design, a price or an instruction, and nothing safety-critical is resolved within it.</p>`;
+  }
+
+  if (doc.template === "capability") {
+    const person = (n, e, i) =>
+      n
+        ? `<div class="blk"><h3>Key person ${i} · ${esc(n)}</h3>
+             <p class="rt-lede">The experience below is that of the named individual, held in previous employment. It is not a project record of ETABLIX or of JNN GLOBAL LTD.</p>
+             ${richText(e)}</div>`
+        : "";
+    return `
+      <table class="meta">${t("Submission to", d.client)}${t("Reference / lot", d.project)}${t("Prepared by", doc.issuedBy)}</table>
+      <div class="specimen-notice">
+        <b>Two separate things, kept separate.</b> Section 1 is the position of the company. Section 2 is the experience of named
+        individuals, held in previous employment. ETABLIX makes no claim to have delivered, as a company, any project described in
+        section 2 — and nothing in this document should be read as making one.
+      </div>
+      <div class="blk"><h3>1 · The company</h3>${richText(d.companyPosition)}</div>
+      ${d.insurance ? `<div class="blk"><h3>1.1 · Insurance</h3>${richText(d.insurance)}</div>` : ""}
+      ${d.accreditations ? `<div class="blk"><h3>1.2 · Accreditations and memberships</h3>${richText(d.accreditations)}</div>` : ""}
+      <div class="blk"><h3>2 · Key personnel and their experience</h3>
+        <p class="rt-lede">Assessed at selection stage as the experience of the people who will do the work. Each entry is verifiable with the individual and, where the buyer requires it, with the former employer.</p>
+      </div>
+      ${person(d.person1Name, d.person1Exp, 1)}
+      ${person(d.person2Name, d.person2Exp, 2)}
+      <div class="blk"><h3>3 · How ETABLIX would deliver this scope</h3>${richText(d.method)}</div>
+      ${d.capacity ? `<div class="blk"><h3>4 · Capacity and resourcing</h3>${richText(d.capacity)}</div>` : ""}
+      ${d.declare ? `<div class="blk"><h3>5 · Declared position</h3><p class="rt-lede">Stated here rather than left to be discovered.</p>${richText(d.declare)}</div>` : ""}
+      <p class="legalnote">Every statement in this document is offered as accurate and is capable of verification. Where ETABLIX does not
+      hold something — trading history, an accreditation, cover not yet incepted — it is declared in section 1 or section 5 rather than
+      omitted. Individual experience is stated as individual experience throughout.</p>`;
   }
 
   if (doc.template === "inforequest") {
