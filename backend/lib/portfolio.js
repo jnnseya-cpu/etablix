@@ -9,10 +9,17 @@
  * be derived, the panel says so rather than showing a plausible one.
  *
  * On health: projects carry a lifecycle (mobilisation, in progress,
- * closeout) but no RAG status, so RAG is derived rather than typed —
- * schedule and cost performance indices against the same 0.95
- * threshold the EVM payment gate already enforces in the Commercial
- * OS. One definition of "at risk" across the business.
+ * closeout), so RAG is derived rather than typed — schedule and cost
+ * performance indices against the same 0.95 threshold the EVM payment
+ * gate already enforces in the Commercial OS. One definition of "at
+ * risk" across the business.
+ *
+ * A manager can override that verdict on a project, because the
+ * indices do not know about a supplier's confirmed recovery plan or a
+ * client about to suspend the works. An override never erases the
+ * computation: the derived value, the override, its reason and who set
+ * it all travel together, so a green light always shows what it was
+ * green against.
  *
  *   SPI = progress achieved ÷ programme time elapsed
  *   CPI = progress achieved ÷ budget consumed
@@ -29,6 +36,9 @@ import { collection, insert, update } from "./store.js";
 export const SPI_WARN = 0.95;
 export const SPI_LATE = 0.9;
 export const CPI_WARN = 0.95;
+
+/** The RAG values a manager may set by hand. "" clears the override. */
+export const RAG_OPTIONS = ["on_track", "at_risk", "delayed", "complete"];
 
 export const HEALTH = {
   complete: { label: "Complete", tone: "complete" },
@@ -93,12 +103,18 @@ export function projectHealth(project, budget, now = Date.now()) {
   return { health, spi, cpi, reason: reasons.join(" · ") };
 }
 
-/** Every project with its budget, indices and derived health attached. */
+/**
+ * Every project with its budget, indices and health attached.
+ * `health` is what the business acts on; `derivedHealth` is what the
+ * indices computed. They differ only where someone has overridden the
+ * verdict, and then `overridden` says so and `ragReason` says why.
+ */
 export function enrichedProjects(now = Date.now()) {
   const budgetRows = collection("budget");
   return collection("projects").map((p) => {
     const budget = projectBudget(p.id, budgetRows);
     const h = projectHealth(p, budget, now);
+    const override = RAG_OPTIONS.includes(p.ragOverride) ? p.ragOverride : null;
     return {
       id: p.id,
       code: p.code,
@@ -116,6 +132,14 @@ export function enrichedProjects(now = Date.now()) {
       committedPct: pct(budget.committed, budget.budgeted),
       elapsedPct: (elapsedFraction(p.startDate, p.endDate, now) ?? 0) * 100,
       ...h,
+      derivedHealth: h.health,
+      derivedReason: h.reason,
+      health: override || h.health,
+      overridden: Boolean(override),
+      ragOverride: override,
+      ragReason: p.ragReason || "",
+      ragSetBy: p.ragSetBy || "",
+      ragSetAt: p.ragSetAt || null,
     };
   });
 }

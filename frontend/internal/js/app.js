@@ -263,6 +263,7 @@ const HEALTH_FILL = {
   complete: "#5b6672",  // neutral, deliberately recessive
 };
 const HEALTH_TONE = { on_track: "good", at_risk: "warning", delayed: "critical", complete: "complete" };
+const RAG_OPTIONS = ["on_track", "at_risk", "delayed", "complete"];
 const SERIES = "#9c7a3c";   // single-hue magnitude
 const TRACK = "#e3e6ea";    // recessive track
 
@@ -457,8 +458,23 @@ async function loadPortfolio() {
         <td><b>${p.spi === null ? "—" : p.spi.toFixed(2)}</b></td>
         <td><b>${p.cpi === null ? "—" : p.cpi.toFixed(2)}</b></td>
         <td class="muted" style="white-space:nowrap;font-size:0.82rem;">${shortMoney(p.budget.spent)} / ${shortMoney(p.budget.budgeted)}</td>
-        <td><span class="pill" style="background:${HEALTH_FILL[HEALTH_TONE[p.health]]}1f;color:${HEALTH_FILL[HEALTH_TONE[p.health]]};">${esc(p.health.replace(/_/g, " "))}</span>
-          <div class="muted" style="font-size:0.74rem;margin-top:3px;">${esc(p.reason)}</div></td>
+        <td style="min-width:190px;">
+          <span class="pill" style="background:${HEALTH_FILL[HEALTH_TONE[p.health]]}1f;color:${HEALTH_FILL[HEALTH_TONE[p.health]]};">${esc(p.health.replace(/_/g, " "))}</span>
+          ${p.overridden ? '<span class="pill" style="font-size:0.66rem;">set by hand</span>' : ""}
+          <div class="muted" style="font-size:0.74rem;margin-top:3px;">${esc(p.overridden ? p.ragReason : p.reason)}</div>
+          ${
+            p.overridden
+              ? `<div class="muted" style="font-size:0.72rem;margin-top:2px;">Measured: <b>${esc(p.derivedHealth.replace(/_/g, " "))}</b> — ${esc(p.derivedReason)}${p.ragSetBy ? ` · ${esc(p.ragSetBy)}, ${when(p.ragSetAt)}` : ""}</div>`
+              : ""
+          }
+          <div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;">
+            <select data-rag="${p.id}" title="Override the measured status" style="font-size:0.76rem;padding:3px 5px;">
+              <option value="">Measured (${esc(p.derivedHealth.replace(/_/g, " "))})</option>
+              ${RAG_OPTIONS.map((o) => `<option value="${o}" ${p.ragOverride === o ? "selected" : ""}>${esc(o.replace(/_/g, " "))}</option>`).join("")}
+            </select>
+            <input data-rag-reason="${p.id}" placeholder="Reason" value="${esc(p.ragReason)}" style="font-size:0.76rem;padding:3px 5px;width:110px;">
+          </div>
+        </td>
       </tr>`
       )
       .join("")}</tbody></table>`;
@@ -489,7 +505,7 @@ async function loadPortfolio() {
 
   return (
     kpis +
-    `<p class="muted" style="font-size:0.82rem;margin:-6px 0 16px;">Health is derived, not typed. <b>SPI</b> is progress against programme elapsed, <b>CPI</b> is progress against budget consumed; below ${d.thresholds.spiWarn} is at risk and below ${d.thresholds.spiLate} is delayed — the same thresholds the EVM payment gate enforces in the Commercial OS. A dash means the project has no dates or no budget lines to measure against.</p>` +
+    `<p class="muted" style="font-size:0.82rem;margin:-6px 0 16px;">Health is measured, not typed. <b>SPI</b> is progress against programme elapsed, <b>CPI</b> is progress against budget consumed; below ${d.thresholds.spiWarn} is at risk and below ${d.thresholds.spiLate} is delayed — the same thresholds the EVM payment gate enforces in the Commercial OS. A dash means the project has no dates or no budget lines to measure against. You can <b>override</b> a project's status where the indices do not know the whole story; an override needs a reason and always shows what it overrode.</p>` +
     block("Portfolio health", healthBar(d.health, k.total)) +
     block("Projects", table) +
     block("Budget against actual", budgetMeters(d.projects)) +
@@ -500,6 +516,34 @@ async function loadPortfolio() {
     block("Monthly progress trend", trendChart(d.trend, d.trendNote))
   );
 }
+
+
+/* RAG override — set from the portfolio table. Changing the select with
+   no reason typed focuses the reason box rather than silently failing,
+   because the server requires one. */
+document.addEventListener("change", async (e) => {
+  const sel = e.target.closest("select[data-rag]");
+  if (!sel) return;
+  const id = sel.dataset.rag;
+  const reasonEl = document.querySelector(`input[data-rag-reason="${id}"]`);
+  const reason = (reasonEl?.value || "").trim();
+  if (sel.value && reason.length < 5) {
+    alert("Give a reason for overriding the measured status — it is recorded against the project.");
+    reasonEl?.focus();
+    return;
+  }
+  try {
+    await api(`/api/construx/projects/${id}/rag`, {
+      method: "PATCH",
+      body: JSON.stringify({ rag: sel.value, reason }),
+    });
+    loaded.delete("veryx");
+    await loadVeryx();
+    loaded.add("veryx");
+  } catch (err) {
+    alert(err.message);
+  }
+});
 
 // ---------- VERYX panel ----------
 

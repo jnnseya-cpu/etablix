@@ -1,11 +1,15 @@
 /**
- * CONSTRUX API — project delivery: portfolio, schedules, cost control, RFIs.
+ * CONSTRUX API — project delivery: portfolio, schedules, cost control,
+ * RFIs, and the manual RAG override a delivery manager can set on a
+ * project when the performance indices do not know the whole story.
  * All endpoints require an authenticated employee session.
  */
 
 import { Router } from "express";
-import { collection } from "../lib/store.js";
-import { requireAuth } from "../middleware/auth.js";
+import { collection, update } from "../lib/store.js";
+import { requireAuth, requireRole } from "../middleware/auth.js";
+import { ACCESS } from "../../shared/constants.js";
+import { RAG_OPTIONS } from "../lib/portfolio.js";
 import { publicIntegration } from "../lib/platforms.js";
 
 const router = Router();
@@ -84,6 +88,47 @@ router.get("/rfis", (req, res) => {
     return b.createdAt - a.createdAt;
   });
   res.json({ rfis });
+});
+
+/**
+ * PATCH /projects/:id/rag — set or clear the manual RAG override.
+ *
+ * The override sits on top of the derived SPI/CPI verdict rather than
+ * replacing it: VERYX keeps showing what the indices computed
+ * alongside what a person decided. A reason is required when setting
+ * one, for the same purpose reasons are required when certifying less
+ * than a supplier claimed — a judgement that overrides a measurement
+ * has to be answerable later.
+ */
+router.patch("/projects/:id/rag", requireRole(...ACCESS.DELIVERY_FINANCE), (req, res) => {
+  const project = findProject(req.params.id);
+  if (!project) return res.status(404).json({ error: "Project not found." });
+
+  const raw = String(req.body?.rag ?? "").trim();
+  const reason = String(req.body?.reason ?? "").trim().slice(0, 400);
+
+  if (!raw) {
+    const row = update("projects", project.id, {
+      ragOverride: null,
+      ragReason: "",
+      ragSetBy: req.user.name,
+      ragSetAt: Date.now(),
+    });
+    return res.json({ project: row, cleared: true });
+  }
+  if (!RAG_OPTIONS.includes(raw)) {
+    return res.status(400).json({ error: `RAG must be one of: ${RAG_OPTIONS.join(", ")}.` });
+  }
+  if (reason.length < 5) {
+    return res.status(400).json({ error: "Give a reason for overriding the measured status." });
+  }
+  const row = update("projects", project.id, {
+    ragOverride: raw,
+    ragReason: reason,
+    ragSetBy: req.user.name,
+    ragSetAt: Date.now(),
+  });
+  res.json({ project: row });
 });
 
 export default router;
