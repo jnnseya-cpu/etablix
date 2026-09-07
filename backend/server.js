@@ -29,7 +29,7 @@ import automationRoutes from "./routes/automation.js";
 import commercialRoutes from "./routes/commercial.js";
 import orgRoutes from "./routes/org.js";
 import docsRoutes from "./routes/docs.js";
-import agentRoutes from "./routes/agents.js";
+import agentRoutes, { failOrphanedRuns } from "./routes/agents.js";
 import paymentRoutes from "./routes/payments.js";
 import engagementRoutes from "./routes/engagements.js";
 import { startScheduler } from "./lib/automation.js";
@@ -114,6 +114,10 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 load(); // ensure the store is seeded before accepting traffic
+// A multi-pass agent run lives in the process. If the process went away
+// mid-run, the run did too — say so rather than leaving it "running".
+const orphaned = failOrphanedRuns();
+if (orphaned) console.log(`Marked ${orphaned} interrupted agent run(s) as failed.`);
 startScheduler(); // delivery automation: scheduled sweeps, guardrails and the daily digest
 app.listen(PORT, () => {
   console.log(`ETABLIX running on http://localhost:${PORT}`);

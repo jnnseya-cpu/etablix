@@ -12,7 +12,7 @@ import { ROLES } from "../../shared/constants.js";
 import { collection, insert, update, remove, persist } from "../lib/store.js";
 import { emit } from "../lib/comms.js";
 import { AI_AGENTS } from "../lib/organisation.js";
-import { AGENT_BRIEFS, publicProvider, setProvider, testProvider, runAgent } from "../lib/ai.js";
+import { AGENT_BRIEFS, publicProvider, setProvider, testProvider, runAgent, assertInputs, PIPELINE_AGENTS, DIAGNOSTIC_STAGES } from "../lib/ai.js";
 import { acceptDocuments } from "../lib/uploads.js";
 import { extractAll } from "../lib/extract.js";
 
@@ -56,6 +56,74 @@ router.post("/provider/test", admin, async (req, res) => {
   res.json({ result, provider: publicProvider() });
 });
 
+/** Keep the run log bounded. */
+function trimLog() {
+  const log = collection("agentTasks");
+  if (log.length > 300) {
+    log.splice(0, log.length - 300);
+    persist();
+  }
+}
+
+/**
+ * Work a pipeline run to completion in the background.
+ *
+ * Progress is written to the run row rather than held in memory, so the
+ * console shows which pass is in flight, and a run that fails at pass
+ * four says which four passes were done rather than reporting nothing.
+ */
+async function workPipeline(runId, agent, inputs, runBy) {
+  const stage = ({ key, state, index }) => {
+    const run = collection("agentTasks").find((r) => r.id === runId);
+    if (!run) return;
+    const stages = (run.stages || []).map((st, i) =>
+      st.key === key ? { ...st, state, at: Date.now() } : i < index ? { ...st, state: st.state === "pending" ? "done" : st.state } : st
+    );
+    update("agentTasks", runId, { stages, stageKey: key, stageState: state });
+  };
+
+  try {
+    const r = await runAgent(agent.id, inputs, runBy, { onStage: stage });
+    update("agentTasks", runId, {
+      output: r.output,
+      model: r.model,
+      usage: r.usage,
+      truncated: Boolean(r.truncated),
+      notes: r.notes || [],
+      status: "awaiting_approval",
+      finishedAt: Date.now(),
+    });
+    await emit("agent.run_completed", {
+      vars: { item: agent.name, outcome: `finished and is awaiting approval — "${collection("agentTasks").find((x) => x.id === runId)?.title || ""}"` },
+    }).catch(() => {});
+  } catch (err) {
+    update("agentTasks", runId, {
+      status: "failed",
+      error: String(err?.message || err).slice(0, 400),
+      finishedAt: Date.now(),
+    });
+  }
+}
+
+/**
+ * A run left "running" by a restart can never finish — the work was in
+ * the dead process. Fail them on boot rather than leaving a spinner that
+ * turns forever.
+ */
+export function failOrphanedRuns() {
+  let n = 0;
+  for (const r of collection("agentTasks")) {
+    if (r.status !== "running") continue;
+    update("agentTasks", r.id, {
+      status: "failed",
+      error: "The server restarted while this run was in progress. Nothing was lost except the run itself — start it again.",
+      finishedAt: Date.now(),
+    });
+    n += 1;
+  }
+  return n;
+}
+
 router.post("/:id/run", acceptDocuments, async (req, res) => {
   const agent = AI_AGENTS.find((a) => a.id === req.params.id);
   if (!agent) return res.status(404).json({ error: "Unknown agent." });
@@ -89,26 +157,44 @@ router.post("/:id/run", acceptDocuments, async (req, res) => {
       }
     }
 
-    const { output, model, usage, truncated } = await runAgent(agent.id, inputs, req.user.name);
-    const run = insert("agentTasks", {
+    const common = {
       agent: agent.id,
       agentName: agent.name,
       title: String(req.body?.title || "").trim().slice(0, 140) || `${agent.name} — ${new Date().toLocaleDateString("en-GB")}`,
       inputs,
       sources: sources.map((f) => ({ name: f.name, chars: f.chars || 0, pages: f.pages || null, error: f.error || null })),
+      runBy: req.user.name,
+    };
+
+    // A pipeline agent makes six calls and takes several minutes. Holding
+    // the request open for that is a timeout waiting to happen, so the run
+    // is recorded first, answered immediately, and worked in the
+    // background with each pass saved as it lands.
+    if (PIPELINE_AGENTS.has(agent.id)) {
+      assertInputs(agent.id, inputs);
+      const run = insert("agentTasks", {
+        ...common,
+        output: "",
+        status: "running",
+        startedAt: Date.now(),
+        stages: DIAGNOSTIC_STAGES.map((st) => ({ ...st, state: "pending" })),
+      });
+      trimLog();
+      res.status(202).json({ run: publicRun(run, true) });
+      workPipeline(run.id, agent, inputs, req.user.name);
+      return;
+    }
+
+    const { output, model, usage, truncated } = await runAgent(agent.id, inputs, req.user.name);
+    const run = insert("agentTasks", {
+      ...common,
       output,
       model,
       usage,
       truncated: Boolean(truncated),
       status: "awaiting_approval",
-      runBy: req.user.name,
     });
-    // Keep the run log bounded.
-    const log = collection("agentTasks");
-    if (log.length > 300) {
-      log.splice(0, log.length - 300);
-      persist();
-    }
+    trimLog();
     res.status(201).json({ run: publicRun(run, true) });
   } catch (err) {
     res.status(err.message.includes("required") ? 400 : 502).json({ error: err.message });

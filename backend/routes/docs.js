@@ -100,6 +100,9 @@ export const TEMPLATES = [
       F("basis", "Basis of preparation", "textarea", { placeholder: "Information relied on, and what was not provided" }),
       F("findings", "Findings in one paragraph", "textarea", { required: true }),
       ...DIAGNOSTIC_SECTIONS.map(([id, label], i) => F(id, `${i + 1}. ${label}`, "textarea")),
+      F("appendix", "Appendix A — document reconciliation ledger", "textarea", {
+        placeholder: "Which of the client's own documents disagree with which",
+      }),
     ],
   },
   {
@@ -475,6 +478,17 @@ export function splitDiagnostic(output) {
     else missing.push(`${i + 1}. ${label}`);
   });
 
+  // The appendix is lettered, not numbered, so it never collides with a
+  // deliverable. It is not counted as missing: it exists only when the
+  // reconciliation pass found something worth appending.
+  const appendixAt = lines.findIndex((l) => /^\s*(?:#{1,4}\s*)?(?:\*\*|__)?\s*A\s*[.)·:—-]\s*\S/.test(l));
+  if (appendixAt >= 0) {
+    const after = marks.filter((m) => m.at > appendixAt).map((m) => m.at);
+    const end = after.length ? Math.min(...after) : lines.length;
+    const body = lines.slice(appendixAt + 1, end).join("\n").trim();
+    if (body) data.appendix = body;
+  }
+
   return { data, missing, matched: 13 - missing.length };
 }
 
@@ -679,6 +693,7 @@ function renderBody(doc) {
       <table class="meta">${t("Client", d.client)}${t("Project / site", d.project)}${t("Site reference", d.siteRef)}${t("Prepared by", doc.issuedBy)}</table>
       ${d.findings ? `<div class="blk"><h3>Findings in one paragraph</h3>${richText(d.findings)}</div>` : ""}
       ${DIAGNOSTIC_SECTIONS.map(([id, label], i) => section(i + 1, label, d[id])).join("")}
+      ${d.appendix ? `<div class="blk"><h3>Appendix A · Document reconciliation ledger</h3><p class="rt-lede">Which of your own documents disagree with which. Set out as the documents state it.</p>${richText(d.appendix)}</div>` : ""}
       ${d.basis ? `<div class="blk"><h3>Basis of preparation</h3>${richText(d.basis)}</div>` : ""}
       <p class="legalnote">Every load, ratio, rate and duration in this report is a first-pass planning figure requiring validation by a competent person before use. Where information was not provided it is identified as missing rather than assumed. This report is decision support: it is not a design, a price or an instruction, and nothing safety-critical is resolved within it.</p>`;
   }
@@ -745,6 +760,7 @@ router.get("/:id/render", tokenAuth, (req, res) => {
   .blk { margin: 22px 0 0; }
   /* Agent-authored section content. */
   ul.rt, ol.rt { margin: 8px 0 0; padding-left: 20px; font-size: 13.5px; line-height: 1.65; }
+  p.rt-lede { font-size: 13px; color: #5b6672; margin: 0 0 8px; }
   h4.rt-h { font-family: Arial, sans-serif; font-size: 12.5px; letter-spacing: 0.4px; margin: 16px 0 2px; color: #14181d; }
   ul.rt li, ol.rt li { margin-bottom: 5px; }
   .blk table.lines { font-size: 12.5px; }

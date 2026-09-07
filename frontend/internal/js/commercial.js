@@ -1205,7 +1205,15 @@ export async function loadOrganisation() {
     .join("");
 
   const runStatusPill = (s) =>
-    s === "approved" ? pill("approved", "approved") : s === "rejected" ? pill("rejected", "declined") : pill("awaiting approval", "");
+    s === "approved"
+      ? pill("approved", "approved")
+      : s === "rejected"
+        ? pill("rejected", "declined")
+        : s === "running"
+          ? pill("running", "warning")
+          : s === "failed"
+            ? pill("failed", "alert")
+            : pill("awaiting approval", "");
   const runsTable = (agentsRes.runs || []).length
     ? wrapT(`<table><thead><tr><th>When</th><th>Agent</th><th>Run</th><th>By</th><th>Status</th><th></th></tr></thead><tbody>${agentsRes.runs
         .map(
@@ -1311,6 +1319,7 @@ document.addEventListener("submit", async (e) => {
     const holder = document.querySelector(`[data-agent-output="${form.dataset.agentRun}"]`);
     holder.innerHTML = renderRunView(run);
     holder.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (run.status === "running") followRun(run.id, holder);
   } catch (err) {
     errEl.textContent = err.message;
     errEl.classList.add("show");
@@ -1319,6 +1328,61 @@ document.addEventListener("submit", async (e) => {
     btn.textContent = "Run agent";
   }
 });
+
+/**
+ * Watch a multi-pass run to the end.
+ *
+ * The passes are minutes apart, so the console shows which one is in
+ * flight rather than a spinner: a person can see that the reconciliation
+ * pass is reading their eight documents against each other, and that
+ * there are five more to come.
+ */
+const following = new Set();
+async function followRun(runId, holder) {
+  if (following.has(runId)) return;
+  following.add(runId);
+  try {
+    for (;;) {
+      await new Promise((r) => setTimeout(r, 6000));
+      let run;
+      try {
+        ({ run } = await api(`/api/agents/runs/${runId}`));
+      } catch {
+        continue; // a dropped poll is not a failed run
+      }
+      const target = holder?.isConnected ? holder : document.getElementById("agent-run-viewer");
+      if (target) target.innerHTML = renderRunView(run);
+      if (run.status !== "running") break;
+    }
+  } finally {
+    following.delete(runId);
+  }
+}
+
+/** Where a multi-pass run has got to. */
+function renderStages(run) {
+  if (!run.stages?.length) return "";
+  const mark = { done: "✓", running: "→", pending: "·" };
+  const rows = run.stages
+    .map((st, i) => {
+      const on = st.state === "running";
+      return `<tr style="${on ? "font-weight:600;" : st.state === "pending" ? "opacity:0.5;" : ""}">
+        <td style="width:26px;color:var(--amber,#9c7a3c);">${mark[st.state] || "·"}</td>
+        <td>Pass ${i + 1} — ${esc(st.label)}</td>
+        <td style="text-align:right;font-size:0.78rem;" class="muted">${st.state === "done" ? "done" : on ? "working…" : ""}</td>
+      </tr>`;
+    })
+    .join("");
+  const done = run.stages.filter((s) => s.state === "done").length;
+  return `<div style="margin:10px 0 4px;">
+    <p class="muted" style="font-size:0.84rem;margin-bottom:6px;">
+      ${run.status === "running"
+        ? `Pass ${Math.min(done + 1, run.stages.length)} of ${run.stages.length}. Each pass is a separate piece of reasoning over the whole document set, so this takes several minutes — you can leave this page and come back to it.`
+        : `Completed in ${run.stages.length} passes.`}
+    </p>
+    <table style="font-size:0.86rem;width:100%;"><tbody>${rows}</tbody></table>
+  </div>`;
+}
 
 function renderRunView(run) {
   const decide =
@@ -1339,13 +1403,24 @@ function renderRunView(run) {
           <span class="muted" style="margin-left:10px;font-size:0.8rem;">Opens the Site Systems Diagnostic document with all twelve sections filled from this run. You review and edit before it is generated.</span>
         </div>`
       : "";
-  return `<div class="section-block" style="border:1.5px solid var(--amber,#9c7a3c);border-radius:10px;padding:16px 18px;margin-top:12px;">
-    <h3>${esc(run.title)} <span class="muted" style="font-weight:400;font-size:0.78rem;">· ${esc(run.agentName)} · ${esc(run.model || "")}${run.usage ? ` · ${run.usage.input + run.usage.output} tokens` : ""}</span></h3>
+  const head = `<h3>${esc(run.title)} <span class="muted" style="font-weight:400;font-size:0.78rem;">· ${esc(run.agentName)}${run.model ? ` · ${esc(run.model)}` : ""}${run.usage ? ` · ${(run.usage.input + run.usage.output).toLocaleString()} tokens` : ""}</span></h3>`;
+  const wrap = (inner) =>
+    `<div class="section-block" style="border:1.5px solid var(--amber,#9c7a3c);border-radius:10px;padding:16px 18px;margin-top:12px;">${head}${inner}</div>`;
+
+  if (run.status === "running") return wrap(renderStages(run));
+  if (run.status === "failed") {
+    return wrap(
+      `${renderStages(run)}<p class="error-note" style="margin-top:8px;">${esc(run.error || "This run failed.")}</p>`
+    );
+  }
+
+  return wrap(`
+    ${renderStages(run)}
     ${run.truncated ? '<p class="muted" style="color:var(--danger,#c0392b);">Output hit the length limit — the end may be cut off; re-run with a narrower scope if needed.</p>' : ""}
+    ${(run.notes || []).map((n) => `<p class="muted" style="color:var(--danger,#c0392b);font-size:0.84rem;">${esc(n)}</p>`).join("")}
     <pre style="white-space:pre-wrap;font-family:inherit;font-size:0.88rem;line-height:1.6;background:var(--paper,#f7f5f0);border:1px solid var(--line);border-radius:7px;padding:14px 16px;max-height:520px;overflow:auto;">${esc(run.output || "")}</pre>
     ${decide}
-    ${draft}
-  </div>`;
+    ${draft}`);
 }
 
 document.addEventListener("click", async (e) => {
@@ -1376,8 +1451,12 @@ document.addEventListener("click", async (e) => {
   if (open) {
     try {
       const { run } = await api(`/api/agents/runs/${open.dataset.runOpen}`);
-      document.getElementById("agent-run-viewer").innerHTML = renderRunView(run);
-      document.getElementById("agent-run-viewer").scrollIntoView({ behavior: "smooth", block: "start" });
+      const viewer = document.getElementById("agent-run-viewer");
+      viewer.innerHTML = renderRunView(run);
+      viewer.scrollIntoView({ behavior: "smooth", block: "start" });
+      // Opening a run that is still working picks the watch back up —
+      // the passes outlive a page reload.
+      if (run.status === "running") followRun(run.id, viewer);
     } catch (err) {
       alert(err.message);
     }

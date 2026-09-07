@@ -15,6 +15,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { getSettings, saveSettings } from "./store.js";
+import { runDiagnostic, STANDARD, DIAGNOSTIC_STAGES } from "./diagnostic.js";
 
 const DEFAULT_MODEL = "claude-opus-5";
 
@@ -400,11 +401,46 @@ Use ONLY facts given in the brief — never invent quantities, dates, locations 
   return { scope: text.slice(0, 6000), model: response.model };
 }
 
-/** Run one agent for real. Returns { output, model, usage }. */
-export async function runAgent(agentId, inputs, runBy) {
+/** Which agents run as a multi-pass pipeline rather than a single call. */
+export const PIPELINE_AGENTS = new Set(["diagnostic"]);
+export { DIAGNOSTIC_STAGES };
+
+/** Throws on the first required field the run is missing. */
+export function assertInputs(agentId, inputs) {
+  const brief = AGENT_BRIEFS[agentId];
+  if (!brief) throw new Error("Unknown agent.");
+  for (const f of brief.fields) {
+    if (f.required && !String(inputs?.[f.name] || "").trim()) {
+      throw new Error(`"${f.label}" is required for this agent.`);
+    }
+  }
+}
+
+/**
+ * Run one agent for real. Returns { output, model, usage }.
+ *
+ * A pipeline agent takes several minutes and reports progress through
+ * `onStage`; the caller runs it in the background and polls. Everything
+ * else is one call and returns when it returns.
+ */
+export async function runAgent(agentId, inputs, runBy, { onStage } = {}) {
   const brief = AGENT_BRIEFS[agentId];
   if (!brief) throw new Error("Unknown agent.");
   const { model } = getProvider();
+  assertInputs(agentId, inputs);
+
+  if (PIPELINE_AGENTS.has(agentId)) {
+    return runDiagnostic({
+      anthropic: client(),
+      model,
+      // The standard travels with every pass; the brief alone is what the
+      // report must contain, not how good it has to be.
+      system: `${brief.system}\n\n${STANDARD}`,
+      brief,
+      inputs,
+      onStage,
+    });
+  }
 
   const parts = brief.fields
     .map((f) => {
@@ -412,11 +448,6 @@ export async function runAgent(agentId, inputs, runBy) {
       return v ? `## ${f.label}\n${v}` : null;
     })
     .filter(Boolean);
-  for (const f of brief.fields) {
-    if (f.required && !String(inputs?.[f.name] || "").trim()) {
-      throw new Error(`"${f.label}" is required for this agent.`);
-    }
-  }
 
   const response = await client().messages.create({
     model,
