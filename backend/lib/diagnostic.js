@@ -323,16 +323,25 @@ export const DIAGNOSTIC_STAGES = [
 ];
 
 /**
- * Token budgets per pass.
+ * How hard each pass thinks, and how much room it has to write.
  *
- * The reconciliation pass is the one that has to hold eight documents in
- * mind at once, so it gets the most room to think and the least to
- * write. Section passes are the reverse.
+ * Current models take `thinking: {type: "adaptive"}` and are steered by
+ * `effort` rather than a fixed token budget — the model decides how much
+ * reasoning a given input deserves, which is the right shape here because
+ * a thin information pack should not be thought about as hard as a thick
+ * contradictory one.
+ *
+ * Reconciliation runs at max: it is the pass where correctness matters
+ * more than cost, because everything downstream is built on what it
+ * finds and a contradiction missed here is missed everywhere. The
+ * section passes run one step below — they are writing up findings that
+ * already exist rather than discovering them. The final pass only has to
+ * summarise what is already written.
  */
 const BUDGET = {
-  reconcile: { thinking: 12000, max: 26000 },
-  section: { thinking: 8000, max: 24000 },
-  final: { thinking: 6000, max: 14000 },
+  reconcile: { effort: "max", max: 32000 },
+  section: { effort: "xhigh", max: 32000 },
+  final: { effort: "high", max: 16000 },
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -374,9 +383,14 @@ async function call(anthropic, { model, system, inputsBlock, ledgerBlock, priorB
     messages: [{ role: "user", content }],
   };
 
+  // Degradation ladder, most capable first. The administrator chooses the
+  // model in the portal, so this cannot assume one: rung 1 is the current
+  // API, rung 3 the pre-adaptive one an older model still needs, rung 4
+  // the plainest request any model will accept.
   const all = [
-    { ...base, max_tokens: budget.max, thinking: { type: "enabled", budget_tokens: budget.thinking } },
-    { ...base, max_tokens: 8192, thinking: { type: "enabled", budget_tokens: 4000 } },
+    { ...base, max_tokens: budget.max, thinking: { type: "adaptive" }, output_config: { effort: budget.effort } },
+    { ...base, max_tokens: budget.max, thinking: { type: "adaptive" } },
+    { ...base, max_tokens: Math.min(budget.max, 16000), thinking: { type: "enabled", budget_tokens: 8000 } },
     { ...base, max_tokens: 8192 },
   ];
   // Start where the last pass ended up, not back at the top.
@@ -421,7 +435,7 @@ async function call(anthropic, { model, system, inputsBlock, ledgerBlock, priorB
       lastErr = err;
       // A refusal is a decision, not a capability problem — do not retry it.
       if (/declined this request/.test(err.message)) throw err;
-      const retryable = /max_tokens|thinking|budget_tokens|not support|invalid_request/i.test(err.message || "");
+      const retryable = /max_tokens|thinking|budget_tokens|adaptive|effort|output_config|not support|invalid_request/i.test(err.message || "");
       if (!retryable || i === all.length - 1) throw err;
     }
   }
