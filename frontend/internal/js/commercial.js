@@ -9,9 +9,15 @@ const token = sessionStorage.getItem("etablix.token");
 const user = JSON.parse(sessionStorage.getItem("etablix.user") || "null");
 
 async function api(path, options = {}) {
+  // FormData must set its own multipart boundary — never force JSON on it.
+  const isForm = options.body instanceof FormData;
   const res = await fetch(path, {
     ...options,
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`, ...(options.headers || {}) },
+    headers: {
+      ...(isForm ? {} : { "Content-Type": "application/json" }),
+      Authorization: `Bearer ${token}`,
+      ...(options.headers || {}),
+    },
   });
   if (res.status === 401) {
     sessionStorage.clear();
@@ -1002,6 +1008,8 @@ export async function loadOrganisation() {
               : `<label class="muted" style="font-size:0.8rem;">${esc(f.label)}${f.required ? " *" : ""}</label><textarea name="${f.name}" ${f.required ? "required" : ""} style="width:100%;min-height:90px;padding:10px 12px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;font-size:0.88rem;margin-bottom:8px;"></textarea>`
           )
           .join("")}
+        <label class="muted" style="font-size:0.8rem;">Or upload the source documents — PDF, Word (.docx) or text. They are read in full and given to the agent alongside anything typed above.</label>
+        <input type="file" name="__documents" multiple accept=".pdf,.docx,.txt,.md,.csv,.json" style="width:100%;border:1.5px dashed var(--line);padding:10px;border-radius:7px;margin-bottom:8px;">
         <button class="btn-block" type="submit" style="width:auto;padding:11px 22px;" ${provider.connected ? "" : "disabled"}>${provider.connected ? "Run agent" : "Connect the AI engine first"}</button>
         <span class="login-error" data-agent-error style="display:block;margin-top:8px;"></span>
       </form>
@@ -1117,12 +1125,15 @@ document.addEventListener("submit", async (e) => {
   try {
     const inputs = {};
     for (const el of form.querySelectorAll("input[name], textarea[name]")) {
-      if (el.name !== "__title") inputs[el.name] = el.value;
+      if (el.name !== "__title" && el.name !== "__documents") inputs[el.name] = el.value;
     }
-    const { run } = await api(`/api/agents/${form.dataset.agentRun}/run`, {
-      method: "POST",
-      body: JSON.stringify({ title: form.__title.value, inputs }),
-    });
+    const files = form.__documents?.files || [];
+    if (files.length) btn.textContent = `Reading ${files.length} document(s) and running — this can take a minute…`;
+    const fd = new FormData();
+    fd.set("title", form.__title.value);
+    fd.set("inputs", JSON.stringify(inputs));
+    for (const f of files) fd.append("documents", f);
+    const { run } = await api(`/api/agents/${form.dataset.agentRun}/run`, { method: "POST", body: fd });
     const holder = document.querySelector(`[data-agent-output="${form.dataset.agentRun}"]`);
     holder.innerHTML = renderRunView(run);
     holder.scrollIntoView({ behavior: "smooth", block: "start" });

@@ -13,6 +13,8 @@ import { collection, insert, update, remove, persist } from "../lib/store.js";
 import { emit } from "../lib/comms.js";
 import { AI_AGENTS } from "../lib/organisation.js";
 import { AGENT_BRIEFS, publicProvider, setProvider, testProvider, runAgent } from "../lib/ai.js";
+import { acceptDocuments } from "../lib/uploads.js";
+import { extractAll } from "../lib/extract.js";
 
 const router = Router();
 router.use(requireAuth);
@@ -54,16 +56,46 @@ router.post("/provider/test", admin, async (req, res) => {
   res.json({ result, provider: publicProvider() });
 });
 
-router.post("/:id/run", async (req, res) => {
+router.post("/:id/run", acceptDocuments, async (req, res) => {
   const agent = AI_AGENTS.find((a) => a.id === req.params.id);
   if (!agent) return res.status(404).json({ error: "Unknown agent." });
   try {
-    const { output, model, usage, truncated } = await runAgent(agent.id, req.body?.inputs || {}, req.user.name);
+    // Multipart form: inputs arrive as a JSON field alongside any files.
+    let inputs = req.body?.inputs || {};
+    if (typeof inputs === "string") {
+      try {
+        inputs = JSON.parse(inputs);
+      } catch {
+        return res.status(400).json({ error: "Invalid run inputs." });
+      }
+    }
+
+    // Uploaded tender packs, PQQs and drawings register text are read in
+    // full and appended to the agent's main document field, so the source
+    // reaches the agent whole rather than as a partial paste.
+    let sources = [];
+    if (req.files?.length) {
+      const brief = AGENT_BRIEFS[agent.id];
+      const target = brief?.fields.find((f) => f.type === "textarea" && f.required)?.name
+        || brief?.fields.find((f) => f.type === "textarea")?.name;
+      const { text, files } = await extractAll(req.files);
+      sources = files;
+      if (text && target) {
+        inputs[target] = [String(inputs[target] || "").trim(), text].filter(Boolean).join("\n\n");
+      }
+      const unreadable = files.filter((f) => f.error);
+      if (!text && unreadable.length) {
+        return res.status(400).json({ error: `Could not read ${unreadable[0].name}: ${unreadable[0].error}` });
+      }
+    }
+
+    const { output, model, usage, truncated } = await runAgent(agent.id, inputs, req.user.name);
     const run = insert("agentTasks", {
       agent: agent.id,
       agentName: agent.name,
       title: String(req.body?.title || "").trim().slice(0, 140) || `${agent.name} — ${new Date().toLocaleDateString("en-GB")}`,
-      inputs: req.body?.inputs || {},
+      inputs,
+      sources: sources.map((f) => ({ name: f.name, chars: f.chars || 0, pages: f.pages || null, error: f.error || null })),
       output,
       model,
       usage,

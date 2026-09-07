@@ -23,6 +23,11 @@ const ALLOWED = new Set([
   "image/jpeg",
   "image/png",
   "image/webp",
+  // Plain-text sources for AI agent runs (pasted specs, exported notes).
+  "text/plain",
+  "text/markdown",
+  "text/csv",
+  "application/json",
 ]);
 
 const storage = multer.diskStorage({
