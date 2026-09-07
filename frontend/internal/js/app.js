@@ -247,6 +247,260 @@ async function loadConstrux() {
     block("Site telemetry", sensors);
 }
 
+
+// ---------- VERYX portfolio dashboard ----------
+/* Charts are inline SVG and CSS bars — no library, no canvas. Colour
+   carries state only where a label carries it too: every segment and
+   every band is named in text, so the dashboard reads correctly in
+   greyscale, under colour-vision deficiency and in print. The health
+   bands are the EVM gate's own thresholds, so "at risk" here means
+   exactly what it means on the payment gate. */
+
+const HEALTH_FILL = {
+  good: "#1f9d61",      // on track
+  warning: "#b8860b",   // at risk — validated against the others
+  critical: "#c0392b",  // delayed
+  complete: "#5b6672",  // neutral, deliberately recessive
+};
+const HEALTH_TONE = { on_track: "good", at_risk: "warning", delayed: "critical", complete: "complete" };
+const SERIES = "#9c7a3c";   // single-hue magnitude
+const TRACK = "#e3e6ea";    // recessive track
+
+const pc = (n) => `${Math.round(Number(n) || 0)}%`;
+const shortMoney = (n) => {
+  const v = Number(n) || 0;
+  if (Math.abs(v) >= 1e6) return `£${(v / 1e6).toFixed(2)}m`;
+  if (Math.abs(v) >= 1e3) return `£${Math.round(v / 1e3)}k`;
+  return `£${v}`;
+};
+const monthLabel = (m) => {
+  const d = new Date(`${m}-01T00:00:00Z`);
+  return Number.isNaN(d.getTime()) ? m : d.toLocaleDateString("en-GB", { month: "short", year: "2-digit" });
+};
+
+/** Part-to-whole bar: one row, a 2px gap between fills, every segment named. */
+function healthBar(health, total) {
+  if (!total) return '<p class="empty-note">No projects to report on yet.</p>';
+  const segs = health
+    .filter((h) => h.count > 0)
+    .map(
+      (h) => `<div title="${esc(h.label)}: ${h.count} of ${total}" style="flex:${h.count};background:${HEALTH_FILL[h.tone]};height:26px;border-radius:3px;"></div>`
+    )
+    .join("");
+  const key = health
+    .map(
+      (h) => `<span style="display:inline-flex;align-items:center;gap:6px;margin-right:16px;font-size:0.82rem;">
+        <span aria-hidden="true" style="width:10px;height:10px;border-radius:2px;background:${HEALTH_FILL[h.tone]};display:inline-block;"></span>
+        <b>${h.count}</b> <span class="muted">${esc(h.label)}</span></span>`
+    )
+    .join("");
+  return `<div style="display:flex;gap:2px;margin-bottom:10px;">${segs}</div><div>${key}</div>`;
+}
+
+/** Per-project budget meter: track = budgeted, fill = spent, rule = committed. */
+function budgetMeters(projects) {
+  const rows = projects
+    .filter((p) => p.budget.budgeted > 0)
+    .map((p) => {
+      const spent = Math.min(100, p.spentPct);
+      const committed = Math.min(100, p.committedPct);
+      const over = p.spentPct > 100;
+      return `<tr>
+        <td style="white-space:nowrap;"><b>${esc(p.code)}</b></td>
+        <td style="width:100%;">
+          <div title="${esc(p.name)} — spent ${shortMoney(p.budget.spent)} of ${shortMoney(p.budget.budgeted)} budgeted, ${shortMoney(p.budget.committed)} committed" style="position:relative;background:${TRACK};height:18px;border-radius:3px;overflow:hidden;">
+            <div style="width:${spent}%;height:100%;background:${over ? HEALTH_FILL.critical : SERIES};border-radius:3px 0 0 3px;"></div>
+            <div aria-hidden="true" style="position:absolute;top:0;left:${committed}%;width:2px;height:100%;background:var(--ink);opacity:0.55;"></div>
+          </div>
+        </td>
+        <td class="muted" style="white-space:nowrap;font-size:0.82rem;">${shortMoney(p.budget.spent)} / ${shortMoney(p.budget.budgeted)} · <b>${pc(p.spentPct)}</b></td>
+      </tr>`;
+    })
+    .join("");
+  if (!rows) return '<p class="empty-note">No budget lines recorded against any project yet.</p>';
+  const missing = projects.filter((p) => p.budget.budgeted <= 0).length;
+  return `<table><tbody>${rows}</tbody></table>
+    <p class="muted" style="font-size:0.8rem;margin-top:8px;">Bar is spend against budget; the vertical rule marks committed value. A bar turning red is spend past budget.${
+      missing ? ` <b>${missing}</b> project${missing === 1 ? " has" : "s have"} no budget lines recorded and cannot be shown here.` : ""
+    }</p>`;
+}
+
+/** Sorted magnitude bars, one hue — identity is in the row label, not the colour. */
+function sectorBars(sectors) {
+  if (!sectors.length) return '<p class="empty-note">No projects to group yet.</p>';
+  const max = Math.max(...sectors.map((s) => s.count));
+  return `<table><tbody>${sectors
+    .map(
+      (s) => `<tr>
+      <td style="white-space:nowrap;">${esc(s.sector)}</td>
+      <td style="width:100%;"><div title="${esc(s.sector)}: ${s.count} project${s.count === 1 ? "" : "s"}, ${shortMoney(s.value)}" style="background:${SERIES};height:14px;width:${(s.count / max) * 100}%;min-width:3px;border-radius:0 3px 3px 0;"></div></td>
+      <td class="muted" style="white-space:nowrap;font-size:0.82rem;"><b>${s.count}</b> · ${shortMoney(s.value)}</td>
+    </tr>`
+    )
+    .join("")}</tbody></table>`;
+}
+
+/** Portfolio timeline: one bar per project across the shared window, with today marked.
+    Laid out as flex rows with a fixed-width label column, so the today rule is
+    positioned against the track column itself rather than guessed from table widths. */
+function timeline(projects, win) {
+  if (!win) return '<p class="empty-note">Project dates are needed to draw the timeline.</p>';
+  const span = win.to - win.from || 1;
+  const at = (ts) => ((ts - win.from) / span) * 100;
+  const todayPct = at(win.today);
+  const inWindow = todayPct >= 0 && todayPct <= 100;
+  const LABEL = 190;
+  const TAIL = 46;
+
+  const track = (p) => {
+    const start = Date.parse(p.startDate);
+    const end = Date.parse(p.endDate);
+    if (!Number.isFinite(start) || !Number.isFinite(end)) return '<span class="muted" style="font-size:0.8rem;">no dates</span>';
+    const left = at(start);
+    const width = Math.max(1, at(end) - left);
+    const fill = HEALTH_FILL[HEALTH_TONE[p.health]] || SERIES;
+    return `<div title="${esc(p.name)} — ${esc(p.startDate)} to ${esc(p.endDate)}, ${pc(p.progress)} complete"
+        style="position:absolute;left:${left}%;width:${width}%;top:1px;height:16px;background:${TRACK};border-radius:3px;overflow:hidden;">
+        <div style="width:${Math.min(100, p.progress)}%;height:100%;background:${fill};border-radius:3px 0 0 3px;"></div>
+      </div>`;
+  };
+
+  const rows = projects
+    .map(
+      (p) => `<div style="display:flex;align-items:center;gap:12px;margin-bottom:9px;">
+        <div style="flex:0 0 ${LABEL}px;min-width:0;">
+          <b>${esc(p.code)}</b>
+          <div class="muted" style="font-size:0.76rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.name)}</div>
+        </div>
+        <div style="flex:1 1 auto;position:relative;height:18px;min-width:140px;">${track(p)}</div>
+        <div class="muted" style="flex:0 0 ${TAIL}px;text-align:right;font-size:0.82rem;">${pc(p.progress)}</div>
+      </div>`
+    )
+    .join("");
+
+  // The rule spans the whole stack, inset by exactly the label and tail columns.
+  const todayRule = inWindow
+    ? `<div aria-hidden="true" title="Today"
+         style="position:absolute;top:0;bottom:0;left:calc(${LABEL}px + 12px + (100% - ${LABEL + TAIL}px - 24px) * ${todayPct / 100});width:2px;background:var(--danger);opacity:0.55;pointer-events:none;"></div>`
+    : "";
+
+  return `<div style="position:relative;">${rows}${todayRule}</div>
+    <p class="muted" style="font-size:0.8rem;margin-top:6px;">${new Date(win.from).toLocaleDateString("en-GB", { month: "short", year: "numeric" })} — ${new Date(win.to).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}. Fill is progress against the project's own bar; the red rule is today.</p>`;
+}
+
+/** Monthly progress trend — an honest empty state until there are two points. */
+function trendChart(series, note) {
+  if (note) {
+    return `<p class="empty-note">${esc(note)}</p>`;
+  }
+  const w = 720;
+  const h = 180;
+  const pad = { l: 34, r: 12, t: 12, b: 26 };
+  const xs = (i) => pad.l + (i / Math.max(1, series.length - 1)) * (w - pad.l - pad.r);
+  const ys = (v) => pad.t + (1 - v / 100) * (h - pad.t - pad.b);
+  const line = series.map((s, i) => `${i ? "L" : "M"}${xs(i).toFixed(1)},${ys(s.avgProgress).toFixed(1)}`).join(" ");
+  const grid = [0, 25, 50, 75, 100]
+    .map(
+      (v) => `<line x1="${pad.l}" y1="${ys(v)}" x2="${w - pad.r}" y2="${ys(v)}" stroke="${TRACK}" stroke-width="1"/>
+        <text x="${pad.l - 6}" y="${ys(v) + 3}" text-anchor="end" font-size="10" fill="var(--slate-light)">${v}</text>`
+    )
+    .join("");
+  const dots = series
+    .map(
+      (s, i) => `<circle cx="${xs(i)}" cy="${ys(s.avgProgress)}" r="4" fill="${SERIES}"><title>${esc(monthLabel(s.month))}: ${s.avgProgress}% average progress across ${s.projects} project${s.projects === 1 ? "" : "s"}</title></circle>`
+    )
+    .join("");
+  const labels = series
+    .map((s, i) =>
+      i === 0 || i === series.length - 1 || series.length <= 6
+        ? `<text x="${xs(i)}" y="${h - 8}" text-anchor="middle" font-size="10" fill="var(--slate-light)">${esc(monthLabel(s.month))}</text>`
+        : ""
+    )
+    .join("");
+  const last = series[series.length - 1];
+  return `<div style="overflow-x:auto;">
+      <svg viewBox="0 0 ${w} ${h}" width="100%" style="max-width:${w}px;display:block;" role="img"
+        aria-label="Average portfolio progress by month, ending at ${last.avgProgress}%">
+        ${grid}
+        <path d="${line}" fill="none" stroke="${SERIES}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+        ${dots}${labels}
+      </svg>
+    </div>
+    <p class="muted" style="font-size:0.8rem;">Average percent complete across the portfolio, one point per calendar month. Latest: <b>${last.avgProgress}%</b> across ${last.projects} project${last.projects === 1 ? "" : "s"}.</p>`;
+}
+
+async function loadPortfolio() {
+  const d = await api("/api/veryx/portfolio");
+  const k = d.kpis;
+
+  const kpis = `<div class="kpis">
+    <div class="kpi accent"><b>${k.total}</b><span>Live projects</span></div>
+    <div class="kpi green"><b>${k.onTrack}</b><span>On track</span></div>
+    <div class="kpi"><b>${k.atRisk}</b><span>At risk</span></div>
+    <div class="kpi"><b>${k.delayed}</b><span>Delayed</span></div>
+    <div class="kpi"><b>${shortMoney(k.portfolioValue)}</b><span>Portfolio value</span></div>
+    <div class="kpi"><b>${shortMoney(k.spent)}</b><span>Spent · ${k.spentPct}% of budget</span></div>
+  </div>`;
+
+  const table = `<table>
+    <thead><tr><th>Project</th><th>Client</th><th>Manager</th><th>Programme</th><th>Progress</th><th>SPI</th><th>CPI</th><th>Budget</th><th>Health</th></tr></thead>
+    <tbody>${d.projects
+      .map(
+        (p) => `<tr>
+        <td><b>${esc(p.code)}</b><div class="muted brief">${esc(p.name)}</div></td>
+        <td class="muted">${esc(p.client || "—")}<div class="muted" style="font-size:0.76rem;">${esc(p.sector || "")}</div></td>
+        <td class="muted">${esc(p.manager || "—")}</td>
+        <td class="muted" style="white-space:nowrap;font-size:0.82rem;">${esc(p.startDate || "—")}<br>${esc(p.endDate || "—")}</td>
+        <td><div title="${pc(p.progress)} complete, ${pc(p.elapsedPct)} of programme elapsed" style="background:${TRACK};height:8px;border-radius:2px;min-width:60px;">
+            <div style="width:${Math.min(100, p.progress)}%;height:100%;background:${SERIES};border-radius:2px;"></div></div>
+          <span class="muted" style="font-size:0.78rem;">${pc(p.progress)}</span></td>
+        <td><b>${p.spi === null ? "—" : p.spi.toFixed(2)}</b></td>
+        <td><b>${p.cpi === null ? "—" : p.cpi.toFixed(2)}</b></td>
+        <td class="muted" style="white-space:nowrap;font-size:0.82rem;">${shortMoney(p.budget.spent)} / ${shortMoney(p.budget.budgeted)}</td>
+        <td><span class="pill" style="background:${HEALTH_FILL[HEALTH_TONE[p.health]]}1f;color:${HEALTH_FILL[HEALTH_TONE[p.health]]};">${esc(p.health.replace(/_/g, " "))}</span>
+          <div class="muted" style="font-size:0.74rem;margin-top:3px;">${esc(p.reason)}</div></td>
+      </tr>`
+      )
+      .join("")}</tbody></table>`;
+
+  const i = d.issues;
+  const issues = `<table><tbody>
+    <tr><td><span class="pill alert">High risks</span></td><td><b>${i.highRisks}</b></td><td class="muted">Open risks scoring 16 or above — immediate management attention.</td></tr>
+    <tr><td><span class="pill warning">Medium risks</span></td><td><b>${i.mediumRisks}</b></td><td class="muted">Score 8–15, monitored and mitigated.</td></tr>
+    <tr><td><span class="pill">Low risks</span></td><td><b>${i.lowRisks}</b></td><td class="muted">Score below 8.</td></tr>
+    <tr><td><span class="pill alert">Major NCRs</span></td><td><b>${i.majorNcrs}</b></td><td class="muted">Open non-conformances graded major (${i.openNcrs} open in total).</td></tr>
+    <tr><td><span class="pill">Open RFIs</span></td><td><b>${i.openRfis}</b></td><td class="muted">Awaiting an answer across the portfolio.</td></tr>
+  </tbody></table>`;
+
+  const ms = d.milestones.length
+    ? `<table><thead><tr><th>Activity</th><th>Project</th><th>Phase</th><th>Due</th><th>Progress</th><th>State</th></tr></thead><tbody>${d.milestones
+        .map(
+          (m) => `<tr>
+        <td><b>${esc(m.activity)}</b>${m.critical ? ' <span class="pill alert" style="font-size:0.68rem;">critical path</span>' : ""}</td>
+        <td class="muted">${esc(m.projectCode)}</td>
+        <td class="muted">${esc(m.phase || "—")}</td>
+        <td class="muted" style="white-space:nowrap;">${esc(m.end || "—")}<div style="font-size:0.76rem;">${m.daysToEnd === null ? "" : m.daysToEnd < 0 ? `${Math.abs(m.daysToEnd)}d overdue` : `${m.daysToEnd}d`}</div></td>
+        <td>${pc(m.progress)}</td>
+        <td><span class="pill" style="background:${HEALTH_FILL[HEALTH_TONE[m.state]]}1f;color:${HEALTH_FILL[HEALTH_TONE[m.state]]};">${esc(m.state.replace(/_/g, " "))}</span></td>
+      </tr>`
+        )
+        .join("")}</tbody></table>`
+    : '<p class="empty-note">No schedule activities recorded yet.</p>';
+
+  return (
+    kpis +
+    `<p class="muted" style="font-size:0.82rem;margin:-6px 0 16px;">Health is derived, not typed. <b>SPI</b> is progress against programme elapsed, <b>CPI</b> is progress against budget consumed; below ${d.thresholds.spiWarn} is at risk and below ${d.thresholds.spiLate} is delayed — the same thresholds the EVM payment gate enforces in the Commercial OS. A dash means the project has no dates or no budget lines to measure against.</p>` +
+    block("Portfolio health", healthBar(d.health, k.total)) +
+    block("Projects", table) +
+    block("Budget against actual", budgetMeters(d.projects)) +
+    block("Portfolio timeline", timeline(d.projects, d.window)) +
+    block("Projects by sector", sectorBars(d.sectors)) +
+    block("Critical path & imminent activities", ms) +
+    block("Risks & issues", issues) +
+    block("Monthly progress trend", trendChart(d.trend, d.trendNote))
+  );
+}
+
 // ---------- VERYX panel ----------
 
 async function loadVeryx() {
@@ -293,8 +547,16 @@ async function loadVeryx() {
     )
     .join("")}</tbody></table>`;
 
+  let portfolioHtml = "";
+  try {
+    portfolioHtml = await loadPortfolio();
+  } catch (err) {
+    portfolioHtml = `<p class="error-note">Portfolio dashboard unavailable: ${esc(err.message)}</p>`;
+  }
+
   document.getElementById("veryx-body").innerHTML =
-    `<p style="margin-bottom:14px;">${sourceBadge(riskRes.source)}</p>` +
+    portfolioHtml +
+    `<p style="margin:22px 0 14px;">${sourceBadge(riskRes.source)}</p>` +
     kpis +
     block("Risk register — highest exposure first", risks) +
     block("AI agent console", agents) +

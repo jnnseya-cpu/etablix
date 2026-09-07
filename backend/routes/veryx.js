@@ -17,6 +17,7 @@ import { Router } from "express";
 import { collection, insert } from "../lib/store.js";
 import { requireAuth } from "../middleware/auth.js";
 import { isConnected, platformFetch, publicIntegration } from "../lib/platforms.js";
+import { portfolio } from "../lib/portfolio.js";
 
 const router = Router();
 router.use(requireAuth);
@@ -257,5 +258,12 @@ router.get("/summary", safe(async (req, res) => {
     apiCallsUsed,
   });
 }));
+
+/**
+ * GET /portfolio — the portfolio lens across every project at once.
+ * Always workspace-derived: these are ETABLIX's own delivery records,
+ * not something the VERYX platform holds on our behalf.
+ */
+router.get("/portfolio", (req, res) => res.json(portfolio()));
 
 export default router;
