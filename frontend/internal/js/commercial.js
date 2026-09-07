@@ -1157,7 +1157,7 @@ export async function loadOrganisation() {
       <span style="align-self:center;">${providerStatus}</span>
     </form>` : `<p>AI engine: ${providerStatus}</p>`}
     ${provider.lastTest ? `<p class="muted" style="margin:6px 0 0;">${esc(provider.lastTest.summary)}</p>` : ""}
-    <p class="muted" style="margin:8px 0 0;">One key powers all seven agents. An administrator creates it at <b>console.anthropic.com</b> → API keys and pastes it here — stored server-side only, never shown again in full, exactly like the platform keys. Every run lands in the approval queue below: a named human approves or rejects before anything is acted on.</p>`;
+    <p class="muted" style="margin:8px 0 0;">One key powers every agent. An administrator creates it at <b>console.anthropic.com</b> → API keys and pastes it here — stored server-side only, never shown again in full, exactly like the platform keys. Every run lands in the approval queue below: a named human approves or rejects before anything is acted on.</p>`;
 
   const runFormHtml = (a) => {
     const fields = agentForms[a.id] || [];
@@ -1241,7 +1241,7 @@ export async function loadOrganisation() {
     `<p style="border-left:3px solid var(--amber,#9c7a3c);padding-left:12px;font-size:0.92rem;">${esc(org.principle)}</p>` +
     block("Launch core — four people, AI-amplified", coreCards) +
     block("AI engine — one connection powers every agent", providerBlock) +
-    block("The AI-agent workforce — seven agents, each inside an approval boundary", agentCards) +
+    block(`The AI-agent workforce — ${org.agents.length} agents, each inside an approval boundary`, agentCards) +
     block("Agent runs — the approval queue", runsBlock) +
     block("Fractional professional assurance", fractional) +
     block("Contract-funded appointments — recruited against secured work, priced into the contract", contractFunded) +
