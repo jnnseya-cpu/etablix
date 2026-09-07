@@ -36,3 +36,25 @@ pagination before it goes to a supplier.
 Acoustic, thermal and air permeability figures are the Employer's
 requirements. Compliance with statute is the contractor's duty and is not
 discharged by meeting them.
+
+## Gap register — Rev A reviewed against itself
+
+`ETABLIX-ER-P2-gap-register.docx` — 25 findings, generated from
+`gap-register.cjs` by `build-gaps.cjs`.
+
+Three are fatal, meaning a tenderer cannot price Rev A safely:
+
+- **G01** No design responsibility matrix and no Contractor's Proposals
+  mechanism. The document never says whether this is a contractor-designed
+  package. Every competent tenderer will qualify its return, and qualified
+  returns cannot be compared — which defeats the evaluation model.
+- **G02** Ten room data sheet lines name a product where the requirement is a
+  performance. Specifying a 1.0 kW heater rather than "maintain 21 °C at −4 °C
+  external" hands the design liability back to the Employer. That is the
+  opposite of what the package was for.
+- **G03** Electronic locks on bedroom doors in sleeping accommodation, with no
+  statement anywhere of what they do when the fire alarm sounds.
+
+Rev B implements them. The register stays in the repository because the
+findings are the reusable part: the same twenty-five questions apply to the
+other four packages, and to anybody else's Employer's Requirements.
