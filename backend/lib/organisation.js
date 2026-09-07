@@ -281,7 +281,7 @@ export const DELIVERY_MODEL_LIMITS = [
   },
   {
     model: "Model 03 — Prime Service Contractor",
-    line: '"We contract the supply chain and deliver the complete service." Never accepted early merely because it produces higher revenue.',
+    line: '"We contract the supply chain and deliver the complete site-services scope — never the permanent works." Never accepted early merely because it produces higher revenue.',
     team: "Requires: working capital, insurance, contractual protections, creditworthy client, mobilisation advance, back-to-back supplier terms, dedicated commercial control, reliable PM, site HSEQ and quality resources, contingency headroom, board-level liability approval — the six prime gates in the Commercial OS.",
     ai: "AI reduces overhead; it does not finance suppliers or absorb contractual risk.",
   },
