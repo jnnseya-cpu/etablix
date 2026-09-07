@@ -222,6 +222,15 @@ export const AI_AGENTS = [
     backing: ["engine", "llm"],
     desk: "Supplier document-expiry sweeps and the communications engine carry its alerts.",
   },
+  {
+    id: "diagnostic",
+    name: "Agent 8 — Site Systems Diagnostic",
+    inputs: ["Project programme, workforce forecast and proposed site layout", "Existing logistics plan and stated temporary-services requirements", "Current procurement packages, known mobilisation constraints and available site and utility information"],
+    outputs: ["Site-service package map, scope-gap assessment and supplier-interface matrix", "Workforce, utility, welfare and accommodation demand — calculated, with assumptions stated", "The consent chain worked backwards from the access date", "Procurement strategy, preliminary risk register and indicative cost structure", "Recommended delivery model and the 30/60/90-day action list"],
+    boundary: "Decision support only. Every load, ratio and duration is a first-pass planning figure for validation by a competent person; anything safety-critical is flagged rather than resolved.",
+    backing: ["llm"],
+    desk: "The paid entry engagement: eight client inputs in, twelve deliverables out, ten working days. This agent drafts them; a director validates and issues.",
+  },
 ];
 
 /** Function → how much AI genuinely replaces → the human control that remains. */
