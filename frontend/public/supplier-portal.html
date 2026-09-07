@@ -31,6 +31,13 @@
   .sp-table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 0.88rem; }
   .sp-table th { text-align: left; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted, #5b6470); border-bottom: 2px solid var(--ink, #16130f); padding: 8px 12px 8px 0; }
   .sp-table td { border-bottom: 1px solid var(--line); padding: 9px 12px 9px 0; vertical-align: top; }
+  .sp-platforms { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-top: 14px; }
+  .sp-plat { display: block; border: 1.5px solid var(--line); border-radius: 8px; padding: 17px 19px; text-decoration: none; color: inherit; transition: border-color .15s, transform .15s; }
+  .sp-plat:hover { border-color: var(--orange); transform: translateY(-2px); }
+  .sp-plat .nm { font-family: var(--font-head); font-size: 1.25rem; letter-spacing: 0.04em; }
+  .sp-plat .tg { font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--orange); margin-top: 2px; }
+  .sp-plat p { font-size: 0.86rem; color: var(--muted, #5b6470); line-height: 1.6; margin: 9px 0 0; }
+  .sp-plat .go { font-size: 0.8rem; font-weight: 700; margin-top: 10px; display: inline-block; }
   .sp-terms { font-size: 0.85rem; line-height: 1.7; color: var(--muted, #5b6470); margin: 8px 0 0 18px; }
 </style>
 </head>
@@ -95,6 +102,23 @@
       <div class="sp-table-wrap"><table class="sp-table"><thead><tr>
         <th>Number</th><th>Period · Order</th><th>Applied</th><th>Certified</th><th>Net payable</th><th>Status</th>
       </tr></thead><tbody id="sp-apps"></tbody></table></div>
+    </div>
+
+    <div class="sp-card">
+      <h3>The systems your ETABLIX work runs on</h3>
+      <p style="font-size:0.88rem;color:var(--muted,#5b6470);margin-top:4px;">Applications for payment are certified against evidence, and the evidence comes from these. Worth knowing what they are before your first valuation, and worth a look for your own projects.</p>
+      <div class="sp-platforms">
+        <a class="sp-plat" href="/construx">
+          <div class="nm">CONSTRUX</div><div class="tg">Project delivery operating system</div>
+          <p>Programme, cost, risk, RFIs and non-conformances on one project, with earned value computed rather than typed. Your progress is assessed against it — which is why an application evidenced here is certified faster than one that is not.</p>
+          <span class="go">See what it does &rarr;</span>
+        </a>
+        <a class="sp-plat" href="/veryx">
+          <div class="nm">VERYX</div><div class="tg">Quality assurance and inspection</div>
+          <p>Inspections, evidence and sign-off, held so that a record survives being looked at years later. An inspection signed off here is an inspection you do not have to argue about at final account.</p>
+          <span class="go">See what it does &rarr;</span>
+        </a>
+      </div>
     </div>
 
     <div class="sp-card">

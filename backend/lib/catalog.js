@@ -37,6 +37,22 @@ export const CATEGORIES = [
     ],
   },
   {
+    id: "client",
+    name: "Client engagement",
+    events: [
+      E("client.portal.issued", "Client portal issued", "success", "email inapp", "Your ETABLIX project portal — {{reference}}", "Your engagement is confirmed and your project portal is open. Everything we need from you is on one checklist inside it, with the format stated on each line, so nothing has to be asked for twice. Open the link below, work down the list, and confirm the start when you are ready — you are never asked for the same thing again, and an item you do not hold is answered by saying so.", { a: "client" }),
+      E("client.portal.reminder", "Outstanding information reminder", "warning", "email inapp", "ETABLIX {{reference}} — {{value}} item(s) still outstanding", "Your project portal shows {{value}} item(s) we still need before the work can start: {{item}}. If any of them do not exist, mark them so in the portal with a note — that is an answer, not a gap, and it does not hold anything up.", { a: "client" }),
+      E("client.information.complete", "Client information complete", "success", "inapp push", "{{company}} — information handover complete ({{reference}})", "{{company}} has settled every mandatory item on the {{reference}} checklist. They can now confirm the start, which raises the deposit invoice automatically.", {}),
+      E("client.start.confirmed", "Client confirmed the start", "success", "email inapp push", "{{company}} confirmed the start — {{reference}} ({{value}})", "{{actor}} of {{company}} confirmed the start of {{reference}}. The deposit invoice {{item}} for {{value}} was raised and issued automatically. Work begins on cleared funds.", {}),
+      E("client.deposit.requested", "Deposit requested", "info", "email inapp", "ETABLIX {{reference}} — {{item}} ({{value}})", "Thank you for confirming the start. Invoice {{item}} for {{value}} is attached to your portal — {{outcome}}. We begin as soon as it clears; we will not start work you have not authorised and then invoice you for it.", { a: "client" }),
+      E("client.deposit.received", "Deposit received — work begins", "success", "email inapp", "ETABLIX {{reference}} — payment received, work under way", "Your payment has cleared and the work is under way. The deliverable will appear in your portal when it is issued — not as an email attachment, so that there is one version of it and one place it lives.", { a: "client" }),
+      E("client.deliverable.issued", "Deliverable issued for decision", "info", "email inapp", "ETABLIX {{reference}} — {{item}} is ready for your decision", "{{item}} is issued and waiting in your portal. You have three options there: approve it, review it with comments against the sections you name, or reject it with a reason. Approving releases the balance invoice automatically. A comment against a section can be answered; a comment against the whole document cannot, which is why the portal asks for the section.", { a: "client" }),
+      E("client.decision.recorded", "Client decision recorded", "info", "email inapp push", "{{company}} — {{outcome}} on {{item}} ({{reference}})", "{{actor}} of {{company}} recorded the decision \"{{outcome}}\" on {{item}} for {{reference}}. {{value}}", {}),
+      E("client.balance.requested", "Balance requested on approval", "success", "email inapp", "ETABLIX {{reference}} — thank you for approving. Invoice {{item}} ({{value}})", "Thank you for approving {{outcome}}. Invoice {{item}} for {{value}} was raised automatically at the moment of approval and is in your portal. The deliverable is yours to keep whatever you decide to do next.", { a: "client" }),
+      E("client.engagement.closed", "Engagement closed", "success", "email inapp", "ETABLIX {{reference}} — complete", "This engagement is complete and paid. Everything issued under it stays available in your portal, and the portal link keeps working — you do not have to ask us for a copy of anything.", { a: "client" }),
+    ],
+  },
+  {
     id: "supply",
     name: "Supply chain",
     events: [

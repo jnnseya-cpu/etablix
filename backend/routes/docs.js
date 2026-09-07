@@ -993,11 +993,16 @@ function renderBody(doc) {
   return "<p>Unknown template.</p>";
 }
 
-router.get("/:id/render", tokenAuth, (req, res) => {
-  const doc = collection("documents").find((x) => x.id === req.params.id);
-  if (!doc) return res.status(404).send("Document not found.");
+/**
+ * The rendered document, as one self-contained HTML page.
+ *
+ * Exported because the client portal renders the same invoice the desk
+ * renders. Two renderers would be two documents with one number on them,
+ * which is the sort of thing that is discovered in a dispute.
+ */
+export function renderDocument(doc) {
   const dateStr = new Date(doc.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-  res.send(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>${esc(doc.number)} — ${esc(doc.templateName)}</title>
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>${esc(doc.number)} — ${esc(doc.templateName)}</title>
 <style>
   body { font-family: Georgia, "Times New Roman", serif; color: #1d232a; margin: 0; background: #fff; }
   .page { max-width: 820px; margin: 0 auto; padding: 48px 52px 60px; }
@@ -1061,7 +1066,35 @@ router.get("/:id/render", tokenAuth, (req, res) => {
     Registered office: Groupe Nseya House, Kingstanding, Birmingham B44 8DJ, United Kingdom<br>
     contact@etablix.com · +44 7493 216101 · etablix.com
   </div>
-</div></body></html>`);
+</div></body></html>`;
+}
+
+router.get("/:id/render", tokenAuth, (req, res) => {
+  const doc = collection("documents").find((x) => x.id === req.params.id);
+  if (!doc) return res.status(404).send("Document not found.");
+  res.send(renderDocument(doc));
 });
+
+/**
+ * Mint a document from inside another route — the client portal raises
+ * deposit and balance invoices automatically, and they must be the same
+ * numbered documents, in the same series, as the ones raised by hand.
+ * An automatic invoice that lives somewhere else is a second ledger.
+ */
+export function createDocument({ template, data, issuedBy = "ETABLIX", title, party }) {
+  const tpl = TEMPLATES.find((t) => t.id === template);
+  if (!tpl) throw new Error("Unknown document template: " + template);
+  const clean = { ...data, lines: cleanLines(data.lines || []) };
+  return insert("documents", {
+    template: tpl.id,
+    templateName: tpl.name,
+    number: nextNumber(tpl.prefix),
+    title: title || clean.project || clean.client || tpl.name,
+    party: party || clean.client || "\u2014",
+    total: clean.lines.reduce((s, l) => s + l.qty * l.rate, 0),
+    issuedBy,
+    data: clean,
+  });
+}
 
 export default router;

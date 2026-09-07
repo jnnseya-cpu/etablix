@@ -54,6 +54,66 @@ operating view. KPIs (new actions, project enquiries, supplier applications,
 stored documents), searchable enquiry and application tables with references
 (ENQ-/SUP-), uploaded-document downloads and inline status control.
 
+**Client project portal** (`/client-portal?t=…`): the customer half of the
+lifecycle, end to end. See below.
+
+**Supplier portal** (`/supplier-portal?t=…`): onboarding, NDA-gated enquiry
+packs, quotations and applications for payment.
+
+## The client engagement lifecycle
+
+One flow, from an accepted invoice to a closed and paid engagement, with the
+money falling out of it automatically at two points:
+
+```
+invoice accepted
+   → portal issued, carrying the requirement checklist for that deliverable
+   → client answers every line ONCE (or marks it "not held" with a reason)
+   → client confirms the start   ──►  DEPOSIT INVOICE RAISES ITSELF
+   → funds clear, work begins
+   → deliverable published in the portal
+   → client approves / reviews with comments / rejects
+        approve                   ──►  BALANCE INVOICE RAISES ITSELF
+   → paid → closed        (Models B and C loop back for the next month)
+```
+
+**Model A** is 30% to start and 70% on approval. **Models B and C** are the
+first month in advance — mobilisation, month one, platform fee, and for
+Model C the month-one supplier spend — then a month at a time, each one
+invoiced at the moment the client approves the month just ended.
+
+Three rules are built into the mechanism rather than written on a wall:
+
+- **No repetition.** Everything is asked for once, in one checklist built
+  from the deliverable. 62 requirement lines across seven packs, plus the
+  five commercial questions that otherwise generate a phone call in week two:
+  who can authorise, the PO reference, the VAT position, where invoices go,
+  and the confidentiality position.
+- **No questions.** Every line carries *why* we need it and *the format that
+  lets us read it* — a programme as a PDF print **and** a CSV task list,
+  a drawing as a PDF at scale with its title block, because DWG cannot be
+  read and a screenshot loses the revision. `backend/test/clientflow.test.mjs`
+  enforces this: a requirement line with no reason or no format fails the
+  build.
+- **No rejection.** An item that does not exist is answered by saying so with
+  a line of explanation — that settles it, and nobody is chased for it again.
+  A deliverable is decided against sections the client can name, so a review
+  round is answerable line by line rather than as a mood.
+
+Nothing on the internal panel is a stage a person types. Every stage is the
+consequence of an act — issuing the portal, answering a line, confirming the
+start, clearing a payment, publishing, deciding — so the record of what
+happened and the record of where we are cannot disagree.
+
+The automatic invoices are minted through the document studio's own
+`createDocument`, in the same `INV-YYYY-NNN` series as one raised by hand, with
+the same VAT treatment and the client's own PO reference on the face of it. An
+automatic invoice living in its own table would be a second ledger, and a
+second ledger is discovered during a dispute.
+
+    node backend/test/clientflow.test.mjs      # 26 checks, no server needed
+    node backend/test/clientflow.e2e.mjs       # 55 checks, against a running server
+
 ## Architecture
 
 ```
@@ -61,7 +121,9 @@ etablix/
 ├── backend/            Express server + JSON API
 │   ├── server.js       Static serving + route mounting
 │   ├── lib/            auth (scrypt + HMAC tokens), JSON store w/ seed,
-│   │                   uploads (multer: PDF/Word/Excel/image, 10 MB, ×5)
+│   │                   uploads (multer: PDF/Word/Excel/image, 10 MB, ×5),
+│   │                   clientflow (the engagement lifecycle: stages, the
+│   │                   seven requirement packs, and the payment maths)
 │   ├── middleware/     requireAuth / requireRole
 │   └── routes/
 │       ├── auth.js             POST /api/auth/login · GET /api/auth/me
@@ -70,6 +132,9 @@ etablix/
 │       ├── files.js            Authenticated document downloads
 │       ├── construx.js         Internal: projects, schedule, budget, RFIs,
 │       │                       quality (inspections, NCRs), sensors
+│       ├── clients.js          Client engagements: portal, checklist,
+│       │                       start confirmation, decisions, and the two
+│       │                       invoices that raise themselves
 │       ├── veryx.js            Internal: risks, AI agents (+run), usage
 │       ├── veryx-public.js     VERYX Platform API — /api/public/v1/*
 │       │                       (vx_ keys, scopes, metering, ACU, openapi.json)

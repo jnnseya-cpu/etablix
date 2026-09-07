@@ -17,10 +17,15 @@ router.get("/:stored", (req, res) => {
     return res.status(401).json({ error: "Authentication required." });
   }
   const stored = path.basename(req.params.stored); // no traversal
+  // Every place a file can be attached. A file whose owning record is
+  // not in this list is not downloadable, which is the point: the URL is
+  // not the permission, the record is.
   const meta =
     collection("leads")
       .flatMap((l) => l.documents || [])
       .concat(collection("subcontractors").flatMap((s) => s.documents || []))
+      .concat(collection("clientEngagements").flatMap((e) => (e.checklist || []).flatMap((i) => i.files || [])))
+      .concat(collection("clientEngagements").flatMap((e) => (e.deliverables || []).flatMap((d) => d.files || [])))
       .find((d) => d.stored === stored);
   const file = path.join(UPLOAD_DIR, stored);
   if (!meta || !fs.existsSync(file)) {

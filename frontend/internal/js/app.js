@@ -3,6 +3,7 @@
 
 import { LEAD_STATUS, APPLICATION_STATUS, CAPABILITIES, ACCESS } from "/shared/constants.js";
 import { loadCommercial, loadAutomation, loadOrganisation } from "/internal/js/commercial.js";
+import { loadClients } from "/internal/js/clients.js";
 
 const token = sessionStorage.getItem("etablix.token");
 const user = JSON.parse(sessionStorage.getItem("etablix.user") || "null");
@@ -86,6 +87,7 @@ const loaded = new Set();
 const lazyLoaders = {
   construx: loadConstrux, veryx: loadVeryx, team: loadTeam, comms: loadComms, suppliers: loadSuppliers,
   commercial: loadCommercial, automation: loadAutomation, organisation: loadOrganisation,
+  clients: loadClients,
 };
 
 /**
@@ -167,6 +169,7 @@ if (user.role === "admin") {
 // delivery-finance responsibility; the server enforces the same list.
 if (ACCESS.DELIVERY_FINANCE.includes(user.role)) {
   document.getElementById("commercial-tab").hidden = false;
+  document.getElementById("clients-tab").hidden = false;
 }
 
 // ---------- Notification bell (all employees) ----------
