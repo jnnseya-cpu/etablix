@@ -89,7 +89,7 @@ export const DPS_SEED = [
   {
     name: "Facilities Management & Workplace Services DPS",
     buyer: "Crown Commercial Service",
-    portal: "CCS eSourcing — enquiries rm6264@crowncommercial.gov.uk",
+    portal: "CCS eSourcing — enquiries rm6264@crowncommercial.gov.uk (general: supplier@crowncommercial.gov.uk)",
     reference: "RM6264",
     closingDate: "2029-02-23",
     lot: "Four categories: Services, Building Type, Location, Annual Contract Value — selecting soft-services and workplace elements only, not building fabric",
@@ -104,7 +104,7 @@ export const DPS_SEED = [
   {
     name: "Construction Professional Services DPS (RM6242)",
     buyer: "Crown Commercial Service",
-    portal: "Cabinet Office Supplier Registration Service",
+    portal: "Cabinet Office Supplier Registration Service — enquiries supplier@crowncommercial.gov.uk, +44 345 410 2222",
     portalUrl: "https://supplierregistration.cabinetoffice.gov.uk/dashboard?login=1",
     reference: "RM6242",
     closingDate: "2029-02-23",
