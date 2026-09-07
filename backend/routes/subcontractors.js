@@ -4,6 +4,7 @@ import { collection, insert, update, remove } from "../lib/store.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 import { ROLES } from "../../shared/constants.js";
 import { acceptDocuments, describeFiles } from "../lib/uploads.js";
+import { paymentDates, withDates } from "../lib/paymentdates.js";
 import { notifyApplication, acknowledgeApplication, notifyApplicationStatus } from "../lib/notify.js";
 import { emit } from "../lib/comms.js";
 import path from "node:path";
@@ -133,7 +134,9 @@ const publicPayApp = (p) => ({
   id: p.id, number: p.number, period: p.period, poRef: p.poRef, description: p.description,
   claimed: p.claimed, grossToDate: p.grossToDate, status: p.status,
   certified: p.certified, retention: p.retention, cisDeduction: p.cisDeduction,
-  netPayable: p.netPayable, certReasons: p.certReasons, paymentDueDate: p.paymentDueDate,
+  netPayable: p.netPayable, certReasons: p.certReasons,
+  paymentDueDate: withDates(p).paymentDueDate,
+  finalDateForPayment: withDates(p).finalDateForPayment,
   receivedAt: p.receivedAt, paidAt: p.paidAt, documents: (p.documents || []).map((d) => d.name),
 });
 
@@ -320,8 +323,17 @@ router.post("/portal/:token/applications", acceptDocuments, async (req, res) => 
     documents: describeFiles(req.files),
     status: "received",
     receivedAt: Date.now(),
-    // HGCRA-compliant terms accepted at onboarding: 30 days from a compliant application.
-    paymentDueDate: Date.now() + 30 * 86400000,
+    // The HGCRA timetable accepted at onboarding, derived once and carried
+    // on the application so no prescribed period is ever recalculated by hand.
+    ...(() => {
+      const d = paymentDates(Date.now());
+      return {
+        paymentDueDate: d.dueDate,
+        paymentNoticeBy: d.paymentNoticeBy,
+        finalDateForPayment: d.finalDate,
+        payLessBy: d.payLessBy,
+      };
+    })(),
   });
   emit("payment.application.received", {
     vars: { reference: payApp.number, company: application.legalName, value: `£${payApp.claimed.toLocaleString("en-GB")}` },

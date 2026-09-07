@@ -11,6 +11,7 @@
  */
 
 import { Router } from "express";
+import { noticeStatus, withDates, describeTimetable, TERMS } from "../lib/paymentdates.js";
 import fs from "node:fs";
 import path from "node:path";
 import { collection, insert, update, remove } from "../lib/store.js";
@@ -30,11 +31,27 @@ router.get("/", ...finance, (req, res) => {
   const suppliers = collection("subcontractors");
   const apps = [...collection("payApps")].sort((a, b) => b.receivedAt - a.receivedAt).map((p) => {
     const s = suppliers.find((x) => x.id === p.supplierId);
-    return { ...p, bankVerified: Boolean(s?.bankVerified), onboarded: Boolean(s?.onboarding) };
+    const notice = noticeStatus(p);
+    return {
+      ...withDates(p),
+      bankVerified: Boolean(s?.bankVerified),
+      onboarded: Boolean(s?.onboarding),
+      notice,
+    };
   });
   const openValue = apps.filter((p) => p.status === "received").reduce((a, p) => a + p.claimed, 0);
   const certifiedUnpaid = apps.filter((p) => p.status === "certified").reduce((a, p) => a + (p.netPayable || 0), 0);
-  res.json({ applications: apps, kpis: { open: apps.filter((p) => p.status === "received").length, openValue, certifiedUnpaid } });
+  res.json({
+    applications: apps,
+    terms: TERMS,
+    kpis: {
+      open: apps.filter((p) => p.status === "received").length,
+      openValue,
+      certifiedUnpaid,
+      noticesCritical: apps.filter((p) => p.notice.severity === "critical").length,
+      noticesDue: apps.filter((p) => p.notice.severity === "warning").length,
+    },
+  });
 });
 
 /**
@@ -133,7 +150,7 @@ router.post("/:id/certify", ...finance, async (req, res) => {
         `Less retention: ${money(maths.retention)}`,
         maths.cisDeduction ? `Less CIS deduction: ${money(maths.cisDeduction)}` : null,
         `Net payable: ${money(maths.netPayable)}`,
-        `Payment due date: ${new Date(payApp.paymentDueDate).toLocaleDateString("en-GB")}`,
+        describeTimetable(payApp),
         reasons ? `\nBasis of certification:\n${reasons}` : null,
       ].filter(Boolean).join("\n"),
     }).catch(() => {});

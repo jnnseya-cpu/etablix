@@ -836,7 +836,20 @@ function renderPayments() {
         <td>${esc(p.period)}<div class="muted">${esc(p.poRef)}</div></td>
         <td>${money(p.claimed)}</td>
         <td>${p.certified == null ? "—" : `${money(p.certified)} → <b>${money(p.netPayable)}</b><div class="muted" style="font-size:0.75rem;">ret ${money(p.retention)}${p.cisDeduction ? " · CIS " + money(p.cisDeduction) : ""}</div>`}</td>
-        <td>${when(p.paymentDueDate)}</td>
+        <td style="min-width:150px;">
+          <div>${when(p.paymentDueDate)}</div>
+          <div class="muted" style="font-size:0.74rem;">final ${when(p.finalDateForPayment)}</div>
+          ${
+            p.notice?.severity
+              ? p.notice.items
+                  .map(
+                    (n) =>
+                      `<div class="pill ${n.severity === "critical" ? "alert" : "warning"}" style="margin-top:4px;display:inline-block;" title="${esc(n.detail)}">${esc(n.label)}</div>`
+                  )
+                  .join("")
+              : ""
+          }
+        </td>
         <td><span class="pill ${p.status === "paid" ? "approved" : p.status === "certified" ? "prequalified" : ""}">${esc(p.status)}</span></td>
         <td>
           ${p.status === "received" ? `<button class="btn-run" data-pay-certify="${p.id}">Certify</button>` : ""}
@@ -852,7 +865,14 @@ async function loadPayments() {
   const { applications, kpis } = await api("/api/payments");
   payRows = applications;
   const k = document.getElementById("pay-kpis");
-  if (k) k.textContent = `· ${kpis.open} open (${money(kpis.openValue)}) · certified awaiting payment ${money(kpis.certifiedUnpaid)}`;
+  if (k) {
+    const notices = kpis.noticesCritical
+      ? ` · ⚠ ${kpis.noticesCritical} notice deadline${kpis.noticesCritical === 1 ? "" : "s"} passed`
+      : kpis.noticesDue
+        ? ` · ${kpis.noticesDue} notice deadline${kpis.noticesDue === 1 ? "" : "s"} within 3 days`
+        : "";
+    k.textContent = `· ${kpis.open} open (${money(kpis.openValue)}) · certified awaiting payment ${money(kpis.certifiedUnpaid)}${notices}`;
+  }
   renderPayments();
 }
 

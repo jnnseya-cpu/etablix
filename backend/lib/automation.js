@@ -22,6 +22,7 @@ import { collection, getSettings, saveSettings, persist } from "./store.js";
 import { emit } from "./comms.js";
 import { PLATFORMS, isConnected, platformFetch } from "./platforms.js";
 import { takeSnapshot } from "./portfolio.js";
+import { noticeStatus } from "./paymentdates.js";
 
 const DAY = 86400000;
 const HOUR = 3600000;
@@ -35,6 +36,7 @@ export const RULES = [
   { id: "stale_applications", name: "Stale supplier application sweep", description: "Flags supplier registrations unassessed after 3 days.", cooldownMs: DAY },
   { id: "evm_gate", name: "EVM payment gate", description: "Reviews the latest EVM record per supplier per project; SPI or CPI below 0.95 triggers commercial review.", cooldownMs: DAY },
   { id: "exposure_rule", name: "Exposure & reserve rule", description: "Checks every project's latest valuation: committed supplier exposure must not exceed reserve + confirmed receivables, and the reserve must cover next month's forecast.", cooldownMs: 12 * HOUR },
+  { id: "payment_notices", name: "HGCRA notice deadlines", description: "Watches every unpaid application for its s.110A payment-notice and s.111 pay-less deadlines, and the final date for payment. Missing either notice is silent and expensive — the sum applied for becomes payable in full.", cooldownMs: 0 },
   { id: "portfolio_snapshot", name: "Monthly portfolio snapshot", description: "Records the portfolio position — project count, average progress, budget consumed and the health split — once per calendar month, so the VERYX trend line has real history rather than a projection.", cooldownMs: 0 },
   { id: "daily_digest", name: "Daily operating digest", description: "One summary email each morning: pipeline, risks, EVM and exposure status across the business.", cooldownMs: 0 },
 ];
@@ -319,6 +321,26 @@ export async function runAutomation(trigger = "schedule") {
     }
   } finally {
     pruneAlerts(state);
+    // --- HGCRA notice deadlines -----------------------------------------
+    if (ruleEnabled(config, "payment_notices")) {
+      for (const app of collection("payApps")) {
+        if (app.status === "paid") continue;
+        const { severity, items } = noticeStatus(app);
+        if (!severity) continue;
+        const worst = items.find((i) => i.severity === "critical") || items[0];
+        const key = `notice:${app.id}:${worst.code}`;
+        if (!shouldAlert(state, key, DAY)) continue;
+        await fire(
+          "platform.error",
+          {
+            vars: { context: `Payment timetable — ${app.number}` },
+            detailsText: `${worst.label} on application ${app.number} (${app.supplier}).\n\n${worst.detail}\n\nSum applied for: ${money(app.claimed)}`,
+          },
+          `${worst.label} — ${app.number}`
+        );
+      }
+    }
+
     // --- Monthly portfolio snapshot -------------------------------------
     if (ruleEnabled(config, "portfolio_snapshot")) {
       try {

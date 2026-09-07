@@ -188,6 +188,55 @@ router.get("/", requireAuth, deliveryFinance, (req, res) =>
   res.json({ documents: [...collection("documents")].reverse().map(({ data, ...meta }) => meta) })
 );
 
+
+/**
+ * The naming rule, enforced rather than remembered.
+ *
+ * The Commercial Playbook flags two phrases that must never reach a
+ * client document. "Principal Service Contractor" collides with
+ * "Principal Contractor", a defined CDM 2015 role carrying specific
+ * health-and-safety duties — taking those duties must be an explicit,
+ * priced, insured decision, never an accident of branding. And ETABLIX
+ * describing itself as a main contractor is simply untrue: we own the
+ * temporary site environment around the permanent works, not the works.
+ *
+ * Both are blocked at generation, because a document is the point at
+ * which a drafting slip becomes a representation to a client.
+ *
+ * Only self-description is caught. "Your main contractor", "the
+ * appointed principal contractor" and duty-allocation wording all
+ * describe other parties correctly and pass through untouched.
+ */
+const NAMING_RULES = [
+  {
+    test: /principal\s+service\s+contractor/i,
+    message:
+      'Use "Prime Service Contractor", never "Principal Service Contractor" — it collides with the CDM 2015 Principal Contractor role, which carries health-and-safety duties ETABLIX takes only by explicit, priced and insured appointment.',
+  },
+  {
+    test: /\b(?:we|etablix|jnn\s+global(?:\s+ltd)?)\s+(?:are|is|acts?\s+as|will\s+act\s+as|shall\s+act\s+as|operates?\s+as)\s+(?:the\s+|a\s+)?(?:main|principal)\s+contractor\b/i,
+    message:
+      "This describes ETABLIX as the main or principal contractor. ETABLIX delivers the site-services scope around the permanent works and is neither by default — say what we actually are, or name the party that holds the role.",
+  },
+];
+
+/** Returns the first naming-rule breach across every text field, or null. */
+function namingBreach(data) {
+  for (const value of Object.values(data)) {
+    if (typeof value !== "string" || !value) continue;
+    for (const rule of NAMING_RULES) {
+      if (rule.test.test(value)) return rule.message;
+    }
+  }
+  // Line descriptions are text a person types too.
+  for (const line of data.lines || []) {
+    for (const rule of NAMING_RULES) {
+      if (rule.test.test(String(line.description || ""))) return rule.message;
+    }
+  }
+  return null;
+}
+
 router.post("/generate", requireAuth, deliveryFinance, (req, res) => {
   const tpl = TEMPLATES.find((t) => t.id === req.body?.template);
   if (!tpl) return res.status(400).json({ error: "Unknown template." });
@@ -203,6 +252,9 @@ router.post("/generate", requireAuth, deliveryFinance, (req, res) => {
     else if (f.type === "number") data[f.name] = toNum(input[f.name]);
     else data[f.name] = clampStr(input[f.name], f.type === "textarea" ? 4000 : 300);
   }
+  const breach = namingBreach(data);
+  if (breach) return res.status(400).json({ error: breach });
+
   const number = nextNumber(tpl.prefix);
   const doc = insert("documents", {
     template: tpl.id,
