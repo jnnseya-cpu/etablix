@@ -108,6 +108,47 @@ export const TEMPLATES = [
     ],
   },
   {
+    id: "requirements", prefix: "ERQ", name: "Employer's Requirements",
+    documentTitle: "Employer's Requirements",
+    description: "What the client requires, in a form a supplier can price and be held to. The output of the paid requirements engagement, and the document every tender return is measured against.",
+    fields: [
+      F("client", "Client", "text", { required: true }),
+      F("project", "Project / scope", "text", { required: true }),
+      F("package", "Package reference and title", "text", { placeholder: "e.g. P2 — Modular accommodation" }),
+      F("purpose", "Purpose of this package", "textarea", { required: true, placeholder: "What the client is buying and why. One paragraph a supplier's estimator reads first." }),
+      F("scope", "Scope of works — what is included", "textarea", { required: true }),
+      F("excluded", "Expressly excluded — and which package holds it", "textarea", { required: true, placeholder: "The half that prevents disputes. Every exclusion names the package or party that does hold it, or it is a gap rather than an exclusion." }),
+      F("interfaces", "Interfaces with other packages", "textarea", { required: true, placeholder: "Each interface, the other party, what is handed over, in what state, and who certifies it." }),
+      F("performance", "Performance requirements", "textarea", { placeholder: "What the thing must do, stated so it can be measured on completion rather than argued about." }),
+      F("standards", "Standards, statutory and regulatory requirements", "textarea"),
+      F("programme", "Programme requirements and key dates", "textarea"),
+      F("siteinfo", "Site information provided, and its status", "textarea", { placeholder: "What is given, its revision, and expressly what is not provided — an assumption the supplier is permitted to make is cheaper than a risk they price." }),
+      F("clientprov", "Client-provided items and free issue", "textarea"),
+      F("quality", "Quality, inspection and handover requirements", "textarea"),
+      F("hse", "Health, safety and environmental requirements", "textarea"),
+      F("commercial", "Commercial requirements", "textarea", { placeholder: "Contract form, payment terms, retention, bonds, insurances, liquidated damages, price basis and what is fixed against what is remeasured." }),
+    ],
+  },
+  {
+    id: "itt", prefix: "ITT", name: "Invitation to Tender — instructions to tenderers",
+    documentTitle: "Invitation to Tender",
+    description: "The instructions half of the tender pack: what to return, by when, in what form, and exactly how it will be evaluated. Published weightings are what make an award defensible.",
+    fields: [
+      F("client", "Client", "text", { required: true }),
+      F("project", "Project / scope", "text", { required: true }),
+      F("package", "Package reference and title", "text"),
+      F("returnBy", "Tender return date", "date", { required: true }),
+      F("clarifyBy", "Clarification deadline", "date"),
+      F("validity", "Tender validity period", "text", { placeholder: "e.g. 90 days from the return date" }),
+      F("contract", "Contract to be entered into", "textarea", { required: true, placeholder: "The form, the amendments, and where the conditions can be read. A supplier pricing an unknown contract prices a risk premium." }),
+      F("returns", "What must be returned", "textarea", { required: true, placeholder: "Every schedule, numbered, with the format required. A return that is hard to compare is a return that gets marked down." }),
+      F("evaluation", "How tenders will be evaluated", "textarea", { required: true, placeholder: "Criteria and weightings, published. Say how price is scored against quality — the method, not just the split." }),
+      F("clarifications", "Clarification procedure", "textarea", { placeholder: "How questions are asked, and that answers go to every tenderer. Anything else is not a competition." }),
+      F("conduct", "Conduct of the tender", "textarea", { placeholder: "Confidentiality, canvassing, collusion, tender costs, and the client's right not to award." }),
+      F("note", "Anything specific to this tender", "textarea"),
+    ],
+  },
+  {
     id: "capability", prefix: "CAP", name: "Capability statement (selection stage)",
     documentTitle: "Statement of capability",
     description: "The answer to a PQQ, DPS selection questionnaire or ITT capability section, structured so the company's position and the individual's experience can never be confused. Refuses to generate with an unfilled placeholder in it, or with delivery experience claimed for the company.",
@@ -809,6 +850,50 @@ function renderBody(doc) {
       ${d.appendix ? `<div class="blk"><h3>Appendix A · Document reconciliation ledger</h3><p class="rt-lede">Which of your own documents disagree with which. Set out as the documents state it.</p>${richText(d.appendix)}</div>` : ""}
       ${d.basis ? `<div class="blk"><h3>Basis of preparation</h3>${richText(d.basis)}</div>` : ""}
       <p class="legalnote">Every load, ratio, rate and duration in this report is a first-pass planning figure requiring validation by a competent person before use. Where information was not provided it is identified as missing rather than assumed. This report is decision support: it is not a design, a price or an instruction, and nothing safety-critical is resolved within it.</p>`;
+  }
+
+  if (doc.template === "requirements") {
+    const sec = (n, title, body, lede) =>
+      body ? `<div class="blk"><h3>${n} · ${title}</h3>${lede ? `<p class="rt-lede">${lede}</p>` : ""}${richText(body)}</div>` : "";
+    return `
+      <table class="meta">${t("Client", d.client)}${t("Project / scope", d.project)}${t("Package", d.package)}${t("Prepared by", doc.issuedBy)}</table>
+      ${sec(1, "Purpose of this package", d.purpose)}
+      ${sec(2, "Scope of works", d.scope)}
+      ${sec(3, "Expressly excluded", d.excluded, "Every exclusion names the package or party that does hold the item. An exclusion that names nobody is a gap, and it will be found at the worst possible moment.")}
+      ${sec(4, "Interfaces with other packages", d.interfaces, "What is handed over, in what state, and who certifies it. This section is why a package is bought rather than a scope left between two contracts.")}
+      ${sec(5, "Performance requirements", d.performance)}
+      ${sec(6, "Standards and statutory requirements", d.standards)}
+      ${sec(7, "Programme requirements", d.programme)}
+      ${sec(8, "Site information provided", d.siteinfo, "With its revision and status. What is not provided is stated, so a tenderer prices an assumption rather than a risk.")}
+      ${sec(9, "Client-provided items and free issue", d.clientprov)}
+      ${sec(10, "Quality, inspection and handover", d.quality)}
+      ${sec(11, "Health, safety and environment", d.hse)}
+      ${sec(12, "Commercial requirements", d.commercial)}
+      <p class="legalnote">These Employer's Requirements state what is required, not how it is to be achieved, except where a method is
+      itself a requirement. Where a tenderer's proposal departs from this document the departure must be stated in the tender return
+      and priced separately, so that what is being compared is comparable.</p>`;
+  }
+
+  if (doc.template === "itt") {
+    const sec = (n, title, body, lede) =>
+      body ? `<div class="blk"><h3>${n} · ${title}</h3>${lede ? `<p class="rt-lede">${lede}</p>` : ""}${richText(body)}</div>` : "";
+    return `
+      <table class="meta">${t("Client", d.client)}${t("Project / scope", d.project)}${t("Package", d.package)}${
+        d.returnBy ? t("Tenders to be returned by", humanDate(d.returnBy)) : ""
+      }${d.clarifyBy ? t("Clarification deadline", humanDate(d.clarifyBy)) : ""}${t("Tender validity", d.validity)}</table>
+      <div class="specimen-notice">
+        <b>Read this document before pricing.</b> It sets out what must be returned, in what form, and exactly how tenders will be
+        evaluated. The evaluation criteria and their weightings are published in section 3 — a tenderer who knows how they will be
+        marked can put effort where it counts, and an award made against published weightings can be explained to those who did not win.
+      </div>
+      ${sec(1, "Contract to be entered into", d.contract)}
+      ${sec(2, "What must be returned", d.returns, "Returns that cannot be compared cannot be scored. Use the schedules as issued.")}
+      ${sec(3, "How tenders will be evaluated", d.evaluation, "Published before tenders are returned, and applied without change afterwards.")}
+      ${sec(4, "Clarification procedure", d.clarifications, "Answers are issued to every tenderer. Anything else is not a competition.")}
+      ${sec(5, "Conduct of this tender", d.conduct)}
+      ${sec(6, "Specific to this tender", d.note)}
+      <p class="legalnote">The client is not bound to accept the lowest or any tender, and reserves the right not to award. Tendering
+      costs lie with the tenderer. Canvassing, or any agreement with another tenderer as to price or content, will disqualify.</p>`;
   }
 
   if (doc.template === "capability") {

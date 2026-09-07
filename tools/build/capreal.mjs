@@ -27,14 +27,18 @@ const data = {
 
   person1Name: "Director, ETABLIX — Integrated Site Services",
   person1Exp:
-"Our Director's relevant experience was gained in a previous role at GE Vernova, in the procurement and delivery of workforce accommodation for a major energy project.\n\n" +
-"The responsibilities held in that role were:\n\n" +
+"Our Director's relevant experience was gained at GE Vernova as **Construction Subcontract Manager**, holding responsibility for construction subcontracting across **the United Kingdom and Northern Ireland, Northern Europe and Southern Europe**.\n\n" +
+"The role is the discipline this company is built on: forming, awarding and administering construction subcontracts on major energy projects, across several jurisdictions and procurement regimes, for an original equipment manufacturer delivering into them.\n\n" +
+"### Workforce accommodation — requirements through to consolidated delivery\n\n" +
+"On a major energy project the responsibilities held were:\n\n" +
 "- Producing the detailed project requirements and the employer's requirements for the workforce accommodation scope.\n" +
 "- Writing the invitation to tender and the full procurement requirements.\n" +
 "- Setting the procurement strategy and taking the scope to market.\n" +
 "- Structuring the scope into five packages — civil works, modular accommodation, kitchen, furniture, and facilities management and operation — and running the evaluation and appointment of a contractor to each.\n" +
 "- Subsequently consolidating all five appointed contractors under a single contractor, so that one party held the interfaces between them rather than the client.\n\n" +
 "That final step is the substance of what ETABLIX offers. Splitting a scope into packages buys competition on each and leaves the client holding every interface between them. Consolidating them under one accountable party keeps the competition already won and moves the interfaces to a party who owns them. It is the harder thing to contract, and it is the thing ETABLIX exists to do.\n\n" +
+"### Why this is the relevant experience for this framework\n\n" +
+"Site services and workforce accommodation are bought as a set of subcontracts and fail at the boundaries between them. A subcontract manager operating across four territories spends the working week on exactly that problem: what each contract covers, what falls between two of them, who carries the risk when it does, and what it costs to find out late. The scope is the same scope; the discipline is the same discipline.\n\n" +
 "*Dates, the project name, contract values and a reference contact are available on request and will be provided in the format the buyer requires. They are omitted here only because they are the former employer's information to release.*",
 
   person2Name: "",
