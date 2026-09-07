@@ -1,60 +1,101 @@
 # Employer's Requirements — P2 Modular Accommodation
 
-`ETABLIX-ER-P2-Modular-Accommodation.docx` is generated:
-
-    node build-er.cjs      # content is in er-content.cjs and er-spec.cjs
+    node build-er.cjs          # builds the ER from er-content.cjs, er-spec.cjs, er-revb.cjs
+    node build-gaps.cjs        # builds the gap register from gap-register.cjs
+    python3 qa.py              # audits the built .docx and writes er.txt
 
 Content is separated from layout so the specification can be edited without
 touching the document code, and reused for the other four packages.
 
-## What is in it
+| File | What it is |
+|---|---|
+| `ETABLIX-ER-P2-Modular-Accommodation.docx` | The Employer's Requirements, Rev B |
+| `ETABLIX-ER-P2-preview.pdf` | Same document as a PDF, for reading without Word |
+| `ETABLIX-ER-P2-gap-register.docx` | The 25 findings against Rev A |
+| `qa.py` | The audit that found them. Run it on the other four packages before issuing |
 
-68-line room data sheet across three room types, 20 element-by-element
-specification clauses, 23 performance criteria each with how it is verified,
-a 12-row interface schedule naming who certifies what and when, handover
-deliverables, a drawings register, and a priced activity schedule structure.
-5,065 words, 9 tables, 545 cells.
+## Rev B
 
-## What it is not
+Rev A was reviewed against the twenty-five questions this business applies to
+anybody's Employer's Requirements, and failed three of them fatally. Rev B
+implements all twenty-five. Annex A of the document maps each finding to the
+clause that answers it.
 
-**One package of five.** A full tender pack is five of these, plus the ITT,
-the nine appendices listed at section 13, the pricing schedules and the
-drawings. This is a fraction of a complete pack and should not be described
-as one.
+The three fatal findings, and what Rev B does about them:
 
-**The appendices are listed, not written.** The activity schedule, colour
-range, design loadings and overheating criterion are named as appendices and
-do not exist yet.
+- **G01 — no design responsibility matrix, no Contractor's Proposals mechanism.**
+  Rev A said what to build and never said who designs it. Every competent
+  tenderer would have returned a qualified offer, and qualified offers cannot be
+  compared — which defeats the evaluation model issued alongside it. Rev B adds
+  section 13: a thirty-one row matrix coding every element ED, CD or CF, the
+  Contractor's Proposals and Schedule of Departures, the submission and review
+  procedure with status codes and the rule that review transfers nothing, and
+  the design liability, PI insurance and collateral warranty requirements.
+- **G02 — prescriptive and performance specification mixed line by line.**
+  Rev A specified a 1.0 kW panel heater. If the room is cold, the Employer
+  specified the heater and the Employer owns the problem. Rev B gives every room
+  data sheet line a basis code — E for Employer-prescribed, C for
+  Contractor-designed — and converts twenty-two lines from an article to a duty.
+  The heater became "21 °C dry resultant at −4 °C external, and 12 °C to 21 °C
+  within 90 minutes".
+- **G03 — electric locks on bedroom doors in sleeping accommodation, with no
+  stated failure mode on fire alarm.** Rev B states two failure modes, because
+  they are different doors: bedroom doors **fail-secure**, egress being
+  mechanical, single-action and independent of power, with fire service access
+  by override key agreed in writing with the fire and rescue service; escape
+  route doors **fail-safe** to BS 7273-4 Type A. Both appear in the room data
+  sheet, in 4.18, and as a witnessed line in the sample room checklist.
 
-**Not visually verified in Word.** LibreOffice cannot convert in this
-environment. The file is verified structurally — XML parsed, 158 rows and 545
-cells present, zero conversion warnings from mammoth — and rendered through
-mammoth to HTML and Chromium to look at. Open it in Word and check the table
+Sections 14 to 19 are also new — site constraints and security, information
+requirements and asset data, sustainability and social value, change control,
+delay and liquidated damages, and defects and obsolescence. Section 4 gains
+clauses 4.21 to 4.27 and rewrites 4.14, 4.17, 4.18, 4.19 and 4.20.
+
+Rev A's clause numbers are unchanged, so correspondence citing one still lands
+on the same clause. Only the appendices moved, from section 13 to section 20.
+
+5,065 words at Rev A. 20,507 at Rev B, in 15 tables and 1,157 cells.
+
+## The audit is the reusable part
+
+`qa.py` reads the OOXML of the built document and runs five checks:
+
+1. **Dangling references** — every clause, section, appendix and interface cited
+   must exist.
+2. **Orphan targets** — every interface and appendix defined must be cited.
+3. **Unmeasurable clauses** — a specification clause with no number-and-unit in
+   it is an intention, not a requirement. This is finding G24.
+4. **Prescription** — words naming an article rather than a duty, in the room
+   data sheets. This is finding G02. Plus a guard against a reference being
+   substituted inside a product designation, added after a blind replace of
+   "at 6" turned "Cat 6A" into "Cat section 6A" during the Rev B edit.
+5. **Failure modes** — a document mentioning electric locking must state what
+   happens on fire alarm activation. This is finding G03, and it fails FATAL.
+
+It found three real faults in Rev B after Rev B was written: three interfaces
+defined and never cited, two clauses with no measurable value in them (4.17
+lightning protection and 4.19 CCTV), and a riser rail named where a duty
+belonged. All three are fixed. It now passes.
+
+Run it on P1, P3, P4 and P5 before they are issued rather than after.
+
+## What this still is not
+
+**One package of five.** A full tender pack is five of these plus the ITT, the
+pricing schedules and the drawings. This is a fifth of a pack.
+
+**The appendices are named, not written.** Twelve are listed at section 20 and
+none exists. Appendices 10, 11 and 12 are new at Rev B and the document says
+explicitly what a tenderer should price on until they are issued.
+
+**Not opened in Word.** LibreOffice cannot load a .docx in this environment, so
+the file is verified structurally instead: the OOXML is parsed, every table's
+column grid checked against the usable page width and every row's cell widths
+checked against its grid (15 tables, zero faults), and the document rendered to
+HTML and to a 48-page PDF and read. Open it in Word and check the table
 pagination before it goes to a supplier.
 
-**The specification values are a competent starting position, not a design.**
-Acoustic, thermal and air permeability figures are the Employer's
-requirements. Compliance with statute is the contractor's duty and is not
-discharged by meeting them.
-
-## Gap register — Rev A reviewed against itself
-
-`ETABLIX-ER-P2-gap-register.docx` — 25 findings, generated from
-`gap-register.cjs` by `build-gaps.cjs`.
-
-Three are fatal, meaning a tenderer cannot price Rev A safely:
-
-- **G01** No design responsibility matrix and no Contractor's Proposals
-  mechanism. The document never says whether this is a contractor-designed
-  package. Every competent tenderer will qualify its return, and qualified
-  returns cannot be compared — which defeats the evaluation model.
-- **G02** Ten room data sheet lines name a product where the requirement is a
-  performance. Specifying a 1.0 kW heater rather than "maintain 21 °C at −4 °C
-  external" hands the design liability back to the Employer. That is the
-  opposite of what the package was for.
-- **G03** Electronic locks on bedroom doors in sleeping accommodation, with no
-  statement anywhere of what they do when the fire alarm sounds.
-
-Rev B implements them. The register stays in the repository because the
-findings are the reusable part: the same twenty-five questions apply to the
-other four packages, and to anybody else's Employer's Requirements.
+**The values are a competent employer's starting position, not a design.** The
+acoustic, thermal, air permeability and lighting figures are requirements.
+Compliance with statute is the contractor's duty and is not discharged by
+meeting them.

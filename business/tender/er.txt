@@ -1,0 +1,1518 @@
+ETABLIX 
+I N T E G R A T E D   S I T E   S E R V I C E S   ·   P A R T   O F   G R O U P E   N S E Y A 
+EMPLOYER'S REQUIREMENTS 
+P2 — Modular Accommodation 
+Client 
+Marrowbridge Infrastructure Ltd 
+Project 
+Project NORTHREACH — Workforce Accommodation Village 
+Package 
+P2 — Modular Accommodation 
+Document reference 
+NR-ER-P2 
+Revision 
+B 
+Date 
+September 2026 
+Status 
+Issued for tender 
+This document states what is required. It does not state how it is to be achieved, except where a method is itself a requirement. Where a tenderer's proposal departs from this document, the departure shall be stated in the Schedule of Departures and priced separately, so that what is compared is comparable. 
+ 
+Revision record 
+Rev 
+Date 
+Description 
+A 
+September 2026 
+First issue for tender. 
+B 
+September 2026 
+Reissued for tender. Rev A was reviewed against a 25-point register of the questions this Employer applies to any Employer's Requirements, and failed three of them fatally. Rev B implements all twenty-five findings; Annex A maps each finding to the clause that answers it. Sections 13 to 19 are new. Section 4 gains clauses 4.21 to 4.27 and rewrites 4.14, 4.18 and 4.20. Every room data sheet line now carries a basis code. Section 13 of Rev A (Appendices) is renumbered section 20; no other clause number has changed, so correspondence citing a Rev A clause still lands on the same clause. 
+Two corrections were made at Rev B beyond the twenty-five findings. The air permeability test standard was cited as ATTMA TSL1, which is the dwellings protocol and is the wrong document for this building; it is now TSL2. And Rev A used “the tenderer” for obligations that plainly survive award; Rev B uses “Contractor” for those and reserves “tenderer” for what is required with the tender. 
+ 
+Contents 
+ 
+1  Introduction and status of this document 
+1.1  Purpose 
+These Employer's Requirements define the accommodation and amenity buildings required for the workforce village serving Project NORTHREACH — Workforce Accommodation Village. They are issued as part of the tender documents for P2 — Modular Accommodation and form part of the subcontract on award. 
+1.2  Document hierarchy 
+Where documents conflict, the following order prevails, the first named taking precedence: 
+1.   The subcontract conditions and any amendments 
+2.   These Employer's Requirements 
+3.   The fire strategy issued at Appendix 2 
+4.   The drawings listed in the Drawings and Documents Register at section 11 
+5.   The Contractor's Proposals as accepted under 13.4, to the extent they do not conflict with the above 
+A tenderer who identifies a conflict before the clarification deadline shall raise it. A conflict raised after award is resolved by the order above and at the tenderer's cost. 
+1.3  Design responsibility 
+This is a contractor-designed package. Section 13 states, element by element, what the Employer has fixed and what the Contractor designs, and every line of every room data sheet carries a code saying which of the two it is. A tenderer should read section 13 before reading anything else in this document, because it determines what the rest of it means. 
+1.4  What is NOT in this package 
+The following are expressly excluded. Each names the package that does hold it — an exclusion that names nobody is a gap, and it will be found at the worst possible moment. 
+Excluded from this package 
+Held under 
+Interface reference 
+Ground preparation, bases, plinths and drainage 
+P1 Civil Works 
+IF-01, IF-02 
+Roads, hardstanding, parking and external lighting 
+P1 Civil Works 
+— 
+Kitchen fit-out, catering equipment and extraction 
+P3 Kitchen 
+IF-04 
+All loose furniture, including bedroom furniture 
+P4 Furniture 
+IF-05, IF-06 
+Operation, housekeeping, catering and maintenance 
+P5 FM and Operation 
+IF-07 to IF-10 
+CCTV cameras, recording and monitoring 
+P5 FM and Operation 
+4.19 
+The fire strategy itself 
+Client's fire engineer 
+IF-11 
+1.5  Definitions and abbreviations 
+Terms used in this document have the meanings below. Where a term is defined in the subcontract conditions and also here, the subcontract definition prevails. 
+Term 
+Meaning 
+AFFL 
+Above finished floor level. 
+Appendix 
+A document listed at section 20 and issued with these Employer's Requirements. An appendix has the same contractual force as this document. 
+ARC 
+Alarm receiving centre, to BS EN 50518. 
+Basis code (E / C) 
+The marker in the last column of every room data sheet line. E means the Employer has prescribed the thing and carries the risk that what is prescribed performs. C means the Employer has stated a duty and the Contractor designs, selects and warrants the means. Section 13.2 states the consequence of each. 
+CDE 
+Common data environment, to BS EN ISO 19650-2. The Employer's CDE is named at Appendix 11. 
+CDM 2015 
+The Construction (Design and Management) Regulations 2015. 
+Contractor 
+The party to whom this package is let. Rev A used "the tenderer" throughout; Rev B uses "Contractor" for obligations that survive award and "tenderer" only for what is required with the tender. 
+Contractor's Proposals 
+The Contractor's design response to this document, as defined and required at 13.4. What the Contractor proposes to build, as against what the Employer requires. 
+Design freeze 
+The date after which a change to an element requires the abortive design to be paid for. Stated per element in the accepted design programme at 13.5. 
+DLP 
+Defects liability period. Section 19. 
+DnT,w + Ctr 
+Standardised level difference, weighted, with the spectrum adaptation term for traffic and low-frequency noise. The measure of airborne sound insulation between rooms. 
+Employer 
+Marrowbridge Infrastructure Ltd, or a person authorised in writing to act for it under 17.1. 
+EPD 
+Environmental product declaration, to BS EN 15804. 
+Fail-safe 
+Releases on loss of power and on fire alarm activation. Required for escape route doors. See 4.18. 
+Fail-secure 
+Remains locked against entry on loss of power and on fire alarm activation, egress being mechanical and independent of power. Required for bedroom doors. See 4.18. 
+FD30S / FD60S 
+A doorset providing 30 or 60 minutes fire integrity with smoke control, certified as a complete doorset. 
+GIA 
+Gross internal area. 
+Interface 
+A point at which this package meets another, listed at section 5 with the deliverable, the certifier and the date. 
+L'nT,w 
+Standardised impact sound pressure level, weighted. Lower is better. 
+LD 
+Liquidated damages. Section 18.2. 
+LRV 
+Light reflectance value. A luminance contrast of 30 points means the difference between two LRVs is not less than 30. 
+MID 
+The Measuring Instruments Directive, as retained in UK law. A MID-approved meter may be used for billing. 
+O&M 
+Operation and maintenance manual. 
+P1 … P5 
+The five packages: P1 Civil Works, P2 Modular Accommodation (this package), P3 Kitchen, P4 Furniture, P5 FM and Operation. 
+Principal Contractor 
+The Principal Contractor appointed under CDM 2015 for the wider NORTHREACH works. Not this Contractor — see 10.1. 
+PTV 
+Pendulum test value, to BS 7976. PTV ≥ 36 corresponds to a low slip potential. 
+REI 60 
+Sixty minutes load-bearing capacity, integrity and insulation. 
+Relocation 
+Dismantling, transporting and re-erecting the village on another site. Section 13.7. 
+Sectional completion 
+Completion of a defined tranche of beds by a defined date, per 18.1 and Appendix 6. 
+Schedule of Departures 
+The list, required with every tender, of every point at which the tenderer's offer departs from this document, each priced separately. 13.4. 
+TMV3 
+A thermostatic mixing valve certified to the TMV3 scheme for healthcare and high-risk applications. 
+U-value 
+Thermal transmittance, W/m²K. 
+Unwanted alarm 
+A fire alarm signal from a cause other than fire. 4.26. 
+Working day 
+Monday to Friday excluding bank holidays in England and Wales. 
+ 
+2  Room schedule 
+Type 
+Description 
+Quantity 
+Data sheet 
+RT-01 
+Standard bedroom with ensuite shower room 
+The base room. Every deviation is priced against this one. 
+199 
+Section 3 
+RT-02 
+Accessible bedroom with ensuite wet room 
+Wheelchair accessible. Layout to be confirmed with Building Control. 
+12 
+Section 3 
+RT-03 
+Senior / long-stay bedroom with ensuite shower room 
+As RT-01 with an increased desk and storage provision. 
+14 
+Section 3 
+Quantities are as scheduled and are subject to remeasurement only where this document expressly permits it. The tenderer shall satisfy itself as to quantities from the drawings listed at section 11. 
+ 
+3  Room data sheets 
+Every line is a requirement. Where a cell reads “As RT-01” the requirement for RT-01 applies in full to that room type. 
+THE BASIS COLUMN. E means the Employer has prescribed the thing and carries the risk that what is prescribed performs. C means the Employer has stated a duty and the Contractor designs, selects and warrants the means of meeting it. The full consequence of each is at 13.2, and a tenderer that does not understand the distinction will misprice this package. 
+Item 
+RT-01  Standard bedroom 
+RT-02  Accessible bedroom 
+RT-03  Senior bedroom 
+Basis 
+GENERAL 
+Nominal internal floor area 
+11.0 m² minimum 
+16.0 m² minimum 
+14.0 m² minimum 
+E 
+Nominal internal width 
+2.85 m minimum 
+3.30 m minimum 
+3.10 m minimum 
+E 
+Clear floor-to-ceiling height 
+2.40 m minimum throughout, 2.30 m minimum beneath any bulkhead 
+2.40 m minimum 
+2.40 m minimum 
+E 
+Design occupancy 
+1 person, single occupancy 
+1 person, single occupancy 
+1 person, single occupancy 
+E 
+Ensuite floor area 
+2.6 m² minimum 
+4.5 m² minimum, level access wet room 
+2.6 m² minimum 
+E 
+Manoeuvring space 
+Not applicable 
+1500 mm diameter turning circle clear of the door swing, sanitaryware and fixed joinery, in both the room and the wet room 
+Not applicable 
+E 
+ENTRANCE DOOR 
+Clear opening width 
+800 mm minimum, measured to BS 8300-2 Annex 
+850 mm minimum. Note the dependency: 4.7 sets a 1200 mm corridor, for which a 1200 mm corridor approach requires 825 mm; 850 mm is required here 
+800 mm minimum 
+E 
+Doorset 
+Complete factory-assembled doorset, leaf, frame, seals and ironmongery from one certified supplier. Leaf thickness, core and frame section to the Contractor's design 
+As RT-01 
+As RT-01 
+C 
+Fire rating 
+FD30S. Certified as a doorset, not as a leaf; intumescent and cold smoke seals to head and both jambs 
+FD30S 
+FD30S 
+E 
+Finish 
+Factory-applied, wipe-clean, colour from the approved range at Appendix 5. Resistant to cleaning to the schedule of approved products schedule at 4.9 
+As RT-01 
+As RT-01 
+C 
+Ironmongery 
+Lever furniture, satin stainless; hinges to EN 1935 Grade 13. Self-closing to EN 1154. Opening force not exceeding 30 N at the leading edge 
+As RT-01, opening force not exceeding 20 N at the leading edge, measured with the closer set to close the door from 90° 
+As RT-01 
+E 
+Lock 
+Electronic access control to 4.18. FAIL-SECURE on loss of power AND on fire alarm activation; escape achieved mechanically from inside without a key, without electrical power and in a single action. See 4.18 — this is not a matter for the tenderer to decide 
+As RT-01, with an inside lever operable with a closed fist and no pinch grip 
+As RT-01 
+E 
+Vision panel 
+None 
+None 
+None 
+E 
+Door number 
+Tactile sign, characters 40 mm, luminance contrast not less than 30 LRV points against the sign face and the sign face against the wall, mounted 1400–1600 mm AFFL on the wall to the leading edge 
+As RT-01, with embossed characters and Grade 1 braille 
+As RT-01 
+E 
+WINDOW 
+Window 
+To achieve the thermal, acoustic, air permeability and security requirements at section 6, and the daylight and view requirement below. Frame material and section to the Contractor's design; unplasticised PVC-U permitted only where it meets the colour fastness requirement at 4.22 
+As RT-01 
+As RT-01 
+C 
+Daylight and view 
+Clear glazed area not less than 1.1 m² per room, with a view out; head of the clear glazing not less than 1.8 m AFFL and cill not more than 1.1 m AFFL 
+As RT-01, cill not more than 0.8 m AFFL so that the view out is available from a seated position 
+As RT-01 
+E 
+Opening light 
+One opening light, operable from standing, providing purge ventilation of not less than 4 air changes per hour with the door closed 
+As RT-01, operable from a seated position with one hand and a force not exceeding 30 N 
+As RT-01 
+C 
+Glazing 
+Toughened or laminated to BS 6206 Class A where within 800 mm of finished floor level or within 300 mm of a door edge below 1500 mm 
+As RT-01 
+As RT-01 
+E 
+Restrictor 
+Opening restricted to 100 mm, released only by a key or tool held by the operator, to prevent falls 
+As RT-01 
+As RT-01 
+E 
+Trickle ventilation 
+5,000 mm² equivalent area per room minimum, controllable, sited so that it does not create a draught at the bed head 
+As RT-01 
+As RT-01 
+E 
+Internal blind 
+Not more than 5 lux at the bed head with 20,000 lux measured on the external face of the glazing. No looped cord; where a cord is used it shall have a breakaway connector to BS EN 13120 
+As RT-01, operable from a seated position — wand or motorised 
+As RT-01 
+C 
+FINISHES — ROOM 
+Floor 
+Impervious sheet finish, seams welded, coved to the wall. Slip resistance PTV ≥ 36 dry. Wear classification not less than EN ISO 10874 Class 34 / 43. Residual indentation not exceeding 0.10 mm to BS EN ISO 24343-1. To meet the 38-month durability requirement at section 6 
+As RT-01, PTV ≥ 36 wet and dry throughout 
+As RT-01 
+C 
+Skirting 
+Coved and welded to the wall finish, 100 mm, integral with the floor covering, no open joint at the junction 
+As RT-01 
+As RT-01 
+E 
+Walls 
+Wipe-clean impervious finish, cleanable to BS EN ISO 11998 with the approved products schedule at 4.9. Impact resistance to 1200 mm AFFL not less than Category Severe Duty to BS 5234-2. Light reflectance value not less than 0.5 
+As RT-01 
+As RT-01 
+C 
+Ceiling 
+Matt finish, light reflectance value not less than 0.7, no accessible void within the room, no demountable tile in a bedroom 
+As RT-01 
+As RT-01 
+C 
+FINISHES — ENSUITE 
+Floor 
+Impervious, PTV ≥ 36 wet, coved 150 mm to all walls, laid to falls to the gully with no ponding when tested by flooding to 5 mm and draining 
+As RT-01, falls across the whole wet room floor to a level-access gully; no upstand or threshold at the shower 
+As RT-01 
+C 
+Walls 
+Fully sealed impervious panel system, full height, no tiled joint below 2.0 m, no sealant relied on as the primary water line at an internal corner 
+As RT-01 
+As RT-01 
+C 
+Ceiling 
+Moisture-resistant, factory-finished, no accessible void 
+As RT-01 
+As RT-01 
+C 
+SANITARYWARE 
+Shower 
+Thermostatic control to BS EN 1111 or BS EN 15092. Maximum outlet temperature 41 °C, verified per outlet at 8.5. Flow 8–10 litres/minute at the design pressure stated at 4.25. Tray or pod impervious and falling to the outlet. Shower head height adjustable between 1.4 m and 2.0 m above the floor and lockable at the set height 
+Level access, no tray upstand, thermostatic, fixed and handheld head, drop-down seat and grab rails to BS 8300-2 
+As RT-01 
+C 
+WC 
+Maximum full flush 6 litres with a reduced flush available. Seat height 400–450 mm. Pan type, cistern and flush mechanism to the Contractor's design; the mechanism shall be serviceable without removing permanent construction 
+Doc M compliant pan, 480 mm seat height, drop-down and fixed grab rails, spatula or lever flush on the transfer side 
+As RT-01 
+C 
+Basin 
+Wall-hung, 500 mm minimum width, single lever mixer, integral overflow. Fixing capable of a 130 kg vertical load applied at the front edge 
+Doc M compliant, lever mixer, knee clearance for a seated user, same 130 kg fixing requirement 
+As RT-01 
+E 
+Towel warming 
+Heated towel rail. Touchable surface temperature not exceeding 43 °C where accessible to an occupant. Output and control to the Contractor's design, coordinated with the heating duty below 
+As RT-01, at a height reachable from a seated position 
+As RT-01 
+C 
+Accessories 
+Mirror, glass shelf, toilet roll holder, robe hook 
+As RT-01 plus an emergency assistance alarm — pull cord to floor level, reset within the room, indicator outside the door and repeat to reception, to BS 8300-2 
+As RT-01 
+E 
+FITTED JOINERY — SUPPLIED UNDER THIS PACKAGE 
+Wardrobe 
+Fitted, 600 × 600 × 1950 mm nominal, hanging length not less than 850 mm and enclosed storage volume not less than 0.55 m³, one shelf, lockable 
+As RT-01, rail at 1050 mm maximum and shelf reachable from a seated position 
+Fitted, 900 mm wide, hanging rail and three shelves, lockable, storage volume not less than 0.8 m³ 
+E 
+Desk / worktop 
+Fitted worktop 1000 × 500 mm at 730 mm AFFL, cable grommet, edge and surface resistant to the approved cleaning products schedule at 4.9 
+As RT-01, knee clearance 750 mm minimum over a 700 mm width, no fixed pedestal 
+Fitted worktop 1400 × 600 mm with a two-drawer fixed pedestal 
+E 
+Shelving 
+One shelf over the desk, 900 mm 
+As RT-01, at reachable height 
+Two shelves over the desk 
+E 
+Note 
+Bed, mattress, chair, bin and soft furnishings are supplied under P4 Furniture and are NOT in this package. The interface is scheduled at IF-05. 
+As RT-01 
+As RT-01 
+ 
+MECHANICAL 
+Space heating — duty 
+Maintain 21 °C dry resultant with the window closed at the external design condition at Appendix 8 (−4 °C), at the ventilation rate scheduled below, with no occupancy gain assumed. Raise the room from 12 °C to 21 °C within 90 minutes from a cold start. Emitter type, rating, position and control to the Contractor's design 
+As RT-01, controls at 1000 mm AFFL maximum and operable with a closed fist 
+As RT-01 
+C 
+Space heating — control 
+Occupant set-point limited to 16–24 °C, tamper resistant, with a setback when the room is unlet. Touchable surface of any emitter not exceeding 43 °C. Where a window is opened, heating to the room shall reduce to setback within 5 minutes 
+As RT-01 
+As RT-01 
+C 
+Ventilation — room 
+Trickle ventilation as scheduled, plus continuous or intermittent mechanical extract from the ensuite achieving not less than 0.5 air changes per hour to the room over 24 hours 
+As RT-01 
+As RT-01 
+E 
+Ventilation — ensuite extract 
+15 litres/second minimum, humidity sensing with 15-minute overrun, ducted to outside. Measured and recorded per room at 8.5 
+As RT-01 
+As RT-01 
+E 
+Hot water 
+From the central system at 4.25; outlet temperature at basin and shower limited to 41 °C by a TMV3 valve, with 50 °C available at the valve inlet within 60 seconds 
+As RT-01 
+As RT-01 
+E 
+Cold water 
+From the central system at 4.25; no storage within the room; cold water at every outlet not exceeding 20 °C after 2 minutes running 
+As RT-01 
+As RT-01 
+E 
+Pipework insulation 
+All hot and cold pipework insulated within the room and ensuite, to prevent both heat loss and cold-water warming above the figure above 
+As RT-01 
+As RT-01 
+E 
+DRAINAGE WITHIN THE MODULE 
+Waste falls 
+40 mm waste laid at not less than 1:40 and not more than 1:10; 100 mm soil at not less than 1:80. No fall achieved by flexible pipe sag 
+As RT-01 
+As RT-01 
+E 
+Trap seals 
+75 mm seal to every appliance connecting to a stack. 50 mm permitted to a shower gully only where the design demonstrates the seal is retained under the pressure regime at 4.23 
+As RT-01 
+As RT-01 
+E 
+Shower gully 
+Removable grating, trap accessible and cleanable from within the ensuite without removing permanent construction 
+As RT-01, level-access gully with a grating flush to the finished floor and a slip resistance not less than the surrounding floor 
+As RT-01 
+E 
+Rodding and access 
+Every branch rodded from within the room or from a corridor access panel. No rodding access inside another occupant's room 
+As RT-01 
+As RT-01 
+E 
+Air admittance valves 
+Permitted only where the drainage design at 4.23 demonstrates the stack is adequately ventilated. Where used: to BS EN 12380, accessible, in a ventilated space, above the flood level of the highest appliance, and every one scheduled in the O&M with its location and replacement interval 
+As RT-01 
+As RT-01 
+C 
+Connection to P1 
+One connection per block at the invert on the coordination drawing, per IF-02. Within the module, the route to that connection is the Contractor's design 
+As RT-01 
+As RT-01 
+C 
+Testing 
+Every waste and soil connection tested to BS EN 12056-2 and the trap seal retention tested, before any lining is closed. Recorded per room 
+As RT-01 
+As RT-01 
+E 
+ELECTRICAL 
+Socket outlets 
+4 no. twin switched 13 A: 2 at desk height, 1 at bedside, 1 at low level 
+As RT-01, all outlets 700–1000 mm AFFL 
+6 no. twin switched 13 A 
+E 
+Charging provision 
+Integral charging at the desk and bedside positions, not less than 18 W total per outlet, connector types confirmed at design stage against the obsolescence requirement at 19.4 
+As RT-01 
+As RT-01 
+C 
+Lighting — room 
+300 lux maintained at the desk plane, uniformity not less than 0.4, UGR not exceeding 19, colour rendering Ra ≥ 80. Switched at the door and at the bed head. Luminaire, lamp and control to the Contractor's design 
+As RT-01, switches 900–1100 mm AFFL, with a luminance contrast of 30 LRV points against the wall 
+As RT-01 
+C 
+Lighting — ensuite 
+200 lux maintained at the basin, IP rating appropriate to the zone, interlocked with the extract 
+As RT-01 
+As RT-01 
+C 
+Reading light 
+Over the bed head, independently switched, 200 lux at the pillow, not causing glare to the desk position 
+As RT-01 
+As RT-01 
+C 
+Data 
+1 no. RJ45 outlet at desk position, Class E permanent link minimum, tested and certified to BS EN 50346 
+As RT-01 
+2 no. RJ45 outlets 
+E 
+Wireless 
+Room to be covered by the village wireless network to the level at section 6; access points supplied and commissioned under this package 
+As RT-01 
+As RT-01 
+E 
+Television 
+1 no. coaxial outlet at desk position 
+As RT-01 
+As RT-01 
+E 
+Shaver socket 
+1 no. in the ensuite, IP-rated for the zone, isolating transformer to BS EN 61558-2-5 
+As RT-01 
+As RT-01 
+E 
+Smoke detection 
+Optical detector to the room, addressable, connected to the village fire alarm at 4.15. Sounder level not less than 75 dB(A) at the bed head, per BS 5839-1 for a sleeping risk 
+As RT-01 plus a visual alarm device to BS EN 54-23 and a vibrating pad interface at the bed position 
+As RT-01 
+E 
+Emergency lighting 
+Maintained luminaire to the corridor side of the door; escape route lighting to 4.16 
+As RT-01 
+As RT-01 
+E 
+PERFORMANCE 
+Airborne sound — between bedrooms 
+DnT,w + Ctr 45 dB minimum, verified by pre-completion testing on the sample described at 8.4 
+As RT-01 
+As RT-01 
+E 
+Airborne sound — bedroom to corridor 
+DnT,w + Ctr 40 dB minimum, including the door 
+As RT-01 
+As RT-01 
+E 
+Impact sound — floor above 
+L'nT,w 62 dB maximum 
+As RT-01 
+As RT-01 
+E 
+Fire — separating construction 
+REI 60 between rooms and between room and corridor 
+As RT-01 
+As RT-01 
+E 
+Thermal — external wall 
+U-value 0.22 W/m²K maximum 
+As RT-01 
+As RT-01 
+E 
+Thermal — roof 
+U-value 0.16 W/m²K maximum 
+As RT-01 
+As RT-01 
+E 
+Thermal — glazing 
+U-value 1.4 W/m²K maximum, whole window 
+As RT-01 
+As RT-01 
+E 
+Air permeability 
+As 6 — measured on a completed block including the inter-module joints, not on a single module 
+As RT-01 
+As RT-01 
+E 
+Overheating 
+Compliance with the criterion at Appendix 9, using CIBSE TM59, for a single-occupancy room occupied at night by a shift worker sleeping during the day where Appendix 6 shows day-shift working 
+As RT-01 
+As RT-01 
+E 
+Count: 48 lines Employer-prescribed, 22 lines Contractor-designed. 
+ 
+4  Technical specification, by element 
+4.1  Interface with substructure 
+Modules are set on bases constructed under P1 Civil Works. The Contractor shall issue setting-out drawings and a base tolerance specification not later than eight weeks before the first delivery. Level tolerance across any single base: ±5 mm. Plan position tolerance: ±10 mm. Relative level between adjacent bases supporting one module: ±3 mm. The Contractor shall inspect and accept the bases in writing before delivery; delivery to unaccepted bases is at the Contractor's risk. The Contractor shall also state, at tender, the ground bearing pressure imposed by its craneage under the outrigger condition at 4.21, so that P1 can design the hardstanding to it rather than to an assumption. 
+4.2  Module frame and structure 
+Steel or timber framed volumetric modules, designed to BS EN 1990 and the relevant material Eurocode, for the loadings at Appendix 8. Design working life 25 years minimum notwithstanding the intended 38-month deployment, for the relocation reason stated at 13.7 — the design life is required because the modules will be dismantled, transported and re-erected at least twice, not because they will stand here for 25 years. All lifting points designed, certified and clearly marked; a lifting plan issued with each delivery. Serviceability, deflection and the temporary condition during installation are at 4.27. 
+4.3  External walls 
+Composite panel or framed construction achieving the U-value at 6. External finish: factory-applied coated steel or fibre cement, colour from the approved range at Appendix 5, and meeting the durability and colour fastness requirements at 4.22. Impact resistance to withstand normal site traffic adjacent to haul routes. All penetrations sealed and weathered; no site-applied sealant relied upon as the primary weather line. 
+4.4  Roof 
+Pitched or flat to falls not less than 1:80 after deflection. Single-ply membrane or profiled sheet, with a 20-year manufacturer's material warranty assigned to the Employer at handover. Rainwater goods sized to BS EN 12056-3 for the design rainfall at Appendix 8, discharging to the drainage provided under P1 at the termination points scheduled at 5.2. Weathertightness testing, roof access and fall protection are at 4.22. 
+4.5  Windows and external doors 
+As the room data sheets. All external doors: weather-sealed, with a threshold not exceeding 15 mm, measured after P1's finished external levels are laid — the threshold is achievable only if those levels are right, which is why it is scheduled at IF-15 and surveyed jointly before P1 surfaces around each block. Escape doors to open in the direction of escape and be openable without a key from the inside at all times, in a single action, in accordance with the fire strategy at Appendix 2. Any electrically held escape door shall be FAIL-SAFE — see 4.18, which distinguishes escape doors from bedroom doors and states a different failure mode for each. 
+4.6  Internal walls and partitions 
+Full height to the underside of the floor above, achieving the acoustic and fire performance scheduled at 6. No service penetration shall reduce the rated performance; all penetrations firestopped by a third-party certified installer and recorded in the firestopping register required at 10.4. Where a partition forms part of the acoustic separation, the Contractor shall demonstrate that the flanking path through the module floor, ceiling and inter-module joint does not defeat it; a laboratory figure for the partition alone is not evidence of compliance. 
+4.7  Corridors and circulation 
+Minimum clear corridor width 1200 mm, and 1500 mm where required by the fire strategy or by BS 8300-2 for accessible routes. Note the consequence at the room data sheets: a 1200 mm corridor sets the door clear opening width, and a Contractor proposing a narrower corridor changes a requirement it does not own. Wall protection to 1200 mm AFFL throughout, corner protection at every change of direction. Floor finish continuous, slip resistance PTV ≥ 36 wet and dry. 
+4.8  Stairs 
+Where blocks are two storey: stairs to the fire strategy, minimum 1200 mm clear width between handrails, handrails both sides at 900–1000 mm, tactile and visual contrast to nosings with a luminance contrast of not less than 30 LRV points. External stairs to have a slip resistance maintained when wet and either a means of preventing ice accretion or a stated winter maintenance regime, which shall be handed to P5 at IF-08 and not left as an operational discovery. 
+4.9  Internal finishes 
+As the room data sheets for rooms and ensuites. Circulation and amenity areas: wall finishes wipe-clean to 1200 mm minimum; floors slip resistant and welded. No carpet in any circulation or amenity space. All finishes to be maintainable with standard commercial cleaning products, and a schedule of approved products issued in the O&M manual — that schedule is the reference for every cleanability requirement in the room data sheets. 
+4.10  Mechanical services — heating 
+The requirement is the duty stated in the room data sheets, not an emitter. The Contractor shall select, size, position and control the heating to meet 21 °C dry resultant at the external design condition at Appendix 8, and the 90-minute heat-up requirement, and shall submit the calculation under 13.5. Central plant, where offered, to be located, acoustically treated and access-provisioned to 4.14. The tender shall state the resulting connected load per block, which is checked against 4.24. 
+4.11  Mechanical services — water 
+Hot and cold water distribution from the central plant provided under this package. Design to CIBSE Guide G and the Water Supply (Water Fittings) Regulations 1999. The supply characteristics at the point of connection, the metering and the isolation strategy are at 4.25. Dead legs minimised and recorded; every dead leg exceeding 3 pipe diameters to be scheduled in the O&M. Hot water stored at 60 °C minimum and distributed at 50 °C minimum at every outlet within one minute, with outlet temperature limited to 41 °C by TMV3 valves at every basin and shower. 
+4.12  Mechanical services — legionella 
+The Contractor shall prepare and hand over a written scheme of control to HSG274 Part 2 and ACOP L8. THE DUTY PASSES AT FIRST FILL, NOT AT FIRST OCCUPATION. Where the system is filled and then stands at low or nil occupancy before handover, the Contractor shall operate and record a flushing regime, and shall hand over the log with the O&M manual. This is scheduled as interface IF-10 and is not a matter the Contractor may leave to the operator. The written scheme shall address the specific risk this village creates: blocks completed early and standing unoccupied against the bed demand curve at Appendix 6, and rooms vacated between shift rotations. 
+4.13  Electrical services 
+Installation to BS 7671 as amended. Supply characteristics, maximum demand, earthing, metering and protection are at 4.24. Distribution boards accessible from circulation, not from bedrooms. Separate final circuits for lighting and power to each floor of each block. RCBO protection to every final circuit. Full test results, certificates and an as-installed schedule issued at handover; a certificate covering “all circuits” without individual results will be rejected. 
+4.14  Plant and access — measurable requirements 
+All plant requiring inspection, servicing or replacement shall be accessible without entering a bedroom and without removing permanent construction. The following are requirements, not aspirations. Clear working space in front of every access panel or plant face: 600 mm minimum, and 700 mm where the maintenance activity requires a person to face the plant with a tool. Clear route width to any plant position: 700 mm minimum, 1000 mm where a component exceeding 25 kg must be carried along it. Access panels: 600 × 600 mm minimum, larger where the largest replaceable component requires it, openable by one person with a standard tool and without a ladder where sited below 2.2 m. Any component exceeding 25 kg shall have a certified lifting point or a documented handling method. Roof-mounted plant shall have a permanent guarded access route and shall not require a scaffold for routine service. Headroom in any plant space: 2.0 m minimum. No plant serving more than one room shall be located within a bedroom. The Contractor shall submit a maintenance access strategy drawing with its tender demonstrating each of these dimensions at every plant position, and shall state, for the three largest replaceable components, the route and the time to replace one. 
+4.15  Fire detection and alarm 
+Category L1 system to BS 5839-1 unless the fire strategy at Appendix 2 requires otherwise. Addressable, with a repeat panel at reception and a mimic to the village management system. Zoning to the fire strategy. Cause and effect matrix submitted for approval before installation and demonstrated at commissioning. The evacuation strategy, the interface with the construction site alarm and the unwanted alarm requirements are at 4.26 — those are Employer decisions and are not open to the Contractor. 
+4.16  Emergency lighting 
+To BS 5266-1, three-hour duration, self-testing where offered. Escape route illumination to 1 lux minimum on the centre line, open areas 0.5 lux, external assembly point and the route to it 5 lux minimum. Full photometric calculation submitted for approval. Testing and the log required at handover shall be in the format P5 requires under 15.4. 
+4.17  Lightning protection 
+Risk assessment to BS EN 62305-2 carried out by the Contractor for the village as sited, submitted within eight weeks of award and reissued if the block layout changes. The assessment shall be issued whether or not it results in installation; an assessment concluding that no protection is required is still a deliverable. 
+Where protection is required, the system shall be to the Lightning Protection Level the assessment determines, with: earth termination resistance not exceeding 10 ohms at each termination and 10 ohms for the system as a whole, measured and recorded; test joints accessible without tools at not more than 1.5 m above finished ground level; bonding of the module structural frame and of every service entering each block; separation distances calculated rather than assumed; and surge protective devices coordinated with those required at 4.24. Visual inspection and electrical test at intervals not exceeding twelve months, the first carried out before handover, with the log passed to P5 at IF-08. 
+4.18  Access control, and the failure mode on fire alarm 
+This clause states two different failure modes for two different door types. Confusing them is the single most serious error available in this package. 
+BEDROOM DOORS. Escape from a bedroom shall be mechanical, in a single action, from the inside, at all times, without a key, without a tool and without electrical power. The electronic lock therefore controls entry only, and never egress. On that basis the lock shall be FAIL-SECURE: it shall remain locked against entry on loss of power, on battery depletion and ON FIRE ALARM ACTIVATION. Fire and rescue service access to a locked bedroom shall be by mechanical override key held in a secure key cabinet at the fire alarm panel and recorded in the premises information box, and this arrangement shall be agreed in writing with the fire and rescue service before commissioning. Battery-operated locks shall give a low-battery indication locally and to the village management system at not less than 20% remaining capacity, and shall retain the mechanical override and the mechanical egress function when the battery is wholly depleted. 
+ESCAPE ROUTE DOORS. Any door on an escape route held closed or locked by electrical means — cross-corridor doors, final exit doors, any door with a magnetic lock — shall be FAIL-SAFE: it shall release on fire alarm activation, on loss of power and on operation of a green break-glass unit adjacent to the door, in accordance with BS 7273-4 Actuation Type A. These doors shall be listed individually in the cause and effect matrix at 4.15. 
+GENERAL. Audit trail retained for 90 days minimum. Master, floor-master and housekeeping key hierarchies agreed with the Employer and with P5 before commissioning, per IF-09. Mechanical override keys handed over under a documented key control procedure. The Contractor shall submit, with its tender, a door schedule stating for every door in the package which of the two regimes above applies to it. 
+4.19  Security and CCTV interface 
+Cabling, containment and power for external CCTV and the gatehouse interface are within this package to the termination points scheduled at 5.2. The cameras, recording and monitoring are supplied under P5 FM and Operation. 
+WHAT IS PROVIDED, IN NUMBERS. Class EA (Cat 6A) cable to every camera position on the coordination drawing, terminated, tested to BS EN 50346 and left coiled with not less than 2.0 m of slack at the camera end. Containment sized with not less than 40% spare capacity after installation. Power: 2 no. spare ways at each block distribution board, each rated 6 A and labelled for CCTV, with the circuit tested and certified under 4.13. Each termination within plus or minus 150 mm of the position on the coordination drawing, and each position frozen not later than eight weeks before manufacture of the module carrying it — after that date a moved position is a change under section 17. 
+Positions coordinated before installation, not after. No camera shall be positioned or cabled so as to view into a bedroom window or an ensuite; the Contractor shall confirm this on the coordination drawing, and the Employer's data protection impact assessment depends on that confirmation. 
+4.20  Signage and wayfinding — measurable requirements 
+Statutory and fire signage throughout, to BS 5499-4 and the Health and Safety (Safety Signs and Signals) Regulations 1996. Escape sign height not less than the viewing distance divided by 100 for an unlit or externally illuminated sign, and divided by 200 for an internally illuminated sign; the Contractor shall state the viewing distance used for every sign position. Every escape sign shall be either internally illuminated or photoluminescent to BS ISO 15370 Class C, so that it remains legible on loss of the emergency lighting. Room numbering, floor identification and directional signage to a scheme submitted for approval, with characters not less than 15 mm and not more than 55 mm, tactile where within reach, and a luminance contrast of not less than 30 LRV points between character and sign face and between sign face and its background. Fire action notices at every final exit and at every stair on every floor. Signage shall be in English with pictograms conforming to BS ISO 7010; given the workforce profile, the Contractor shall not rely on text alone to convey a safety instruction. 
+4.21  Temporary works (Rev B) 
+All temporary works shall be managed to BS 5975. The Contractor shall appoint a Temporary Works Coordinator in writing and notify the appointment to the Principal Contractor before mobilisation. A temporary works register shall be maintained and made available on request. Every temporary work shall be assigned a design check category (0, 1, 2 or 3) with the reason recorded; the setting and stability of an unconnected module, and any craneage that lifts over or adjacent to an occupied or trafficked area, shall be Category 2 as a minimum and shall be independently checked by a person not involved in the design. No load shall be applied and no support struck without a written permit signed by the Temporary Works Coordinator. 
+CRANEAGE. Lifting operations to BS 7121-1, planned by an Appointed Person, with the lift plan submitted seven days beforehand. The Contractor shall state, for every crane configuration: gross weight and centre of gravity of the heaviest module, radius, outrigger loads and the resulting ground bearing pressure, and shall check that pressure against the P1 hardstanding design under IF-03 — not against an assumption of its adequacy. The Contractor shall state in its tender the maximum mean and gust wind speeds at which lifting will cease; these shall not exceed the module manufacturer's stated limit for the module's sail area, and shall be recorded on each lift plan. Exclusion zones shall be established and maintained. No lift shall pass over an occupied module, an occupied part of the village, a live haul road or the construction site boundary at any time. 
+4.22  Envelope weathertightness, colour fastness and roof access (Rev B) 
+WEATHERTIGHTNESS. Before the first production module is manufactured, the Contractor shall construct a representative mock-up of the inter-module joint — vertical and horizontal, including the corner where four modules meet — and shall test it for water penetration to BS EN 12155 at a static pressure not less than 300 Pa, or by field test to AAMA 501.2 where the joint design does not suit a chamber test. No water penetration to the internal face is permitted. On site, the first set block of each type shall be hose tested to AAMA 501.2 at every joint, roof upstand and penetration before internal linings are closed, and the test recorded. Any failure requires the joint design to be reviewed, not merely the failed joint to be sealed. 
+COLOUR FASTNESS AND DURABILITY. External coated metal to be classified not less than RUV3 to BS EN 10169, with a manufacturer's warranty of not less than 20 years against a colour change exceeding ΔE 3 to BS EN 13523-3 and a chalking rating of not worse than 2 to BS EN 13523-10, in the site's exposure category at Appendix 8. Where PVC-U is offered for any external component it shall be demonstrated to meet the same ΔE limit over the same period. The warranty shall be assignable to the Employer and shall survive relocation under 13.7, or the Contractor shall state at tender that it does not. 
+ROOF ACCESS. Safe access to every roof requiring inspection or maintenance, without a scaffold, without a mobile access platform standing on a haul road, and without a fall arrest system as the primary control. Permanent edge protection or a permanently installed and certified restraint system, with anchor points tested to BS 7883 and a re-test interval stated in the O&M. A roof access strategy drawing to be submitted with the tender. 
+4.23  Drainage within the module (Rev B) 
+The Contractor shall design the above-ground drainage within each module and block to BS EN 12056 and Approved Document H, from every appliance to the single connection point per block scheduled at IF-02. The design shall be submitted under 13.5 and shall include a stack sizing calculation and a demonstration of trap seal retention under the design discharge, including the simultaneous-use condition created by a shift change — the Contractor shall assume the discharge unit loading for congested use, not for domestic use, because 199 people leave for shift within the same 40 minutes. Falls, trap seals, rodding access, air admittance valves and testing are as scheduled in the room data sheets. Stacks shall be positioned so that no stack passes through a bedroom without an acoustic enclosure achieving the bedroom-to-corridor figure at section 6, and no rodding access shall be within a bedroom other than that room's own. 
+4.24  Electrical supply characteristics, metering and protection (Rev B) 
+SUPPLY. The supply is presented at the termination point per IF-02 as 400/230 V, 50 Hz, three phase and neutral, TN-S. The prospective fault current and the maximum demand available per block are stated at Appendix 8; where they are not yet confirmed the Contractor shall state the figures it has assumed and price the assumption, and shall not treat the value as established. The Contractor shall submit a maximum demand calculation per block and for the village, with diversity stated and justified, including the heating load arising from its choice under 4.10 — a Contractor offering direct electric heating shall demonstrate that the resulting demand is within the supply, and if it is not, the reinforcement is the Contractor's cost and not a variation. 
+EARTHING AND BONDING. Earthing arrangement TN-S at the origin, with main protective bonding to every extraneous-conductive-part entering each block, sized to BS 7671. Earth electrode resistance and Ze measured and recorded per block. The relationship between the module frame, the base and the earthing system shall be stated on the design drawing; a steel module frame is an extraneous-conductive-part and shall be treated as one. 
+PROTECTION AND DISCRIMINATION. RCBO protection to every final circuit, 30 mA. A discrimination study submitted for approval demonstrating that a fault in one room does not disconnect a floor or a block. Surge protective devices to BS EN 62305 and BS 7671 Section 443 at the origin of each block distribution board, with the risk assessment at 4.17 as the justification. 
+METERING. One MID-approved meter per block, with a pulsed or Modbus output to the village management system, and sub-metering separating heating, hot water, lighting and small power so that the operating cost model at P5 can be built from measured data rather than estimated. Meter positions accessible without entering an occupied room. The metering schedule and the point naming convention shall be agreed with P5 under IF-14 before commissioning, or the data arrives in a form nobody can use. 
+STANDBY. Where a standby generator is provided under P1, the Contractor shall state which circuits it requires to be supported — as a minimum the fire alarm, emergency lighting charging, the access control system and the water booster — and shall provide the changeover interface at the termination point. 
+4.25  Water supply characteristics, metering and isolation (Rev B) 
+SUPPLY. Cold water is presented at the termination point per IF-02. The static head and the dynamic pressure and flow available are stated at Appendix 8; where not confirmed, the Contractor shall design for not less than 2.0 bar dynamic at 1.5 litres per second at the termination and shall state that assumption in its tender. Where the design requires boosting, the booster set, its accommodation, its acoustic treatment and its standby arrangement are within this package. 
+BACKFLOW. Backflow protection appropriate to Fluid Category 5 at the incomer to each block, to the Water Supply (Water Fittings) Regulations 1999 and BS EN 1717. A notification under Regulation 5 shall be made where required and the acknowledgement handed over with the O&M. 
+ISOLATION. A lockable isolation valve to each block, in an accessible external chamber, labelled and recorded on the as-installed drawing; a further isolation to each floor and to each room, so that a single failed flexible connection does not shut down 60 beds. Every isolation valve position shall appear on the O&M valve schedule with a unique reference matching the label on the valve. 
+METERING. One MID-approved water meter per block with a pulsed output to the village management system, and a separate meter to the kitchen supply serving P3. Consumption data is required for the legionella scheme at 4.12 as well as for cost: an unexpected zero on a block meter is the earliest indication of an unoccupied and stagnating leg. 
+EXPANSION AND PRESSURE. Expansion vessel and pressure relief sized and installed to the hot water design, with the discharge terminating safely and visibly. Maximum static pressure at any outlet 5 bar; pressure reducing valves where the design exceeds it, and their set points recorded. 
+4.26  Evacuation strategy and the construction site alarm interface (Rev B) 
+These are the Employer's decisions. They are stated here because Rev A did not state them, and a Contractor cannot design a fire alarm system without them. 
+EVACUATION. Simultaneous evacuation of the whole of an accommodation block on the operation of any detector or call point in that block. Phased evacuation shall not be used. Travel distances and the two-storey arrangement do not require it, and phased evacuation of sleeping occupants who have been woken is not a strategy that survives being tested at three in the morning. 
+EACH BLOCK IS A SEPARATE EVACUATION ENTITY. An alarm in Block A shall not evacuate Block B. Evacuating 225 people simultaneously, at night, onto a site adjoining live construction, creates a greater hazard than the one being managed. Blocks shall be separately zoned and separately sounded, and the fire strategy at Appendix 2 shall confirm the separation distance that permits it. 
+VOICE ALARM. Not required. Sounders and, in RT-02 and the amenity buildings, visual alarm devices to BS EN 54-23. The reason is recorded so it is not reopened at value engineering: the workforce is multilingual, a spoken instruction in English cannot be assumed to be understood by every occupant, and a fire alarm tone is universal. Where the Contractor believes a voice alarm is nonetheless required by the fire strategy, it shall raise it as a tender query and not price it silently. 
+INTERFACE WITH THE CONSTRUCTION SITE. The village fire alarm system shall NOT be interlinked with the construction site alarm system, in either direction. A construction site evacuation shall not sound in sleeping accommodation, and a village alarm shall not stop work on site. Both shall be separately monitored to the same alarm receiving centre to BS EN 50518, with separate zone identification, and the ARC shall be instructed which response applies to which. This shall be confirmed in writing with the Principal Contractor before commissioning, and is scheduled at IF-13. Zoning across the kitchen building, where a detector over a cooking range must not evacuate sleeping accommodation, is scheduled separately at IF-16. 
+UNWANTED ALARMS. Target not exceeding one unwanted alarm per 100 detectors per year, reported monthly to P5. Detector selection shall be made to achieve it: no optical smoke detector shall be installed within an ensuite, and the room detector shall be positioned not less than 1.5 m from the ensuite door opening, because steam from a shower is the most common cause of a night-time unwanted alarm in accommodation of this type. In a village where an unwanted alarm wakes a night-shift worker who then works the following day, this is a safety requirement and not a convenience. 
+ASSEMBLY. Assembly points on the village side of the segregation line at 10.3, never on the construction site, illuminated to 5 lux with the route to them illuminated to the same level, and identified on the fire action notice in every block. 
+4.27  Structural serviceability and the temporary condition (Rev B) 
+DEFLECTION. Floors: not exceeding span/360 under imposed load and span/250 under total load, with a further limit of 15 mm absolute in any bedroom. Footfall-induced vibration: response factor not exceeding 8 to SCI P354, assessed for a corridor and for a bedroom floor — a modular floor cassette that meets the deflection limit can still be unacceptable to a sleeping occupant on the floor below. External wall panels: not exceeding span/360 under the design wind load, and not exceeding the glazing manufacturer's limit at every window head. 
+DIFFERENTIAL MOVEMENT. The Contractor shall state the differential movement it has designed for between adjacent modules and between the module and the base, and shall demonstrate that the inter-module joint at 4.22, the internal linings and the services connections accommodate it without loss of fire, acoustic or weather performance. 
+TEMPORARY CONDITION. The Contractor shall demonstrate the stability of a module in every condition between leaving the factory and being fully connected: on the transport vehicle, during the lift, when set but not yet connected to its neighbours, and when a block is part-erected and left overnight or over a weekend. The overnight and weekend cases shall be designed for the wind speed with the appropriate return period for the exposure period, not the full design wind, and the Contractor shall state the wind speed at which a part-erected block must be tied down or completed. Racking of the module during lifting shall be controlled by design rather than by care. 
+SUBMISSION. All of the above under 13.5, before manufacture. 
+ 
+5  Interface schedule 
+5.1  Why this section exists 
+A package fails at its boundaries, not in its middle. Each interface below states what is handed over, in what state, who certifies it and when. An interface that is not certified by the date stated is a notifiable event under the subcontract. 
+5.2  The interfaces 
+Ref 
+With 
+What is handed over 
+Certified by 
+When 
+IF-01 
+P1 Civil Works 
+Bases set out, constructed and surveyed to the tolerance at 4.1 
+P1 issues the survey; this Contractor accepts it in writing 
+Not later than 2 weeks before each delivery 
+IF-02 
+P1 Civil Works 
+One termination point per service per block — water, foul, power, data — at the position and invert on the coordination drawing, with the characteristics at 4.24 and 4.25 
+Joint drawing signed by both parties before either orders materials 
+Before P1 commences drainage 
+IF-03 
+P1 Civil Works 
+Craneage hardstanding, access route and turning provision, designed to the outrigger ground bearing pressure this Contractor states under 4.21 
+P1, against this Contractor's stated loadings and swept path 
+4 weeks before first delivery 
+IF-04 
+P3 Kitchen 
+Kitchen and dining building shell, with agreed penetrations, floor loading, drainage falls and extract routes 
+This Contractor supplies the shell; P3 confirms the penetration schedule before manufacture 
+Before module manufacture commences 
+IF-05 
+P4 Furniture 
+The bedroom specification, item by item, dividing fixed joinery from loose furniture 
+Both parties against a single common schedule issued by the Employer 
+Before either package is let 
+IF-06 
+P4 Furniture 
+Access for furniture installation after module setting and before handover 
+Programme coordination; this Contractor provides secure storage if the sequence slips 
+Per the agreed installation programme 
+IF-07 
+P5 FM and Operation 
+Building services commissioning complete and demonstrated before any occupation 
+This Contractor, witnessed by P5 and by the Employer 
+Before the first resident arrives 
+IF-08 
+P5 FM and Operation 
+O&M manuals, as-installed drawings, warranties, asset register and training 
+This Contractor; P5 acknowledges receipt against a checklist 
+2 weeks before handover 
+IF-09 
+P5 FM and Operation 
+Access control key hierarchy, the audit trail configuration, and the mechanical override key cabinet at 4.18 
+Jointly, to a procedure agreed before commissioning, and with the fire and rescue service 
+At commissioning 
+IF-10 
+P5 FM and Operation 
+The water system at first fill, with the legionella duty and the flushing log 
+This Contractor operates and records until handover, then transfers with the log 
+At first fill, and again at handover 
+IF-11 
+Employer's fire engineer 
+The fire strategy, cause and effect matrix, the compartmentation drawing and the evacuation decisions at 4.26 
+The Employer's fire engineer approves; this Contractor implements 
+Before manufacture, and again at commissioning 
+IF-12 
+Employer 
+Planning conditions affecting external appearance, lighting and hours of installation 
+Employer discharges; this Contractor complies and evidences 
+Before delivery commences 
+IF-13 
+Principal Contractor 
+Segregation of the village from the construction site; the separate alarm systems at 4.26; the shared haul route and the crane exclusion zones at 4.21 
+Agreed in writing between this Contractor and the Principal Contractor; the Employer is copied 
+Before mobilisation, and reviewed at each block 
+IF-14 
+P5 FM and Operation 
+The asset data schema, point naming and metering conventions at 15.3 and 4.24, agreed BEFORE the data is collected rather than after 
+P5 issues the schema; this Contractor populates it 
+Within 8 weeks of award, and not later than the design freeze 
+IF-15 
+P1 Civil Works 
+External works, paving levels and the threshold condition at every door, so that the 15 mm threshold at 4.5 is achievable after P1's finished levels 
+Joint site survey before P1 lays the surrounding surface 
+Before external works at each block 
+IF-16 
+P3 Kitchen and P5 
+Fire alarm zoning and cause and effect across the kitchen building, where a kitchen detector must not evacuate sleeping accommodation 
+This Contractor's fire alarm designer, with the Employer's fire engineer 
+With the cause and effect matrix at 4.15 
+ 
+6  Performance schedule 
+These are the Employer's requirements. Compliance with statutory requirements is the tenderer's duty and is not discharged by meeting the figures below; where a statutory requirement is more onerous, it prevails. 
+Criterion 
+Requirement 
+How it is verified 
+Airborne sound insulation, between bedrooms 
+DnT,w + Ctr 45 dB minimum 
+Pre-completion testing to BS EN ISO 16283-1 on the sample at 8.4 
+Airborne sound insulation, bedroom to corridor 
+DnT,w + Ctr 40 dB minimum, including the doorset 
+Pre-completion testing, same sample 
+Impact sound insulation, floors 
+L'nT,w 62 dB maximum 
+Pre-completion testing to BS EN ISO 16283-2 
+Flanking transmission 
+Demonstrated by design that the inter-module joint, floor and ceiling do not defeat the partition performance 
+Calculation or reference to tested modular construction, submitted before manufacture 
+Rain noise 
+Demonstrated not to exceed 45 dB LAeq in a bedroom during the design rainfall event 
+Calculation, or manufacturer's test data for the roof build-up 
+Footfall vibration 
+Response factor not exceeding 8 to SCI P354, bedroom and corridor 
+Calculation, submitted before manufacture 
+Fire resistance, separating construction 
+REI 60 between rooms, and between rooms and circulation 
+Third-party certified system, evidence submitted before order 
+Fire resistance, doorsets 
+FD30S to bedrooms; FD60S where the fire strategy requires. Certified as a doorset 
+Certified doorsets, labelled, register issued at handover 
+Reaction to fire, internal linings 
+Class B-s3,d2 or better to circulation and escape routes 
+Manufacturer's classification report 
+Reaction to fire, external walls 
+Meeting the requirement of the fire strategy at Appendix 2 for the building height and use, with all products in the external wall build-up scheduled and classified 
+Classification reports for every product in the build-up, not for the system alone 
+Thermal transmittance, external wall 
+0.22 W/m²K maximum 
+Calculation to BS EN ISO 6946, submitted with the tender 
+Thermal transmittance, roof 
+0.16 W/m²K maximum 
+As above 
+Thermal transmittance, floor 
+0.18 W/m²K maximum 
+As above 
+Thermal transmittance, windows and doors 
+1.4 W/m²K maximum, whole unit 
+Manufacturer's data 
+Thermal bridging 
+Psi values calculated for every junction type, including the inter-module joint; no junction left to a default value 
+Calculation, submitted before manufacture 
+Air permeability 
+7.0 m³/(h·m²) at 50 Pa maximum, MEASURED ON A COMPLETED BLOCK INCLUDING THE INTER-MODULE JOINTS. Rev B relaxed this from 5.0 and changed what is measured: 5.0 is a new-build dwelling figure achievable on a single module in a factory and routinely lost at the joints, and a requirement that is met in the factory and failed on site is not a requirement. A Contractor offering better than 7.0 is evaluated on it 
+Testing to ATTMA TSL2 (non-dwellings) on one completed block in three, per 8.4. Rev B corrected the standard: Rev A cited TSL1, which is the dwellings measurement protocol and is the wrong document for this building 
+Inter-module joint air tightness 
+Joint mock-up tested before manufacture; no water penetration and a measured joint leakage rate consistent with the block figure above 
+Mock-up test to 4.22, witnessed 
+Overheating 
+Compliance with the criterion at Appendix 9, for a shift worker sleeping during the day where Appendix 6 shows day-shift working 
+Dynamic thermal modelling to CIBSE TM59 
+Ventilation, ensuite extract 
+15 l/s minimum, humidity sensing, 15 minute overrun 
+Commissioning measurement, every room, recorded 
+Space heating duty 
+21 °C dry resultant at the external design condition; 12 °C to 21 °C within 90 minutes 
+Heat loss calculation submitted; verified on the sample room at 8.3 by measurement 
+Water outlet temperature 
+41 °C maximum at basin and shower; 50 °C minimum at the TMV inlet within one minute 
+Commissioning measurement, recorded per outlet 
+Cold water temperature 
+Not exceeding 20 °C at any outlet after 2 minutes running, for the legionella scheme at 4.12 
+Commissioning measurement, recorded per outlet 
+Illuminance, bedroom 
+300 lux at the desk plane, uniformity ≥ 0.4, UGR ≤ 19 
+Commissioning measurement on a sample of one room in ten 
+Illuminance, escape routes 
+1 lux minimum on the centre line; 5 lux at the assembly point and on the route to it 
+Photometric calculation plus site verification 
+Wireless coverage 
+−67 dBm minimum in every bedroom and amenity space, supporting 2 devices per resident concurrently 
+Site survey at commissioning, heat map issued 
+Slip resistance, wet areas 
+PTV ≥ 36 wet 
+Manufacturer's data plus in-situ pendulum test on a sample 
+Structural, floor loading 
+1.5 kN/m² imposed, bedrooms; 2.0 kN/m² circulation 
+Design calculations, submitted for approval 
+Structural, deflection 
+As 4.27 
+Design calculations 
+Structural, wind 
+To BS EN 1991-1-4 for the site exposure at Appendix 8, including every temporary condition at 4.27 
+Design calculations 
+Weathertightness 
+No water penetration at the joint mock-up or the site hose test 
+Tests to 4.22 
+Colour fastness 
+ΔE not exceeding 3 and chalking not worse than rating 2 over 20 years 
+Manufacturer's warranty to 4.22 
+Durability 
+All finishes to withstand 38 months of continuous single-occupancy use without replacement, fair wear and tear excepted 
+Warranty and a defined maintenance regime in the O&M 
+Embodied carbon 
+Reported to 16.2; a cap is not imposed, a declaration is required and is evaluated 
+EPDs and the calculation at 16.2 
+ 
+7  Programme and delivery 
+7.1  Fixed point 
+The village must be live before the first travelling worker arrives. That date, not the tender return date, is the fixed point in this programme. The tenderer shall demonstrate in its tender programme how it is met, and shall state the latest date by which each of the interfaces at section 5 must be satisfied for it to remain achievable. 
+7.2  Delivery sequence 
+Blocks are to be delivered, set and weathertight in the sequence at Appendix 6, which is driven by the bed demand curve and not by manufacturing convenience. A tenderer proposing a different sequence shall price it as a departure and state the effect on the first-occupation date. 
+7.3  Weather and abnormal loads 
+Deliveries are by abnormal load over the route at Appendix 7, which includes a structure subject to assessment. The tenderer shall confirm vehicle configuration and axle loading with its tender, and shall not assume the route is available until the assessment is complete. 
+7.4  Working hours 
+Installation is restricted to the hours in the planning consent at Appendix 3. Craneage outside those hours requires the client's prior written agreement and the discharge of the relevant condition. 
+7.5  Notification 
+Fourteen days' notice of each delivery, confirmed at seven days and again at forty-eight hours. A delivery arriving without confirmed notice may be refused entry. 
+ 
+8  Quality, inspection, testing and commissioning 
+8.1  Inspection and test plan 
+Submitted within four weeks of award, covering manufacture, delivery, installation and commissioning, with hold points the client may witness. Work proceeding past an unsigned hold point may be opened up at the tenderer's cost. 
+8.2  Factory inspection 
+The client reserves the right to inspect at the place of manufacture. The first module of each type is a benchmark and shall not be delivered until accepted; the benchmark remains available for comparison until the last module is set. 
+8.3  Sample room 
+One complete RT-01, fully finished and serviced, shall be available for inspection not less than four weeks before the first delivery. It is the standard against which every subsequent room is measured. 
+8.4  Pre-completion testing 
+Acoustic testing on a sample of one room pair in ten, and air permeability on one block in three, both to the standards at section 6. A failure requires the tenderer to test a further sample of the same size at its own cost, and to remedy every room represented by a failed test. 
+8.5  Commissioning 
+Every ensuite extract rate, every water outlet temperature and every TMV measured and recorded individually. A commissioning record stating “all outlets satisfactory” without individual results will be rejected. 
+8.6  Demonstration 
+Fire alarm cause and effect, emergency lighting, access control hierarchy and the wireless heat map demonstrated to the client and to P5 before handover. 
+8.7  Sample room inspection checklist 
+The sample room at 8.3 is the standard against which every subsequent room is measured, so what is checked against what must be written down before the inspection rather than agreed during it. Every line below is checked, recorded, signed and dated by the Contractor and countersigned by the Employer. A line that cannot be checked because the work is not complete is recorded as such and rechecked; it is not passed. 
+Group 
+Check 
+Acceptance criterion 
+Evidence 
+Dimensional 
+Internal floor area, width and ceiling height 
+As the room data sheet for the type 
+Measured, recorded on the checklist 
+Dimensional 
+Door clear opening width 
+800 mm RT-01/03; 850 mm RT-02, measured to BS 8300-2 
+Measured 
+Dimensional 
+Ensuite area and, for RT-02, the 1500 mm turning circle 
+As the room data sheet, clear of door swing and fittings 
+Measured and marked on the floor 
+Fabric 
+Doorset certification 
+FD30S certified as a doorset, label present and legible 
+Label photographed, certificate produced 
+Fabric 
+Window restrictor and glazing safety marking 
+100 mm restriction; Class A marking visible where required 
+Inspected, operated 
+Fabric 
+Floor coving, welding and falls in the ensuite 
+Continuous, no open joint; flood test to 5 mm drains with no ponding 
+Flood test witnessed 
+Fabric 
+Wall and ceiling finish 
+LRV, cleanability and impact category per the room data sheet 
+Manufacturer's data plus a cleaning trial with the approved products 
+Services 
+Space heating duty 
+Room raised from 12 °C to 21 °C within 90 minutes; 21 °C held at the design condition or by calculation validated against the measured heat-up 
+Measured over a witnessed test with the room at 12 °C 
+Services 
+Heating setback on window opening 
+Reduces to setback within 5 minutes of the window being opened 
+Witnessed 
+Services 
+Ensuite extract rate and overrun 
+15 l/s minimum; humidity trigger; 15-minute overrun 
+Anemometer reading, recorded 
+Services 
+Water outlet temperatures 
+41 °C maximum at basin and shower; 50 °C at the TMV inlet within 60 seconds; cold not exceeding 20 °C after 2 minutes 
+Measured at every outlet in the room 
+Services 
+Shower flow rate 
+8–10 l/min at the design pressure 
+Measured 
+Services 
+Drainage trap seal retention 
+Seal retained after the design discharge and after the simultaneous-use condition at 4.23 
+Witnessed test 
+Services 
+Illuminance at the desk and at the basin 
+300 lux desk, uniformity ≥ 0.4, UGR ≤ 19; 200 lux basin 
+Lux meter, grid recorded 
+Services 
+Socket, data and charging provision 
+Number, position and rating per the room data sheet; data link tested to Class E 
+Inspected; test certificate for the link 
+Services 
+Emergency luminaire and detector position 
+Detector not less than 1.5 m from the ensuite door; luminaire to the corridor side 
+Measured 
+Safety 
+Bedroom lock — egress 
+Door opens from inside in a single action with the power off and the battery removed 
+Witnessed with power isolated and battery removed 
+Safety 
+Bedroom lock — entry on alarm 
+Remains secure on fire alarm activation; mechanical override operates 
+Witnessed with the alarm activated 
+Safety 
+Low battery indication 
+Local indication and a signal to the management system at 20% capacity 
+Simulated and witnessed 
+Safety 
+Emergency assistance alarm (RT-02) 
+Sounds, indicates outside the door and repeats to reception; resets only within the room 
+Witnessed end to end 
+Performance 
+Airborne sound to the adjoining room 
+DnT,w + Ctr 45 dB where the sample is a pair; otherwise the laboratory and flanking evidence 
+Test report or the design evidence at section 6 
+Performance 
+Weathertightness at the inter-module joint 
+No penetration under the AAMA 501.2 hose test 
+Witnessed 
+Finish 
+Joinery dimensions, storage volume and lockability 
+Per the room data sheet; wardrobe hanging length and volume measured 
+Measured 
+Finish 
+Cleanability trial 
+Surfaces cleaned with the approved products schedule at 4.9 with no damage or dulling 
+Witnessed on a marked area 
+Finish 
+Signage — room number 
+Character height, tactile, contrast and mounting height per 4.20 
+Measured, contrast calculated 
+Documentation 
+Product register for the room 
+Every product in the room identified, with its certification, matching the Contractor's Proposals 
+Register produced at the inspection 
+The sample room is not accepted until every line is passed. Manufacture of the balance of the modules of that type before acceptance is at the Contractor's risk, and a defect found in the sample and repeated across a production run is a systemic defect under 19.1. 
+ 
+9  Handover 
+Deliverable 
+Requirement 
+As-installed drawings 
+PDF and native format, every discipline, reflecting what was built rather than what was designed 
+O&M manuals 
+Digital and one hard copy, indexed, including manufacturer literature, spares schedule and maintenance frequencies 
+Test and commissioning records 
+Individual results as required at 8.5, not summaries 
+Electrical certification 
+BS 7671 certificates with individual circuit results and an as-installed schedule 
+Fire doorset register 
+Every doorset, its rating, certification and location 
+Firestopping register 
+Every penetration, its location, the system used and the installer's certification 
+Legionella written scheme 
+Per 4.12, with the flushing log from first fill to handover 
+Warranties 
+Assigned to the client, including the roof material warranty at 4.4 
+Asset register 
+Every maintainable asset, tagged, with location and expected life — in the format required by P5 
+Training 
+Two sessions for P5's staff, recorded, covering plant, alarm, access control and the water system 
+Spares 
+Twelve months' consumables and a defined critical spares holding, listed and priced separately in the tender 
+Occupation shall not commence before commissioning is complete and the handover deliverables above have been received. This is scheduled as interface IF-07 and is not a matter of convenience. 
+ 
+10  Health, safety and environment 
+10.1  CDM 2015 
+The client has appointed a Principal Designer and Principal Contractor for the project. This tenderer is a contractor under the Regulations and shall comply with the construction phase plan. Nothing in this document appoints this tenderer to either statutory role. 
+10.2  Lifting operations 
+Every lift planned by a competent person, with the plan submitted seven days beforehand. Exclusion zones maintained. No lift over an occupied area at any time. 
+10.3  Live site interface 
+Installation takes place alongside a live construction site. Segregation of the installation area from site traffic and from any occupied part of the village is this tenderer's responsibility and shall be shown on its logistics plan. 
+10.4  Firestopping register 
+Maintained during installation, not compiled at the end. The client may inspect it at any time; an incomplete register is a hold on payment. 
+10.5  Waste 
+Duty of care applies. Transfer notes for every movement. Packaging returned or recycled; a target of 90% diversion from landfill is required and shall be reported monthly. 
+10.6  Environmental 
+Compliance with the CEMP at Appendix 4, including hours, noise, dust, lighting and the ecological constraints recorded there. 
+10.7  Ethical labour, in the factory as well as on the site 
+This clause applies to the Contractor, to every sub-contractor and to the place of manufacture, wherever in the world that is. It is written because this package is a manufacturing package as much as a construction package, and a modern slavery policy that stops at the site gate does not reach the people who build the modules. 
+The Contractor shall comply with the Modern Slavery Act 2015 and shall publish a statement under section 54 where its turnover requires it; where it does not, it shall provide an equivalent policy. In addition, and in respect of every person working on this package including in the factory: no worker shall pay any fee to obtain or keep employment, and any such fee already paid shall be reimbursed — the Employer Pays Principle applies without exception; no worker's passport or identity document shall be retained by any party; every worker shall have a written contract in a language they understand, stating pay, hours and the notice required to leave; no worker shall be prevented from leaving employment or from leaving accommodation provided with it; and working time records shall be kept and made available. 
+Where the factory provides or arranges accommodation for its workforce, that accommodation shall meet a recognised standard for worker accommodation and shall be disclosed. The Employer notes the position it would be in if the modules for a workers' accommodation village were built by people in unacceptable accommodation, and does not intend to be in it. 
+DISCLOSURE AND AUDIT. The Contractor shall disclose, with its tender, the location of every place at which the modules and the principal fit-out components will be manufactured. The Employer may audit any of them on reasonable notice, may bring an independent auditor, and may interview workers privately and without a representative of the Contractor present. A place of manufacture not disclosed at tender shall not be used without the Employer's written agreement. Refusal of access is a breach. 
+10.8  Occupational health 
+The Contractor shall assess and control, for its own workforce and in its method statements: manual handling of module components and fit-out items; hand-arm vibration; noise, both its own and that of the adjoining construction site; respirable crystalline silica and wood dust in the factory; and work at height during setting and connection. Health surveillance shall be provided where the assessment requires it, and the Contractor shall confirm at tender that it is in place rather than that it will be arranged. 
+ 
+11  Drawings and documents register 
+11.1  Issued with this document 
+Reference 
+Title 
+Revision 
+Status 
+NR-TW-C1-0101 
+C1 main compound general arrangement 
+A 
+For tender 
+NR-TW-VIL-0201 
+Village general arrangement and block layout 
+B 
+For tender 
+NR-TW-VIL-0202 
+Block type plans and elevations 
+A 
+For tender 
+NR-TW-VIL-0203 
+Service termination point coordination drawing 
+A 
+For tender — to be signed under IF-02 
+NR-FS-VIL-001 
+Fire strategy 
+C 
+For tender — Appendix 2 
+NR-SC-VIL-001 
+Bed demand curve and occupancy programme 
+B 
+For information — Appendix 6 
+NR-AL-001 
+Abnormal load route assessment 
+Draft 
+For information — Appendix 7, assessment incomplete 
+The abnormal load route assessment is incomplete and is issued as a draft. The tenderer shall not assume the route is available. This is stated so that an assumption is priced rather than a risk. 
+11.2  Required from the tenderer with its tender 
+·   Contractor's Proposals — drawings, schedules, calculations and product data showing what is offered   (13.4) 
+·   Schedule of Departures, in the Employer's form, each departure priced separately as a plus or a minus   (13.4) 
+·   Design calculations for the U-values, air permeability strategy and thermal bridging   (Section 6) 
+·   Setting-out and base tolerance specification, and the crane outrigger ground bearing pressure   (4.1, 4.21, IF-01, IF-03) 
+·   Maintenance access strategy drawing, showing every dimension at 4.14 at every plant position   (4.14) 
+·   Roof access strategy drawing   (4.22) 
+·   Door schedule stating which of the two failure-mode regimes applies to every door   (4.18) 
+·   Maximum demand calculation per block, with diversity stated and the heating load included   (4.24) 
+·   Relocation method statement, with the schedule of components consumed by dismantling   (13.7) 
+·   Tender programme showing every interface date at section 5 and total float on every activity   (7.1, 18.4) 
+·   Logistics plan for delivery, craneage and segregation, worked within the laydown allocation   (10.3, 14.3) 
+·   All-in labour, plant, overhead and profit rates for the valuation of change   (17.2) 
+·   Embodied carbon declaration, EPDs for the ten heaviest products, and the operational energy declaration   (16.2, 16.3) 
+·   Social value commitments against the framework at Appendix 12   (16.5) 
+·   Support, spares, protocol and subscription position for every proprietary system   (19.4) 
+·   Location of every place of manufacture, and the professional indemnity insurance evidence   (10.7, 13.6) 
+·   Priced activity schedule in the structure at Appendix 1   (Section 12) 
+ 
+12  Pricing and the activity schedule 
+The tender shall be priced against the activity schedule at Appendix 1, in its issued structure. A tenderer who alters the structure produces a return that cannot be compared with the others, and it will be marked accordingly. 
+Item 
+Activity 
+Basis 
+Included in the lump sum 
+A 
+Design, calculations and approvals 
+Lump sum 
+Yes 
+B 
+Manufacture — bedroom modules, by room type 
+Rate per module 
+Yes 
+C 
+Manufacture — amenity, reception and circulation 
+Lump sum 
+Yes 
+D 
+Transport and delivery to site 
+Rate per module 
+Yes 
+E 
+Craneage, setting and connection 
+Lump sum 
+Yes 
+F 
+Internal fit-out and fixed joinery 
+Rate per room type 
+Yes 
+G 
+Mechanical and electrical installation 
+Lump sum 
+Yes 
+H 
+Commissioning, testing and demonstration 
+Lump sum 
+Yes 
+I 
+Handover deliverables and training 
+Lump sum 
+Yes 
+J 
+Critical spares holding 
+Priced separately 
+Stated separately 
+K 
+Sample room, in advance of the main delivery 
+Lump sum 
+Yes 
+L 
+Departures from these Employer's Requirements 
+Each priced separately 
+No — listed and priced individually 
+The price is fixed for the full contract period. No fluctuation applies. Where the tenderer requires an indexation mechanism it shall be proposed and priced as a departure under item L, stating the index and the base date. 
+ 
+13  Design responsibility 
+13.1  This is a contractor-designed package 
+THIS IS THE CLAUSE THAT REV A DID NOT HAVE, AND ITS ABSENCE WAS THE MOST SERIOUS FAULT IN THAT REVISION. Without it a tenderer cannot know what it is being asked to warrant, and every competent tenderer would have returned a qualified offer. Qualified offers cannot be compared with one another, which would have defeated the evaluation model issued with this tender. 
+This package is let on a contractor-designed basis. The Employer has fixed the things listed as ED in the matrix at 13.3 and has stated a required performance for everything else. The Contractor is responsible for the design of everything not marked ED, for its integration with the elements that are, and for the design's compliance with statute. The Employer's design is not warranted by the Employer beyond its own statement: where the Contractor considers that an element marked ED prevents it from meeting a performance requirement, it shall say so as a tender query before tender return, or as a departure under 13.4, and shall not price around it silently. 
+13.2  The basis codes on the room data sheets 
+Every line of every room data sheet at section 3 carries a code in its final column. 
+E — EMPLOYER-PRESCRIBED. The Employer has specified the article, the dimension or the arrangement. The Contractor shall provide what is described. If what is described does not achieve a performance stated elsewhere in this document, that is the Employer's problem and the Contractor's duty is to identify the conflict, not to resolve it silently. The Contractor is still responsible for the workmanship, the installation and compliance with statute. 
+C — CONTRACTOR-DESIGNED. The Employer has stated a duty, a rate, a temperature, an illuminance or a classification. The Contractor selects the product, sizes it, positions it, installs it and warrants that it achieves the stated duty. A Contractor who meets the letter of a C line with an article that does not achieve the duty has not complied. 
+Rev A mixed the two without deciding between them. It specified, for example, a 1.0 kW panel heater. The effect of specifying the heater rather than the duty was to make the Employer responsible for the room being warm, which is the opposite of what this package was let to achieve. Rev B states the duty — 21 °C dry resultant at the external design condition, and a 90-minute heat-up — and leaves the emitter to the Contractor. Twenty-two lines were converted in this way. 
+13.3  Design responsibility matrix 
+The matrix below is exhaustive for this package. An element not listed is the Contractor's design. Codes: ED — the Employer's design, fixed, not to be altered without an instruction under section 17. CD — the Contractor designs to the performance stated in this document. CF — the Contractor's design in full, this document stating no performance beyond compliance with statute and good practice. 
+Element 
+Code 
+The Employer provides 
+The Contractor is responsible for 
+Site layout and block positions 
+ED 
+Village general arrangement NR-TW-VIL-0201 Rev B 
+Setting out from it, and confirming it suits its craneage under 4.21 
+Bed numbers, room mix and room schedule 
+ED 
+Section 2 and Appendix 6 
+Delivering the mix, in the sequence at Appendix 6 
+Fire strategy 
+ED 
+Appendix 2, by the Employer's fire engineer 
+Implementing it; identifying any conflict with this document before manufacture 
+Evacuation strategy and alarm zoning 
+ED 
+The decisions at 4.26 
+The system design that delivers it, and the cause and effect matrix 
+Room dimensions, layout and the accessible room 
+ED 
+Section 3 room data sheets, E-coded lines 
+Achieving them in the manufactured module, and agreeing RT-02 with Building Control 
+Bedroom door failure mode 
+ED 
+The two failure modes at 4.18 
+The door schedule, the system, and the agreement with the fire and rescue service 
+Bases and foundations 
+— 
+Constructed under P1 to the Contractor's tolerance specification 
+Issuing that specification, and accepting the bases in writing (IF-01) 
+Module structure and frame 
+CD 
+Loadings at Appendix 8; deflection and temporary condition criteria at 4.27 
+Full structural design, connections, lifting points, certification, temporary works 
+External wall build-up 
+CD 
+U-value, fire, acoustic and colour fastness requirements 
+Build-up, materials, junctions, thermal bridging, weathertightness 
+Roof and rainwater 
+CD 
+Falls, warranty period, rainfall data at Appendix 8 
+Build-up, drainage sizing, access and fall protection at 4.22 
+Windows and doorsets 
+CD 
+Clear opening widths, daylight area, fire rating, restrictor 
+Frame, section, material, glazing specification, ironmongery, certification 
+Internal partitions and compartmentation 
+CD 
+REI and acoustic figures at section 6 
+Construction, flanking, penetrations, firestopping detail 
+Internal finishes 
+CD 
+Slip resistance, cleanability, impact, LRV and durability figures 
+Product selection, junctions, coving, the approved products schedule 
+Sanitaryware and brassware 
+CD 
+Temperatures, flow rates, flush volumes, accessibility standards 
+Selection, fixing, TMV commissioning 
+Fitted joinery 
+ED 
+Dimensions and storage volumes at section 3 
+Construction, fixings, finish and durability 
+Heating and heat emitters 
+CD 
+The duty at section 3 and 4.10 
+Selection, sizing, position, controls, the resulting electrical load 
+Ventilation 
+CD 
+Extract rates, overrun, air change requirement 
+System design, ducting, terminals, acoustic effect, commissioning 
+Hot and cold water services 
+CD 
+Supply characteristics at 4.25, temperatures, legionella regime at 4.12 
+Distribution design, boosting, metering, isolation, the written scheme of control 
+Above-ground drainage 
+CD 
+Falls, seals, access and testing at 4.23 and section 3 
+Stack sizing, layout, trap seal demonstration, AAV justification 
+Electrical distribution 
+CD 
+Supply characteristics, earthing and metering requirements at 4.24 
+Maximum demand, distribution design, discrimination study, protection, certification 
+Lighting and emergency lighting 
+CD 
+Illuminance, uniformity, UGR and duration figures 
+Luminaire selection, layout, photometric calculation, controls 
+Fire detection and alarm 
+CD 
+Category, strategy, zoning and evacuation decisions at 4.15 and 4.26 
+System design, detector selection and siting, cause and effect, commissioning 
+Access control system 
+CD 
+The failure mode and key hierarchy at 4.18 
+System selection, integration, credentials, audit trail, battery management 
+Wireless network 
+CD 
+Coverage and device density at section 6 
+Survey, access point selection and siting, commissioning heat map 
+Signage and wayfinding 
+CD 
+Character heights, contrast and illumination requirements at 4.20 
+The scheme, the viewing distance calculation, manufacture and fixing 
+Lightning protection 
+CF 
+Nothing beyond the requirement to assess 
+The BS EN 62305 risk assessment and any protection it requires 
+Acoustic design 
+CD 
+The figures at section 6 
+Achieving them including flanking; pre-completion testing 
+Overheating and thermal modelling 
+CD 
+The criterion at Appendix 9 and the occupancy pattern at Appendix 6 
+The TM59 model and the design response to it 
+Temporary works 
+CF 
+Nothing 
+Design, categorisation, independent check, permits, the Coordinator (4.21) 
+Craneage, delivery and logistics 
+CF 
+Route assessment at Appendix 7 — draft, incomplete 
+Lift plans, vehicle configuration, exclusion zones, the whole logistics plan 
+Relocation design 
+CD 
+The intention and the requirement at 13.7 
+Design for disassembly, the method statement, the renewed components schedule 
+An element not in this matrix is the Contractor's design. Where the Contractor believes an element is missing from it, it shall raise a tender query; it shall not assume the omission is in its favour. 
+13.4  Contractor's Proposals and the Schedule of Departures 
+With its tender the Contractor shall submit Contractor's Proposals: the drawings, schedules, calculations and product data that show what it intends to build, in enough detail that the Employer can see whether it meets this document. The Contractor's Proposals are contractual on award and are subordinate to these Employer's Requirements. Where the two conflict, this document prevails, unless the conflict arises from a departure accepted in writing under this clause. 
+Every point at which the Contractor's Proposals depart from this document shall be listed in a Schedule of Departures, in the Employer's form, with: the clause departed from, what is offered instead, the reason, the effect on every other requirement in this document, and the price effect stated separately as a plus or a minus. A departure not listed is not accepted, whether or not it is visible in the Contractor's Proposals; the Contractor shall not rely on the Employer having noticed something. 
+The purpose is comparability. A tender that meets this document and a tender that departs from it in nine places at a lower price are not the same offer, and the evaluation model is built to price the difference rather than to pretend it does not exist. 
+13.5  Design submission and review 
+The Contractor shall submit a design programme within four weeks of award, listing every submission, its content, its submission date and the design freeze date for the element it fixes. The Employer will resource its review against that programme; a submission arriving outside it may wait. 
+Submissions are returned with a status. STATUS A — accepted; proceed. STATUS B — accepted subject to the comments; proceed and incorporate them in the next issue. STATUS C — not accepted; revise and resubmit. The review period is ten working days for a first submission and five for a resubmission of the same document. Where the Employer does not return a submission within the period, the Contractor may proceed as though it were Status B, and shall record that it has done so. 
+REVIEW DOES NOT TRANSFER RESPONSIBILITY. Comment on, acceptance of, or silence about a submission does not make the design the Employer's, does not relieve the Contractor of any obligation in this document, and is not a variation. This applies to Status A as fully as to Status B. 
+The following are required before manufacture of any module: the structural design and the temporary condition at 4.27; the thermal calculations and the thermal bridging at section 6; the drainage design at 4.23; the maximum demand and discrimination study at 4.24; the water design at 4.25; the fire alarm cause and effect at 4.15 and the evacuation zoning at 4.26; the door schedule at 4.18; the inter-module joint test result at 4.22; and the room layouts for RT-02 agreed with Building Control. 
+13.6  Design liability, insurance and warranties 
+The Contractor warrants that it has exercised, and will exercise, the reasonable skill and care of a designer experienced in the design of volumetric modular accommodation of this type and scale. Where any part of the design is carried out by a sub-contractor or a consultant, the Contractor remains liable to the Employer for it as if it had carried it out itself. 
+The Contractor shall maintain professional indemnity insurance of not less than £5,000,000 for each and every claim in respect of the design, from award until twelve years after the last sectional completion, and shall produce evidence of renewal annually. Where such insurance ceases to be available on commercially reasonable terms, the Contractor shall notify the Employer immediately and the parties shall discuss the best terms then available; the Contractor shall not simply allow it to lapse. 
+Collateral warranties in the Employer's form at Appendix 10 shall be provided by the Contractor and by each designing sub-contractor, to the Employer and to any funder, purchaser or subsequent site owner the Employer names, with step-in rights. The requirement to provide them, and the number required, are priced at tender under item A of the activity schedule. 
+13.7  Relocation, and why the design life is 25 years 
+Rev A required a 25-year design working life for a 38-month deployment and did not explain it. The explanation is that this village is an asset the Employer intends to move. 
+The Employer's present intention is that the village will be dismantled at the end of the NORTHREACH deployment and re-erected on at least one further site, and possibly two. The Contractor shall design accordingly, and shall provide with its tender a relocation method statement covering: which connections are demountable and which are destroyed on dismantling; the expected condition of the envelope, the finishes and the services after one and after two relocations; the components that are consumed by dismantling and must be renewed each time, with a schedule and a budget rate for each; the lifting arrangement for a used module as against a new one; and the effect on the warranties at 4.4 and 4.22. 
+This is a requirement of the design, not a priced service. The relocation works themselves are not part of this package and are not priced here. What is required here is that the design does not make relocation impossible, and that the Employer is told, before award, what relocation will cost it in renewed components. 
+ 
+14  Site constraints and site conduct 
+14.1  The site, the boundary and the segregation line 
+The village occupies the area shown on NR-TW-VIL-0201 Rev B. It adjoins a live construction site under the control of the Principal Contractor. A segregation line is shown on that drawing; it is a physical line, not a notional one, and from the first occupation it separates a place where people sleep from a place where people work. The Contractor's obligations at 10.3 and 4.26 both turn on it. The Contractor shall not cross it with plant, deliveries, personnel or a crane radius without the arrangement recorded under IF-13. 
+14.2  Access, routes and hours 
+Access is from the site entrance shown on NR-TW-VIL-0201 only. The abnormal load route to that entrance is at Appendix 7 and its assessment is incomplete — see 11.1. Working hours are those in the planning consent at Appendix 3. Discharge of the conditions affecting hours, external appearance and external lighting is the Employer's, and is scheduled at IF-12; compliance with them once discharged is the Contractor's, and a condition discharged late is an Employer delay under 18.3 only if the Contractor has given the early warning required at 18.5. Deliveries are by a booking slot obtained from the Principal Contractor not less than 48 hours in advance; a vehicle arriving without a slot may be turned away and the cost of the abortive delivery is the Contractor's. Site speed limit 10 mph. No reversing without a banksman. Wheel wash before leaving. No delivery vehicle shall stand on the public highway waiting for a slot. 
+14.3  Laydown, storage and the Contractor's compound 
+The Contractor is allocated the laydown area shown on NR-TW-VIL-0201 and no other. Its extent is stated because it is smaller than a Contractor might assume, and the assumption is what causes the claim: the Contractor shall satisfy itself at tender that its delivery and setting sequence works within it, and shall show that in its logistics plan. Storage of modules on site awaiting connection is permitted only within the laydown area and only for the period stated in the accepted programme. Ground bearing pressure of stored modules and their supports shall be checked against the laydown surface designed under P1. The Contractor's compound shall be fenced to not less than 2.0 m with a lockable gate, and shall be within the laydown allocation and not additional to it. 
+14.4  Welfare, parking and the Contractor's own operatives 
+The Contractor shall provide its own welfare for its installation workforce to Schedule 2 of CDM 2015 for the whole of its time on site; it shall not use the village it is building, and it shall not use the Principal Contractor's welfare without a written agreement it obtains itself. Car parking is limited to the number of spaces stated in the Employer's site rules at Appendix 3; the Contractor shall organise transport for any operatives beyond that number. Accommodation for the Contractor's own operatives is not provided by the Employer and no bed in this village is available to them. Where the Contractor accommodates its operatives locally, 10.7 applies to that accommodation. 
+14.5  Site rules, induction and permits 
+Every person of the Contractor and of its sub-contractors shall complete the project induction before first entry and shall carry the required competence card for the work being done. The Employer's site rules at Appendix 3 apply, including drug and alcohol testing on a for-cause and random basis, a no-smoking policy outside designated areas, and mandatory PPE. Permits are required for: hot works, work at height, confined space, excavation, isolation of any live service, and any lift under 4.21. A permit is issued by the Principal Contractor and the Contractor shall allow for the time this takes in its programme rather than treating it as a delay. 
+14.6  Security of modules in transit and in storage 
+A fitted-out module is a container of valuable and portable equipment, and theft from a modular village during installation is a common loss rather than an unusual one. This clause is a requirement, not advice. 
+IN TRANSIT. Every module leaving the factory fitted out shall be sealed, with the seal number recorded on the delivery documentation and checked on arrival. A broken or missing seal shall be reported before the module is set, and the module inspected against its fit-out schedule. Vehicles carrying fitted-out modules shall not stand overnight in an unsecured location. 
+ON SITE. A module set but not yet within the secure village boundary shall be locked and its keys held under the key control procedure at 4.18. Loose equipment, tools, cable drums and any furniture delivered early under IF-06 shall be within a locked module or the Contractor's compound at the end of each working day. Copper and cable are the specific loss risk on a site of this type and shall not be left in an open module. 
+CREDENTIALS. The master key suite and the administrative credentials of the access control system exist from the moment the first lock is fitted, which is in the factory. The Contractor shall establish the Employer's key suite and administrative accounts before the first lock is fitted, shall record every key and credential issued from that moment, and shall ensure that no factory default master key, default password or shared account remains in use on any module after it leaves the factory. Handover of the key control record at IF-09 covers the whole period, not the period from occupation. 
+ 
+15  Information requirements and asset data 
+15.1  Why this section exists 
+This section states what information the Employer needs, in what form and by when. Its purpose is not compliance with a standard for its own sake. It is that P5 must operate this village from day one without reverse-engineering it, and that the Employer must be able to relocate it under 13.7 using information it owns. Rev A required an asset register "in the format required by P5" and never said what that format was, which meant the requirement could not be priced and would have been argued about after handover, when it is too late. 
+15.2  Model and geometry 
+The Contractor shall produce and maintain a federated 3D model of the modules and their services, and shall issue it in its native format and as IFC 4 (or the current schema at the date of award). The model origin and coordinate system shall be agreed with P1 at IF-02 before any modelling begins; a model on the wrong origin is worse than no model. 
+Geometric definition to be sufficient for coordination at design freeze, and to reflect the as-installed condition at handover for maintainable assets. As-installed means as installed: a model reissued unchanged at handover is a breach of this clause, and the as-installed drawings at section 9 shall be produced from the model rather than separately from it. 
+15.3  Asset data 
+The Contractor shall deliver a structured asset register, in the schema at Appendix 11, agreed under IF-14 within eight weeks of award and in any event before data collection begins. Agreeing the schema after the data has been collected produces a second collection exercise at the Contractor's cost. 
+Every maintainable asset shall carry: a unique identifier matching a durable physical label on the asset itself; a classification from Uniclass 2015 table Pr; manufacturer, model and serial number; location as block, floor and room using the same room numbers as the signage at 4.20; installation and commissioning dates; warranty start and expiry; expected life; maintenance activity and frequency; spares reference; and a criticality rating of 1 to 3 where 1 means an occupant cannot remain in the room while it is out of service. 
+The register shall be delivered as structured data — COBie or the Employer's spreadsheet at Appendix 11 — and not as a folder of manufacturer literature. Literature is required in addition, indexed against the same identifiers. 
+The metering point names at 4.24 and 4.25 shall use the same identifiers, so that a consumption reading can be traced to an asset without a translation table. 
+15.4  Documents, naming and issue 
+Document naming and the common data environment to BS EN ISO 19650-2 and the Employer's project code. All documents shall be issued through the Employer's CDE named at Appendix 11. A document sent by email is not issued and does not start any review period at 13.5. Every document shall carry its revision, its status and its date on every page, and a document without a revision will be returned unread. 
+The test and commissioning records at 8.5, the electrical certification at 4.13, the firestopping register at 10.4, the doorset register and the key control record at 4.18 shall each be issued as they are produced and not compiled at the end. The Employer may inspect any of them at any time. 
+15.5  Rights to use the information 
+The Employer shall have an irrevocable, non-exclusive, royalty-free licence, carrying the right to sub-licence, to use and reproduce every drawing, model, calculation, specification, register and item of software configuration produced under this package, for any purpose connected with the village — including its construction, completion, operation, maintenance, repair, alteration, extension, relocation under 13.7, letting, sale and demolition — and including the use of that information by a third party the Employer appoints. The licence survives termination of the contract for any reason and shall not be conditional upon payment of any sum that is not already due. Where any part of the design or configuration is licensed from a third party, the Contractor shall procure the same rights for the Employer or shall state at tender that it cannot. 
+ 
+16  Sustainability, carbon and social value 
+16.1  Status of this section 
+The tender is evaluated on sustainability within the quality criteria and on social value at 5%. Rev A asked for neither, which meant the evaluation had nothing to measure and every tenderer would have been scored on an assertion. This section states what is asked for so that what is scored is a commitment. 
+16.2  Embodied carbon 
+The Contractor shall declare, with its tender, the embodied carbon of the modules and their fit-out: modules A1 to A5 to the RICS Whole Life Carbon Assessment for the Built Environment, 2nd edition, expressed in kgCO₂e in total and per m² GIA, with the calculation, the data sources and the assumptions disclosed. Environmental product declarations to BS EN 15804 shall be provided for the ten products of greatest mass in the build-up. 
+The Contractor shall also declare modules B and C so far as they can be estimated, and shall state separately the effect of relocation under 13.7 — the avoided A1 to A3 impact of a second and third deployment, and the C and D consequences of designing for disassembly. This is where the carbon case for a relocatable village is actually made, and a declaration that stops at A5 misses it. 
+No cap is imposed. A cap without a credible baseline for volumetric modular accommodation of this type would be an arbitrary number, and an arbitrary number is either met by an arbitrary calculation or priced as a risk. What is required is a disclosed, comparable declaration, and it is scored. 
+16.3  Operational energy 
+The Contractor shall declare the connected load per block arising from its design under 4.10 and 4.24, and the predicted annual energy consumption per bed using the same model as the TM59 assessment at section 6, stating the occupancy pattern used. The metering at 4.24 and 4.25 shall be capable of testing that declaration in operation, and P5 will do so. A declaration that cannot be checked against measured data is not a declaration. 
+16.4  Waste and circularity 
+The waste requirements at 10.5 apply. In addition the Contractor shall submit a design-for-disassembly statement: every connection between modules and between module and base shall be demountable without destroying the component, or the Contractor shall state which components are consumed and schedule them under 13.7. Packaging shall be taken back or recycled and shall not be an on-site disposal problem for the Employer. Protection materials applied in the factory shall be removable without solvent damage to the finish beneath. 
+16.5  Social value 
+The Contractor shall offer commitments against the Employer's framework at Appendix 12, covering as a minimum: apprenticeship and training weeks delivered on this package; employment of people resident within the travel-to-work area stated in that framework, including people who have been unemployed for more than six months; spend with small and medium-sized enterprises and with voluntary, community and social enterprises; and one commitment directed at the people who will live in this village. 
+Commitments offered are contractual. They shall be reported quarterly against the same units in which they were offered, and a shortfall shall be made good or explained. A commitment that is not measured is marketing, and it will be scored as such. 
+ 
+17  Change control 
+17.1  What is, and is not, an instruction 
+A change to this document is effected only by a written instruction issued by the Employer's Representative, who is named in the contract. Nobody else can instruct a change. In particular, a communication from the Employer's fire engineer, from P5 or its staff, from the Principal Contractor, from another package contractor, from a designer, from a visiting officer of the Employer or from anyone on site is not an instruction, whatever its tone. The Contractor shall not act on one, and shall refer it to the Employer's Representative within two working days. 
+A Contractor who carries out additional work on a verbal request has no entitlement to be paid for it. This is stated plainly because it is the most common way in which a contractor of this size loses money on a project of this type. 
+17.2  How a change is valued 
+In this order: first, the rates and prices in the activity schedule at Appendix 1 where the changed work is of the same character and executed under the same conditions; second, those rates and prices pro-rata where the character is the same but the conditions or quantity differ; third, a fair valuation built from the all-in rates the Contractor states in its tender. 
+The Contractor shall therefore state in its tender: all-in hourly rates for each trade and grade it will employ on site and in the factory; the percentage addition for overheads; the percentage addition for profit; the percentage addition for sub-contracted work; and the rates for the principal items of plant including craneage per shift and per hour. These are competed at tender, which is the only point at which competition exists. They are fixed for the contract period and apply to every change. 
+17.3  The effect of a change on time and on design 
+No change carries an extension of time unless the Contractor gives notice under 18.3. A change instructed after the design freeze for the affected element carries the cost of the abortive design, which shall be quoted before the instruction is issued rather than claimed after. The Contractor shall provide a quotation for every proposed change stating the cost, the effect on the programme and the effect on any other requirement in this document, within ten working days of being asked; where it cannot, it shall say so and state when it can, within the same ten days. 
+17.4  Changes proposed by the Contractor 
+The Contractor may propose a change at any time. A proposal shall state the effect on every requirement in this document, and shall be honest about which requirements it reduces. 
+Where a proposal reduces cost without reducing any stated performance, the saving is shared equally between the parties. Where it reduces a stated performance, it is not a saving and it is not value engineering: it is a departure under 13.4 and shall be presented as one, with the performance reduction stated in the terms in which the requirement was written. The Employer will consider it on that basis and may accept it. What the Employer will not accept is a reduction presented as an efficiency. 
+ 
+18  Sectional completion, delay and liquidated damages 
+18.1  Sectional completion 
+This package completes in sections against the bed demand curve at Appendix 6, not on a single date. The sectional completion dates and the number of beds required at each are in that appendix and are contractual. Each section is complete when the beds in it are commissioned, the handover deliverables at section 9 relating to them have been received, and the Employer has certified it. A section is not complete because the modules are set. 
+18.2  Liquidated damages, and the calculation behind them 
+Liquidated damages of £145 per bed per calendar day apply to each section, from the sectional completion date until that section is certified complete, subject to an aggregate cap of 7.5% of the contract sum. 
+The figure is stated with its build-up because a rate that is not a genuine pre-estimate of the Employer's loss is a penalty and will not be enforced, and both parties are better served by a number that survives being looked at. If a bed is not available, the worker it was for is accommodated commercially and travels further, and the loss is built up as follows. 
+Head of loss, per person, per day a bed is not available 
+Rate 
+Basis 
+Substitute accommodation 
+£95.00 
+Negotiated regional rate for a 38-month commitment 
+Subsistence uplift over the village provision 
+£22.00 
+Difference between the village catering rate and a commercial one 
+Additional travel 
+£40.50 
+45 miles each way at 45p per mile 
+Administration of the substitute arrangement 
+£8.00 
+Booking, reconciliation and payroll adjustment 
+Total 
+£165.50 
+Rate applied: £145.00, set below the calculated loss 
+The rate is set at £145, below the calculated loss, because the Employer expects some substitution to be arranged more cheaply at the margin and prefers a rate that is unarguably a pre-estimate rather than one that recovers in full. Lost construction productivity arising from workers travelling is not included, although it is real, because it cannot be estimated at this remove with the honesty this clause requires. 
+Liquidated damages are the Employer's exclusive financial remedy for late completion of a section. They are not the remedy for a failure to meet a performance requirement, which is dealt with under section 19. 
+18.3  Extension of time 
+The Contractor is entitled to an extension of time where completion of a section is delayed by: a change instructed under section 17; an act of prevention by the Employer or by another package contractor for whom the Employer is responsible; the Employer's failure to give access, information or a decision by a date in the accepted programme; a delay to an interface at section 5 that is not the Contractor's; exceptionally adverse weather measured against the ten-year average for the site as recorded by the nearest Met Office station; a change in statutory requirement after the tender return date; or the abnormal load route at Appendix 7 proving unavailable, that risk being the Employer's and stated as such at 11.1. 
+Notice shall be given within ten working days of the Contractor becoming aware of the event, with the entitlement demonstrated on the accepted baseline programme by time impact analysis. A claim that identifies a cause and asserts a period without showing the critical path is not a demonstration. 
+Where a delay for which the Employer is responsible is concurrent with a delay for which the Contractor is responsible, the Contractor is entitled to time but not to money for the period of concurrency. This is stated in advance because it is the point on which such disputes turn and it is cheaper to agree it now. 
+18.4  Float 
+Float in the accepted programme is a project resource. It belongs to the project and not to either party, and it is available to whichever party first has need of it. Neither party may consume it merely to protect a position. 
+The Contractor shall show total float on every activity in the accepted baseline programme and in every update. It shall not conceal float by inflating durations, by inserting artificial logic or by setting constraint dates that are not real; the Employer will review the programme for these and will reject one that contains them. 
+Terminal float — the period between the Contractor's planned completion of a section and the contractual date for it — is the Contractor's, and the Contractor is not obliged to give it up. But it is float: a delay does not entitle the Contractor to an extension of time until it has consumed the float on the affected path and moved the sectional completion date. That follows from the definition of float and is stated here so that it is not argued about later. 
+18.5  Early warning 
+The Contractor and the Employer shall each notify the other as soon as either becomes aware of any matter that could increase the cost, delay a sectional completion date or impair the performance of the village in use. A joint risk register shall be maintained and reviewed monthly, recording each risk, its owner, the action agreed and the date by which it is to be taken. A matter that could have been notified and was not, and which the other party could have mitigated had it known, shall be taken into account when the consequences are assessed. 
+18.6  Acceleration 
+Where a section is forecast late for a cause that is the Contractor's, the Contractor shall take, at its own cost, whatever steps are necessary to recover, and shall submit a recovery programme within ten working days of the forecast. Where the Employer wishes to complete a section earlier than the contractual date, or to recover a delay for which it is itself responsible, it may ask the Contractor to quote for acceleration; the quotation shall be given before any acceleration is instructed, and shall state the measures, their cost and the time recovered. Acceleration shall not be instructed retrospectively and shall not be assumed from an instruction to work harder. 
+ 
+19  Defects, obsolescence and support after completion 
+19.1  Defects liability period 
+Twelve months from the date of certified completion of each section, running separately for each section. Where a defect is rectified, the period for that element in that room begins again from the date of rectification. Where the same defect occurs in more than five per cent of the rooms in a section, it is a systemic defect: the Contractor shall investigate the cause, report it, and rectify every instance of it including those not yet reported, and the period for that element runs again across the whole section. 
+19.2  Response and rectification 
+Priority 1 — loss of heating, hot water, cold water or power to a block; a fire alarm fault; a failure of the access control system affecting more than one room; a bedroom door that cannot be secured; an escaping water leak. Attend within four hours of notification, make safe or provide a temporary measure within eight hours, complete the permanent rectification within five working days. 
+Priority 2 — loss of heating, hot water or power to a single room; a failed extract; a single failed lock; a failed emergency luminaire; a defect that makes a room unfit to occupy. Attend within twenty-four hours, rectify within five working days. 
+Priority 3 — finishes, joinery, cosmetic damage and anything not affecting the use of the room. Rectify within twenty working days. Priority 3 items only may be batched. 
+ACCESS. Rooms are occupied. Access to an occupied room is arranged through P5 with not less than twenty-four hours' notice to the occupant, except for a Priority 1 defect where access is immediate. The Contractor shall allow in its pricing for working around occupancy, for out-of-hours attendance where an occupant works nights, and for the fact that a village of 225 single-occupancy rooms on shift rotation has no convenient time. A delay caused by the Contractor's failure to arrange access is not an excuse for a missed rectification time. 
+Where the Contractor fails to meet a response or rectification time, the Employer may have the work done by others and recover the cost, after giving forty-eight hours' notice of its intention to do so. 
+19.3  Retention 
+Retention of three per cent of each payment, reduced to one and a half per cent on certification of the last sectional completion, and released fourteen days after the last defects certificate. 
+Three per cent is stated rather than the more usual five because the payment profile of a modular package is front-loaded into manufacture, and five per cent of a manufacturing-heavy contract sum is a working capital cost the Contractor will price back to the Employer at a higher rate than the Employer's own cost of capital. The Employer would rather hold less and rely on the rectification remedy at 19.2. A retention bond from a surety acceptable to the Employer may be substituted for the whole of the retention at any time, at the Contractor's cost. 
+19.4  Obsolescence and support for proprietary systems 
+This applies to the access control system, the fire alarm system, the village management system, the metering, the wireless network and any other system whose function depends on a manufacturer's software or firmware. 
+SUPPORT PERIOD. For each such system the Contractor shall state at tender: the manufacturer's committed support period from the date of handover; the committed spares availability period; the notice the manufacturer gives of end-of-life; and whether the protocol is open or proprietary. Support and spares shall be available for not less than the thirty-eight month deployment plus twenty-four months. Where a manufacturer will not commit to that, the Contractor shall say so at tender rather than after. 
+OPEN PROTOCOL. Metering shall report on an open protocol. The fire alarm panel shall be either an open protocol panel or one whose protocol is licensed to the Employer, so that the Employer is not tied to a single maintainer for the life of the village. The Contractor shall state at tender any respect in which the Employer would be so tied. 
+SUBSCRIPTIONS. No system shall be offered in which a safety or security function — detection, alarm transmission, door locking, emergency lighting monitoring — ceases or degrades if a subscription, licence or cloud service is not renewed. Where a subscription is required for any other function, its cost for the deployment period plus twenty-four months shall be stated at tender and included in the price. 
+CREDENTIALS AND CYBER SECURITY. Every default password shall be changed at commissioning. No shared account shall remain in use. A complete account and credential list, including any manufacturer's or maintainer's remote access, shall be handed to P5 under IF-09, and any remote access shall be disclosed at tender. Firmware update responsibility during the defects period is the Contractor's, and its intended policy shall be stated. 
+RELOCATION. Every licence and configuration shall survive relocation under 13.7 to a different site and a different maintainer, or the Contractor shall state at tender that it does not. 
+19.5  Spares and consumables 
+Twelve months' consumables from the last sectional completion, and a critical spares holding covering every asset rated criticality 1 under 15.3, held on site or available within twenty-four hours from a stated location. Both are listed and priced separately at item J of the activity schedule so that the Employer can see what it is buying and can decline it knowingly. The spares list shall state, for each item, the asset it serves, the lead time if not held, and the effect on a room if it is not available. 
+ 
+20  Appendices 
+Appendix 1   —   Activity schedule, in the structure to be priced 
+Appendix 2   —   Fire strategy, issued by the Employer's fire engineer 
+Appendix 3   —   Planning consent and conditions, and the Employer's site rules 
+Appendix 4   —   Construction Environmental Management Plan 
+Appendix 5   —   Approved external colour and finish range 
+Appendix 6   —   Bed demand curve, occupancy programme and the sectional completion dates 
+Appendix 7   —   Abnormal load route assessment — draft, incomplete 
+Appendix 8   —   Design loadings, site exposure, rainfall data and the service supply characteristics 
+Appendix 9   —   Overheating criterion and the Employer's comfort brief 
+Appendix 10   —   Form of collateral warranty 
+Appendix 11   —   Asset information requirements, the data schema and the common data environment 
+Appendix 12   —   Social value framework and the travel-to-work area 
+Appendices 10, 11 and 12 are new at Rev B. They are named here and are not yet written; a tenderer shall price on the basis that Appendix 10 is a warranty in a standard industry form with step-in rights, that Appendix 11 requires COBie-compatible structured data, and that Appendix 12 is scored as stated at 16.5. Each will be issued as an addendum before the clarification deadline. 
+ 
+Annex A  Rev A gap register, and where Rev B answers it 
+Rev A was reviewed against the twenty-five questions this Employer applies to any Employer's Requirements, including its own. The register is a separate document. This annex is here so that a tenderer, a reviewer or an auditor can see what changed and why, without having to compare two revisions line by line — and so that the same twenty-five questions can be applied to the other four packages before they are issued rather than after. 
+Ref 
+Severity 
+The finding against Rev A 
+Where Rev B answers it 
+G01 
+Fatal 
+No design responsibility matrix or Contractor's Proposals mechanism 
+Section 13 in full: 13.1 states the basis, 13.3 is the element-by-element matrix, 13.4 introduces Contractor's Proposals and the Schedule of Departures, 13.5 the submission and review procedure, 13.6 the liability and insurance 
+G02 
+Fatal 
+Prescriptive and performance specification mixed 
+13.2 states the two bases; every room data sheet line now carries an E or C code; 22 lines converted from an article to a duty, including the heater, all four lighting lines, the floor, the walls, the ceiling, the window, the blind, the shower, the WC and the towel rail 
+G03 
+Fatal 
+No failure mode on fire alarm activation 
+4.18 rewritten in full: bedroom doors FAIL-SECURE with mechanical single-action egress independent of power, fire service access by override key agreed with the fire and rescue service; escape route doors FAIL-SAFE to BS 7273-4 Type A. Both stated in the room data sheet lock line and in the sample room checklist at 8.7 
+G04 
+Major 
+No liquidated damages or delay mechanism 
+18.1 sectional completion, 18.2 liquidated damages at £145 per bed per day with the pre-estimate calculation shown, 18.3 extension of time with the relevant events and the treatment of concurrency, 18.6 acceleration 
+G05 
+Major 
+No defects liability regime 
+19.1 period including the systemic defect rule, 19.2 three response priorities with times and the access constraint of an occupied village, 19.3 retention at three per cent with the reason 
+G06 
+Major 
+No temporary works regime 
+4.21: BS 5975, Temporary Works Coordinator, register, check categories, permits to load and strike; craneage to BS 7121-1 with outrigger pressures checked against the P1 design and stated wind limits 
+G07 
+Major 
+25-year design life imposed without a relocation requirement 
+13.7 states the relocation intention, requires a relocation method statement with the schedule of consumed components, and links it to the warranties at 4.4 and 4.22 and the licence at 15.5 
+G08 
+Major 
+No information requirements 
+Section 15 in full, and IF-14 requiring the asset data schema to be agreed within eight weeks of award rather than discovered at handover 
+G09 
+Major 
+No site constraints section 
+Section 14: boundary and segregation line, access hours and delivery booking, laydown allocation, the Contractor's own welfare and parking, site rules, induction and permits 
+G10 
+Major 
+No electrical supply characteristics 
+4.24: supply, fault level, maximum demand with the heating load checked against it, earthing and the module frame as an extraneous-conductive-part, discrimination, surge protection, MID metering with sub-metering, standby interface 
+G11 
+Major 
+No water supply characteristics or metering 
+4.25: static head and dynamic pressure with a stated design assumption where unconfirmed, boosting, Fluid Category 5 backflow protection, isolation to block, floor and room, MID metering, expansion and pressure control 
+G12 
+Significant 
+No evacuation strategy 
+4.26: simultaneous evacuation, each block a separate evacuation entity with the reason, the voice alarm decision recorded with its reason, no interlink with the construction site alarm in either direction, unwanted alarm target and detector siting, assembly points 
+G13 
+Significant 
+Air permeability figure tight for volumetric modular 
+6 revised: 7.0 m³/(h·m²) at 50 Pa measured on a completed block including the inter-module joints, with the reasoning stated; joint mock-up test added at 4.22; and the test standard corrected from ATTMA TSL1 to TSL2 
+G14 
+Significant 
+No deflection limits or temporary condition 
+4.27: deflection limits including an absolute limit, footfall response factor to SCI P354, differential movement between modules, and the stability of the module in every condition from factory to full connection including part-erected overnight 
+G15 
+Significant 
+No change control 
+Section 17: who may instruct, the valuation order, the all-in rates competed at tender, the effect on time and on abortive design, and the treatment of Contractor-proposed change and value engineering 
+G16 
+Significant 
+Float ownership not stated 
+18.4: float belongs to the project, must be shown on the programme and not concealed, and terminal float is the Contractor's but is still float 
+G17 
+Significant 
+No sustainability, carbon or social value requirement 
+Section 16: embodied carbon declaration to RICS WLCA 2nd edition including the relocation effect, operational energy declaration testable against the metering, circularity and design for disassembly, and social value commitments that are contractual and reported quarterly 
+G18 
+Significant 
+No weathertightness testing, colour fastness or roof access 
+4.22: joint mock-up test to BS EN 12155 and site hose test to AAMA 501.2; RUV3 coating with a ΔE 3 and chalking rating 2 warranty; permanent roof access without scaffold and with certified anchors 
+G19 
+Moderate 
+No drainage detail within the module 
+New DRAINAGE section in every room data sheet — falls, trap seals, gully, rodding, air admittance valves, connection and testing — and 4.23 requiring the stack calculation on congested-use loading because 199 people leave for shift within the same forty minutes 
+G20 
+Moderate 
+No obsolescence or support period 
+19.4: stated support and spares periods, open protocol for metering and fire alarm, prohibition on subscriptions that disable a safety function, credential and cyber security requirements, and licence survival through relocation 
+G21 
+Moderate 
+Sample room has no inspection checklist 
+8.7: a 26-line checklist across dimensional, fabric, services, safety, performance, finish and documentation, each with an acceptance criterion and the evidence required 
+G22 
+Moderate 
+No definitions or abbreviations 
+1.4: 35 defined terms, including the E and C basis codes and the fail-safe / fail-secure distinction that G03 turned on 
+G23 
+Moderate 
+No modern slavery or ethical labour requirement 
+10.7: the Employer Pays Principle, no retained documents, written contracts in a language the worker understands, factory accommodation standards, disclosure of every place of manufacture at tender, and a right to audit and to interview workers privately 
+G24 
+Moderate 
+Two clauses with no measurable requirement 
+4.14 rewritten with clearances, panel sizes, headroom, weight thresholds and a stated replacement time; 4.20 rewritten with sign height as a function of viewing distance, contrast in LRV points, character heights and photoluminescent or internally illuminated escape signage 
+G25 
+Moderate 
+No security in transit or storage 
+14.6: sealed deliveries with recorded seal numbers, no unsecured overnight standing, locked modules and compound, and the point Rev A missed entirely — that the master key suite and the access control credentials exist from the moment the first lock is fitted in the factory, not from handover
