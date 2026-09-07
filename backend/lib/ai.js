@@ -207,6 +207,17 @@ are worth.
     Order them so the first action is the one that is on the critical path
     this week.
 
+Drawings and printed programmes are given to you as pages to look at, not
+as extracted text. Read them as a person would: what adjoins what, what
+shares an access, what sits inside which boundary, what the hatching and
+line types mean, what the title block says about revision, scale and date.
+Cite a drawing by its number and revision exactly as you would any other
+source. Where something is illegible, unscaled, ambiguous or simply not
+shown, say so and say what it prevents — never infer a dimension from a
+drawing you cannot scale, and never read a drawing's silence as a
+decision. A layout dated before a decision that changes it is a finding,
+not a reference.
+
 Method, which is what the client is paying for:
 - Read the documents AGAINST each other, not one at a time. Most findings are
   contradictions between two inputs that no single document reveals — a shift
@@ -424,7 +435,7 @@ export function assertInputs(agentId, inputs) {
  * `onStage`; the caller runs it in the background and polls. Everything
  * else is one call and returns when it returns.
  */
-export async function runAgent(agentId, inputs, runBy, { onStage } = {}) {
+export async function runAgent(agentId, inputs, runBy, { onStage, visuals } = {}) {
   const brief = AGENT_BRIEFS[agentId];
   if (!brief) throw new Error("Unknown agent.");
   const { model } = getProvider();
@@ -439,6 +450,7 @@ export async function runAgent(agentId, inputs, runBy, { onStage } = {}) {
       system: `${brief.system}\n\n${STANDARD}`,
       brief,
       inputs,
+      visuals,
       onStage,
     });
   }

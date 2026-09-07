@@ -351,7 +351,8 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
  * calls against a busy model will meet one of these often enough that
  * not retrying would make the pipeline unreliable by arithmetic alone.
  */
-const TRANSIENT = /overloaded|rate.?limit|429|500|502|503|504|529|timeout|ETIMEDOUT|ECONNRESET|socket hang up|fetch failed/i;
+const TRANSIENT =
+  /overloaded|rate.?limit|429|500|502|503|504|529|timeout|timed out|connection error|ETIMEDOUT|ECONNRESET|ECONNREFUSED|EPIPE|ENOTFOUND|EAI_AGAIN|socket hang up|network|fetch failed|aborted/i;
 
 /**
  * One call, with the fallbacks that stop a provider or model change from
@@ -364,15 +365,19 @@ const TRANSIENT = /overloaded|rate.?limit|429|500|502|503|504|529|timeout|ETIMED
  * Transient errors are a separate matter: those are waited out, because
  * losing five completed passes to one busy minute would be absurd.
  */
-async function call(anthropic, { model, system, inputsBlock, ledgerBlock, priorBlock, task, budget, caps }) {
-  const content = [
-    // The standard and the eight documents are identical across all six
-    // passes, and the working paper is identical across the last five,
-    // so both are cached rather than re-billed every time. Order matters:
-    // a cache breakpoint only helps if everything before it is unchanged,
-    // which is why the accumulating sections come after both.
-    { type: "text", text: inputsBlock, cache_control: { type: "ephemeral" } },
-  ];
+async function call(anthropic, { model, system, inputsBlock, visualBlocks, visualNote, ledgerBlock, priorBlock, task, budget, caps }) {
+  // The standard, the written inputs and the drawings are identical
+  // across all six passes, and the working paper across the last five,
+  // so both spans are cached rather than re-billed every time. Order
+  // matters: a breakpoint only helps if everything before it is
+  // unchanged, which is why the accumulating sections come last and why
+  // the marker sits on the final stable block rather than the first.
+  const content = [];
+  if (visualBlocks) {
+    content.push({ type: "text", text: visualNote });
+    content.push(...visualBlocks);
+  }
+  content.push({ type: "text", text: inputsBlock, cache_control: { type: "ephemeral" } });
   if (ledgerBlock) content.push({ type: "text", text: ledgerBlock, cache_control: { type: "ephemeral" } });
   if (priorBlock) content.push({ type: "text", text: priorBlock });
   content.push({ type: "text", text: task });
@@ -442,7 +447,7 @@ async function call(anthropic, { model, system, inputsBlock, ledgerBlock, priorB
   throw lastErr;
 }
 
-/** The eight inputs, laid out once and reused by every pass. */
+/** The written inputs, laid out once and reused by every pass. */
 function buildInputsBlock(brief, inputs) {
   const parts = brief.fields
     .filter((f) => f.type === "textarea")
@@ -467,8 +472,14 @@ function buildInputsBlock(brief, inputs) {
  * as it happens: a run that dies at pass four leaves four passes of work
  * on the record rather than nothing.
  */
-export async function runDiagnostic({ anthropic, model, system, brief, inputs, onStage }) {
+export async function runDiagnostic({ anthropic, model, system, brief, inputs, visuals, onStage }) {
   const inputsBlock = buildInputsBlock(brief, inputs);
+  // Drawings and printed programmes lead, because they are the only part
+  // of the pack that has to be looked at, and because they are as stable
+  // across the six passes as the written inputs — so they sit inside the
+  // same cached prefix and are paid for once.
+  const visualBlocks = visuals?.blocks?.length ? visuals.blocks : null;
+  const visualNote = visuals?.preamble || "";
   const usage = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 };
   const notes = [];
   let modelUsed = model;
@@ -491,7 +502,7 @@ export async function runDiagnostic({ anthropic, model, system, brief, inputs, o
 
   await onStage?.({ key: "reconcile", state: "running", index: 0 });
   const ledgerRun = await call(anthropic, {
-    model, system, inputsBlock, task: RECONCILE_TASK, budget: BUDGET.reconcile, caps,
+    model, system, inputsBlock, visualBlocks, visualNote, task: RECONCILE_TASK, budget: BUDGET.reconcile, caps,
   });
   record(ledgerRun, "reconcile");
   const ledger = ledgerRun.text;
@@ -501,7 +512,7 @@ export async function runDiagnostic({ anthropic, model, system, brief, inputs, o
   for (const [i, pass] of SECTION_PASSES.entries()) {
     await onStage?.({ key: pass.key, state: "running", index: i + 1 });
     const r = await call(anthropic, {
-      model, system, inputsBlock,
+      model, system, inputsBlock, visualBlocks, visualNote,
       ledgerBlock: `THE WORKING PAPER FROM PASS ONE — every finding below is sourced; build on it, cite its references, and do not contradict it without saying why.\n\n${ledger}`,
       priorBlock: sections.length
         ? `THE SECTIONS ALREADY WRITTEN — stay consistent with them, refer to them by number, and do not repeat their content.\n\n${sections.map((s) => s.text).join("\n\n")}`
@@ -515,7 +526,7 @@ export async function runDiagnostic({ anthropic, model, system, brief, inputs, o
 
   await onStage?.({ key: "final", state: "running", index: SECTION_PASSES.length + 1 });
   const finalRun = await call(anthropic, {
-    model, system, inputsBlock,
+    model, system, inputsBlock, visualBlocks, visualNote,
     ledgerBlock: `THE WORKING PAPER FROM PASS ONE — every finding below is sourced; build on it, cite its references, and do not contradict it without saying why.\n\n${ledger}`,
     priorBlock: `THE TWELVE DELIVERABLES AS WRITTEN\n\n${sections.map((s) => s.text).join("\n\n")}`,
     task: FINAL_TASK,

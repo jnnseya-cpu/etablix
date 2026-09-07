@@ -15,6 +15,7 @@ import { AI_AGENTS } from "../lib/organisation.js";
 import { AGENT_BRIEFS, publicProvider, setProvider, testProvider, runAgent, assertInputs, PIPELINE_AGENTS, DIAGNOSTIC_STAGES } from "../lib/ai.js";
 import { acceptDocuments } from "../lib/uploads.js";
 import { extractAll } from "../lib/extract.js";
+import { visualBlocks, visualPreamble } from "../lib/visual.js";
 
 const router = Router();
 router.use(requireAuth);
@@ -72,7 +73,7 @@ function trimLog() {
  * console shows which pass is in flight, and a run that fails at pass
  * four says which four passes were done rather than reporting nothing.
  */
-async function workPipeline(runId, agent, inputs, runBy) {
+async function workPipeline(runId, agent, inputs, runBy, visualFiles = []) {
   const stage = ({ key, state, index }) => {
     const run = collection("agentTasks").find((r) => r.id === runId);
     if (!run) return;
@@ -83,7 +84,22 @@ async function workPipeline(runId, agent, inputs, runBy) {
   };
 
   try {
-    const r = await runAgent(agent.id, inputs, runBy, { onStage: stage });
+    // Build the pages here rather than in the request, so a large
+    // drawing set is read on the pipeline's time and not the browser's.
+    const { blocks, seen } = await visualBlocks(visualFiles, new Map(visualFiles.map((f) => [f.originalname || f.filename, "visual"])));
+    if (seen.length) {
+      const run = collection("agentTasks").find((r) => r.id === runId);
+      update("agentTasks", runId, {
+        sources: (run?.sources || []).map((src) => {
+          const v = seen.find((x) => x.name === src.name);
+          return v ? { ...src, sent: v.sent, kind: v.kind || null, error: v.reason || src.error } : src;
+        }),
+      });
+    }
+    const r = await runAgent(agent.id, inputs, runBy, {
+      onStage: stage,
+      visuals: { blocks, preamble: visualPreamble(seen) },
+    });
     update("agentTasks", runId, {
       output: r.output,
       model: r.model,
@@ -142,6 +158,7 @@ router.post("/:id/run", acceptDocuments, async (req, res) => {
     // full and appended to the agent's main document field, so the source
     // reaches the agent whole rather than as a partial paste.
     let sources = [];
+    let visualFiles = [];
     if (req.files?.length) {
       const brief = AGENT_BRIEFS[agent.id];
       const target = brief?.fields.find((f) => f.type === "textarea" && f.required)?.name
@@ -151,8 +168,12 @@ router.post("/:id/run", acceptDocuments, async (req, res) => {
       if (text && target) {
         inputs[target] = [String(inputs[target] || "").trim(), text].filter(Boolean).join("\n\n");
       }
+      // Drawings, printed programmes and scans do not become text — they
+      // are shown to the model as pages. Keep them aside for the pipeline.
+      const byName = new Map(files.map((f) => [f.name, f.route]));
+      visualFiles = req.files.filter((f) => byName.get(f.originalname || f.filename) === "visual");
       const unreadable = files.filter((f) => f.error);
-      if (!text && unreadable.length) {
+      if (!text && !visualFiles.length && unreadable.length) {
         return res.status(400).json({ error: `Could not read ${unreadable[0].name}: ${unreadable[0].error}` });
       }
     }
@@ -162,7 +183,13 @@ router.post("/:id/run", acceptDocuments, async (req, res) => {
       agentName: agent.name,
       title: String(req.body?.title || "").trim().slice(0, 140) || `${agent.name} — ${new Date().toLocaleDateString("en-GB")}`,
       inputs,
-      sources: sources.map((f) => ({ name: f.name, chars: f.chars || 0, pages: f.pages || null, error: f.error || null })),
+      sources: sources.map((f) => ({
+        name: f.name,
+        chars: f.chars || 0,
+        pages: f.pages || null,
+        route: f.route || null,
+        error: f.error || null,
+      })),
       runBy: req.user.name,
     };
 
@@ -181,7 +208,7 @@ router.post("/:id/run", acceptDocuments, async (req, res) => {
       });
       trimLog();
       res.status(202).json({ run: publicRun(run, true) });
-      workPipeline(run.id, agent, inputs, req.user.name);
+      workPipeline(run.id, agent, inputs, req.user.name, visualFiles);
       return;
     }
 

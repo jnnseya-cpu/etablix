@@ -108,6 +108,18 @@ export const TEMPLATES = [
     ],
   },
   {
+    id: "inforequest", prefix: "IRQ", name: "Diagnostic information request",
+    documentTitle: "Site Systems Diagnostic — information request",
+    description: "What the client sends before the ten working days start, and in what format. Issue this the moment a diagnostic is agreed: the clock starts when the last item lands, and a drawing sent in the wrong format is the difference between reading it and guessing at it.",
+    fields: [
+      F("client", "Client / organisation", "text", { required: true }),
+      F("project", "Project / site", "text", { required: true }),
+      F("contact", "Their contact — name and role", "text"),
+      F("returnBy", "Requested by", "date"),
+      F("note", "Anything specific to this engagement (optional)", "textarea"),
+    ],
+  },
+  {
     id: "specimen", prefix: "SPEC", name: "Diagnostic specimen extract (client-safe)",
     // What the picker calls it is internal shorthand; what the reader sees is not.
     documentTitle: "Site Systems Diagnostic — illustrative extract",
@@ -733,6 +745,38 @@ function renderBody(doc) {
       <p class="legalnote">Every load, ratio, rate and duration in this report is a first-pass planning figure requiring validation by a competent person before use. Where information was not provided it is identified as missing rather than assumed. This report is decision support: it is not a design, a price or an instruction, and nothing safety-critical is resolved within it.</p>`;
   }
 
+  if (doc.template === "inforequest") {
+    const item = (n, title, detail, format) =>
+      `<tr><td class="num">${n}</td><td><b>${title}</b><div class="rq">${detail}</div></td><td class="fmt">${format}</td></tr>`;
+    return `
+      <table class="meta">${t("Client", d.client)}${t("Project / site", d.project)}${t("For the attention of", d.contact)}${
+        d.returnBy ? t("Requested by", humanDate(d.returnBy)) : ""
+      }</table>
+      <div class="blk"><p>The Site Systems Diagnostic is ${DIAGNOSTIC_WORKING_DAYS} working days from information handover. <b>The clock starts on the day the last item below arrives</b>, so a partial pack does not start it — and the report is only as good as what it is given. Send what exists as it exists; do not tidy it first. Where something does not exist, say so on the covering note rather than leaving it out: an absence we know about is a finding, and an absence we do not is a hole.</p></div>
+      <div class="blk"><h3>What we need</h3>
+        <table class="lines contents"><thead><tr><th></th><th>Item</th><th>Format</th></tr></thead><tbody>
+        ${item(1, "Project programme", "Milestones, phases, shift patterns, and the access or possession date each one depends on. The current revision, not the tender one.", "PDF print of the Gantt <b>and</b> a task list as CSV")}
+        ${item(2, "Workforce forecast", "The curve over the whole programme, the peak, its composition, and the percentage unable to commute daily.", "Excel exported to CSV, or PDF")}
+        ${item(3, "Proposed site layout", "Every compound, with areas, access points, parking, welfare and laydown.", "PDF drawing at its stated scale, with the title block")}
+        ${item(4, "Logistics plan", "Whatever exists, approved or draft — and which compounds it actually covers.", "PDF or Word")}
+        ${item(5, "Temporary-services requirements", "Power, water, foul and comms as you have stated them, with the revision they were issued at.", "PDF or Word")}
+        ${item(6, "Procurement package list", "Every package, its status, and who is buying it. Including the ones marked not started.", "Excel exported to CSV, or PDF")}
+        ${item(7, "Mobilisation constraints", "Planning conditions in full, consents applied for and not, ecology, utilities, land and access agreements.", "PDF of the decision notices, not a summary")}
+        ${item(8, "Site and utility information", "What surveys and investigations you hold — <b>and a list of what you do not</b>.", "PDF or Word")}
+        </tbody></table>
+      </div>
+      <div class="blk"><h3>Two format rules that change the answer</h3>
+        <p><b>Drawings as PDF, at scale, with the title block.</b> A drawing is read by looking at it — what adjoins what, what shares an access, what the hatching means. A screenshot, a cropped extract or a drawing without its title block loses the revision, the scale and the date, and we would be reading labels rather than a layout. DWG and DXF cannot be read here; export to PDF.</p>
+        <p><b>Programmes as a PDF print plus a CSV task list.</b> Microsoft Project, Primavera P6 and Asta files cannot be opened here, and every one of those tools exports both. The PDF gives us the bars, the links and the float; the CSV gives us the dates to work backwards from. One without the other loses half of it.</p>
+      </div>
+      <div class="blk"><h3>What we do with it</h3>
+        <p>Every document is read against every other one. Most of what a diagnostic is worth sits between two documents written weeks apart by different people who have not compared them — a shift pattern against a planning condition, a headcount against a welfare schedule, an enquiry against the drawing it was sized from. That is why we ask for the current revision of everything and for the documents you think are superseded: the gap between them is usually the finding.</p>
+        <p>Every figure we produce is a first-pass planning figure for validation by a competent person. Nothing safety-critical is resolved in the report; it is flagged.</p>
+      </div>
+      ${d.note ? `<div class="blk"><h3>For this engagement</h3>${richText(d.note)}</div>` : ""}
+      <p class="legalnote">Information supplied for this engagement is treated as confidential and used only to produce your report. Send it however suits you — if a secure transfer is preferred, say so and we will arrange one.</p>`;
+  }
+
   if (doc.template === "specimen") {
     const shown = new Set(SPECIMEN_SECTIONS);
     const contents = DIAGNOSTIC_SECTIONS.map(
@@ -800,6 +844,8 @@ router.get("/:id/render", tokenAuth, (req, res) => {
   ul.rt li, ol.rt li { margin-bottom: 5px; }
   .blk table.lines { font-size: 12.5px; }
   .blk table.lines td, .blk table.lines th { padding-right: 12px; }
+  .blk .rq { color: #5b6672; font-size: 12.5px; line-height: 1.5; margin-top: 3px; max-width: 62ch; }
+  table.lines td.fmt { font-family: Arial, sans-serif; font-size: 11.5px; color: #14181d; white-space: normal; width: 210px; vertical-align: top; }
   table.contents td.num { width: 26px; color: #9c7a3c; font-family: Arial, sans-serif; font-weight: bold; }
   table.contents td.st { text-align: right; font-family: Arial, sans-serif; font-size: 11px; color: #5b6672; white-space: nowrap; }
   .tag { font-family: Arial, sans-serif; font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase; color: #9c7a3c; border: 1px solid #9c7a3c; border-radius: 100px; padding: 2px 8px; vertical-align: middle; margin-left: 6px; }

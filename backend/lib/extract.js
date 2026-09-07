@@ -7,20 +7,28 @@
  * document reaches the agent whole — every clause, in order — rather
  * than whatever survived a copy-and-paste.
  *
- * Supported: .pdf, .docx, and plain text (.txt, .md, .csv).
- * Legacy .doc and scanned image-only PDFs are not readable here and say
- * so plainly, so nobody assumes a silent extraction succeeded.
+ * Supported as text: .pdf, .docx, and plain text (.txt, .md, .csv).
+ *
+ * Not everything belongs on this path. A drawing, a printed programme or
+ * a scan carries its meaning in its layout, and extracting its labels
+ * produces something that reads like a successful extraction while
+ * holding almost none of the document. Those are routed to visual.js and
+ * shown to the model as pages instead; see `route` on each result.
  */
 
 import fs from "node:fs/promises";
 import path from "node:path";
+import { classify, isImage, planningFormatNote } from "./visual.js";
 
 /** Hard ceiling per run so one enormous pack cannot exhaust the model context. */
 export const MAX_EXTRACT_CHARS = 180000;
 
 const readable = new Set([".pdf", ".docx", ".txt", ".md", ".csv", ".json"]);
 
-export const isExtractable = (name) => readable.has(path.extname(String(name || "")).toLowerCase());
+// Images carry no text to extract; they are shown to the model instead.
+export const isViewable = (name) => isImage(name);
+
+export const isExtractable = (name) => readable.has(path.extname(String(name || "")).toLowerCase()) || isImage(name);
 
 async function extractPdf(buffer) {
   const { PDFParse } = await import("pdf-parse");
@@ -50,17 +58,35 @@ export async function extractFile(file) {
   try {
     const buffer = await fs.readFile(file.path);
     let out;
+    // An image has nothing to extract — it is looked at, not read.
+    if (isImage(name)) return { name, text: "", route: "visual", chars: 0 };
     if (ext === ".pdf") out = await extractPdf(buffer);
     else if (ext === ".docx") out = await extractDocx(buffer);
     else if (readable.has(ext)) out = { text: buffer.toString("utf8"), pages: null };
     else {
-      return { name, text: "", error: `${ext || "this file type"} cannot be read as text — supply a PDF, .docx or plain text version.` };
+      // A planning file gets the specific instruction rather than a
+      // shrug: every tool that writes one exports what we can read.
+      const planning = planningFormatNote(name);
+      return {
+        name,
+        text: "",
+        error: planning || `${ext || "this file type"} cannot be read as text — supply a PDF, .docx or plain text version.`,
+      };
     }
     const text = out.text.replace(/\r\n/g, "\n").replace(/\n{4,}/g, "\n\n\n").trim();
-    if (!text) {
-      return { name, text: "", error: "no selectable text found — this looks like a scanned or image-only document, so its wording cannot be read." };
+    const route = classify(name, { text, pages: out.pages });
+
+    // A drawing, a printed programme or a scan: its meaning is in the
+    // layout, so the extracted labels are discarded rather than passed
+    // off as the document. Sending those on would look like a successful
+    // read of something that was barely read at all.
+    if (route === "visual") {
+      return { name, text: "", route: "visual", pages: out.pages, textChars: text.length };
     }
-    return { name, text, pages: out.pages, chars: text.length };
+    if (!text) {
+      return { name, text: "", error: "no readable content — this file could not be opened as text or as a page to look at." };
+    }
+    return { name, text, route: "text", pages: out.pages, chars: text.length };
   } catch (err) {
     return { name, text: "", error: err.message };
   }
@@ -78,7 +104,7 @@ export async function extractAll(files = []) {
   let budget = MAX_EXTRACT_CHARS;
   const blocks = [];
   for (const r of results) {
-    if (!r.text) continue;
+    if (!r.text) continue; // visual files travel as pages, handled by visual.js
     let body = r.text;
     if (body.length > budget) {
       body = body.slice(0, Math.max(0, budget)) + `\n\n[TRUNCATED — this document exceeded the per-run limit. Split it and run again to cover the remainder.]`;

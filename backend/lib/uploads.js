@@ -38,14 +38,16 @@ const storage = multer.diskStorage({
   },
 });
 
+// A diagnostic pack is a dozen documents plus a drawing set, and an A1
+// PDF is not a small file. Five at 10 MB was sized for a tender pack.
 export const uploadDocuments = multer({
   storage,
-  limits: { fileSize: 10 * 1024 * 1024, files: 5 },
+  limits: { fileSize: 25 * 1024 * 1024, files: 20 },
   fileFilter: (req, file, cb) => {
     if (ALLOWED.has(file.mimetype)) return cb(null, true);
     cb(new Error("Only PDF, Word, Excel or image files are accepted."));
   },
-}).array("documents", 5);
+}).array("documents", 20);
 
 /** Wrap the multer middleware so upload errors return clean JSON. */
 export function acceptDocuments(req, res, next) {

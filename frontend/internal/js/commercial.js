@@ -1198,8 +1198,8 @@ export async function loadOrganisation() {
               : `<label class="muted" style="font-size:0.8rem;">${esc(f.label)}${f.required ? " *" : ""}</label><textarea name="${f.name}" ${f.required ? "required" : ""} style="width:100%;min-height:90px;padding:10px 12px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;font-size:0.88rem;margin-bottom:8px;"></textarea>`
           )
           .join("")}
-        <label class="muted" style="font-size:0.8rem;">Or upload the source documents — PDF, Word (.docx) or text. They are read in full and given to the agent alongside anything typed above.</label>
-        <input type="file" name="__documents" multiple accept=".pdf,.docx,.txt,.md,.csv,.json" style="width:100%;border:1.5px dashed var(--line);padding:10px;border-radius:7px;margin-bottom:8px;">
+        <label class="muted" style="font-size:0.8rem;">Or upload the source documents — PDF, Word, text, and drawings or programme prints as PDF or image. Written documents are read in full; drawings and Gantt prints are shown to the agent as pages to look at, because their content is the layout rather than the labels. Up to 20 files, 25&nbsp;MB each.</label>
+        <input type="file" name="__documents" multiple accept=".pdf,.docx,.txt,.md,.csv,.json,.png,.jpg,.jpeg,.webp" style="width:100%;border:1.5px dashed var(--line);padding:10px;border-radius:7px;margin-bottom:8px;">
         <button class="btn-block" type="submit" style="width:auto;padding:11px 22px;" ${provider.connected ? "" : "disabled"}>${provider.connected ? "Run agent" : "Connect the AI engine first"}</button>
         <span class="login-error" data-agent-error style="display:block;margin-top:8px;"></span>
       </form>
