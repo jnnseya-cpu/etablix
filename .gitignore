@@ -3,3 +3,6 @@ backend/data/db.json
 backend/data/uploads/
 .env
 *.log
+
+# Test packs are built from their source folder, not stored as archives
+diagnostic-test/*.zip

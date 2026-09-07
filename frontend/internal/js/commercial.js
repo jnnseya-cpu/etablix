@@ -455,10 +455,24 @@ async function cosDocs() {
     .map((t) => `<button class="btn-run" data-doc-tpl="${t.id}" style="text-align:left;display:block;width:100%;margin-bottom:6px;"><b>${esc(t.name)}</b> <span class="muted">(${t.prefix})</span><br><span class="muted" style="font-weight:400;">${esc(t.description)}</span></button>`)
     .join("");
 
+  /**
+   * Whether a document may go out yet. Only the diagnostic carries a
+   * promised date, so everything else is simply blank rather than
+   * pretending to a discipline it does not have.
+   */
+  const releaseCell = (r) => {
+    if (!r) return '<span class="muted">—</span>';
+    const cls = r.severity === "alert" ? "alert" : r.severity === "ok" ? "approved" : "warning";
+    const warn = r.assured === false
+      ? '<div class="muted" style="font-size:0.7rem;color:var(--danger,#c0392b);">bank holidays unknown for this year — check by hand</div>'
+      : "";
+    return `${pill(r.label, cls)}${warn}`;
+  };
+
   const registry = documents.length
-    ? wrapT(`<table><thead><tr><th>Number</th><th>Type</th><th>Party</th><th>Title</th><th>Value</th><th>Issued</th><th></th></tr></thead><tbody>${documents
+    ? wrapT(`<table><thead><tr><th>Number</th><th>Type</th><th>Party</th><th>Title</th><th>Value</th><th>Release</th><th>Issued</th><th></th></tr></thead><tbody>${documents
         .map(
-          (d) => `<tr><td><b>${esc(d.number)}</b></td><td>${esc(d.templateName)}</td><td>${esc(d.party)}</td><td class="muted">${esc(d.title)}</td><td>${d.total ? money(d.total) : "—"}</td><td class="muted">${new Date(d.createdAt).toLocaleDateString("en-GB")} · ${esc(d.issuedBy)}</td>
+          (d) => `<tr><td><b>${esc(d.number)}</b></td><td>${esc(d.templateName)}</td><td>${esc(d.party)}</td><td class="muted">${esc(d.title)}</td><td>${d.total ? money(d.total) : "—"}</td><td>${releaseCell(d.release)}</td><td class="muted">${new Date(d.createdAt).toLocaleDateString("en-GB")} · ${esc(d.issuedBy)}</td>
           <td style="white-space:nowrap;"><a class="btn-run" style="text-decoration:none;display:inline-block;" href="/api/docs/${d.id}/render?token=${encodeURIComponent(token)}" target="_blank" rel="noopener">Open</a>${isAdmin ? ` <button class="btn-run" data-doc-del="${d.id}">Delete</button>` : ""}</td></tr>`
         )
         .join("")}</tbody></table>`)
@@ -1179,6 +1193,8 @@ export async function loadOrganisation() {
           .map((f) =>
             f.type === "text"
               ? `<input name="${f.name}" ${f.required ? "required" : ""} placeholder="${esc(f.label)}" style="width:100%;margin-bottom:8px;">`
+              : f.type === "date"
+              ? `<label class="muted" style="font-size:0.8rem;">${esc(f.label)}${f.required ? " *" : ""}</label><br><input name="${f.name}" type="date" ${f.required ? "required" : ""} style="margin-bottom:8px;">`
               : `<label class="muted" style="font-size:0.8rem;">${esc(f.label)}${f.required ? " *" : ""}</label><textarea name="${f.name}" ${f.required ? "required" : ""} style="width:100%;min-height:90px;padding:10px 12px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;font-size:0.88rem;margin-bottom:8px;"></textarea>`
           )
           .join("")}

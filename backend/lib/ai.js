@@ -226,6 +226,7 @@ competent person rather than resolved.`,
     fields: [
       { name: "client", label: "Client / organisation", type: "text", required: true },
       { name: "project", label: "Project / site — the name this report will carry", type: "text", required: true },
+      { name: "handover", label: "Information handover date — the report is due ten working days after this", type: "date", required: true },
       { name: "programme", label: "Project programme — milestones, phases, shift patterns, access date", type: "textarea", required: true },
       { name: "workforce", label: "Workforce forecast — curve, peak, composition, travelling percentage", type: "textarea", required: true },
       { name: "layout", label: "Proposed site layout — parcels, areas, access, parking, constraints", type: "textarea" },

@@ -436,7 +436,11 @@ function buildInputsBlock(brief, inputs) {
       const v = String(inputs?.[f.name] || "").trim();
       return v ? `### INPUT — ${f.label}\n${v}` : `### INPUT — ${f.label}\n(not provided)`;
     });
-  const who = [inputs?.client && `Client: ${inputs.client}`, inputs?.project && `Project: ${inputs.project}`]
+  const who = [
+    inputs?.client && `Client: ${inputs.client}`,
+    inputs?.project && `Project: ${inputs.project}`,
+    inputs?.handover && `Information handover: ${inputs.handover}`,
+  ]
     .filter(Boolean)
     .join("\n");
   return `THE CLIENT'S INFORMATION\n\n${who}\n\nToday's date is ${new Date().toISOString().slice(0, 10)}; every "latest responsible start" and "days remaining" is computed from it.\n\n${parts.join("\n\n")}`;

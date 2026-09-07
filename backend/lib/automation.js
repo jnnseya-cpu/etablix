@@ -23,6 +23,7 @@ import { emit } from "./comms.js";
 import { PLATFORMS, isConnected, platformFetch } from "./platforms.js";
 import { takeSnapshot } from "./portfolio.js";
 import { noticeStatus } from "./paymentdates.js";
+import { releaseStatus, human as humanDate } from "./workingdays.js";
 
 const DAY = 86400000;
 const HOUR = 3600000;
@@ -37,6 +38,7 @@ export const RULES = [
   { id: "evm_gate", name: "EVM payment gate", description: "Reviews the latest EVM record per supplier per project; SPI or CPI below 0.95 triggers commercial review.", cooldownMs: DAY },
   { id: "exposure_rule", name: "Exposure & reserve rule", description: "Checks every project's latest valuation: committed supplier exposure must not exceed reserve + confirmed receivables, and the reserve must cover next month's forecast.", cooldownMs: 12 * HOUR },
   { id: "payment_notices", name: "HGCRA notice deadlines", description: "Watches every unpaid application for its s.110A payment-notice and s.111 pay-less deadlines, and the final date for payment. Missing either notice is silent and expensive — the sum applied for becomes payable in full.", cooldownMs: 0 },
+  { id: "diagnostic_release", name: "Diagnostic release dates", description: "Watches every Site Systems Diagnostic against the ten working days it was sold on: reminds the day before, says so on the day it is due, and escalates once it is late. Sending early is as much a broken promise as sending late.", cooldownMs: 0 },
   { id: "portfolio_snapshot", name: "Monthly portfolio snapshot", description: "Records the portfolio position — project count, average progress, budget consumed and the health split — once per calendar month, so the VERYX trend line has real history rather than a projection.", cooldownMs: 0 },
   { id: "daily_digest", name: "Daily operating digest", description: "One summary email each morning: pipeline, risks, EVM and exposure status across the business.", cooldownMs: 0 },
 ];
@@ -337,6 +339,31 @@ export async function runAutomation(trigger = "schedule") {
             detailsText: `${worst.label} on application ${app.number} (${app.supplier}).\n\n${worst.detail}\n\nSum applied for: ${money(app.claimed)}`,
           },
           `${worst.label} — ${app.number}`
+        );
+      }
+    }
+
+    // --- Diagnostic release dates ---------------------------------------
+    // The ten working days are the product. A report held past its date
+    // and a report sent before it are both broken promises, and the only
+    // one a machine can catch is the first.
+    if (ruleEnabled(config, "diagnostic_release")) {
+      for (const doc of collection("documents")) {
+        if (doc.template !== "diagnostic" || !doc.data?.dueDate) continue;
+        if (doc.data.releasedAt) continue;
+        const rel = releaseStatus(doc.data.dueDate);
+        if (rel.state === "held" && rel.days > 1) continue;
+        const key = `ssd:${doc.id}:${rel.state}:${rel.days}`;
+        if (!shouldAlert(state, key, DAY)) continue;
+        await fire(
+          "platform.error",
+          {
+            vars: { context: `Diagnostic release — ${doc.number}` },
+            detailsText:
+              `${rel.label} — ${doc.data.project || doc.title} (${doc.data.client || doc.party}).\n\n${rel.detail}\n\n` +
+              `Information handover ${humanDate(doc.data.handover)}; promised ${doc.data.promisedDays || 10} working days.`,
+          },
+          `${rel.label} — ${doc.number}`
         );
       }
     }

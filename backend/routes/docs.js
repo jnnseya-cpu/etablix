@@ -19,6 +19,7 @@ import { ROLES, ACCESS } from "../../shared/constants.js";
 import { collection, insert, remove, getSettings, saveSettings } from "../lib/store.js";
 import { verifyToken } from "../lib/auth.js";
 import { AGENT_BRIEFS } from "../lib/ai.js";
+import { diagnosticDates, releaseStatus, human as humanDate, DIAGNOSTIC_WORKING_DAYS } from "../lib/workingdays.js";
 
 const router = Router();
 
@@ -97,6 +98,7 @@ export const TEMPLATES = [
       F("client", "Client / organisation", "text", { required: true }),
       F("project", "Project / site", "text", { required: true }),
       F("siteRef", "Site reference or location", "text"),
+      F("handover", `Information handover date — the issue date is ${DIAGNOSTIC_WORKING_DAYS} working days after this`, "date", { required: true }),
       F("basis", "Basis of preparation", "textarea", { placeholder: "Information relied on, and what was not provided" }),
       F("findings", "Findings in one paragraph", "textarea", { required: true }),
       ...DIAGNOSTIC_SECTIONS.map(([id, label], i) => F(id, `${i + 1}. ${label}`, "textarea")),
@@ -240,7 +242,14 @@ function cleanLines(raw) {
 }
 
 router.get("/", requireAuth, deliveryFinance, (req, res) =>
-  res.json({ documents: [...collection("documents")].reverse().map(({ data, ...meta }) => meta) })
+  res.json({
+    documents: [...collection("documents")].reverse().map(({ data, ...meta }) => ({
+      ...meta,
+      // A diagnostic waiting for its date is the one thing about a
+      // document you need to know without opening it.
+      release: data?.dueDate ? { ...releaseStatus(data.dueDate), dueDate: data.dueDate, assured: data.datesAssured !== false } : null,
+    })),
+  })
 );
 
 
@@ -322,6 +331,9 @@ router.get("/from-run/:id", requireAuth, deliveryFinance, (req, res) => {
       ...data,
       project: String(run.inputs?.project || run.title || "").slice(0, 300),
       client: String(run.inputs?.client || "").slice(0, 300),
+      // The date the ten days run from, captured when the engagement
+      // started rather than remembered when the report is issued.
+      handover: String(run.inputs?.handover || "").slice(0, 10),
       basis: basisFromRun(run),
     },
   });
@@ -372,6 +384,18 @@ router.post("/generate", requireAuth, deliveryFinance, (req, res) => {
   }
   const breach = namingBreach(data);
   if (breach) return res.status(400).json({ error: breach });
+
+  // The ten working days are the promise, so the date is computed once
+  // from the handover and carried on the document. Recomputing it later
+  // would let a slipped handover quietly move a date the client was
+  // already given.
+  if (tpl.id === "diagnostic" && data.handover) {
+    const dates = diagnosticDates(data.handover);
+    if (!dates) return res.status(400).json({ error: "The information handover date is not a date." });
+    data.dueDate = dates.due;
+    data.promisedDays = dates.days;
+    data.datesAssured = dates.assured;
+  }
 
   const number = nextNumber(tpl.prefix);
   const doc = insert("documents", {
@@ -689,8 +713,19 @@ function renderBody(doc) {
   }
 
   if (doc.template === "diagnostic") {
+    const rel = d.dueDate ? releaseStatus(d.dueDate) : null;
+    // The banner is on the document itself, not only in the console,
+    // because the way a report goes out early is that someone forwards
+    // the PDF without looking at the console.
+    const hold =
+      rel?.state === "held"
+        ? `<div class="holdnote"><b>Do not issue before ${esc(humanDate(d.dueDate))}.</b> This engagement was sold as ${d.promisedDays || DIAGNOSTIC_WORKING_DAYS} working days from information handover on ${esc(humanDate(d.handover))}. ${rel.days} working day${rel.days === 1 ? "" : "s"} remain. Internal review copy.</div>`
+        : "";
     return `
-      <table class="meta">${t("Client", d.client)}${t("Project / site", d.project)}${t("Site reference", d.siteRef)}${t("Prepared by", doc.issuedBy)}</table>
+      ${hold}
+      <table class="meta">${t("Client", d.client)}${t("Project / site", d.project)}${t("Site reference", d.siteRef)}${
+        d.handover ? t("Information handover", humanDate(d.handover)) : ""
+      }${d.dueDate ? t("Issue date", `${humanDate(d.dueDate)} — ${d.promisedDays || DIAGNOSTIC_WORKING_DAYS} working days from handover`) : ""}${t("Prepared by", doc.issuedBy)}</table>
       ${d.findings ? `<div class="blk"><h3>Findings in one paragraph</h3>${richText(d.findings)}</div>` : ""}
       ${DIAGNOSTIC_SECTIONS.map(([id, label], i) => section(i + 1, label, d[id])).join("")}
       ${d.appendix ? `<div class="blk"><h3>Appendix A · Document reconciliation ledger</h3><p class="rt-lede">Which of your own documents disagree with which. Set out as the documents state it.</p>${richText(d.appendix)}</div>` : ""}
@@ -768,6 +803,7 @@ router.get("/:id/render", tokenAuth, (req, res) => {
   table.contents td.num { width: 26px; color: #9c7a3c; font-family: Arial, sans-serif; font-weight: bold; }
   table.contents td.st { text-align: right; font-family: Arial, sans-serif; font-size: 11px; color: #5b6672; white-space: nowrap; }
   .tag { font-family: Arial, sans-serif; font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase; color: #9c7a3c; border: 1px solid #9c7a3c; border-radius: 100px; padding: 2px 8px; vertical-align: middle; margin-left: 6px; }
+  .holdnote { border: 2px solid #c0392b; background: #fdf6f5; color: #8e2b21; padding: 12px 16px; margin: 0 0 18px; font-size: 13px; line-height: 1.55; font-family: Arial, sans-serif; }
   .specimen-notice { border-left: 4px solid #c0392b; background: #fdf6f5; padding: 14px 18px; margin: 4px 0 22px; font-size: 13.5px; line-height: 1.6; }
   /* SPECIMEN watermark — fixed, so it repeats on every printed page and
      survives a screenshot or a single forwarded sheet. */
