@@ -132,48 +132,54 @@ async function cosPricing() {
       <input type="number" data-c-stack="${s.id}" value="${s.pct}" min="0" max="20" step="0.5" style="width:150px;font-size:0.95rem;"></label>`
     )
     .join("");
-  const cCalc = `<div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:12px;align-items:end;">
-    <label style="display:flex;flex-direction:column;gap:3px;font-size:0.78rem;" class="muted">Forecast direct supplier cost £
-      <input type="number" id="c-direct" min="0" value="1000000" style="width:220px;font-size:0.95rem;"></label>
-    ${stackInputs}
-  </div><div id="c-result"></div>
-  <button class="btn-block" id="c-to-quote" style="width:auto;padding:11px 22px;margin-top:12px;">Draft this as a client price build-up (QUO) →</button>
-  <p class="muted" style="margin-top:12px;">${esc(m.modelC.pricingBands)}</p>
-  <p class="muted" style="margin-top:6px;">${esc(m.modelC.contingencyRule)}</p>`;
-
-
-  // The resourcing check. A fee stack recovers a percentage of supplier
-  // cost; a delivery team costs people multiplied by months. Those two
-  // numbers are unrelated, and the gap between them is where a priced
-  // job quietly becomes a loss-making one. This puts them side by side.
+  // Model C prices a percentage of supplier cost; the delivery team costs
+  // people multiplied by months. Those two are unrelated, so the team is
+  // priced here rather than assumed — the stack is not finished until it
+  // pays for the people who have to deliver it.
   const teamRow = (role = "", fte = 1, cost = 7500) =>
     `<tr>
       <td><input data-team="role" value="${esc(role)}" placeholder="Role" style="width:100%;font-size:0.86rem;"></td>
-      <td><input data-team="fte" type="number" min="0" step="0.1" value="${fte}" style="width:78px;font-size:0.86rem;"></td>
-      <td><input data-team="cost" type="number" min="0" step="100" value="${cost}" style="width:110px;font-size:0.86rem;"></td>
+      <td><input data-team="fte" type="number" min="0" step="0.1" value="${fte}" style="width:74px;font-size:0.86rem;"></td>
+      <td><input data-team="cost" type="number" min="0" step="100" value="${cost}" style="width:108px;font-size:0.86rem;"></td>
       <td><button class="btn-run" data-team-del type="button">Remove</button></td>
     </tr>`;
 
-  const resourcing = `
-    <p class="muted" style="margin-bottom:12px;">Enter the team the job actually needs. <b>Fully loaded monthly cost</b> is salary plus employer's NI, pension, and the share of overhead that person carries — roughly 1.35 to 1.5 times gross salary, so a £70,000 site services manager costs about £8,000 a month, not £5,800.</p>
-    <div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:12px;align-items:end;">
-      <label style="display:flex;flex-direction:column;gap:3px;font-size:0.78rem;" class="muted">Model C duration (months)
-        <input type="number" id="r-months" min="1" value="12" style="width:150px;font-size:0.95rem;"></label>
-    </div>
+  const cCalc = `<div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:12px;align-items:end;">
+    <label style="display:flex;flex-direction:column;gap:3px;font-size:0.78rem;" class="muted">Forecast direct supplier cost £
+      <input type="number" id="c-direct" min="0" value="1000000" style="width:220px;font-size:0.95rem;"></label>
+    <label style="display:flex;flex-direction:column;gap:3px;font-size:0.78rem;" class="muted">Programme duration (months)
+      <input type="number" id="r-months" min="1" value="12" style="width:170px;font-size:0.95rem;"></label>
+    ${stackInputs}
+  </div><div id="c-result"></div>
+
+  <div style="margin-top:22px;padding-top:16px;border-top:1.5px solid var(--line);">
+    <h4 style="font-family:var(--font-head);font-size:0.95rem;margin-bottom:6px;">The delivery team this job needs</h4>
+    <p class="muted" style="margin-bottom:12px;font-size:0.86rem;">The stack above recovers a percentage of <b>supplier cost</b>. Your team costs <b>people × months</b>, and the two are unrelated — a long or people-heavy job earns the same percentage as a short one. Enter the real team and the build-up will tell you whether it pays for itself. <b>Fully loaded monthly cost</b> is salary plus employer's NI, pension and overhead share — roughly 1.35 to 1.5 times gross, so a £70,000 manager costs about £8,000 a month, not £5,800.</p>
     <div class="table-wrap"><table style="font-size:0.88rem;">
       <thead><tr><th>Role on the project</th><th>FTE</th><th>Fully loaded £/month</th><th></th></tr></thead>
       <tbody id="r-team">${teamRow("Site services manager", 1, 8000)}${teamRow("Quantity surveyor / commercial", 0.5, 8500)}${teamRow("HSEQ support", 0.3, 7000)}</tbody>
     </table></div>
-    <button class="btn-run" id="r-add" type="button" style="margin:8px 0 16px;">Add a role</button>
-    <div id="r-result"></div>`;
+    <button class="btn-run" id="r-add" type="button" style="margin:8px 0 14px;">Add a role</button>
+    <div id="r-result"></div>
+  </div>
+
+  <button class="btn-block" id="c-to-quote" style="width:auto;padding:11px 22px;margin-top:16px;">Draft this as a client price build-up (QUO) →</button>
+  <p class="muted" style="margin-top:12px;">${esc(m.modelC.pricingBands)}</p>
+  <p class="muted" style="margin-top:6px;">${esc(m.modelC.contingencyRule)}</p>`;
+
+
+
 
   return (
     `<div class="section-block" style="border-left:3px solid var(--danger,#c0392b);padding-left:16px;"><h3>Naming rule</h3><p class="muted">${esc(m.namingRule)}</p></div>` +
     block(m.modelA.name + " — fee bands · every row opens a ready-made quotation", wrapT(modelA)) +
     block(m.modelB.name, wrapT(modelB)) +
-    block("Model B fee builder — price it, then generate the proposal", bCalc) +
+    block(
+      "Model B fee builder — price it, then generate the proposal",
+      bCalc +
+        `<p class="muted" style="margin-top:14px;padding-left:14px;border-left:3px solid var(--amber,#9c7a3c);font-size:0.86rem;"><b>Why Model B does not carry the same people risk:</b> embedded site personnel are charged at cost plus agreed margin, so more people means more revenue rather than more cost. That protection only exists if the contract states <b>which roles and how many the monthly fee includes</b> — everything beyond that must be chargeable on the embedded-personnel line. £15,000 a month buys roughly one fully loaded person, not three.</p>`
+    ) +
     block(m.modelC.name + " — price build-up calculator", cCalc) +
-    block("Does this price survive delivery? — resourcing check", resourcing) +
     `<div class="section-block" style="border-left:3px solid var(--amber,#9c7a3c);padding-left:16px;"><h3>The closing discipline</h3><p class="muted">${esc(m.closingDiscipline)}</p></div>`
   );
 }
@@ -252,7 +258,11 @@ function wireCalculators() {
   };
 
 
-  // --- resourcing check -------------------------------------------------
+  // --- does this price survive delivery? --------------------------------
+  // The stack recovers a percentage of supplier cost; the team costs
+  // people multiplied by months. Where those disagree the panel does not
+  // just warn — each way out is costed, and the one that changes the
+  // price is a button.
   const teamCost = () => {
     let monthly = 0;
     let heads = 0;
@@ -265,63 +275,92 @@ function wireCalculators() {
     return { monthly, heads };
   };
 
-  const verdict = (recovered, cost, label, remedy) => {
-    const margin = recovered - cost;
-    const ok = margin >= 0;
-    const pctOfCost = cost > 0 ? (margin / cost) * 100 : 0;
-    return `<div style="border-left:3px solid ${ok ? "var(--success)" : "var(--danger)"};padding:10px 0 10px 14px;margin-bottom:14px;">
-      <b>${esc(label)}</b>
-      <div style="margin-top:6px;font-size:0.9rem;">
-        Fee recovered for the delivery team: <b>${money(recovered)}</b><br>
-        Cost of the team you have entered: <b>${money(cost)}</b><br>
-        <span style="color:${ok ? "var(--success)" : "var(--danger)"};font-weight:700;">
-          ${ok ? `Covered, with ${money(margin)} to spare (${Math.round(pctOfCost)}% headroom).` : `Short by ${money(-margin)}. This job is priced to lose money on people.`}
-        </span>
-      </div>
-      ${ok ? "" : `<div class="muted" style="margin-top:6px;font-size:0.85rem;">${remedy}</div>`}
-    </div>`;
-  };
+  /** The live verdict, so the QUO button can refuse to quote a losing price silently. */
+  let cVerdict = { short: 0, neededPct: 0 };
 
   const recalcR = () => {
     const el = document.getElementById("r-result");
     if (!el) return;
     const { monthly, heads } = teamCost();
     const months = Number(document.getElementById("r-months")?.value) || 1;
-    const cTeam = monthly * months;
+    const cost = monthly * months;
 
-    // Model C: the PM & integration component is what pays for the team.
     const { direct, rows, addPct } = cRows();
     const pmRow = rows.find((r) => /integration|management/i.test(r.component)) || rows[0];
-    const cRecovered = pmRow ? pmRow.value : 0;
-    const neededPct = direct > 0 ? (cTeam / direct) * 100 : 0;
+    const recovered = pmRow ? pmRow.value : 0;
+    const margin = recovered - cost;
+    const neededPct = direct > 0 ? (cost / direct) * 100 : 0;
+    cVerdict = { short: Math.max(0, -margin), neededPct };
 
-    // Model B: the monthly management fee is what pays for the team.
-    const b = bParts();
-    const bRecovered = b.mgmt;
-    const bTeam = monthly * b.months;
+    const caveat =
+      '<p class="muted" style="font-size:0.83rem;margin-top:10px;">This compares people against the project management &amp; integration component only. Contingency, overhead and profit sit on top and are <b>not</b> available to fund the delivery team.</p>';
 
-    el.innerHTML =
-      `<p class="muted" style="margin-bottom:10px;">Team entered: <b>${heads.toFixed(1)} FTE</b> at <b>${money(monthly)}</b> a month.</p>` +
-      verdict(
-        cRecovered,
-        cTeam,
-        `Model C — ${months} months, against the ${pmRow ? pmRow.pct : 0}% project management & integration component`,
-        `To cover this team the project management &amp; integration component would need to be <b>${neededPct.toFixed(1)}%</b> of direct cost, not ${pmRow ? pmRow.pct : 0}% — taking the total addition to about <b>${(addPct - (pmRow ? pmRow.pct : 0) + neededPct).toFixed(1)}%</b>. Either price it there, shorten the programme, reduce the team, or decline: a percentage of supplier cost does not grow because your job needs more people.`
-      ) +
-      verdict(
-        bRecovered,
-        bTeam,
-        `Model B — ${b.months} months, against the monthly integration & management fee`,
-        `Raise the monthly fee to at least <b>${money(Math.ceil(monthly / 500) * 500)}</b>, or move these people to the embedded-personnel line at cost plus margin. Model B only protects you if the contract says which roles and how many the monthly fee includes — everything beyond that must be chargeable.`
-      ) +
-      `<p class="muted" style="font-size:0.84rem;">This checks people against fee recovery only. Contingency, overhead and profit sit on top and are not available to fund the delivery team.</p>`;
+    if (margin >= 0) {
+      el.innerHTML = `<div style="border-left:3px solid var(--success);padding:10px 0 10px 14px;">
+          <b>This price survives delivery.</b>
+          <div style="margin-top:6px;font-size:0.9rem;">
+            ${heads.toFixed(1)} FTE at ${money(monthly)} a month over ${months} months costs <b>${money(cost)}</b>.
+            The ${pmRow ? pmRow.pct : 0}% project management &amp; integration component recovers <b>${money(recovered)}</b>.
+            <span style="color:var(--success);font-weight:700;">Covered, with ${money(margin)} of headroom.</span>
+          </div>
+        </div>${caveat}`;
+      return;
+    }
+
+    // Each way out, costed.
+    const maxMonths = monthly > 0 ? recovered / monthly : 0;
+    const affordableMonthly = months > 0 ? Math.round(recovered / months) : 0;
+    const avgPerFte = heads > 0 ? monthly / heads : 0;
+    const affordableFte = avgPerFte > 0 ? affordableMonthly / avgPerFte : 0;
+    const newAddPct = addPct - (pmRow ? pmRow.pct : 0) + neededPct;
+
+    el.innerHTML = `<div style="border-left:3px solid var(--danger);padding:10px 0 10px 14px;">
+        <b>This price does not survive delivery.</b>
+        <div style="margin-top:6px;font-size:0.9rem;">
+          ${heads.toFixed(1)} FTE at ${money(monthly)} a month over ${months} months costs <b>${money(cost)}</b>.
+          The ${pmRow ? pmRow.pct : 0}% project management &amp; integration component recovers only <b>${money(recovered)}</b>.
+          <span style="color:var(--danger);font-weight:700;">Short by ${money(-margin)} — this job is priced to lose money on people.</span>
+        </div>
+      </div>
+      <div class="table-wrap" style="margin-top:14px;"><table style="font-size:0.89rem;">
+        <thead><tr><th style="width:150px;">Way out</th><th>What it takes</th><th style="width:190px;"></th></tr></thead>
+        <tbody>
+          <tr><td><b>Price it there</b></td>
+            <td>Project management &amp; integration at <b>${neededPct.toFixed(1)}%</b> instead of ${pmRow ? pmRow.pct : 0}%, taking the total addition to <b>${newAddPct.toFixed(1)}%</b> and the contract value to <b>${money(direct * (1 + newAddPct / 100))}</b>.</td>
+            <td><button class="btn-run" id="r-apply" type="button" ${pmRow ? "" : "disabled"}>Apply ${neededPct.toFixed(1)}% to the stack</button></td></tr>
+          <tr><td><b>Shorten the programme</b></td>
+            <td>This stack pays for this team for <b>${maxMonths.toFixed(1)} months</b>, not ${months}. Anything beyond that is unfunded.</td>
+            <td><button class="btn-run" id="r-shorten" type="button">Set duration to ${Math.floor(maxMonths)} months</button></td></tr>
+          <tr><td><b>Cut the team</b></td>
+            <td>At ${months} months the stack affords <b>${money(affordableMonthly)}</b> a month — about <b>${affordableFte.toFixed(1)} FTE</b> at your current mix, against the ${heads.toFixed(1)} entered.</td>
+            <td><span class="muted" style="font-size:0.82rem;">Adjust the FTE above and this updates.</span></td></tr>
+          <tr><td><b>Decline</b></td>
+            <td>A job that cannot be priced to cover its own delivery team is a no-bid, not a stretch. Screen it properly.</td>
+            <td><a class="btn-run" href="/internal/index.html#commercial/bids" style="text-decoration:none;display:inline-block;">Screen on Bid / No-bid →</a></td></tr>
+        </tbody></table></div>${caveat}`;
+
+    document.getElementById("r-apply")?.addEventListener("click", () => {
+      const input = document.querySelector(`[data-c-stack="${pmRow.id}"]`);
+      if (!input) return;
+      input.value = Math.ceil(neededPct * 10) / 10;
+      recalcC();
+      recalcR();
+    });
+    document.getElementById("r-shorten")?.addEventListener("click", () => {
+      const el2 = document.getElementById("r-months");
+      if (!el2) return;
+      el2.value = Math.max(1, Math.floor(maxMonths));
+      recalcR();
+    });
   };
 
+  // Model C's team table lives inside the Model C block now, so every
+  // input in that block recalculates both the stack and the verdict.
   document.getElementById("r-add")?.addEventListener("click", () => {
     document.getElementById("r-team")?.insertAdjacentHTML("beforeend", `<tr>
       <td><input data-team="role" value="" placeholder="Role" style="width:100%;font-size:0.86rem;"></td>
-      <td><input data-team="fte" type="number" min="0" step="0.1" value="1" style="width:78px;font-size:0.86rem;"></td>
-      <td><input data-team="cost" type="number" min="0" step="100" value="7500" style="width:110px;font-size:0.86rem;"></td>
+      <td><input data-team="fte" type="number" min="0" step="0.1" value="1" style="width:74px;font-size:0.86rem;"></td>
+      <td><input data-team="cost" type="number" min="0" step="100" value="7500" style="width:108px;font-size:0.86rem;"></td>
       <td><button class="btn-run" data-team-del type="button">Remove</button></td></tr>`);
     recalcR();
   });
@@ -334,7 +373,7 @@ function wireCalculators() {
   document.getElementById("r-months")?.addEventListener("input", recalcR);
 
   ["b-supplier", "b-months", "b-proc", "b-monthly", "b-mob", "b-cx"].forEach((id) =>
-    document.getElementById(id)?.addEventListener("input", () => { recalcB(); recalcR(); }));
+    document.getElementById(id)?.addEventListener("input", recalcB));
   document.getElementById("c-direct")?.addEventListener("input", () => { recalcC(); recalcR(); });
   document.querySelectorAll("[data-c-stack]").forEach((i) => i.addEventListener("input", () => { recalcC(); recalcR(); }));
   recalcB();
@@ -370,6 +409,14 @@ function wireCalculators() {
 
   // Model C stack → the transparent price build-up as a client document.
   document.getElementById("c-to-quote")?.addEventListener("click", () => {
+    if (cVerdict.short > 0) {
+      const go = confirm(
+        `This build-up is short by ${money(cVerdict.short)} against the delivery team you have entered — ` +
+          `the project management & integration component would need to be ${cVerdict.neededPct.toFixed(1)}% to cover it.\n\n` +
+          `Quote it anyway?`
+      );
+      if (!go) return;
+    }
     const { direct, rows } = cRows();
     openDocPrefill(
       "quotation",
