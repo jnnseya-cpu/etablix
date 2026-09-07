@@ -1,0 +1,96 @@
+// Employer's Requirements — P2 Modular Accommodation. Content, separated from layout.
+module.exports = {
+  meta: {
+    client: "Marrowbridge Infrastructure Ltd",
+    project: "Project NORTHREACH — Workforce Accommodation Village",
+    package: "P2 — Modular Accommodation",
+    ref: "NR-ER-P2", rev: "A", date: "September 2026",
+  },
+
+  roomTypes: [
+    { code: "RT-01", name: "Standard bedroom with ensuite shower room", qty: "199", note: "The base room. Every deviation is priced against this one." },
+    { code: "RT-02", name: "Accessible bedroom with ensuite wet room", qty: "12", note: "Wheelchair accessible. Layout to be confirmed with Building Control." },
+    { code: "RT-03", name: "Senior / long-stay bedroom with ensuite shower room", qty: "14", note: "As RT-01 with an increased desk and storage provision." },
+  ],
+
+  // Full line-item room data sheet. Column 3 differs by type where it matters.
+  rds: [
+    ["GENERAL", "", "", ""],
+    ["Nominal internal floor area", "11.0 m² minimum", "16.0 m² minimum", "14.0 m² minimum"],
+    ["Nominal internal width", "2.85 m minimum", "3.30 m minimum", "3.10 m minimum"],
+    ["Clear floor-to-ceiling height", "2.40 m minimum throughout, 2.30 m minimum beneath any bulkhead", "2.40 m minimum", "2.40 m minimum"],
+    ["Design occupancy", "1 person, single occupancy", "1 person, single occupancy", "1 person, single occupancy"],
+    ["Ensuite floor area", "2.6 m² minimum", "4.5 m² minimum, level access wet room", "2.6 m² minimum"],
+
+    ["ENTRANCE DOOR", "", "", ""],
+    ["Leaf size", "926 × 2040 × 44 mm", "926 × 2040 × 44 mm, 900 mm clear opening minimum", "926 × 2040 × 44 mm"],
+    ["Fire rating", "FD30S, intumescent and cold smoke seals to head and both jambs", "FD30S", "FD30S"],
+    ["Finish", "Factory-finished laminate, colour from the approved range", "As RT-01", "As RT-01"],
+    ["Ironmongery", "Lever furniture, satin stainless; overhead closer to EN 1154 power size 3; hinges 3 no. per leaf to EN 1935 Grade 13", "As RT-01, with closer force adjusted to 20 N maximum opening force", "As RT-01"],
+    ["Lock", "Electronic access control, offline battery lock, mechanical override; keyed to the village master suite", "As RT-01, lever handle inside, no thumbturn requiring a pinch grip", "As RT-01"],
+    ["Vision panel", "None", "None", "None"],
+    ["Door number", "Engraved sign, 40 mm characters, tactile, mounted 1400–1600 mm AFFL on the wall to the leading edge", "As RT-01, with tactile and braille characters", "As RT-01"],
+
+    ["WINDOW", "", "", ""],
+    ["Type", "Aluminium or uPVC, thermally broken, top-hung opening light", "As RT-01, opening light operable from a seated position, cill height 800 mm maximum", "As RT-01"],
+    ["Nominal size", "1200 × 1100 mm", "1200 × 1100 mm", "1200 × 1100 mm"],
+    ["Glazing", "Double glazed sealed unit, low-e, argon filled; toughened to BS 6206 Class A where within 800 mm of finished floor level", "As RT-01", "As RT-01"],
+    ["Restrictor", "Opening restricted to 100 mm, key-released, to prevent falls", "As RT-01", "As RT-01"],
+    ["Trickle ventilation", "5,000 mm² equivalent area per room minimum", "As RT-01", "As RT-01"],
+    ["Internal blind", "Fitted roller blind, blackout, chain-operated with a breakaway connector", "As RT-01, wand or motorised operation", "As RT-01"],
+
+    ["FINISHES — ROOM", "", "", ""],
+    ["Floor", "Cushioned vinyl sheet, 2.0 mm minimum, welded seams, slip resistance PTV ≥ 36 dry", "As RT-01, slip resistance PTV ≥ 36 wet and dry throughout", "As RT-01"],
+    ["Skirting", "Coved and welded to the wall finish, 100 mm, integral with the floor covering", "As RT-01", "As RT-01"],
+    ["Walls", "Factory-applied vinyl faced plasterboard or equivalent wipe-clean finish; impact resistant to 1200 mm AFFL", "As RT-01", "As RT-01"],
+    ["Ceiling", "Factory-finished board, matt white, no accessible void within the room", "As RT-01", "As RT-01"],
+
+    ["FINISHES — ENSUITE", "", "", ""],
+    ["Floor", "Slip-resistant vinyl, PTV ≥ 36 wet, coved 150 mm to all walls, falls to gully", "As RT-01, falls across the whole wet room floor to a level-access gully", "As RT-01"],
+    ["Walls", "Fully sealed impervious panel system, full height, no tiled joints below 2.0 m", "As RT-01", "As RT-01"],
+    ["Ceiling", "Moisture-resistant, factory-finished", "As RT-01", "As RT-01"],
+
+    ["SANITARYWARE", "", "", ""],
+    ["Shower", "Thermostatic mixer to BS EN 1111, maximum outlet 41 °C, riser rail, hose, integral shower tray or moulded pod", "Level-access shower, thermostatic mixer, fixed and handheld head, drop-down seat, grab rails to BS 8300", "As RT-01"],
+    ["WC", "Close-coupled, dual flush 6/4 litre maximum, soft-close seat", "Doc M compliant pan, 480 mm seat height, drop-down and fixed grab rails, spatula flush", "As RT-01"],
+    ["Basin", "Wall-hung, 500 mm, single lever mixer, integral overflow", "Doc M compliant, lever mixer, clearance for a seated user", "As RT-01"],
+    ["Accessories", "Mirror, glass shelf, toilet roll holder, robe hook, heated towel rail 200 W", "As RT-01 plus emergency assistance alarm — pull cord to floor level, reset within the room, indicator outside the door and repeat to reception", "As RT-01"],
+
+    ["FITTED JOINERY — SUPPLIED UNDER THIS PACKAGE", "", "", ""],
+    ["Wardrobe", "Fitted, 600 × 600 × 1950 mm, hanging rail and one shelf, lockable", "As RT-01, rail at 1050 mm maximum", "Fitted, 900 mm wide, hanging rail and three shelves, lockable"],
+    ["Desk / worktop", "Fitted worktop 1000 × 500 mm at 730 mm AFFL, with cable grommet", "As RT-01, knee clearance 750 mm minimum, no fixed pedestal", "Fitted worktop 1400 × 600 mm with a two-drawer fixed pedestal"],
+    ["Shelving", "One shelf over the desk, 900 mm", "As RT-01 at reachable height", "Two shelves over the desk"],
+    ["Note", "Bed, mattress, chair, bin and soft furnishings are supplied under P4 Furniture and are NOT in this package. The interface is scheduled at IF-05.", "As RT-01", "As RT-01"],
+
+    ["MECHANICAL", "", "", ""],
+    ["Space heating", "Electric panel heater, 1.0 kW, thermostatically controlled, tamper-resistant, set-point limited 16–24 °C", "As RT-01, controls at 1000 mm AFFL maximum", "As RT-01"],
+    ["Ventilation — room", "Trickle ventilation as scheduled, plus mechanical extract from the ensuite providing whole-room air change", "As RT-01", "As RT-01"],
+    ["Ventilation — ensuite extract", "15 litres/second minimum, humidity sensing with 15-minute overrun, ducted to outside", "As RT-01", "As RT-01"],
+    ["Hot water", "From the central system; outlet temperature at basin and shower limited to 41 °C by TMV3 valve", "As RT-01", "As RT-01"],
+    ["Cold water", "From the central system; no storage within the room", "As RT-01", "As RT-01"],
+    ["Pipework insulation", "All hot and cold pipework insulated within the room and ensuite", "As RT-01", "As RT-01"],
+
+    ["ELECTRICAL", "", "", ""],
+    ["Socket outlets", "4 no. twin switched 13 A: 2 at desk height, 1 at bedside, 1 at low level; each with integral USB-A and USB-C", "As RT-01, all outlets 700–1000 mm AFFL", "6 no. twin switched 13 A"],
+    ["Lighting — room", "LED ceiling luminaire, 300 lux at desk, switched at the door and at the bedside", "As RT-01, switches 900–1100 mm AFFL", "As RT-01"],
+    ["Lighting — ensuite", "LED, IP44, 200 lux, switched with the extract", "As RT-01", "As RT-01"],
+    ["Reading light", "LED over the bed head, independently switched", "As RT-01", "As RT-01"],
+    ["Data", "1 no. RJ45 Cat 6 outlet at desk position, terminated and tested", "As RT-01", "2 no. RJ45 Cat 6"],
+    ["Wireless", "Room to be covered by the village wireless network; access points supplied under this package and commissioned to the coverage requirement at 7.4", "As RT-01", "As RT-01"],
+    ["Television", "1 no. coaxial outlet at desk position", "As RT-01", "As RT-01"],
+    ["Shaver socket", "1 no. in the ensuite, IP-rated, isolating transformer", "As RT-01", "As RT-01"],
+    ["Smoke detection", "Optical detector to the room, addressable, connected to the village fire alarm system", "As RT-01 plus a visual alarm device", "As RT-01"],
+    ["Emergency lighting", "Maintained emergency luminaire to the corridor side of the door; escape route lighting to 8.2", "As RT-01", "As RT-01"],
+
+    ["PERFORMANCE", "", "", ""],
+    ["Airborne sound — between bedrooms", "DnT,w + Ctr 45 dB minimum, verified by pre-completion testing on the sample described at 9.3", "As RT-01", "As RT-01"],
+    ["Airborne sound — bedroom to corridor", "DnT,w + Ctr 40 dB minimum, including the door", "As RT-01", "As RT-01"],
+    ["Impact sound — floor above", "L'nT,w 62 dB maximum", "As RT-01", "As RT-01"],
+    ["Fire — separating construction", "60 minutes integrity and insulation between rooms and to the corridor", "As RT-01", "As RT-01"],
+    ["Thermal — external wall", "U-value 0.22 W/m²K maximum", "As RT-01", "As RT-01"],
+    ["Thermal — roof", "U-value 0.16 W/m²K maximum", "As RT-01", "As RT-01"],
+    ["Thermal — glazing", "U-value 1.4 W/m²K maximum, whole window", "As RT-01", "As RT-01"],
+    ["Air permeability", "5.0 m³/(h·m²) at 50 Pa maximum, tested per 9.4", "As RT-01", "As RT-01"],
+    ["Overheating", "Demonstrated compliance with the overheating criterion in the client's brief at Appendix 9, using the CIBSE TM59 methodology", "As RT-01", "As RT-01"],
+  ],
+};
