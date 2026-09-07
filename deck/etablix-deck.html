@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ETABLIX — Executive Introduction</title>
+<style>
+  @font-face { font-family: "Barlow Condensed"; src: url("fonts/barlow-latin.woff2") format("woff2"); font-weight: 600 800; }
+  @font-face { font-family: "Archivo"; src: url("fonts/archivo-latin.woff2") format("woff2"); font-weight: 700 900; }
+  @font-face { font-family: "Inter"; src: url("fonts/inter-400.ttf") format("truetype"); font-weight: 400; }
+  @font-face { font-family: "Inter"; src: url("fonts/inter-600.ttf") format("truetype"); font-weight: 600; }
+  @font-face { font-family: "Inter"; src: url("fonts/inter-700.ttf") format("truetype"); font-weight: 700; }
+
+  :root {
+    --ink: #171c22;
+    --charcoal: #14181d;
+    --paper: #f5f4f0;
+    --card: #fdfcf9;
+    --gold: #9c7a3c;
+    --gold-bright: #c9a96a;
+    --line: #ddd8cd;
+    --line-dark: rgba(255,255,255,0.14);
+    --muted: #5b6470;
+    --muted-dark: #97a0aa;
+    --red: #b03a2e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "Inter", Arial, sans-serif; color: var(--ink); }
+
+  .slide {
+    width: 1280px; height: 720px;
+    page-break-after: always;
+    position: relative; overflow: hidden;
+    background: var(--paper);
+    display: flex; flex-direction: column;
+  }
+  .slide.dark { background: var(--charcoal); color: #eef0f2; }
+
+  /* --- slide furniture --- */
+  .chrome {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 30px 56px 0;
+  }
+  .chrome .wm { font-family: "Archivo", Arial, sans-serif; font-weight: 900; font-size: 19px; letter-spacing: -0.5px; }
+  .chrome .wm small { font-family: "Inter"; font-weight: 700; font-size: 8px; letter-spacing: 2.6px; color: var(--gold); display: block; margin-top: 2px; }
+  .chrome .tag { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); }
+  .footer {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 56px 22px; font-size: 10.5px; color: var(--muted); letter-spacing: 0.4px;
+  }
+  .dark .footer { color: var(--muted-dark); }
+  .footer b { color: var(--gold); font-weight: 700; }
+
+  .body { flex: 1; padding: 26px 56px 60px; display: flex; flex-direction: column; }
+  .body.center { justify-content: center; padding-bottom: 80px; }
+
+  h1.display { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; font-weight: 700; line-height: 0.98; letter-spacing: -0.5px; }
+  h2.head { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; font-weight: 700; font-size: 46px; line-height: 1.02; letter-spacing: -0.3px; margin-bottom: 8px; }
+  .kick { font-family: "Barlow Condensed"; font-weight: 700; font-size: 15px; letter-spacing: 3.4px; text-transform: uppercase; color: var(--gold); margin-bottom: 14px; }
+  .lede { font-size: 16.5px; line-height: 1.5; color: var(--muted); max-width: 900px; }
+  .dark .lede { color: var(--muted-dark); }
+  em.g { font-style: normal; color: var(--gold); }
+  .dark em.g { color: var(--gold-bright); }
+
+  .goldrule { width: 64px; height: 4px; background: var(--gold); margin: 18px 0 20px; }
+
+  /* --- generic cards --- */
+  .cards { display: flex; gap: 18px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-top: 3px solid var(--gold);
+    padding: 20px 22px; flex: 1;
+  }
+  .card h3 { font-family: "Barlow Condensed"; font-weight: 700; font-size: 21px; margin-bottom: 8px; }
+  .card p { font-size: 13px; line-height: 1.5; color: var(--muted); }
+  .card b { color: var(--ink); }
+
+  table.t { border-collapse: collapse; width: 100%; background: var(--card); border: 1px solid var(--line); }
+  table.t th { font-family: "Barlow Condensed"; font-weight: 700; font-size: 14px; letter-spacing: 1.6px; text-transform: uppercase; text-align: left; padding: 12px 18px; border-bottom: 2px solid var(--ink); color: var(--ink); }
+  table.t td { font-size: 13px; line-height: 1.45; padding: 12px 18px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink); }
+  table.t td.mut { color: var(--muted); }
+
+  .photo-strip { position: absolute; inset: 0; object-fit: cover; width: 100%; height: 100%; filter: saturate(0.82) contrast(1.06) brightness(0.92); }
+
+  .bignum { font-family: "Barlow Condensed"; font-weight: 700; font-size: 140px; line-height: 0.9; color: var(--ink); }
+  .bignum span { display: block; font-size: 15px; letter-spacing: 2.4px; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-top: 8px; }
+
+  /* ============ SLIDE 1 — COVER ============ */
+  .cover { justify-content: flex-end; }
+  .cover .scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(16,20,25,0.42) 0%, rgba(16,20,25,0.62) 55%, rgba(16,20,25,0.93) 100%); }
+  .cover-content { position: relative; padding: 0 72px 64px; color: #fff; }
+  .cover .wordmark { font-family: "Archivo"; font-weight: 900; font-size: 58px; letter-spacing: -2px; }
+  .cover .strap { font-family: "Inter"; font-weight: 700; font-size: 12.5px; letter-spacing: 4.4px; color: var(--gold-bright); margin: 6px 0 44px; }
+  .cover h1 { font-size: 84px; color: #fff; max-width: 900px; }
+  .cover .sub { font-size: 17px; color: rgba(255,255,255,0.85); margin-top: 22px; max-width: 720px; line-height: 1.5; }
+  .cover .aud { margin-top: 40px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.55); }
+
+  /* seams diagram (slide 3) */
+  .seams { display: flex; align-items: center; gap: 0; margin: 10px 0 4px; }
+  .pkg { background: var(--card); border: 1.5px solid var(--ink); padding: 12px 10px; text-align: center; font-family: "Barlow Condensed"; font-weight: 700; font-size: 15.5px; width: 118px; }
+  .gap { width: 46px; text-align: center; font-family: "Barlow Condensed"; font-weight: 700; font-size: 12px; color: var(--red); letter-spacing: 0.5px; line-height: 1.1; }
+  .gap::before { content: "?"; display: block; font-size: 26px; margin-bottom: 2px; }
+
+  /* lifecycle bar (slide 5) */
+  .life { display: flex; margin: 18px 0 24px; }
+  .life div { flex: 1; background: var(--charcoal); color: #fff; font-family: "Barlow Condensed"; font-weight: 700; font-size: 18px; letter-spacing: 1.6px; text-transform: uppercase; padding: 15px 0; text-align: center; border-right: 2px solid var(--gold); }
+  .life div:last-child { border-right: 0; }
+  .svc { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .svc div { background: var(--card); border: 1px solid var(--line); padding: 13px 16px; font-size: 13.5px; font-weight: 600; }
+  .svc div small { display: block; font-weight: 400; font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+
+  /* model ladder (slide 8) */
+  .ladder { display: flex; gap: 18px; align-items: stretch; }
+  .rung { flex: 1; background: var(--card); border: 1px solid var(--line); padding: 22px 24px; position: relative; }
+  .rung .lbl { font-family: "Barlow Condensed"; font-weight: 700; font-size: 15px; letter-spacing: 2.4px; color: var(--gold); text-transform: uppercase; }
+  .rung h3 { font-family: "Barlow Condensed"; font-weight: 700; font-size: 27px; margin: 4px 0 10px; }
+  .rung p { font-size: 12.8px; line-height: 1.5; color: var(--muted); margin-bottom: 10px; }
+  .rung .fit { border-top: 1px solid var(--line); padding-top: 10px; font-size: 12.3px; line-height: 1.45; }
+  .rung .fit b { font-size: 11px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--gold); display: block; margin-bottom: 3px; }
+  .rung.mid { border-top: 4px solid var(--gold); }
+
+  .checklist li { list-style: none; font-size: 14.5px; line-height: 1.5; padding: 9px 0 9px 30px; position: relative; border-bottom: 1px solid var(--line); }
+  .checklist li::before { content: "→"; position: absolute; left: 2px; color: var(--gold); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- ============ 1 · COVER ============ -->
+<section class="slide dark cover">
+  <img class="photo-strip" src="../frontend/public/img/photo/hero-dusk.jpg" alt="">
+  <div class="scrim"></div>
+  <div class="cover-content">
+    <div class="wordmark">ETABLIX</div>
+    <div class="strap">INTEGRATED SITE SERVICES &nbsp;·&nbsp; PART OF GROUPE NSEYA</div>
+    <h1 class="display">One site.<br>One accountable<br>operating system.</h1>
+    <p class="sub">Every temporary-site and workforce-accommodation service on your major projects — planned, procured, integrated and controlled by one contractor, from first mobilisation to final reinstatement.</p>
+    <div class="aud">An executive introduction for transmission owners, OEMs and principal contractors delivering the UK grid build-out</div>
+  </div>
+  <div class="footer" style="color:rgba(255,255,255,0.45);"><span>etablix.com</span><span>Commercial in confidence</span></div>
+</section>
+
+<!-- ============ 2 · THE MOMENT ============ -->
+<section class="slide">
+  <div class="chrome"><div class="wm">ETABLIX<small>INTEGRATED SITE SERVICES</small></div><div class="tag">The moment</div></div>
+  <div class="body">
+    <h2 class="head">The biggest grid build-out in a generation<br>will be won or lost in delivery — not design.</h2>
+    <div class="goldrule"></div>
+    <p class="lede">Substations, converter stations, HVDC landfalls, data-centre connections: more major energy sites will mobilise in the next decade than in the last three. Whatever seat you hold — transmission owner, OEM or principal contractor — three pressures land on the same desks:</p>
+    <div class="cards" style="margin-top:26px;">
+      <div class="card">
+        <h3>Concurrent mobilisations</h3>
+        <p>Portfolios that once mobilised one flagship site at a time are standing up <b>several at once</b> — each demanding the same scarce set-up expertise, at the same time, often in remote locations.</p>
+      </div>
+      <div class="card">
+        <h3>Senior hours burnt on the site behind the site</h3>
+        <p>Project directors and construction managers are specifying cabins, sizing generators and chasing welfare suppliers — <b>senior delivery capacity spent on temporary works</b> instead of the asset you were appointed to build.</p>
+      </div>
+      <div class="card">
+        <h3>Workforce accommodation is now on the critical path</h3>
+        <p>Remote sites cannot staff up without beds, catering and welfare that <b>work from day one</b> — and worker-welfare standards are under more scrutiny than ever.</p>
+      </div>
+    </div>
+    <p class="lede" style="margin-top:26px;">The engineering is world-class. The constraint is everything around it — <em class="g">and today, nobody owns that as one system.</em></p>
+  </div>
+  <div class="footer"><span><b>ETABLIX</b> · Executive introduction</span><span>02</span></div>
+</section>
+
+<!-- ============ 3 · THE PROBLEM ============ -->
+<section class="slide">
+  <div class="chrome"><div class="wm">ETABLIX<small>INTEGRATED SITE SERVICES</small></div><div class="tag">The problem we remove</div></div>
+  <div class="body">
+    <h2 class="head">The project rarely fails because a supplier is incompetent.<br><em class="g">It fails because nobody owns the complete system.</em></h2>
+    <div class="goldrule"></div>
+    <p class="lede">A major site buys its temporary environment as <b>15–25 separate contracts</b> — cabins, power, water, welfare, security, cleaning, catering, transport, waste, accommodation. Each supplier does exactly what its order says. The seams between them belong to no one:</p>
+    <div class="seams" style="margin-top:24px;">
+      <div class="pkg">Modular<br>buildings</div><div class="gap">unowned</div>
+      <div class="pkg">Temporary<br>power</div><div class="gap">unowned</div>
+      <div class="pkg">Water &amp;<br>drainage</div><div class="gap">unowned</div>
+      <div class="pkg">Welfare &amp;<br>catering</div><div class="gap">unowned</div>
+      <div class="pkg">Security &amp;<br>access</div><div class="gap">unowned</div>
+      <div class="pkg">Logistics &amp;<br>transport</div><div class="gap">unowned</div>
+      <div class="pkg">Accommo-<br>dation</div>
+    </div>
+    <p class="lede" style="margin-top:22px;">The generator is sized to a village layout nobody updated. The gatehouse data link sits between two contracts. The cabins arrive before their power does. <b>Each failure is discovered the week you needed it working</b> — and it is discovered by your site team.</p>
+    <div style="display:flex;gap:18px;margin-top:24px;">
+      <div class="card" style="border-top-color:var(--red);flex:1;"><h3 style="font-size:18px;">Where the cost lands</h3><p><b>Mobilisation delay</b> · <b>prelims escalation</b> · <b>senior delivery hours</b> consumed as the human middleware between suppliers — none of it visible on any single package budget.</p></div>
+    </div>
+  </div>
+  <div class="footer"><span><b>ETABLIX</b> · Executive introduction</span><span>03</span></div>
+</section>
+
+<!-- ============ 4 · EVIDENCE ============ -->
+<section class="slide">
+  <div class="chrome"><div class="wm">ETABLIX<small>INTEGRATED SITE SERVICES</small></div><div class="tag">The problem, counted</div></div>
+  <div class="body center">
+    <h2 class="head">We mapped a typical mid-size site set-up as one system.</h2>
+    <div class="goldrule"></div>
+    <div style="display:flex;gap:60px;align-items:flex-start;margin-top:8px;">
+      <div style="display:flex;gap:56px;">
+        <div class="bignum">18<span>packages</span></div>
+        <div class="bignum">41<span>interfaces<br>between them</span></div>
+        <div class="bignum" style="color:var(--red);">9<span style="color:var(--red);">with no<br>owner</span></div>
+      </div>
+      <div style="flex:1;padding-top:10px;">
+        <p class="lede" style="font-size:15.5px;">Nine points where the plan says nothing about who acts.<br>One of them, in full:</p>
+        <div class="card" style="margin-top:14px;padding:18px 20px;">
+          <h3 style="font-size:17px;">IF-07 — Generator sizing vs. village load</h3>
+          <p>The power package is sized against the original accommodation layout. The village has since grown by two cabin rows. <b>No line in either contract makes anyone responsible for reconciling the two.</b> It surfaces in week 3 of mobilisation as “no power to block C” — and by then it costs programme, not paperwork.</p>
+        </div>
+        <p class="lede" style="font-size:13px;margin-top:14px;">Illustrative model built from tier-one delivery experience — not a client’s data. We map <b>your</b> site’s real register in ten working days (slide 11).</p>
+      </div>
+    </div>
+    <p class="lede" style="margin-top:26px;font-size:15.5px;">Every unowned interface is a delay that hasn’t happened yet. <em class="g">Finding them on paper costs days. Finding them on site costs programme.</em></p>
+  </div>
+  <div class="footer"><span><b>ETABLIX</b> · Executive introduction</span><span>04</span></div>
+</section>
+
+<!-- ============ 5 · WHAT ETABLIX DOES ============ -->
+<section class="slide">
+  <div class="chrome"><div class="wm">ETABLIX<small>INTEGRATED SITE SERVICES</small></div><div class="tag">What we do</div></div>
+  <div class="body">
+    <h2 class="head">One accountable partner for the complete site environment.</h2>
+    <div class="goldrule"></div>
+    <p class="lede"><b>We are not a main contractor.</b> We do not build the permanent asset and we do not compete with the contractor who does. ETABLIX plans, procures, integrates and controls the temporary environment <i>around</i> the permanent works — <b>twenty-one specialist trades</b>, one contract, one point of accountability, one live view. Your teams deliver the asset; the late cabin supplier, the under-sized generator and the broken toilet at 7am become <b>our problem, contractually</b>.</p>
+    <div class="life">
+      <div>Plan</div><div>Procure</div><div>Integrate</div><div>Operate &amp; Control</div><div>Demobilise &amp; Reinstate</div>
+    </div>
+    <div class="svc" style="grid-template-columns:repeat(3,1fr);">
+      <div>Design &amp; planning<small>Temporary works engineering (BS&nbsp;5975) · utility surveys · site &amp; logistics design</small></div>
+      <div>Establish the site<small>Enabling civils · trackway &amp; wheel-wash · fencing, hoarding &amp; signage · Chapter&nbsp;8 traffic management</small></div>
+      <div>Utilities &amp; connectivity<small>Power, generators &amp; fuel · temporary MEP · water, wastewater &amp; sanitation · IT &amp; telecoms</small></div>
+      <div>Buildings &amp; equipment<small>Modular buildings &amp; site cabins · camp &amp; worker accommodation · plant, equipment &amp; furniture hire</small></div>
+      <div>Operate the site<small>Security &amp; access · catering &amp; living services · cleaning &amp; soft FM · waste &amp; recycling · site medical · logistics &amp; materials handling · workforce transport · maintenance &amp; fault response</small></div>
+      <div>Closeout<small>Environmental control &amp; monitoring · demobilisation · reinstatement &amp; closeout evidence</small></div>
+    </div>
+  </div>
+  <div class="footer"><span><b>ETABLIX</b> · Executive introduction</span><span>05</span></div>
+</section>
+
+<!-- ============ 6 · THE OPERATING SYSTEM ============ -->
+<section class="slide">
+  <div class="chrome"><div class="wm">ETABLIX<small>INTEGRATED SITE SERVICES</small></div><div class="tag">How we run it</div></div>
+  <div class="body center">
+    <h2 class="head">Not a promise — an operating system.</h2>
+    <div class="goldrule"></div>
+    <div style="display:flex;gap:34px;">
+      <div style="flex:1;">
+        <ul class="checklist">
+          <li><b>An interface register with a name against every seam.</b> Each of the 30–50 interfaces on your site gets an owner, in writing, before mobilisation — the register your site team wishes existed.</li>
+          <li><b>Mobilisation gates.</b> Defined readiness checks that catch mismatches on paper — weeks before they can cost programme on the ground.</li>
+          <li><b>Suppliers paid on Earned Value, never on bare invoices.</b> Measured quantities, inspections and evidence gate every payment; performance below threshold triggers commercial review automatically.</li>
+          <li><b>One live dashboard, one weekly report.</b> Every service, supplier and interface in a single view your directors can open — delivered on CONSTRUX, the operating platform we built and run.</li>
+        </ul>
+      </div>
+      <div style="width:520px;">
+        <img src="../frontend/public/img/ui/construx-live.jpg" style="width:100%;border:1px solid var(--line);display:block;" alt="CONSTRUX dashboard">
+        <p style="font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.45;"><b style="color:var(--ink);">A live screenshot, not a mock-up.</b> CONSTRUX — programme, cost, quality, risk and site telemetry in one place. Every ETABLIX engagement runs on it; your team gets a seat, not a PDF.</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span><b>ETABLIX</b> · Executive introduction</span><span>06</span></div>
+</section>
+
+<!-- ============ 7 · WORKFORCE VILLAGES ============ -->
+<section class="slide dark">
+  <img class="photo-strip" src="../frontend/public/img/photo/village-rows.jpg" alt="" style="opacity:0.34;">
+  <div style="position:absolute;inset:0;background:linear-gradient(90deg, rgba(20,24,29,0.96) 0%, rgba(20,24,29,0.86) 55%, rgba(20,24,29,0.55) 100%);"></div>
+  <div class="chrome" style="position:relative;"><div class="wm" style="color:#fff;">ETABLIX<small>INTEGRATED SITE SERVICES</small></div><div class="tag">Workforce villages</div></div>
+  <div class="body" style="position:relative;">
+    <h2 class="head" style="color:#fff;">Your workforce village, run as one operated service.</h2>
+    <div class="goldrule"></div>
+    <p class="lede" style="max-width:640px;">A village is not a stack of cabins. It is beds, welfare ratios, kitchens, laundry, security, housekeeping, occupancy management and resident experience — operating as one service, every day of the programme.</p>
+    <div style="display:flex;gap:16px;margin-top:26px;max-width:760px;flex-wrap:wrap;">
+      <div style="background:rgba(255,255,255,0.06);border:1px solid var(--line-dark);border-left:3px solid var(--gold-bright);padding:14px 18px;flex:1 1 46%;">
+        <b style="font-family:'Barlow Condensed';font-size:17px;">Demand-modelled, not guessed</b>
+        <p style="font-size:12.5px;color:var(--muted-dark);margin-top:5px;line-height:1.5;">Beds, welfare and utilities sized from your workforce curve and shift pattern — with the calculation basis shown, and capacity checked against occupancy as the programme moves.</p>
+      </div>
+      <div style="background:rgba(255,255,255,0.06);border:1px solid var(--line-dark);border-left:3px solid var(--gold-bright);padding:14px 18px;flex:1 1 46%;">
+        <b style="font-family:'Barlow Condensed';font-size:17px;">Compliance you can evidence</b>
+        <p style="font-size:12.5px;color:var(--muted-dark);margin-top:5px;line-height:1.5;">Welfare standards, food and water safety, fire assurance and accommodation inspections — documented continuously, because your name is on the site.</p>
+      </div>
+      <div style="background:rgba(255,255,255,0.06);border:1px solid var(--line-dark);border-left:3px solid var(--gold-bright);padding:14px 18px;flex:1 1 46%;">
+        <b style="font-family:'Barlow Condensed';font-size:17px;">One accountable manager</b>
+        <p style="font-size:12.5px;color:var(--muted-dark);margin-top:5px;line-height:1.5;">A named ETABLIX village manager owns occupancy, defects, complaints and every service provider — your site team stops fielding the noise.</p>
+      </div>
+      <div style="background:rgba(255,255,255,0.06);border:1px solid var(--line-dark);border-left:3px solid var(--gold-bright);padding:14px 18px;flex:1 1 46%;">
+        <b style="font-family:'Barlow Condensed';font-size:17px;">Productivity protected</b>
+        <p style="font-size:12.5px;color:var(--muted-dark);margin-top:5px;line-height:1.5;">A workforce that sleeps, eats and moves well turns up and stays — on remote programmes, the village <b style="color:#fff;">is</b> the retention plan.</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer" style="color:var(--muted-dark);"><span><b>ETABLIX</b> · Executive introduction</span><span>07</span></div>
+</section>
+
+<!-- ============ 8 · ENGAGEMENT MODELS ============ -->
+<section class="slide">
+  <div class="chrome"><div class="wm">ETABLIX<small>INTEGRATED SITE SERVICES</small></div><div class="tag">Ways to engage</div></div>
+  <div class="body center">
+    <h2 class="head">Three models. You choose how much transfers.</h2>
+    <div class="goldrule"></div>
+    <div class="ladder" style="margin-top:6px;">
+      <div class="rung">
+        <div class="lbl">Model A</div>
+        <h3>Advisory</h3>
+        <p>We define the complete site-services solution — requirements packages, interface matrix, procurement documents, tender evaluation. <b>You contract and pay suppliers directly.</b></p>
+        <div class="fit"><b>Fits when</b>Your team wants to keep commercial control but stop designing the temporary works from scratch. Fixed fees, defined deliverables.</div>
+      </div>
+      <div class="rung mid">
+        <div class="lbl">Model B</div>
+        <h3>Management Integrator</h3>
+        <p>We run the complete system on your behalf — coordination, interfaces, supplier performance, the village, the dashboard — while <b>supplier contracts stay with you.</b> Operational control without balance-sheet transfer.</p>
+        <div class="fit"><b>Fits when</b>You want one accountable manager for the site environment and your site leadership back on the permanent works.</div>
+      </div>
+      <div class="rung">
+        <div class="lbl">Model C</div>
+        <h3>Prime Service Contractor</h3>
+        <p>We contract the supply chain and deliver the complete service — one contract, one price built as a <b>transparent stack</b>, contingency governed against a joint risk register.</p>
+        <div class="fit"><b>Fits when</b>You want single-point accountability for the whole temporary environment, priced openly.</div>
+      </div>
+    </div>
+    <p class="lede" style="margin-top:22px;font-size:13.5px;">A deliberate discipline: <b>prime means prime for the site-services system</b>, never for the permanent works — and never “Principal Contractor” by accident. CDM 2015 duties are taken only by explicit, priced, insured appointment. If we ever hold them, it will be because you and we decided so in writing.</p>
+  </div>
+  <div class="footer"><span><b>ETABLIX</b> · Executive introduction</span><span>08</span></div>
+</section>
+
+<!-- ============ 9 · WHO IS BEHIND IT ============ -->
+<section class="slide">
+  <div class="chrome"><div class="wm">ETABLIX<small>INTEGRATED SITE SERVICES</small></div><div class="tag">Who is behind it</div></div>
+  <div class="body">
+    <div style="display:flex;gap:44px;align-items:flex-start;">
+      <div style="flex:1;">
+        <h2 class="head">Built by someone who sat<br>on your side of the table.</h2>
+        <div class="goldrule"></div>
+        <p class="lede" style="font-size:15.5px;">Inside a tier-one grid OEM, <b>Justin Nseya MCIOB</b> built the site-integration system and wrote the workforce-village requirements packages himself — weeks of senior delivery time spent specifying cabins, utilities and welfare instead of delivering the project. That experience is why ETABLIX exists: the industry buys site services in pieces, and someone has to own the whole.</p>
+        <ul class="checklist" style="margin-top:16px;">
+          <li><b>Founder-led delivery.</b> The Managing Director attends your project reviews personally — and answers direct enquiries within one working day.</li>
+          <li><b>Our own operating platforms.</b> CONSTRUX (project control) and VERYX (portfolio risk) are built and run in-house — nobody else walks into your office with their own operating system.</li>
+          <li><b>Part of the Groupe Nseya structure</b> — headquartered in Birmingham, serving UK, Ireland and selected international programmes.</li>
+        </ul>
+      </div>
+      <div style="width:300px;flex-shrink:0;">
+        <img src="../frontend/public/img/photo/justin-nseya.jpg" style="width:100%;display:block;border:1px solid var(--line);filter:saturate(0.9) contrast(1.04);" alt="Justin Nseya">
+        <div style="background:var(--charcoal);color:#fff;padding:14px 18px;">
+          <b style="font-family:'Barlow Condensed';font-size:19px;">Justin Ngolu Nseya <span style="color:var(--gold-bright);">MCIOB</span></b>
+          <div style="font-size:11.5px;color:var(--muted-dark);margin-top:3px;">Founder &amp; Managing Director<br>Chartered Member, CIOB</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span><b>ETABLIX</b> · Executive introduction</span><span>09</span></div>
+</section>
+
+<!-- ============ 10 · CHECK US FIRST ============ -->
+<section class="slide dark">
+  <div class="chrome"><div class="wm" style="color:#fff;">ETABLIX<small>INTEGRATED SITE SERVICES</small></div><div class="tag">Verification</div></div>
+  <div class="body">
+    <h2 class="head" style="color:#fff;">We are asking you to concentrate risk with us.<br><em class="g">So check us before you believe us.</em></h2>
+    <div class="goldrule"></div>
+    <div style="display:flex;gap:18px;margin-top:14px;">
+      <div style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--line-dark);border-top:3px solid var(--gold-bright);padding:18px 20px;">
+        <b style="font-family:'Barlow Condensed';font-size:18px;">Legal identity</b>
+        <p style="font-size:12.5px;color:var(--muted-dark);margin-top:6px;line-height:1.55;">ETABLIX is a trading name of <b style="color:#fff;">JNN GLOBAL LTD</b>, registered in England &amp; Wales, <b style="color:#fff;">Company No. 15405437</b>. Look us up on the Companies House register — don’t take this slide’s word for it.</p>
+      </div>
+      <div style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--line-dark);border-top:3px solid var(--gold-bright);padding:18px 20px;">
+        <b style="font-family:'Barlow Condensed';font-size:18px;">The person</b>
+        <p style="font-size:12.5px;color:var(--muted-dark);margin-top:6px;line-height:1.55;">The founder is a Chartered Member of the CIOB with a public delivery history — verify him on LinkedIn. Insurance limits and certificates are provided with every proposal, <b style="color:#fff;">before you sign anything</b>.</p>
+      </div>
+      <div style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--line-dark);border-top:3px solid var(--gold-bright);padding:18px 20px;">
+        <b style="font-family:'Barlow Condensed';font-size:18px;">The product</b>
+        <p style="font-size:12.5px;color:var(--muted-dark);margin-top:6px;line-height:1.55;">The dashboard on slide 6 is a live screenshot. The diagnostic sample at <b style="color:#fff;">etablix.com/diagnostic-sample</b> is our actual report format, watermarked and public.</p>
+      </div>
+    </div>
+    <div style="margin-top:24px;border-left:3px solid var(--gold-bright);padding:4px 0 4px 20px;max-width:980px;">
+      <p style="font-size:15px;line-height:1.6;color:#eef0f2;">And here is what you will <b>not</b> find behind our name: borrowed logos, stock-photo testimonials, or case studies we didn’t deliver. We are a new company at the start of its record — <em class="g">when we publish proof, it will be real proof.</em> We’d suggest holding every contractor you evaluate to the same standard.</p>
+    </div>
+  </div>
+  <div class="footer" style="color:var(--muted-dark);"><span><b>ETABLIX</b> · Executive introduction</span><span>10</span></div>
+</section>
+
+<!-- ============ 11 · THE FIRST STEP ============ -->
+<section class="slide">
+  <div class="chrome"><div class="wm">ETABLIX<small>INTEGRATED SITE SERVICES</small></div><div class="tag">The first step</div></div>
+  <div class="body">
+    <h2 class="head">Start with a Site Systems Diagnostic.</h2>
+    <div class="goldrule"></div>
+    <div style="display:flex;gap:44px;">
+      <div style="width:400px;flex-shrink:0;">
+        <div style="background:var(--charcoal);color:#fff;padding:28px 30px;">
+          <div style="font-family:'Barlow Condensed';font-weight:700;font-size:34px;line-height:1.12;">Fixed fee.<br>Defined deliverable.<br>Ten working days.<br><span style="color:var(--gold-bright);">Yours to keep.</span></div>
+          <p style="font-size:12.5px;color:var(--muted-dark);margin-top:14px;line-height:1.55;">No lock-in, no obligation, no “call to discuss pricing”. You get the report whether or not you ever use us again.</p>
+        </div>
+      </div>
+      <div style="flex:1;">
+        <p class="lede" style="font-size:15px;">Pick one live or upcoming site. In ten working days you receive the map your delivery team wishes it had:</p>
+        <ul class="checklist" style="margin-top:12px;">
+          <li>Every temporary-works and accommodation <b>package</b>, mapped as one system</li>
+          <li>Every <b>interface</b> between them — and every one with <b>no owner</b></li>
+          <li>The <b>mobilisation gates</b> that catch the gaps before they cost programme</li>
+          <li>Prioritised <b>decisions</b> for your team — whoever you appoint to act on them</li>
+        </ul>
+        <p class="lede" style="margin-top:16px;font-size:13.5px;">The report format is public and watermarked at <b>etablix.com/diagnostic-sample</b> — see exactly what you’re buying before we speak. If you have a mobilisation in the next two quarters, the diagnostic is the cheap time to find its nine unowned interfaces.</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span><b>ETABLIX</b> · Executive introduction</span><span>11</span></div>
+</section>
+
+<!-- ============ 12 · BACK COVER ============ -->
+<section class="slide dark cover">
+  <img class="photo-strip" src="../frontend/public/img/photo/site-night.jpg" alt="" style="opacity:0.5;">
+  <div class="cover .scrim" style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(16,20,25,0.55) 0%, rgba(16,20,25,0.94) 100%);"></div>
+  <div class="cover-content" style="padding-bottom:56px;">
+    <div class="wordmark" style="font-size:44px;">ETABLIX</div>
+    <div class="strap" style="margin-bottom:34px;">INTEGRATED SITE SERVICES &nbsp;·&nbsp; PART OF GROUPE NSEYA</div>
+    <h1 class="display" style="font-size:56px;color:#fff;">Twenty minutes. One of your sites.<br>We’ll show you how it runs.</h1>
+    <div style="display:flex;gap:64px;margin-top:40px;font-size:14.5px;line-height:1.9;">
+      <div>
+        <b style="color:var(--gold-bright);font-family:'Barlow Condensed';letter-spacing:2px;font-size:14px;">DIRECT TO THE MD</b><br>
+        Justin Nseya MCIOB — Founder &amp; Managing Director<br>
+        contact@etablix.com &nbsp;·&nbsp; +44 7493 216101
+      </div>
+      <div>
+        <b style="color:var(--gold-bright);font-family:'Barlow Condensed';letter-spacing:2px;font-size:14px;">SEE FOR YOURSELF</b><br>
+        etablix.com &nbsp;·&nbsp; etablix.com/diagnostic-sample<br>
+        linkedin.com/company/etablix
+      </div>
+    </div>
+    <div style="margin-top:44px;font-size:10px;color:rgba(255,255,255,0.45);line-height:1.7;">
+      ETABLIX is a trading name of JNN GLOBAL LTD · Registered in England &amp; Wales · Company No. 15405437<br>
+      Registered office: Groupe Nseya House, Kingstanding, Birmingham B44 8DJ, United Kingdom · Commercial in confidence
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
