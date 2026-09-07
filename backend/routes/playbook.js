@@ -1,7 +1,23 @@
 /**
- * Internal Commercial Playbook — Commercial-in-Confidence.
- * Served ONLY through an authenticated employee session; this content is
- * deliberately absent from the public frontend files.
+ * The Commercial Playbook index.
+ *
+ * This endpoint used to return the playbook itself: several thousand
+ * words of pricing stacks, cash-flow rules, payment law and go-to-market
+ * doctrine that someone was expected to read and then remember to
+ * apply. Every rule in it is now enforced by a tool in the Control
+ * Desk, which made the document the least reliable copy of its own
+ * contents — the kind that goes stale silently while the code moves on.
+ *
+ * What it returns instead is an index: one row per rule, naming where
+ * that rule is enforced and linking straight to it. Nothing here
+ * restates a rate, threshold or period, because the tool owns those and
+ * a second copy would eventually disagree with the first.
+ *
+ * Adding a rule to the business means building the tool and adding a
+ * row. If a row has no tool to point at, that is the finding.
+ *
+ * Returns { title, classification, html } — a fragment the shell at
+ * frontend/internal/playbook.html injects, not a whole page.
  */
 
 import { Router } from "express";
@@ -9,158 +25,105 @@ import { requireAuth } from "../middleware/auth.js";
 
 const router = Router();
 
-const PLAYBOOK_HTML = `
-<h2>Commercial model — the three-rung ladder</h2>
-<p>Advisory → Management Integrator → Prime Service Contractor. The ladder is also the sales funnel: an Advisory requirements package deliberately creates a procurement an integrator can win; a successful integration builds the supplier framework and cash position that make the Prime model safe. Every engagement is scoped so the next rung is the natural continuation.</p>
-<p class="pb-warn">Naming rule: in client documents Model C is the <b>Prime Service Contractor</b>, never "Principal Service Contractor" — under CDM 2015 "Principal Contractor" is a defined legal role with specific health-and-safety duties. ETABLIX may separately agree to act as CDM Principal Contractor on some sites, but that must be an explicit, priced, insured decision — never an accident of branding.</p>
+/**
+ * Where each rule lives. `to` is a Control Desk deep link: the hash is
+ * "panel" or "panel/section", resolved by openPanel() in app.js.
+ */
+const INDEX = [
+  {
+    group: "Pricing & the commercial model",
+    rules: [
+      { rule: "Three-rung ladder — Advisory, Management Integrator, Prime Service Contractor", tool: "Pricing studio", to: "commercial/pricing", note: "The three models, their fee bases, and why each engagement is scoped so the next rung is the natural continuation." },
+      { rule: "Model 01 Advisory fee bands", tool: "Pricing studio", to: "commercial/pricing", note: "Each deliverable's band, with “Quote this” opening a pre-filled fee quotation in Documents." },
+      { rule: "Model 02 Integrator fee build", tool: "Pricing studio", to: "commercial/pricing", note: "Live calculator: procured value, duration, procurement percentage, monthly fee, platform charge." },
+      { rule: "Model 03 Prime price stack — never presented as “20% overhead”", tool: "Pricing studio", to: "commercial/pricing", note: "Builds the transparent stack from direct cost, component by component, including governed contingency." },
+      { rule: "Naming rule — Prime, never “Principal Service Contractor”; never main contractor", tool: "Documents", to: "commercial/docs", note: "Enforced at generation. A document breaching it is refused with the reason, including text hidden in a line item." },
+    ],
+  },
+  {
+    group: "Cash flow — the real product",
+    rules: [
+      { rule: "Mobilisation advance cleared before any supplier order", tool: "Cash-flow desk", to: "commercial/cashflow", note: "Calculator for the advance and everything it must cover before a PO is placed." },
+      { rule: "Rolling one-month cash reserve", tool: "Cash-flow desk", to: "commercial/cashflow", note: "Checked at each valuation; the automation alerts when the reserve falls below next month's forecast." },
+      { rule: "Monthly valuation cycle, Day 20 to month-end", tool: "Cash-flow desk", to: "commercial/cashflow", note: "Open a cycle per project per month and tick each step as it completes." },
+      { rule: "Exposure rule — committed exposure never exceeds reserve plus confirmed receivables", tool: "Cash-flow desk", to: "commercial/cashflow", note: "Computed live on every valuation and alerted on breach." },
+      { rule: "HGCRA timetable — valuation, due, notice and final dates", tool: "Applications for payment", to: "suppliers", note: "Derived on receipt and carried on each application; deadlines are flagged before they bite, not after." },
+      { rule: "Payment and pay-less notices (ss.110A, 111)", tool: "Documents", to: "commercial/docs", note: "Notice templates. The deadlines themselves are watched by the automation." },
+      { rule: "Pay-when-paid prohibited in supplier terms", tool: "Supplier onboarding", to: "suppliers", note: "The terms every supplier accepts before their first order." },
+    ],
+  },
+  {
+    group: "Paying the supply chain",
+    rules: [
+      { rule: "Earned Value payment gate — SPI or CPI below 0.95 triggers review", tool: "EVM gate", to: "commercial/evm", note: "The same thresholds drive project health in the VERYX portfolio, so “at risk” means one thing everywhere." },
+      { rule: "Certification against evidence, with reasons when certifying less than claimed", tool: "Applications for payment", to: "suppliers", note: "Reasons are required, recorded, and sent to the supplier with the certificate." },
+      { rule: "Bank details verified by call-back before any payment", tool: "Applications for payment", to: "suppliers", note: "Payment is blocked in software until a named person confirms the call-back." },
+      { rule: "Retention — 5% capped, staged release, alternatives preferred", tool: "Retention ledger", to: "commercial/retention", note: "What is held and released per supplier, with the release stages." },
+      { rule: "CIS deduction and VAT domestic reverse charge", tool: "Applications for payment", to: "suppliers", note: "Applied at certification; reverse-charge wording is an option on invoices." },
+    ],
+  },
+  {
+    group: "Winning work",
+    rules: [
+      { rule: "No-bid triggers — ten reasons to walk away", tool: "Bid / No-bid screen", to: "commercial/bids", note: "Screen every opportunity against them; the verdict is computed, not argued." },
+      { rule: "Gates before the first Prime bid", tool: "Gates & set-up", to: "commercial/gates", note: "Six gates that block a Prime verdict on the bid screen until they are passed." },
+      { rule: "Public-sector routes to market", tool: "DPS pipeline", to: "commercial/dps", note: "Each route with what its selection stage demands and what is still missing, resolved against the set-up checklist." },
+      { rule: "Named-account discipline — 30 accounts, weekly cadence", tool: "GTM accounts", to: "commercial/gtm", note: "Account tracker with stage, next action, owner and overdue actions." },
+      { rule: "Company set-up checklist by workstream", tool: "Gates & set-up", to: "commercial/gates", note: "Ticking an item here clears it across every DPS route that needs it." },
+    ],
+  },
+  {
+    group: "Running the work",
+    rules: [
+      { rule: "Enterprise risk register", tool: "Risk register", to: "commercial/risks", note: "The top risks and their mitigations, maintained rather than recited." },
+      { rule: "Project health across the portfolio", tool: "VERYX · Portfolio", to: "veryx", note: "Measured from schedule and cost performance; overridable by a manager, but only with a reason and never hiding what was measured." },
+      { rule: "Interface register and project control", tool: "CONSTRUX · Projects", to: "construx", note: "Schedule, budget, RFIs, NCRs, inspections and site telemetry per project." },
+      { rule: "NDA before sharing project information with a supplier", tool: "Enquiries & orders", to: "suppliers", note: "Enquiry packs stay sealed until the supplier accepts the NDA; accepting a quote mints the PO." },
+      { rule: "Prequalification before a supplier is used", tool: "Supplier applications", to: "applications", note: "Twelve weighted criteria, four of them critical, assessed and recorded with feedback." },
+      { rule: "Everything catalogued fires on every channel", tool: "Communications", to: "comms", note: "The event catalogue, with preview and test send per event." },
+      { rule: "Standing checks run without being asked", tool: "Automation", to: "automation", note: "Exposure, reserve, HGCRA notice deadlines, platform health and the monthly portfolio snapshot." },
+    ],
+  },
+];
 
-<h3>Model A — Advisory pricing</h3>
-<table>
-<tr><th>Deliverable</th><th>Indicative fee</th></tr>
-<tr><td>Site-services feasibility review / Site Systems Diagnostic</td><td>£2,500 – £7,500</td></tr>
-<tr><td>Site Management Requirements Package</td><td>£7,500 – £25,000</td></tr>
-<tr><td>Workforce Village Requirements Package</td><td>£10,000 – £35,000</td></tr>
-<tr><td>Procurement management and tender evaluation</td><td>£7,500 – £30,000</td></tr>
-<tr><td>Mobilisation-readiness / village-readiness review</td><td>£5,000 – £15,000</td></tr>
-</table>
+const esc = (s) =>
+  String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
-<h3>Model B — Management Integrator pricing</h3>
-<table>
-<tr><th>Component</th><th>Basis</th></tr>
-<tr><td>Mobilisation and planning fee</td><td>£15,000 – £50,000 fixed</td></tr>
-<tr><td>Procurement fee</td><td>3% – 5% of procured supplier value</td></tr>
-<tr><td>Monthly integration and management fee</td><td>£7,500 – £30,000 per month (scaled to package count and workforce)</td></tr>
-<tr><td>Embedded site personnel</td><td>Cost + agreed margin, or day rates</td></tr>
-<tr><td>CONSTRUX platform and reporting</td><td>£1,000 – £5,000 per month per project</td></tr>
-<tr><td>Demobilisation and closeout fee</td><td>Fixed, scoped at appointment</td></tr>
-</table>
-<p>Model B is the engine of the first 18–24 months: recurring fee income, no supplier financing, and every project feeds the supplier database, rate benchmarks and the CONSTRUX product.</p>
+const HTML = `
+<style>
+  .pb-index table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+  .pb-index td { padding: 11px 12px 11px 0; border-bottom: 1px solid var(--line); vertical-align: top; font-size: 0.9rem; }
+  .pb-index td.pb-tool { text-align: right; padding-right: 0; width: 190px; }
+  .pb-index td.pb-tool a { color: var(--orange-dark); font-weight: 600; text-decoration: none; font-size: 0.84rem; }
+  .pb-index td.pb-tool a:hover { text-decoration: underline; }
+  .pb-index .pb-note { color: var(--slate); font-weight: 400; font-size: 0.82rem; margin-top: 3px; max-width: 60ch; }
+  .pb-index h2 { font-family: var(--font-head); font-size: 1rem; margin: 30px 0 8px; padding-bottom: 6px; border-bottom: 1.5px solid var(--ink); }
+  .pb-index .pb-lede { color: var(--slate); font-size: 0.93rem; line-height: 1.6; max-width: 68ch; margin-bottom: 4px; }
+  .pb-index .pb-foot { margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--slate); font-size: 0.86rem; line-height: 1.6; max-width: 68ch; }
+</style>
+<div class="pb-index">
+  <p class="pb-lede">Every rule below is enforced by a tool, not by memory. This page is the index to those tools — it deliberately holds no rates, thresholds or periods of its own, because the tool owns them and a second copy would eventually disagree with the first.</p>
+  ${INDEX.map(
+    (g) => `<h2>${esc(g.group)}</h2><table><tbody>${g.rules
+      .map(
+        (r) => `<tr>
+        <td><b>${esc(r.rule)}</b><div class="pb-note">${esc(r.note)}</div></td>
+        <td class="pb-tool"><a href="/internal/index.html#${esc(r.to)}">${esc(r.tool)} →</a></td>
+      </tr>`
+      )
+      .join("")}</tbody></table>`
+  ).join("")}
+  <p class="pb-foot"><b>The closing discipline:</b> cash-flow structure, not headline contract value, determines survival. Every commercial decision is tested against one question — does this keep ETABLIX funded one month ahead of its committed supplier exposure? The cash-flow desk answers it; this page only points at the desk.</p>
+  <p class="pb-foot">If a rule ever has no tool to link to, that is the finding: build the tool, then add the row.</p>
+</div>`;
 
-<h3>Model C — Prime Service Contractor price build-up</h3>
-<p>Present the 25% addition as a transparent stack — never as "20% overhead":</p>
-<table>
-<tr><th>Component</th><th>Rate on direct cost</th><th>What it pays for</th></tr>
-<tr><td>Direct supplier and labour costs</td><td>100%</td><td>The audited base</td></tr>
-<tr><td>Project management &amp; integration</td><td>8%</td><td>Site-services managers, planners, QS, HSE support, coordination</td></tr>
-<tr><td>Corporate overhead recovery</td><td>5%</td><td>Insurance, accreditation, systems, back office</td></tr>
-<tr><td>Profit and prime-contractor risk</td><td>7%</td><td>Margin and the price of single-point accountability</td></tr>
-<tr><td>Controlled contingency</td><td>5%</td><td>Held against a joint risk register with a defined drawdown process</td></tr>
-<tr><td><b>Total addition</b></td><td><b>25%</b></td><td>—</td></tr>
-</table>
-<p><b>Worked example on £1,000,000 forecast supplier cost:</b> direct £1,000,000 + PM/integration £80,000 + overhead £50,000 + profit/risk £70,000 + contingency £50,000 = <b>contract value £1,250,000</b>.</p>
-<ul>
-<li>Contingency is not hidden profit: drawn only against risk-register events through a change process; unused contingency is returned, shared 50/50 as a performance incentive, or retained only under a genuine fixed-price risk-transfer contract. Offering the client this choice at tender is itself a differentiator.</li>
-<li>On low-risk, long-duration operate-phase work expect competitive pressure toward 15–18% total addition; on fast-mobilisation or remote work 25–30% is defensible. <b>Publish nothing; price each job from the stack.</b></li>
-</ul>
-
-<h2>Cash-flow architecture — the real product</h2>
-<ul>
-<li><b>Mobilisation advance:</b> before any material supplier order the client pays forecast Month-1 supplier expenditure + mobilisation fee + Month-1 management fee + early procurement commitments + applicable VAT + agreed early-risk contingency. No supplier POs until the contract is executed, the advance has cleared, the baseline is approved and credit protections are in place.</li>
-<li><b>Rolling one-month cash reserve:</b> at each monthly valuation the client replenishes the fund so ETABLIX always holds at least the next month's forecast committed expenditure — a condition precedent with defined suspension mechanics if not replenished.</li>
-<li><b>Monthly cycle:</b> Day 20 supplier submissions (in CONSTRUX) → 21–23 site verification and EVM assessment → 24 forecast/accrual/contingency review → 25 draft valuation → 26–28 joint review → month-end payment application (due-date trigger) → payment/pay-less notices per contract → final date for payment 14 days after due date → reserve replenished, supplier payments released.</li>
-<li><b>Legal guardrails (UK):</b> distinct valuation, due, notice and final dates satisfying HGCRA 1996 ss.110–113; pay-when-paid is prohibited — supplier terms are "30 days from the contractual supplier due date, subject to completed work, evidence, acceptance and any valid notice", never "after the client pays us".</li>
-<li><b>Exposure rule:</b> never let committed supplier exposure exceed cash reserve + confirmed receivables from investment-grade clients. Tier-ones will push 14-day terms to 30–45 days — concede the final-payment period if necessary; never concede the advance or the rolling reserve.</li>
-<li><b>Tax mechanics:</b> CIS registration, verification, deductions and monthly returns; obtain gross payment status early. VAT domestic reverse charge applies to CIS-registered contractor clients (they don't pay ETABLIX the VAT — model the float per client); normal VAT for certified end users. DRC operations run on a separate fiscal stack through ETABLIX RDC SARL — never commingled.</li>
-</ul>
-
-<h2>Retention — modernised</h2>
-<p>5% of interim certified work, capped at 5% of the supplier contract; 2.5% released at practical completion / accepted demobilisation, 2.5% at end of the 12-month defects period. No retention on pure supply, low-risk services or professional consultants. Alternatives to prefer: retention bonds, performance bonds, PCGs, defects escrow, warranties, service credits; reduced or zero retention for proven framework suppliers. Check the UK retention-prohibition implementation position at the date of every new supplier contract.</p>
-
-<h2>Supplier payment discipline — application contents</h2>
-<p>Monthly supplier applications must contain: progress measurement, labour and plant records, delivery evidence, inspection/acceptance records, updated programme, forecast-to-complete, change documentation, defect status, EVM coding and CIS/VAT information. Payment only against certified, verified work — 30-day terms from the contractual due date, electronic payment, early notification of disputes, no retrospective deductions, approved variations into the next valuation.</p>
-
-<h2>EVM — the payment gate</h2>
-<p>Suppliers are paid on Earned Value, evidenced by measurable quantities, completed deliverables, inspections, weighted milestones, photographic records and approved variations — never on bare invoices or self-declared percent-complete. SPI or CPI below 0.95 triggers recovery / commercial review.</p>
-
-<h2>Risk register — top enterprise risks</h2>
-<table>
-<tr><th>Top risk</th><th>Mitigation</th></tr>
-<tr><td>Client payment default or delay</td><td>Credit-check every client; investment-grade or secured only in Prime mode; rolling reserve as condition precedent; suspension rights; trade-credit insurance.</td></tr>
-<tr><td>Supplier insolvency or default</td><td>Framework of pre-vetted suppliers with dual-sourcing on critical packages; performance bonds on major packages; step-in rights.</td></tr>
-<tr><td>Interface / scope-gap liability</td><td>Single responsibility matrix in every contract; CONSTRUX interface register; PI insurance sized to advisory and management scope.</td></tr>
-<tr><td>HSE incident on managed sites</td><td>Explicit CDM role allocation in every appointment; competent-person support; never accept safety duties by drafting accident.</td></tr>
-<tr><td>Cash-flow crunch in Prime mode</td><td>The cash-flow architecture above; committed-exposure rule; invoice-finance facility as backstop.</td></tr>
-<tr><td>Key-person concentration (founder)</td><td>Early hire of an operations director and a commercial manager; documented playbooks in CONSTRUX.</td></tr>
-<tr><td>Regulatory change (retention ban, payment reform)</td><td>Contract templates reviewed by construction counsel annually; security model not retention-dependent.</td></tr>
-</table>
-
-<h2>Gates to be passed before the first Prime bid</h2>
-<ol>
-<li>Funded mobilisation advance and rolling-reserve mechanism agreed in principle with the client</li>
-<li>PI, PL, EL and contractors' all-risks insurance placed at appropriate limits</li>
-<li>Construction-counsel-reviewed contract suite (client-side and supplier-side, NEC4 TSC/FMC or bespoke)</li>
-<li>CIS registration and VAT reverse-charge procedures live; gross payment status applied for</li>
-<li>At least six months' overhead in cash plus a working-capital facility</li>
-<li>A proven supplier framework from at least two completed Integrator projects</li>
-</ol>
-
-<h2>No-bid triggers</h2>
-<ul>
-<li>Customer refuses mobilisation funding for supplier commitments</li>
-<li>Payment depends on an undefined certification process or unreasonably long cycle</li>
-<li>Unlimited liability, uncapped delay damages or broad consequential-loss exposure</li>
-<li>Fitness-for-purpose obligation beyond controllable scope or competence</li>
-<li>ETABLIX expected to assume CDM or principal-contractor duties without authority, resources and price</li>
-<li>Supplier contracts must be placed before upstream contract execution</li>
-<li>Scope, performance standards or demobilisation responsibilities cannot be defined</li>
-<li>Weak client credit with no security, escrow, bond or alternative protection</li>
-<li>Project requires founder-funded mobilisation or exposes household finances</li>
-<li>Ethical, labour, worker-accommodation, environmental or community standards cannot be maintained</li>
-</ul>
-<h2>Go-to-market strategy — the asset-stack playbook</h2>
-<p><b>Core thesis: account-based selling to people who already know us, with software as the proof.</b> ETABLIX's first market is not "the UK construction industry" — it is a named list of 20–30 accounts: GE Vernova alumni, the EPCs and transmission-owner supply-chain teams the founder dealt with, and the Project Directors who lived the supplier-coordination pain we solve. We do not advertise to this market; we write to it. Each asset gets a distinct GTM job:</p>
-<table>
-<tr><th>Asset</th><th>GTM role</th></tr>
-<tr><td>Network + GE Vernova experience</td><td><b>The door.</b> The wedge product is the paid Requirements Package — the document the founder authored inside GE Vernova, now sold to their peers. Low-risk for the buyer (£10–35k, fixed fee), and it deliberately creates the integrator procurement ETABLIX then wins. Every advisory sale is a rigged pipeline for Model B.</td></tr>
-<tr><td>MarketWar OS</td><td><b>The outbound engine.</b> ETABLIX becomes MarketWar's first flagship internal customer. Point the agents at: competitive teardowns of every site-services and camp-management player bidding in our space; monitoring of Achilles UVDB, Constructionline and tender portals for live opportunities; enrichment of the 30-account list (who is mobilising what, where, when — planning applications and DCO consents are public and predict site-services demand 12–18 months out); and a LinkedIn authority campaign in the founder's voice on interface risk, prelims escalation and village management. A GTM capability tier-one competitors literally cannot buy.</td></tr>
-<tr><td>CONSTRUX</td><td><b>The demo and the Trojan horse.</b> In every pitch the dashboard is shown live — nobody else walks into a Construction Director's office with their own platform. Every advisory deliverable is delivered inside CONSTRUX, not as Word documents, so the client's baseline already lives on our OS when the project mobilises. For clients who insist on self-managing suppliers, sell CONSTRUX Site Services standalone: software revenue today, integrator conversions later — once the dashboard shows them their own interface failures.</td></tr>
-<tr><td>VERYX</td><td><b>The enterprise wrapper.</b> Its design system and outreach machinery become ETABLIX's collateral factory — capability statements, exec email sequences, institution-grade decks — so a one-person venture presents like an institution from day one. And it opens the second door into every account: CONSTRUX sells at project altitude, VERYX at portfolio altitude; land at either, expand to the other.</td></tr>
-</table>
-<ul>
-<li><b>Sequencing:</b> UK energy first (RIIO-T3 substations, converter stations, data centres) because that is where the contacts and accreditation path point; DRC in parallel but capital-light — one paid village feasibility study for a copper-belt client, sourced through the Kinshasa network, establishes ETABLIX RDC before committing money.</li>
-<li><b>Partner channel:</b> modular-cabin firms, caterers and security companies that lack a management layer become referral partners — we make them look integrated rather than competing with them; later, they become supply-chain members and CONSTRUX licensees.</li>
-<li><b>Cadence:</b> 30 named accounts; one authority post weekly; two Requirements Package proposals a month; first integrator conversion by month 9; Prime only through existing clients.</li>
-</ul>
-
-<h2>Go-to-market — first 24 months</h2>
-<h3>Phase 1 (months 0–6): Establish and sell Advisory</h3>
-<ul>
-<li>Trading entity in place — ETABLIX is a trading name of JNN GLOBAL LTD (Company No. 15405437); brand, site, capability statement; place base insurances; register CIS/VAT.</li>
-<li>Accreditations that unlock buyers: Constructionline Gold, an SSIP scheme (e.g. SafeContractor/Acclaim), and begin Achilles UVDB — the qualification system through which UK utilities and transmission owners buy. Start ISO 9001/45001/14001 gap-work early; they gate tier-one tender lists.</li>
-<li>Direct outreach to the founder's energy-sector network (GE Vernova alumni, EPCs, transmission-owner supply-chain teams) selling Requirements Packages and mobilisation-readiness reviews — deliberately seeding future integrator procurements.</li>
-<li><b>Target:</b> 4–6 advisory assignments, £60k–£120k revenue, two written case studies.</li>
-</ul>
-<h3>Phase 2 (months 6–18): First Integrator appointments</h3>
-<ul>
-<li>Convert at least one advisory client into a Management Integrator appointment on a live project (target: substation/converter-station compound or data-centre campus).</li>
-<li>Stand up the CONSTRUX Site Services module on the first project; recruit a site-services manager and a QS; build the supplier framework (target 40+ vetted suppliers across 15 categories).</li>
-<li>Open the DRC file: one paid village feasibility/requirements study for a mining or energy client in the copper belt, delivered with Kinshasa partners — establishing ETABLIX RDC before committing capital.</li>
-<li><b>Target:</b> £400k–£800k fee revenue run-rate; positive contribution after direct costs.</li>
-</ul>
-<h3>Phase 3 (months 18–24): Prime, selectively</h3>
-<ul>
-<li>Bid Prime Service Contractor only on projects that pass the gates above, ideally with an existing client, starting with a bounded scope (e.g. the worker village only) before whole-site prime contracts.</li>
-<li><b>Target exit-rate at month 24:</b> £2m–£4m annualised revenue across the three models, CONSTRUX licensed on every live project, and one DRC village mandate in mobilisation.</li>
-</ul>
-
-<h2>Company set-up checklist</h2>
-<table>
-<tr><th>Workstream</th><th>Actions</th></tr>
-<tr><td>Legal</td><td>Companies House registration (ETABLIX, trading name of JNN GLOBAL LTD, Company No. 15405437); name and trade-mark clearance (UKIPO classes 35/37/43); domains; shareholders' agreement placing ETABLIX within the Groupe Nseya structure; construction counsel engaged for the contract suite.</td></tr>
-<tr><td>Tax &amp; finance</td><td>CIS contractor registration; VAT registration with domestic-reverse-charge procedures; gross payment status application; business banking with a segregated client-float account; management-accounting pack mirroring the CONSTRUX dashboard; invoice-finance facility scoped.</td></tr>
-<tr><td>Insurance</td><td>Professional indemnity (advisory/management scope), public liability, employers' liability, contractors' all-risks (Prime mode), consider trade-credit cover.</td></tr>
-<tr><td>Compliance &amp; HSE</td><td>CDM 2015 competence file; H&amp;S policy and arrangements; SSIP accreditation; Constructionline; Achilles UVDB (utilities); ISO 9001/45001/14001 roadmap.</td></tr>
-<tr><td>Product</td><td>CONSTRUX Site Services &amp; Village module specification into the dev backlog: control accounts, EVM engine, valuation workflow, supplier portal, occupancy management, executive dashboard.</td></tr>
-<tr><td>People</td><td>Founder as MD; first hires in order — Site Services Manager, Quantity Surveyor/commercial manager, then Operations Director before the first Prime contract.</td></tr>
-<tr><td>DRC</td><td>ETABLIX RDC SARL (RCCM/OHADA) when the first paid study lands; local accounting, tax and labour advice; BitriPay rails for local supplier and payroll payments.</td></tr>
-</table>
-
-<p class="pb-warn">The closing discipline: in this company, cash-flow structure — not headline contract value — determines survival. Every commercial decision is tested against one question: does this keep ETABLIX funded one month ahead of its committed supplier exposure?</p>
-`;
-
-/** GET /api/playbook — the commercial playbook (employees only). */
 router.get("/", requireAuth, (req, res) => {
-  res.json({ title: "ETABLIX Commercial Playbook", classification: "Commercial-in-Confidence", html: PLAYBOOK_HTML });
+  res.json({
+    title: "Commercial Playbook",
+    classification: "Commercial-in-Confidence",
+    html: HTML,
+    rules: INDEX.reduce((n, g) => n + g.rules.length, 0),
+  });
 });
 
 export default router;

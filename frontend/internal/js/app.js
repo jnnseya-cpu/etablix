@@ -88,10 +88,44 @@ const lazyLoaders = {
   commercial: loadCommercial, automation: loadAutomation, organisation: loadOrganisation,
 };
 
+/**
+ * Open a panel by name, and optionally a section within it.
+ *
+ * The playbook index links straight to the tool that enforces each
+ * rule — "#commercial/cashflow" rather than "go to Commercial OS and
+ * find the cash-flow desk" — so the hash is the address of a tool, not
+ * decoration. Unknown or hidden panels fall through silently: a link to
+ * a tab this role cannot see should do nothing, not throw.
+ */
+export function openPanel(panel, section) {
+  const btn = tabs.querySelector(`button[data-panel="${CSS.escape(panel)}"]`);
+  if (!btn || btn.hidden) return false;
+  if (section) {
+    sessionStorage.setItem("etablix.section", section);
+    // A hash change on an already-open panel does not reload the page,
+    // so the panel must be re-rendered or the requested section is
+    // stored and never read — which is what following a second link
+    // from the playbook index does.
+    loaded.delete(panel);
+  }
+  btn.click();
+  return true;
+}
+
+function applyHash() {
+  const [panel, section] = decodeURIComponent(location.hash.replace(/^#/, "")).split("/");
+  if (panel) openPanel(panel, section);
+}
+
+window.addEventListener("hashchange", applyHash);
+
 tabs.addEventListener("click", (e) => {
   const btn = e.target.closest("button[data-panel]");
   if (!btn) return;
   const panel = btn.dataset.panel;
+  if (location.hash.replace(/^#/, "").split("/")[0] !== panel) {
+    history.replaceState(null, "", `#${panel}`);
+  }
   tabs.querySelectorAll("button").forEach((b) => b.classList.toggle("active", b === btn));
   document.querySelectorAll(".panel").forEach((p) =>
     p.classList.toggle("active", p.id === `panel-${panel}`)
@@ -1606,8 +1640,14 @@ async function load() {
   } catch {}
 })();
 
-load().catch((err) => {
-  console.error(err);
-  document.querySelector("#enquiries-table tbody").innerHTML =
-    `<tr><td colspan="7" class="error-note">${esc(err.message)}</td></tr>`;
-});
+load()
+  .then(() => {
+    // Role gating decides which tabs exist, so honour the hash only
+    // once the desk has finished deciding what this person can see.
+    if (location.hash) applyHash();
+  })
+  .catch((err) => {
+    console.error(err);
+    document.querySelector("#enquiries-table tbody").innerHTML =
+      `<tr><td colspan="7" class="error-note">${esc(err.message)}</td></tr>`;
+  });

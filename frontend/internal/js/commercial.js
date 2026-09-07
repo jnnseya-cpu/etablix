@@ -57,6 +57,12 @@ const COS_SECTIONS = [
 ];
 
 export async function loadCommercial() {
+  // A deep link from the playbook index names the section it wants.
+  const wanted = sessionStorage.getItem("etablix.section");
+  if (wanted) {
+    sessionStorage.removeItem("etablix.section");
+    if (COS_SECTIONS.some(([id]) => id === wanted)) cosSection = wanted;
+  }
   if (!cosModel) cosModel = (await api("/api/commercial/model")).model;
   const nav = COS_SECTIONS.map(
     ([id, label]) =>
