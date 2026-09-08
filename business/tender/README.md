@@ -99,3 +99,56 @@ pagination before it goes to a supplier.
 acoustic, thermal, air permeability and lighting figures are requirements.
 Compliance with statute is the contractor's duty and is not discharged by
 meeting them.
+
+## Procurement strategy and the five-to-one consolidation playbook
+
+    node build-playbook.cjs                              # the document
+    python3 qa-playbook.py                               # audits it
+    python3 ../../tools/build-consolidation-model.py     # the companion model
+    python3 ../../tools/recompute-consolidation.py       # checks every formula in it
+
+`ETABLIX-Procurement-and-Consolidation-Playbook.docx` — 10,300 words, 14 tables,
+554 cells, 24 pages. `tools/consolidation-model.xlsx` — 7 sheets, 59 live
+formulas.
+
+**The claim.** Letting five packages and then consolidating them under one prime
+is a strategy, not a rescue — if four clauses were written into the original five
+contracts. It buys five competitively tendered prices *and* single-point
+management of the interfaces between them. Tendering one prime from the start
+buys the second and gives away the first; running five to the end buys the first
+and pays for the second in the client's own time, which is the dearest way there
+is to buy it.
+
+**The mechanism it is built around** is consolidation onto an incumbent: one of
+the five becomes prime and the other four are novated down to it. That is
+cheaper and faster than appointing a new prime — one fewer transfer, no learning
+curve, and it is what a sane named-party limitation permits. Which of the five
+should hold it depends on where you are in the programme: mid-build the modular
+contractor, at convergence the FM and operation contractor, because it is the
+only one of the five that cannot walk away from a bad job.
+
+**What the model found.** On a worked village — four packages at £17.17m, 24
+months of client management avoided, delay risk halved — the break-even wrap
+rate is **2.5%**. The market rate is 17–21%. The gap is over £3m. That is stated
+in the playbook at 8.4 rather than buried, because a document recommending a 21%
+wrap without showing that its measurable return is 2.5% would be selling rather
+than advising. What the gap buys is certainty, capacity you cannot hire, and
+single-point accountability — none of which a model can price, all of which are
+real. The point is to pay it knowingly.
+
+### How both were verified
+
+`qa-playbook.py` reads the OOXML and runs six checks. The first one exists
+because Rev A of the build failed it: the clause numbers were written in the
+content files and the section numbers in the build script, and they disagreed —
+clauses printed as 5.x sat under a heading numbered 6, so "see 5.3" landed in
+the wrong section. The build now owns every number, cross-references are
+symbolic tokens, and an unresolved token fails the build. It also enforces the
+document's own arithmetic: every interface must belong to exactly two packages,
+and every one of the eighteen traps must be closed by a step of the twelve-week
+programme.
+
+`recompute-consolidation.py` evaluates all 59 workbook formulas with its own
+evaluator and compares them against arithmetic derived independently by hand.
+LibreOffice cannot recalculate in this environment, so a wrong formula would
+otherwise ship looking right.

@@ -1,0 +1,721 @@
+ETABLIX 
+I N T E G R A T E D   S I T E   S E R V I C E S   ·   P A R T   O F   G R O U P E   N S E Y A 
+PROCUREMENT STRATEGY AND THE FIVE-TO-ONE CONSOLIDATION PLAYBOOK 
+Workforce accommodation: letting five packages, and bringing them back under one prime 
+Document 
+Procurement Strategy and the Five-to-One Consolidation Playbook 
+Reference 
+ETX-PB-01 
+Revision 
+A 
+Date 
+September 2026 
+Classification 
+Commercial-in-Confidence — ETABLIX method document 
+A method document. It states how ETABLIX packages, procures and — where the client decides to — consolidates a workforce accommodation village. It describes no project, names no client and reports no engagement. Where it states a legal position it does so to inform a commercial decision, not to replace advice on one: novation is a three-party contract whose effect turns on the words used and on the facts, and every mechanism in it needs a lawyer to draft it. 
+ 
+Contents 
+ 
+1  The claim, and the two numbers behind it 
+1.1  The claim this document makes 
+Five packages consolidated into one is usually described afterwards as a rescue. It is presented as an admission that the packaging was wrong, and the people who chose five spend the rest of the job defending the decision. 
+That reading is wrong, and it costs money twice — once when a client who should split does not, and again when a client who has split refuses to consolidate because consolidating would look like a mistake. 
+THE CLAIM. Letting five packages and then consolidating them under one prime is a strategy, not a failure, and it is available to any client who writes four clauses into the original five contracts. It buys two things that no other route buys together: five competitively tendered prices, and single-point management of the interfaces between them. Tendering one prime from the start buys the second and gives away the first. Running five to the end buys the first and pays for the second in the client's own management time, which is the most expensive way there is to buy it. 
+What makes the difference between a strategy and a rescue is not the decision to consolidate. It is whether the day-one contracts made consolidation possible without four separate negotiations from a position of no leverage. Section 7 is the four clauses. Everything else in this document assumes them. 
+1.2  Who this is for, and what it is not 
+This is a method document for a client, an employer's agent or a construction manager procuring a workforce accommodation village of two hundred beds or more, on a programme long enough that the accommodation runs alongside a live construction site rather than before it. 
+It is not a legal document and it is not legal advice. Novation is a three-party contract and its effect turns on the words used, the law of the contract and the facts. Every mechanism in this document is a commercial structure that a lawyer must draft and advise on. Where this document states a legal position it states it so that the commercial decision is taken with the position in view — not so that it is taken without a lawyer. 
+1.3  The two numbers that decide it 
+Two numbers run through this document and it is worth stating both at the front. 
+THE INTERFACE COUNT. Interfaces between packages grow as n(n−1)÷2. Five packages have ten interfaces between them. Ten packages have forty-five. Adding a sixth package to five adds one contract and five interfaces. The management load is not in the contracts; it is in the gaps between them, and the gaps grow faster than the contracts do. 
+THE NOTICE COUNT. Under the Housing Grants, Construction and Regeneration Act 1996 as amended, every construction contract carries its own payment due date, final date for payment, payment notice deadline and pay-less notice deadline. Five contracts are five sets of dates every month. Miss one pay-less notice and the sum applied for becomes the notified sum and is payable in full, whatever it was worth. Five contracts do not make that five times more likely — they make it more likely than that, because the fifth set of dates is administered by whoever has least time left in the month. 
+A client who consolidates five contracts into one has not saved a management fee. It has removed fifty-nine of the sixty statutory notice deadlines it faces each year, and nine of the ten interfaces it was standing in the middle of. 
+ 
+2  The five packages, and where their boundaries fall 
+What matters is not that there are five. It is that each boundary falls where a supply market changes, and that what is OUTSIDE each package is written down as explicitly as what is inside it. An exclusion that names nobody is a gap, and a gap is found at the worst possible moment. 
+Ref 
+Package 
+What is in it 
+What is expressly out 
+Its character in the programme 
+Interfaces 
+P1 
+Civil works and infrastructure 
+Ground preparation, bases and plinths, roads, hardstanding, parking, drainage, below-ground services to the termination point per block, external lighting, fencing and the site boundary. 
+Everything above the termination point. The modules themselves. Anything inside a building. 
+Earliest on site, latest to finish. Sets the tolerance every other package works to. 
+I-01, I-02, I-03, I-04 
+P2 
+Modular accommodation 
+Volumetric modules, their structure, envelope, internal fit-out, fixed joinery, and the mechanical, electrical, fire, drainage and access-control systems within them, up to the P1 termination points. 
+Bases. Loose furniture. Kitchen fit-out. Operation. 
+The largest sum and the longest lead time. Its manufacture slot is the programme's real constraint. 
+I-01, I-02, I-03, I-05, I-06, I-07, I-08 
+P3 
+Kitchen and catering fit-out 
+Catering equipment, extraction, cold stores, servery, wash-up, and the commissioning of all of it. 
+The building shell it sits in, which is P2. The people who cook, who are P5. 
+Priced against a shell it does not build, to a layout it did not draw. The classic interface failure. 
+I-05, I-09 
+P4 
+Furniture, fittings and equipment 
+All loose furniture: beds, mattresses, seating, soft furnishings, bins, and the amenity and common-room furniture. 
+Anything fixed, which is P2. Consumables, which are P5. 
+Lowest value, highest nuisance. Installs last, into rooms someone else built, and blocks handover if it slips. 
+I-06, I-07, I-10 
+P5 
+Facilities management and operation 
+Housekeeping, catering operation, security, transport, reception, planned and reactive maintenance, utilities management, waste, and the resident-facing service for the whole deployment. 
+Construction of anything. It receives what the other four built. 
+The only package that runs the full duration. The only one that meets all four others in use. Remember this at 6.3. 
+I-04, I-08, I-09, I-10 
+Every interface appears against exactly two packages, because an interface with one owner is not an interface — it is a scope item somebody has already lost. 
+ 
+3  The ten interfaces, which are the actual work 
+Interfaces between packages grow as n(n−1)÷2. Five packages have ten. Each one below is a point at which one contractor hands something to another and the client stands between them with no contractual means of making either move. These ten are what a consolidation transfers, and they are what a client running five to the end holds itself. 
+Ref 
+Between 
+What crosses it 
+What settles it 
+What happens when it is not settled 
+I-01 
+P1 ↔ P2 
+Base setting-out, level tolerance, and the survey that proves it 
+±5 mm across a base, ±3 mm between adjacent bases under one module 
+P2 cannot manufacture until P1's tolerance is agreed, and cannot deliver until it is proved 
+I-02 
+P1 ↔ P2 
+One termination point per service per block — water, foul, power, data — at a stated position and invert 
+A coordination drawing signed by both before either orders material 
+The single most common cause of a module standing unconnected on its base 
+I-03 
+P1 ↔ P2 
+Craneage hardstanding, access route, turning and outrigger ground bearing pressure 
+P1 designs to the pressure P2 states, not to an assumption 
+P2 states it at tender or P1 designs a hardstanding to a guess 
+I-04 
+P1 ↔ P5 
+Roads, lighting, parking and external areas at the standard the operator has to maintain 
+The maintenance regime agreed before the surface is chosen 
+P5 inherits a surface it did not choose and cannot afford to keep 
+I-05 
+P2 ↔ P3 
+Kitchen building shell: penetrations, floor loading, drainage falls, extract routes 
+P3 confirms the penetration schedule before P2 manufactures 
+After manufacture a penetration is a variation to a completed module 
+I-06 
+P2 ↔ P4 
+The line between fixed joinery and loose furniture, item by item 
+One common schedule issued by the client before either package is let 
+Both price the wardrobe, or neither does. There is no third outcome 
+I-07 
+P2 ↔ P4 
+Access for furniture installation after setting and before handover 
+A sequence agreed at award, with secure storage if it slips 
+P4 arrives to a room that is not ready and charges for the visit 
+I-08 
+P2 ↔ P5 
+Commissioning, demonstration, O&M, asset data and training 
+Complete and demonstrated before any occupation 
+P5 opens a village it has never been shown how to run 
+I-09 
+P3 ↔ P5 
+Catering equipment handover, training, consumables and the maintenance regime 
+Demonstrated to the operator, with the spares holding agreed 
+The first service is the first time the operator sees the equipment 
+I-10 
+P4 ↔ P5 
+Furniture condition at handover, the replacement standard and the consumables split 
+A condition schedule signed at handover, room by room 
+Every mark becomes an argument at the end of the deployment 
+Nine of these ten are not between the client and anybody. They are between two contractors, and the client's only instrument is persuasion. That is the position consolidation ends. 
+ 
+4  The packaging decision: one, five, or five-then-one 
+4.1  Three routes, and what each one buys 
+There are three ways to buy a workforce accommodation village and the choice is usually made on instinct. It should be made on what each route actually buys. 
+ONE PRIME FROM THE START. One tender, one contract, one point of accountability, and the interfaces are the prime's problem from day one. What it buys is management. What it gives away is price: the client sees one number, has no visibility of what any package cost, and is negotiating a wrap on prices it has never seen competed. On a village this is usually a 20 to 30 per cent addition on a base the client cannot examine. 
+FIVE PACKAGES, RUN TO THE END. Five tenders, five competitive prices, full visibility of every sum. What it buys is price. What it gives away is management: the ten interfaces at section 3 and the sixty statutory notice deadlines a year at 1.3 all sit with the client, and they sit with the same people who are running the main project. 
+FIVE PACKAGES, CONSOLIDATED. Five competitive prices, fixed. Then one of the five, or a sixth party, takes the other four under it and the client holds one contract. What it buys is both — the price and the management — and what it costs is the wrap on prices the client has already seen, plus the transaction cost of the transfer. What it requires is that the day-one contracts allow it. 
+The third route is the one this document is about, and the reason it is not the obvious answer everywhere is section 7: it is only available if somebody wrote four clauses at the start. 
+4.2  When five is right, and when it is not 
+Five is right when: the packages have genuinely different supply markets, so competing them separately reaches firms that would never appear under a single prime; the value is large enough that the competitive difference on each package exceeds the wrap; and the client has, or can buy, enough management capacity to hold the interfaces until it consolidates. 
+Five is wrong when: two of the five are the same supply market and would be tendered to the same three firms; the total is small enough that five procurement exercises cost more than the price difference they find; or the client's management capacity is already committed to the main project, in which case the client is not choosing five packages, it is choosing to under-manage five packages, which is a different decision and a worse one. 
+The honest test is not whether five is theoretically better. It is whether the client can name the person who will hold the ten interfaces, and whether that person has the time. If the answer is a name and a role that is already full, the client has chosen five and resourced one. 
+4.3  The management load, counted rather than felt 
+Consolidation is usually argued for on the grounds that five is 'too much'. That is true and it is not an argument, because it is not a number. Count it instead. 
+With five packages the client holds: five contracts to administer; ten interfaces between packages; five interfaces between the accommodation and the main project; five monthly valuations; five sets of statutory payment dates; five change registers; five risk registers; five progress reports; and five sets of insurance, bonds and warranties to keep current. 
+After consolidation the client holds: one contract; one interface with the accommodation; one valuation; one set of statutory dates; one change register; one risk register; one report. 
+The ten internal interfaces do not disappear. They move inside the prime's scope and they are priced there. Anybody who tells a client that consolidation removes ten interfaces is selling something. It removes them from the client, which is worth paying for, and it charges for holding them, which is what the wrap at section 8 is. 
+The load, counted: 
+What the client carries 
+With five packages 
+After consolidation 
+Contracts administered 
+5 
+1 
+Interfaces the client stands in the middle of 
+10 
+0 — transferred and priced 
+Interfaces with the main project 
+5 
+1 
+Monthly valuations to assess 
+5 
+1 
+Statutory payment and pay-less notice deadlines per year 
+60 (5 × 12 pairs) 
+12 
+Change registers 
+5 
+1 
+Risk registers 
+5 
+1 
+Monthly progress reports to read and reconcile 
+5 
+1 
+Insurance, bond and warranty sets to keep current 
+5 
+1 (plus sub-tier evidence held by the prime) 
+Parties who can claim an extension of time against the client 
+5 
+1 
+Parties who can be delayed by another and claim against the client for it 
+5 
+0 — it becomes an internal matter for the prime 
+The ten interfaces do not disappear. They move inside the prime's scope and are priced there. Anybody who says consolidation removes them is selling something; it removes them from the client, which is the thing worth paying for. 
+ 
+5  When to consolidate, and when not to 
+5.1  The trigger is a load problem, not a performance problem 
+Consolidation is the right answer to a load problem and the wrong answer to a performance problem. The two feel identical from the client's chair and they have opposite remedies. 
+A LOAD PROBLEM looks like this: every package is performing broadly to its contract, but the client cannot get to the interfaces. Coordination drawings are late because nobody has time to chair the meeting. A pay-less notice was nearly missed. The five progress reports arrive in five formats and nobody reconciles them. The person named as holding the accommodation is the same person holding the main project's mechanical package. Nothing is failing; everything is late by a fortnight in a way that compounds. That is what consolidation fixes. 
+A PERFORMANCE PROBLEM looks like this: one of the five is not performing, and the client is spending its management effort on that one. Consolidating does not fix it. It transfers a failing contractor to a prime who will price the failure at its worst case, or refuse to take it, and the client will have paid a wrap to acquire a problem it still owns commercially. Deal with the failing package under its own contract first. Consolidate after, or consolidate the other four and keep that one direct. 
+The test is simple and it is worth writing down before the decision is taken: IF EVERY PACKAGE PERFORMED PERFECTLY TOMORROW, WOULD THE CLIENT STILL BE OVERLOADED? If yes, the problem is the packaging and consolidation answers it. If no, the problem is a contractor and consolidation buries it. 
+5.2  When to do it in the programme 
+There is a window, and it is not the whole job. 
+TOO EARLY — before the four have priced and been awarded — is not consolidation, it is single-prime procurement, and the client gives away the competitive prices it was trying to buy. 
+TOO LATE — once the four are substantially complete — is paying a wrap for coordination that has already happened. What is left at that point is defects and operation, and those are better handled by a maintenance and operation contract than by a prime wrap over four finished builders. 
+THE WINDOW opens when the last of the five is awarded and its price is fixed, and it closes when the second package reaches practical completion. Inside that window the client has what it went to five for — five competed prices — and still has something worth managing. 
+One refinement, because it decides section 6: the earlier in the window, the more the prime is managing construction; the later, the more it is managing readiness and the transition into operation. That changes which of the five should be the prime. 
+5.3  The decision test, scored 
+Score each line 0, 1 or 2. Eight or more out of sixteen and consolidation is the right call. Below six it is not, and the client should resource the interfaces instead. Between six and eight, the answer is usually to consolidate a subset — see 6.4. 
+Question 
+Score 0 
+Score 2 
+Can the client name one person, with time, who holds the ten interfaces? 
+Yes, and they have capacity 
+No, or the name is someone already full 
+How many coordination drawings or interface deliverables are overdue? 
+None 
+Three or more 
+Has a statutory payment or pay-less notice been missed, or nearly missed? 
+Never 
+Yes, on any package 
+Do the five progress reports get reconciled against one programme every month? 
+Yes 
+No, or only sometimes 
+Is the accommodation competing for the same management people as the main project? 
+No, it has its own team 
+Yes, the same people hold both 
+Are the enabling clauses at section 7 in all five contracts? 
+Yes, all four clauses 
+No — see 7.5 before going further 
+Is every package performing to its own contract? 
+Yes 
+No — read 4.1 again before continuing 
+Is at least one of the five capable of holding the other four? 
+Yes, clearly 
+No, or only with a balance-sheet stretch 
+If the answer to the seventh line is that a package is NOT performing, stop. Consolidation transfers a failing contractor to a prime who will price the failure at its worst case or refuse to take it, and the client will have paid a wrap to acquire a problem it still owns. 
+ 
+6  The three mechanisms, and choosing the prime 
+6.1  Three mechanisms, and what each actually is 
+There are three, and they are routinely confused with one another. The differences matter because they have different costs, different timescales and different failure modes. 
+MECHANISM A — CONSOLIDATION ONTO AN INCUMBENT. One of the five existing contractors is elevated to prime. The other four contracts are novated down to it, so that it stands in the client's shoes under each of them and the four become its subcontractors. Its own contract is varied to add the management and integration scope, the single-point accountability and a revised payment mechanism. 
+MECHANISM B — NOVATION TO A NEW PRIME. A sixth party is appointed and all five contracts are novated to it. The client holds one contract with a party that was not part of the original competition. 
+MECHANISM C — MANAGEMENT WRAP WITHOUT TRANSFER. A manager is appointed to coordinate the five. The five contracts stay with the client. The client still holds the contracts, the statutory notices and the risk; what it buys is somebody to run the meetings and chase the drawings. 
+Mechanism C is not consolidation and should not be described as it. It reduces the client's effort and changes none of the client's exposure. It is the right answer when the enabling clauses are missing and a novation cannot be achieved, and it should be priced as a service, not as a prime wrap. 
+6.2  Which one, and why A is usually the answer 
+MECHANISM A is faster, cheaper and less disruptive than B, for three reasons that have nothing to do with the merits of the parties. 
+FIRST, one fewer transfer. Under A the prime's own contract is varied, not novated; only four contracts move. Under B, five move, and the fifth is the largest. 
+SECOND, the prime already knows the job. It has been on the project, in the meetings, and it has priced its own package against the same drawings. A new party has to learn the job and will price the learning as risk. 
+THIRD, and this is the one that decides it: under A the transferee is a party the other four already work alongside, which is exactly what the named-party limitation at E2 was written to permit. Under B the transferee is a stranger to the four, and if the enabling clause limits the field to an existing project party — which is what makes the clause acceptable to a contractor in the first place — then B is not available without four consents freely given. 
+Mechanism B earns its place when none of the five is capable of holding the others, or when the client wants the prime to be a party with no package of its own — see the conflict point at 6.3. 
+6.3  Which of the five becomes the prime 
+Not the biggest. The criteria are at the table below, and they pull in two directions. 
+THE FM AND OPERATION PACKAGE has the strongest incentive alignment of the five, and by a distance. It is the only package whose scope runs the full deployment. It is the only one that interfaces with all four others in use rather than in construction. And it is the only one that has to live with the result: a contractor who will run the village for thirty-eight months has an interest in the four packages being right that no builder leaving at practical completion can have. Give the prime role to the party who cannot walk away from a bad job. 
+THE MODULAR PACKAGE usually has the strongest capacity: the largest sum, the deepest balance sheet, the most construction management on the books, and the most credible claim to be able to carry four other contracts. It is also, on most villages, the package the other three are waiting on, which means it is already coordinating them informally. 
+THE TIE-BREAK IS WHERE YOU ARE IN THE PROGRAMME. Consolidating mid-build, with two or more packages substantially incomplete, the work to be managed is construction and the modular contractor is the better prime. Consolidating once the build is broadly under control and the problem is readiness, handover and running the place, the FM and operation contractor is the better prime — and that is the more common trigger, because the load problem at 5.1 tends to bite as the packages converge on handover rather than while they are still apart. 
+THE CONFLICT, STATED PLAINLY. Whichever of the five becomes prime is now managing four contracts and its own. It will be assessing its own progress, certifying its own work and holding the change register that its own variations go into. That is a real conflict and it is not a reason to abandon Mechanism A; it is a reason to keep the client's own certification of the prime's own package separate from the prime's certification of the other four. Clause 13.4 says how. 
+6.4  Partial consolidation, which is often the honest answer 
+The client does not have to move all four. Moving three and keeping one direct is a legitimate outcome and it is usually the right one in two cases. 
+WHERE ONE OF THE FOUR IS UNDERPERFORMING. Per 5.1, a failing contractor should not be transferred. Keep it direct, deal with it under its own contract, and novate it later or not at all. 
+WHERE ONE OF THE FOUR WILL NOT NOVATE AND CANNOT BE MADE TO. If the enabling clause is absent from that one contract, the client is negotiating from nothing. Do not pay a ransom to complete the set. Consolidate the three that will move, keep the fourth direct, and accept that the client retains one interface instead of none. Three of four is most of the benefit for none of the ransom. 
+What the client must not do is let the prime price the wrap as if it were taking four, and then take three. The wrap is priced per package taken, and the price comes down when the count does. 
+The five scored against the prime role: 
+Criterion 
+P1 Civil 
+P2 Modular 
+P3 Kitchen 
+P4 Furniture 
+P5 FM & Operation 
+Scope runs the full deployment 
+No — finishes early 
+No — finishes at handover 
+No 
+No 
+YES — the only one 
+Interfaces with all four others 
+Two of four 
+All four, in construction 
+Two of four 
+Two of four 
+All four, in use 
+On site throughout 
+No 
+No 
+No 
+No 
+YES 
+Has to live with the result 
+No 
+Through the defects period only 
+Defects period only 
+No 
+YES — for the whole deployment 
+Balance-sheet capacity to carry four contracts 
+Usually adequate 
+USUALLY STRONGEST 
+Weak 
+Weak 
+Often the weakest — test it 
+Construction management capability 
+Good 
+STRONGEST 
+Limited 
+Limited 
+Variable — test it, do not assume 
+Already coordinating the others informally 
+P2 only 
+YES — the others wait on it 
+No 
+No 
+At handover, yes 
+Conflict in certifying its own work 
+Yes 
+Yes — and the largest sum 
+Yes 
+Yes 
+Yes — but the smallest sum of the five 
+Best choice when consolidating MID-BUILD 
+No 
+YES 
+No 
+No 
+No 
+Best choice when consolidating AT CONVERGENCE 
+No 
+No 
+No 
+No 
+YES 
+Read the last two lines together. They are the whole answer: mid-build the work to be managed is construction, and the modular contractor is the better prime; at convergence the work is readiness, handover and running the place, and the FM and operation contractor is — and that is the more common trigger, because the load problem bites as the packages converge rather than while they are still apart. 
+ 
+7  The four clauses that make it possible at all 
+Everything before this section is a decision. This section is drafting, and it happens eighteen months before the decision is taken. Without these four clauses in all five contracts, consolidation requires four consents given for the first time at the moment the client needs them — which is the moment each contractor has most leverage and least reason to give it cheaply. 
+One of four refusing does not stop a consolidation. It makes it partial, and a partial consolidation is worse than either extreme unless it is chosen deliberately (see 6.4). 
+ 
+The clause 
+What it must say 
+Why, and what happens without it 
+The detail people get wrong 
+E1 
+The novation obligation 
+The contract shall oblige the contractor, on the employer's written notice, to enter into a deed of novation in the form annexed to the contract, transferring the contract to a party the employer names, within a stated period of not more than twenty working days. 
+Without it, novation requires the contractor's consent given for the first time at the moment the employer needs it — which is the moment the contractor has most leverage and least reason to give it cheaply. One of four refusing does not stop the consolidation; it makes the consolidation partial, which is worse than either extreme. 
+The form of deed is annexed AT EXECUTION. A clause obliging a party to sign 'a deed in a form to be agreed' obliges them to nothing. 
+E2 
+The named-party limitation 
+The employer may nominate as transferee any party which, at the date of the notice, holds a contract with the employer on the same project, or which meets stated financial and insurance criteria set out in the contract. 
+It is the clause that makes E1 acceptable to a contractor. A bare obligation to novate to anyone the employer names is a covenant to accept an unknown counterparty, and a well-advised contractor will not give it. Limiting the field to an existing project party, or to a party meeting a stated credit test, is reasonable, is accepted, and — this is the point — still permits consolidation onto an incumbent. 
+State the financial criteria as numbers: net asset position, professional indemnity limit, public liability limit. 'A party of equivalent standing' is not a criterion. 
+E3 
+The cut-off valuation mechanism 
+The contract shall provide that on novation the works shall be valued at the date of transfer in accordance with a stated procedure, and that the sum so valued shall be conclusive as between employer and contractor as to work executed to that date, save for latent defects and any matter notified before the transfer. 
+Novation without a cut-off leaves the transferred contract carrying an unvalued past. The new prime will not take on a liability it cannot see, so it will either price it at its worst case or refuse to take it. Both are expensive, and both are avoidable by valuing on a stated date under a procedure agreed before anyone had a reason to argue about it. 
+It also fixes the four sums, which is what protects the competitive prices the client bought. Without it the prime will want the four to become provisional. 
+E4 
+The retention, bond and warranty carry-over 
+The contract shall state what happens on novation to retention held, to any bond or parent company guarantee given to the employer, and to collateral warranties: which survive to the employer, which are re-issued to the transferee, and who bears the cost of any re-issue. 
+A performance bond is a contract with a surety, and a surety is not bound by a novation it did not agree to. A bond that lapses on the day of transfer takes with it the only security the client had, and nobody notices until it is needed. Retention held by the employer for work now managed by a prime is either a debt the employer owes the prime, or a fund the employer still administers under a side agreement — and if the contract does not say which, both parties will assume the answer that suits them. 
+Get the surety's consent in principle at the time the bond is taken out, not on the day of the transfer. 
+7.5  If the clauses are not there 
+The client is not without options, but it is without leverage, and it should price that honestly before it starts. 
+FIRST, ask. A contractor with more work to win, or one that would rather deal with a prime it already knows than with a client whose attention is elsewhere, may novate for nothing. Ask all four before assuming any of them will resist. 
+SECOND, buy it. A consent has a price and the price is usually smaller than it feels — an accelerated payment term, a release of retention, an uplift on a variation already in dispute. Decide the ceiling before the conversation, not during it. 
+THIRD, take Mechanism C instead. A management wrap without transfer buys the client somebody to run the interfaces while leaving the contracts, the notices and the risk where they are. It is materially less valuable than a consolidation and it should be priced as a service rather than as a prime wrap. It is also the honest answer when the client cannot get the consents and will not pay a ransom for them. 
+What the client must not do is pay a ransom to complete the set. Three of four transferred is most of the benefit; the fourth, bought at a price set by a contractor who knows the client has already moved the other three, is the worst trade in this document. 
+ 
+8  Pricing the wrap 
+8.1  What the prime is entitled to charge for, and what it is not 
+The wrap on a consolidation is narrower than the wrap on a prime contract let from the start, and the reason is simple: the prime did not procure the four sums. It is being handed prices somebody else competed. A prime pricing a consolidation as though it were pricing a prime contract is charging for work it did not do, and the client should say so in those words. 
+WHAT IT IS ENTITLED TO CHARGE FOR: managing and integrating four contracts it did not write; carrying the interface risk between them; standing behind their performance to the client; the cost of its own people doing that; and a return on the risk it has taken on. 
+WHAT IT IS NOT ENTITLED TO CHARGE FOR: a procurement margin on sums it did not procure. An uplift on the four prices dressed as risk contingency, when the prices are fixed by the cut-off at E3. A margin on its own package twice — once in its original tender and again inside the wrap. 
+Ask for the stack, line by line, and refuse a single percentage. A prime that will not show the stack is not pricing management; it is pricing what it thinks the client will pay. 
+8.2  The stack, and the range to expect 
+Present and negotiate it as four lines, not one number. The percentages are applied to the transferred value — the four fixed sums — and not to the prime's own package, which was already priced. 
+On a consolidation of competed prices expect the LOWER HALF of each range. The upper half is defensible on a fast transfer, a remote site, or where one of the four is in difficulty and the prime is taking a known problem. 
+8.3  The four things to refuse 
+FIRST: any proposal that the four sums become provisional, subject to verification, or subject to the prime's re-measurement. That gives away the competitive prices the client bought five packages to get. The sums are fixed by the cut-off valuation at E3 and they stay fixed. 
+SECOND: contingency without a joint risk register and a written drawdown process. Contingency in a prime stack is not profit and must not become it. Unused contingency is returned, shared on a stated basis, or retained only under a genuine fixed-price risk transfer — and the client should be offered the choice at the point of agreement rather than discovering the answer at the final account. 
+THIRD: an open-ended indemnity for anything that arose before the transfer. The prime will ask, because it is taking on four unknowns. The answer is the cut-off at E3 plus a stated list of notified matters, not an indemnity. 
+FOURTH: a wrap priced on four packages when only three are moving. See 5.4. 
+8.4  What the arithmetic actually says, and why you should still probably do it 
+The companion model to this document (consolidation-model.xlsx) computes the break-even wrap rate: the gross stack at which consolidation pays for itself on measurable expected value alone. On a village of the size worked in that model — four packages transferred at seventeen million, twenty-four months of client management avoided, and the delay risk halved — the break-even rate is TWO AND A HALF PER CENT. 
+The market rate is seventeen to twenty-one. The gap is over three million pounds. 
+That number is stated here rather than buried, because a client who has not done this arithmetic negotiates differently from one who has, and because a document that recommended a twenty-one per cent wrap without showing that its measurable return is two and a half would be selling rather than advising. 
+WHAT THE GAP BUYS. Three things, none of which the model can price. Certainty: an expected value is not a cash-flow, and a client that cannot survive the bad outcome does not get to average across the distribution. Capacity: a management team of six, assembled, held for twenty-four months and accountable — the model prices the hours at an internal cost per hour, which assumes the people exist and are free, and on most projects they are neither. And accountability: single point, which is worth something the moment two of the four blame each other and the client is no longer the one standing between them. 
+WHAT TO DO WITH IT. Go into the conversation at 8.2 knowing the break-even. Push hardest on the management and integration line, because it is the only one with a checkable headcount behind it: ask for the names, the grades and the time allocation, and multiply. Accept the overhead and profit lines, which are what they are. And treat contingency as returnable, because at four per cent of the transferred value it is the largest single number in the stack that the client can get back. 
+Then pay the gap knowingly. That is a different act from paying it because nobody worked it out. 
+Line 
+Low % 
+High % 
+What it pays for 
+How to test it 
+Management and integration 
+6 
+9 
+The people who actually do it: a project manager, a planner, a quantity surveyor, HSE support and the coordination of the ten interfaces 
+This is the only line with a headcount behind it. Ask for the names and the time allocation, and check it against the number 
+Corporate overhead recovery 
+3 
+5 
+Insurance, accreditation, systems, back office 
+Lower than a full prime contract because the prime is already on the project carrying this for its own package 
+Profit and prime risk 
+5 
+8 
+The margin, and the price of standing behind four contracts it did not write 
+The genuine risk premium. It should rise if one of the four is in difficulty and fall if all four are performing 
+Controlled contingency 
+3 
+5 
+Held against the joint risk register, drawn only through the change process 
+Not profit. See 8.3, second point 
+TOTAL ADDITION on the transferred value 
+17 
+27 
+Expect 17–21 on competed prices in good order; 22–27 on a fast transfer, a remote site, or where a known problem moves with the package 
+ 
+The percentages apply to the TRANSFERRED VALUE — the four fixed sums — and not to the prime's own package, which was already priced in its own tender. A stack applied to the whole is the same money charged twice on a fifth of it. 
+ 
+9  What transfers, what does not, and what quietly disappears 
+A novation moves a contract. It does not move everything attached to one. The third column below is where consolidations go wrong, and they go wrong silently: nothing fails on the day, and the loss is discovered at the moment the thing was needed. 
+The thing 
+On novation 
+What to do about it 
+The obligation to complete the works 
+TRANSFERS 
+This is the point of the exercise. The prime owes the client what the four owed. 
+The right to be paid for future work 
+TRANSFERS 
+The four look to the prime from the cut-off date, not to the client. 
+Sums certified and unpaid at the cut-off 
+DOES NOT — unless stated 
+Decide explicitly. The default assumption of each party will be the one that favours it. 
+Accrued rights and liabilities before the cut-off 
+DOES NOT — unless stated 
+A defect that arose before transfer. State whether the client retains the right against the original contractor, and it usually should. 
+Retention already held by the client 
+DOES NOT AUTOMATICALLY 
+Either it becomes a debt to the prime, or the client keeps administering it under a side agreement. E4 should have decided this; if not, decide it now and in writing. 
+A performance bond given to the client 
+DOES NOT 
+A surety is not bound by a novation it did not agree. Get consent or the security is gone on the day of transfer, silently. 
+A parent company guarantee to the client 
+DOES NOT 
+Same position as the bond. The guarantor must consent. 
+Collateral warranties given to the client 
+USUALLY SURVIVE 
+They are separate contracts with the client. Check the wording; some are expressed to fall away if the underlying contract is transferred. 
+Collateral warranties needed by the PRIME 
+NEW ONES REQUIRED 
+The prime now relies on design it did not commission. It will want warranties from the four's designers, and it is entitled to them. 
+Insurance held by the four 
+TRANSFERS AS AN OBLIGATION 
+But the beneficiary changes. Check that each policy still responds when the insured's contract is with the prime rather than the client. 
+The prime's own insurance adequacy 
+MUST BE RETESTED 
+PI and PL aggregates were written for one package and now cover five. An aggregate limit that was comfortable is now shared four ways. 
+Liquidated damages the client held against each of the four 
+TRANSFERS TO THE PRIME AS BENEFIT 
+And the client's own LDs are now against one party with one cap. Model the change: four caps of five per cent are not one cap of five per cent. 
+CDM Principal Contractor duties 
+DOES NOT TRANSFER 
+Under CDM 2015 Principal Contractor is a defined statutory role held by appointment. Consolidating four contracts does not appoint anybody to it. If the prime is to hold it, appoint it, price it and insure it explicitly. 
+The client's right to replace one of the four 
+LOST 
+The four are the prime's subcontractors now. Removing one is the prime's decision, subject to whatever step-in the client reserved. 
+Price visibility on the four 
+LOST — unless preserved 
+Preserve it: require the prime to report the four sums separately in every valuation, as a condition of the variation to its contract. 
+ 
+10  The eighteen traps 
+Each of these has been the reason a consolidation cost more than it saved. None of them is exotic. Every one is avoidable by deciding it in writing before the transfer date rather than discovering it after. 
+ 
+Kind 
+The trap 
+The answer 
+T01 
+Statutory 
+A bond or parent company guarantee lapses on the day of novation because the surety never consented, and nobody notices until the security is needed. 
+Obtain the surety's consent in principle when the bond is taken out, and its written consent before the transfer date. Treat an unconsented bond as no bond. 
+T02 
+Commercial 
+Retention held by the client for work now managed by the prime is claimed by both and administered by neither. 
+State in the deed whether it becomes a debt to the prime or stays with the client under a side agreement, and who certifies its release. 
+T03 
+Commercial 
+Applications for payment in progress on the cut-off date are assessed twice, or not at all. 
+Fix a cut-off date that falls between two valuation dates, not on one, and value everything to it under the E3 procedure. 
+T04 
+Legal 
+A defect that arose before the transfer is disowned by the prime and no longer pursued by the client, because the contract it arose under has moved. 
+The deed must expressly preserve the client's accrued rights to the cut-off, and list every matter already notified. 
+T05 
+Insurance 
+The prime's professional indemnity aggregate, written for one package, is now the only cover behind five. 
+Retest the limits against the enlarged scope before the transfer, and require evidence of the increased cover as a condition precedent to it. 
+T06 
+Statutory 
+Everyone assumes the prime is now Principal Contractor under CDM 2015. Nobody has appointed it. 
+Decide it, appoint it in writing, price it and check the prime's competence for the role. It is a legal duty, not a consequence of the word 'prime'. 
+T07 
+Tax 
+The prime becomes a contractor for CIS purposes in respect of four subcontractors it did not verify. 
+Verify all four before the first payment under the new arrangement, and check the prime's own gross payment status. A verification done late is a deduction taken at the higher rate. 
+T08 
+Tax 
+The four now invoice the prime, not the client. Where both are CIS-registered the domestic reverse charge applies between them and the client's VAT float changes materially. 
+Model the VAT cash effect before the transfer. It moves in the client's favour or against it depending on the client's own status, and either way it is a real number in the month it changes. 
+T09 
+Employment 
+Nobody checks whether a service provision change arises under TUPE where any part of a service moves between providers. 
+Check it. It is unlikely on a straight novation where the same firms continue, and it is not unlikely where the prime replaces a subcontractor's site team with its own. 
+T10 
+Programme 
+The four transferred contracts each carry their own completion dates and damages. After transfer it is unclear whether they survive as between prime and subcontractor. 
+State it. Usually they should survive unchanged, so that the prime inherits the leverage the client had rather than starting again. 
+T11 
+Commercial 
+The client's liquidated damages, previously four separate caps against four parties, become one cap against one. 
+Model it. Four contracts at five per cent each is a materially larger recovery than one contract at five per cent, and the prime will not volunteer the point. 
+T12 
+Commercial 
+Price visibility is lost the day the four sums disappear into a single valuation. 
+Make separate reporting of the four sums a condition of the variation, in every valuation, for the life of the contract. 
+T13 
+Governance 
+The prime certifies its own package alongside the four it now manages. 
+Keep the client's certification of the prime's own package separate and with the client. The prime certifies the four; the client certifies the prime. 
+T14 
+Risk 
+Consolidation creates a single point of failure. The prime's insolvency is now five problems arriving together instead of one arriving alone. 
+Reserve step-in rights to each of the four subcontracts, take direct collateral warranties from all four, and satisfy yourself about the prime's financial standing before, not after. 
+T15 
+Commercial 
+The prime asks for the four sums to become provisional or subject to re-measurement. 
+Refuse. See 8.3. This single point can give away everything five packages were let to achieve. 
+T16 
+Information 
+Asset data, O&M information and as-built records that the client was receiving directly from four parties now arrive through the prime, in the prime's format, or not at all. 
+Restate the information requirements in the variation, with the same schema and the same dates, and make them a condition of payment. 
+T17 
+Confidentiality 
+Four contractors' prices and terms become visible to a fifth, who competes with at least one of them. 
+Anticipate it in the enabling clause at E2 and deal with it in the deed: what the prime may see, what stays with the client, and a confidentiality undertaking from the prime to each of the four. 
+T18 
+Practical 
+The novation completes and nobody tells the four's site teams, who carry on sending applications and RFIs to the client for another two months. 
+A single communication on the transfer date to every named individual on all five contracts, stating who to send what to from that day, with the old route switched off rather than deprecated. 
+ 
+11  The twelve-week consolidation programme 
+Twelve weeks is the realistic minimum for four novations plus a variation, and the line that cannot be compressed is the securities: a surety's consent takes as long as it takes and it cannot be done in the last week. Everything else can be run in parallel with everything else. 
+Week 
+Step 
+What happens 
+Who 
+The deliverable 
+Traps closed 
+W1–W2 
+Decide 
+Score the test at 5.3. Confirm every package is performing (5.1). Check the enabling clauses are in all five contracts and identify any that are missing. 
+Client 
+A written decision paper, or a decision not to proceed 
+— 
+W2–W3 
+Choose the prime 
+Score the five against 6.3. Test the chosen party's balance sheet, insurance aggregates and management capability against the enlarged scope — do not assume any of the three. 
+Client 
+Named transferee, with the capability evidence behind the choice 
+T05, T14 
+W3–W4 
+Open the commercial conversation 
+Approach the chosen prime. Ask for the stack at 8.2, line by line, with the headcount behind the management line. Do not disclose a target. 
+Client 
+The prime's priced proposal 
+T15 
+W4–W6 
+Negotiate the wrap 
+Settle the four percentages, the treatment of contingency, and the separate reporting of the four sums. Agree the scope of the management service in writing — what the prime will actually do, not what it will be responsible for. 
+Client and prime 
+Agreed commercial terms, subject to contract 
+T11, T12, T15 
+W5–W7 
+Notify the four, in person first 
+Serve the novation notice under the enabling clause. Speak to each of the four before the notice arrives; a contractor who learns of its own novation from a letter will read the letter looking for a reason to resist it. 
+Client 
+Four notices served, four conversations had 
+T18 
+W6–W8 
+Cut-off valuation 
+Value all four to the cut-off date under the E3 procedure. Reconcile applications in progress. Agree the figures with each of the four in writing before the transfer, not after. 
+Client and each contractor 
+Four agreed cut-off valuations 
+T03, T04 
+W7–W9 
+Clear the securities 
+Obtain surety consent for every bond, guarantor consent for every PCG, and confirm which collateral warranties survive and which are re-issued. Nothing on this line can be done in the last week. 
+Client 
+Written consents, or a decision to proceed knowing a security is lost 
+T01, T02 
+W8–W10 
+Draft and settle the deeds 
+Four deeds of novation plus one deed of variation to the prime's own contract. Settle accrued rights, retention, the notified-matters list and the confidentiality undertakings. 
+Legal, all parties 
+Engrossments ready for execution 
+T04, T09, T10, T17 
+W10–W11 
+Execute 
+All parties execute. Condition precedents satisfied — insurance evidence, surety consents, CIS verification, the appointment under CDM if the prime is taking it. 
+All parties 
+Executed deeds, conditions satisfied 
+T05, T06, T07 
+W11 
+Transfer date 
+One communication to every named individual on all five contracts: what changes, from what date, and where to send what. Switch off the old routes rather than deprecating them. 
+Client and prime 
+The transfer, cleanly 
+T18 
+W12 
+First cycle under the new arrangement 
+One valuation, one set of statutory dates, one report — with the four sums shown separately per T12. Check the first month before assuming the arrangement works. 
+Prime, checked by client 
+The first consolidated valuation, verified 
+T08, T12, T13, T16 
+The last column is the register at section 10. Every one of the eighteen is closed by a step in this programme; a trap with no step against it is a trap nobody has been made responsible for. 
+The securities line (W7–W9) is the critical path and it is the one that is always started last. A bond that lapses on the transfer date takes the client's only security with it, and nobody notices until it is needed. 
+ 
+12  The deed of novation: what has to be in it 
+This is an anatomy, not a precedent, and it is written so that a client can read a draft and see what is missing. The clause that decides who owns a defect discovered next year in work built last month is the fourth one, and it is the one most often adopted from a template rather than drafted. 
+Clause 
+What it does 
+The point people miss 
+Parties 
+Client (transferor), original contractor, prime (transferee). All three. A two-party document is an assignment, and an assignment does not move the burden. 
+Getting this wrong is the commonest drafting error and it leaves the client still liable under a contract it thinks it has transferred. 
+Recitals 
+The original contract, its date and value; the enabling clause relied on; the cut-off date; the decision to consolidate. 
+The recitals are where the cut-off date is anchored. Every other clause refers back to it. 
+The novation 
+From the transfer date the prime is substituted for the client, and the contract continues as if the prime had always been a party — subject to the accrued-rights clause below. 
+'As if it had always been a party' is the standard formulation and it is the one that transfers the burden. Understand it before agreeing it. 
+Cut-off and accrued rights 
+The valuation at the cut-off; the client's retained rights for anything arising before it; the schedule of notified matters. 
+This is the clause that decides who owns a defect discovered next year in work built last month. Draft it, do not adopt it. 
+Payment 
+Sums certified and unpaid at cut-off — who pays them. Retention — who holds and who releases. The payment mechanism from the transfer date. 
+Three separate questions that a single sentence will not answer. 
+Securities 
+Bond, PCG and warranty treatment, with the surety and guarantor consents annexed as conditions precedent. 
+Annexed, not promised. A consent 'to be obtained' is a condition nobody chases after completion. 
+Insurance 
+The prime's evidence of cover at the enlarged limits, as a condition precedent to the transfer. 
+Condition precedent, so the transfer does not take effect if the cover is not there. 
+Confidentiality 
+What the prime may see of the transferred contract, and an undertaking to each of the four. 
+T17. It is what makes the transfer acceptable to a contractor whose competitor is now its client. 
+Information 
+The information, asset data and record requirements that continue, and to whom they are now delivered. 
+T16. Restate them; do not assume they travel. 
+Conditions precedent 
+Insurance evidence, surety consents, CIS verification, CDM appointment where applicable, cut-off valuation agreed. 
+Listed in one place so that the transfer either happens completely or does not happen. 
+Three parties, always. A two-party document is an assignment; an assignment moves the benefit and leaves the burden behind, which means the client is still liable under a contract it believes it has transferred. It is the commonest drafting error in this whole exercise. 
+ 
+13  After the transfer 
+13.1  What the client still does 
+Consolidation does not end the client's job; it changes it from coordination to assurance. Afterwards the client: certifies the prime, and only the prime; reads one valuation and checks the four sums reported separately under T12; holds one risk register jointly with the prime; audits the prime's management of the four rather than managing them itself; and keeps the step-in rights it reserved under T14 current and exercisable. 
+What it stops doing is chairing interface meetings, reconciling five reports and serving sixty statutory notices a year. That is what it paid for. 
+13.2  The first ninety days, where it goes wrong 
+Three things fail in the first ninety days and all three are avoidable. 
+COMMUNICATION. Site teams keep using the old routes. Applications arrive at the client, RFIs go to the wrong party, and two months later somebody discovers a request that nobody answered because everybody assumed somebody else had. Switch the old routes off on the transfer date. Not deprecated — off, with a redirect and a named person. 
+THE FIRST VALUATION. The prime's first consolidated valuation is the one that establishes whether the arrangement works. Check it line by line: the four sums separately, the cut-off reconciled, the management fee on the transferred value and not on the whole, and the contingency shown as held rather than spent. Whatever is accepted in month one is the precedent for month thirty-eight. 
+THE PRIME'S OWN PACKAGE. Per T13, the prime is now managing four contracts and performing a fifth. Watch the direction the pressure flows: a prime under pressure on its own package has four subcontractors whose programmes it controls. The client's separate certification of the prime's own work is the control, and it only works if the client actually does it. 
+13.3  What it was worth, honestly 
+The client pays the wrap at 8.2 on the transferred value, plus the transaction cost of the transfer — legal fees on five deeds, the cut-off valuations, and the management time of the twelve weeks at section 11. 
+Against that it removes nineteen of the twenty coordination points at 4.3, fifty-nine of the sixty statutory notice deadlines, and the position of standing between ten interfaces with no contractual means of resolving any of them. 
+What it does NOT do, and what nobody should claim it does: it does not make the interfaces go away, it does not make the four cheaper, and it does not transfer a risk the prime has priced at less than it is worth. It buys management, at a price, from a party who can do it. Judged against the alternative of buying the same management as a single prime tender at the start — with no competed prices behind it — it is the better trade, and it is the better trade by roughly the difference between five competitive prices and one negotiated one. 
+That difference is the reason to plan for this at day one rather than arrive at it in month eighteen. Section 7 is a page of drafting. It is the cheapest page in the whole procurement. 
+13.4  The separation that keeps it honest 
+One rule, and it is the rule that makes Mechanism A defensible. 
+THE PRIME CERTIFIES THE FOUR. THE CLIENT CERTIFIES THE PRIME. 
+The prime assesses, values and certifies the four transferred subcontracts, because that is the management it is being paid for and it cannot be paid for it while the client still does it. 
+The client assesses, values and certifies the prime — including, separately and visibly, the prime's own original package, which is not part of what the prime manages and must never be assessed by the party performing it. 
+Every reporting line, every valuation format and every change register should be built on that split. Where the two are blurred, the conflict at 6.3 stops being a manageable feature of the structure and becomes the reason the structure failed. 
+ 
+14  Where the three ETABLIX models sit against this 
+The routes at section 4 map onto the three ways ETABLIX is appointed. The mapping is set out so that a client can see which conversation it is having. 
+Model 
+The route it serves 
+What ETABLIX does 
+When it is the right one 
+Model A — Advisory 
+Any of the three 
+Writes the requirements and the ITT, runs the tender, evaluates the returns, and drafts the four enabling clauses at section 7 so the option stays open. Fixed fee, defined deliverable. 
+When the client has the management capacity and wants the documents right. It is also the cheapest possible insurance against needing section 7 later and not having it. 
+Model B — Management Integrator 
+Five packages, run or consolidated 
+Holds the ten interfaces at section 3 on the client's behalf without taking the contracts. This is Mechanism C at 6.1, done properly and priced as a service. 
+When the client wants five competed prices and cannot resource the interfaces — and either does not want the balance-sheet transfer or has not got the enabling clauses. 
+Model C — Prime Service Contractor 
+Five-then-one, as the transferee 
+Takes the four transferred contracts and stands behind them: single-point accountability, one valuation, one set of statutory dates. 
+When the client wants the load gone rather than managed, and is willing to pay the stack at section 8 for it. 
+Model B and Model C are not a ladder. A client that needs the interfaces held but wants to keep its contracts and its price visibility is a Model B client permanently, and telling it otherwise is selling rather than advising. 
+ 
+15  The whole thing on one page 
+1 
+Interfaces grow as n(n−1)÷2. Five packages have ten, and nine of the ten are between two contractors with the client standing in the middle holding nothing. 
+2 
+Five contracts are sixty statutory notice deadlines a year. One missed pay-less notice makes the sum applied for payable in full, whatever it was worth. 
+3 
+One prime from the start buys management and gives away price. Five run to the end buys price and pays for management in the client's own time, which is the dearest way to buy it. 
+4 
+Five-then-one buys both. It costs the wrap on prices the client has already seen competed, plus the transaction cost of the transfer. 
+5 
+It is only available if four clauses were written into the original five contracts. That page of drafting is the cheapest page in the procurement. 
+6 
+Consolidate a LOAD problem. Never consolidate a PERFORMANCE problem: fix the failing package first, or leave it direct. 
+7 
+Consolidating onto an incumbent beats appointing a new prime — one fewer transfer, no learning curve, and it is what the named-party limitation was written to permit. 
+8 
+Mid-build, the modular contractor is the better prime. At convergence, the FM and operation contractor is — because it is the only one of the five that cannot walk away from a bad job. 
+9 
+Price it as four lines, not one number, applied to the transferred value only. Expect 17–21 per cent on competed prices in good order. 
+10 
+Refuse any proposal that the four sums become provisional. That single concession gives away everything five packages were let to achieve. 
+11 
+Bonds, guarantees and retention do not transfer by themselves. A bond without the surety's consent lapses on the transfer date, silently. 
+12 
+The prime certifies the four. The client certifies the prime — including, separately and visibly, the prime's own package.
