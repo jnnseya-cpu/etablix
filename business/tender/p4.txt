@@ -1,0 +1,1232 @@
+ETABLIX 
+I N T E G R A T E D   S I T E   S E R V I C E S   ·   P A R T   O F   G R O U P E   N S E Y A 
+EMPLOYER'S REQUIREMENTS 
+P4 — Furniture, Fittings and Loose Equipment 
+Client 
+Marrowbridge Infrastructure Ltd 
+Project 
+Project NORTHREACH — Workforce Accommodation Village 
+Package 
+P4 — Furniture, Fittings and Loose Equipment 
+Scope 
+Loose furniture to 225 bedrooms, 420 m² of reception and resident amenity space, 180 m² of laundry, drying and stores, and the external resident areas. Fitted joinery is P2; dining furniture is P3 
+Document reference 
+NR-ER-P4 
+Revision 
+A 
+Date 
+September 2026 
+Status 
+Issued for tender 
+This is the smallest package on this project and the only one every resident touches every day. It has almost no work of its own: its entire risk lives at its boundary with P2, and section 4 — the Common Schedule — is the first thing a tenderer should read. 
+ 
+Contents 
+ 
+1  Introduction, and what this package really is 
+1.1  The smallest package on this project, and the one most likely to embarrass it 
+This is the cheapest of the five packages and it is the last to arrive. It is also the only one that every resident touches, every day, for up to thirty-eight months. 
+THE DEFINING FACT. This package has almost no work of its own. Its entire risk lives at its boundary with P2 — where fitted joinery stops and loose furniture starts. P2 builds a wardrobe, a desk and a shelf into the module in a factory four hundred miles away. This package brings the bed, the chair and everything else. If those two lists do not agree, the failure is discovered when a bed is carried into a room that has no space for it, and by then the module has been manufactured. section 4 exists for that and it is the most important section in this document. 
+THE SECOND FACT. Furniture in sleeping accommodation is not furniture. It is fire load, in a room where somebody is asleep. 6.3 states the standards and they are not negotiable by price. 
+THE THIRD FACT. Twelve of these rooms are accessible rooms. An accessible room is designed as an empty box and it is THIS package that decides whether it is still accessible once there is a bed in it. 6.6. 
+1.2  Output specification, and where this document departs from it 
+The default is an OUTPUT specification. The Employer states the duty — a dimension, a durability class, a fire standard, a clearance — and the Contractor selects, supplies, assembles and warrants the product that meets it. 
+Every line of the furniture schedule at section 5 carries a code. 
+E — EMPLOYER-PRESCRIBED. The Employer has specified the thing. The Contractor provides it as described and the Employer carries the risk that what is described achieves the duty. 
+C — CONTRACTOR-DESIGNED. The Employer has stated a duty. The Contractor selects the product, sizes it, and warrants that it performs. 
+The prescribed lines here are of three kinds and no others: a DIMENSION that has to agree with fitted joinery P2 has already built, a LIFE-SAFETY OR ACCESSIBILITY requirement, and a HYGIENE requirement that follows from the same bed being used by a succession of people. Everything else is a duty, because the Employer has no business selecting a chair and then owning the fact that it is uncomfortable. 
+NO PRODUCT IS NAMED IN THIS DOCUMENT. Where a figure looks like a product it is a dimension or a class, and any product meeting it is acceptable. 
+1.3  What is NOT in this package 
+FITTED JOINERY IS P2. The wardrobe, the desk worktop and the shelving over it are built into the module. They are specified at the P2 room data sheets and they are not reissued here — 4.2 states how the two lists are reconciled. 
+DINING FURNITURE IS P3. The tables and chairs in the dining room are in the kitchen and catering package, because they are sized from the covers and the servery throughput rather than from the room. The boundary is at the dining room door and it is scheduled at IF-06. 
+BED LINEN, TOWELS AND THEIR LAUNDERING ARE P5. This package supplies the durable items — the mattress, the protector, the pillow and the duvet. The sheets, pillowcases, duvet covers and towels are consumable stock supplied and laundered by the Operator under its linen service. 6.4 and IF-09. 
+LAUNDRY AND DRYING MACHINES ARE P5, sized and sited by the Operator against its own waiting-time requirement. This package furnishes the laundry room around them — IF-10. 
+ANY FIXING INTO THE MODULE STRUCTURE IS P2's TO AGREE. See 6.7. This package does not put a screw into a wall, a ceiling or a fire-rated element without a detail P2 has accepted. 
+ 
+2  Definitions 
+Term 
+Meaning 
+Attrition stock 
+Spare furniture held on site from handover to replace breakages without waiting for a delivery. 6.12. 
+Common Schedule 
+The single document, issued by the Employer, that divides every item in a bedroom between P2 fitted joinery and P4 loose furniture. Scheduled at P2 IF-05 and required at 4.2. It is the artefact this package stands or falls on. 
+Contract furniture 
+Furniture tested and rated for non-domestic severe use, not domestic furniture bought in quantity. The standards are at 6.2. 
+E / C 
+The basis codes at clause 1.2. E means the Employer prescribed it and carries the risk it works; C means the Employer stated a duty and the Contractor warrants the means. 
+Encasement 
+A mattress protector that fully encloses the mattress and zips shut, rather than a fitted sheet over the top of it. Required at 6.5 and the reason is at 6.5. 
+Furnished room 
+A room in which every scheduled item is present, assembled, clean, undamaged and — in an accessible room — checked against the clearances at 6.6. It is not furnished until it has passed the room acceptance check at 6.13. 
+Hazard level 
+The fire performance classification in BS 7176 and BS 7177. This project requires MEDIUM HAZARD as a minimum throughout. 6.3. 
+Loose furniture 
+Anything not built into the module. If it can be carried out of the room by two people without tools, it is this package's. 
+RT-01 / RT-02 / RT-03 
+The three bedroom types: 199 standard, 12 accessible, 14 senior and long-stay. Quantities and the furniture differences are at section 3 and section 5. 
+Sample room 
+One fully furnished room of each type, approved by the Employer and by P5 before any bulk delivery. 6.13. 
+ 
+3  What this package furnishes 
+Every quantity in this package comes from this table, and every one of them is taken from the P2 requirements rather than restated independently — there must be one version of how many rooms there are. 
+THE AREAS ARE THE P2 SCHEDULE OF QUANTITIES, items C1 and C3. The internal subdivision below is the Employer's intended use of that area and is indicative; where the Contractor's furniture layout requires a different split it shall say so with its tender, because the split drives the furniture and not the other way round. 
+Ref 
+Space 
+Quantity or area 
+What this package provides 
+Note 
+BEDROOMS — 225 
+ 
+ 
+ 
+ 
+R-01 
+RT-01 standard bedroom 
+199 rooms 
+Bed, mattress, protector, pillow, duvet, bedside unit, task chair, bin, laundry bag, mirror 
+The base room. Every other room is priced against it 
+R-02 
+RT-02 accessible bedroom 
+12 rooms 
+As RT-01, with the clearances and the transfer heights at 6.6 
+THE FURNITURE IS WHAT MAKES THESE ROOMS COMPLIANT OR NOT 
+R-03 
+RT-03 senior and long-stay bedroom 
+14 rooms 
+As RT-01, plus an easy chair and a second bedside unit 
+P2 gives these rooms a larger desk and more storage. This package adds the thing that makes a long stay bearable 
+RECEPTION AND RESIDENT AMENITY — 420 m² (P2 item C1) 
+ 
+ 
+ 
+ 
+R-04 
+Reception and waiting 
+60 m² 
+Reception counter, waiting seating, parcel lockers, noticeboard 
+Staffed continuously by P5. The counter is used 24 hours a day 
+R-05 
+Management and site office 
+70 m² 
+Desks, task chairs, pedestals, lockable storage, meeting table 
+For P5's establishment and the Employer's site team 
+R-06 
+Resident lounge and television 
+120 m² 
+Lounge seating, occasional tables, television mounting 
+The largest single room a resident uses that is not their own 
+R-07 
+Quiet room and study 
+45 m² 
+Individual study positions, task chairs, task lighting 
+Somewhere to take a call home that is not a bedroom 
+R-08 
+Games and recreation 
+75 m² 
+Games tables, seating, equipment storage 
+Two shifts, opposite hours, same room 
+R-09 
+Multi-faith room 
+25 m² 
+Storage, shoe racking, mats, screening 
+Orientation and screening confirmed with residents, not assumed 
+R-10 
+Amenity stores 
+30 m² 
+Racking and shelving 
+Holds the attrition stock at 6.12 
+LAUNDRY, DRYING AND STORES — 180 m² (P2 item C3) 
+ 
+ 
+ 
+ 
+R-11 
+Laundry and drying 
+110 m² 
+Folding tables, seating, laundry trolleys, basket storage 
+The MACHINES are P5's under its personal laundry service — IF-10 
+R-12 
+Linen store 
+40 m² 
+Racking, linen trolleys 
+Stocked and operated by P5 
+R-13 
+General stores 
+30 m² 
+Racking and shelving 
+ 
+EXTERNAL 
+ 
+ 
+ 
+ 
+R-14 
+External resident areas 
+Per NR-TW-VIL-0201 
+Seating and tables at the shelter and the external break areas 
+Weatherproof and secured against removal, but movable for grounds maintenance 
+Bedrooms furnished 
+225 — 199 RT-01, 12 RT-02, 14 RT-03 
+Amenity and reception area furnished 
+420 m² 
+Laundry, drying and stores furnished 
+180 m² 
+Dining furniture 
+NOT in this package — P3, 100 covers at its item D4 
+Sectional dates the furniture is delivered against 
+Month 3 — 65 beds · month 6 — 150 · month 9 — 205 · month 12 — 225 
+ 
+4  The boundary with P2, and the Common Schedule 
+4.1  Why this is the first section a tenderer should read 
+This package has almost no independent work. Every serious risk in it is at the line where P2's fitted joinery stops and this package's loose furniture starts. 
+THE FAILURE THIS SECTION PREVENTS. P2 manufactures a bedroom in a factory, complete with a fitted wardrobe, a fitted desk worktop and fitted shelving. Months later this package arrives with a bed, a chair, a bedside unit and a bin. If the two lists were never reconciled, one of three things happens, and all three are discovered with 114 modules already built: 
+AN ITEM IS SUPPLIED TWICE. Two parties both priced a bedside unit, and one of them is a credit nobody wants to give. 
+AN ITEM IS SUPPLIED BY NOBODY. Each party read the other's document and assumed. The first resident moves into a room with no chair. 
+AN ITEM DOES NOT FIT. The wardrobe door opens into the space the bed occupies, or the desk chair will not go under the fitted worktop, and neither is anybody's fault under either contract. 
+The third is the expensive one, because the module is already built and the only remedy left is different furniture. 
+4.2  The Common Schedule 
+THE EMPLOYER SHALL ISSUE A SINGLE COMMON SCHEDULE, listing every item in a bedroom and allocating each to P2 or to P4, and it shall be issued and signed by both parties BEFORE EITHER PACKAGE IS LET. It is scheduled at P2 IF-05 and at IF-01. 
+The schedule below is the Employer's starting position and is the basis on which this package is priced. It is not a summary of another document: where it and the P2 room data sheets differ, the difference is resolved before either party orders anything, and this clause prevails until they are reconciled. 
+EVERY LINE STATES FOUR THINGS: the item, what P2 provides fitted, what this package provides loose, and what goes wrong if the line is missed. The fourth column is there because a boundary schedule that lists only the split gets skimmed, and the point of the exercise is to make somebody think about each line. 
+EACH PARTY CONFIRMS IN WRITING, against the schedule, before it orders: that it has priced every line allocated to it, and that it has priced none of the lines allocated to the other. A tender that does not include that confirmation is incomplete. 
+4.3  Dimensional coordination, which is the half that is not about who supplies what 
+Agreeing WHO supplies the bed does not prevent the bed from being the wrong size for the room P2 built. 
+BEFORE THIS CONTRACTOR ORDERS ANYTHING it shall obtain from P2, and shall confirm its layout against: the internal room dimensions as manufactured; the position, depth and door swing of the fitted wardrobe; the position, height, depth and knee clearance of the fitted desk worktop; the height and projection of the fitted shelving; the position of every socket, data outlet, switch, radiator and reading light; and the door swing and clear opening. IF-02 and IF-05. 
+The bed at F-01 is prescribed at 900 × 2000 mm for exactly this reason. It is the one dimension P2 has already designed the room around and it is not the Contractor's to change. 
+THE CHAIR UNDER THE DESK is the coordination check that is most often missed. P2 states a fitted worktop at 730 mm above finished floor level with a stated knee clearance. The task chair at F-07 shall fit under it, at its lowest setting, with its arms if it has them, and the Contractor shall demonstrate it in the sample room at 6.13 rather than assert it from a dimension sheet. 
+4.4  Change after the freeze, and who pays for it 
+Once P2 has commenced manufacture, the Common Schedule is fixed. A change to it after that point is a change to two packages and it is instructed by the Employer under section 13, never agreed between contractors. 
+WHERE THE CHANGE ARISES FROM AN ERROR IN THE SCHEDULE ITSELF — an item allocated to nobody, or allocated to both — the Employer carries it, because the Employer issued the schedule. 
+WHERE IT ARISES FROM A PARTY FAILING TO CONFIRM under 4.2, or from a party ordering against a dimension it did not verify under 4.3, it is that party's. 
+That allocation is stated now, in advance, because after the event both positions are arguable and neither is provable. 
+ 
+The item 
+P2 provides — fitted 
+P4 provides — loose 
+If this line is missed 
+B-01 
+Wardrobe and hanging 
+Fitted unit, 600 × 600 × 1950 mm nominal in RT-01, lockable, with the hanging length and storage volume stated 
+Nothing 
+Both parties price a wardrobe, or the door opens into the bed 
+B-02 
+Desk and work surface 
+Fitted worktop at 730 mm AFFL with cable grommet 
+Nothing 
+The commonest double-supply on a village of this kind 
+B-03 
+Shelving over the desk 
+Fitted, per room type 
+Nothing 
+ 
+B-04 
+Desk chair 
+Nothing 
+Task chair to F-07, fitting under the fitted worktop at its lowest setting 
+Nobody supplies a chair, or the chair does not go under the desk 
+B-05 
+Bed and mattress 
+Nothing 
+Frame, mattress, encasement, pillows and duvet — F-01 to F-05 
+THE 900 × 2000 DIMENSION IS FIXED BY THE ROOM P2 BUILT 
+B-06 
+Bedside surface 
+Nothing 
+Free-standing bedside unit to F-06 
+Assumed fitted by one party and loose by the other 
+B-07 
+Mirror 
+Ensuite mirror is P2, fitted 
+Full-length room mirror to F-10 
+Two mirrors, or none in the room 
+B-08 
+Blinds and window dressing 
+Internal blind, fitted, to the P2 blackout requirement 
+Nothing 
+Do not add curtains. The blind already meets the requirement and fabric is fire load 
+B-09 
+Waste bin 
+Nothing 
+Bin to F-08 
+Small item, always forgotten, immediately noticed 
+B-10 
+Laundry bag 
+Nothing 
+Hamper to F-09 
+P5 cannot run a linen service without one 
+B-11 
+Fire action notice holder 
+Nothing 
+Holder to F-11. The NOTICE itself is P5's 
+A notice taped to a wall in every one of 225 rooms 
+B-12 
+Any fixing into the structure 
+P2 provides the pattress or reinforced zone where agreed 
+Submits the fixing schedule and fixes only to an accepted detail 
+A bracket in a partition that was not designed for it — 6.7 
+Every one of these lines is free to fix before either package is let and impossible to fix after P2 has manufactured. That is the whole reason this section exists, and it is why the sample rooms and the dimensional confirmation are priced separately at items A2 and A3. 
+ 
+5  Furniture schedule 
+Every line carries a basis code. Clause 1.2 states the only three reasons a line here is prescribed: a dimension that must agree with joinery P2 has already manufactured, a life-safety or accessibility requirement, and a hygiene requirement that follows from a succession of people using the same bed. 
+No product is named. Where a figure appears it is a dimension, a class or a standard, and any product meeting it is acceptable. 
+Ref 
+Item 
+The duty, or the specification 
+ 
+Note 
+BEDROOM — ALL TYPES 
+ 
+ 
+ 
+ 
+F-01 
+Bed frame 
+Single, 900 × 2000 mm sleeping surface. Metal or solid-section frame with no open tube end, no upholstered base and no fabric-covered headboard. Clear open space beneath the whole frame of not less than 150 mm for cleaning and inspection. Capable of being assembled and dismantled in the room without specialist tools 
+E 
+THE DIMENSION IS PRESCRIBED because P2 has already built the wardrobe and the desk around it. The construction is prescribed for the reason at 6.5 
+F-02 
+Mattress 
+BS 7177 medium hazard minimum, permanently labelled. Turnable or single-sided with the rotation regime stated. Cover impermeable or fully protected by F-03. Depth compatible with the transfer height at 6.6 in RT-02 
+E 
+Fire performance and hygiene. Everything else about it — spring, foam, firmness — is the Contractor's 
+F-03 
+Mattress encasement 
+Fully enclosing, zipped, waterproof, vapour permeable, wipe-cleanable and launderable at not less than 60 °C. One fitted plus one spare per bed 
+E 
+A fitted sheet over the top of a mattress is not a protector. 6.5 
+F-04 
+Pillow 
+2 per bed, washable at not less than 60 °C, with a wipe-cleanable protector per pillow 
+E 
+Durable stock in this package. The pillowcase is P5's linen 
+F-05 
+Duvet 
+1 per bed, washable at not less than 60 °C, tog rating appropriate to a room heated and ventilated to the P2 requirements, with a summer option stated 
+C 
+The duvet cover is P5's linen — IF-09 
+F-06 
+Bedside unit 
+Free-standing, stable when the top drawer is fully extended and loaded, with a surface large enough for a phone, a drink and a book, and a charging position reachable from the pillow 
+C 
+P2 provides the socket. This package provides the surface it lands on 
+F-07 
+Task chair 
+BS EN 1335 type B. Height adjustable, adjustable back support, five-star base on castors suited to the floor finish, upholstery to BS 7176 medium hazard 
+E 
+A resident works and calls home from this chair for months. A stacking canteen chair is a back injury with a delivery note 
+F-08 
+Waste bin 
+Not less than 15 litres, lidded, wipe-cleanable, with a liner arrangement P5 can service in one movement 
+C 
+ 
+F-09 
+Laundry bag or hamper 
+Not less than 40 litres, ventilated, washable, and identifiable to the room 
+C 
+P5 collects it. It has to survive being carried down a stair 150 times 
+F-10 
+Mirror 
+Full length, shatter-resistant or safety-backed glass to BS EN 12600 class 2 minimum — read with 6.10 on the standard P2 cites 
+E 
+Safety glass in a bedroom is not optional. FIXING is P2's to agree — 6.7 
+F-11 
+Room information holder 
+A single fixed or free-standing holder for the fire action notice, the room number and the resident information 
+E 
+P5 puts a fire action notice in every room. It needs somewhere to go that is not tape on a wall 
+BEDROOM — TYPE DIFFERENCES 
+ 
+ 
+ 
+ 
+F-12 
+RT-02 bed 
+As F-01, with the top of the mattress between 450 and 500 mm above finished floor level, and a clear space of not less than 150 mm beneath the frame across its full footprint for a mobile hoist 
+E 
+6.6. The transfer height is the requirement; the bed is the Contractor's 
+F-13 
+RT-02 chair 
+As F-07 with arms, stable under a transfer load applied at the front edge, and not on castors 
+E 
+A chair on castors is a fall during a transfer 
+F-14 
+RT-02 furniture layout 
+A layout drawing per room demonstrating the clearances at 6.6 WITH the furniture in place 
+E 
+This is the line that keeps 12 rooms compliant 
+F-15 
+RT-03 easy chair 
+One per room, with arms, seat height 450–480 mm, upholstery to BS 7176 medium hazard, cover removable and washable or wipe-cleanable 
+C 
+A long-stay room needs somewhere to sit that is not the bed or the desk chair 
+F-16 
+RT-03 second bedside unit 
+As F-06, one additional unit, so that both sides of the bed have a surface and a charging position 
+C 
+A long-stay room is lived in, not slept in 
+RECEPTION AND AMENITY 
+ 
+ 
+ 
+ 
+F-17 
+Reception counter 
+Continuously staffed position with a seated and a standing height, a section at 760 mm maximum with knee clearance for a wheelchair user, and cable management to the P2 outlets 
+E 
+BS 8300-2. It is the first thing a resident meets and the only staffed point at 03:00 
+F-18 
+Reception and waiting seating 
+Contract seating to BS EN 16139 severity level L2, with not fewer than 20% of positions having arms and a seat height of 450–480 mm 
+E 
+People with bad backs and heavy bags. The 20% with arms is the accessibility requirement 
+F-19 
+Parcel and post lockers 
+Not fewer than 60 compartments, lockable, with an accessible tier at 400–1200 mm 
+C 
+225 people ordering online for 38 months. Under-sized, and reception becomes a parcel store 
+F-20 
+Noticeboards and wayfinding holders 
+Reception, amenity, laundry and each block entrance 
+C 
+6.7 governs the fixing 
+F-21 
+Lounge seating 
+Contract upholstered seating to BS EN 16139 level L2 and BS 7176 medium hazard, for not fewer than 60 people, in groups rather than in rows, with removable or wipe-cleanable covers 
+E 
+THE CAPACITY IS PRESCRIBED. Two shifts, and the lounge is where the one that is awake goes 
+F-22 
+Occasional and coffee tables 
+Stable under an off-centre load, no glass, edges radiused 
+C 
+ 
+F-23 
+Television mounting and media units 
+Mounting to the position P2 has provided for 
+C 
+6.7. The bracket is not fixed to a partition P2 has not agreed 
+F-24 
+Quiet room and study positions 
+Not fewer than 12 individual positions, each with a work surface not less than 800 × 600 mm, a task chair to F-07 and a power and data position 
+E 
+This is where a resident calls home. Twelve positions for 225 people is a floor, not a target 
+F-25 
+Games and recreation furniture 
+Tables and seating for the games provision, and lockable storage for equipment 
+C 
+P5 states the provision it will operate 
+F-26 
+Multi-faith room furniture 
+Shoe racking, mats, screening and lockable storage, arranged to the orientation the room requires 
+E 
+Confirmed with residents through P5, not assumed. It is the cheapest line in this schedule and the one most noticed 
+OFFICE AND MANAGEMENT 
+ 
+ 
+ 
+ 
+F-27 
+Office desks and pedestals 
+Contract desking to BS EN 527, not fewer than 10 positions, with cable management 
+C 
+For P5's establishment and the Employer's site team 
+F-28 
+Office task chairs 
+As F-07, one per desk position at F-27 and one per meeting position at F-29 
+C 
+Same chair as the bedrooms, so the attrition stock at 6.12 covers both 
+F-29 
+Meeting table and chairs 
+One table seating not fewer than 10, with power and data provision 
+C 
+ 
+F-30 
+Lockable storage and filing 
+Sufficient for the occupancy records P5 must hold securely, lockable to a keying schedule agreed with P5 
+E 
+The occupancy record is a fire safety document and personal data. It is not left on a desk 
+LAUNDRY, DRYING AND STORES 
+ 
+ 
+ 
+ 
+F-31 
+Laundry folding tables 
+Not fewer than 4, 1800 × 700 mm minimum, impervious, wipe-cleanable, at 900 mm 
+C 
+The machines are P5's — IF-10 
+F-32 
+Laundry seating 
+Not fewer than 12 positions, wipe-cleanable, non-upholstered or impervious-covered 
+C 
+People wait with their washing. They will sit on the floor if there is nowhere else 
+F-33 
+Laundry and linen trolleys 
+Not fewer than 8, with a wheel and brake suited to the floor finish and the external route 
+C 
+P5 operates them. It states the quantity it needs 
+F-34 
+Racking and shelving to stores 
+Loaded to the shelf capacity stated and marked on each bay 
+E 
+An unmarked shelf capacity is an overloaded shelf 
+EXTERNAL AND SPARES 
+ 
+ 
+ 
+ 
+F-35 
+External seating and tables 
+Weatherproof, UV-stable, non-splintering, secured against removal but movable for grounds maintenance, and drainable so it can be sat on within 30 minutes of rain 
+C 
+Somebody sits here at 06:00 in the wet. Water on the seat is why the bench is not used 
+F-36 
+Attrition stock 
+Not less than 3% of every bedroom line and 5% of every seating line, delivered at the FIRST sectional handover and held in the amenity store 
+E 
+6.12. Stock delivered at the end of the job is stock that arrives after the breakages 
+A shaded row is a group heading. A tinted basis cell is a Contractor-selected line. 
+ 
+6  Specification, element by element 
+6.1  Design responsibility, and the Contractor's Proposals 
+This is a contractor-selected package. The Employer has stated the duties: the dimensions that have to agree with P2's fitted joinery, the fire standards at 6.3, the accessible clearances at 6.6, the hygiene requirements at 6.5 and the durability classes at 6.2. The products that meet them are the Contractor's selection and the Contractor warrants that they do. 
+WITH ITS TENDER the Contractor shall submit Contractor's Proposals containing, as a minimum: a schedule against every line of section 5 naming the product offered, its dimensions, its mass and its test evidence; a furniture layout at 1:50 for RT-01, RT-02 and RT-03; the RT-02 layouts demonstrating the clearances at 6.6; the access statement at 6.8 for the three largest items; the cleaning products compatibility statement at 6.11; and its delivery programme against the four sectional dates at section 10. 
+EVERY DEPARTURE from this document shall be listed in a Schedule of Departures with the clause, what is offered instead, the reason, the effect on every other requirement, and the price effect as a plus or a minus. A departure not listed is not accepted, whether or not it is visible in a photograph. 
+TEST EVIDENCE IS SUBMITTED, NOT PROMISED. A catalogue statement that an item is 'contract grade' or 'fire retardant' is not evidence. The test certificate, the standard, the level and the date are. 
+Review, comment or acceptance by the Employer does not transfer responsibility for the selection. 
+6.2  Contract furniture, and why domestic furniture bought in quantity is not it 
+Everything in this package is used by a succession of strangers, at every hour, for thirty-eight months, and is cleaned to a commercial regime throughout. Domestic furniture bought in bulk fails inside a year and it fails in a way that is visible to every resident. 
+MINIMUM PERFORMANCE, by item type, with the test report submitted for each: 
+Seating, non-domestic — BS EN 16139 severity level L2 (severe), with BS EN 1728 for the seating strength and durability. 
+Office task chairs — BS EN 1335-1, -2 and -3, type B. 
+Tables and desks — BS EN 15372 level 5 (severe contract use). Office desking to BS EN 527-1, -2 and -3. 
+Storage furniture — BS EN 16121 and BS EN 16122, level 5 where the item is in a resident area. 
+Beds and mattresses — BS EN 1725 for the strength, stability and durability of the frame. 
+Outdoor furniture — BS EN 581-1 and -2, contract use. 
+Where an item is not covered by any of those standards the Contractor shall state the standard it has tested to and why it applies. 'No applicable standard' is not an answer; it is a reason to ask what the item is made of. 
+WARRANTY. Not less than 5 years on every frame and structural component and 2 years on every moving component and upholstery, running from the sectional handover at which the item is installed and not from the date of order. 
+6.3  Fire performance, which is the reason this document exists 
+FURNITURE IN SLEEPING ACCOMMODATION IS NOT FURNITURE. It is the largest single item of combustible material in a room where somebody is asleep, and it is the difference between a fire that is contained and one that is not. 
+MATTRESSES, DIVANS AND BED BASES — BS 7177, MEDIUM HAZARD as a minimum, permanently and durably labelled with the standard and the hazard level on the item itself. 
+UPHOLSTERED SEATING, INCLUDING EVERY CHAIR, SOFA AND UPHOLSTERED HEADBOARD — BS 7176, MEDIUM HAZARD as a minimum, permanently and durably labelled. 
+Those are the levels for hotel and hostel sleeping accommodation and they are the floor, not the target. Domestic furniture complying only with the Furniture and Furnishings (Fire) (Safety) Regulations 1988 does NOT satisfy this clause, and a supplier offering it has misread the building. 
+CURTAINS, BLINDS AND ANY FABRIC HUNG IN AN ESCAPE ROUTE — BS 5867-2 type B, where any is provided under this package. 
+THE LABEL IS PART OF THE SPECIFICATION. An unlabelled item is a non-compliant item, whatever its paperwork says, because in three years the paperwork will be in a file and the label will be on the chair. Labels shall survive the cleaning regime at 6.11 for the whole deployment. 
+FIRE LOAD IN THE AMENITY BUILDING. The quantity of upholstered seating at F-21 is a fire load in a room with a stated fire strategy. The Contractor shall issue its seating schedule to the Employer's fire engineer for confirmation against that strategy before it orders, per IF-12. Adding seating to a lounge after the strategy was written is how a compartment stops working. 
+COMPLIANCE WITH STATUTE. The Regulatory Reform (Fire Safety) Order 2005 applies to these premises and the responsible person's duty is not discharged by this clause. Nothing here reduces it. 
+6.4  Linen, and exactly where this package stops 
+The division is between DURABLE and CONSUMABLE, and it is stated here because it is the boundary that gets discovered on the first day of occupation when 65 beds have no sheets. 
+THIS PACKAGE SUPPLIES, once, as durable stock: the mattress, the encasement at 6.5 plus one spare per bed, the pillows and their protectors, and the duvet. 
+P5 SUPPLIES AND LAUNDERS, as consumable stock throughout the deployment: sheets, pillowcases, duvet covers, towels and bath mats, under its linen service and to its own cycle. 
+THE CONTRACTOR SHALL STATE the mattress, pillow and duvet dimensions in its Contractor's Proposals, and the Employer shall issue them to P5 before P5 procures a single item of linen. A 200 mm deep mattress and a fitted sheet cut for 250 mm is 225 beds of linen that does not stay on. IF-09. 
+REPLACEMENT of a durable item during the deployment is dealt with at 6.12, not by P5 buying a different mattress. 
+6.5  The mattress, and the thing nobody writes into a furniture specification 
+A bed in workforce accommodation is not slept in by one person. Over thirty-eight months it is used by a succession of people, some of whom arrive tired from another site, and the two things that damage it are fluids and infestation. Neither is in a furniture catalogue and both are certain. 
+THE ENCASEMENT. Every mattress shall be fully enclosed in a zipped, waterproof, vapour-permeable, wipe-cleanable encasement, launderable at not less than 60 °C, with one fitted and one spare per bed delivered at handover. A fitted sheet laid over a mattress is not a protector: it protects the top surface of a mattress from the one direction that matters least. 
+The encasement is changed and laundered between residents by P5, and the mattress beneath it is inspected at the same time. That is possible only because it unzips, which is why the requirement is a zipped encasement and not a stretch cover. 
+THE FRAME, and why it is prescribed at F-01. Metal or solid-section, with no open tube end, no upholstered base and no fabric-covered headboard, and not less than 150 mm of clear open space beneath the whole footprint. 
+Every one of those is an infestation requirement. Bed bugs live in the seams, the voids and the open ends of a bed frame, they arrive in somebody's bag through no fault of anybody's, and in shared accommodation they are a matter of when. A frame that can be visually inspected in two minutes and treated in ten is the difference between one room out of service for a day and a block out of service for a fortnight. A hollow tube with an open end cannot be inspected at all. 
+The Contractor shall state, in its Proposals, how the bed it offers is inspected and treated, and P5 shall confirm that the answer is workable before the order is placed. Neither party should meet this problem for the first time in month nine. 
+CONDEMNING A MATTRESS. The Contractor shall state the criteria at which a mattress is withdrawn — fluid penetration through the encasement, structural failure, or an infestation treatment that cannot be verified as successful — and the replacement route at 6.12 shall cover them. 
+6.6  The accessible room, and the furniture that decides whether it still is one 
+THIS IS THE CLAUSE THAT CATCHES THE FAULT NOBODY LOOKS FOR. An accessible room is designed, approved and signed off as an empty box. It becomes accessible or not on the day this package puts a bed in it, and by then everybody who checked it has gone. 
+IN EACH OF THE 12 RT-02 ROOMS, THE FOLLOWING SHALL BE ACHIEVED WITH ALL FURNITURE IN ITS FINAL POSITION and shall be demonstrated room by room on the layout at F-14, not asserted once for a room type: 
+A clear turning space of not less than 1500 mm diameter, clear of every item of furniture, the door swing and the wheelchair user's own footplates. 
+A clear transfer space of not less than 1000 mm to at least one side of the bed, at full length. 
+Top of the mattress between 450 and 500 mm above finished floor level, and the Contractor shall state the compressed height and not the label height. 
+Not less than 150 mm clear height beneath the entire bed frame footprint, unobstructed, for a mobile hoist. 
+Every item of storage, every surface and every control that a resident uses within the reach ranges of BS 8300-2, from a seated position. 
+The chair at F-13 with arms, stable under a transfer load applied at its front edge, and not on castors. 
+No item positioned so that it reduces the clear width of the door approach or the route to the ensuite below 900 mm. 
+VERIFICATION. Each of the 12 rooms is measured with the furniture in place and the record issued, before that room is accepted at 6.13. A drawing showing compliance is not the verification; the measurement in the built room is. 
+AND IF IT CANNOT BE ACHIEVED, SAY SO IN THE TENDER. If the room as built will not take a compliant furniture layout, that is a finding about the Employer's room and the Employer would rather have it now, while P2 can still change something, than after twelve modules have been manufactured. 
+6.7  Fixings, and the rule that this package does not put a screw in a wall 
+Every wall, floor and ceiling in this village was manufactured in a factory four hundred miles away, and some of them are fire-rated, vapour-sealed or acoustically rated elements whose performance was tested before this package existed. 
+NO ITEM SUPPLIED UNDER THIS PACKAGE SHALL BE FIXED TO THE MODULE STRUCTURE, TO ANY PARTITION, TO A CEILING OR TO A FIRE-RATED OR VAPOUR-SEALED ELEMENT except in accordance with a fixing detail P2 has accepted in writing. 
+The Contractor shall submit a fixing schedule listing every item it intends to fix, its mass, its point loads, the position, and the fixing it proposes, and shall submit it in time for P2 to confirm or object before manufacture where the fixing requires a pattress or a reinforced zone — IF-04. 
+A television bracket screwed into a partition that was not designed for it is a defect in two packages and it is discovered when the television comes off the wall. 
+WHERE A FIXING CANNOT BE AGREED the Contractor shall offer a free-standing alternative rather than fix anyway. Every item in the schedule at section 5 is capable of being provided free-standing except where the Employer has prescribed otherwise, and that is deliberate. 
+6.8  Getting it into the room, and out again in thirty-eight months 
+Furniture is installed AFTER the modules are set and BEFORE handover, per IF-03. There is no stage at which a wall is open. 
+EVERY ITEM SHALL THEREFORE be capable of being brought to its final position, and removed for replacement, through the completed building — either assembled, or in components assembled in the room without specialist tools. 
+The Contractor shall obtain from P2 the clear opening widths and heights of every door, corridor, stair and turn on the route to each room and to each amenity space, and shall check its three largest items against them, allowing not less than 50 mm clearance on the governing dimension and 100 mm along the route. For tender purposes it shall assume a bedroom door clear opening of 800 mm and shall confirm the actual figure before it orders — IF-05. 
+A 900 mm bed does not pass through an 800 mm door assembled. That is not a problem; it is a reason the frame at F-01 is required to assemble and dismantle in the room. It becomes a problem only if nobody checks until the lorry arrives. 
+THE STAIR. Blocks are two storey and there is no lift. Every item destined for a first-floor room shall pass the stair and its turn, in the components in which it will be carried, and the Contractor shall state that it has checked it. 
+AT THE END OF THE TERM the same applies in reverse. Under section 17 this furniture is removed from occupied rooms in a live village; an item that could only be installed before the corridor was finished cannot be taken out after it. 
+6.9  Weight, and the person who has to move it 
+P5 moves this furniture for thirty-eight months: room turnarounds, deep cleans, redecoration, replacements and the pest control inspections at 6.5. 
+NO SINGLE ITEM SHALL EXCEED 23 kg in the components in which it is routinely moved. Where an assembled item exceeds it, the item shall either separate into components below it or shall carry a permanent, legible two-person handling mark stating its mass. 
+Every item in a bedroom shall be movable clear of the wall and the bed shall be movable clear of every wall, by one person, for cleaning and inspection. A bed that takes two people to move is a bed that is not moved, and what is under it is not cleaned. 
+The Contractor shall state the mass of every scheduled item in its Contractor's Proposals. That figure is used by P5 to write its method statements and by the Employer to check this clause, and an item delivered heavier than stated is a departure. 
+6.10  Stability, and the failures that injure somebody 
+Every item of storage furniture shall be stable to BS EN 16122 with the heaviest drawer or door fully extended and loaded to its rated capacity, without anchoring to a wall. Where an item cannot achieve that it shall not be supplied, because the anchoring the standard would otherwise require conflicts with 6.7. 
+Every chair shall be stable to BS EN 1728 under a load applied at its front edge, at its side, and to its back at full recline where it reclines. 
+Every table shall be stable under an off-centre load at the point where somebody will lean on it, which is the corner nearest the door. 
+No glass in any resident area except where it is safety glass to BS EN 12600 class 2 or better, and no glass table tops at all. 
+TWO STANDARDS FOR THE SAME THING, AND THE EMPLOYER STATES IT AGAINST ITSELF. The P2 room data sheets specify window glazing as toughened or laminated to BS 6206 Class A. BS 6206 WAS WITHDRAWN and is superseded by BS EN 12600, in which the classes run 1, 2 and 3 by drop height rather than A, B and C. Class A under the old standard corresponds to Class 1 under the current one, and Class B to Class 2. 
+This package specifies BS EN 12600 because it is the standard in force. The two documents are to be read as one requirement and P2 Appendix 8 and the room data sheets are to be corrected to the current standard. A tenderer offering glass certified only to a withdrawn standard has not met this clause, and a tenderer that noticed the conflict and priced around it silently has not either — it is listed as a departure under 6.1. 
+SHELF AND RACK CAPACITIES shall be marked on the bay, permanently, per F-34. An unmarked capacity is an overloaded shelf within six months and there is nobody left who knows what it was rated at. 
+6.11  Cleaning, and surviving the regime it will actually get 
+P5 cleans these rooms to a stated standard, daily in circulation and at every turnaround in a bedroom, with a defined chemical schedule, for thirty-eight months. 
+Every surface supplied under this package shall withstand daily cleaning with the products in the Operator's approved schedule, without discolouring, crazing, delaminating, softening or losing its label, for the whole deployment. 
+THE CONTRACTOR SHALL OBTAIN P5's CHEMICAL SCHEDULE and shall submit a written compatibility statement against it, product by product, with its Contractor's Proposals. Where P5 is not yet appointed the Employer will issue an indicative schedule; the Contractor shall confirm against the final one before it orders. 
+No unsealed timber, no untreated fabric, no crevice that cannot be reached, and no upholstery seam in a horizontal surface where liquid will sit. 
+UPHOLSTERY COVERS in resident areas shall be removable and washable at 60 °C, or shall be an impervious wipe-cleanable material. A lounge chair with a fixed woven cover is a chair that is replaced in year two. 
+6.12  Attrition, model continuity, and what happens in month nineteen 
+Furniture in a village of 225 people breaks. This clause is written so that a broken chair is replaced in a day rather than becoming the fourteenth different chair in the lounge. 
+ATTRITION STOCK. Not less than 3% of every bedroom line and 5% of every seating line, delivered at the FIRST sectional handover and held in the amenity store at R-10, with an inventory issued to and acknowledged by P5 under IF-11. Stock delivered at the end of the contract has arrived after the breakages. 
+MODEL CONTINUITY. The Contractor shall guarantee availability of each supplied model, or a demonstrably compatible successor, for the deployment period of 38 months plus 12 months. Where a model is discontinued it shall give not less than 6 months' written notice and shall offer a compatible alternative, and 'compatible' means it matches on dimension, on fire classification, on finish and on the fixings it uses. 
+THE REPLACEMENT ROUTE. The Contractor shall state its lead time for a replacement item ordered by P5 during the deployment. It shall not exceed 4 weeks for any bedroom line. Where it does, the attrition percentage for that line shall be increased and priced accordingly. 
+NONE OF THIS IS A LUXURY. A village where the lounge has four kinds of chair and two rooms have no desk chair at all is a village that looks neglected, and it looks that way to the people who live in it every day. 
+6.13  The sample room, and how a room is accepted 
+THE SAMPLE ROOMS. Before any bulk delivery the Contractor shall fully furnish one room of each type — RT-01, RT-02 and RT-03 — on site, in a completed module, and the Employer and P5 shall inspect and approve them jointly. 
+The RT-02 sample is measured against every clearance at 6.6, in the room, with the furniture in place. 
+Approval of the sample rooms is a condition precedent to the first bulk delivery. A photograph of a showroom is not a sample room: the point of the exercise is the furniture in the actual room, at the actual dimensions, and it is the only test that finds the item that does not fit. 
+ROOM ACCEPTANCE. A room is accepted when it has passed a room acceptance check against a checklist agreed with P5 before the first delivery, covering: every scheduled item present; every item assembled, stable and undamaged; the encasement fitted and the spare present; the fire labels present and legible on every labelled item; nothing left in the room including packaging; and for RT-02, the clearances measured and recorded. 
+THE CHECK IS ROOM BY ROOM AND IT IS SIGNED. A sample-based acceptance is not acceptable for 225 rooms, because the failures are individual: one missing bin, one damaged chair, one room where the bed was put on the wrong side. Each of those is invisible in a sample and obvious to the person who moves in. 
+HANDOVER OF A SECTION is complete when every room in it has passed and the inventory has been issued to and acknowledged by P5 under IF-08, not when the delivery is complete. 
+6.14  Delivery, sequence, and the four dates that matter 
+This package delivers against the sectional occupation dates, not against a single completion: 65 beds at month 3, cumulative 150 at month 6, 205 at month 9, 225 at month 12. 
+FURNITURE FOR A SECTION SHALL BE INSTALLED AND ACCEPTED BEFORE THAT SECTION IS OCCUPIED. There is no arrangement in which residents move into an unfurnished room and the furniture follows. 
+THE INSTALLATION WINDOW is after module setting and building services commissioning, and before handover — IF-03. It is short and it is the last thing in the sequence, which means every delay upstream lands on this package. The Contractor shall state, in its Proposals, the minimum installation window it requires per section and the resource it will apply. 
+WHERE THE SEQUENCE SLIPS, P2 provides secure storage under its own requirements and the Contractor shall not deliver furniture into an unsecured or incomplete building. 6.16 states why. 
+A delivery accepted into a building that is not ready is a delivery that is stored in a corridor, damaged, and disowned by both parties. 
+6.15  Packaging, and 225 rooms of cardboard 
+Furnishing 225 bedrooms and 600 m² of amenity space generates a volume of packaging that is a genuine logistics and waste problem on a site with a laydown area of 0.42 ha, and it is a problem this package creates. 
+ALL PACKAGING SHALL BE REMOVED FROM SITE BY THE CONTRACTOR, on the day it is generated. No packaging shall be left in a room, a corridor, a stairwell or an escape route at the end of any working day, and none shall be placed in the village waste provision, which is sized for residents and not for this. 
+The Contractor shall state, in its Proposals, the packaging it expects to generate by volume and how it will be segregated, removed and recycled, and shall report actuals monthly under section 15. 
+The Employer will evaluate a returnable, reusable or blanket-wrap delivery method favourably, because it removes the problem rather than managing it. 
+NO PACKAGING IN AN ESCAPE ROUTE, at any time, for any duration. From month 3 there are people asleep in the building next door and the escape route belongs to them. 
+6.16  Security, because this is the most stealable package on the project 
+Furniture is valuable, portable, unmarked and, unlike a module or a drainage run, it fits in the back of a van. It arrives at the very end of the programme, when site security attention has usually moved on. 
+No delivery shall be made to a building that is not lockable and secured. Where the programme requires earlier delivery, the Contractor shall provide secure storage at its own cost and shall not store furniture in an unsecured shell. 
+Deliveries shall be sealed and the seal number recorded, checked on arrival, and a broken seal reported within 2 hours and before any item is installed. 
+An inventory shall be maintained from the first delivery to the last room acceptance, reconciled weekly against the delivery records, and any discrepancy reported. A shortage found at handover cannot be attributed to anybody; a shortage found in the week it happened can. 
+From first delivery until sectional handover the Contractor holds responsibility for the furniture in the building, under the key control regime P2 and P5 operate, and hands it over with the inventory rather than with the last delivery note. 
+6.17  Comfort, and the only test that matters 
+Everything above this clause can be satisfied by a compliant, durable, fire-rated, cleanable set of furniture that nobody wants to sit on. 
+The Employer will evaluate the tender partly on the Contractor's Proposals being sat in. The sample rooms at 6.13 shall be available to a panel including residents' representatives or, before occupation, the Employer's and P5's staff, and their view is recorded. 
+AFTER OCCUPATION the furniture is measured by the residents' satisfaction survey P5 operates. Where a scheduled item is the subject of a sustained adverse response — the same item raised by more than 10% of respondents across two consecutive surveys — the Contractor shall attend, investigate and propose a remedy. Where the item is failing to meet a requirement of this document, the remedy is at the Contractor's cost. 
+That is not a soft clause. A desk chair that is unusable after two hours is a resident who works sitting on their bed for thirty-eight months, and it is one of the few things in this village that a person notices every single day. 
+ 
+7  Interfaces 
+This package supplies nothing that is not touched by another package's work. Each interface states what crosses it, who certifies it and when. 
+Ref 
+With 
+What crosses it 
+Who certifies 
+When 
+IF-01 
+P2 Modular Accommodation 
+THE COMMON SCHEDULE — every item in a bedroom divided between P2 fitted joinery and P4 loose furniture, line by line 
+A single schedule issued by the Employer and signed by both parties 
+BEFORE EITHER PACKAGE IS LET — section 4 
+IF-02 
+P2 Modular Accommodation 
+The dimensions, positions and clear zones of the fitted wardrobe, desk worktop and shelving that this package's furniture has to work around 
+P2 issues from its room data sheets; this Contractor confirms its layout against them 
+Before this Contractor orders anything 
+IF-03 
+P2 Modular Accommodation 
+Access for installation after module setting and services commissioning and before handover, and secure storage where the sequence slips 
+Programme coordination; P2 provides the storage under its own requirements 
+Per the sectional dates at section 10 
+IF-04 
+P2 Modular Accommodation 
+EVERY FIXING into the module structure, a partition, a ceiling or a fire-rated or vapour-sealed element 
+This Contractor submits the fixing schedule; P2 accepts in writing. Nothing is fixed without it 
+Before P2 manufactures, where a pattress or reinforced zone is needed — 6.7 
+IF-05 
+P2 Modular Accommodation 
+Clear opening widths and heights of every door, corridor, stair and turn on the installation route 
+P2 states them; this Contractor checks its three largest items and confirms 
+Before this Contractor orders — 6.8 
+IF-06 
+P3 Kitchen and Catering 
+THE BOUNDARY: dining furniture is P3, at its item D4 for 100 covers. Everything on the other side of the dining room door is this package 
+One common schedule issued by the Employer before either package is let 
+Before either package is let 
+IF-07 
+P1 Civil Works 
+Delivery access, the unloading position and the route into each building during sectional occupation 
+P1 states the available routes; this Contractor confirms they suit its vehicle 
+4 weeks before each sectional occupation 
+IF-08 
+P5 FM and Operation 
+The furnished rooms, the room acceptance checklist and the signed record, and the inventory 
+P5 acknowledges receipt room by room against the checklist 
+At each sectional handover — 6.13 
+IF-09 
+P5 FM and Operation 
+LINEN: the mattress, pillow and duvet dimensions, so that P5's sheets, pillowcases and duvet covers fit them 
+This Contractor states the dimensions; the Employer issues them to P5 before P5 procures 
+Before P5 orders any linen — 6.4 
+IF-10 
+P5 FM and Operation 
+Laundry and drying MACHINES are P5's under its personal laundry service. This package furnishes the room around them 
+P5 states the machine positions and clearances; this Contractor lays out the furniture to suit 
+Before this Contractor's laundry layout is fixed 
+IF-11 
+P5 FM and Operation 
+Attrition stock at 6.12, its inventory, the replacement route, the lead times and the bed inspection method at 6.5 
+P5 confirms the arrangements are workable before this Contractor orders 
+At the first sectional handover 
+IF-12 
+Employer's fire engineer 
+The upholstered seating schedule for the amenity building, as a fire load against the stated fire strategy 
+The fire engineer confirms; this Contractor does not order until it has 
+Before ordering the amenity seating — 6.3 
+IF-01 is shaded because it is the only interface on this project that has to be closed BEFORE either of the two packages either side of it is let. Everything else in this document can be fixed later. That one cannot. 
+ 
+8  Performance schedule 
+These are the Employer's requirements. Compliance with statute is the Contractor's duty and is not discharged by meeting them. 
+Criterion 
+Requirement 
+How it is verified 
+Mattress fire performance 
+BS 7177 medium hazard minimum, permanently labelled 
+Test report submitted; label checked on every item at room acceptance 
+Upholstered seating fire performance 
+BS 7176 medium hazard minimum, permanently labelled 
+Test report submitted; label checked at acceptance 
+Label durability 
+Label present and legible for the whole deployment 
+Checked at acceptance and at each annual inspection 
+Amenity fire load 
+Seating schedule confirmed against the fire strategy 
+Written confirmation from the Employer's fire engineer before order 
+Non-domestic seating strength 
+BS EN 16139 severity level L2 
+Test report per item type 
+Task chair 
+BS EN 1335-1, -2, -3 type B 
+Test report 
+Tables and desks 
+BS EN 15372 level 5; desking to BS EN 527 
+Test report 
+Storage furniture 
+BS EN 16121 / 16122, level 5 in resident areas 
+Test report 
+Bed frame 
+BS EN 1725 
+Test report 
+Outdoor furniture 
+BS EN 581-1 and -2, contract use 
+Test report 
+Storage stability 
+Stable with the heaviest drawer extended and loaded, unanchored 
+Demonstrated on the sample, per item type 
+Glass 
+Safety glass to BS EN 12600 class 2 minimum; no glass table tops 
+Inspection and product data 
+Bed dimension 
+900 × 2000 mm sleeping surface 
+Measured on the sample room 
+Clear height beneath bed frame 
+≥ 150 mm across the full footprint 
+Measured on the sample room 
+RT-02 turning space 
+≥ 1500 mm diameter clear, WITH furniture in place 
+Measured in each of the 12 rooms, recorded 
+RT-02 transfer space 
+≥ 1000 mm clear to one side of the bed, full length 
+Measured in each of the 12 rooms, recorded 
+RT-02 mattress height 
+450–500 mm to the top of the mattress, compressed 
+Measured in each of the 12 rooms, recorded 
+RT-02 reach ranges 
+All storage, surfaces and controls within BS 8300-2 seated reach 
+Measured in each of the 12 rooms, recorded 
+Route clear width in RT-02 
+≥ 900 mm to the door and to the ensuite, with furniture placed 
+Measured in each of the 12 rooms, recorded 
+Mattress protection 
+Zipped, waterproof, vapour-permeable encasement, 60 °C launderable, one plus one spare 
+Inspection at room acceptance 
+Bed frame inspectability 
+No open tube end, no upholstered base, no fabric headboard 
+Confirmed by P5 before order; inspected on the sample 
+Access into the room 
+Every item passes the door, corridor and stair with ≥ 50 mm clearance 
+Contractor's access statement; demonstrated on the three largest items 
+Manual handling 
+No component routinely moved exceeding 23 kg; heavier items marked 
+Weighed at the sample; masses stated in the Proposals 
+Bed movability 
+Movable clear of every wall by one person 
+Demonstrated on the sample 
+Cleaning compatibility 
+Withstands P5's chemical schedule for the deployment without degradation 
+Written compatibility statement per product 
+Upholstery covers 
+Removable and washable at 60 °C, or impervious and wipe-cleanable 
+Product data and inspection 
+Fixings 
+No fixing to the structure without an accepted P2 detail 
+Fixing schedule accepted before installation 
+Attrition stock 
+≥ 3% bedroom lines, ≥ 5% seating lines, at the FIRST sectional handover 
+Inventory issued to P5 and counted 
+Replacement lead time 
+≤ 4 weeks for any bedroom line during the deployment 
+Stated in the Proposals; measured in service 
+Model continuity 
+Deployment plus 12 months, or 6 months' notice and a compatible alternative 
+Written undertaking with the tender 
+Warranty 
+5 years frame and structure, 2 years moving parts and upholstery 
+Warranty documents issued at each sectional handover 
+Sample rooms 
+One of each type furnished on site and approved before bulk delivery 
+Joint inspection by the Employer and P5 
+Room acceptance 
+Every one of 225 rooms checked and signed individually 
+Signed checklist per room, not a sample 
+Packaging 
+Removed from site the day it is generated; none in any escape route 
+Daily inspection; monthly waste report 
+Delivery security 
+Sealed deliveries, seal numbers recorded, weekly inventory reconciliation 
+Inventory and delivery records 
+Resident response 
+No scheduled item raised by more than 10% of respondents in two consecutive surveys 
+P5's residents' satisfaction survey 
+ 
+9  Handover to the Operator 
+P5 operates this furniture for 38 months and replaces it one item at a time. Handover is complete when P5 acknowledges receipt against the checklist, room by room, not when the last delivery is made. 
+Deliverable 
+Requirement 
+Room acceptance records 
+One signed checklist per room, all 225, issued as a set per section 
+RT-02 clearance records 
+The measured record for each of the 12 accessible rooms, with the furniture in place 
+Inventory 
+Every item, by room and by space, reconciled to the delivery records and acknowledged by P5 
+Attrition stock inventory 
+Counted and signed at the FIRST sectional handover, held at R-10 
+Fire test evidence 
+The test report and hazard level for every mattress, seating and fabric line supplied 
+Warranties 
+Per item type, with the start date at the sectional handover and the claim route named 
+Care and cleaning instructions 
+Per item type, in the form P5 will actually use — one page per item, not a manufacturer's booklet 
+Bed inspection and treatment method 
+The method P5 will use for the inspection at 6.5, agreed with P5 before order 
+Linen dimensions 
+Mattress, pillow and duvet dimensions, issued to P5 before P5 procures linen 
+Replacement route 
+Contact, lead time and ordering process for every line, and the model continuity undertaking 
+Asset data 
+Every item recorded to the schema at P2 Appendix 11, at the granularity P5 will maintain and replace at 
+ 
+10  Programme, delay and damages 
+10.1  The four dates, and being last in the sequence 
+This package has no completion date of its own that matters. It has four, and they are the sectional occupation dates: 65 beds at month 3, cumulative 150 at month 6, 205 at month 9, and 225 at month 12. 
+For each section, this package is complete when every room in that section has passed the room acceptance check at 6.13 and the inventory has been issued to P5. 
+BEING LAST IS THE PROGRAMME RISK AND IT IS NOT THIS PACKAGE'S FAULT. Furniture goes in after the modules are set and after services commissioning, and before handover. Every delay in every package upstream arrives here as a compressed window. 
+The Contractor shall state, with its tender, the minimum installation window it requires per section and the resource it will apply, and the Employer will hold the programme to it. A window that is compressed below the stated minimum is a change under section 13 and not an expectation. 
+10.2  The dates before the dates 
+Three deliverables in this package sit months ahead of any delivery, and they are the ones that matter: 
+THE COMMON SCHEDULE at section 4, confirmed before either package is let. 
+THE DIMENSIONAL CONFIRMATION at 4.3, before P2 manufactures. 
+THE SAMPLE ROOMS at 6.13, approved before any bulk delivery. 
+The Contractor shall show all three on its programme, with the lead time behind each, and shall state the date at which a delay in any of them becomes critical to the month 3 date. A programme that shows only deliveries is a programme that has not understood this package. 
+10.3  Progress and reporting 
+Monthly progress report stating: orders placed by line and their lead times; the status of the Common Schedule and the dimensional confirmation; the sample room status; rooms accepted to date against the number required for the next sectional date; every open interface at section 7 and its status; and any matter that could affect a sectional date, whether or not it is this Contractor's responsibility. 
+LEAD TIMES ARE REPORTED HONESTLY AND EARLY. Contract furniture is manufactured to order and a twelve-week lead time discovered in week ten is a section that is not furnished. The Employer would far rather hear about it in month one. 
+10.4  Delay, and what a late section costs 
+Delay damages apply to each sectional occupation date separately, at £145 PER BED PER DAY for every bed in that section that cannot be occupied on its date. It is the same rate as the P2 sectional damages because it is the same loss: the Employer houses those people somewhere else, at the cost of a bed elsewhere and a longer journey to work. 
+It is stated as a genuine pre-estimate of that loss and it is not a penalty, and it is stated in this document rather than in a schedule so that a tenderer prices the risk of a late section knowingly. 
+A ROOM WITHOUT A BED IS AN UNOCCUPIABLE ROOM. It does not matter that the module cost two hundred times what the bed cost. 
+WHERE THE DELAY IS NOT THIS CONTRACTOR'S, an extension of time is granted and damages do not run. The causes are: a change instructed under section 13; an installation window compressed below the stated minimum at 10.1; late issue or late reconciliation of the Common Schedule; a building not ready or not secure to receive delivery under 6.16; and any act of prevention by the Employer or another package. Notification within 10 working days, supported by records kept at the time. 
+ 
+11  Health, safety and working in an occupied village 
+11.1  The duties this section does not restate 
+The Contractor shall comply with the Health and Safety at Work etc. Act 1974, the Construction (Design and Management) Regulations 2015 as they apply to it, the Manual Handling Operations Regulations 1992 and every other applicable statutory requirement. Nothing in this document reduces those duties. 
+The clauses below are the requirements this package has that a competent furniture contractor's standard arrangements do not automatically cover, because this is not a delivery into an empty office block. 
+11.2  Working in a village where people are already asleep 
+From month 3 this package installs furniture in a building next to buildings where people are living, and by month 12 it is installing on a site that is almost entirely occupied. 
+The site rules at Appendix 3 apply in full, including the noise rule near occupied blocks. Flat-pack assembly is a noisy activity carried out for weeks; the Contractor shall programme it inside permitted hours and shall not assume that an internal activity is exempt because it is indoors. 
+DELIVERY VEHICLES follow the routes P1 states at IF-07 and stop where P1 says they stop. No vehicle reverses in a resident pedestrian area without a marshal. 
+NOTHING IS STORED IN AN ESCAPE ROUTE, a corridor or a stairwell, at any time, including during a working day. 6.15. 
+11.3  Manual handling, which is the real risk in this package 
+This package carries several thousand items up stairs, along corridors and into rooms, over a short window, repetitively. That is the injury profile of a furniture installation and it is entirely predictable. 
+The 23 kg limit at 6.9 applies to the installation as well as to the operation. The Contractor shall submit a manual handling assessment for the installation covering the stair, the turn, the corridor length and the repetition, and shall state the equipment it will use. 
+A method statement that says 'two-person lift where required' without stating which items require it is not an assessment. The masses are known: they are in the Contractor's own Proposals under 6.9. 
+11.4  People entering rooms in an occupied village 
+In an occupied section, an installer entering a room is entering somebody's home. Entry to any occupied room is under P5's entry procedure, logged, and never unaccompanied by arrangement with P5. 
+Every person is inducted, identifiable and recorded before starting work. The conduct standards at section 16 apply to every person this Contractor brings to site, at every tier and including agency labour, and a breach is a removal from site. 
+No photography of residents or of the interior of occupied rooms, per the site rules. 
+ 
+12  Information and asset data 
+12.1  What is delivered, and in what form 
+Asset information to the schema at P2 Appendix 11, which applies to this package unamended. 
+THE GRANULARITY IS THE DECISION THAT MATTERS AND THIS DOCUMENT MAKES IT. Every bed, mattress, task chair and item of amenity seating is recorded individually, by room, because those are the items P5 replaces one at a time and it has to know which one it is replacing. Bins, laundry bags and mirrors are recorded by type and quantity per room, because nobody tracks a bin by serial number and pretending otherwise produces a register nobody maintains. 
+A register at the wrong granularity is worse than no register, because it is abandoned in month four and then relied on in month thirty. 
+12.2  When 
+Progressively, section by section, issued within 2 weeks of each sectional acceptance and a precondition of the payment for that section under section 18. Not held to the end and compiled from delivery notes. 
+12.3  What P5 actually needs 
+P5 replaces, cleans, moves and inspects this furniture for thirty-eight months. It needs, per item type: the identification, the supplier, the replacement lead time, the cleaning method, the fire classification and where the label is, and the warranty position. 
+The care instructions at section 9 shall be one page per item type, written for a housekeeper on a shift, not a manufacturer's brochure. A forty-page booklet is not read and the chair is cleaned with the wrong product on day one. 
+ 
+13  Change control 
+13.1  The only route by which anything changes 
+No change to these Requirements, to the Common Schedule, to a prescribed dimension or to a fire classification takes effect except by written instruction from the Employer's authorised representative. 
+No instruction from another package's contractor, from a site meeting, or from P5's operational team has any effect. A request from the Operator is not an instruction, however reasonable it is and however senior the person making it. 
+13.2  Valuation 
+Every proposed change is valued and its programme effect stated BEFORE it is instructed, using the rates in the priced schedule at section 18, or where no rate applies by a build-up the Contractor submits and the Employer accepts. Quotation within 10 working days of a request. 
+A CHANGE AFTER ORDER IS DIFFERENT FROM A CHANGE BEFORE ORDER, and the Contractor shall state, for each line, the date beyond which a change carries a cancellation or restocking cost. Contract furniture is manufactured to order and that date is real. 
+13.3  Change originating in another package 
+Where P2 changes a fitted item, a dimension or a fixing position, or P3 changes the dining boundary, it is a change to this package and it is instructed by the Employer under 13.1. It is not agreed between contractors. 
+Where this Contractor becomes aware that a requirement of another package cannot be met because of something in this one, it shall notify the Employer immediately rather than leave it for that package to find. The allocation of cost for a Common Schedule error is at 4.4. 
+ 
+14  Defects, response and the systemic rule 
+14.1  Period 
+The defects liability period is 12 months from the acceptance of each section, running separately for each. 
+THE WARRANTIES AT 6.2 RUN LONGER and are not extinguished by it: 5 years on frames and structural components, 2 years on moving components and upholstery, from the sectional handover at which the item was installed. 
+A SYSTEMIC DEFECT — the same failure in more than 5% of any supplied line — is a defect in the whole line, not in the items that have failed so far. The remedy is replacement of the line, and the Contractor shall not wait for each item to fail before acting on it. That rule exists because 225 of anything fails on a curve, and the Contractor sees the curve before the Employer does. 
+14.2  Response, in an occupied village 
+PRIORITY 1 — anything that makes a room unusable or unsafe: a bed that has failed structurally, a chair that has collapsed, a storage unit that has become unstable, or damage that presents a sharp or trapping hazard. Attend or replace from attrition stock within 24 hours; the room is not left unusable overnight. 
+PRIORITY 2 — an item that is unusable but does not make the room unusable, or a failure in an amenity space that reduces its capacity. Replace within 5 working days. 
+PRIORITY 3 — everything else, including cosmetic damage. 20 working days or an agreed programme. 
+These are achievable BECAUSE of the attrition stock at 6.12. Priority 1 is met from stock held on site, not from a manufacturing lead time, and that is the whole reason the stock is delivered at the first handover rather than the last. 
+14.3  Fair wear, damage and who pays 
+Damage caused by a resident is P5's to recover through its own arrangements and is not a defect. Failure of an item in normal use within its warranty period is the Contractor's. 
+THE LINE BETWEEN THEM IS DRAWN BY THE SYSTEMIC RULE AT 14.1, not by argument item by item. One broken chair leg in 225 rooms is wear. Twelve broken chair legs in the same line is a chair that is not fit for the use it was bought for, whatever the residents did to it, because the use was stated in this document. 
+The Contractor shall attend and inspect on request rather than assess a failure from a photograph. 
+ 
+15  Materials, packaging and end of life 
+15.1  The product itself 
+The Contractor shall state, for every scheduled line: the principal materials by mass; the recycled content; the proportion by mass that is separable and recyclable at end of life; and the certification of any timber, which shall be FSC or PEFC certified without exception. 
+UPHOLSTERY AND FOAM shall be free of added halogenated flame retardants where the required BS 7176 or BS 7177 classification can be achieved without them, and the Contractor shall state where it has and has not achieved this. The fire classification is not negotiable; how it is reached is a legitimate question and this clause asks it. 
+The Employer will evaluate a tender partly on these answers, and a tenderer that returns 'not known' on every line is telling the Employer something about its supply chain. 
+15.2  Packaging and delivery 
+Packaging volume, its removal and its recycling rate reported monthly per 6.15, and a returnable or blanket-wrap delivery method evaluated favourably. 
+Delivery consolidation: the Contractor shall state the number of vehicle movements it expects to make and shall consolidate rather than deliver line by line. A site with a 0.42 ha laydown does not have room for thirty part-loads. 
+15.3  End of life, which is the point of this package 
+This is the most reusable package in the village. A base is broken out and a module is dismantled, but a bed, a chair and a table are removed intact and used again somewhere else, and that is the single largest sustainability decision available here. 
+The Contractor shall state, with its tender, its take-back position at the end of the deployment: what it will take back, on what terms, and the residual value it would place on it. That figure is evaluated and it is carried into section 17. 
+A tenderer that will not take back what it supplied is telling the Employer what it thinks the furniture will be worth in three years. 
+ 
+16  Labour standards and the place of manufacture 
+16.1  Standards that apply to everybody this Contractor brings 
+The requirements apply to every person working on this package, including every subcontractor at every tier and every agency worker. 
+No person shall pay any fee to obtain or keep work on this project. No person's identity document shall be retained by anybody. Every person shall have a written contract in a language they understand, shall be paid not less than the applicable statutory minimum, directly into an account in their own name, in full and on time. Working hours and rest periods to the Working Time Regulations 1998. 
+The Modern Slavery Act 2015 applies and compliance is evidenced, not asserted. 
+16.2  The place of manufacture, which is where the real risk in this package is 
+This is the package most likely to be manufactured outside the United Kingdom, and furniture manufacturing is a sector with a documented history of forced labour, unsafe conditions and undeclared subcontracting. 
+THE CONTRACTOR SHALL DISCLOSE, WITH ITS TENDER, THE PLACE OF MANUFACTURE OF EVERY SCHEDULED LINE — the country and the site, not the country alone, and not the address of a trading company. Where a line is subcontracted onward, that is disclosed too. 
+The Employer reserves the right to audit any place of manufacture, at any tier, without notice, itself or through a third party, and to interview workers privately. A refusal is a breach. 
+Undisclosed subcontracting of a manufacturing operation is a material breach in its own right, whatever the conditions at the undisclosed site turn out to be, because the undisclosed site is the one nobody audits. 
+COTTON AND TEXTILES. Where a line contains cotton or textile components the Contractor shall state the origin of the fibre and shall evidence it. This is a live and specific risk in soft furnishings and it is not discharged by a supplier's self-declaration. 
+16.3  Social value 
+The social value framework at P2 Appendix 12 applies unamended, reported quarterly. 
+This package has a smaller footprint than the others and one real opportunity: the installation labour is local, short-term and repetitive, and it is exactly the kind of work that goes to agencies by default. The Employer will evaluate a proposal to employ and train that labour directly. 
+ 
+17  Removal and reuse 
+17.1  What happens to it in thirty-eight months 
+At the end of the deployment the village is removed and, if the Employer elects, relocated. This package's contents are the part with a genuine second life. 
+THE CONTRACTOR SHALL STATE, WITH ITS TENDER, three things, and they are evaluated: 
+Which lines it expects to be reusable at the end of the deployment, and in what condition. 
+Which lines are consumed by the deployment and will not be — the mattresses being the obvious case, for the reasons at 6.5. 
+Its take-back terms and the residual value it would place on the reusable lines at month 38. 
+An honest answer here is worth more than an optimistic one. A tenderer claiming every chair will be as good as new after thirty-eight months and 225 residents is either not telling the truth or has not done this before. 
+17.2  Removal 
+Removal is from occupied and recently vacated rooms in a live village, under the same regime as installation: the access constraints at 6.8, the manual handling limits at 6.9, and P5's entry procedure. 
+Items for reuse are removed, cleaned, inspected, inventoried and packed to a stated standard. Items for disposal are segregated by stream and reported under section 15. Mattresses are disposed of under the withdrawal criteria at 6.5 and their disposal route is stated. 
+Nothing is left in a room, a store or a container for somebody else to deal with. The inventory issued at handover is the list that is reconciled at removal, item by item, which is the other reason the granularity at 12.1 matters. 
+ 
+18  Pricing 
+18.1  How this is priced 
+The tender is priced against the schedule below in its issued structure. A tenderer who alters it produces a return that cannot be compared with the others and it will be marked accordingly. 
+RATES ARE PER ROOM OR PER ITEM, DELIVERED, ASSEMBLED, IN POSITION AND ACCEPTED. They include delivery, storage, assembly, installation, packaging removal, the room acceptance check, the inventory, overheads and profit. A rate that covers supply only, with installation elsewhere, is not comparable with the others and will not be normalised for the tenderer. 
+A rate left blank is a rate of nil and the item is deemed included elsewhere; a tenderer intending to exclude something lists it as a departure under 6.1 rather than leaving a cell empty. 
+QUANTITIES ARE FIRM: 225 rooms — 199 RT-01, 12 RT-02, 14 RT-03 — and the areas at section 3. They are the Employer's and they are not remeasured. 
+18.2  What is priced separately, and why 
+Four items are pulled out of the room rate because folding them in makes them invisible, and an invisible obligation is one that is performed badly or not at all. 
+THE SAMPLE ROOMS at 6.13 — three fully furnished rooms, on site, before any bulk delivery. It is a real cost incurred months early and it is the single most valuable quality control event in this package. 
+THE ATTRITION STOCK at 6.12 — because it is delivered at the first handover and must be visible as a quantity, not absorbed into a rate where it quietly shrinks. 
+THE RT-02 LAYOUT AND VERIFICATION at 6.6 — twelve rooms measured individually with the furniture in place, and the record issued. It is an hour a room and it is the difference between twelve compliant rooms and twelve that are not. 
+THE PACKAGING REMOVAL at 6.15 — because it is a daily logistics operation for the length of the installation, not a line in the preliminaries. 
+18.3  Payment 
+Payment is by application at each sectional acceptance, valued against this schedule, and conditional on: every room in that section having passed the room acceptance check at 6.13; the inventory issued and acknowledged by P5; and the asset data for that section issued within 2 weeks per 12.2. 
+NO PAYMENT IS MADE FOR FURNITURE DELIVERED BUT NOT INSTALLED AND ACCEPTED. Material on site is not progress in this package: a room full of boxes is a room that cannot be occupied. 
+Retention is released against sectional acceptance and at the end of the defects period for each section. 
+Item 
+Description 
+Basis 
+Note 
+A 
+PRE-CONTRACT AND SAMPLES 
+ 
+ 
+A1 
+Contractor's Proposals, layouts and the access statement 
+Lump sum 
+6.1. Including the three-largest-item check at 6.8 
+A2 
+Dimensional coordination with P2 and confirmation against the Common Schedule 
+Lump sum 
+section 4. The deliverable that sits ahead of every other one 
+A3 
+THE SAMPLE ROOMS — one RT-01, one RT-02, one RT-03, furnished on site 
+Lump sum 
+PRICED SEPARATELY. 6.13. Condition precedent to bulk delivery 
+A4 
+Test evidence, fire classifications and the fire engineer's confirmation 
+Lump sum 
+6.3 and IF-12 
+B 
+BEDROOM FURNITURE 
+ 
+ 
+B1 
+RT-01 room set, complete, installed and accepted 
+Rate per room × 199 
+F-01 to F-11. State every item and its mass 
+B2 
+RT-02 room set, complete, installed and accepted 
+Rate per room × 12 
+F-01 to F-14, to the clearances at 6.6 
+B3 
+RT-03 room set, complete, installed and accepted 
+Rate per room × 14 
+F-01 to F-11 plus F-15 and F-16 
+B4 
+RT-02 layout, measurement and verification, room by room 
+Rate per room × 12 
+PRICED SEPARATELY. 6.6. An hour a room, and the reason 12 rooms stay compliant 
+B5 
+Mattress encasements — one fitted plus one spare per bed 
+Rate per bed × 225 
+6.5. The spare is not optional 
+C 
+RECEPTION AND AMENITY 
+ 
+ 
+C1 
+Reception counter and waiting area 
+Lump sum 
+F-17, F-18. Accessible section at 760 mm 
+C2 
+Parcel and post lockers 
+Lump sum 
+F-19. Not fewer than 60 compartments 
+C3 
+Resident lounge seating for not fewer than 60 
+Lump sum 
+F-21. Fire load confirmed under IF-12 before order 
+C4 
+Occasional tables and media units 
+Lump sum 
+F-22, F-23 
+C5 
+Quiet room and study — not fewer than 12 positions 
+Rate per position 
+F-24 
+C6 
+Games and recreation furniture 
+Lump sum 
+F-25 
+C7 
+Multi-faith room furniture 
+Lump sum 
+F-26. Arrangement confirmed with residents through P5 
+D 
+OFFICE AND MANAGEMENT 
+ 
+ 
+D1 
+Office desking, chairs and pedestals — not fewer than 10 positions 
+Rate per position 
+F-27, F-28 
+D2 
+Meeting table and chairs 
+Lump sum 
+F-29 
+D3 
+Lockable storage and filing 
+Lump sum 
+F-30. Keyed to a schedule agreed with P5 
+E 
+LAUNDRY, DRYING AND STORES 
+ 
+ 
+E1 
+Laundry folding tables and seating 
+Lump sum 
+F-31, F-32. The machines are P5's — IF-10 
+E2 
+Laundry and linen trolleys 
+Rate per unit 
+F-33 
+E3 
+Racking and shelving to stores, with marked capacities 
+Lump sum 
+F-34 
+F 
+EXTERNAL 
+ 
+ 
+F1 
+External seating and tables 
+Rate per unit 
+F-35 
+G 
+ATTRITION STOCK — PRICED SEPARATELY 
+ 
+ 
+G1 
+Bedroom lines, not less than 3% 
+Rate per line 
+6.12. Delivered at the FIRST sectional handover 
+G2 
+Seating lines, not less than 5% 
+Rate per line 
+6.12 
+H 
+INSTALLATION, LOGISTICS AND ACCEPTANCE 
+ 
+ 
+H1 
+Delivery, storage, assembly and installation 
+Included in the room and item rates 
+Stated here so that nobody prices it twice 
+H2 
+PACKAGING REMOVAL FROM SITE 
+Lump sum 
+PRICED SEPARATELY. 6.15. Daily, for the length of the installation 
+H3 
+Room acceptance checks — 225 rooms, individually signed 
+Rate per room 
+6.13. Not a sample 
+H4 
+Inventory, asset data and handover deliverables 
+Lump sum 
+section 9, section 12 
+J 
+END OF DEPLOYMENT 
+ 
+ 
+J1 
+Removal, cleaning, inspection and inventory of reusable lines 
+Lump sum 
+section 17 
+J2 
+Disposal of consumed lines, by stream, with the route stated 
+Lump sum 
+15.3 
+J3 
+TAKE-BACK CREDIT — residual value offered at month 38 
+Credit, stated 
+17.1. Stated as a minus. It is evaluated 
+A blank basis and note mark a section heading. Every other line is priced. 
+ 
+19  The twenty-five questions, answered 
+Written against the same twenty-five findings raised against Revision A of the P2 Employer's Requirements. Four of the twenty-five do not apply to a loose furniture package. They are answered by saying so and saying why, rather than by inventing a requirement to fill the row — a register that answers a question that was never asked is a register nobody trusts on the questions that were. 
+Ref 
+The finding 
+Where this document answers it 
+G01 
+No design responsibility matrix or Contractor's Proposals mechanism 
+6.1: the duties the Employer states are listed, product selection is the Contractor's, the Contractor's Proposals are specified item by item, a Schedule of Departures is required with the tender, and test evidence must be submitted rather than promised 
+G02 
+Prescriptive and performance specification mixed 
+All 36 lines at section 5 carry an E or C code — 18 prescribed, 18 contractor-designed — and clause 1.2 states the only three reasons a line here is prescribed: a dimension that must agree with joinery P2 has already built, a life-safety or accessibility requirement, and a hygiene requirement. NO PRODUCT IS NAMED anywhere in the document 
+G03 
+No stated failure mode 
+6.3: BS 7177 medium hazard for mattresses and BS 7176 medium hazard for upholstery, PERMANENTLY LABELLED, with the label itself part of the specification — and the amenity seating schedule confirmed against the fire strategy before it is ordered, because seating added after the strategy was written is how a compartment stops working 
+G04 
+No damages or delay mechanism 
+10.4: £145 per bed per day per sectional date, the same rate as the P2 sectional damages, with five named causes of an extension of time including an installation window compressed below the stated minimum. A room without a bed is an unoccupiable room 
+G05 
+No defects regime 
+section 14: 12 months per section, warranties of 5 years on frames and 2 years on moving parts running past it, three priorities with times, and the SYSTEMIC RULE — the same failure in more than 5% of a line is a defect in the whole line, because 225 of anything fails on a curve and the Contractor sees the curve first 
+G06 
+No temporary works regime 
+Not applicable to loose furniture, and 6.7 says so by prohibiting the thing that would create one: no fixing into the module structure, a partition, a ceiling or a fire-rated element without a detail P2 has accepted in writing. Every scheduled item can be provided free-standing, deliberately 
+G07 
+Relocation imposed without a requirement 
+section 17: what is reusable, what is consumed, the take-back terms and the residual value at month 38 — all stated with the tender and all evaluated, with the take-back credit priced at schedule item J3 as a minus 
+G08 
+No information requirements 
+section 12: the P2 Appendix 11 schema unamended, AND the granularity decision made explicitly — beds, mattresses, chairs and amenity seating individually by room because P5 replaces them one at a time; bins and laundry bags by type and quantity because nobody tracks a bin by serial number 
+G09 
+No site constraints 
+section 11: installing in a village where people are already asleep, delivery routes stated by P1, nothing stored in an escape route at any time, and entry to an occupied room under P5's procedure. Plus 6.14 — being last in the sequence is the programme risk and the minimum installation window is stated by the tenderer, not assumed by the Employer 
+G10 
+No electrical supply characteristics 
+Not applicable — no item in this package is a fixed electrical installation. The charging positions at F-06 and the power provision at F-24 and F-29 are served from outlets P2 provides, and the coordination of those positions is at 4.3 
+G11 
+No water supply characteristics 
+Not applicable. The laundry and drying MACHINES that would need them are P5's under its personal laundry service, and this package furnishes the room around them — IF-10 
+G12 
+No evacuation or alarm strategy 
+6.3 and IF-12: this package's contribution to evacuation is the fire load it adds and the fire action notice holder at F-11, and both are addressed. Nothing is stored in an escape route at any time — 6.15 
+G13 
+A figure that was tight for the technology 
+The 23 kg manual handling limit at 6.9 is stated as a component limit rather than an assembled one, precisely so that it is achievable, and every item above it carries a permanent two-person mark with its mass 
+G14 
+No loading or serviceability criteria 
+6.2 and 6.10: BS EN 16139 level L2 seating, BS EN 15372 level 5 tables, BS EN 16121/16122 level 5 storage, BS EN 1725 beds, and stability with the heaviest drawer extended and loaded WITHOUT anchoring — because anchoring would conflict with 6.7 
+G15 
+No change control 
+section 13: written instruction from the named representative only, valuation before instruction, the rule that an operational request is not an instruction, and the date beyond which a change carries a cancellation cost, stated line by line, because contract furniture is made to order 
+G16 
+Float ownership not stated 
+10.1 and 10.2: the minimum installation window is stated by the tenderer and held to by the Employer, and the three deliverables that sit months ahead of any delivery are shown on the programme with the date at which each becomes critical 
+G17 
+No sustainability requirement 
+section 15: materials by mass, recycled content, separability at end of life, certified timber without exception, and the halogenated flame retardant question asked honestly — the fire classification is not negotiable, how it is reached is a legitimate question 
+G18 
+No testing regime for the thing that fails 
+6.13: THE SAMPLE ROOMS, one of each type, furnished on site in a completed module before any bulk delivery — and 225 individual room acceptance checks, because the failures in this package are individual and a sample cannot find them 
+G19 
+Missing drainage detail 
+Not applicable. This package has no drainage, and section 3 states what it does have so that the absence is a decision rather than an omission 
+G20 
+No obsolescence or support period 
+6.12: model continuity for the deployment plus 12 months, 6 months' written notice of discontinuation, a compatible alternative defined on dimension, fire classification, finish and fixings, and a replacement lead time not exceeding 4 weeks for any bedroom line 
+G21 
+No inspection checklist 
+section 8: 36 criteria each with a figure and a verification method, and 6.13: a room acceptance checklist agreed with P5 before the first delivery and signed room by room for all 225 
+G22 
+No definitions 
+section 2: 10 terms, including encasement, hazard level, attrition stock, the Common Schedule, and what a furnished room actually is — which is not a room the furniture has been delivered to 
+G23 
+No ethical labour requirement 
+section 16, and 16.2 in particular: the place of manufacture of EVERY line disclosed by country and by site, undisclosed onward subcontracting a material breach in its own right, audit at any tier without notice with private worker interviews, and fibre origin evidenced for cotton and textiles. This is the package most likely to be made offshore 
+G24 
+Clauses with no measurable requirement 
+Every performance criterion carries a figure and a verification method: hazard levels, severity levels, 1500 mm, 1000 mm, 450–500 mm, 150 mm, 900 mm, 23 kg, 60 °C, 3%, 5%, 4 weeks, 10% 
+G25 
+No security requirement 
+6.16: no delivery to a building that is not lockable, sealed deliveries with recorded seal numbers, a broken seal reported within 2 hours and before installation, weekly inventory reconciliation, and responsibility held until the inventory is handed over — because this is the most stealable package on the project and it arrives when site security attention has moved on 
+ 
+20  Appendices 
+The P2 appendices apply to this package as they stand and are not reissued — duplicating a figure creates two versions of it. 
+ 
+Appendix 
+Status 
+1 
+Activity schedule 
+Section 18 is the structure; the schedule is issued with the ITT 
+2 
+THE COMMON SCHEDULE 
+Section 4 is the Employer's starting position. The signed schedule is issued by the Employer BEFORE EITHER PACKAGE IS LET 
+3 
+P2 room data sheets 
+The fitted joinery this package's furniture works around — 4.3. Not reissued here. TO BE CORRECTED: the glazing standard cited is BS 6206, which is withdrawn — see 6.10 
+4 
+Fire strategy 
+P2 Appendix 2. The amenity seating fire load is confirmed against it at IF-12 
+5 
+Bed demand curve and the sectional occupation dates 
+P2 Appendix 6. Section 10 is derived from it 
+6 
+Planning consent and site rules 
+P2 Appendix 3. The noise rule near occupied blocks applies to flat-pack assembly — 11.2 
+7 
+Asset information requirements and the data schema 
+P2 Appendix 11 applies unamended. The GRANULARITY decision is made at 12.1 
+8 
+Social value framework 
+P2 Appendix 12 applies unamended
