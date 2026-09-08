@@ -435,7 +435,7 @@ export function assertInputs(agentId, inputs) {
  * `onStage`; the caller runs it in the background and polls. Everything
  * else is one call and returns when it returns.
  */
-export async function runAgent(agentId, inputs, runBy, { onStage, visuals } = {}) {
+export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resume } = {}) {
   const brief = AGENT_BRIEFS[agentId];
   if (!brief) throw new Error("Unknown agent.");
   const { model } = getProvider();
@@ -452,6 +452,7 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals } = {}
       inputs,
       visuals,
       onStage,
+      resume,
     });
   }
 

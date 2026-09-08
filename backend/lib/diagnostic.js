@@ -26,8 +26,9 @@
  * would change the answer, and delete anything a competent stranger
  * could have written without reading these particular documents.
  *
- * The passes are visible while they run and each one is saved as it
- * lands, so a run that fails at pass four is still four passes of work
+ * The passes are visible while they run and each one is WRITTEN TO THE RUN
+ * ROW as it lands, so a run that fails at pass four is still four passes of
+ * work that can be resumed rather than repeated
  * rather than nothing.
  */
 
@@ -472,7 +473,7 @@ function buildInputsBlock(brief, inputs) {
  * as it happens: a run that dies at pass four leaves four passes of work
  * on the record rather than nothing.
  */
-export async function runDiagnostic({ anthropic, model, system, brief, inputs, visuals, onStage }) {
+export async function runDiagnostic({ anthropic, model, system, brief, inputs, visuals, onStage, resume = {} }) {
   const inputsBlock = buildInputsBlock(brief, inputs);
   // Drawings and printed programmes lead, because they are the only part
   // of the pack that has to be looked at, and because they are as stable
@@ -500,16 +501,32 @@ export async function runDiagnostic({ anthropic, model, system, brief, inputs, v
     if (r.truncated) notes.push(`The "${key}" pass hit the length limit and may be cut off.`);
   };
 
-  await onStage?.({ key: "reconcile", state: "running", index: 0 });
-  const ledgerRun = await call(anthropic, {
-    model, system, inputsBlock, visualBlocks, visualNote, task: RECONCILE_TASK, budget: BUDGET.reconcile, caps,
-  });
-  record(ledgerRun, "reconcile");
-  const ledger = ledgerRun.text;
-  await onStage?.({ key: "reconcile", state: "done", index: 0, chars: ledger.length });
+  // A pass already held from an interrupted run is not paid for twice. The
+  // comment above this function used to claim each pass was saved as it
+  // landed; it was not — only the progress dots were — so a restart threw
+  // away every completed pass along with the one in flight.
+  let ledger;
+  if (resume.reconcile) {
+    ledger = resume.reconcile;
+    notes.push("Pass 1 was carried over from the interrupted run rather than repeated.");
+    await onStage?.({ key: "reconcile", state: "done", index: 0, chars: ledger.length, resumed: true });
+  } else {
+    await onStage?.({ key: "reconcile", state: "running", index: 0 });
+    const ledgerRun = await call(anthropic, {
+      model, system, inputsBlock, visualBlocks, visualNote, task: RECONCILE_TASK, budget: BUDGET.reconcile, caps,
+    });
+    record(ledgerRun, "reconcile");
+    ledger = ledgerRun.text;
+    await onStage?.({ key: "reconcile", state: "done", index: 0, chars: ledger.length, text: ledger });
+  }
 
   const sections = [];
   for (const [i, pass] of SECTION_PASSES.entries()) {
+    if (resume[pass.key]) {
+      sections.push({ key: pass.key, text: resume[pass.key] });
+      await onStage?.({ key: pass.key, state: "done", index: i + 1, chars: resume[pass.key].length, resumed: true });
+      continue;
+    }
     await onStage?.({ key: pass.key, state: "running", index: i + 1 });
     const r = await call(anthropic, {
       model, system, inputsBlock, visualBlocks, visualNote,
@@ -521,10 +538,13 @@ export async function runDiagnostic({ anthropic, model, system, brief, inputs, v
     });
     record(r, pass.key);
     sections.push({ key: pass.key, text: r.text });
-    await onStage?.({ key: pass.key, state: "done", index: i + 1, chars: r.text.length });
+    await onStage?.({ key: pass.key, state: "done", index: i + 1, chars: r.text.length, text: r.text });
   }
 
   await onStage?.({ key: "final", state: "running", index: SECTION_PASSES.length + 1 });
+  // The final pass is never carried over: it reconciles the twelve sections
+  // against each other, so it has to be written against the set that actually
+  // exists rather than an earlier one.
   const finalRun = await call(anthropic, {
     model, system, inputsBlock, visualBlocks, visualNote,
     ledgerBlock: `THE WORKING PAPER FROM PASS ONE — every finding below is sourced; build on it, cite its references, and do not contradict it without saying why.\n\n${ledger}`,
@@ -534,7 +554,7 @@ export async function runDiagnostic({ anthropic, model, system, brief, inputs, v
     caps,
   });
   record(finalRun, "final");
-  await onStage?.({ key: "final", state: "done", index: SECTION_PASSES.length + 1, chars: finalRun.text.length });
+  await onStage?.({ key: "final", state: "done", index: SECTION_PASSES.length + 1, chars: finalRun.text.length, text: finalRun.text });
 
   // The findings paragraph is written last but read first, so the
   // assembled report puts it back where it belongs.

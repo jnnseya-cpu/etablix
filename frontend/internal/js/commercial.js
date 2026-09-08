@@ -1390,12 +1390,21 @@ function renderStages(run) {
     })
     .join("");
   const done = run.stages.filter((s) => s.state === "done").length;
+  // How many passes actually survived — that is what a resume starts from.
+  const held = Object.keys(run.passes || {}).length;
   return `<div style="margin:10px 0 4px;">
     <p class="muted" style="font-size:0.84rem;margin-bottom:6px;">
       ${run.status === "running"
         ? `Pass ${Math.min(done + 1, run.stages.length)} of ${run.stages.length}. Each pass is a separate piece of reasoning over the whole document set, so this takes several minutes — you can leave this page and come back to it.`
-        : `Completed in ${run.stages.length} passes.`}
+        : run.status === "failed"
+          // It used to say "Completed in 6 passes" over a run that had died,
+          // directly above the message explaining that it had died.
+          ? `Stopped after ${done} of ${run.stages.length} passes.${held ? ` ${held} saved — resume it and only the rest are run again.` : ""}`
+          : `Completed in ${run.stages.length} passes.`}
     </p>
+    ${run.status === "failed" && held
+      ? `<p style="margin:6px 0 8px;"><button class="btn-block" data-run-resume="${run.id}" style="width:auto;padding:8px 18px;">Resume from pass ${held + 1}</button></p>`
+      : ""}
     <table style="font-size:0.86rem;width:100%;"><tbody>${rows}</tbody></table>
   </div>`;
 }
@@ -1444,6 +1453,20 @@ document.addEventListener("click", async (e) => {
   const decide = e.target.closest("button[data-run-decide]");
   const del = e.target.closest("button[data-run-del]");
   const draft = e.target.closest("button[data-run-draft]");
+  const resume = e.target.closest("button[data-run-resume]");
+  if (resume) {
+    resume.disabled = true; resume.textContent = "Resuming…";
+    try {
+      const out = await api(`/api/agents/runs/${resume.dataset.runResume}/resume`, { method: "POST" });
+      const viewer = document.getElementById("agent-run-viewer");
+      viewer.innerHTML = renderRunView(out.run);
+      followRun(out.run.id, viewer);
+    } catch (err) {
+      alert(err.message);
+      resume.disabled = false; resume.textContent = "Resume";
+    }
+    return;
+  }
   if (draft) {
     draft.disabled = true;
     try {

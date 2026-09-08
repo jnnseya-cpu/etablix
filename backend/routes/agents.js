@@ -7,13 +7,15 @@
  */
 
 import { Router } from "express";
+import fs from "node:fs";
+import path from "node:path";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 import { ROLES } from "../../shared/constants.js";
 import { collection, insert, update, remove, persist } from "../lib/store.js";
 import { emit } from "../lib/comms.js";
 import { AI_AGENTS } from "../lib/organisation.js";
 import { AGENT_BRIEFS, publicProvider, setProvider, testProvider, runAgent, assertInputs, PIPELINE_AGENTS, DIAGNOSTIC_STAGES } from "../lib/ai.js";
-import { acceptDocuments } from "../lib/uploads.js";
+import { acceptDocuments, UPLOAD_DIR } from "../lib/uploads.js";
 import { extractAll } from "../lib/extract.js";
 import { visualBlocks, visualPreamble } from "../lib/visual.js";
 
@@ -73,14 +75,20 @@ function trimLog() {
  * console shows which pass is in flight, and a run that fails at pass
  * four says which four passes were done rather than reporting nothing.
  */
-async function workPipeline(runId, agent, inputs, runBy, visualFiles = []) {
-  const stage = ({ key, state, index }) => {
+async function workPipeline(runId, agent, inputs, runBy, visualFiles = [], resume = {}) {
+  const stage = ({ key, state, index, text }) => {
     const run = collection("agentTasks").find((r) => r.id === runId);
     if (!run) return;
     const stages = (run.stages || []).map((st, i) =>
       st.key === key ? { ...st, state, at: Date.now() } : i < index ? { ...st, state: st.state === "pending" ? "done" : st.state } : st
     );
-    update("agentTasks", runId, { stages, stageKey: key, stageState: state });
+    // THE PASS ITSELF IS WRITTEN DOWN, not just the fact that it happened.
+    // Six passes of reasoning over the whole document set is several minutes
+    // and real money; losing five of them because the container was recreated
+    // mid-run — which a deploy does — is not something to shrug at.
+    const patch = { stages, stageKey: key, stageState: state };
+    if (state === "done" && text) patch.passes = { ...(run.passes || {}), [key]: text };
+    update("agentTasks", runId, patch);
   };
 
   try {
@@ -104,6 +112,7 @@ async function workPipeline(runId, agent, inputs, runBy, visualFiles = []) {
     const r = await runAgent(agent.id, inputs, runBy, {
       onStage: stage,
       visuals: { blocks, preamble: visualPreamble(seen) },
+      resume,
     });
     update("agentTasks", runId, {
       output: r.output,
@@ -135,9 +144,13 @@ export function failOrphanedRuns() {
   let n = 0;
   for (const r of collection("agentTasks")) {
     if (r.status !== "running") continue;
+    const held = Object.keys(r.passes || {}).length;
     update("agentTasks", r.id, {
       status: "failed",
-      error: "The server restarted while this run was in progress. Nothing was lost except the run itself — start it again.",
+      interrupted: true,
+      error: held
+        ? `The server restarted while this run was in progress. ${held} completed pass${held === 1 ? "" : "es"} ${held === 1 ? "was" : "were"} saved — resume it and only the unfinished passes are run again.`
+        : "The server restarted before the first pass finished. Start it again.",
       finishedAt: Date.now(),
     });
     n += 1;
@@ -280,6 +293,51 @@ router.post("/:id/run", acceptDocuments, async (req, res) => {
   } catch (err) {
     res.status(err.message.includes("required") ? 400 : 502).json({ error: err.message });
   }
+});
+
+/**
+ * POST /api/agents/runs/:id/resume — finish an interrupted run.
+ *
+ * A deploy recreates the container, and a run in flight dies with it. Every
+ * pass that had completed is on the run row, so resuming runs only what is
+ * missing: the same report, at the cost of the passes that were actually
+ * lost rather than all six.
+ *
+ * The visual pages are rebuilt from the client's files, which are still on
+ * disk — they were never the part that was lost.
+ */
+router.post("/runs/:id/resume", async (req, res) => {
+  const run = collection("agentTasks").find((r) => r.id === req.params.id);
+  if (!run) return res.status(404).json({ error: "Run not found." });
+  if (run.status === "running") return res.status(409).json({ error: "That run is already going." });
+  if (run.status === "awaiting_approval") return res.status(409).json({ error: "That run already finished." });
+  const agent = AI_AGENTS.find((a) => a.id === run.agent);
+  if (!agent || !PIPELINE_AGENTS.has(agent.id)) {
+    return res.status(400).json({ error: "Only a pipeline run can be resumed." });
+  }
+  const passes = run.passes || {};
+  if (!Object.keys(passes).length) {
+    return res.status(400).json({ error: "No completed pass was saved from that run — start it again rather than resuming it." });
+  }
+
+  // The files the run read are still where the portal put them.
+  const visualFiles = [];
+  for (const src of run.sources || []) {
+    if (src.route !== "visual" && src.kind !== "visual") continue;
+    const full = path.join(UPLOAD_DIR, path.basename(src.stored || ""));
+    if (src.stored && fs.existsSync(full)) visualFiles.push({ originalname: src.name, path: full, mimetype: src.type });
+  }
+
+  update("agentTasks", run.id, {
+    status: "running",
+    error: null,
+    interrupted: false,
+    resumedAt: Date.now(),
+    resumedFrom: Object.keys(passes).length,
+    stages: (run.stages || []).map((st) => (passes[st.key] ? { ...st, state: "done" } : { ...st, state: "pending" })),
+  });
+  res.status(202).json({ run: publicRun(collection("agentTasks").find((r) => r.id === run.id), true), resumingFrom: Object.keys(passes).length });
+  workPipeline(run.id, agent, run.inputs || {}, run.runBy || "resumed", visualFiles, passes);
 });
 
 router.post("/runs/:id/decision", async (req, res) => {

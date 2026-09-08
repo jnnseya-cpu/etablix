@@ -8,6 +8,7 @@
  */
 
 import express from "express";
+import { collection } from "./lib/store.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { load, isDemoMode } from "./lib/store.js";
@@ -46,9 +47,20 @@ app.set("trust proxy", 1); // correct client IPs behind Caddy/nginx/platform pro
 app.use(express.json({ limit: "200kb" }));
 
 // --- API ---
-app.get("/api/health", (req, res) =>
-  res.json({ ok: true, service: "etablix", demo: isDemoMode })
-);
+// `busy` is here for the deploy script, not for the browser. A pipeline run
+// is six passes over the whole document set, several minutes and real money,
+// and recreating the container mid-run destroys it — which is exactly what a
+// five-minute auto-deploy did to a live diagnostic.
+app.get("/api/health", (req, res) => {
+  const running = collection("agentTasks").filter((r) => r.status === "running");
+  res.json({
+    ok: true,
+    service: "etablix",
+    demo: isDemoMode,
+    busy: running.length > 0,
+    runningAgentRuns: running.length,
+  });
+});
 app.get("/api/human-check", (req, res) => res.json(issueChallenge())); // anti-bot challenge for the public forms
 app.use("/api/auth", authRoutes);
 app.use("/api/leads", leadRoutes);
