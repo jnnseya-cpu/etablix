@@ -111,7 +111,12 @@ for (let i = 0; i < 90; i++) {
   if (run?.status && run.status !== "running") break;
   await wait(1000);
 }
-ok(run?.status && run.status !== "running", `7. the pipeline finished — status ${run?.status}`, { stages: (run?.stages || []).map((s) => s.state) });
+// "not running" is not the same as "worked". A pipeline that died on its
+// first call also stops running, and this line passed for it — which made
+// the next three failures look like the real fault instead of the symptom.
+ok(["awaiting_approval", "complete", "completed", "done"].includes(run?.status),
+   `7. the pipeline SUCCEEDED — status ${run?.status}`,
+   { status: run?.status, error: run?.error, stages: (run?.stages || []).map((s) => s.state) });
 ok((run?.sources || []).length >= 17, `   it read ${(run?.sources || []).length} sources`, (run?.sources || []).map((s) => s.name));
 const visual = (run?.sources || []).filter((s) => s.route === "visual");
 ok(visual.length >= 3, `   ${visual.length} routed to vision (drawings/Gantt), not to text extraction`, visual.map((v) => v.name));

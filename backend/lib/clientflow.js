@@ -43,6 +43,14 @@ import { DIAGNOSTIC_WORKING_DAYS } from "./workingdays.js";
  */
 export const STAGES = [
   {
+    id: "enquiry",
+    label: "Enquiry received",
+    actor: "etablix",
+    short: "Your enquiry is with us. A director replies within one working day.",
+    detail:
+      "This engagement was opened automatically from the website enquiry, so nothing had to be retyped. It carries what was submitted and nothing else: no deliverable is committed, no fee is set, and no portal or invoice can be issued from it until somebody here has agreed the commercial terms with you.",
+  },
+  {
     id: "agreed",
     label: "Engagement agreed",
     actor: "etablix",
@@ -789,12 +797,79 @@ export const DELIVERABLES = [
 ];
 
 export const deliverable = (id) => DELIVERABLES.find((d) => d.id === id) || DELIVERABLES[0];
+/** The honest version: null when nothing has been chosen. deliverable() falls
+ *  back to the first entry, which would label a Prime enquiry as a feasibility
+ *  review and nobody would notice. */
+export const deliverableOrNull = (id) => DELIVERABLES.find((d) => d.id === id) || null;
+
+/**
+ * The website asks for a service in the customer's language. This is the only
+ * place that language is turned into a catalogue deliverable.
+ *
+ * Two of the eight are deliberately unmapped. A CONSTRUX or VERYX
+ * demonstration is a sales conversation, not an engagement, and opening a
+ * commercial record for one would fill the desk with rows that never become
+ * anything.
+ */
+export const SERVICE_TO_DELIVERABLE = {
+  "Site Systems Diagnostic": "feasibility",
+  "Site infrastructure strategy": "site-requirements",
+  "Workforce village delivery": "village-requirements",
+  "Managed Procurement Desk": "procurement",
+  "Management Integrator": "integrator",
+  "Prime Service Contractor": "prime",
+  "CONSTRUX demonstration": null,
+  "VERYX demonstration": null,
+};
+export const deliverableForService = (service) => SERVICE_TO_DELIVERABLE[String(service || "").trim()] ?? null;
+
+/**
+ * Turn a website enquiry into the engagement it will become.
+ *
+ * It carries everything the customer typed and commits to nothing: no fee, no
+ * agreed model, an empty checklist. The commercial terms are set by a person,
+ * and until they are, nothing can be issued from it — see the guard on
+ * issue-portal. The point is only that nobody has to retype the enquiry.
+ */
+export function engagementFromLead(lead) {
+  const deliverableId = deliverableForService(lead.service);
+  const d = deliverableOrNull(deliverableId);
+  const brief = [
+    lead.brief,
+    "",
+    [["Required service", lead.service], ["Project sector", lead.sector],
+     ["Project location", lead.location], ["Required start date", lead.startDate],
+     ["Telephone", lead.phone]]
+      .filter(([, v]) => v && String(v).trim())
+      .map(([k, v]) => `${k}: ${v}`).join("\n"),
+    d?.low ? `\nCatalogue range for ${d.name}: £${d.low.toLocaleString()}–£${d.high.toLocaleString()}. INDICATIVE ONLY — the fee is agreed with the client, not read off this.` : "",
+  ].filter(Boolean).join("\n").trim();
+
+  return {
+    client: lead.company || lead.name || "Unnamed enquirer",
+    contactName: lead.name || "",
+    contactEmail: (lead.email || "").toLowerCase(),
+    project: lead.location ? `${lead.service || "Enquiry"} — ${lead.location}` : (lead.service || "Website enquiry"),
+    deliverable: deliverableId,          // null until somebody chooses
+    model: d?.model || "A",
+    fee: 0,
+    monthlyFee: 0,
+    stage: "enquiry",
+    checklist: buildChecklist(deliverableId),
+    internalNotes: brief,
+    leadId: lead.id,
+  };
+}
 
 /**
  * Build the checklist a new engagement starts with: the deliverable's own
  * pack plus the commercial five, in the order a client would work them.
  */
 export function buildChecklist(deliverableId) {
+  // An engagement opened from an enquiry has no deliverable yet. It gets an
+  // empty checklist rather than a plausible one — a list of the wrong
+  // questions is worse than no list, because somebody will answer it.
+  if (!deliverableId) return [];
   const pack = REQUIREMENT_PACKS[deliverable(deliverableId).pack] || REQUIREMENT_PACKS.feasibility;
   return [...pack.items, ...COMMERCIAL].map((item) => ({
     ...item,

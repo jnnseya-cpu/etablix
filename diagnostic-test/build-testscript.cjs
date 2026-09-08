@@ -113,6 +113,9 @@ const step = (n, title, body, extras = []) => {
 step(1, "Open the engagement", [
   "Control Desk → **Client engagements**.",
   "Client `Marrowbridge Infrastructure Ltd`, project `Project NORTHREACH`, deliverable **Site-services feasibility review**, Model A, fee `6500`, your own email as the contact, tick **CONSTRUX in scope**.",
+], [
+  callout("`6500` IS A TEST VALUE, NOT A PRICE",
+    "Nothing on the website publishes a fee. The deliverable catalogue carries an indicative range of **£2,500–£7,500** for this one, and 6500 sits inside it so the arithmetic is easy to check: 30% is £1,950 and the balance is £4,550.\n\nAny figure works. Change it and the two invoices change with it.", TINT),
 ]);
 step(2, "Issue the portal", [
   "One button. It mints the link, builds the 14-line checklist from the deliverable, and emails both.",

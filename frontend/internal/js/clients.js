@@ -46,7 +46,7 @@ function canRunDiagnostic(e) {
     && ["deposit", "in_progress"].includes(e.stage);
 }
 
-const TONE = { agreed: "", information: "warning", ready: "warning", deposit: "warning", in_progress: "ok", decision: "warning", balance: "warning", closed: "approved" };
+const TONE = { enquiry: "warning", agreed: "", information: "warning", ready: "warning", deposit: "warning", in_progress: "ok", decision: "warning", balance: "warning", closed: "approved" };
 const DEC_TONE = { approved: "approved", review: "warning", rejected: "declined" };
 
 export async function loadClients() {
@@ -120,7 +120,7 @@ function detail() {
   const bal = (e.documents || []).find((d) => d.kind === "balance" && !d.paidAt);
 
   const actions = [
-    !e.portalToken ? `<button class="btn btn-primary" data-act="issue">Issue the portal &amp; send the checklist</button>` : "",
+    !e.portalToken && e.stage !== "enquiry" ? `<button class="btn btn-primary" data-act="issue">Issue the portal &amp; send the checklist</button>` : "",
     e.portalToken && chk.mandatoryOutstanding ? `<button class="btn" data-act="remind">Chase the ${chk.mandatoryOutstanding} outstanding</button>` : "",
     dep ? `<button class="btn" data-act="paid" data-kind="deposit">Deposit ${esc(dep.number)} received</button>` : "",
     bal ? `<button class="btn" data-act="paid" data-kind="balance">Balance ${esc(bal.number)} received</button>` : "",
@@ -166,6 +166,22 @@ function detail() {
     <p class="error-note" id="cl-act-error" hidden></p>
     <p class="empty-note" id="cl-act-ok" hidden></p>
 
+    ${e.stage === "enquiry" ? `<div style="border:1.5px solid var(--orange,#9c7a3c);border-left:4px solid var(--orange,#9c7a3c);border-radius:8px;padding:14px 16px;margin:14px 0;">
+      <b style="font-size:0.92rem;">This came in from the website. Agree the terms before anything goes back.</b>
+      <p class="panel-sub" style="margin:4px 0 10px;">It was opened automatically from their enquiry, so nothing had to be retyped — and it carries no price, because the platform does not price your work. Set the deliverable, the model and the fee, and it becomes an ordinary engagement. Until then no portal and no invoice can be issued from it.</p>
+      ${e.internalNotes ? `<pre style="white-space:pre-wrap;font-size:0.83rem;background:var(--paper,#f6f4ef);border-radius:6px;padding:10px 12px;margin:0 0 10px;">${esc(e.internalNotes)}</pre>` : ""}
+      <form id="cl-terms" class="team-form">
+        <label>Deliverable<select name="deliverable" required>${CAT.deliverables.map((d) => `<option value="${esc(d.id)}"${d.id === e.deliverable ? " selected" : ""}>${esc(d.name)}${d.low ? ` (guide £${d.low.toLocaleString()}–£${d.high.toLocaleString()})` : ""}</option>`).join("")}</select></label>
+        <label>Model<select name="model">${CAT.models.map((m) => `<option value="${esc(m.id)}"${m.id === e.model ? " selected" : ""}>${esc(m.name)}</option>`).join("")}</select></label>
+        <label>Fixed fee (Model A)<input name="fee" type="number" min="0" step="50" placeholder="The fee you agreed with them"></label>
+        <label>Monthly fee (Models B and C)<input name="monthlyFee" type="number" min="0" step="50"></label>
+        <label>Project<input name="project" value="${esc(e.project)}"></label>
+        <label>VAT<select name="vatMode"><option value="standard">Standard</option><option value="reverse">CIS domestic reverse charge</option><option value="none">Outside scope</option></select></label>
+        <button class="btn btn-primary" type="submit">Agree the terms</button>
+      </form>
+      <p class="muted" style="font-size:0.78rem;margin:8px 0 0;">The guide range is the catalogue's, not a quotation. Nothing on the website publishes a price.</p>
+    </div>` : ""}
+
     ${canIssue ? `<div style="border:1.5px solid var(--line,#dcd7cc);border-radius:8px;padding:14px 16px;margin:14px 0;">
       <b style="font-size:0.92rem;">Publish a deliverable for the client's decision</b>
       <p class="panel-sub" style="margin:4px 0 10px;">Listing the sections is what makes a review round answerable — the client's portal makes them pick one per comment, so "make it better" is not an option available to them.</p>
@@ -195,6 +211,17 @@ function detail() {
 /* -------------------------------------------------------------- wiring */
 
 function wire(body) {
+  const termsForm = document.getElementById("cl-terms");
+  if (termsForm) termsForm.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const id = document.getElementById("cl-detail")?.dataset.id;
+    const f = Object.fromEntries(new FormData(termsForm).entries());
+    try {
+      await api(`/api/clients/${id}/terms`, { method: "POST", json: {
+        ...f, fee: Number(f.fee || 0), monthlyFee: Number(f.monthlyFee || 0) } });
+      await loadClients();
+    } catch (e) { const el = document.getElementById("cl-act-error"); if (el) { el.textContent = e.message; el.hidden = false; } }
+  });
   const err = (msg) => { const el = document.getElementById("cl-act-error") || document.getElementById("cl-new-error"); if (el) { el.textContent = msg; el.hidden = false; } };
   const note = (msg) => { const el = document.getElementById("cl-act-ok"); if (el) { el.textContent = msg; el.hidden = false; } };
 

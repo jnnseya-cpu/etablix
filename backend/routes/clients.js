@@ -33,7 +33,7 @@ import { emit } from "../lib/comms.js";
 import { createDocument, renderDocument, splitDiagnostic } from "./docs.js";
 import { startPipelineRun } from "./agents.js";
 import {
-  STAGES, stage, stageIndex, MODELS, MODEL_IDS, model,
+  STAGES, stage, stageIndex, MODELS, MODEL_IDS, model, deliverableOrNull,
   DELIVERABLES, deliverable, REQUIREMENT_PACKS, packFor, buildChecklist,
   checklistState, nextAction, DECISIONS, DECISION_IDS, nextPeriodLabel,
   depositTerms, balanceTerms, money, diagnosticInputs, handoverDate, DIAGNOSTIC_FIELD_MAP,
@@ -62,12 +62,14 @@ function reference(e) {
 function decorate(e) {
   const chk = checklistState(e.checklist || []);
   const m = model(e.model);
-  const d = deliverable(e.deliverable);
+  // deliverable() falls back to the first entry, which would label an
+  // unclassified enquiry as a feasibility review and nobody would notice.
+  const d = deliverableOrNull(e.deliverable);
   return {
     ...e,
     reference: reference(e),
     modelName: m.name,
-    deliverableName: d.name,
+    deliverableName: d ? d.name : "Not yet agreed",
     stageLabel: stage(e.stage).label,
     stageIndex: stageIndex(e.stage),
     checklistState: chk,
@@ -172,6 +174,63 @@ router.post("/", ...finance, (req, res) => {
 });
 
 /**
+ * POST /api/clients/:id/terms — put commercial terms on an engagement that
+ * arrived from the website with none.
+ *
+ * This is the one step that cannot be automated, and it is deliberately a
+ * person's decision: the deliverable, the model and the fee. The website
+ * publishes no price and the catalogue range is indicative, so nothing here
+ * reads a number off a list. Once the terms are set the engagement behaves
+ * exactly like one opened by hand.
+ */
+router.post("/:id/terms", ...finance, (req, res) => {
+  const e = find(req.params.id);
+  if (!e) return res.status(404).json({ error: "Engagement not found." });
+  if (!["enquiry", "agreed"].includes(e.stage)) {
+    return res.status(400).json({ error: `Terms cannot be changed at the stage "${stage(e.stage).label}".` });
+  }
+  const b = req.body || {};
+  const deliverableId = clampStr(b.deliverable, 60);
+  if (!DELIVERABLES.some((d) => d.id === deliverableId)) {
+    return res.status(400).json({ error: "Choose a deliverable from the catalogue." });
+  }
+  const d = deliverable(deliverableId);
+  const m = model(b.model || d.model);
+  const fee = toNum(b.fee);
+  const monthlyFee = toNum(b.monthlyFee);
+  if (m.kind === "fixed" && fee <= 0) return res.status(400).json({ error: "A Model A engagement needs an agreed fixed fee." });
+  if (m.kind === "recurring" && monthlyFee <= 0) return res.status(400).json({ error: "A Model B or C engagement needs a monthly fee." });
+
+  // The checklist follows the deliverable. It is only rebuilt while nothing
+  // has been answered — replacing a list the client has already worked down
+  // would throw their answers away.
+  const answered = (e.checklist || []).some((i) => i.state !== "outstanding");
+  const checklist = answered ? e.checklist : buildChecklist(deliverableId);
+  if (answered && e.deliverable !== deliverableId) {
+    return res.status(400).json({ error: "The client has already started answering the checklist for the current deliverable. Changing it now would discard their answers." });
+  }
+
+  const project = clampStr(b.project, 160) || e.project;
+  update("clientEngagements", e.id, {
+    deliverable: d.id, model: m.id, fee, monthlyFee,
+    mobilisationFee: toNum(b.mobilisationFee), platformFee: toNum(b.platformFee), advance: toNum(b.advance),
+    vatMode: ["standard", "reverse", "none"].includes(b.vatMode) ? b.vatMode : (e.vatMode || "standard"),
+    clientRef: clampStr(b.clientRef, 80) || e.clientRef,
+    client: clampStr(b.client, 160) || e.client,
+    clientAddress: clampStr(b.clientAddress, 400) || e.clientAddress,
+    contactName: clampStr(b.contactName, 120) || e.contactName,
+    contactEmail: (clampStr(b.contactEmail, 160) || e.contactEmail || "").toLowerCase(),
+    construx: b.construx === undefined ? Boolean(e.construx) : Boolean(b.construx),
+    veryx: b.veryx === undefined ? Boolean(e.veryx) : Boolean(b.veryx),
+    project, checklist,
+    stage: "agreed",
+    events: [...(e.events || []), { at: Date.now(), by: req.user.name, what: "Terms agreed",
+      detail: `${m.name} — ${d.name}${m.kind === "fixed" ? ` — £${fee.toLocaleString()}` : ` — £${monthlyFee.toLocaleString()}/month`}` }],
+  });
+  res.json({ engagement: decorate(find(e.id)) });
+});
+
+/**
  * POST /api/clients/:id/issue-portal — the customer has agreed. Mint the
  * token, open the portal, send the link and the checklist in one act.
  * This is the "once we send the invoice and the customer agrees" step,
@@ -180,6 +239,15 @@ router.post("/", ...finance, (req, res) => {
 router.post("/:id/issue-portal", ...finance, async (req, res) => {
   const e = find(req.params.id);
   if (!e) return res.status(404).json({ error: "Engagement not found." });
+  // An engagement opened automatically from a website enquiry carries no
+  // agreed terms. Issuing its portal would send a checklist and a payment
+  // schedule to somebody who has not been quoted, so it is refused here
+  // rather than guarded by everybody remembering.
+  if (e.stage === "enquiry") {
+    return res.status(400).json({
+      error: "This came in from the website and has no agreed terms yet. Set the deliverable, the model and the fee first — nothing goes to the client until a person has priced it.",
+    });
+  }
   if (!e.contactEmail) return res.status(400).json({ error: "Add the client contact email before issuing the portal — the link has to go somewhere." });
   const token = e.portalToken || crypto.randomBytes(24).toString("hex");
   const pack = packFor(e.deliverable);

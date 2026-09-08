@@ -18,6 +18,12 @@ Client `Marrowbridge Infrastructure Ltd`, project `Project NORTHREACH`,
 deliverable **Site-services feasibility review**, Model A, fee `6500`,
 your own email as the contact, tick **CONSTRUX in scope**.
 
+`6500` is a TEST VALUE, not a price. Nothing on the website publishes a fee.
+The catalogue carries an indicative range of £2,500–£7,500 for this
+deliverable and 6500 sits inside it, which makes the arithmetic below easy to
+check — 30% is £1,950 and the balance is £4,550. Any figure works; change it
+and the two invoices change with it.
+
 **2 · Issue the portal.** One button. It mints the link, builds the 14-line
 checklist from the deliverable, and emails both. The link is printed back to
 you and the panel has a **Copy** button.

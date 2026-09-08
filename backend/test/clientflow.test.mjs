@@ -30,7 +30,10 @@ console.log("\nclientflow — stages\n");
 
 t("the stages are unique and ordered", () => {
   assert.equal(new Set(STAGE_IDS).size, STAGES.length);
-  assert.equal(STAGE_IDS[0], "agreed");
+  // "enquiry" is first: an engagement opened automatically from a website
+  // enquiry starts there, with no terms and nothing issuable.
+  assert.equal(STAGE_IDS[0], "enquiry");
+  assert.equal(STAGE_IDS[1], "agreed");
   assert.equal(STAGE_IDS.at(-1), "closed");
 });
 
@@ -39,7 +42,9 @@ t("every stage says who it is waiting on", () => {
 });
 
 t("an unknown stage falls back rather than throwing", () => {
-  assert.equal(stage("nonsense").id, "agreed");
+  // The fallback is the LEAST privileged stage, deliberately. A corrupted
+  // stage value must not land somewhere a portal can be issued from.
+  assert.equal(stage("nonsense").id, "enquiry");
   assert.equal(stageIndex("nonsense"), 0);
 });
 
