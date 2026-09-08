@@ -105,6 +105,7 @@ document.addEventListener("click", (e) => {
 
 async function cosPricing() {
   const m = cosModel;
+  await loadCarryTargets();
   const modelA = `<table><thead><tr><th>Deliverable</th><th>Indicative fee</th><th></th></tr></thead><tbody>${m.modelA.items
     .map(
       (i, idx) =>
@@ -177,16 +178,59 @@ async function cosPricing() {
 
   return (
     `<div class="section-block" style="border-left:3px solid var(--danger,#c0392b);padding-left:16px;"><h3>Naming rule</h3><p class="muted">${esc(m.namingRule)}</p></div>` +
-    block(m.modelA.name + " — fee bands · every row opens a ready-made quotation", wrapT(modelA)) +
+    block(m.modelA.name + " — fee bands · every row opens a ready-made quotation", wrapT(modelA) + carryHtml("a")) +
     block(m.modelB.name, wrapT(modelB)) +
     block(
       "Model B fee builder — price it, then generate the proposal",
       bCalc +
+        carryHtml("b") +
         `<p class="muted" style="margin-top:14px;padding-left:14px;border-left:3px solid var(--amber,#9c7a3c);font-size:0.86rem;"><b>Why Model B does not carry the same people risk:</b> embedded site personnel are charged at cost plus agreed margin, so more people means more revenue rather than more cost. That protection only exists if the contract states <b>which roles and how many the monthly fee includes</b> — everything beyond that must be chargeable on the embedded-personnel line. £15,000 a month buys roughly one fully loaded person, not three.</p>`
     ) +
-    block(m.modelC.name + " — price build-up calculator", cCalc) +
+    block(m.modelC.name + " — price build-up calculator", cCalc + carryHtml("c")) +
     `<div class="section-block" style="border-left:3px solid var(--amber,#9c7a3c);padding-left:16px;"><h3>The closing discipline</h3><p class="muted">${esc(m.closingDiscipline)}</p></div>`
   );
+}
+
+
+/* ---------------------------------------------------------------- carry forward
+
+   The studio used to end at a quotation, and the same client, project and fee
+   were then typed again into Client engagements — twice, from the same
+   numbers, with nothing checking they matched. This block ends that: the
+   price it has just computed goes straight onto an engagement, and the
+   engagement is almost always already there, opened by the website enquiry.
+*/
+let carryTargets = [];
+
+async function loadCarryTargets() {
+  try {
+    const { engagements } = await api("/api/clients");
+    // Only an engagement whose terms are not yet fixed. Re-pricing one that
+    // has been issued to a client would change a number they have been given.
+    carryTargets = engagements.filter((e) => ["enquiry", "agreed"].includes(e.stage));
+  } catch { carryTargets = []; }
+}
+
+function carryHtml(id) {
+  const pick = id === "a"
+    ? `<select id="a-carry-idx" style="min-width:300px;font-size:0.9rem;">${cosModel.modelA.items
+        .map((i, n) => `<option value="${n}">${esc(i.deliverable)} — ${money(i.low)} to ${money(i.high)}</option>`).join("")}</select>`
+    : "";
+  const opts = carryTargets.length
+    ? carryTargets.map((e) => `<option value="${esc(e.id)}">${esc(e.reference)} — ${esc(e.client)}${e.stage === "enquiry" ? " (from the website)" : ""}</option>`).join("")
+    : `<option value="">no open engagement — quote or invoice it instead</option>`;
+  return `<div class="section-block" style="border-left:3px solid var(--amber,#9c7a3c);padding-left:16px;margin-top:14px;">
+    <h3 style="font-size:0.95rem;margin:0 0 4px;">Carry this price forward</h3>
+    <p class="muted" style="font-size:0.82rem;margin:0 0 10px;">Put the figure straight onto the engagement rather than typing it in again. An engagement marked <b>from the website</b> was opened by the enquiry form and is waiting for its terms.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+      ${pick}
+      <select id="${id}-target" style="min-width:280px;font-size:0.9rem;">${opts}</select>
+      <button class="btn-block" data-carry="${id}" data-act="terms" style="width:auto;padding:9px 18px;">Set as the engagement fee</button>
+      <button class="btn-run" data-carry="${id}" data-act="quote">Quotation (QUO)</button>
+      <button class="btn-run" data-carry="${id}" data-act="invoice">Invoice (INV)</button>
+    </div>
+    <p class="muted" id="${id}-carry-note" style="font-size:0.82rem;margin:9px 0 0;"></p>
+  </div>`;
 }
 
 /** Jump to Documents with a pre-filled form — the calculators' output. */
@@ -389,6 +433,71 @@ function wireCalculators() {
   recalcB();
   recalcC();
   recalcR();
+
+  /* One reader for all three builders, so the studio and the engagement can
+     never disagree about what a job was priced at. */
+  const carryPrice = (kind) => {
+    if (kind === "a") {
+      const item = cosModel.modelA.items[Number(document.getElementById("a-carry-idx")?.value || 0)];
+      const rate = Math.round((item.low + item.high) / 2 / 100) * 100;
+      return { model: "A", deliverable: item.id, fee: rate, monthlyFee: 0,
+        label: item.deliverable, modelName: "Model A — Advisory",
+        assumptions: "Fixed fee for the defined deliverable. Client-supplied information relied upon as provided.",
+        lines: [{ description: `${item.deliverable} — fixed fee`, qty: 1, rate }] };
+    }
+    if (kind === "b") {
+      const p = bParts();
+      return { model: "B", deliverable: "integrator", fee: 0,
+        monthlyFee: Math.round(p.monthly + p.cxRate),
+        mobilisationFee: Math.round(p.mob), platformFee: Math.round(p.cxRate),
+        label: "Management Integrator appointment", modelName: "Model B — Management Integrator",
+        assumptions: `Based on a procured supplier value of ${money(p.sv)} over ${p.months} months. Supplier contracts remain with the client.`,
+        lines: [
+          { description: "Mobilisation and planning fee (fixed)", qty: 1, rate: p.mob },
+          { description: `Procurement fee — ${p.procPct}% of procured supplier value`, qty: 1, rate: Math.round(p.proc) },
+          { description: "Monthly integration and management fee", qty: p.months, rate: p.monthly },
+          { description: "CONSTRUX platform and reporting (per month)", qty: p.months, rate: p.cxRate },
+        ] };
+    }
+    const { direct, rows, total } = cRows();
+    const months = Number(document.getElementById("r-months")?.value) || 1;
+    return { model: "C", deliverable: "prime", fee: 0,
+      // The engagement record needs a monthly figure for a recurring model.
+      // This is the contract value spread over the programme — a working
+      // number, not a payment schedule; the client's is set by the contract.
+      monthlyFee: Math.round(total / Math.max(1, months)),
+      label: "Prime Service Contractor appointment", modelName: "Model C — Prime Service Contractor",
+      assumptions: "Transparent price build-up on forecast direct supplier cost. Contingency is held against a joint risk register and drawn only through the change process.",
+      lines: [
+        { description: "Direct supplier and labour costs (forecast, audited base)", qty: 1, rate: direct },
+        ...rows.map((r) => ({ description: `${r.component} — ${r.pct}% on direct cost`, qty: 1, rate: Math.round(r.value) })),
+      ] };
+  };
+
+  document.querySelectorAll("button[data-carry]").forEach((btn) =>
+    btn.addEventListener("click", async () => {
+      const kind = btn.dataset.carry, act = btn.dataset.act;
+      const note = document.getElementById(`${kind}-carry-note`);
+      const p = carryPrice(kind);
+      if (act === "quote" || act === "invoice") {
+        return openDocPrefill(act === "quote" ? "quotation" : "invoice",
+          { model: p.modelName, assumptions: p.assumptions, project: p.label }, p.lines);
+      }
+      const id = document.getElementById(`${kind}-target`)?.value;
+      if (!id) { note.textContent = "There is no open engagement to price. Quote it, or open the engagement first."; return; }
+      btn.disabled = true;
+      try {
+        const out = await api(`/api/clients/${id}/terms`, { method: "POST", body: JSON.stringify({
+          deliverable: p.deliverable, model: p.model, fee: p.fee, monthlyFee: p.monthlyFee,
+          mobilisationFee: p.mobilisationFee || 0, platformFee: p.platformFee || 0 }) });
+        const e = out.engagement;
+        note.innerHTML = `<b>${esc(e.reference)} — ${esc(e.client)}</b> is now ${esc(e.modelName)} at ` +
+          `${p.model === "A" ? money(p.fee) : money(p.monthlyFee) + " per month"}. It is ready for its portal in Client engagements.`;
+        await loadCarryTargets();
+      } catch (err) { note.textContent = err.message; }
+      finally { btn.disabled = false; }
+    })
+  );
 
   // Model A rows → a ready-made quotation in Documents.
   document.querySelectorAll("button[data-quote-a]").forEach((btn) =>

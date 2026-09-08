@@ -44,12 +44,15 @@ const MODEL = {
     'In client documents Model C is the "Prime Service Contractor", never "Principal Service Contractor" — under CDM 2015 "Principal Contractor" is a defined legal role with specific health-and-safety duties. Acting as CDM Principal Contractor must be an explicit, priced, insured decision — never an accident of branding.',
   modelA: {
     name: "Model A — Advisory",
+    // `id` is the catalogue deliverable this row prices, so a price made here
+    // can be put straight onto an engagement. Matching the two lists by
+    // position instead would break silently the first time either is reordered.
     items: [
-      { deliverable: "Site-services feasibility review / Site Systems Diagnostic", low: 2500, high: 7500 },
-      { deliverable: "Site Management Requirements Package", low: 7500, high: 25000 },
-      { deliverable: "Workforce Village Requirements Package", low: 10000, high: 35000 },
-      { deliverable: "Procurement management and tender evaluation", low: 7500, high: 30000 },
-      { deliverable: "Mobilisation-readiness / village-readiness review", low: 5000, high: 15000 },
+      { id: "feasibility", deliverable: "Site-services feasibility review / Site Systems Diagnostic", low: 2500, high: 7500 },
+      { id: "site-requirements", deliverable: "Site Management Requirements Package", low: 7500, high: 25000 },
+      { id: "village-requirements", deliverable: "Workforce Village Requirements Package", low: 10000, high: 35000 },
+      { id: "procurement", deliverable: "Procurement management and tender evaluation", low: 7500, high: 30000 },
+      { id: "mobilisation-review", deliverable: "Mobilisation-readiness / village-readiness review", low: 5000, high: 15000 },
     ],
   },
   modelB: {
