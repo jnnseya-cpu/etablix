@@ -1,0 +1,351 @@
+<title>ETABLIX Follow-Up Sequence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f7f5f0;
+    --surface: #fdfcf9;
+    --ink: #1d232a;
+    --muted: #66707c;
+    --gold: #9c7a3c;
+    --gold-soft: #f0e9db;
+    --line: #e2ddd2;
+    --post-bg: #ffffff;
+    --good: #1f7a4d;
+  }
+  :root:not([data-theme="light"]) { }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14181d;
+      --surface: #1b2129;
+      --ink: #e8e5de;
+      --muted: #97a0aa;
+      --gold: #c9a96a;
+      --gold-soft: #2a2418;
+      --line: #2a323d;
+      --post-bg: #10141a;
+      --good: #4cb97f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14181d;
+    --surface: #1b2129;
+    --ink: #e8e5de;
+    --muted: #97a0aa;
+    --gold: #c9a96a;
+    --gold-soft: #2a2418;
+    --line: #2a323d;
+    --post-bg: #10141a;
+    --good: #4cb97f;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Inter", -apple-system, "Segoe UI", sans-serif;
+    font-size: 15.5px;
+    line-height: 1.65;
+    margin: 0;
+    padding: 0 20px 80px;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  h1, h2, h3, .daytag { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; text-wrap: balance; }
+
+  header { padding: 52px 0 8px; }
+  .eyebrow {
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: 0.82rem; font-weight: 700; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold); margin: 0 0 10px;
+  }
+  h1 { font-size: 3rem; font-weight: 800; line-height: 1.02; margin: 0 0 14px; letter-spacing: -0.01em; }
+  .intent { color: var(--muted); max-width: 58ch; margin: 0; }
+
+  .weekbar {
+    display: flex; flex-wrap: wrap; gap: 0;
+    border: 1px solid var(--line); background: var(--surface);
+    margin: 30px 0 0; border-radius: 4px; overflow: hidden;
+  }
+  .weekbar div { flex: 1 1 140px; padding: 16px 20px; border-right: 1px solid var(--line); }
+  .weekbar div:last-child { border-right: 0; }
+  .weekbar b {
+    display: block; font-family: "Barlow Condensed", sans-serif;
+    font-size: 1.5rem; font-weight: 700; line-height: 1.1;
+  }
+  .weekbar span { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  section { margin-top: 52px; }
+  h2 {
+    font-size: 1.85rem; font-weight: 700; margin: 0 0 6px;
+    padding-top: 18px; border-top: 2px solid var(--ink);
+  }
+  .h2sub { color: var(--muted); margin: 0 0 22px; max-width: 60ch; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 10px 14px 10px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 700;
+    font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+  }
+  td:first-child { white-space: nowrap; font-weight: 600; padding-right: 22px; font-variant-numeric: tabular-nums; }
+  .tscroll { overflow-x: auto; }
+
+  .day { margin-top: 44px; border: 1px solid var(--line); background: var(--surface); border-radius: 4px; }
+  .dayhead {
+    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+    padding: 18px 26px 14px; border-bottom: 1px solid var(--line);
+  }
+  .daytag {
+    font-size: 0.85rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--gold);
+  }
+  .dayhead h3 { font-size: 1.55rem; font-weight: 700; margin: 0; flex: 1; }
+  .daytime { font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .daybody { padding: 20px 26px 26px; }
+  .daybody p { margin: 0 0 14px; }
+  .why { color: var(--muted); font-size: 0.95rem; }
+  .why b { color: var(--ink); }
+
+  .postblock { position: relative; margin: 18px 0 6px; }
+  .postlabel {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: "Barlow Condensed", sans-serif; font-size: 0.8rem; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .copybtn {
+    font-family: "Inter", sans-serif; font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 0.04em; text-transform: none;
+    background: none; border: 1px solid var(--gold); color: var(--gold);
+    padding: 4px 14px; border-radius: 3px; cursor: pointer;
+  }
+  .copybtn:hover, .copybtn:focus-visible { background: var(--gold-soft); outline: none; }
+  .copybtn.done { border-color: var(--good); color: var(--good); }
+  pre.post {
+    margin: 0; padding: 20px 22px;
+    background: var(--post-bg); border: 1px solid var(--line);
+    border-left: 3px solid var(--gold); border-radius: 3px;
+    font-family: "Inter", sans-serif; font-size: 0.93rem; line-height: 1.65;
+    white-space: pre-wrap; overflow-x: auto;
+  }
+  .after {
+    margin-top: 16px; padding: 14px 18px;
+    background: var(--gold-soft); border-radius: 3px; font-size: 0.9rem;
+  }
+  .after b { font-family: "Barlow Condensed", sans-serif; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.82rem; }
+  .after ul { margin: 6px 0 0; padding-left: 18px; }
+  .after li { margin: 3px 0; }
+  .visual { font-size: 0.9rem; color: var(--muted); margin-top: 12px; }
+  .visual b { color: var(--ink); }
+
+  .rules { list-style: none; margin: 0; padding: 0; counter-reset: r; }
+  .rules li {
+    padding: 13px 0 13px 40px; border-bottom: 1px solid var(--line);
+    position: relative; counter-increment: r;
+  }
+  .rules li::before {
+    content: counter(r);
+    position: absolute; left: 0; top: 13px;
+    font-family: "Barlow Condensed", sans-serif; font-weight: 800; font-size: 1.15rem;
+    color: var(--gold); font-variant-numeric: tabular-nums;
+  }
+  .rules b { font-weight: 600; }
+
+  a { color: var(--gold); }
+  footer { margin-top: 60px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.85rem; }
+  @media (max-width: 560px) {
+    h1 { font-size: 2.3rem; }
+    .dayhead, .daybody { padding-left: 18px; padding-right: 18px; }
+  }
+</style>
+
+<div class="wrap">
+<header>
+  <p class="eyebrow">ETABLIX &middot; Part of Groupe Nseya</p>
+  <h1>The second touch</h1>
+  <p class="intent">Three people, contacted last week, none replied. That is normal and it is not a rejection &mdash; a first cold approach is read by roughly one person in four and answered by fewer. The follow-up is where the reply actually comes from, and only if it does a different job from the first one.</p>
+  <div class="weekbar">
+    <div><b>3 contacts</b><span>Martin &middot; Mark &middot; Mark</span></div>
+    <div><b>2 messages</b><span>1 email &middot; 1 LinkedIn</span></div>
+    <div><b>Tue&ndash;Thu</b><span>07:30&ndash;08:30 UK</span></div>
+    <div><b>1 ask</b><span>One answerable question</span></div>
+  </div>
+</header>
+
+<section>
+  <h2>The four rules this is written to</h2>
+  <p class="h2sub">Every one of these is the difference between a follow-up that gets answered and one that gets deleted with the first.</p>
+  <ol class="rules">
+    <li><b>Never repeat the first message.</b> If they did not want it on Tuesday they do not want it again on the following Tuesday. The second message earns its place by carrying something the first one did not.</li>
+    <li><b>Shrink the ask.</b> The first message asked for a conversation. The second asks for one line &mdash; a category name, a route, a month. People answer questions they can answer in eight seconds.</li>
+    <li><b>Give them the exit.</b> An explicit &ldquo;not now&rdquo; option raises reply rates rather than lowering them, because it removes the fear that answering starts a pursuit.</li>
+    <li><b>Reply in the original thread.</b> Same subject with <i>Re:</i>, no new subject line, no attachment. An attachment from an unrecognised sender is the fastest route to a spam folder, so offer the document &mdash; never attach it.</li>
+  </ol>
+  <p class="visual"><b>One safeguard:</b> if the Mark on the sourcing team and the Mark who is construction director are the same person, do not send both. Send the LinkedIn message only, and drop him from the email. A same-day double-touch from a stranger reads as pressure.</p>
+</section>
+
+<section>
+  <h2>1 &middot; Email &mdash; Martin and Mark, sourcing</h2>
+  <p class="h2sub">Sourcing people are rarely able to answer a sales question and are almost always able to answer a process question. So this stops selling and asks about process. Send it as a reply inside the original thread.</p>
+
+  <div class="day">
+    <div class="dayhead">
+      <span class="daytag">Email</span>
+      <h3>Reply in thread &mdash; subject unchanged</h3>
+      <span class="daytime">Tue&ndash;Thu 07:30</span>
+    </div>
+    <div class="daybody">
+      <div class="postblock">
+        <div class="postlabel"><span>Body copy</span><button class="copybtn" type="button">Copy</button></div>
+<pre class="post">Martin, Mark,
+
+I wrote last week and I know an introduction from a stranger is an easy one to leave. So this is shorter, and it asks something you can answer in a line.
+
+I would rather get in front of the right process than the right person, so:
+
+1. Which category does site establishment and workforce accommodation sit in on your side &mdash; is it bought as one package, or split across civils, modular, catering, utilities and FM?
+
+2. Is prequalification through a third-party scheme or your own PQQ, and is the category open now or at the next refresh?
+
+3. Where it is split, who owns the interfaces between those packages?
+
+Three is the one I would ask if I were sitting where you are. The gaps between suppliers are where a site set-up leaks money and they belong to nobody, which is the whole reason ETABLIX exists: one contract, one accountable party, from first mobilisation to final reinstatement.
+
+If the honest answer is &ldquo;not this year, try us in March&rdquo;, that is a useful answer and I will do exactly that.
+
+Justin Nseya MCIOB
+Founder and Managing Director
+ETABLIX &mdash; Integrated Site Services, part of Groupe Nseya
+etablix.com
+
+P.S. If it is easier to judge us on how we write than on how we describe ourselves: I have just finished a worked set of Employer&rsquo;s Requirements for a 225-bed workforce village &mdash; civils, modular accommodation, kitchen and FM &mdash; written the way we would write them for a client, together with the gap register we ran against our own document and the twenty-five findings it returned. Say the word and I will send one.</pre>
+      </div>
+      <div class="after">
+        <b>Before you send</b>
+        <ul>
+          <li>Fill in the month in &ldquo;try us in March&rdquo; &mdash; make it a real one, roughly two quarters out.</li>
+          <li>If the first contact went to Martin and Mark as two separate emails, send two separate follow-ups on different days. A blast that was individual last week and joint this week tells them it was never personal.</li>
+          <li>Do not attach the ER. The P.S. offers it; the reply is the permission.</li>
+        </ul>
+      </div>
+      <p class="visual"><b>Why it works:</b> question 3 is not a sales question, it is the question a good sourcing manager already worries about. Answering it costs them nothing and starts the conversation on their ground rather than yours.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>2 &middot; LinkedIn &mdash; Mark, Construction Director</h2>
+  <p class="h2sub">A construction director does not care about your route to market. He cares about what happens on his site. So this one carries the only thing you have that nobody else does: you have already lived the problem, on the ground, and you fixed it.</p>
+
+  <div class="day">
+    <div class="dayhead">
+      <span class="daytag">LinkedIn DM</span>
+      <h3>If he is already a connection</h3>
+      <span class="daytime">Tue&ndash;Thu, mid-morning</span>
+    </div>
+    <div class="daybody">
+      <div class="postblock">
+        <div class="postlabel"><span>Message</span><button class="copybtn" type="button">Copy</button></div>
+<pre class="post">Mark &mdash; I messaged last week and got no reply, which is fair enough. No need to go back to it.
+
+One question instead, because you will have a view and I would rather not guess at it.
+
+On your sites, is the temporary set-up &mdash; accommodation, welfare, catering, utilities, security, transport &mdash; bought as one package, or split across several contracts?
+
+I ask because I used to manage construction subcontracts at GE Vernova across the UK, Ireland and Europe. On one project I inherited five separate accommodation contractors alongside the main works, and I ended up novating all five onto the contractor holding the FM and operations package &mdash; because managing five of them was costing more than competing them was ever going to save. That is the reason ETABLIX exists.
+
+Nothing to sell in this message. If your answer is &ldquo;split, and it works fine&rdquo;, I would genuinely like to hear why. It is the case I hear argued least often and I would rather understand it than assume it is wrong.
+
+Justin</pre>
+      </div>
+      <div class="after">
+        <b>Rules for this one</b>
+        <ul>
+          <li>No link, no attachment, no deck. A link in a first DM halves the reply rate and the message is strong enough without one.</li>
+          <li>If he replies with anything at all, do not pitch back. Answer his point, then ask for twenty minutes.</li>
+          <li>If he disagrees with you, that is the best outcome available. An argument is a relationship; silence is not.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="day">
+    <div class="dayhead">
+      <span class="daytag">Connection note</span>
+      <h3>If you are not connected &mdash; 300 character limit</h3>
+      <span class="daytime">Same day</span>
+    </div>
+    <div class="daybody">
+      <div class="postblock">
+        <div class="postlabel"><span>Note &middot; 298 characters</span><button class="copybtn" type="button">Copy</button></div>
+<pre class="post">Mark, I emailed last week. A question rather than a pitch: on your sites, is the temporary set-up bought as one package or split across several? I ran construction subcontracts at GE Vernova and ended up consolidating five accommodation contractors into one. Curious whether you see it differently.</pre>
+      </div>
+      <p class="visual"><b>On acceptance,</b> wait a day, then send the longer message above. Sending both within the hour reads as automation.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>3 &middot; The third touch, and when to stop</h2>
+  <p class="h2sub">Two more weeks. If the second message produces nothing, one more goes out and then you stop &mdash; and the one that stops is, reliably, the one that gets answered.</p>
+
+  <div class="day">
+    <div class="dayhead">
+      <span class="daytag">Week 4</span>
+      <h3>Email &mdash; closing the loop</h3>
+      <span class="daytime">Same thread again</span>
+    </div>
+    <div class="daybody">
+      <div class="postblock">
+        <div class="postlabel"><span>Body copy</span><button class="copybtn" type="button">Copy</button></div>
+<pre class="post">Martin, Mark,
+
+I will stop here rather than keep arriving in your inbox.
+
+If integrated site establishment ever comes up as a category &mdash; whether that is this year or in three years &mdash; we are at etablix.com and I am easy to find. And if the more useful thing is to talk in six months, say so and I will put it in the diary rather than chase.
+
+Thank you for reading two emails from someone you have never met.
+
+Justin Nseya MCIOB
+ETABLIX &mdash; Integrated Site Services</pre>
+      </div>
+      <div class="after">
+        <b>Then genuinely stop</b>
+        <ul>
+          <li>Log all three contacts as an account in CONSTRUX with the dates, so the next approach in six months starts from a record and not from memory.</li>
+          <li>Set the six-month reminder the day you send this, not the day they fail to reply.</li>
+          <li>Keep going on the formal route in parallel. A supplier registration does not need anyone to answer an email.</li>
+        </ul>
+      </div>
+      <p class="visual"><b>Why it works:</b> it removes the obligation, and an obligation removed is exactly when people answer. Expect roughly a third of the replies you get across the whole sequence to come from this message.</p>
+    </div>
+  </div>
+</section>
+
+<footer>ETABLIX &mdash; Integrated Site Services &middot; Part of Groupe Nseya &middot; Prepared for Justin Nseya MCIOB &middot; Follow-up sequence, week two</footer>
+</div>
+
+<script>
+  document.querySelectorAll(".copybtn").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const pre = btn.closest(".postblock").querySelector("pre.post");
+      const text = pre.textContent;
+      let ok = false;
+      try { await navigator.clipboard.writeText(text); ok = true; } catch (e) {
+        try {
+          const range = document.createRange();
+          range.selectNodeContents(pre);
+          const sel = getSelection();
+          sel.removeAllRanges(); sel.addRange(range);
+          ok = document.execCommand("copy");
+          sel.removeAllRanges();
+        } catch (e2) { ok = false; }
+      }
+      btn.textContent = ok ? "Copied" : "Select & copy manually";
+      btn.classList.toggle("done", ok);
+      setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove("done"); }, 2200);
+    });
+  });
+</script>
