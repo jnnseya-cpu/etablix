@@ -126,6 +126,69 @@ curve. And the prose said the peak was reached in month 13 when the data said
 15; there is now a check that reads the sentence and compares it against the
 array, so the two cannot drift apart again.
 
+## P5 — FM and Operation
+
+    node build-p5.cjs         # from p5-content / p5-spec / p5-extra / p5-commercial / p5-close
+    python3 qa-p5.py          # nine checks, including consistency with P2
+
+`ETABLIX-ER-P5-FM-and-Operation.docx` — 18,474 words, 10 tables, 785 cells,
+41 pages. Written against the same twenty-five findings as the P2 gap register,
+which land differently on a service contract; section 23 answers all of them
+and names the two that do not apply rather than passing over them.
+
+**The one fact the whole document is written from.** The residents work shifts,
+and at the peak 45% of them are asleep during the day. Housekeeping cannot be
+scheduled by the clock, catering serves four periods and not three, transport
+runs on shift change, and there is no hour in which noisy work wakes nobody.
+An FM specification written for an office, a student hall or a hotel fails
+here, and it fails in a way that looks like poor performance rather than like
+the wrong specification.
+
+**G02 becomes output versus input.** Twenty-three services, each coded O or I.
+Fifteen output-specified — the Employer states the outcome, the Contractor
+designs the method and carries the risk it works. Eight input-specified, each
+with its reason: a statutory duty, a safety margin, or a dignity floor beneath
+which the service does not go whatever an efficiency model says. It is the most
+consequential decision in an FM specification and it is usually taken by
+accident.
+
+**G03 becomes the failures a service credit does not remedy.** A wedged fire
+door, a resident spending a night without a PEEP they need, an outlet outside
+the water temperature limits unremedied, a suspected foodborne outbreak, a
+safeguarding concern not reported, a falsified record. Twenty KPIs allocate a
+credit pool of 15% of the monthly fee; these sit outside it entirely.
+
+**Section 10 is the one most FM specifications do not have.** A resident cannot
+choose another provider and cannot go home at the end of the day. It requires a
+welfare contact distinct from reception, a documented procedure that triggers
+when somebody stops appearing, and — stated plainly because 225 people over 38
+months makes it likely — a serious incident and death-in-service procedure that
+names who does what at three in the morning on a Sunday.
+
+**Section 21 is the link to the consolidation playbook.** The Employer may
+require this Contractor to take the other four packages under it as prime, and
+the option is priced at tender rather than raised eighteen months in — because a
+party asked at tender is a different party from one asked when the Employer has
+no alternative.
+
+### What the audit caught in my own document
+
+Three real faults, all of them the kind that survive a read-through:
+
+- **17 of 20 specification clauses had no measurable value.** Every requirement
+  was written in words — "not exceeding seven days", "within four hours" — which
+  reads well and cannot be scanned, extracted or checked by a QS. 90 values
+  converted to numerals; six clauses that genuinely had nothing measurable in
+  them gained real values.
+- **A blind replace split nine compound numbers**, turning "thirty-eight months"
+  into "thirty-8 months". Same class of error as the playbook's "Cat 6A" →
+  "Cat section 6A". There is now a check for it.
+- **P5 claimed its maintenance priorities were identical to P2's. They were
+  not.** P2's Priority 1 is attend within 4 hours; P5's is 1 hour — correctly,
+  because this contractor is on site and P2's is travelling. The times should
+  differ; the claim should not have said otherwise. `qa-p5.py` now reads the P2
+  document and checks seven shared values across both.
+
 ## What this still is not
 
 **One package of five.** A full tender pack is five of these plus the ITT, the

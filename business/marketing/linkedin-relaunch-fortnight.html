@@ -1,0 +1,352 @@
+<title>ETABLIX Relaunch Fortnight</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --paper: #faf8f3;
+    --ink: #201c16;
+    --muted: #6b6354;
+    --line: #e3dccd;
+    --card: #ffffff;
+    --amber: #a97b2f;
+    --amber-ink: #8a6320;
+    --wash: #f3eddf;
+    --good: #2f7d4f;
+    --head: "Barlow Condensed", "Arial Narrow", sans-serif;
+    --body: "Inter", system-ui, sans-serif;
+  }
+  :root:not([data-theme="light"]) { }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #171410;
+      --ink: #ece5d8;
+      --muted: #a1988a;
+      --line: #35302a;
+      --card: #201c17;
+      --amber: #d0a050;
+      --amber-ink: #d9ad5f;
+      --wash: #262118;
+      --good: #6fbf8f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #171410;
+    --ink: #ece5d8;
+    --muted: #a1988a;
+    --line: #35302a;
+    --card: #201c17;
+    --amber: #d0a050;
+    --amber-ink: #d9ad5f;
+    --wash: #262118;
+    --good: #6fbf8f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0;
+    padding: 48px 20px 90px;
+  }
+  .page { max-width: 880px; margin: 0 auto; }
+  .kicker {
+    font-family: var(--head);
+    font-weight: 700;
+    font-size: 0.82rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--amber-ink);
+  }
+  h1 {
+    font-family: var(--head);
+    font-weight: 800;
+    font-size: clamp(2.2rem, 5vw, 3.2rem);
+    line-height: 1.02;
+    text-transform: uppercase;
+    margin: 6px 0 10px;
+    text-wrap: balance;
+  }
+  .standfirst { color: var(--muted); max-width: 640px; margin: 0 0 8px; }
+  .baseline {
+    display: flex; flex-wrap: wrap; gap: 26px;
+    border-top: 2px solid var(--ink);
+    border-bottom: 1px solid var(--line);
+    padding: 14px 0;
+    margin: 26px 0 38px;
+  }
+  .baseline div b {
+    display: block;
+    font-family: var(--head);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+  .baseline div span { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+
+  h2 {
+    font-family: var(--head);
+    font-weight: 700;
+    font-size: 1.45rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 44px 0 6px;
+  }
+  h2 + p.lede { color: var(--muted); margin: 0 0 18px; max-width: 640px; }
+
+  /* Daily routine strip */
+  .routine {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin-top: 16px;
+  }
+  .routine div { background: var(--card); padding: 14px 16px; }
+  .routine b { font-size: 0.92rem; display: block; margin-bottom: 3px; }
+  .routine small { color: var(--muted); font-size: 0.82rem; line-height: 1.45; display: block; }
+  .routine .clock { font-family: var(--head); font-weight: 700; color: var(--amber-ink); font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; }
+
+  /* Calendar */
+  .week-label {
+    font-family: var(--head);
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--amber-ink);
+    margin: 26px 0 10px;
+  }
+  .day {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: 18px;
+    padding: 15px 0;
+    border-top: 1px solid var(--line);
+  }
+  .day:last-child { border-bottom: 1px solid var(--line); }
+  .day .dow {
+    font-family: var(--head);
+    font-weight: 700;
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+  .day .dow small { display: block; font-family: var(--body); font-weight: 500; font-size: 0.72rem; color: var(--muted); text-transform: none; letter-spacing: 0; }
+  .day ul { margin: 0; padding-left: 18px; }
+  .day li { margin: 3px 0; }
+  .day li::marker { color: var(--amber); }
+  .post-day { background: var(--wash); margin: 0 -14px; padding: 15px 14px; border-top: 1px solid var(--line); }
+  .post-tag {
+    display: inline-block;
+    font-family: var(--head);
+    font-weight: 700;
+    font-size: 0.74rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--paper);
+    background: var(--amber);
+    padding: 2px 9px;
+    margin-bottom: 6px;
+  }
+  @media (max-width: 560px) { .day { grid-template-columns: 1fr; gap: 6px; } .post-day { margin: 0; } }
+
+  /* Ritual checklist */
+  .ritual { border: 1px solid var(--line); background: var(--card); padding: 20px 24px; margin-top: 16px; }
+  .ritual ol { margin: 0; padding-left: 20px; }
+  .ritual li { margin: 7px 0; }
+  .ritual li b { color: var(--amber-ink); }
+
+  /* Templates */
+  .tmpl {
+    border-left: 3px solid var(--amber);
+    background: var(--card);
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+  .tmpl .who {
+    font-family: var(--head);
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--amber-ink);
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  /* Scoreboard */
+  .board-wrap { overflow-x: auto; margin-top: 16px; }
+  table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 0.9rem; }
+  th {
+    font-family: var(--head);
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-align: left;
+    color: var(--muted);
+    border-bottom: 2px solid var(--ink);
+    padding: 8px 14px 8px 0;
+  }
+  td { border-bottom: 1px solid var(--line); padding: 9px 14px 9px 0; font-variant-numeric: tabular-nums; }
+  td.now { color: var(--muted); }
+  td.target { color: var(--good); font-weight: 600; }
+
+  .rule-note { font-size: 0.85rem; color: var(--muted); border-top: 1px solid var(--line); margin-top: 44px; padding-top: 14px; max-width: 640px; }
+</style>
+
+<div class="page">
+  <span class="kicker">ETABLIX · LinkedIn · Weeks Two &amp; Three</span>
+  <h1>The Relaunch Fortnight</h1>
+  <p class="standfirst">Round one reached 96 people — a distribution problem, not a message problem. This fortnight warms the account, relaunches all four posts with launch discipline, and keeps the channels that don't depend on an algorithm moving every day.</p>
+
+  <div class="baseline">
+    <div><b>96</b><span>impressions, best post</span></div>
+    <div><b>500+</b><span>connections today</span></div>
+    <div><b>4</b><span>posts to relaunch</span></div>
+    <div><b>15 min</b><span>daily routine</span></div>
+    <div><b>300–500</b><span>impression target, day 10</span></div>
+  </div>
+
+  <h2>The daily routine — every working day, before anything else</h2>
+  <p class="lede">This is what actually raises your reach. The posts are the harvest; this is the watering.</p>
+  <div class="routine">
+    <div><span class="clock">~8 min</span><b>Three real comments</b><small>On posts by people in UK construction, energy and your target companies. Two or three sentences with an opinion — never "Great post!". A comment under a director's post is seen by their whole network.</small></div>
+    <div><span class="clock">~3 min</span><b>Answer everything</b><small>Reply to every comment and DM on your own posts within the day — each reply counts as fresh engagement and re-feeds distribution.</small></div>
+    <div><span class="clock">~4 min</span><b>5–8 connection requests</b><small>Buyers, directors and subcontractor owners from the contact list. You sent 50 this week — good. Hold at 5–8/day now (≤100/week) so LinkedIn doesn't restrict the account.</small></div>
+  </div>
+
+  <h2>The calendar</h2>
+  <p class="lede">Posts go out Tuesday and Thursday, 8–10am, from your personal profile. Shaded days are posting days — clear the first hour after posting to stay online and engage.</p>
+
+  <div class="week-label">Week A — warm &amp; relaunch</div>
+  <div class="day">
+    <div class="dow">Monday<small>prep day</small></div>
+    <ul>
+      <li>Daily routine, then DM 8–10 people you know the ask-for-a-comment message (template below) about tomorrow's post.</li>
+      <li>Prepare Post 1 image: the trades grid or site hero. No link in the body — etablix.com goes in the first comment.</li>
+      <li>Offline: send the week's second-touch emails to targets who got touch one 7+ days ago.</li>
+    </ul>
+  </div>
+  <div class="day post-day">
+    <div class="dow">Tuesday<small>8–10am</small></div>
+    <div>
+      <span class="post-tag">Post 1 · ETABLIX — the problem &amp; the promise</span>
+      <ul>
+        <li>Publish, drop the link as your own first comment, then stay on for 60–90 minutes replying to every comment within minutes.</li>
+        <li>Nudge anyone who promised a comment and hasn't. Reply to every commenter by name.</li>
+        <li>Log impressions at the end of the day on the scoreboard.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="day">
+    <div class="dow">Wednesday</div>
+    <ul>
+      <li>Daily routine. Thank Tuesday's commenters with substantive replies — this extends the post's life a second day.</li>
+      <li>Offline: phone the top two email targets. "I sent you a note about site infrastructure for [project] — do you have two minutes?"</li>
+      <li>DM the comment-ask for tomorrow's CONSTRUX post to a fresh 8–10 people (don't reuse Tuesday's list).</li>
+    </ul>
+  </div>
+  <div class="day post-day">
+    <div class="dow">Thursday<small>8–10am</small></div>
+    <div>
+      <span class="post-tag">Post 2 · CONSTRUX — delivery control</span>
+      <ul>
+        <li>Image: the real CONSTRUX workspace screenshot — the "not a mock-up" proof. Demo link in first comment.</li>
+        <li>Same first-hour discipline. Anyone who engages from a target company gets a short, personal DM the same day — not a pitch, a thank-you and one line on what you're building.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="day">
+    <div class="dow">Friday<small>light day</small></div>
+    <ul>
+      <li>Daily routine only. Log both posts' numbers.</li>
+      <li>Offline: Marc Townsend — if the intro email hasn't had a reply, this is a call or a corridor conversation, not another email.</li>
+      <li>Weekend off. LinkedIn reach is weakest Saturday–Sunday; don't spend material there.</li>
+    </ul>
+  </div>
+
+  <div class="week-label">Week B — compound &amp; convert</div>
+  <div class="day">
+    <div class="dow">Monday<small>prep day</small></div>
+    <ul>
+      <li>Daily routine. Comment-ask DMs for tomorrow's VERYX post — include two or three people who engaged with posts 1–2; engaged people re-engage.</li>
+      <li>Offline: check Hinkley / Sizewell / CompeteFor portals for new opportunity notices — 10 minutes.</li>
+    </ul>
+  </div>
+  <div class="day post-day">
+    <div class="dow">Tuesday<small>8–10am</small></div>
+    <div>
+      <span class="post-tag">Post 3 · VERYX — risk &amp; assurance</span>
+      <ul>
+        <li>Image: the VERYX portfolio view. veryxjnn.com in first comment. First-hour discipline as before.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="day">
+    <div class="dow">Wednesday</div>
+    <ul>
+      <li>Daily routine. Third-touch calls to any target now two emails deep with no reply — after this they rest for a month.</li>
+      <li>Join 2–3 trade and regional groups (groundworks, modular buildings, temporary power, site security) ahead of tomorrow's supply-chain post.</li>
+    </ul>
+  </div>
+  <div class="day post-day">
+    <div class="dow">Thursday<small>8–10am</small></div>
+    <div>
+      <span class="post-tag">Post 4 · Supply chain — the 20 supplier types</span>
+      <ul>
+        <li>Image: the services grid from the registration form. Registration link in first comment.</li>
+        <li>This one converts to registrations, not likes — watch the Control Desk bell, and answer any registration within a day. That response time is the promise, demonstrated.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="day">
+    <div class="dow">Friday<small>review</small></div>
+    <ul>
+      <li>Day after: share Post 4 into the trade groups you joined — groups punish same-day cross-posting less than the feed does.</li>
+      <li>Fill the scoreboard completely and review it against the targets. Bring the numbers back and week four gets built on whichever audience moved.</li>
+    </ul>
+  </div>
+
+  <h2>The launch ritual — run it before every post</h2>
+  <div class="ritual">
+    <ol>
+      <li><b>T-24h:</b> DM 8–10 people the comment-ask. Fresh names each post; repeat only proven engagers.</li>
+      <li><b>T-0:</b> Publish 8–10am Tue/Thu, personal profile, native image attached, <b>zero links in the body</b>.</li>
+      <li><b>T+1 min:</b> Post the link yourself as the first comment.</li>
+      <li><b>T+0–90 min:</b> Stay online. Reply to every comment within minutes — replies count as new engagement and trigger wider distribution.</li>
+      <li><b>Same day:</b> Personal DM to anyone from a target company who engaged. End of day: log impressions.</li>
+    </ol>
+  </div>
+
+  <h2>The two messages</h2>
+  <div class="tmpl">
+    <span class="who">Comment-ask · to people who know you · T-24h</span>
+    "I'm posting something about the business tomorrow morning — the first hour decides whether LinkedIn shows it to anyone. A comment (even one line) would genuinely help me get it seen. I'll return the favour."
+  </div>
+  <div class="tmpl">
+    <span class="who">Connection request · to buyers, directors, suppliers · 5–8/day</span>
+    "Building a UK integrated site-services business — one accountable partner for the temporary infrastructure on major programmes. Your work on [project/company] is close to what we do; keen to follow it."
+  </div>
+
+  <h2>Scoreboard — fill in as you go</h2>
+  <div class="board-wrap">
+    <table>
+      <thead><tr><th>Measure</th><th>Round one</th><th>Day 5</th><th>Day 10</th><th>Day-10 target</th></tr></thead>
+      <tbody>
+        <tr><td>Best post impressions</td><td class="now">96</td><td></td><td></td><td class="target">300–500</td></tr>
+        <tr><td>Reactions + comments, best post</td><td class="now">0</td><td></td><td></td><td class="target">10+</td></tr>
+        <tr><td>Profile views / week</td><td class="now">—</td><td></td><td></td><td class="target">2× week one</td></tr>
+        <tr><td>Connections</td><td class="now">500+</td><td></td><td></td><td class="target">+60–80</td></tr>
+        <tr><td>Supplier registrations</td><td class="now">0</td><td></td><td></td><td class="target">1–3</td></tr>
+        <tr><td>Conversations started (DM, call or reply)</td><td class="now">0</td><td></td><td></td><td class="target">5+</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="rule-note">Two weeks of this is an account-warming programme, not a verdict on ETABLIX. Impressions compound with consistency — the target is 300–500 by day 10, and thousands come from doing this for a quarter, not from any single post. The conversations row matters more than every row above it: one real conversation with a buyer outranks a thousand impressions.</p>
+</div>
