@@ -19,13 +19,32 @@ import { runDiagnostic, STANDARD, DIAGNOSTIC_STAGES } from "./diagnostic.js";
 
 const DEFAULT_MODEL = "claude-opus-5";
 
+/**
+ * The key comes from the environment first.
+ *
+ * It used to live only in the settings collection, which means in db.json in
+ * plain text — and therefore inside every backup archive that gets copied
+ * around. The environment is the right place for it. Storage in the database
+ * still works, so an administrator can paste a key into the Control Desk
+ * without a redeploy, but it is second choice and the server says so at boot.
+ */
 export function getProvider() {
   const stored = getSettings().ai_provider || {};
+  const fromEnv = String(process.env.ANTHROPIC_API_KEY || "").trim();
   return {
-    apiKey: stored.apiKey || "",
-    model: stored.model || DEFAULT_MODEL,
+    apiKey: fromEnv || stored.apiKey || "",
+    source: fromEnv ? "environment" : stored.apiKey ? "database" : "none",
+    model: stored.model || process.env.ANTHROPIC_MODEL || DEFAULT_MODEL,
     lastTest: stored.lastTest || null,
   };
+}
+
+/** Warn once, at boot, if a secret is sitting in the data file. */
+export function auditSecretStorage() {
+  const stored = getSettings().ai_provider || {};
+  if (stored.apiKey && !process.env.ANTHROPIC_API_KEY) {
+    console.warn("[secrets] The AI provider key is stored in db.json in plain text, and so is in every backup of it. Set ANTHROPIC_API_KEY in the environment and clear it from the Control Desk.");
+  }
 }
 
 export function setProvider({ apiKey, model }) {
@@ -57,6 +76,7 @@ export function publicProvider() {
   const p = getProvider();
   return {
     model: p.model,
+    source: p.source,
     keyPreview: p.apiKey ? `${p.apiKey.slice(0, 10)}…${p.apiKey.slice(-4)}` : null,
     connected: providerConnected(),
     lastTest: p.lastTest,

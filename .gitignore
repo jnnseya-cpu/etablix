@@ -6,3 +6,12 @@ backend/data/uploads/
 
 # Test packs are built from their source folder, not stored as archives
 diagnostic-test/*.zip
+
+# Generated at deploy time from the commit being built
+BUILD_COMMIT
+# Store working files and the crash-rescue copies
+backend/data/db.json.tmp
+backend/data/db.json.prev
+backend/data/db.json.corrupt-*
+backend/data/errors.log
+backend/data/errors.log.1

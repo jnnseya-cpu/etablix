@@ -14,6 +14,7 @@ import { APPLICATION_STATUS, ACCESS } from "../../shared/constants.js";
 import { PREQUAL_CRITERIA, PQQ_SECTIONS, PQQ_DOCUMENTS_CHECKLIST, assessScores } from "../lib/prequal.js";
 import { draftPrequal } from "../lib/ai.js";
 import { requireHuman } from "../lib/humancheck.js";
+import { rateLimit } from "../lib/ratelimit.js";
 import { lookupCompany, describeCheck, isConfigured as chConfigured } from "../lib/companieshouse.js";
 import { ONBOARDING_SECTIONS, SUPPLIER_TERMS, NDA_TEXT, maskAccount } from "../lib/supplierflow.js";
 import { getSettings, saveSettings } from "../lib/store.js";
@@ -449,7 +450,7 @@ router.post("/:id/assessment", requireAuth, requireRole(...ACCESS.DELIVERY_FINAN
 });
 
 /** POST /api/subcontractors — public: supplier registration (multipart, optional documents). Human-verified. */
-router.post("/", acceptDocuments, requireHuman, (req, res) => {
+router.post("/", rateLimit({ name: "supplier-registration", windowMs: 60_000, max: 6, message: 'Too many registrations from this address. Wait a minute and try again.' }), acceptDocuments, requireHuman, (req, res) => {
   const { ok, errors, data } = validateSubcontractorApplication(req.body);
   if (!ok) return res.status(400).json({ error: errors[0], errors });
   const application = insert("subcontractors", {

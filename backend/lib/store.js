@@ -13,7 +13,11 @@ import { hashPassword } from "./auth.js";
 import { ROLES } from "../../shared/constants.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = path.join(__dirname, "..", "data");
+// Overridable so the kill test and the backup verifier can run against a
+// scratch directory instead of the live store.
+const DATA_DIR = process.env.ETABLIX_DATA_DIR
+  ? path.resolve(process.env.ETABLIX_DATA_DIR)
+  : path.join(__dirname, "..", "data");
 const DB_FILE = path.join(DATA_DIR, "db.json");
 
 export function id() {
@@ -244,20 +248,126 @@ function seed() {
 
 let db = null;
 
+const TMP_FILE = DB_FILE + ".tmp";
+const PREV_FILE = DB_FILE + ".prev";
+
+/**
+ * Read the store, recovering rather than refusing to start.
+ *
+ * The old version did `JSON.parse(readFileSync(...))` and nothing else. A
+ * write interrupted halfway — which is what a container being stopped does —
+ * left a truncated file, and the server then died on boot with
+ * "SyntaxError: Unterminated string in JSON". The site was down and every
+ * record unreadable, with no way back.
+ *
+ * Now: the current file, then the previous good copy, then a dated rescue of
+ * whatever was unreadable so nothing is thrown away silently. Only if all of
+ * that fails does it seed a new store, and it says so loudly.
+ */
+function readStore() {
+  const attempts = [
+    [DB_FILE, "the store"],
+    [PREV_FILE, "the previous good copy"],
+  ];
+  for (const [file, label] of attempts) {
+    if (!fs.existsSync(file)) continue;
+    try {
+      const raw = fs.readFileSync(file, "utf8");
+      if (!raw.trim()) throw new Error("file is empty");
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object") throw new Error("not an object");
+      if (file !== DB_FILE) {
+        console.warn(`[store] RECOVERED FROM ${label}. The main store was unreadable and has been kept for inspection.`);
+        fs.copyFileSync(file, DB_FILE);
+      }
+      return parsed;
+    } catch (err) {
+      const rescue = `${DB_FILE}.corrupt-${new Date().toISOString().replace(/[:.]/g, "-")}`;
+      try { fs.copyFileSync(file, rescue); } catch {}
+      console.error(`[store] ${label} is unreadable (${err.message}). Kept as ${path.basename(rescue)}.`);
+    }
+  }
+  return null;
+}
+
 export function load() {
   if (db) return db;
   fs.mkdirSync(DATA_DIR, { recursive: true });
-  if (fs.existsSync(DB_FILE)) {
-    db = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
+  const found = readStore();
+  if (found) {
+    db = found;
   } else {
+    if (fs.existsSync(DB_FILE)) {
+      console.error("[store] NO READABLE STORE. Seeding a new one. The unreadable files are kept beside it — do not overwrite them, and restore from backup.");
+    }
     db = seed();
     persist();
   }
   return db;
 }
 
+/**
+ * Write the store so that an interrupted write cannot destroy it.
+ *
+ *   1. serialise first — a serialisation error must not touch the file
+ *   2. write the whole thing to a temporary file and fsync it, so the bytes
+ *      are on the disk and not sitting in a buffer
+ *   3. keep the current file as the previous good copy
+ *   4. rename the temporary file over the real one — rename is atomic on the
+ *      same filesystem, so a reader sees the old file or the new one, never
+ *      half of either
+ *
+ * A kill at any point in that sequence leaves a complete file behind.
+ */
+let writing = false;
+let pendingWrite = false;
+
 export function persist() {
-  fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
+  // Re-entrancy guard. persist() is called from inside collection(), which is
+  // called from everywhere; without this a nested call could interleave with
+  // the rename and write a stale snapshot over a newer one.
+  if (writing) { pendingWrite = true; return; }
+  writing = true;
+  try {
+    do {
+      pendingWrite = false;
+      const json = JSON.stringify(db, null, 2);        // 1
+      const fd = fs.openSync(TMP_FILE, "w");           // 2
+      try {
+        fs.writeFileSync(fd, json);
+        fs.fsyncSync(fd);
+      } finally {
+        fs.closeSync(fd);
+      }
+      if (fs.existsSync(DB_FILE)) {                    // 3
+        try { fs.copyFileSync(DB_FILE, PREV_FILE); } catch {}
+      }
+      fs.renameSync(TMP_FILE, DB_FILE);                // 4
+    } while (pendingWrite);
+  } finally {
+    writing = false;
+  }
+}
+
+/** Flush anything held and report whether the store is readable. Used by the
+ *  shutdown sequence and by the backup verifier. */
+export function flush() {
+  if (!db) return { ok: true, wrote: false };
+  try {
+    persist();
+    JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
+    return { ok: true, wrote: true };
+  } catch (err) {
+    return { ok: false, wrote: true, error: err.message };
+  }
+}
+
+/** Row counts, for the backup verifier and the health endpoint. */
+export function counts() {
+  const data = load();
+  return Object.fromEntries(Object.entries(data)
+    .filter(([, v]) => Array.isArray(v))
+    .map(([k, v]) => [k, v.length]));
 }
 
 /**
@@ -291,11 +401,43 @@ export function collection(name) {
   return data[name];
 }
 
+/**
+ * Append-only collections that must not grow for ever.
+ *
+ * The whole store is rewritten on every change, so an unbounded collection
+ * makes every future write slower and every future interruption more
+ * dangerous. Caps are applied here, in one place, rather than in the routes
+ * where they were being forgotten — notifications had no cap at all.
+ */
+const CAPS = {
+  notifications: 500,
+  deliveries: 500,
+  agentTasks: 300,
+  automationRuns: 200,
+  traffic: 2000,
+  portfolioSnapshots: 400,
+};
+
 export function insert(name, record) {
   const row = { id: id(), createdAt: Date.now(), ...record };
-  collection(name).push(row);
+  const rows = collection(name);
+  rows.push(row);
+  const cap = CAPS[name];
+  if (cap && rows.length > cap) rows.splice(0, rows.length - cap);
   persist();
   return row;
+}
+
+/** Trim every capped collection — run at boot, so an old oversized store
+ *  is brought back inside its limits without waiting for the next insert. */
+export function trimCapped() {
+  let removed = 0;
+  for (const [name, cap] of Object.entries(CAPS)) {
+    const rows = collection(name);
+    if (rows.length > cap) { removed += rows.length - cap; rows.splice(0, rows.length - cap); }
+  }
+  if (removed) persist();
+  return removed;
 }
 
 export function update(name, rowId, patch) {

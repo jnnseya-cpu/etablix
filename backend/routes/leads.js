@@ -11,6 +11,7 @@ import { engagementFromLead } from "../lib/clientflow.js";
 import { validateLead } from "../../shared/validation.js";
 import { LEAD_STATUS } from "../../shared/constants.js";
 import { requireHuman } from "../lib/humancheck.js";
+import { rateLimit } from "../lib/ratelimit.js";
 
 const router = Router();
 
@@ -55,7 +56,7 @@ function openEngagementFor(lead) {
 }
 
 /** POST /api/leads — public: business project enquiry (multipart, optional documents). Human-verified. */
-router.post("/", acceptDocuments, requireHuman, (req, res) => {
+router.post("/", rateLimit({ name: "enquiry", windowMs: 60_000, max: 10, message: 'Too many enquiries from this address. Wait a minute and try again — if this is a genuine second enquiry, email contact@etablix.com.' }), acceptDocuments, requireHuman, (req, res) => {
   const { ok, errors, data } = validateLead(req.body);
   if (!ok) return res.status(400).json({ error: errors[0], errors });
   const lead = insert("leads", {

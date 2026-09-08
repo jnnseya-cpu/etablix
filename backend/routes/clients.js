@@ -59,6 +59,18 @@ function reference(e) {
 }
 
 /** The public shape: derived state, never stored, so the two views agree. */
+/**
+ * The audit trail lives inside the engagement row, in a file that is
+ * rewritten in full on every change, so it is capped. 400 entries is far more
+ * than an engagement generates in 38 months, and the cap means a runaway
+ * loop cannot bloat the store.
+ */
+const TRAIL_MAX = 400;
+function trail(existing, entry) {
+  const next = [...(existing || []), entry];
+  return next.length > TRAIL_MAX ? next.slice(next.length - TRAIL_MAX) : next;
+}
+
 function decorate(e) {
   const chk = checklistState(e.checklist || []);
   const m = model(e.model);
@@ -224,8 +236,8 @@ router.post("/:id/terms", ...finance, (req, res) => {
     veryx: b.veryx === undefined ? Boolean(e.veryx) : Boolean(b.veryx),
     project, checklist,
     stage: "agreed",
-    events: [...(e.events || []), { at: Date.now(), by: req.user.name, what: "Terms agreed",
-      detail: `${m.name} — ${d.name}${m.kind === "fixed" ? ` — £${fee.toLocaleString()}` : ` — £${monthlyFee.toLocaleString()}/month`}` }],
+    events: trail(e.events, { at: Date.now(), by: req.user.name, what: "Terms agreed",
+      detail: `${m.name} — ${d.name}${m.kind === "fixed" ? ` — £${fee.toLocaleString()}` : ` — £${monthlyFee.toLocaleString()}/month`}` }),
   });
   res.json({ engagement: decorate(find(e.id)) });
 });
@@ -259,7 +271,7 @@ router.post("/:id/issue-portal", ...finance, async (req, res) => {
     portalIssuedAt: Date.now(),
     portalIssuedBy: req.user.name,
     stage: e.stage === "agreed" ? "information" : e.stage,
-    events: [...(e.events || []), { at: Date.now(), by: req.user.name, what: "Portal issued", detail: `Checklist of ${chk.total} items sent to ${e.contactEmail}` }],
+    events: trail(e.events, { at: Date.now(), by: req.user.name, what: "Portal issued", detail: `Checklist of ${chk.total} items sent to ${e.contactEmail}` }),
   });
 
   emitDetached("client.portal.issued", {
@@ -292,7 +304,7 @@ router.post("/:id/remind", ...finance, async (req, res) => {
     detailsText: `Your portal:\n${SITE_URL}/client-portal?t=${e.portalToken}\n\nOutstanding:\n${outstanding.map((i) => "• " + i.title).join("\n")}`,
   });
   update("clientEngagements", e.id, {
-    events: [...(e.events || []), { at: Date.now(), by: req.user.name, what: "Reminder sent", detail: `${outstanding.length} mandatory items` }],
+    events: trail(e.events, { at: Date.now(), by: req.user.name, what: "Reminder sent", detail: `${outstanding.length} mandatory items` }),
   });
   res.json({ sent: outstanding.length });
 });
@@ -315,7 +327,7 @@ router.post("/:id/payment-received", ...finance, async (req, res) => {
   update("clientEngagements", e.id, {
     documents: updatedDocs,
     stage: nextStage,
-    events: [...(e.events || []), { at: Date.now(), by: req.user.name, what: `${kind === "deposit" ? "Deposit" : "Balance"} received`, detail: `${target.number} — ${money(target.amount)}` }],
+    events: trail(e.events, { at: Date.now(), by: req.user.name, what: `${kind === "deposit" ? "Deposit" : "Balance"} received`, detail: `${target.number} — ${money(target.amount)}` }),
   });
 
   if (kind === "deposit") {
@@ -403,7 +415,7 @@ router.post("/:id/deliverable", ...finance, acceptDocuments, async (req, res) =>
   update("clientEngagements", e.id, {
     deliverables: [...(e.deliverables || []), item],
     stage: "decision",
-    events: [...(e.events || []), { at: Date.now(), by: req.user.name, what: "Deliverable issued", detail: `${label} (rev ${item.revision})` }],
+    events: trail(e.events, { at: Date.now(), by: req.user.name, what: "Deliverable issued", detail: `${label} (rev ${item.revision})` }),
   });
 
   emitDetached("client.deliverable.issued", {
@@ -468,8 +480,8 @@ router.post("/:id/run-diagnostic", ...finance, async (req, res) => {
       diagnosticRunId: run.id,
       handoverDate: handover,
       reportDueDate: dates?.due || null,
-      events: [...(e.events || []), { at: Date.now(), by: req.user.name, what: "Diagnostic started",
-        detail: `${files.length} client document(s) · handover ${handover} · report due ${dates?.due || "—"}` }],
+      events: trail(e.events, { at: Date.now(), by: req.user.name, what: "Diagnostic started",
+        detail: `${files.length} client document(s) · handover ${handover} · report due ${dates?.due || "—"}` }),
     });
     res.status(202).json({ runId: run.id, files: files.length, handover, due: dates?.due || null, engagement: decorate(find(e.id)) });
   } catch (err) {
@@ -566,8 +578,8 @@ router.post("/portal/:token/checklist/:itemId", acceptDocuments, async (req, res
 
   update("clientEngagements", e.id, {
     checklist: updated,
-    events: [...(e.events || []), { at: Date.now(), by: e.contactName || e.client, what: "Checklist updated",
-      detail: `${item.title} — ${STATE_WORDS[state]}` + (replaced ? ` (${replaced} document${replaced === 1 ? "" : "s"} replaced by a newer copy of the same name)` : "") }],
+    events: trail(e.events, { at: Date.now(), by: e.contactName || e.client, what: "Checklist updated",
+      detail: `${item.title} — ${STATE_WORDS[state]}` + (replaced ? ` (${replaced} document${replaced === 1 ? "" : "s"} replaced by a newer copy of the same name)` : "") }),
   });
 
   // The moment the last mandatory item lands, the desk is told — the
@@ -630,7 +642,7 @@ router.post("/portal/:token/start", async (req, res) => {
     startConfirmedAt: Date.now(),
     startConfirmedBy: by,
     documents: [...(e.documents || []), record],
-    events: [...(e.events || []), { at: Date.now(), by, what: "Start confirmed by the client", detail: `${doc.number} raised automatically — ${money(terms.amount)}` }],
+    events: trail(e.events, { at: Date.now(), by, what: "Start confirmed by the client", detail: `${doc.number} raised automatically — ${money(terms.amount)}` }),
   });
 
   emitDetached("client.deposit.requested", {
@@ -684,7 +696,7 @@ router.post("/portal/:token/decision", async (req, res) => {
 
   const patch = {
     deliverables: updated,
-    events: [...(e.events || []), { at: Date.now(), by, what: `Client decision: ${spec.label}`, detail: `${item.label} rev ${item.revision}${comments.length ? ` — ${comments.length} comment(s)` : ""}` }],
+    events: trail(e.events, { at: Date.now(), by, what: `Client decision: ${spec.label}`, detail: `${item.label} rev ${item.revision}${comments.length ? ` — ${comments.length} comment(s)` : ""}` }),
   };
 
   let invoice = null;

@@ -11,7 +11,9 @@ import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-export const UPLOAD_DIR = path.join(__dirname, "..", "data", "uploads");
+export const UPLOAD_DIR = process.env.ETABLIX_DATA_DIR
+  ? path.join(path.resolve(process.env.ETABLIX_DATA_DIR), "uploads")
+  : path.join(__dirname, "..", "data", "uploads");
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
 const ALLOWED = new Set([
