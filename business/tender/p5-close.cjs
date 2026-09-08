@@ -49,7 +49,7 @@ schedule: [
 
 // [ref, the finding against the P2 Rev A, where P5 answers it]
 register: [
-["G01","No design responsibility matrix or Contractor's Proposals mechanism","Section {{§management}} in full: the output/input basis at {{management.1}}, the Service Delivery Plan and Schedule of Departures at {{management.2}}, the thirty-row responsibility matrix at {{management.3}}, and the rule at {{management.4}} that review transfers nothing"],
+["G01","No design responsibility matrix or Contractor's Proposals mechanism","{{§management}} in full: the output/input basis at {{management.1}}, the Service Delivery Plan and Schedule of Departures at {{management.2}}, the thirty-row responsibility matrix at {{management.3}}, and the rule at {{management.4}} that review transfers nothing"],
 ["G02","Prescriptive and performance specification mixed","Every one of the twenty-three services carries an O or I code with its reason. Fifteen output-specified, eight input-specified. The consequence of each is stated at {{management.1}} and the eight inputs are each justified where they appear"],
 ["G03","No stated failure mode","{{§credits}}, and specifically the Unacceptable Failures at {{credits.4}} — the failures a service credit does not remedy, in five groups, with the immediate consequence of each"],
 ["G04","No damages or delay mechanism","{{§credits}}: the pool, the weightings, the three bands, persistent failure at {{credits.3}} and the self-reporting rule at {{credits.5}}"],

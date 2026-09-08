@@ -189,6 +189,60 @@ Three real faults, all of them the kind that survive a read-through:
   differ; the claim should not have said otherwise. `qa-p5.py` now reads the P2
   document and checks seven shared values across both.
 
+## P3 — Kitchen and Catering Fit-Out
+
+    node build-p3.cjs         # from p3-content / p3-spec / p3-extra / p3-close
+    python3 qa-p3.py          # nine checks, including consistency with P2
+
+`ETABLIX-ER-P3-Kitchen.docx` — 12,064 words, 13 tables, 902 cells, 32 pages.
+
+**Every serious risk in this package is at its boundary.** It fits out a
+building it does not build. The penetrations, the floor loading, the drainage
+falls, the extract route, the ceiling height and the width of the door the
+combi oven comes through are all P2's, and all of them are fixed **eight weeks
+before P2 commences manufacture**. Section 7 is a twelve-item freeze register
+stating what is fixed, who produces it, who confirms it, and what it costs if
+it changes after. It is priced separately at item A3 because it is delivered
+months before the contractor mobilises.
+
+**The demand drives everything and it has five service periods, not three.**
+Derived from the bed curve and the day-shift split at P2 Appendix 6: 225
+residents, 124 on days and 101 on nights, giving 490 hot covers a day plus 225
+packed meals. The two periods a conventional kitchen design does not know exist
+are the night shift coming off at 07:15 wanting a main meal, and the night
+shift going on at 17:30 wanting breakfast. The areas sum to the 610 m² shell
+exactly, and the audit checks that they do.
+
+**The fatal question, answered.** The extract and cooking power shut down on
+fire alarm activation unless the fire strategy requires otherwise in writing;
+no fire damper in a grease duct, because it clogs and cannot be inspected —
+separation by 60-minute rated construction instead; suppression isolates power
+on discharge; and the kitchen is electric, which removes the gas interlock
+question entirely from a building 40 m from where people sleep.
+
+**G14 is answered by naming a fault in the Employer's own pack.** P2's
+Appendix 8 gives 3.0 kN/m² for "amenity and dining" and states no kitchen
+production loading. A cold room and a bank of combi ovens are not an amenity
+floor. Clause 7.3 states the required 5.0 and 7.5 kN/m², says the appendix is
+to be updated before manufacture, and says plainly that a tenderer who priced a
+3.0 kN/m² floor and found a cold room on it would have been failed by the
+Employer's own documents.
+
+### The audit found its own blind spot
+
+`qa-p3.py` was adapted from `qa-p5.py` and reported **PASS while examining zero
+clauses** — the measurable-value check was still pointed at section 4, the
+section number of the document it was copied from. A green check that tests
+nothing is worse than no check. Both audits now **fail if the check finds
+nothing to examine**, the pattern is case-insensitive and understands ratios
+and spelled units, and once it was working it found five clauses with no
+measurable requirement — including the fire clause, which required rated
+construction around the grease duct and never said for how long.
+
+Two other faults it caught: bare section tokens rendering as stray digits
+("valued under 14"), now rendering as "section 14"; and the fix then producing
+"Section section 7" in two places, which has its own guard.
+
 ## What this still is not
 
 **One package of five.** A full tender pack is five of these plus the ITT, the

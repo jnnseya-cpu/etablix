@@ -54,7 +54,7 @@ function resolve(text) {
     }
     const s = SEC[name];
     if (!s) throw new Error(`Unknown reference target in "${whole}"`);
-    if (sect) return String(s.n);
+    if (sect) return `section ${s.n}`;  // a bare number reads as a stray digit in prose
     if (s.refs) {
       if (!s.refs.includes(sub)) throw new Error(`Unknown reference "${whole}"`);
       return sub;

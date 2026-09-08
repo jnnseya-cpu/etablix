@@ -213,7 +213,7 @@ Fifteen services are output-specified and eight are input-specified. Each of the
  
 4  The services, element by element 
 4.1  The housekeeping standard, measurably 
-A room is clean when all of the following are true, and the audit at 11 tests each of them rather than forming an impression. 
+A room is clean when all of the following are true, and the audit at section 11 tests each of them rather than forming an impression. 
 SURFACES. No visible dust, marks, fingerprints or residue on any surface a resident touches or looks at: desk, sill, handles, switches, mirror, headboard, wardrobe interior. Measured against the photographic standard agreed at the benchmark room under 11.2, and by wipe test at not fewer than 6 points per room during audit. 
 ENSUITE. No limescale, soap residue, hair or staining. Shower tray, gully grating and trap free of blockage. Grout and sealant free of mould growth — any visible dark growth along a sealant joint exceeding 50 mm in length is a failure, not a characteristic of the room. WC, basin and every touched surface disinfected, not merely wiped. 
 FLOOR. Free of debris, marks and standing water. Coved junction clean into the cove, not around it. 
@@ -248,7 +248,7 @@ A packed meal and a drink shall be available to every resident going to shift, c
 4.7  Catering — nutrition, dietary, religious and medical requirements 
 NUTRITION. Menus shall provide a balanced diet appropriate to physically demanding outdoor work, on a cycle of not less than 28 days, with the nutritional analysis available to the Employer on request. A repeating seven-day cycle over a fourteen-day rotation means a resident eats the same meal on the same day of every rotation for 38 months, and it is a documented cause of workforce dissatisfaction on projects of this type. 
 REQUIREMENTS. Every dietary, religious or medical requirement stated at check-in shall be met at every service period from that point, without the resident having to state it again. Asking twice is the failure this clause defines. The requirement is recorded against the resident at 4.9 and travels with them across rotations. 
-ALLERGENS. Full allergen information available at the point of service for every item, to the Food Information Regulations and the requirements for prepacked-for-direct-sale food. See 9. 
+ALLERGENS. Full allergen information available at the point of service for every item, to the Food Information Regulations and the requirements for prepacked-for-direct-sale food. See section 9. 
 4.8  Reception, arrival and induction 
 Every arriving resident shall be allocated a room and issued a key credential within 30 minutes of arrival, and given the village induction within 2 hours of arrival and in every case before their first sleep. Arrivals do not keep office hours; reception is staffed continuously. 
 The induction shall cover, as a minimum: the fire evacuation procedure for their block and their assembly point; the emergency assistance arrangements; how to report a fault; the meal service times for their shift; the transport times; the welfare contact at 10.2; and the quiet-hours expectation at 4.19. It shall be given in a language the resident understands, and where it is not, an interpreted or translated version shall be provided — a fire instruction nobody understood has not been given. 
@@ -267,19 +267,19 @@ Every incident logged and reported to the Employer within 1 hour: unauthorised e
 Every resident shall be able to reach their shift start and return from it without a private car. 
 Departures shall be timed so that residents arrive at the site not less than 15 minutes before shift start, and return transport shall depart within 30 minutes of shift end. A worker who has finished a twelve-hour shift and waits an hour for a bus has been failed. 
 Capacity shall be sized on the occupancy and day-shift proportion at Appendix 6 of the P2 requirements, which changes across the deployment: at the peak roughly 45 per cent of residents are on nights, and the two flows overlap at shift change. Seats for every resident on every scheduled departure — standing is not capacity. 
-Vehicles, drivers, licensing, tachograph compliance and maintenance are the Contractor's. Drivers are subject to the drug and alcohol regime at 13 and to the same induction as any other person on site. 
-Where a shift is extended or a departure missed for a reason within the project rather than the Contractor, transport shall still be provided and the cost recovered under 17 — nobody is left at the site gate while the commercial position is worked out. 
+Vehicles, drivers, licensing, tachograph compliance and maintenance are the Contractor's. Drivers are subject to the drug and alcohol regime at section 13 and to the same induction as any other person on site. 
+Where a shift is extended or a departure missed for a reason within the project rather than the Contractor, transport shall still be provided and the cost recovered under section 17 — nobody is left at the site gate while the commercial position is worked out. 
 4.12  Planned maintenance and the CAFM 
 Every maintainable asset shall be maintained to a schedule not less onerous than SFG20 for its type, or the manufacturer's requirement where that is more onerous, and every task recorded in the CAFM against the asset identifier received from P2 under Appendix 11 of those requirements. 
-The asset register is not re-created here. It is received, loaded and kept current: an asset replaced during the term inherits the identifier convention and the physical label, so that the register the Employer holds at the end of 38 months is the register it can relocate the village with under 20. 
-The planned maintenance schedule shall be submitted within the mobilisation period at 7 and shall show, per asset type, the task, the frequency, the standard and the trade required. A schedule that says 'as SFG20' without listing the tasks is not a schedule. 
+The asset register is not re-created here. It is received, loaded and kept current: an asset replaced during the term inherits the identifier convention and the physical label, so that the register the Employer holds at the end of 38 months is the register it can relocate the village with under section 20. 
+The planned maintenance schedule shall be submitted within the mobilisation period at section 7 and shall show, per asset type, the task, the frequency, the standard and the trade required. A schedule that says 'as SFG20' without listing the tasks is not a schedule. 
 4.13  Reactive maintenance — the three priorities 
 The three priority DEFINITIONS below are the same as those in the P2 defects regime, deliberately: a resident should not have to learn which document their fault falls under to know how serious it is. 
 THE TIMES ARE NOT THE SAME, AND THAT IS INTENTIONAL. P2's Priority 1 is attend within 4 hours, make safe within 8; this Contractor's is attend within 1 hour, make safe within 4. The difference is that this Contractor is on site and P2's is not: a defects-period contractor is travelling, and a facilities management contractor with a duty manager on the premises has no such excuse. Where a fault falls to both — a P2 defect in a room this Contractor operates — this Contractor attends to the times below and P2 rectifies to its own. The resident sees the faster of the two, which is the point. 
 PRIORITY 1 — loss of heating, hot water, cold water or power to a block; a fire alarm fault; a failure of the access control system affecting more than 1 room; a bedroom door that cannot be secured; an escaping water leak; a lift entrapment; loss of the catering facility. ATTEND WITHIN 1 HOUR. Make safe or provide a temporary measure within 4 hours. Permanent rectification within 5 working days. 
 PRIORITY 2 — loss of heating, hot water or power to a single room; a failed extract; a single failed lock; a failed emergency luminaire; a laundry machine out of service; a defect that makes a room unfit to occupy. ATTEND WITHIN 24 HOURS. Rectify within 5 working days. 
 PRIORITY 3 — finishes, joinery, cosmetic damage, anything not affecting the use of the room. Rectify within 20 working days. Priority 3 only may be batched. 
-A ROOM THAT IS UNFIT TO OCCUPY. Where a fault makes a room unfit and cannot be rectified within 4 hours, the resident is moved to another room at the Contractor's cost and inconvenience, not left in it. Where no room is available, the Employer is notified within the hour under 18. 
+A ROOM THAT IS UNFIT TO OCCUPY. Where a fault makes a room unfit and cannot be rectified within 4 hours, the resident is moved to another room at the Contractor's cost and inconvenience, not left in it. Where no room is available, the Employer is notified within the hour under section 18. 
 All times run from the fault being reported OR observed, whichever is earlier. A fault a housekeeper saw under 4.1 and did not raise is deemed reported at the time it was seen. 
 4.14  Grounds, external areas and winter service 
 External routes, steps, the transport pick-up and the route between every block and the amenity building shall be safe and passable at every hour the village is occupied. 
@@ -292,10 +292,10 @@ No waste, and in particular no food waste, shall be stored where it is accessibl
 Bin stores cleaned and disinfected weekly and after every collection failure. Collection failures are the Contractor's to chase, not the Employer's to notice. 
 4.16  Utilities and energy management 
 Continuity of supply to every block, and consumption actively managed rather than merely paid. 
-The sub-metering installed under P2 clauses 4.24 and 4.25 separates heating, hot water, lighting and small power per block, and separately meters the kitchen. It exists so that consumption can be managed from measured data. The Contractor shall report monthly under 12: consumption per block, per bed-night, and against the same month of the previous year once a year exists. 
-Reported within 5 working days of month end, to the same deadline as 12. 
+The sub-metering installed under P2 clauses 4.24 and 4.25 separates heating, hot water, lighting and small power per block, and separately meters the kitchen. It exists so that consumption can be managed from measured data. The Contractor shall report monthly under section 12: consumption per block, per bed-night, and against the same month of the previous year once a year exists. 
+Reported within 5 working days of month end, to the same deadline as section 12. 
 The Contractor shall investigate each of the following and report what it found: a block whose consumption per bed-night diverges by more than 15% from the median of the other blocks — within 5 working days; a fall of more than 25% in a block's water consumption month on month not explained by occupancy — WITHIN 48 HOURS, because that is the earliest indication of an unoccupied and stagnating leg and is a water safety matter under 9.5; and any month-on-month rise above 10% not explained by occupancy or by degree days. 
-Where the Contractor identifies a saving requiring capital expenditure, it shall propose it under 17 with the payback stated over the remaining term, not over the life of the equipment. 
+Where the Contractor identifies a saving requiring capital expenditure, it shall propose it under section 17 with the payback stated over the remaining term, not over the life of the equipment. 
 4.17  Network and resident connectivity 
 Wireless coverage and capacity to every occupied room and every amenity space, to the level specified at P2 section 6 — not less than −67 dBm and supporting two devices per resident concurrently. 
 This is a welfare service. For a resident five hundred miles from home on a fourteen-day rotation, the network is the connection to their family, and an evening on which it does not work is not an IT incident. Availability is measured at K17 and a network outage affecting a block is Priority 1. 
@@ -309,22 +309,22 @@ THERE IS NO QUIET HOUR IN THIS VILLAGE, and that is the requirement rather than 
 At any hour of the day or night a proportion of residents are asleep. There is therefore no window in which noisy work — grounds maintenance, external plant, deliveries, waste collection, maintenance requiring power tools, fire alarm testing — can be carried out without waking somebody. 
 The Contractor shall manage this by ZONE AND SHIFT rather than by hour. Its method statement shall show, for each noise-generating activity, which blocks are affected, which shift patterns occupy them, and the window in which the fewest sleeping residents are disturbed. That window is derived from the occupancy record and it moves as the shift pattern moves. 
 Weekly fire alarm testing under 9.3 is the sharpest case: the test is a statutory requirement, it is audible in every room by design, and it will wake somebody every week for 38 months. The Contractor shall agree the test time with the Employer, publish it to residents, and hold it — a moving test time is worse than an inconvenient one. 
-Noise from the adjoining construction site is not this Contractor's to control, but its effect is: where construction noise makes a block unsuitable for day sleeping, the Contractor shall raise it under 18 and the Employer will address it with the Principal Contractor. 
+Noise from the adjoining construction site is not this Contractor's to control, but its effect is: where construction noise makes a block unsuitable for day sleeping, the Contractor shall raise it under section 18 and the Employer will address it with the Principal Contractor. 
 4.20  What the Contractor provides 
 Everything necessary to deliver the services and not provided under another package, including: all cleaning equipment, materials and consumables; all catering equipment not fixed under P3 and all food and beverage; linen, in stock of not less than 3 full sets per bed so that one is in use, one in laundering and one in reserve; all vehicles for 4.11; all tools, test equipment and spares for 4.12 and 4.13; winter service material and plant; the CAFM system; and the personal protective equipment its own staff require. 
-Cleaning products shall be limited to the schedule of approved products issued in the P2 operation and maintenance manual — the finishes were selected against that schedule and a product outside it voids the durability requirement the Employer paid for. Where the Contractor requires a product not on the schedule it shall propose it under 17 with the manufacturer's compatibility confirmation. 
-The critical spares holding transferred from P2 under item J of its activity schedule is received, held, used and replenished within 10 working days of use. A spare used and not replaced is a spare the Employer no longer has, and the holding is audited quarterly under 11. 
+Cleaning products shall be limited to the schedule of approved products issued in the P2 operation and maintenance manual — the finishes were selected against that schedule and a product outside it voids the durability requirement the Employer paid for. Where the Contractor requires a product not on the schedule it shall propose it under section 17 with the manufacturer's compatibility confirmation. 
+The critical spares holding transferred from P2 under item J of its activity schedule is received, held, used and replenished within 10 working days of use. A spare used and not replaced is a spare the Employer no longer has, and the holding is audited quarterly under section 11. 
  
 5  Management responsibility 
 5.1  This is an output-specified service contract, and here is what that means 
 THIS IS THE CLAUSE THE P2 GAP REGISTER MADE FATAL BY ITS ABSENCE, translated to a service. Without it a tenderer cannot know what it is warranting, and every competent tenderer returns a qualified offer. Qualified offers cannot be compared, which defeats the evaluation. 
 The Employer has stated OUTCOMES and MEASURES. The Contractor designs the service that achieves them: the method, the frequency, the resource, the equipment, the rosters and the supervision. It carries the risk that its design achieves the outcome. 
 Where this document specifies an INPUT — a frequency, a ratio, a named standard — the Employer has decided it and the Contractor delivers it as described. The Employer carries the risk that doing it produces the outcome; the Contractor's duty is to say so, before award, where it believes it will not. A tenderer that prices an input it thinks is inadequate and says nothing has taken on a problem it could have handed back. 
-The matrix at 5.3 states which is which, element by element. The service register at 3 codes every service O or I. Twenty-three services: fifteen output-specified, eight input-specified, and the eight are stated with their reasons. 
+The matrix at 5.3 states which is which, element by element. The service register at section 3 codes every service O or I. Twenty-three services: fifteen output-specified, eight input-specified, and the eight are stated with their reasons. 
 5.2  The Service Delivery Plan 
 With its tender the Contractor shall submit a Service Delivery Plan: how it will deliver each service, with what resource, on what roster, to what supervision, and how it will schedule to occupancy rather than to the clock. 
 The Plan is contractual on award and is subordinate to these Employer's Requirements. Where the two conflict, this document prevails, unless the conflict arises from a departure accepted in writing. 
-It shall contain, as a minimum: the organisation chart with named individuals for the posts at 8; the establishment by service, by shift, showing the peak-day resourcing for room turnover at 4.4; the catering service plan showing all 4 service periods including the night meal; the transport plan against the shift roster; the planned maintenance schedule; the winter service plan at 4.14; the noise-by-zone method at 4.19; and the mobilisation programme at 7. 
+It shall contain, as a minimum: the organisation chart with named individuals for the posts at section 8; the establishment by service, by shift, showing the peak-day resourcing for room turnover at 4.4; the catering service plan showing all 4 service periods including the night meal; the transport plan against the shift roster; the planned maintenance schedule; the winter service plan at 4.14; the noise-by-zone method at 4.19; and the mobilisation programme at section 7. 
 EVERY POINT AT WHICH THE PLAN DEPARTS FROM THIS DOCUMENT shall be listed in a Schedule of Departures with the clause, what is offered instead, the reason, the effect on every other requirement, and the price effect as a plus or a minus. A departure not listed is not accepted, whether or not it is visible in the Plan. 
 5.3  The management responsibility matrix 
 The matrix is exhaustive. An element not listed is the Contractor's to design. Codes: CD — the Contractor designs the method to a stated outcome. ED — the Employer has specified it; the Contractor delivers it as described. JT — agreed jointly and neither party may change it alone. 
@@ -333,7 +333,7 @@ The Employer will review the Service Delivery Plan, the method statements, the m
 This applies to an accepted submission as fully as to a commented one. It is stated because in a service contract the Employer sees the method every day, and daily visibility is repeatedly argued afterwards to be approval. 
 5.5  Sub-contracting 
 The Contractor may sub-contract, and on a village of this size it will: catering, laundry, pest control, lift maintenance, specialist water treatment and security are commonly sub-let. 
-It remains liable to the Employer for every sub-contracted service as if it had performed it itself. Every requirement of this document, and in particular the labour standards at 19 and the welfare obligations at 10, flows down in full and unamended. 
+It remains liable to the Employer for every sub-contracted service as if it had performed it itself. Every requirement of this document, and in particular the labour standards at section 19 and the welfare obligations at section 10, flows down in full and unamended. 
 The Contractor shall disclose at tender every service it intends to sub-let and to whom, where known. A sub-contractor introduced later is notified to the Employer before it attends site, with evidence that the flow-down is in place. The Employer may object to a sub-contractor on reasonable grounds relating to the requirements of this document. 
 Element 
  
@@ -453,7 +453,7 @@ The posts, the cover and that they are named individuals
 Recruiting, retaining and replacing them under 8.3 
 Labour standards 
 ED 
-The Employer Pays Principle and the flow-down at 19 
+The Employer Pays Principle and the flow-down at section 19 
 Compliance across its own staff and every sub-contractor 
 CAFM system 
 CD 
@@ -540,7 +540,7 @@ Written. Operating an occupied village is not construction; a refurbishment or a
 Before mobilisation, and before any works 
 IF-15 
 Employer / P2 
-Where this Contractor is appointed as prime under 21, the four transferred contracts and the cut-off valuations 
+Where this Contractor is appointed as prime under section 21, the four transferred contracts and the cut-off valuations 
 Per the consolidation mechanism at that section 
 Only if the option is exercised 
 Where a service in this document cannot be delivered because something handed over is inadequate, the Contractor's duty is to report it under section 18, not to work around it. A workaround becomes the standard within a month and the defect is never fixed. 
@@ -574,11 +574,11 @@ The establishment below is a minimum and is an input. The Contractor may exceed 
 8.3  Continuity, and what happens when someone leaves 
 The Village Manager and the Deputy shall not be changed within the first 6 months of service commencement, nor within 3 months of any section's commencement, except through death, illness, resignation or the Employer's own request. 
 Where a key post-holder leaves, the Contractor shall notify the Employer within 2 working days, propose a replacement within ten, and provide a handover of not less than 2 weeks where the departure allows it. The Employer may interview and may reasonably object. 
-A post left vacant for more than 4 weeks is a service failure under 15, because on a village the management post IS the service: there is no head office that can absorb its absence at three in the morning. 
+A post left vacant for more than 4 weeks is a service failure under section 15, because on a village the management post IS the service: there is no head office that can absorb its absence at three in the morning. 
 8.4  Vetting, competence and training 
-Every person working on this package shall be vetted to a standard appropriate to their role and disclosed at tender. As a minimum: identity and right to work checked and recorded for every person; enhanced checks for anyone with routine unsupervised access to occupied rooms; and a DBS check at the appropriate level for anyone whose role brings them into a welfare or safeguarding capacity under 10. 
-Every person completes the project induction and the village-specific module before first entry, per 13. 
-The Contractor shall maintain a training matrix showing, per person: induction, fire, first aid, food hygiene where applicable, manual handling, lone working, safeguarding awareness, and the escalation procedure. It shall be auditable and it shall be audited under 11. 
+Every person working on this package shall be vetted to a standard appropriate to their role and disclosed at tender. As a minimum: identity and right to work checked and recorded for every person; enhanced checks for anyone with routine unsupervised access to occupied rooms; and a DBS check at the appropriate level for anyone whose role brings them into a welfare or safeguarding capacity under section 10. 
+Every person completes the project induction and the village-specific module before first entry, per section 13. 
+The Contractor shall maintain a training matrix showing, per person: induction, fire, first aid, food hygiene where applicable, manual handling, lone working, safeguarding awareness, and the escalation procedure. It shall be auditable and it shall be audited under section 11. 
 Post 
 Cover required 
 Minimum competence 
@@ -590,7 +590,7 @@ On site, full time, covering the Manager
 As above at Level 3, or demonstrable equivalent experience 
 Duty Manager 
 Continuous — a Duty Manager on site or immediately contactable and able to attend within 30 minutes, 24 hours a day 
-Authority to commit resource and to invoke the escalation at 18 without seeking permission 
+Authority to commit resource and to invoke the escalation at section 18 without seeking permission 
 Head of Catering 
 Full time 
 Level 4 food safety; experience of continuous multi-service-period catering, not of a single-sitting restaurant 
@@ -642,7 +642,7 @@ Allergen information available at the point of service for every item, to the Fo
 Temperature, cleaning, traceability and training records complete and auditable. Food Hygiene Rating obtained and maintained at not less than 5. A rating below 5 is reported to the Employer within 24 hours with the improvement plan. 
 AN OUTBREAK IS NOT CONFINED TO THIS PACKAGE. Two hundred and twenty-five people eat here and then work on a construction site. A foodborne outbreak removes a proportion of the project's workforce for several days and is a project event, not a catering incident. Any suspected outbreak — two or more residents with similar symptoms within 48 hours — is reported to the Employer and to the local authority immediately, and is an Unacceptable Failure under 15.4. 
 9.7  Health and safety, and the incidents that will happen 
-The Contractor shall operate a health and safety management system covering its own workforce and the residents so far as they are affected by its undertaking, and shall comply with the site rules at 13. 
+The Contractor shall operate a health and safety management system covering its own workforce and the residents so far as they are affected by its undertaking, and shall comply with the site rules at section 13. 
 First aid provision available at every hour, with an automated external defibrillator on site, maintained, and its location published in the induction. Over 38 months with two hundred and twenty-five residents, a cardiac event is not a remote possibility. 
 RIDDOR reporting where required, with the Employer notified of any reportable event within 2 hours and any fatality immediately. 
 Lone working, night working and violence at work assessed and controlled for the Contractor's own staff — a receptionist alone at four in the morning is a lone worker. 
@@ -656,7 +656,7 @@ The Employer is not asking the Contractor to be a health service. It is requirin
 A welfare and resident liaison function, staffed at not less than 1.0 FTE with contactable cover at every hour, distinct from reception. It is not a reception duty with welfare added to it: a resident will not raise a personal matter at a desk where the next person is waiting to collect a key. 
 It shall be reachable in person during stated hours, and by phone or message at any hour. It shall be published at induction, in every block, and in the languages of the resident population. 
 It shall be able to: arrange a GP or dental appointment and the transport to it; arrange contact with an employer's HR or an occupational health service; provide information about local services in the resident's own language; arrange a private space and time for a call home; escalate a safeguarding concern under 10.5; and raise a maintenance or catering matter on a resident's behalf where the resident would rather not. 
-The Contractor shall record contacts by category and number, without identifying individuals, and report them monthly under 12. The Employer wants to know whether the service is used, not who used it. 
+The Contractor shall record contacts by category and number, without identifying individuals, and report them monthly under section 12. The Employer wants to know whether the service is used, not who used it. 
 10.3  Noticing when somebody stops appearing 
 THIS IS THE CLAUSE THAT MATTERS MOST AND IT IS THE ONE THAT IS NEVER WRITTEN. 
 A resident who does not appear is the earliest indication of something serious, and in a village of two hundred and twenty-five people on rotating shifts, not appearing is invisible unless somebody is looking. 
@@ -674,20 +674,20 @@ The village accommodates adults, some of whom will be vulnerable at some point d
 Harassment, bullying, discrimination or violence between residents, or between staff and residents, shall be reported to the Employer within 24 hours and to the police where a criminal offence may have occurred. The Contractor shall not resolve such a matter informally and treat it as closed. 
 DIGNITY. The rules at 4.3 on entering a room are part of this. So is the expectation that staff address residents by name, that a complaint is answered, and that a resident is not made to feel like a unit of occupancy. The Employer will test this through the resident survey at 11.4 and will act on what it says. 
 10.6  Alcohol, drugs, and the difference between a rule and a response 
-The site rules at 13 prohibit attending work under the influence and provide for testing. That is a safety rule and it is not softened here. 
+The site rules at section 13 prohibit attending work under the influence and provide for testing. That is a safety rule and it is not softened here. 
 This clause covers what happens in the village rather than on the site. Alcohol is permitted in the village within limits the Employer will state in the village rules, and the Contractor shall enforce them. A resident who is drunk and disruptive is a discipline matter for their employer and the Contractor shall report it. 
 A RESIDENT WHOSE DRINKING IS A PATTERN IS A WELFARE MATTER, not only a discipline one. The Contractor's staff shall be trained to recognise the difference and the welfare route at 10.2 shall be offered before the disciplinary route is invoked, save where there is an immediate safety risk. Removing a person from the village without offering help is the cheap answer and it is not the one the Employer is buying. 
  
 11  Quality, audit and asking the residents 
 11.1  How performance is established 
-By measurement against the key performance indicators at 14, by audit, and by asking the residents. The three are used together because each catches what the others miss: measurement catches what is counted, audit catches what is done when nobody is counting, and the residents catch what neither instrument was pointed at. 
+By measurement against the key performance indicators at section 14, by audit, and by asking the residents. The three are used together because each catches what the others miss: measurement catches what is counted, audit catches what is done when nobody is counting, and the residents catch what neither instrument was pointed at. 
 11.2  The benchmark room 
 Before the first section's service commencement the Contractor and the Employer shall jointly agree a benchmark room, cleaned and presented to the standard the Contractor intends to deliver against 4.1, and shall photograph it. 
 The photographs are the standard. Every subsequent housekeeping audit is against them, and 'clean' stops being a matter of opinion between two people standing in a doorway. The benchmark is re-agreed if the standard is ever formally changed, and not otherwise. 
 11.3  The audit regime 
 MONTHLY, JOINT. A sample of not less than 10% of occupied rooms, drawn at random by the Employer and not offered by the Contractor, audited against the benchmark. Scored, recorded, and feeding K02. 
 MONTHLY, UNANNOUNCED. The Employer may audit any service at any time without notice, including at night. An audit regime that only ever runs at eleven on a Tuesday measures a service that only has to work at eleven on a Tuesday. 
-QUARTERLY, SYSTEMS. The fire logbook, the water safety records, the food safety records, the CAFM, the training matrix, the PEEP register and the labour standards evidence at 19. Documentary, and failures here are treated as seriously as physical ones because they are the record that everything else was done. 
+QUARTERLY, SYSTEMS. The fire logbook, the water safety records, the food safety records, the CAFM, the training matrix, the PEEP register and the labour standards evidence at section 19. Documentary, and failures here are treated as seriously as physical ones because they are the record that everything else was done. 
 ANNUALLY, INDEPENDENT. The Employer may commission an independent audit of fire safety, water safety or food safety, at its own cost, and the Contractor shall give access to everything it asks for. 
 11.4  Asking the residents 
 An anonymous survey of not less than 25% of residents, quarterly, covering accommodation, cleanliness, catering, transport, connectivity, security, welfare and dignity. 
@@ -699,17 +699,17 @@ The Contractor shall publish to residents what the survey said and what it is do
 The Contractor shall provide, configure and operate a computer-aided facilities management system holding the asset register received from P2 in the schema at its Appendix 11, the planned maintenance schedule, and every work order raised during the term. 
 THE DATA IS THE EMPLOYER'S. The Contractor has an irrevocable obligation to export it, in a structured and documented format, on request at any time and in any event at demobilisation. A CAFM whose data cannot leave it is a CAFM that has taken the Employer's asset register hostage, and the Employer would discover that at the moment it needs to hand the village to somebody else. 
 The Employer shall have read access to the system throughout the term, for not fewer than five named users, at no additional charge. 
-Asset identifiers, room numbers and meter point names shall not be re-coded. They came from P2, they are on physical labels, and they are what the village will be relocated with under 20. 
+Asset identifiers, room numbers and meter point names shall not be re-coded. They came from P2, they are on physical labels, and they are what the village will be relocated with under section 20. 
 12.2  What is reported, and when 
 DAILY, for the first 14 days of each section — see 7.3. 
 WEEKLY: occupancy against the record; arrivals and departures; Priority 1 faults raised and closed; any incident; any welfare check performed, in numbers. 
-MONTHLY, within 5 working days of month end: performance against every KPI at 14 with the calculation shown; service credits arising, calculated by the Contractor and not by the Employer; faults by priority with response and rectification times; planned maintenance completion; utility consumption per block and per bed-night against the metering; waste and diversion; welfare contacts by category in numbers; incidents; complaints and their resolution; staff turnover and vacancies against the establishment at 8; and the statutory compliance position — fire, water, food — on one page. 
-QUARTERLY: the resident survey at 11.4 with raw results; social value against 16; labour standards evidence under 19; and a review of the risk register held jointly. 
+MONTHLY, within 5 working days of month end: performance against every KPI at section 14 with the calculation shown; service credits arising, calculated by the Contractor and not by the Employer; faults by priority with response and rectification times; planned maintenance completion; utility consumption per block and per bed-night against the metering; waste and diversion; welfare contacts by category in numbers; incidents; complaints and their resolution; staff turnover and vacancies against the establishment at section 8; and the statutory compliance position — fire, water, food — on one page. 
+QUARTERLY: the resident survey at 11.4 with raw results; social value against section 16; labour standards evidence under section 19; and a review of the risk register held jointly. 
 ANNUALLY: a service review, the fire risk assessment review, and a written proposal for what the Contractor would change if it were specifying this village again. The last is asked for because the Contractor knows things by month twelve that the Employer did not know at tender, and no other mechanism brings them back. 
 12.3  The report is a document, not a dashboard 
 The monthly report shall be a document the Employer can read, keep and put in front of somebody else. A dashboard is welcome in addition and does not replace it. 
 Every KPI shall show the target, the achieved figure, the calculation, and — where the target was missed — what happened, what was done, and by when it will not happen again. A report that states a percentage without the events behind it is a report nobody can act on. 
-Where the Contractor and the Employer disagree about a figure, the report records both and the disagreement is resolved under 18 rather than by the figure being quietly restated the following month. 
+Where the Contractor and the Employer disagree about a figure, the report records both and the disagreement is resolved under section 18 rather than by the figure being quietly restated the following month. 
  
 13  Site constraints and conduct 
 13.1  The village, the site, and the line between them 
@@ -722,7 +722,7 @@ In addition, and specific to this package: staff shall be trained that residents
 13.3  What the Contractor is allocated, and what it provides itself 
 The Contractor is allocated the management office, stores and staff welfare shown on the village layout, and no other space. It shall satisfy itself at tender that its establishment fits within it. 
 Parking is limited to the allocation in the site rules; the Contractor arranges transport for staff beyond that number, on the same principle it applies to residents. 
-NO BED IN THIS VILLAGE IS AVAILABLE TO THE CONTRACTOR'S STAFF. Where the Contractor accommodates staff locally, 19 applies to that accommodation in full — the Employer will not tolerate a village built to a decent standard being run by people housed to a worse one. 
+NO BED IN THIS VILLAGE IS AVAILABLE TO THE CONTRACTOR'S STAFF. Where the Contractor accommodates staff locally, section 19 applies to that accommodation in full — the Employer will not tolerate a village built to a decent standard being run by people housed to a worse one. 
  
 14  The performance regime 
 Twenty key performance indicators. Each carries a target, the method by which it is measured and the frequency, and a weighting used to allocate the service credit pool at section 15. 
@@ -860,13 +860,13 @@ Where a service is not provided to the standard required, the Employer has not r
 It is stated this way because the distinction matters. A service credit is not liquidated damages for the Employer's loss, is not a penalty, and does not require the Employer to prove loss. Nor does it exhaust the Employer's remedies: a credit for a failure does not prevent the Employer recovering a loss the failure caused, and it does not make a breach acceptable because it has been paid for. 
 15.2  How they are calculated 
 The SERVICE CREDIT POOL for each month is 15 per cent of the Monthly Service Fee for that month. 
-Each key performance indicator at 14 carries a weighting, and the weightings total one hundred. A KPI's share of the pool is its weighting applied to the pool. 
+Each key performance indicator at section 14 carries a weighting, and the weightings total one hundred. A KPI's share of the pool is its weighting applied to the pool. 
 For each KPI in each month: 
 AT OR ABOVE TARGET — no credit. 
 MINOR FAILURE — below target by not more than the minor threshold stated against the KPI: 25 per cent of that KPI's share. 
 MAJOR FAILURE — below target by more than the minor threshold: 60 per cent of that KPI's share. 
 SEVERE FAILURE — a complete failure of the service for the period, or any failure listed at 15.4: 100 per cent of that KPI's share, in addition to everything at 15.4. 
-The Contractor calculates the credits and reports them under 12. The Employer does not chase them. A month in which the Contractor reports no credits and the Employer's own audit finds a failure is a matter under 15.5. 
+The Contractor calculates the credits and reports them under section 12. The Employer does not chase them. A month in which the Contractor reports no credits and the Employer's own audit finds a failure is a matter under 15.5. 
 Total credits in any month are capped at the pool — 15 per cent of the Monthly Service Fee. The cap does not apply to 15.4. 
 15.3  Persistent failure 
 A KPI that fails in three of any six consecutive months attracts DOUBLE its credit from the third failure, subject to the monthly cap. 
@@ -888,7 +888,7 @@ The Employer would rather have a Contractor that reports fifteen failures a mont
 16.1  Energy, water and waste over 38 months 
 The Contractor shall reduce consumption per bed-night across the term and shall be measured on it, using the sub-metering installed under P2. It shall report the baseline established in the first full month of stable occupancy, and thereafter the trend, adjusted for occupancy and for degree days so that a mild winter is not reported as a saving. 
 Targets: a reduction of not less than 5 per cent in energy per bed-night, and not less than 5 per cent in water per bed-night, by month twenty-four against that baseline. Waste diversion not less than 70 per cent throughout, rising to eighty by month twenty-four. 
-Where achieving a target requires capital expenditure, it is proposed under 17 with the payback stated over the REMAINING TERM, not over the life of the equipment — a five-year payback on a village with two years left is not a saving, it is a transfer to whoever operates it next. 
+Where achieving a target requires capital expenditure, it is proposed under section 17 with the payback stated over the REMAINING TERM, not over the life of the equipment — a five-year payback on a village with two years left is not a saving, it is a transfer to whoever operates it next. 
 16.2  Food 
 Food waste measured and reported monthly, and reduced. On a village where the covers are known in advance from the shift roster, food waste above 10 per cent of production by weight is a forecasting failure rather than an inevitability. 
 Local and seasonal sourcing reported as a proportion of spend, with local defined by the travel-to-work area in the Employer's social value framework. 
@@ -902,11 +902,11 @@ The framework's seventh theme — one commitment directed at the people who live
 Only a written instruction from the Employer's Representative. Not the Principal Contractor, not another package contractor, not a resident, not a resident's employer, and not an officer of the Employer who happens to be visiting. 
 A request from a resident's employer to change a meal time, a transport departure or an allocation rule is not an instruction and shall be referred to the Employer's Representative within 2 working days. On a village this is the most common route by which unpriced scope arrives: an operational request made informally, agreed to be helpful, and permanent within a fortnight. 
 17.2  How a change is valued 
-In this order: the rates and prices in the activity schedule at 22; those rates pro rata; then a fair valuation built from the all-in rates the Contractor states in its tender. 
+In this order: the rates and prices in the activity schedule at section 22; those rates pro rata; then a fair valuation built from the all-in rates the Contractor states in its tender. 
 The Contractor shall therefore state at tender: all-in hourly rates by role and grade for every category of staff it will employ; the percentage additions for overhead and for profit; the percentage addition on sub-contracted work; and the variable rate per occupied bed-night for each variable service at 22.3. These are competed at tender, fixed for the term, and used for every change. 
 17.3  Occupancy is not a change 
 The village occupancy varies from sixty-five to two hundred and twenty-five and back to zero across the term, and that variation is known: it is the demand curve at Appendix 6 of the P2 requirements. 
-Movement within that curve is not a change and gives rise to no entitlement. That is precisely why the pricing structure at 22 separates a fixed element from a variable one: the variation is priced by the mechanism rather than argued about monthly. 
+Movement within that curve is not a change and gives rise to no entitlement. That is precisely why the pricing structure at section 22 separates a fixed element from a variable one: the variation is priced by the mechanism rather than argued about monthly. 
 A change to the PEAK, or a change to the shift pattern that alters the service periods required at 4.6, is a change. 
  
 18  Early warning, escalation and step-in 
@@ -949,7 +949,7 @@ Any concern is reported to the Employer within 24 hours and to the Modern Slaver
  
 20  Term, demobilisation and relocation 
 20.1  Term and expiry 
-Thirty-8 months from the first service commencement, subject to the sectional pattern at 7. Services for a section cease when that section is vacated and the Employer certifies it. 
+Thirty-8 months from the first service commencement, subject to the sectional pattern at section 7. Services for a section cease when that section is vacated and the Employer certifies it. 
 The Employer may extend by up to 6 months on 3 months' notice, at the rates in the activity schedule, because a construction programme moves and a village that closes before the last worker leaves is a problem the Employer would rather pay to avoid. 
 20.2  Demobilisation 
 The Contractor shall hand back each section: cleaned to the benchmark standard; with a condition schedule room by room, jointly signed, against the baseline taken at IF-09; every asset accounted for against the register; the CAFM data exported in full and in a documented structured format; every record required by this document handed over, including the fire logbook, the water safety records, the food safety records, the key control record and the training matrix; all keys and credentials returned and the system's administrative accounts transferred; and residents' property dealt with under 4.4. 
@@ -981,7 +981,7 @@ The occupancy of this village runs from 65 beds in month four to two hundred and
 A flat monthly fee prices that variation as risk. The Contractor loads for the months it is half empty, the Employer pays that load in every month including the full ones, and both parties then argue about occupancy for three years. 
 This package is therefore priced in two parts, and the split is the most important commercial decision in the tender. 
 22.2  The two parts 
-THE FIXED ELEMENT covers the costs that do not vary with occupancy: the management team at 8, statutory compliance — fire, water, food — security, planned maintenance, the CAFM, insurance, and the on-call cover. Sixty-five occupied beds still require a Village Manager, a fire risk assessment, a water safety scheme and a person on reception at four in the morning. 
+THE FIXED ELEMENT covers the costs that do not vary with occupancy: the management team at section 8, statutory compliance — fire, water, food — security, planned maintenance, the CAFM, insurance, and the on-call cover. Sixty-five occupied beds still require a Village Manager, a fire risk assessment, a water safety scheme and a person on reception at four in the morning. 
 THE VARIABLE ELEMENT is priced per occupied bed-night and covers housekeeping, linen, catering, transport and consumables — the services whose cost genuinely moves with the number of people present. 
 The Contractor states both. The Employer pays the fixed element monthly and the variable element against the actual occupancy taken from the record at 4.9. Neither party carries the occupancy risk, because the mechanism prices it. 
 22.3  The activity schedule 
@@ -1007,7 +1007,7 @@ THE FIXED ELEMENT — per month
  
  
 B1 
-Village management team per 8 
+Village management team per section 8 
 £ per month 
 Name the posts. This line is the one with a headcount behind it 
 B2 
@@ -1027,7 +1027,7 @@ CAFM, systems and licences
 £ per month 
 Including the Employer's five read-access users at no charge 
 B6 
-Welfare and resident liaison per 10 
+Welfare and resident liaison per section 10 
 £ per month 
 Stated separately so it cannot be absorbed into B1 and then quietly reduced 
 B7 
@@ -1105,7 +1105,7 @@ THE PRIME OPTION — PRICED, NOT INCLUDED
 G1 
 Management and integration, on the transferred value 
 % 
-21. Four separate lines. A single percentage will not be accepted 
+section 21. Four separate lines. A single percentage will not be accepted 
 G2 
 Corporate overhead recovery, on the transferred value 
 % 
@@ -1135,16 +1135,16 @@ The finding
 Where this document answers it 
 G01 
 No design responsibility matrix or Contractor's Proposals mechanism 
-Section 5 in full: the output/input basis at 5.1, the Service Delivery Plan and Schedule of Departures at 5.2, the thirty-row responsibility matrix at 5.3, and the rule at 5.4 that review transfers nothing 
+section 5 in full: the output/input basis at 5.1, the Service Delivery Plan and Schedule of Departures at 5.2, the thirty-row responsibility matrix at 5.3, and the rule at 5.4 that review transfers nothing 
 G02 
 Prescriptive and performance specification mixed 
 Every one of the twenty-three services carries an O or I code with its reason. Fifteen output-specified, eight input-specified. The consequence of each is stated at 5.1 and the eight inputs are each justified where they appear 
 G03 
 No stated failure mode 
-15, and specifically the Unacceptable Failures at 15.4 — the failures a service credit does not remedy, in five groups, with the immediate consequence of each 
+section 15, and specifically the Unacceptable Failures at 15.4 — the failures a service credit does not remedy, in five groups, with the immediate consequence of each 
 G04 
 No damages or delay mechanism 
-15: the pool, the weightings, the three bands, persistent failure at 15.3 and the self-reporting rule at 15.5 
+section 15: the pool, the weightings, the three bands, persistent failure at 15.3 and the self-reporting rule at 15.5 
 G05 
 No defects or rectification regime 
 4.13: the same three priorities and times as the P2 defects regime, deliberately, so a resident meets one standard and not two 
@@ -1156,10 +1156,10 @@ Relocation imposed without a requirement
 20.3: the data, the schedule of consumed assets, and the obligation not to make relocation harder 
 G08 
 No information requirements 
-12: the CAFM, the data ownership rule, and what is reported daily, weekly, monthly, quarterly and annually 
+section 12: the CAFM, the data ownership rule, and what is reported daily, weekly, monthly, quarterly and annually 
 G09 
 No site constraints section 
-13: the segregation line, induction and conduct, the allocation, and the rule that no bed here is available to the Contractor's staff 
+section 13: the segregation line, induction and conduct, the allocation, and the rule that no bed here is available to the Contractor's staff 
 G10 
 No electrical supply characteristics 
 Received from P2 Appendix 8 rather than restated. 4.16 requires the metering installed under P2 4.24 to be used rather than described 
@@ -1174,19 +1174,19 @@ A figure that was tight for the technology
 K10 at 99.5% availability and K17 at 99% are stated as achievable and are measured over the month rather than instantaneously — an availability figure with no measurement period is not a figure 
 G14 
 No serviceability criteria 
-Not applicable. The equivalent — what 'available' means — is defined at 2 and is deliberately about the person who needs the thing, not about the asset 
+Not applicable. The equivalent — what 'available' means — is defined at section 2 and is deliberately about the person who needs the thing, not about the asset 
 G15 
 No change control 
-17: who may instruct, how a change is valued, and the clause that stops occupancy variation being argued as a change 
+section 17: who may instruct, how a change is valued, and the clause that stops occupancy variation being argued as a change 
 G16 
 Float ownership not stated 
 Not applicable. The equivalent is 17.3: movement within the known demand curve gives rise to no entitlement, and that is why the pricing is split at 22.2 
 G17 
 No sustainability or social value requirement 
-16: energy and water per bed-night against a stated baseline adjusted for occupancy and degree days, food waste, and social value that is contractual and reported quarterly 
+section 16: energy and water per bed-night against a stated baseline adjusted for occupancy and degree days, food waste, and social value that is contractual and reported quarterly 
 G18 
 No testing regime for the thing that fails 
-11: the benchmark room, the monthly joint audit, unannounced audits including at night, quarterly systems audits, and the resident survey 
+section 11: the benchmark room, the monthly joint audit, unannounced audits including at night, quarterly systems audits, and the resident survey 
 G19 
 Missing detail on a service nobody specifies 
 4.19 — quiet hours, and the finding that there are none. It is the clause a specification written for any other building type would not contain, and it governs six other services 
@@ -1198,10 +1198,10 @@ No inspection checklist
 11.2: the benchmark room, agreed and photographed before the first service commencement, so that 'clean' stops being an opinion between two people in a doorway 
 G22 
 No definitions 
-2: twenty-one terms, including the O and I basis codes and what 'available' and 'occupied' mean 
+section 2: twenty-one terms, including the O and I basis codes and what 'available' and 'occupied' mean 
 G23 
 No ethical labour requirement 
-19, and it is the longest section of its kind in any of these packages — because cleaning, catering, laundry and security are four of the highest-risk sectors in the UK and this package is all four 
+section 19, and it is the longest section of its kind in any of these packages — because cleaning, catering, laundry and security are four of the highest-risk sectors in the UK and this package is all four 
 G24 
 Clauses with no measurable requirement 
 4.1 defines clean in six testable parts; every KPI carries a target, a method and a frequency; every response time is in hours. The weightings sum to one hundred, and the build fails if they do not 

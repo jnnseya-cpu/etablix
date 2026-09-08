@@ -1,0 +1,1162 @@
+ETABLIX 
+I N T E G R A T E D   S I T E   S E R V I C E S   ·   P A R T   O F   G R O U P E   N S E Y A 
+EMPLOYER'S REQUIREMENTS 
+P3 — Kitchen and Catering Fit-Out 
+Client 
+Marrowbridge Infrastructure Ltd 
+Project 
+Project NORTHREACH — Workforce Accommodation Village 
+Package 
+P3 — Kitchen and Catering Fit-Out 
+The shell 
+610 m² kitchen and dining building, constructed under P2 and handed to this package 
+Document reference 
+NR-ER-P3 
+Revision 
+A 
+Date 
+September 2026 
+Status 
+Issued for tender 
+This package fits out a building it does not build. Every serious risk in it is at its boundary, and section 7 — the shell freeze — is the most important section in the document. A tenderer should read it before pricing anything else. 
+ 
+Contents 
+ 
+1  Introduction, and the one risk in this package 
+1.1  The one risk in this package, and where it sits 
+This package fits out a building it does not build, to serve a demand it does not control, for an operator it is not. 
+The equipment is the easy part. Every serious risk in this package is at its boundary: the penetrations through a module that is manufactured in a factory four hundred miles away; the floor loading under a cold room; the drainage falls beneath a floor that is laid before anybody stands a kettle on it; the extract route through a roof somebody else warrants; the electrical supply; the ceiling height; and the width of the door the combi oven has to come through. 
+EVERY ONE OF THOSE IS FIXED BEFORE P2 MANUFACTURES. After manufacture a penetration is a variation to a completed module built four hundred miles away, and it is priced accordingly. section 7 states what must be frozen, by whom, and by when, and it is the most important section in this document. 
+The Employer draws the tenderer's attention to it in these terms because the classic failure of a kitchen fit-out package is that it is priced against a shell it did not draw, by a contractor who assumed the shell would suit it, and the discovery is made on site. 
+1.2  Output specification, and where this document departs from it 
+The default is an OUTPUT specification: the Employer states the duty and the Contractor selects, sizes and warrants the equipment that meets it. A kitchen specified by product schedule is a kitchen designed by the Employer, and the Employer then owns the question of whether it can produce the covers. 
+Every line of the equipment schedule at section 5 carries a code. 
+E — EMPLOYER-PRESCRIBED. The Employer has specified the article, the dimension or the arrangement. The Contractor provides what is described and the Employer carries the risk that what is described achieves the duty. 
+C — CONTRACTOR-DESIGNED. The Employer has stated a duty — a number of covers in a number of minutes, a temperature, a throughput, a rate. The Contractor selects and sizes the equipment and warrants that it achieves the duty. 
+A KITCHEN CARRIES MORE PRESCRIPTION THAN A SERVICE CONTRACT DOES, and the Employer states why rather than claiming otherwise: 25 of the 38 lines below are Employer-prescribed. They fall into three groups and no others — a statutory floor (63 °C hot holding, the suppression system, the extract failure mode); a food safety flow that is not a matter of preference (raw and ready-to-eat separation, dirty-to-clean routing); and an interface dimension that another package has to build to and cannot discover later. Everything else is a duty and the Contractor designs to it. 
+1.3  What is NOT in this package 
+The building. The shell, its structure, envelope, floor, roof, external doors, windows and the services up to the termination points are constructed under P2 Modular Accommodation. What P2 provides and in what state is at section 8. 
+The operation. Food, staff, menus, HACCP, cleaning and the running of the kitchen are under P5 FM and Operation. This package hands over a commissioned kitchen and trains the people who will use it — see section 10. 
+External drainage beyond the building, and the incoming utility supplies, are P1 Civil Works. 
+Where a requirement of this document cannot be met because something provided under another package is inadequate, the Contractor's duty is to raise it before manufacture, not to work around it. A kitchen that works around its shell is a kitchen that is harder to clean, harder to maintain and shorter-lived than the one that was paid for. 
+ 
+2  Definitions 
+Term 
+Meaning 
+Cover 
+One meal served to one person. The demand at section 3 is stated in covers because that is the only unit that sizes a kitchen. 
+DW/172 
+The HVCA specification for kitchen ventilation systems. The reference standard for the canopy, the ductwork and its access. 
+Duty 
+What a piece of equipment must achieve — covers in a period, a temperature, a throughput. The Contractor selects the equipment; the Employer states the duty. 
+E / C 
+The basis codes at clause 1.2. E means the Employer prescribed it and carries the risk it works; C means the Employer stated a duty and the Contractor warrants the means. 
+F-gas 
+The Fluorinated Greenhouse Gases Regulations. It governs the refrigerant this kitchen may use and the servicing regime for the life of the equipment — see 6.14. 
+Freeze date 
+The date after which an interface dimension cannot change without a variation to a manufactured module. section 7. 
+HACCP 
+Hazard Analysis and Critical Control Points. Operated by P5, but the LAYOUT that makes it possible is designed here — see 6.2. 
+Grease separator 
+The device that keeps kitchen fat out of the drainage. Sized to BS EN 1825. The single most common cause of a kitchen closing unexpectedly. 
+Interlock 
+The control that shuts off the fuel or power to cooking equipment when the extract is not running. Mandatory where gas is used. 6.12. 
+Make-up air 
+Air supplied to replace what the canopy extracts. A kitchen without it pulls air from the dining room and the fire doors will not close. 
+Service period 
+One of the five periods at section 3 in which meals are served. A shift-working village has five, not three. 
+Shell 
+The 610 m² building constructed under P2 to receive this package. 
+The Operator 
+P5 FM and Operation, who will run this kitchen for 38 months and who is trained under section 10. 
+ 
+3  The demand this kitchen serves 
+Every number in this package comes from this table. It is derived from the bed demand curve and the day-shift proportion at Appendix 6 of the P2 requirements, at the peak: 225 residents, of whom 124 work days and 101 work nights. 
+A SHIFT-WORKING VILLAGE HAS FIVE SERVICE PERIODS, NOT THREE. A kitchen sized on three will fail, and it will fail at the two periods a conventional design does not know exist: the night shift coming off at seven in the morning wanting a main meal, and the night shift going on at half past five wanting breakfast. 
+Ref 
+Service period 
+Times 
+Who 
+Covers 
+Note 
+SP1 
+Day-shift breakfast 
+05:30 – 06:45 
+Day shift, before a 07:00 start 
+124 
+The largest breakfast and the tightest window 
+SP2 
+Night-shift main meal 
+07:15 – 08:30 
+Night shift, coming off a 12-hour shift 
+101 
+A MAIN MEAL, not a breakfast. They have worked all night 
+SP3 
+Night-shift breakfast 
+17:30 – 18:45 
+Night shift, before a 19:00 start 
+101 
+Their first meal of the working day 
+SP4 
+Day-shift main meal 
+19:30 – 21:00 
+Day shift, after a 12-hour shift 
+124 
+The busiest period and the sizing case for the servery 
+SP5 
+Night hot meal 
+00:00 – 01:00 
+Night shift, mid-shift 
+40 
+Assumed take-up 40% of the night shift. Hot and cooked — see 6.5 
+Hot covers per day, at peak occupancy 
+490 
+Packed meals per day (one per resident going to shift) 
+225 
+Busiest service period 
+SP4 — 124 covers in 90 minutes 
+Servery throughput required 
+200 covers per hour. 60% of a period's covers arrive in its first 30 minutes, and the queueing limit at 6.8 is 10 minutes 
+Peak concurrent diners 
+50. Seating is provided at 100 — see 6.9 
+Design basis for equipment 
+SP4 at 124 covers, produced within the period from a chilled or fresh start 
+ 
+4  Area schedule 
+The 610 m² shell provided under P2 is allocated as below. The allocation is the Employer's and is an input: it was derived from the demand at section 3 and it is what the shell was sized on. 
+A tenderer proposing a different allocation shall price it as a departure and shall state the effect on the shell, because a change to the internal arrangement after the freeze date at section 7 is a change to a manufactured module. 
+Area 
+m² 
+Basis 
+Note 
+Dining 
+200 
+100 seats at 2.0 m² including circulation 
+Twice the peak concurrent figure, so that nobody waits for a seat and a crew can sit together 
+Servery 
+60 
+Two lines at 200 covers/hour, plus beverage and packed-meal collection 
+Packed-meal collection is separate from the hot line — otherwise SP1 blocks 
+Production kitchen 
+150 
+490 hot covers/day across 5 periods 
+Includes hot, cold and pastry sections with the flow at 6.2 
+Wash-up 
+45 
+Pot wash and dish wash, separated 
+THE MOST UNDER-SIZED AREA IN EVERY KITCHEN. It is stated separately here so it cannot be absorbed 
+Cold stores and dry goods 
+75 
+4 days' stock at peak, with a 7-day dry goods holding 
+Delivery to a remote site is not daily. Section 6.3 
+Waste and dirty goods-in 
+25 
+Segregated, with a route that does not cross the clean route 
+6.2 
+Staff changing, office and WCs 
+40 
+For the Operator's catering establishment under P5 
+Provided here, used by P5 
+Plant, risers and circulation 
+15 
+ 
+ 
+TOTAL 
+610 
+ 
+Matches the shell at item C2 of the P2 activity schedule 
+ 
+5  Equipment schedule 
+Every line carries a basis code. E means the Employer prescribed it and carries the risk that what is described achieves the duty; C means the Employer stated a duty and the Contractor selects, sizes and warrants the means. Clause 1.2 states why 25 of the 38 lines are prescribed and what the three groups are. 
+Ref 
+Item 
+The duty, or the specification 
+ 
+Note 
+GOODS IN, STORES AND REFRIGERATION 
+ 
+ 
+ 
+ 
+EQ-01 
+Goods-in area 
+Level threshold, weather-protected, with a route to stores that does not cross the clean production route or the dining area 
+E 
+6.2 
+EQ-02 
+Walk-in chill room 
+Capacity for 4 days' chilled stock at 490 covers/day. Operating temperature 1–4 °C, monitored and alarmed 
+C 
+Sizing is the Contractor's; the 4 days is the Employer's, and it is a remote-site decision 
+EQ-03 
+Walk-in freezer room 
+Capacity for 7 days' frozen stock at 490 covers/day. Operating temperature −18 °C or colder, monitored and alarmed 
+C 
+ 
+EQ-04 
+Dry goods store 
+7 days' holding, shelved, vermin-proofed, no shelf below 150 mm from the floor 
+E 
+The 150 mm is a cleaning and pest requirement, not a preference 
+EQ-05 
+Refrigerant 
+Refrigerant with a GWP not exceeding 150 for any new equipment, and F-gas compliant for the life of the installation 
+E 
+6.14. A high-GWP refrigerant is a servicing liability transferred to P5 
+EQ-06 
+Temperature monitoring 
+Every chilled and frozen space continuously monitored, logged for not less than 90 days, and alarmed locally AND to the Operator's duty manager 
+E 
+A cold room that fails at 02:00 on a Saturday loses 4 days of stock and a service period 
+PREPARATION 
+ 
+ 
+ 
+ 
+EQ-07 
+Vegetable preparation 
+Separate section with its own sink, board colour discipline and drainage. Sized for 490 covers/day 
+C 
+ 
+EQ-08 
+Raw meat and fish preparation 
+SEPARATE section, separate sink, separate refrigeration, no shared route with ready-to-eat 
+E 
+This is a HACCP requirement and it is prescribed. See 6.2 
+EQ-09 
+Preparation surfaces 
+Stainless steel to BS EN 10088 grade 1.4301 or better, coved to the wall, no open joint, no exposed fixing above the working plane 
+E 
+ 
+EQ-10 
+Hand wash basins 
+Not fewer than 1 per preparation section and 1 per 10 m of production run, wrist or sensor operated, with soap and paper to hand 
+E 
+A hand basin the wrong side of a bench does not get used 
+COOKING 
+ 
+ 
+ 
+ 
+EQ-11 
+Primary cooking capacity 
+Produce 124 main-course covers within 45 minutes from a chilled or fresh start, and hold them at 63 °C or above for the service period without deterioration 
+C 
+THE DUTY, not a schedule of ovens. The Contractor states what it has selected and why 
+EQ-12 
+Regeneration capacity 
+Regenerate 101 covers within 30 minutes for SP2 and SP3 
+C 
+ 
+EQ-13 
+Boiling and bulk cooking 
+Capacity for stocks, sauces and bulk vegetables for 490 covers/day 
+C 
+ 
+EQ-14 
+Grilling and frying 
+Capacity for the menu cycle at P5, with fat management and no open fryer without a lid 
+E 
+An open fryer under a canopy is the commonest kitchen fire 
+EQ-15 
+Fuel 
+ELECTRIC. Gas shall not be used in this kitchen 
+E 
+6.12 states the reason. A tenderer proposing gas prices it as a departure and prices the interlock, the detection and the isolation with it 
+EQ-16 
+Hot holding 
+Hold 124 covers at 63 °C or above for the whole of a 90-minute service period, with the temperature recordable 
+E 
+63 °C is the statutory floor and the record is what proves it 
+EQ-17 
+Blast chilling 
+Chill 60 covers from 70 °C to 3 °C within 90 minutes 
+C 
+Required for cook-chill of the night meal at SP5 
+SERVERY AND DINING 
+ 
+ 
+ 
+ 
+EQ-18 
+Servery lines 
+Two lines, each capable of 200 covers per hour, operable independently so that one can serve while the other is cleaned or restocked 
+E 
+The two-line requirement is the Employer's: a single line has no redundancy across 5 periods a day for 38 months 
+EQ-19 
+Packed-meal collection 
+Separate point, not on the hot line, capable of issuing 225 packed meals across SP1 and SP3 without a queue exceeding 10 minutes 
+E 
+Separating it is what stops SP1 blocking 
+EQ-20 
+Beverage provision 
+Available at every service period AND continuously between them, 24 hours 
+E 
+A night-shift worker at 03:00 gets a hot drink. It is a small thing and residents notice it 
+EQ-21 
+Dining furniture 
+100 covers. Tables and seating cleanable, movable for cleaning, and durable for 38 months of continuous use 
+C 
+NOT part of P4 Furniture — dining furniture is here. See section 8 
+EQ-22 
+Dining finishes 
+Floor slip resistance PTV ≥ 36 wet, wipe-clean walls to 1200 mm, ceiling cleanable 
+E 
+Consistent with the P2 finishes standard 
+WASH-UP 
+ 
+ 
+ 
+ 
+EQ-23 
+Dish wash 
+Throughput for 124 covers within 45 minutes of the end of a service period, with a final rinse at 82 °C or above 
+C 
+Sized on SP4 
+EQ-24 
+Pot wash 
+SEPARATE from dish wash, with its own sink, drainer and space to land a stack pot 
+E 
+Sharing dish and pot wash is why the wash-up is always the bottleneck 
+EQ-25 
+Clean and dirty separation 
+A physical separation and a one-way flow in the wash-up: dirty in, clean out, no crossing 
+E 
+6.2 
+EQ-26 
+Water softening 
+Where the incoming water hardness requires it, softened supply to dish wash and to any steam-generating equipment 
+C 
+Scale is the largest single maintenance cost in a hard-water kitchen 
+VENTILATION AND SERVICES 
+ 
+ 
+ 
+ 
+EQ-27 
+Canopy extract 
+Sized to DW/172 for the equipment installed. Total extract not less than 5.0 m³/s at the design condition 
+C 
+The 5.0 is the Employer's floor; the Contractor calculates and may exceed it 
+EQ-28 
+Make-up air 
+The production kitchen shall not fall below 5 Pa negative relative to the dining area at any operating condition, and shall be tempered to not less than 18 °C in winter. Make-up air will not be less than 85% of the extract volume 
+C 
+THE DUTY IS THE PRESSURE. Without it the kitchen depressurises, the dining doors bind and the fire doors do not close — and nobody connects the two 
+EQ-29 
+Grease filtration 
+Removable, dishwasher-safe filters at every canopy, with a spare set 
+E 
+A filter that cannot be cleaned in the dishwasher does not get cleaned 
+EQ-30 
+Ductwork access 
+Access panels at every change of direction and at intervals not exceeding 3 m, to DW/172, reachable without dismantling equipment 
+E 
+6.13. Grease duct cleaning is a statutory-adjacent obligation and an inaccessible duct is an uncleanable one 
+EQ-31 
+Fire suppression 
+Wet chemical suppression to every cooking appliance under a canopy, to LPS 1223 or equivalent, interlocked to isolate power on discharge 
+E 
+6.12 
+EQ-32 
+Extract on fire alarm 
+The kitchen extract shall SHUT DOWN on fire alarm activation, and cooking power shall isolate with it, unless the fire strategy at P2 Appendix 2 requires otherwise in writing 
+E 
+6.12. This is the clause the P2 gap register would call fatal if it were missing 
+EQ-33 
+Hot water 
+No service period or wash-up cycle shall be constrained by hot water availability, and the dish wash final rinse shall reach 82 °C throughout SP4. Indicatively not less than 1,800 litres/hour at 60 °C; the Contractor calculates and warrants the figure 
+C 
+A kitchen's peak draw dwarfs the accommodation's. It shall be independent of the blocks' demand and shall not compete with it 
+EQ-34 
+Drainage — floor 
+Gullies to every wet area, falls 1:60 to 1:80, gratings removable and rodding access without lifting equipment 
+E 
+6.11 
+EQ-35 
+Grease separator 
+Sized to BS EN 1825-2 for the calculated peak flow, minimum nominal size NS 4, sited so that it can be emptied WITHOUT ENTERING THE KITCHEN 
+E 
+6.11. A separator that can only be emptied through the kitchen is emptied during a service period or not at all 
+EQ-36 
+Electrical supply 
+Dedicated supply. Connected load not exceeding 320 kW; maximum demand after diversity not exceeding 200 kVA 
+E 
+6.10, and it is checked against P2 Appendix 8 
+EQ-37 
+Sub-metering 
+The kitchen separately metered for electricity, water and hot water, reporting to the village management system 
+E 
+P5 manages consumption from measured data. P2 clause 4.24 provides the point 
+EQ-38 
+Emergency isolation 
+A single clearly marked emergency isolation for all cooking equipment, at every exit from the production kitchen 
+E 
+ 
+ 
+6  Specification, element by element 
+6.1  Design responsibility, and the Contractor's Proposals 
+This is a contractor-designed fit-out. The Employer has fixed the shell, the area allocation at section 4, the demand at section 3, and the lines coded E at section 5. Everything else is the Contractor's design. 
+The Contractor is responsible for: the kitchen layout within the allocated areas; the selection and sizing of every item coded C; the mechanical, electrical, drainage and ventilation design of the fit-out; the integration of all of it with the shell; and compliance with statute. 
+WITH ITS TENDER the Contractor shall submit Contractor's Proposals: a layout at 1:50 showing the flow at 6.2, an equipment schedule against every line of section 5, the extract calculation, the electrical load calculation, the drainage design, and the schedule of loadings and penetrations required from the shell at section 7. 
+EVERY DEPARTURE from this document shall be listed in a Schedule of Departures with the clause, what is offered, the reason, the effect on every other requirement, and the price effect as a plus or a minus. A departure not listed is not accepted, whether or not it is visible in the drawings. 
+Review, comment or acceptance by the Employer does not transfer design responsibility. It applies to an accepted submission as fully as to a commented one. 
+6.2  The flow, which is the layout requirement that outranks the others 
+Food moves one way through this kitchen: DELIVERY → STORE → PREPARATION → COOKING → SERVICE. Waste and dirty equipment move the other way and the two routes shall not cross. 
+The following are requirements, not preferences, and a layout that breaches any of them will be rejected however efficient it is: 
+Raw meat and fish preparation is physically separate from ready-to-eat preparation, with its own sink, its own refrigeration and no shared route. 
+The dirty goods-in and waste route does not pass through the production kitchen, the servery or the dining area. 
+The wash-up has a one-way flow: dirty in, clean out, no crossing. Clean crockery does not return through the dirty side. 
+No route from any WC or changing area to the production kitchen without a hand wash basin on it. 
+Nothing that has been on the floor is set down on a preparation surface — which means every section has landing space, and the layout shows it. 
+P5 will operate a HACCP system in this kitchen for 38 months. HACCP is a management system, but it can only control what the layout permits: a kitchen whose flows cross cannot be managed into compliance and the operator will spend the whole deployment working around it. 
+6.3  Stores, and why they are sized for four days 
+This site is not served daily. The stores are sized at section 4 for 4 days of chilled stock and 7 days of dry and frozen, at the peak demand. 
+That is an Employer decision made on delivery access rather than on kitchen efficiency: the abnormal load route at P2 Appendix 7 is incomplete, winter access to a site of this kind is not guaranteed, and a kitchen that runs on daily delivery stops when the delivery does. A tenderer proposing smaller stores shall price it as a departure and shall state the delivery frequency it has assumed. 
+Stock rotation shall be possible without moving stock out of the store: shelving arranged so that the oldest is reachable. A cold room where FIFO requires unloading is a cold room where FIFO does not happen. 
+6.4  Finishes, and fixing into a modular building 
+FINISHES. Floors: slip resistance PTV ≥ 36 wet, impervious, coved 150 mm to all walls, no open joint at any junction, laid to the falls at 6.11. Walls: impervious, wipe-clean, full height in the production kitchen and wash-up, with no ledge that collects. Ceilings: cleanable, sealed, with no accessible void in a food area. All to withstand daily cleaning with the products in the Operator's approved schedule for 38 months. 
+FIXINGS. Every item of equipment is fixed into a MODULAR floor, wall or ceiling built off-site. The Contractor shall submit its fixing schedule against the shell's structure before the freeze date at section 7, stating for every fixed item its weight, its point loads and the fixing it requires. A heavy item fixed to a partition that was not designed for it is a defect in both packages and is discovered when it is loaded. 
+No fixing shall penetrate a fire-rated or vapour-sealed element without a detail agreed with P2 before manufacture. 
+6.5  The night meal, and cook-chill 
+SP5 at section 3 is a hot cooked meal for approximately 40 people at midnight, and it is the service period that a conventional kitchen design does not contain. 
+It shall not be produced by a chef standing in a kitchen at midnight if the Contractor's design can avoid it, and it shall not be a vending machine or a heated cabinet. The intended method is cook-chill: produced during SP4's production run, blast chilled at section 5 EQ-17, and regenerated at midnight by one person. 
+THE DUTY: regenerate 40 covers to 75 °C core within 20 minutes, by one person, without opening the main kitchen. The Contractor shall size the blast chill and regeneration capacity for it, and shall state in its Proposals the method it intends and the labour it assumes. P5 prices its establishment from that assumption, so an unstated one becomes an argument between two packages. 
+6.6  Equipment access — getting it in, and getting it out again 
+Every item shall be capable of being brought into its final position, and removed for replacement, through the completed building without dismantling permanent construction. 
+The Contractor shall state, for the 3 largest items, the dimensions of the item and the clear opening it requires — not less than 50 mm clearance on the governing dimension and 100 mm on the route — and shall check them against the shell before the freeze date at section 7. A combi oven that does not fit through the door is discovered on the day it is delivered, and by then the door was manufactured four hundred miles away. 
+The same applies at the end of the term. The village relocates under section 18, and equipment that could only be installed before the building was finished cannot be removed after it. 
+6.7  Commissioning, and the test meal 
+COMMISSIONING. Every item commissioned by the manufacturer or its approved agent, with the certificate issued to the Contractor and handed on. Temperatures, flow rates, extract volumes, make-up air volumes and the kitchen-to-dining pressure differential at EQ-28 all measured and recorded individually. A commissioning record stating that the installation is satisfactory without individual results will be rejected. 
+THE TEST MEAL. Before handover the Contractor shall produce, in the completed kitchen and with the Operator's staff, a full service of not fewer than 124 covers within the SP4 window, served through the servery to the queueing limit at 6.8, followed by a full wash-up cycle. 
+It is the only test that establishes whether this kitchen can do what it was bought to do. Every previous test is of a component. This one is of the kitchen, and it is witnessed by the Employer and by P5. 
+A failure requires the cause to be identified and the test repeated in full. A partial retest of the item that failed does not discharge this clause, because the failures worth finding are the ones that only appear under load. 
+6.8  The servery and the queue 
+Two independent lines at section 5 EQ-18, each capable of 200 covers per hour, plus a separate packed-meal point at EQ-19. 
+QUEUEING SHALL NOT EXCEED 10 MINUTES from joining to being served, at the 90th percentile, at any service period. It is measured at the test meal at 6.7 and thereafter by the Operator under its own performance regime. 
+The queue shall not form through a fire escape route or across the dining area, and the layout shall show where it forms at 124 covers. A servery that works at 40 covers and blocks the room at 124 has been designed against the wrong number. 
+6.9  Dining 
+100 seats at section 4, against a peak concurrent figure of 50. The Employer has provided double deliberately: residents on a rotation eat together, and a room sized exactly to its arithmetic is a room in which a crew of six cannot sit down. 
+Seating and tables cleanable, movable for cleaning, and durable for 38 months of continuous use. Dining furniture is IN THIS PACKAGE and not in P4 Furniture — see section 8, where the boundary is stated because it is the one that is routinely priced twice or not at all. 
+A quiet area or a screen shall be provided such that a resident can eat alone without sitting in the middle of the room. It costs nothing at design stage and it matters to somebody eating their four hundredth meal here. 
+6.10  Electrical 
+A DEDICATED SUPPLY. Connected load not exceeding 320 kW and maximum demand after diversity not exceeding 200 kVA, taken from the point provided under P1 and P2 rather than from an accommodation block's supply. 
+The Contractor shall submit its load calculation with its tender, with diversity stated and justified. Where its equipment selection exceeds the figures above, the reinforcement is its cost and not a variation — the figures are stated at tender for exactly that reason. 
+Installation to BS 7671. RCBO protection to every final circuit. Equipment on the emergency isolation at EQ-38. Separate final circuits for refrigeration so that a cooking-circuit fault does not defrost four days of stock. 
+REFRIGERATION SHALL BE ON THE STANDBY SUPPLY where one is available under P2 Appendix 8, and the Contractor shall state the load it requires supported. 
+6.11  Drainage, and the grease that closes kitchens 
+FLOOR DRAINAGE. Gullies to every wet area, falls between 1:60 and 1:80, gratings removable by hand, and rodding access reachable without lifting equipment. No gully sited where a person stands to work. 
+GREASE. A separator sized to BS EN 1825-2 for the calculated peak flow, minimum nominal size NS 4, taking every discharge that carries fat — which includes the pot wash and the combi drains, not only the sinks. 
+IT SHALL BE SITED SO THAT IT CAN BE EMPTIED WITHOUT ENTERING THE KITCHEN. A separator that can only be reached through the production area is emptied during a service period, or it is not emptied. This is the commonest cause of a kitchen closing unexpectedly and it is designed in or out at layout stage. 
+The Contractor shall state the emptying frequency its sizing assumes, and shall hand that figure to P5 at section 10, because P5 pays for it. 
+CONNECTION. One connection to the P1 drainage at the invert on the coordination drawing. The invert is a freeze item at section 7: a falls-to-gully design cannot be adjusted after the floor is manufactured. 
+6.12  Extract, fire, and the failure mode 
+THIS IS THE CLAUSE THAT THE P2 GAP REGISTER WOULD CALL FATAL IF IT WERE MISSING, and its equivalent was missing from Revision A of that document. 
+FUEL. This kitchen is ELECTRIC. Gas is not used. That decision removes the gas interlock, the gas detection, the emergency isolation valve and the ventilation-proving requirements of BS 6173 from a building where people sleep 40 metres away, and the Employer has taken it deliberately. A tenderer proposing gas shall price it as a departure and shall price the interlock, the detection, the proving and the fire strategy consequence with it. 
+SUPPRESSION. Wet chemical suppression to every cooking appliance under a canopy, to LPS 1223 or equivalent, covering the appliance, the canopy plenum and the first section of duct. On discharge it shall isolate power to every appliance it protects. Serviced at the manufacturer's interval, and the service passes to P5 at section 10. 
+THE FAILURE MODE ON FIRE ALARM. The kitchen extract SHALL SHUT DOWN on fire alarm activation, and cooking power shall isolate with it, unless the fire strategy at P2 Appendix 2 requires otherwise IN WRITING. 
+The reason is stated so it is not reopened: a running extract feeds a fire and moves smoke through a duct that runs above a building where people are asleep. Where a fire engineer requires the extract to continue for smoke control, that is a decision for the fire strategy and it shall be recorded there, not assumed here. 
+NO FIRE DAMPER SHALL BE INSTALLED IN A GREASE EXTRACT DUCT. A damper in a grease duct clogs, fails to close when it matters, and cannot be inspected. Fire separation of the duct shall be achieved by construction — a fire-rated enclosure or a rated duct — providing not less than 60 minutes integrity and insulation where it passes through or over any compartment other than the kitchen, tested to BS EN 1366-1 and BS EN 1366-8 as applicable. The Contractor shall state which method it has used and to what standard. 
+The interface with the P2 fire alarm cause and effect matrix is at section 8 IF-05 and shall be demonstrated at commissioning, not described. 
+6.13  Ductwork, and being able to clean it 
+Ductwork to DW/172. Access panels at every change of direction and at intervals not exceeding 3 m, sized to permit cleaning, and REACHABLE WITHOUT DISMANTLING EQUIPMENT OR ERECTING A SCAFFOLD. 
+A grease duct that cannot be cleaned is a fire that has not happened yet, and the insurer will say so. The Contractor shall submit a duct access drawing showing every panel and the means of reaching it, and shall demonstrate access at commissioning. 
+The duct shall be laid to falls back to the canopy so that condensed grease drains to a collection point rather than pooling in a horizontal run. 
+The termination shall discharge clear of every fresh-air intake, every openable window and every accommodation block, at the separation the P2 fire strategy and the planning consent require. The Contractor shall confirm the position against both before the freeze date. 
+6.14  Refrigeration, and the refrigerant somebody else has to service 
+Refrigerant with a global warming potential not exceeding 150 for all new equipment, and compliant with the F-gas Regulations for the life of the installation. 
+It is prescribed because the consequence lands on somebody else. P5 services this equipment for 38 months and pays for the refrigerant when it is topped up; a high-GWP refrigerant subject to a phase-down is a servicing cost and a supply risk transferred to the operator by a decision taken here to save capital. 
+Where a natural refrigerant is used the Contractor shall state the safety requirements it brings — ventilation, detection, charge limits — and shall show them on its layout. 
+Leak detection to every walk-in system, alarmed locally and to the Operator. Records kept from commissioning and handed over. 
+CONDENSER SITING is a freeze item: it needs a position, a weight, a power supply and an acoustic separation from sleeping accommodation, and it is on the roof of a modular building. 
+6.15  Water 
+Hot water to the duty at section 5 EQ-33, independent of the accommodation blocks' demand and not competing with it. 
+Softening where the incoming hardness requires it, to the dish wash and to any steam-generating equipment. The Contractor shall state the hardness it has designed for and shall check it against P2 Appendix 8 before the freeze date; where the appendix does not state it, the Contractor shall test the supply and state the result. 
+Backflow protection appropriate to Fluid Category 5 at the kitchen incomer, to BS EN 1717. 
+Separate metering of the kitchen's cold and hot water at EQ-37, reporting to the village management system so that P5 can manage it under its own requirements. 
+The legionella written scheme of control operated by P5 covers this kitchen. The Contractor shall provide the information the scheme needs — dead legs, storage volumes, TMV locations — at section 10, and shall minimise dead legs rather than schedule them. 
+6.16  Noise 
+This building is 40 metres from sleeping accommodation and it runs from 05:00 to 01:00, seven days a week, for 38 months. 
+Extract fans, make-up air plant, refrigeration condensers and the wash-up shall be selected and located so that plant noise does not exceed the limit in the planning consent at any accommodation facade, and in any event shall not exceed 40 dB(A) at the nearest bedroom window at night. 
+The Contractor shall submit a noise assessment with its tender covering every item of plant it proposes, including condenser siting. A condenser on the roof of a kitchen 40 metres from a block where somebody is sleeping through the day is a design decision, and it is taken here or it is regretted later. 
+6.17  Handover, training and what P5 receives 
+This kitchen is operated by somebody else from the day it opens. The handover is to P5 and it is a deliverable of this package, not a courtesy. 
+WHAT IS HANDED OVER: as-installed drawings and the model; O&M manuals for every item; every commissioning certificate with individual results; warranties assigned to the Employer; the asset register in the schema at P2 Appendix 11, with the identifiers physically labelled; the maintenance schedule and criticality rating for every asset, so that a failed combi is a known Priority 1 and not a discovery; the grease separator emptying frequency at 6.11; the refrigerant inventory and leak-check regime; the duct cleaning access drawing; and the spares and consumables holding. 
+TRAINING: not fewer than 2 recorded sessions of not less than 90 minutes each for the Operator's catering management and staff, covering every item of equipment, the suppression system, the emergency isolation, the extract, and what to do when each of them fails. Recorded, so that staff joining in month nineteen can be trained from it. 
+Handover is complete when P5 acknowledges receipt against a checklist, and not when the documents are sent. 
+6.18  Security of equipment before handover 
+Catering equipment is valuable, portable and attractive, and it sits in a building on a construction site for weeks before anybody guards it. 
+Equipment shall not be delivered to site before the building is lockable. Where the programme requires earlier delivery the Contractor shall provide secure storage at its own cost and shall not store equipment in an unsecured shell. 
+Deliveries shall be sealed and the seal number recorded, checked on arrival, and a broken seal reported within 2 hours and before the item is installed. Equipment held on site before handover shall be inventoried weekly against the delivery record. 
+From first delivery until handover the Contractor holds the keys to the kitchen under a documented key control procedure, and hands them over with the record — not with the last key. 
+ 
+7  The shell freeze 
+7.1  What a freeze date is, and why it is absolute here 
+This kitchen is fitted into a building manufactured in a factory. Once a module is manufactured, an interface dimension cannot be changed: it can only be cut, patched or worked around, on a completed module, at a cost that bears no relation to what the change would have cost a week earlier. 
+THE FREEZE DATE IS EIGHT WEEKS BEFORE P2 COMMENCES MANUFACTURE OF THE KITCHEN AND DINING BUILDING. Every item in the register at 7.2 is fixed by then, in writing, signed by this Contractor and by P2. 
+Eight weeks is not a comfort margin. It is the period P2 needs to incorporate a penetration schedule into a manufacturing drawing, order the components and have them at the line — and it is stated as a date rather than as a principle because a principle slips and a date does not. 
+7.2  The freeze register 
+Every item below is fixed at the freeze date. The Contractor produces the information; P2 confirms it can build to it; the Employer records the agreement. An item not fixed by the date is escalated the same day, not the following month. 
+7.3  The loading the P2 appendix does not currently carry 
+The Employer states this against itself rather than letting a tenderer find it. 
+Appendix 8 of the P2 Employer's Requirements gives an imposed floor load of 3.0 kN/m² for 'amenity and dining'. IT STATES NO LOADING FOR A KITCHEN PRODUCTION FLOOR, and a kitchen production floor is not an amenity floor: a walk-in cold room, a bank of combi ovens on a stand and a full stock room impose more, and they impose it as concentrated point loads rather than as a uniform area load. 
+THIS PACKAGE REQUIRES, and P2 shall confirm it can provide: 
+5.0 kN/m² uniformly distributed across the production kitchen and wash-up. 
+7.5 kN/m² beneath the walk-in chill and freezer rooms, and beneath any equipment the Contractor's schedule identifies as exceeding it. 
+Point loads as stated on the Contractor's fixing schedule at 6.4, item by item. 
+3.0 kN/m² across dining, as the appendix already provides. 
+The Contractor shall submit its loading schedule not later than TWO WEEKS BEFORE the freeze date, so that there is time for P2 to confirm or to object. P2 Appendix 8 is to be updated to carry these figures before manufacture; until it is, this clause is the requirement and it prevails. 
+A tenderer that reads Appendix 8, prices a 3.0 kN/m² floor and discovers a cold room on it has been failed by the Employer's own documents. Which is why it is written here. 
+7.4  After the freeze date 
+A change to any item in the register after the freeze date is a variation, valued under section 14, and it carries THE FULL COST OF THE CHANGE TO P2 — abortive manufacturing drawings, re-ordered components, a delayed manufacturing slot, or a modification to a completed module — as well as the cost to this package. 
+Where the change arises from this Contractor's own development of its design, that cost is this Contractor's. Where it arises from an Employer instruction, it is the Employer's, and the Employer would rather know the number before it instructs. 
+The Contractor shall therefore treat the eight weeks before the freeze date as the period in which its design is actually settled, and shall not rely on developing it during manufacture. A fit-out contractor is accustomed to a shell it can drill. This one is not. 
+ 
+What is fixed 
+Produced by 
+Confirmed by 
+If it changes after the freeze 
+F-01 
+Penetration schedule — position, size and sealing detail for every service through floor, wall, ceiling and roof 
+This Contractor 
+P2 
+A cut through a manufactured module, with the fire and vapour seal re-made on site 
+F-02 
+Floor loading, uniform and point, across every area 
+This Contractor 
+P2 
+Structural modification to a completed floor cassette. Usually not possible 
+F-03 
+Drainage invert, gully positions and floor falls 
+This Contractor 
+P2 and P1 
+The floor is manufactured to falls. It cannot be re-laid 
+F-04 
+Electrical supply capacity, position and route 
+This Contractor 
+P2 and P1 
+Reinforcement, at the cost of whoever exceeded the stated figure at 6.10 
+F-05 
+Water supply capacity, position and incoming hardness 
+This Contractor 
+P2 and P1 
+Re-routing within a manufactured wall 
+F-06 
+Clear internal heights — canopy, duct zone and finished ceiling, coordinated 
+This Contractor 
+P2 
+The commonest late discovery: the duct does not fit above the canopy under the ceiling 
+F-07 
+Clear widths on the route for the three largest items, from the external door to the final position 
+This Contractor 
+P2 
+A door manufactured 400 miles away, and an oven on a lorry outside it 
+F-08 
+Roof loading and position for condensers, fans and any roof-mounted plant 
+This Contractor 
+P2 
+Roof structure and the 20-year membrane warranty at P2 4.4 
+F-09 
+Duct route and roof termination position, with the separation to intakes and to sleeping accommodation 
+This Contractor 
+P2 and the fire engineer 
+A roof penetration in the wrong place, and a warranty to argue about 
+F-10 
+Make-up air intake position relative to the extract discharge 
+This Contractor 
+P2 
+Short-circuiting: the kitchen draws in its own extract. Undetectable on paper, obvious on the first hot day 
+F-11 
+The extract and cooking-power failure mode on fire alarm, confirmed by the fire strategy 
+Employer's fire engineer 
+This Contractor and P2 
+A cause and effect matrix that has to be rewritten after commissioning 
+F-12 
+Acoustic separation from sleeping accommodation for all plant, per 6.16 
+This Contractor 
+P2 and the Employer 
+Plant that cannot run at night, in a kitchen that opens at 05:00 
+Every one of these is cheap to fix eight weeks before manufacture and expensive to fix eight weeks after. That is the whole of the reason this section exists, and it is why it is priced separately at item A3. 
+ 
+8  Interfaces 
+This package builds nothing and operates nothing. Each interface states what crosses it, who certifies it and when. 
+Ref 
+With 
+What crosses it 
+Who certifies 
+When 
+IF-01 
+P2 Modular Accommodation 
+The 610 m² shell: structure, envelope, floor, roof, external doors, and the internal clear heights 
+P2 issues the as-built survey; this Contractor accepts it in writing before installing anything 
+At the Section 1 sectional completion, month 3 
+IF-02 
+P2 Modular Accommodation 
+EVERY PENETRATION — extract duct, make-up air, drainage, water, power, data, refrigeration pipework — at the position and size on the agreed schedule 
+A single schedule signed by both parties BEFORE P2 manufactures 
+At the freeze date, section 7 
+IF-03 
+P2 Modular Accommodation 
+Floor loading capacity across the kitchen area, including point loads under cold rooms and heavy equipment 
+P2 confirms in writing against this Contractor's stated loadings 
+At the freeze date. See 7.3 — the P2 appendix does not currently carry a kitchen loading 
+IF-04 
+P2 Modular Accommodation 
+Service termination points: electrical supply to EQ-36, water, drainage invert, data 
+Joint coordination drawing signed before either party orders material 
+Before P2 commences manufacture 
+IF-05 
+P2 Modular Accommodation / Employer's fire engineer 
+The fire alarm cause and effect, and the extract and cooking-power shutdown at 6.12 
+Demonstrated at commissioning, jointly, not described in a document 
+At commissioning 
+IF-06 
+P1 Civil Works 
+External drainage connection at the invert, and the grease separator position and access for emptying 
+Joint before P1 lays the external drainage 
+Before P1 commences drainage 
+IF-07 
+P4 Furniture 
+THE BOUNDARY: dining furniture is in THIS package; bedroom and amenity furniture is in P4 
+One common schedule issued by the Employer before either package is let 
+Before either package is let 
+IF-08 
+P5 FM and Operation 
+The commissioned kitchen, the training, the O&M, the asset data and the maintenance criticality list 
+P5 acknowledges receipt against a checklist 
+4 weeks before the first meal service 
+IF-09 
+P5 FM and Operation 
+The test meal at 6.7, produced with the Operator's own staff 
+Witnessed by the Employer and by P5 
+Before handover 
+IF-10 
+P5 FM and Operation 
+The grease separator emptying frequency, the refrigerant inventory, and the duct cleaning access drawing 
+This Contractor states them; P5 prices its operation from them 
+At handover 
+ 
+9  Performance schedule 
+These are the Employer's requirements. Compliance with statute is the Contractor's duty and is not discharged by meeting them. 
+Criterion 
+Requirement 
+How it is verified 
+Production capacity 
+124 main-course covers within 45 minutes from a chilled or fresh start 
+The test meal at 6.7, witnessed 
+Regeneration capacity 
+101 covers within 30 minutes 
+Measured at commissioning 
+Servery throughput 
+200 covers per hour per line, two lines independent 
+The test meal, measured 
+Queueing 
+Not exceeding 10 minutes at the 90th percentile at 124 covers 
+The test meal, timed 
+Hot holding 
+63 °C or above for a 90-minute service period, recordable 
+Measured at commissioning and at the test meal 
+Blast chilling 
+70 °C to 3 °C within 90 minutes for 60 covers 
+Measured at commissioning 
+Dish wash throughput 
+124 covers within 45 minutes of the end of a service period 
+The test meal, followed by a full wash-up cycle 
+Dish wash final rinse 
+82 °C or above, sustained through the SP4 cycle 
+Measured at commissioning and during the test meal 
+Chill room temperature 
+1–4 °C, held at the full stock loading with the door cycled 
+Measured over 24 hours at full load, not empty 
+Freezer temperature 
+−18 °C or colder, same condition 
+As above 
+Canopy extract 
+Not less than 5.0 m³/s, and the capture velocity DW/172 requires at every appliance 
+Measured at every canopy at commissioning 
+Kitchen pressure 
+Not more than 5 Pa negative relative to dining at any operating condition 
+Measured with all extract and make-up air running 
+Make-up air temperature 
+Not less than 18 °C in winter at the supply terminal 
+Measured, and calculated for the design condition 
+Duct access 
+Every panel reachable without dismantling equipment or erecting a scaffold 
+Demonstrated at commissioning, not drawn 
+Suppression 
+Discharges and isolates power to every protected appliance 
+Demonstrated, per the manufacturer's commissioning 
+Extract on fire alarm 
+Extract and cooking power shut down on activation, per 6.12 
+DEMONSTRATED jointly with P2 at commissioning, against the cause and effect matrix 
+Hot water 
+No service period or wash-up cycle constrained; 82 °C rinse sustained 
+The test meal 
+Grease separator 
+Sized to BS EN 1825-2 for the calculated flow; emptying access without entering the kitchen 
+Calculation submitted; access demonstrated 
+Electrical demand 
+Maximum demand after diversity not exceeding 200 kVA 
+Calculation submitted at tender; measured at the test meal 
+Plant noise 
+Not exceeding 40 dB(A) at the nearest bedroom window at night, and within the planning limit 
+Assessment at tender; measured at commissioning at night 
+Refrigerant 
+GWP not exceeding 150; leak detection on every walk-in system 
+Manufacturer's data and the commissioning record 
+Finishes 
+PTV ≥ 36 wet; impervious; withstand 38 months of daily cleaning with the Operator's approved products 
+Manufacturer's data plus an in-situ pendulum test on a sample 
+ 
+10  Handover to the Operator 
+This kitchen is operated by P5 from the day it opens. Handover is a deliverable of this package and it is complete when P5 acknowledges receipt against a checklist, not when the documents are sent. The commissioning and test meal requirements are at 6.7 and the training at 6.17. 
+Deliverable 
+Requirement 
+As-installed drawings and model 
+Every discipline, reflecting what was built. Produced from the model, not separately from it 
+O&M manuals 
+Every item, indexed, with the manufacturer's literature and the spares schedule 
+Commissioning certificates 
+Individual results for every measurement at section 9. Summaries are rejected 
+The test meal record 
+Covers served, times, queue measurement, temperatures, and the wash-up cycle. Signed by the Employer and P5 
+Asset register 
+In the schema at P2 Appendix 11, with identifiers on physical labels, and a criticality rating per asset 
+Maintenance schedule 
+Task, frequency, standard and trade per asset, so that P5 can price its regime rather than discover it 
+Warranties 
+Assigned to the Employer, including every manufacturer's equipment warranty and its start date 
+Grease separator data 
+Sizing calculation, assumed emptying frequency, and the access route 
+Refrigerant inventory 
+Per system: refrigerant, charge, GWP, CO₂e, leak-check interval and the F-gas record from commissioning 
+Duct access drawing 
+Every access panel and the means of reaching it 
+Training 
+Not fewer than 2 recorded sessions for P5's catering management and staff, covering failure as well as operation 
+Spares and consumables 
+12 months' consumables and a critical spares holding, listed and priced separately at section 19 item J 
+ 
+11  Programme and delay 
+11.1  The date that governs this package 
+The kitchen shell is handed to this package at the Section 1 sectional completion, at the end of month 3 of the P2 programme, and the first meal is served on the day the first 65 residents arrive. 
+THAT DATE IS THE FIXED POINT. Sixty-five people arriving to a village with no kitchen are sixty-five people the Employer accommodates and feeds commercially, at the rate at 11.3, until there is one. 
+Working backwards from it: the test meal at 6.7 not less than 2 weeks before; commissioning complete not less than 3 weeks before; handover to P5 and training not less than 4 weeks before, per IF-08. The Contractor's programme shall show each of them and shall show the float it holds. 
+11.2  And the date that governs everything else 
+The freeze date at section 7 — eight weeks before P2 commences manufacture — falls MONTHS before this Contractor is on site. It is the earlier of the two dates and it is the one a fit-out contractor is least accustomed to. 
+The Contractor's design is settled at the freeze date, not at mobilisation. Its tender programme shall show the design period leading to it and shall name the person responsible for the information P2 needs. 
+11.3  Delay 
+Liquidated damages of £145 per bed per calendar day apply where the first meal service is not available on the date the first section is occupied, calculated on the beds occupied and unfed, and capped in aggregate at 7.5% of the contract sum. 
+The rate is the same as the P2 sectional rate and is built up the same way — substitute accommodation, subsistence, travel and administration — because the loss is the same loss: a resident who cannot be fed here is accommodated elsewhere. The build-up is at clause 18.2 of the P2 requirements and it is not restated so that there is one version of it. 
+Where the first meal service is unavailable for a cause within P2 — a shell handed over late or not to the freeze register — the damages do not fall on this Contractor, and the Contractor's duty is to have given the early warning that proves it. 
+ 
+12  Health, safety and working next to an occupied village 
+12.1  CDM and the site 
+The Employer has appointed a Principal Designer and Principal Contractor for the project. This Contractor is a contractor under CDM 2015 and complies with the construction phase plan. Nothing in this document appoints it to either statutory role. 
+The Employer's site rules apply, including induction, competence cards, drug and alcohol testing, PPE and permits. Installation takes place alongside a live construction site and, for the later sections, alongside an OCCUPIED VILLAGE. 
+12.2  Working next to people who are asleep 
+From the Section 1 sectional completion onward there are residents 40 metres away, and a proportion of them are asleep at every hour. 
+The Contractor shall plan noisy work — core drilling, fixing, plant commissioning, extract balancing — by zone and shift under the same discipline P5 applies at its own clause on quiet hours, and shall agree its noisy-work windows with the Employer weekly rather than starting at eight and finding out. 
+Commissioning the extract at full volume at two in the afternoon wakes the night shift. It is not a courtesy point: they work a 12-hour shift that evening. 
+12.3  Hot works, and the specific risk here 
+Hot works permit required, issued by the Principal Contractor, with a fire watch during and for not less than 60 minutes after. 
+The specific risk in this package is hot works in a building with a grease extract system partly installed and a suppression system not yet commissioned. The Contractor shall not carry out hot works within a canopy or duct once grease-bearing surfaces exist, and shall state in its method statement the point in its sequence after which that prohibition applies. 
+12.4  Manual handling and lifting into a finished building 
+Equipment is lifted into a completed building through a door. The Contractor shall produce a lifting and handling plan for every item exceeding 100 kg, covering the route, the equipment used, the floor protection and the floor loading during the move — which is a point load on a manufactured floor and is not the same as the loading in service. 
+ 
+13  Information and asset data 
+13.1  What the Employer receives, and in what form 
+The asset register in the schema at P2 Appendix 11 — not a new schema, and not a folder of PDFs. Identifiers are allocated in the P2 convention and are on durable physical labels on the equipment. 
+Every document issued through the Employer's common data environment, named to BS EN ISO 19650-2 and the project code. A document sent by email is not issued. 
+The model produced and issued in native format and as IFC 4, on the origin agreed with P2 — a kitchen modelled on its own origin is a kitchen that cannot be federated with the building it sits in. 
+Criticality rating on every asset: 1 where a service period cannot run without it, 2 where the service is degraded, 3 otherwise. P5 builds its Priority 1 list from it, so a wrong rating becomes a wrong response time for 38 months. 
+ 
+14  Change control 
+14.1  Who may instruct 
+Only a written instruction from the Employer's Representative. Not P2, not P5, not the Principal Contractor, and not a caterer with a preference. 
+Requests from the Operator to change equipment, layout or specification are referred to the Employer's Representative within 2 working days. On a kitchen this is the commonest route by which unpriced scope arrives: a chef's preference, agreed to be helpful during commissioning, and permanent. 
+14.2  How a change is valued 
+In this order: the rates in the activity schedule at section 19; those rates pro rata; then a fair valuation from the all-in rates the Contractor states in its tender — hourly rates by trade and grade, percentage additions for overhead, profit and sub-contracted work. They are competed at tender because that is the only moment competition exists. 
+A change instructed after the freeze date carries the P2 consequence at 7.4 as well as its own cost, and the Contractor shall quote both before the instruction is issued. 
+ 
+15  Defects, response and support 
+15.1  Defects liability 
+12 months from the date of certified handover of the kitchen. Where a defect is rectified, the period for that item begins again from rectification. Where the same defect occurs in more than one item of the same type, it is systemic: the Contractor investigates the cause and rectifies every instance including those not yet reported. 
+Equipment warranties run from commissioning and are assigned to the Employer, with their start dates recorded in the asset register. 
+15.2  Response, in an operating kitchen 
+PRIORITY 1 — anything that stops a service period: the primary cooking capacity, the servery, the dish wash, a walk-in cold room, the extract, the suppression system, the hot water, or a drainage blockage. ATTEND WITHIN 4 HOURS. Make safe or provide a working alternative within 8. Rectify within 5 working days. 
+PRIORITY 2 — a single item out of service where the period can still run: rectify within 5 working days. 
+PRIORITY 3 — cosmetic and non-operational: 20 working days, and may be batched. 
+THE TIMES ARE DELIBERATELY THE SAME AS THE P2 DEFECTS REGIME and are longer than P5's reactive times, because P5's maintenance contractor is on site and this Contractor is travelling. Where an item falls to both, P5 attends first to its own times and this Contractor rectifies to these — the Operator sees the faster of the two. 
+ACCESS. This kitchen serves 5 periods a day. The Contractor shall work around service, or out of hours, and shall price for it. A rectification that requires the kitchen for a day requires the Employer's agreement and a plan for feeding 225 people that day. 
+15.3  Obsolescence and support 
+For every item the Contractor shall state at tender: the manufacturer's committed spares availability period from handover; the notice given of end-of-life; and whether the control system is open or proprietary. 
+Spares and support shall be available for not less than the 38-month deployment plus 24 months. Where a manufacturer will not commit, the Contractor shall say so at tender rather than after. 
+No item shall be offered whose function depends on a subscription, licence or cloud service that, if not renewed, disables it or its monitoring. Where a subscription is required for anything else, its cost for the deployment plus 24 months is stated and included. 
+ 
+16  Energy, water and waste 
+16.1  Energy and water 
+The kitchen is the largest single energy user in the village. The Contractor shall state, with its tender, the predicted annual energy and water consumption of its equipment selection at the demand at section 3, with the assumptions disclosed, and shall be evaluated on it. 
+Equipment shall be selected on whole-life cost and not on capital cost alone. Where a higher-capital item has a lower predicted consumption, the Contractor shall offer it and show the comparison over 38 months — the Employer will take the better trade, but only if it is shown the arithmetic. 
+The sub-metering at EQ-37 exists so that the declaration can be checked against measured data in operation, and P5 will check it. 
+16.2  Waste and heat recovery 
+Food waste is P5's to reduce, but it is this package's to make measurable: provision for segregated food waste storage, chilled where the collection interval requires it, sited on the dirty route at 6.2. 
+Heat recovery from the extract shall be offered and priced as an option, with the payback stated over the REMAINING term rather than over the life of the equipment. 
+Water: pre-rinse spray valves, flow restriction where it does not compromise the 82 °C rinse, and condensate management that does not simply run to drain. 
+ 
+17  Labour standards 
+17.1  Ethical employment 
+The Employer Pays Principle applies without exception: no worker on this package pays any fee to obtain or keep work, and any fee already paid is reimbursed. No identity document retained. A written contract in a language the worker understands. Working time recorded. 
+Compliance with the Modern Slavery Act 2015, with a statement under section 54 where turnover requires one and an equivalent policy where it does not. 
+The requirements flow down unamended to every sub-contractor. The Employer may audit any of them, may bring an independent auditor, and may interview workers privately without a representative of the Contractor present. 
+The place of manufacture of the principal equipment shall be disclosed at tender. Catering equipment is manufactured globally and the Employer will not audit a factory it has not been told about. 
+ 
+18  Relocation 
+18.1  The kitchen moves too 
+The village is intended to be dismantled and re-erected on at least one further site. The equipment in this package is a substantial part of its residual value and most of it is capable of being moved. 
+The Contractor shall provide, with its tender, a relocation statement covering: which items are demountable and reusable; which are consumed by removal — bonded floor finishes, sealed penetrations, ductwork, fixed pipework — and must be renewed each time, with a budget rate for each; the condition the equipment can be expected to be in after 38 months; and the manufacturer's position on re-commissioning and warranty after a move. 
+It shall not design so as to make relocation impossible: fixings demountable where they can be, services connected so that equipment can be isolated and removed, and the duct and canopy arrangement recorded so that it can be rebuilt rather than redesigned. 
+The relocation works are not in this package and are not priced here. What is required is that the design does not prevent them and that the Employer is told, before award, what a move will cost it in renewed components. 
+ 
+19  Pricing 
+19.1  How this is priced 
+The tender is priced against the schedule below in its issued structure. A tenderer who alters it produces a return that cannot be compared with the others and it will be marked accordingly. 
+Rates are inclusive of everything necessary to complete the item — labour, materials, plant, temporary works, supervision, commissioning, testing, training, overheads and profit — except where an item is stated to be priced separately. A rate left blank is a rate of nil and the item is deemed included elsewhere; a tenderer intending to exclude it lists it as a departure rather than leaving it empty. 
+Quantities are firm. The demand at section 3 and the areas at section 4 are the Employer's and are not remeasured. 
+Item 
+Description 
+Basis 
+Note 
+A 
+DESIGN AND THE FREEZE 
+ 
+ 
+A1 
+Kitchen design, layout, and the Contractor's Proposals 
+Lump sum 
+Including the 1:50 layout, the flow demonstration and the equipment schedule 
+A2 
+Mechanical, electrical, drainage and ventilation design of the fit-out 
+Lump sum 
+ 
+A3 
+The freeze register information at section 7 — loadings, penetrations, routes, heights 
+Lump sum 
+PRICED SEPARATELY because it is delivered months before mobilisation and is the critical deliverable of this package 
+A4 
+Noise assessment, extract calculation and the energy declaration 
+Lump sum 
+6.16, section 16 
+B 
+STORES AND REFRIGERATION 
+ 
+ 
+B1 
+Walk-in chill room, complete and commissioned 
+Lump sum 
+EQ-02 
+B2 
+Walk-in freezer room, complete and commissioned 
+Lump sum 
+EQ-03 
+B3 
+Dry goods store fit-out and shelving 
+Lump sum 
+EQ-04 
+B4 
+Temperature monitoring, logging and alarm to the Operator 
+Lump sum 
+EQ-06 
+C 
+PREPARATION AND COOKING 
+ 
+ 
+C1 
+Preparation sections, benching, sinks and hand wash provision 
+Lump sum 
+EQ-07 to EQ-10 
+C2 
+Primary cooking capacity to the duty at EQ-11 
+Lump sum 
+State every item selected and the duty calculation behind it 
+C3 
+Regeneration, boiling, grilling and frying capacity 
+Lump sum 
+EQ-12 to EQ-14 
+C4 
+Hot holding and blast chilling 
+Lump sum 
+EQ-16, EQ-17 
+D 
+SERVERY AND DINING 
+ 
+ 
+D1 
+Servery, two independent lines 
+Lump sum 
+EQ-18 
+D2 
+Packed-meal collection point 
+Lump sum 
+EQ-19 — separate from the hot line 
+D3 
+Beverage provision, 24 hours 
+Lump sum 
+EQ-20 
+D4 
+Dining furniture, 100 covers 
+Rate per cover 
+EQ-21. IN THIS PACKAGE, not P4 — see IF-07 
+D5 
+Dining and servery finishes 
+m² 
+EQ-22 
+E 
+WASH-UP 
+ 
+ 
+E1 
+Dish wash to the duty at EQ-23 
+Lump sum 
+ 
+E2 
+Pot wash, separate 
+Lump sum 
+EQ-24 
+E3 
+Water softening where required 
+Lump sum 
+EQ-26. Price nil if the hardness does not require it, and say so 
+F 
+VENTILATION, FIRE AND SERVICES 
+ 
+ 
+F1 
+Canopies, extract ductwork and roof termination 
+Lump sum 
+EQ-27, 6.13 
+F2 
+Make-up air plant, tempered 
+Lump sum 
+EQ-28 
+F3 
+Fire suppression to LPS 1223, with power isolation 
+Lump sum 
+EQ-31 
+F4 
+Extract and cooking-power shutdown interface with the P2 fire alarm 
+Lump sum 
+EQ-32, IF-05. Demonstrated, not described 
+F5 
+Hot and cold water services within the fit-out 
+Lump sum 
+EQ-33, 6.15 
+F6 
+Drainage, gullies and floor falls within the building 
+Lump sum 
+EQ-34, 6.11 
+F7 
+Grease separator and its access 
+Lump sum 
+EQ-35 
+F8 
+Electrical installation, distribution and emergency isolation 
+Lump sum 
+EQ-36, EQ-38, 6.10 
+F9 
+Sub-metering to the village management system 
+Lump sum 
+EQ-37 
+G 
+FINISHES AND BUILDER'S WORK 
+ 
+ 
+G1 
+Kitchen and wash-up floor, wall and ceiling finishes 
+m² 
+6.4 
+G2 
+Builder's work in connection, and fixings to the modular structure 
+Lump sum 
+6.4. Excludes anything P2 provides under the freeze register 
+H 
+COMMISSIONING, THE TEST MEAL AND HANDOVER 
+ 
+ 
+H1 
+Commissioning, with individual results for every measurement 
+Lump sum 
+section 9 
+H2 
+THE TEST MEAL — 124 covers through the servery, and a full wash-up cycle 
+Lump sum 
+6.7. Priced separately because it is a distinct event with the Operator's staff 
+H3 
+Handover deliverables, asset data and O&M 
+Lump sum 
+section 10 
+H4 
+Training for P5 — 2 recorded sessions 
+Lump sum 
+section 10 
+J 
+SPARES AND CONSUMABLES — PRICED SEPARATELY 
+ 
+ 
+J1 
+12 months' consumables from handover 
+Lump sum 
+Stated separately so the Employer can decline it knowingly 
+J2 
+Critical spares holding, criticality 1 assets 
+Lump sum 
+ 
+K 
+OPTIONS — PRICED, NOT IN THE LUMP SUM 
+ 
+ 
+K1 
+Heat recovery from the extract 
+Lump sum 
+16.2. State the payback over the remaining term 
+K2 
+Gas installation, if offered as a departure 
+Lump sum 
+6.12. Price the interlock, detection, proving and the fire strategy consequence with it 
+L 
+RATES FOR THE VALUATION OF CHANGE 
+ 
+ 
+L1 
+All-in hourly rate by trade and grade 
+Rate 
+Fixed for the contract period 
+L2 
+Percentage addition for overhead 
+% 
+ 
+L3 
+Percentage addition for profit 
+% 
+ 
+L4 
+Percentage addition on sub-contracted work 
+% 
+ 
+M 
+DEPARTURES 
+ 
+ 
+M1 
+Each departure, listed and priced individually 
+Each 
+6.1. A departure not listed is not accepted 
+A blank basis and note mark a section heading. Every other line is priced. 
+ 
+20  The twenty-five questions, answered 
+Written against the same twenty-five findings raised against Revision A of the P2 Employer's Requirements. G14 is answered by stating a fault in the Employer's own pack rather than by passing over it. 
+Ref 
+The finding 
+Where this document answers it 
+G01 
+No design responsibility matrix or Contractor's Proposals mechanism 
+6.1: the basis is stated, the Contractor's Proposals and Schedule of Departures are required with the tender, and review is stated not to transfer responsibility 
+G02 
+Prescriptive and performance specification mixed 
+Every one of the 38 equipment lines carries an E or C code. 25 prescribed, 13 contractor-designed — and clause 1.2 states honestly WHY a kitchen carries more prescription than a service contract, in three named groups, rather than claiming to prescribe sparingly and then not doing so 
+G03 
+No stated failure mode 
+6.12: the extract and cooking power SHUT DOWN on fire alarm unless the fire strategy requires otherwise in writing; no fire damper in a grease duct; suppression isolates power on discharge; and the kitchen is electric so the gas interlock question does not arise 40 m from where people sleep 
+G04 
+No damages or delay mechanism 
+11.3: £145 per bed per day on the same basis as the P2 sectional rate, because it is the same loss, with the build-up referenced rather than restated so there is one version of it 
+G05 
+No defects regime 
+section 15: 12 months, the systemic-defect rule, three priorities with times, and the access constraint of a kitchen serving five periods a day 
+G06 
+No temporary works regime 
+12.4: a lifting and handling plan for every item over 100 kg, covering the floor loading DURING the move, which is a point load on a manufactured floor and not the loading in service 
+G07 
+Relocation imposed without a requirement 
+section 18: what is demountable, what is consumed by removal with a budget rate for each, the expected condition after 38 months, and the manufacturer's position on re-commissioning 
+G08 
+No information requirements 
+section 13: the P2 schema rather than a new one, the CDE, the model origin agreed with P2, and criticality ratings that become P5's Priority 1 list 
+G09 
+No site constraints 
+12.1 and 12.2: the live site, and working 40 m from people who are asleep at every hour 
+G10 
+No electrical supply characteristics 
+6.10 and EQ-36: a dedicated supply, stated connected load and maximum demand, the consequence of exceeding them, and refrigeration on the standby supply 
+G11 
+No water supply characteristics 
+6.15 and EQ-33: the duty, independence from the blocks' demand, hardness to be established, Fluid Category 5 backflow protection and separate metering 
+G12 
+No evacuation or alarm strategy 
+6.12 and IF-05: the cause and effect interface with P2, demonstrated jointly at commissioning rather than described 
+G13 
+A figure that was tight for the technology 
+The extract floor of 5.0 m³/s and the pressure duty at EQ-28 are stated as floors the Contractor calculates from, not as answers — and the pressure differential is measured with everything running, which is the condition that finds the problem 
+G14 
+No loading or serviceability criteria 
+7.3: 5.0 kN/m² production, 7.5 kN/m² under cold rooms, point loads item by item — AND the statement that P2 Appendix 8 does not currently carry them, which is a fault in the Employer's own pack written down rather than left for a tenderer to find 
+G15 
+No change control 
+section 14: who may instruct, the valuation order, and the rule that a request from the Operator is not an instruction 
+G16 
+Float ownership not stated 
+section 11: the Contractor shows the float it holds against the first meal service, and the freeze date is named as the earlier and less familiar of the two governing dates 
+G17 
+No sustainability requirement 
+section 16: a predicted consumption declaration evaluated at tender and checkable against the sub-metering in operation, whole-life equipment selection, food waste provision, and heat recovery priced as an option 
+G18 
+No testing regime for the thing that fails 
+6.7: THE TEST MEAL. 124 covers through the servery followed by a full wash-up, witnessed. Every other test is of a component; this one is of the kitchen 
+G19 
+Missing drainage detail 
+6.11: falls, gullies, rodding access, and a grease separator sited so it can be emptied without entering the kitchen — which is the commonest cause of a kitchen closing unexpectedly 
+G20 
+No obsolescence or support period 
+15.3: stated spares availability, end-of-life notice, open or proprietary controls, deployment plus 24 months, and no item whose function dies with a subscription 
+G21 
+No inspection checklist 
+section 9: 22 criteria each with the method of verification, and the test meal as the acceptance event 
+G22 
+No definitions 
+section 2: 13 terms, including the E and C basis codes, the freeze date, and what a cover is — because a cover is the only unit that sizes a kitchen 
+G23 
+No ethical labour requirement 
+section 17: the Employer Pays Principle, flow-down unamended, private worker interviews, and disclosure of the place of manufacture — catering equipment is made globally and an undisclosed factory cannot be audited 
+G24 
+Clauses with no measurable requirement 
+Every performance criterion carries a figure and a verification method; every equipment duty is stated in covers, minutes, temperature or rate; the areas sum to the 610 m² shell exactly 
+G25 
+No security requirement 
+6.18: no delivery before the building is lockable, sealed deliveries with recorded seal numbers, secure storage at the Contractor's cost, and key control from first delivery rather than from handover 
+ 
+21  Appendices 
+The P2 appendices apply to this package as they stand and are not reissued — duplicating a figure creates two versions of it. 
+ 
+Appendix 
+Status 
+1 
+Activity schedule 
+Section 19 is the structure; the schedule is issued with the ITT 
+2 
+Fire strategy 
+P2 Appendix 2. The extract failure mode at 6.12 is confirmed against it at F-11 
+3 
+Bed demand curve and the day-shift proportion 
+P2 Appendix 6. Section 3 is derived from it 
+4 
+Design loadings and service supply characteristics 
+P2 Appendix 8 — TO BE UPDATED to carry the kitchen floor loading at 7.3 before P2 manufactures 
+5 
+Asset information requirements and the data schema 
+P2 Appendix 11 applies unamended 
+6 
+Social value framework 
+P2 Appendix 12 applies unamended 
+7 
+Planning consent and site rules 
+P2 Appendix 3. The plant noise limit at 6.16 is taken from it

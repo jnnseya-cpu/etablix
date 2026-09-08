@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Audit of the P5 Employer's Requirements.
 
-    python3 qa-p5.py
+    python3 qa-p3.py
 
 Checks
   1  Every clause number sits under the section it claims.
@@ -20,7 +20,7 @@ import zipfile, re, sys, collections, subprocess, json
 from xml.etree import ElementTree as ET
 
 W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
-PATH = "ETABLIX-ER-P5-FM-and-Operation.docx"
+PATH = "ETABLIX-ER-P3-Kitchen.docx"
 
 root = ET.fromstring(zipfile.ZipFile(PATH).read("word/document.xml"))
 def ptext(p): return "".join(t.text or "" for t in p.iter(f'{{{W}}}t'))
@@ -42,7 +42,7 @@ def walk(el):
                     tbl[2] += 1; walk(tc)
 walk(root.find(f'{{{W}}}body'))
 text = " \n".join(paras)
-open("p5.txt", "w", encoding="utf-8").write(text)
+open("p3.txt", "w", encoding="utf-8").write(text)
 fails = []
 
 # 1 clause under its own section
@@ -63,9 +63,10 @@ if stray: fails.append(("3  unresolved reference tokens on the page", sorted(set
 
 # 2 dangling
 js = lambda f: open(f, encoding='utf-8').read()
-services = set(re.findall(r'\["(S-\d\d)"', js('p5-content.cjs')))
-kpis = set(re.findall(r'\["(K\d\d)"', js('p5-content.cjs')))
-ifaces = set(re.findall(r'\["(IF-\d\d)"', js('p5-spec.cjs')))
+equip = set(re.findall(r'\["(EQ-\d\d)"', js('p3-content.cjs')))
+freeze = set(re.findall(r'\["(F-\d\d)"', js('p3-extra.cjs')))
+
+ifaces = set(re.findall(r'\["(IF-\d\d)"', js('p3-spec.cjs')))
 dang = collections.Counter()
 UNITS = r'(?:%|mm|m|kN|°C|dBm|l/s|bar|hours?|FTE)'
 # A clause reference preceded by "P2" belongs to the other document and is not
@@ -77,33 +78,43 @@ for m in re.finditer(r'(?:at|per|under|to|see|in|and|,|;)\s(\d{1,2}\.\d{1,2})(?!
 for m in re.finditer(r'\bsections? (\d{1,2})\b', text, re.I):
     if 'Modern Slavery' in text[max(0, m.start() - 120):m.start()]: continue
     if m.group(1) not in sections: dang["section " + m.group(1)] += 1
-for m in re.finditer(r'\b(S-\d\d)\b', text):
-    if m.group(1) not in services: dang["service " + m.group(1)] += 1
-for m in re.finditer(r'\b(K\d\d)\b', text):
-    if m.group(1) not in kpis: dang["KPI " + m.group(1)] += 1
+for m in re.finditer(r'\b(EQ-\d\d)\b', text):
+    if m.group(1) not in equip: dang["equipment " + m.group(1)] += 1
+for m in re.finditer(r'\b(F-\d\d)\b', text):
+    if m.group(1) not in freeze: dang["freeze item " + m.group(1)] += 1
+
 for m in re.finditer(r'\b(IF-\d\d)\b', text):
     if m.group(1) not in ifaces: dang["interface " + m.group(1)] += 1
 if dang: fails.append(("2  dangling references", dict(dang)))
 
-# 4 & 5 from the data
+# 4 & 5  from the data: the areas must sum to the shell, the covers to the demand,
+#        and every equipment line must carry a basis code with a reason where prescribed.
 out = subprocess.run(["node", "-e", """
-const c=require('./p5-content.cjs');
-const w=c.kpis.reduce((s,k)=>s+k[5],0);
-const uncoded=c.services.filter(s=>!['O','I'].includes(s[3])).map(s=>s[0]);
-const inputsNoReason=c.services.filter(s=>s[3]==='I' && (!s[4] || s[4].length<20)).map(s=>s[0]);
-console.log(JSON.stringify({w, uncoded, inputsNoReason, O:c.services.filter(s=>s[3]==='O').length, I:c.services.filter(s=>s[3]==='I').length}));
+const c=require('./p3-content.cjs');
+const eq=c.equipment.filter(r=>r[3]);
+const uncoded=eq.filter(r=>!['E','C'].includes(r[3])).map(r=>r[0]);
+const noNote=eq.filter(r=>!r[4] || r[4].length<3).map(r=>r[0]);
+const areas=c.areas.filter(a=>a[0]!=='TOTAL').reduce((s,a)=>s+Number(a[1]),0);
+const stated=Number(c.areas.find(a=>a[0]==='TOTAL')[1]);
+const covers=c.demand.reduce((s,d)=>s+Number(d[4]),0);
+console.log(JSON.stringify({uncoded,noNote,areas,stated,covers,
+  E:eq.filter(r=>r[3]==='E').length, C:eq.filter(r=>r[3]==='C').length, n:eq.length}));
 """], capture_output=True, text=True)
 d = json.loads(out.stdout)
-if d["w"] != 100: fails.append(("4  KPI weightings must total 100", d["w"]))
-if d["uncoded"]: fails.append(("5  service with no O/I basis code", d["uncoded"]))
-if d["inputsNoReason"]:
-    fails.append(("5  input-specified service with no stated reason", d["inputsNoReason"]))
+periods = re.findall(r'\["(SP\d)"', js('p3-content.cjs'))
+if d["uncoded"]: fails.append(("4  equipment line with no E/C basis code", d["uncoded"]))
+if d["areas"] != d["stated"]:
+    fails.append(("5  the area schedule does not sum to its own total", f"{d['areas']} vs {d['stated']}"))
+if d["stated"] != 610:
+    fails.append(("5  the area schedule does not match the P2 shell (610 m²)", d["stated"]))
+if d["covers"] != 490:
+    fails.append(("5  the service periods do not sum to the stated daily covers", d["covers"]))
 
 # 6 measurable values in section 4
 spec_bodies = {}
 cur = None
 for t in paras:
-    m = re.match(r'^(4\.\d{1,2})\s\s', t)
+    m = re.match(r'^(6\.\d{1,2})\s\s', t)
     if t in heads and m: cur = m.group(1); spec_bodies[cur] = []
     elif t in heads and re.match(r'^\d', t): cur = None
     elif cur: spec_bodies[cur].append(t)
@@ -131,7 +142,7 @@ doubled = re.findall(r'[Ss]ection section \d+', text)
 if doubled: fails.append(("3b  doubled section reference", sorted(set(doubled))))
 
 # 8 register complete
-reg = set(re.findall(r'\["(G\d\d)"', js('p5-close.cjs')))
+reg = set(re.findall(r'\["(G\d\d)"', js('p3-close.cjs')))
 missing = {f"G{i:02d}" for i in range(1, 26)} - reg
 if missing: fails.append(("8  register finding not answered", sorted(missing)))
 
@@ -155,9 +166,11 @@ try:
     bad = [n for n, pat in shared if re.search(pat, text) and not re.search(pat, p2t)]
     if bad: fails.append(("9  value in P5 that P2 does not carry", bad))
     # the priority claim itself
-    if re.search(r'same three used in the P2 defects regime', text):
-        fails.append(("9  P5 claims its priority TIMES match P2's; they do not and should not",
-                      "say the definitions match and the times differ, and why"))
+    # P3 states its priority times ARE the same as P2's; check that claim is true.
+    if re.search(r'DELIBERATELY THE SAME AS THE P2 DEFECTS REGIME', text):
+        for want in (r'4 HOURS', r'8\.', r'5 working days'):
+            if not re.search(want, text):
+                fails.append(("9  P3 claims its priority times match P2's but does not state them", want))
 except FileNotFoundError:
     pass
 
@@ -174,7 +187,8 @@ for i, t in enumerate(root.iter(f'{{{W}}}tbl'), 1):
 if geo: fails.append(("7  table geometry", geo))
 
 print(PATH)
-print(f"  sections {len(sections)}   clauses {len(clauses)}   services {len(services)} ({d['O']} output / {d['I']} input)   KPIs {len(kpis)} totalling {d['w']}%   interfaces {len(ifaces)}")
+print(f"  sections {len(sections)}   clauses {len(clauses)}   equipment {d['n']} ({d['E']} prescribed / {d['C']} contractor-designed)   freeze items {len(freeze)}   interfaces {len(ifaces)}")
+print(f"  areas {d['areas']} m² = the P2 shell   covers {d['covers']}/day across {len(periods)} service periods")
 print(f"  tables {tbl[0]}   rows {tbl[1]}   cells {tbl[2]}   words {len(text.split())}")
 print()
 if not fails:
