@@ -1,0 +1,431 @@
+<title>ETABLIX Platform Readiness</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f7f5f0;
+    --surface: #fdfcf9;
+    --ink: #1d232a;
+    --muted: #66707c;
+    --gold: #9c7a3c;
+    --gold-soft: #f0e9db;
+    --line: #e2ddd2;
+    --post-bg: #ffffff;
+    --good: #1f7a4d;
+  }
+  :root:not([data-theme="light"]) { }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14181d;
+      --surface: #1b2129;
+      --ink: #e8e5de;
+      --muted: #97a0aa;
+      --gold: #c9a96a;
+      --gold-soft: #2a2418;
+      --line: #2a323d;
+      --post-bg: #10141a;
+      --good: #4cb97f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14181d;
+    --surface: #1b2129;
+    --ink: #e8e5de;
+    --muted: #97a0aa;
+    --gold: #c9a96a;
+    --gold-soft: #2a2418;
+    --line: #2a323d;
+    --post-bg: #10141a;
+    --good: #4cb97f;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Inter", -apple-system, "Segoe UI", sans-serif;
+    font-size: 15.5px;
+    line-height: 1.65;
+    margin: 0;
+    padding: 0 20px 80px;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  h1, h2, h3, .daytag { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; text-wrap: balance; }
+
+  header { padding: 52px 0 8px; }
+  .eyebrow {
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: 0.82rem; font-weight: 700; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold); margin: 0 0 10px;
+  }
+  h1 { font-size: 3rem; font-weight: 800; line-height: 1.02; margin: 0 0 14px; letter-spacing: -0.01em; }
+  .intent { color: var(--muted); max-width: 58ch; margin: 0; }
+
+  .weekbar {
+    display: flex; flex-wrap: wrap; gap: 0;
+    border: 1px solid var(--line); background: var(--surface);
+    margin: 30px 0 0; border-radius: 4px; overflow: hidden;
+  }
+  .weekbar div { flex: 1 1 140px; padding: 16px 20px; border-right: 1px solid var(--line); }
+  .weekbar div:last-child { border-right: 0; }
+  .weekbar b {
+    display: block; font-family: "Barlow Condensed", sans-serif;
+    font-size: 1.5rem; font-weight: 700; line-height: 1.1;
+  }
+  .weekbar span { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  section { margin-top: 52px; }
+  h2 {
+    font-size: 1.85rem; font-weight: 700; margin: 0 0 6px;
+    padding-top: 18px; border-top: 2px solid var(--ink);
+  }
+  .h2sub { color: var(--muted); margin: 0 0 22px; max-width: 60ch; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 10px 14px 10px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 700;
+    font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+  }
+  td:first-child { white-space: nowrap; font-weight: 600; padding-right: 22px; font-variant-numeric: tabular-nums; }
+  .tscroll { overflow-x: auto; }
+
+  .day { margin-top: 44px; border: 1px solid var(--line); background: var(--surface); border-radius: 4px; }
+  .dayhead {
+    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+    padding: 18px 26px 14px; border-bottom: 1px solid var(--line);
+  }
+  .daytag {
+    font-size: 0.85rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--gold);
+  }
+  .dayhead h3 { font-size: 1.55rem; font-weight: 700; margin: 0; flex: 1; }
+  .daytime { font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .daybody { padding: 20px 26px 26px; }
+  .daybody p { margin: 0 0 14px; }
+  .why { color: var(--muted); font-size: 0.95rem; }
+  .why b { color: var(--ink); }
+
+  .postblock { position: relative; margin: 18px 0 6px; }
+  .postlabel {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: "Barlow Condensed", sans-serif; font-size: 0.8rem; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .copybtn {
+    font-family: "Inter", sans-serif; font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 0.04em; text-transform: none;
+    background: none; border: 1px solid var(--gold); color: var(--gold);
+    padding: 4px 14px; border-radius: 3px; cursor: pointer;
+  }
+  .copybtn:hover, .copybtn:focus-visible { background: var(--gold-soft); outline: none; }
+  .copybtn.done { border-color: var(--good); color: var(--good); }
+  pre.post {
+    margin: 0; padding: 20px 22px;
+    background: var(--post-bg); border: 1px solid var(--line);
+    border-left: 3px solid var(--gold); border-radius: 3px;
+    font-family: "Inter", sans-serif; font-size: 0.93rem; line-height: 1.65;
+    white-space: pre-wrap; overflow-x: auto;
+  }
+  .after {
+    margin-top: 16px; padding: 14px 18px;
+    background: var(--gold-soft); border-radius: 3px; font-size: 0.9rem;
+  }
+  .after b { font-family: "Barlow Condensed", sans-serif; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.82rem; }
+  .after ul { margin: 6px 0 0; padding-left: 18px; }
+  .after li { margin: 3px 0; }
+  .visual { font-size: 0.9rem; color: var(--muted); margin-top: 12px; }
+  .visual b { color: var(--ink); }
+
+  .rules { list-style: none; margin: 0; padding: 0; counter-reset: r; }
+  .rules li {
+    padding: 13px 0 13px 40px; border-bottom: 1px solid var(--line);
+    position: relative; counter-increment: r;
+  }
+  .rules li::before {
+    content: counter(r);
+    position: absolute; left: 0; top: 13px;
+    font-family: "Barlow Condensed", sans-serif; font-weight: 800; font-size: 1.15rem;
+    color: var(--gold); font-variant-numeric: tabular-nums;
+  }
+  .rules b { font-weight: 600; }
+
+  a { color: var(--gold); }
+  footer { margin-top: 60px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.85rem; }
+  @media (max-width: 560px) {
+    h1 { font-size: 2.3rem; }
+    .dayhead, .daybody { padding-left: 18px; padding-right: 18px; }
+  }
+</style>
+
+<div class="wrap">
+<header>
+  <p class="eyebrow">ETABLIX &middot; Platform</p>
+  <h1>Not fit to commit to, and why</h1>
+  <p class="intent">You are right. What exists is a working prototype that demonstrates the idea end to end, and it is not a system to stake a business on. This is the register of what stands between the two, written the way a package gets reviewed rather than the way software usually gets excused. Every finding below was reproduced, not inferred.</p>
+  <div class="weekbar">
+    <div><b>3</b><span>Fatal</span></div>
+    <div><b>7</b><span>Major</span></div>
+    <div><b>5</b><span>Significant</span></div>
+    <div><b>3</b><span>Moderate</span></div>
+  </div>
+</header>
+
+<section>
+  <h2>The honest diagnosis</h2>
+  <p class="h2sub">Not "there were some bugs". A description of how it came to be this way.</p>
+  <p>This was built feature-first and at speed, and every feature was verified on its own, in sequence, with every dependency healthy. That is why the test suite is green and why it told you nothing useful.</p>
+  <p>Every fault that actually reached you was of the opposite kind. A mail server that never answered held a request open until the browser gave up, so raising an invoice looked like a failure that had not happened. A container recreated mid-work destroyed six passes of reasoning because only the progress dots were being written down. A document sent twice was appended rather than replaced, so the same evidence would have been counted twice. A salutation that two pieces of code both thought they owned put "Dear Dear" on every email a customer received.</p>
+  <p><b>None of those are feature defects. They are integration and operating defects</b>, and they are invisible to the kind of testing that was done. That is the gap, and it is a gap in method rather than in effort.</p>
+  <p>The deeper issue underneath them is that the data store cannot survive the way it is deployed. That is F1 and F2, and until they are closed nothing else on this list is worth doing.</p>
+</section>
+
+<section>
+  <h2>The register</h2>
+  <p class="h2sub">Severity is by consequence to you, not by effort to fix. Fatal means a client would lose data, lose the service, or be given a number that cannot be defended.</p>
+  
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#c0392b">Fatal · F1</span>
+    <h3>The database can be destroyed by a routine deploy</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it is.</b> Every change rewrites the whole of <code>db.json</code> with a single non-atomic <code>writeFileSync</code>. There is no signal handling anywhere in the server, so <code>docker stop</code> kills the process instantly — possibly mid-write.</p>
+    <p><b>Why it matters.</b> I truncated <code>db.json</code> to simulate a kill during a write. The server refused to boot: <code>SyntaxError: Unterminated string in JSON at position 39890</code>. The site is then down and every engagement, invoice, checklist answer and document record is unreadable. There is no atomic write, no write-ahead copy and no recovery path.</p>
+    <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Write to a temporary file and rename it — rename is atomic on the same filesystem. Handle SIGTERM: stop accepting connections, finish what is in flight, flush, exit. Keep the previous good copy and fall back to it on a parse failure rather than refusing to start.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#c0392b">Fatal · F2</span>
+    <h3>A JSON file is not a database for a business that issues invoices</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it is.</b> One file, rewritten in full on every mutation. No transactions, no schema, no constraints, no migrations, no concurrent-write safety.</p>
+    <p><b>Why it matters.</b> 179 KB today, so speed is not the problem — integrity is. Nothing prevents a half-written record, a lost update or a field that silently changes shape between versions. Invoice numbers, VAT treatment and an audit trail are the things a client will one day dispute, and this store cannot prove what it held on a given date.</p>
+    <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Move to PostgreSQL with real migrations. The store module was written to be swapped without touching the routes, so this is contained work — but it is the work, and nothing else on this list matters if the data underneath is not trustworthy.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#c0392b">Fatal · F3</span>
+    <h3>Backups are documented, not proven</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it is.</b> <code>deploy/backup.sh</code> exists and the runbook tells you to install it as a nightly cron. Nothing in the platform checks that it is installed, that it ran, or that the archive can be restored.</p>
+    <p><b>Why it matters.</b> Nightly at best means up to twenty-four hours of loss. An untested backup is not a backup, and today the only copy of every client record is one file in one container on one box.</p>
+    <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Prove a restore, on a schedule, automatically: back up, restore into a scratch instance, boot it, assert the row counts, and alert if any step fails. Copy the archive off the box — a backup on the same machine does not survive the failure that destroys the machine.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#9c7a3c">Major · M1</span>
+    <h3>Nothing shuts down gracefully</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it is.</b> No SIGTERM or SIGINT handler. In-flight HTTP requests and all background work die the moment the container stops.</p>
+    <p><b>Why it matters.</b> This is the mechanism behind every diagnostic run you lost. It is also what makes F1 possible. Pass persistence and the deploy deferral I added reduce the damage; they do not close the gap.</p>
+    <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> A shutdown sequence: stop the listener, wait for in-flight requests with a timeout, mark any running pipeline as interrupted so it can be resumed, flush the store, then exit.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#9c7a3c">Major · M2</span>
+    <h3>The deploy has no gate, no rollback and no version</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it is.</b> Auto-deploy pulls, rebuilds and replaces the container. The health check runs after the switch and only prints a warning if it fails.</p>
+    <p><b>Why it matters.</b> You cannot tell which build is live, you cannot go back, and a broken build replaces a working one with nothing to stop it. Every diagnosis today needed me to reproduce locally because there was no way to ask the live site what it was running.</p>
+    <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Build, start the new container alongside, health-check it, switch only if it passes, keep the previous image and provide a one-command rollback. Stamp the commit into <code>/api/health</code>.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#9c7a3c">Major · M3</span>
+    <h3>There is no staging environment</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it is.</b> Every change went straight to the box you were testing on.</p>
+    <p><b>Why it matters.</b> This is the single biggest process failure of the day and it is mine. Repeated pushes recreated the container under you and destroyed run after run. No amount of code quality survives deploying to production while someone is using it.</p>
+    <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> A staging instance with its own data, and auto-deploy pointed there. Production deploys become deliberate, from a tag, at a time you choose.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#9c7a3c">Major · M4</span>
+    <h3>The error alarm depends on the channel that is broken</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it is.</b> An uncaught exception calls <code>reportError</code>, which sends an email.</p>
+    <p><b>Why it matters.</b> Mail is exactly what has been failing: DKIM revoked, DMARC silent, and for a period an SMTP host that never answered. The alarm for the building is wired to the fuse that blew.</p>
+    <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Alerts must not depend on one channel. Write to a log the platform exposes, and add a second route out — a webhook or SMS — that does not share a failure mode with email.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#9c7a3c">Major · M5</span>
+    <h3>An uncaught exception does not stop the process</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it is.</b> The handler logs, attempts an alert, and carries on.</p>
+    <p><b>Why it matters.</b> After an uncaught exception the process state is undefined. Continuing to serve requests from it can corrupt exactly the data F1 is already threatening.</p>
+    <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Log, alert, then exit non-zero and let the supervisor restart cleanly. Continuing must be a deliberate exception, never the default.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#9c7a3c">Major · M6</span>
+    <h3>Secrets sit in the data file</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it is.</b> The AI provider key is stored in the settings collection inside <code>db.json</code>, in plain text — and therefore inside every backup archive.</p>
+    <p><b>Why it matters.</b> Anyone with a copy of a backup has the key.</p>
+    <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Secrets belong in the environment or a secret store, never in the data file, and never in a backup that gets copied around.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#9c7a3c">Major · M7</span>
+    <h3>Public endpoints have no rate limiting</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it is.</b> The human check stops naive bots. Nothing limits volume.</p>
+    <p><b>Why it matters.</b> One script can fill the enquiry table, the notification feed and the disk.</p>
+    <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Per-IP and global limits on every public POST, with the limit stated in the response.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#66707c">Significant · S1</span>
+    <h3>Nothing is watching</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it is.</b> No uptime monitoring, no alert on a failed run, no alert on failed mail, no error surface on the live box.</p>
+    <p><b>Why it matters.</b> You found the junked enquiries, the hung Confirm-the-start, and the destroyed runs. The platform found none of them. That is the difference between a prototype and something you can commit to.</p>
+    <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Uptime monitoring from outside the box. An error and event log visible in the Control Desk. An alert when a run fails, when mail fails, and when a backup fails.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#66707c">Significant · S2</span>
+    <h3>Growth is unbounded in places</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it is.</b> Agent runs and automation runs are trimmed. Notifications are not, and the <code>events</code> array on an engagement grows for the life of the engagement inside a file that is rewritten in full on every change.</p>
+    <p><b>Why it matters.</b> Slow, quiet, and it makes F1 worse every week.</p>
+    <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Cap or archive every append-only collection, and move the audit trail out of the row it audits.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#66707c">Significant · S3</span>
+    <h3>Test coverage is feature-shaped, not failure-shaped</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it is.</b> Around 170 assertions across nine files, all green — while four production faults sat underneath them.</p>
+    <p><b>Why it matters.</b> Everything was tested in isolation, in sequence, with every dependency healthy. The faults that reached you were the opposite: a dependency that never answered, a process killed mid-work, a document sent twice, a template two callers both thought they owned. Green tests told you nothing about any of it.</p>
+    <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Test the failure modes explicitly: a dependency that hangs, a dependency that errors, a process killed at each step, the same request sent twice, requests arriving together. The three tests I added this afternoon are that shape and they are the pattern to follow.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#66707c">Significant · S4</span>
+    <h3>Mail authentication is still broken at the DNS</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it is.</b> Both DKIM selectors publish an empty key, which is a revocation. DMARC has no reporting address.</p>
+    <p><b>Why it matters.</b> Every enquiry notification fails authentication. Fixed in the application; the DNS is still to change, and nothing checks it continuously.</p>
+    <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Regenerate the DKIM key, add a DMARC reporting address, and run <code>tools/mail-doctor.mjs</code> on a schedule so a silent regression is caught by the platform rather than by a customer.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#66707c">Significant · S5</span>
+    <h3>Recovery is manual and undocumented</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it is.</b> There is no runbook step for a corrupt store, a failed deploy, a stuck run or a lost invoice number.</p>
+    <p><b>Why it matters.</b> When it goes wrong at 07:00 you will be reading source code.</p>
+    <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> A recovery runbook with the actual commands, tested by following it.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#66707c">Moderate · N1</span>
+    <h3>Whole-array writes are unsafe by construction</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it is.</b> Handlers replace <code>checklist</code>, <code>documents</code> and <code>events</code> wholesale after reading them.</p>
+    <p><b>Why it matters.</b> I fired six concurrent uploads and all six survived, because those handlers happen to be synchronous. Adding a single <code>await</code> anywhere between the read and the write reintroduces silent lost updates, and nothing would catch it.</p>
+    <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Append and patch at the store level rather than reading and replacing arrays in route code.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#66707c">Moderate · N2</span>
+    <h3>No per-route body limits or request timeouts</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it is.</b> Upload limits exist; request timeouts do not.</p>
+    <p><b>Why it matters.</b> A slow client can hold a connection indefinitely.</p>
+    <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Server-level request timeout and explicit limits per route.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#66707c">Moderate · N3</span>
+    <h3>No retention or deletion path for client documents</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it is.</b> Client files are kept indefinitely with no delete.</p>
+    <p><b>Why it matters.</b> A client asking for their data to be removed cannot be answered today.</p>
+    <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> A retention policy and a deletion path, with the deletion recorded.</p>
+  </div>
+</div>
+</section>
+
+<section>
+  <h2>What production ready would mean</h2>
+  <p class="h2sub">Written as acceptance criteria, so it is a gate rather than an opinion. Nothing here is met today.</p>
+  <ol class="rules">
+    <li><b>The store survives a kill at any moment.</b> A test kills the process at a hundred random points during sustained writes; after every one, the service boots and no committed record is missing.</li>
+    <li><b>A restore is proved automatically.</b> A nightly job backs up, restores into a scratch instance, boots it, checks the counts, and raises an alarm if any step fails.</li>
+    <li><b>A deploy cannot take the service down.</b> The new build is health-checked before the switch, the old image is kept, rollback is one command, and the live commit is readable from <code>/api/health</code>.</li>
+    <li><b>Every external dependency can fail without taking a request with it.</b> Tested by making each one hang, error and disappear in turn, with the service still answering.</li>
+    <li><b>Money is provably correct.</b> Invoice numbering cannot collide or skip; no invoice can be raised twice for one event; VAT treatment is asserted per case; the ledger reconciles to the engagement fee to the penny.</li>
+    <li><b>Nothing is discovered by a customer first.</b> Uptime, failed runs, failed mail and failed backups all raise an alert, and the alert path does not share a failure mode with what it is watching.</li>
+    <li><b>A soak test runs the whole circle repeatedly for twenty-four hours</b> — with restarts, a dead mail server and a slow model injected — and finishes with the data intact.</li>
+    <li><b>Someone other than me can operate it</b> from a runbook that has been followed start to finish by someone who did not write it.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>How I would do it</h2>
+  <p class="h2sub">Four stages. Each one ends in something you can check, and I would not move to the next until you have.</p>
+  <div class="tscroll">
+  <table>
+    <tr><th>Stage</th><th>What it does</th><th>Done when</th></tr>
+    <tr><td><b>0 · Stop deploying into your test</b></td><td>Turn auto-deploy off, or point it at a staging instance. Nothing reaches the live box while you are using it.</td><td>You can test for an hour without anything changing underneath you.</td></tr>
+    <tr><td><b>1 · Make the data safe</b></td><td>Atomic writes, graceful shutdown, keep-last-good-copy, proved restore, secrets out of the data file.</td><td>The kill test at criterion 1 passes, and a restore has been demonstrated.</td></tr>
+    <tr><td><b>2 · Real database</b></td><td>PostgreSQL, migrations, constraints, transactions on the money paths. The route layer barely changes.</td><td>The whole circle runs on it, and the migration is reversible.</td></tr>
+    <tr><td><b>3 · Prove it under failure</b></td><td>Failure-shaped tests for every dependency, the deploy gate and rollback, monitoring and alerting on a channel that is not email.</td><td>Criteria 3, 4 and 6, and the twenty-four-hour soak at 7.</td></tr>
+    <tr><td><b>4 · Hand over</b></td><td>Runbook, recovery procedures, retention policy, and a walkthrough by someone who did not build it.</td><td>Criterion 8.</td></tr>
+  </table>
+  </div>
+  <p class="visual"><b>An honest note on scale.</b> This is 11,400 lines of backend and a full front end. Stages 1 and 2 are the substantial ones; 3 is where most of the real confidence is bought. I would rather tell you that now than discover it at stage 3.</p>
+</section>
+
+<section>
+  <h2>What I would ask of you</h2>
+  <ol class="rules">
+    <li><b>Decide whether this is worth continuing</b> before I write another line. The prototype proves the idea works end to end — the diagnostic reads a real client pack, the portal invoices itself, the documents are genuinely good. Whether the platform is the right thing to harden, or whether the documents and the method are the product and the platform should be bought rather than built, is a commercial judgement and it is yours.</li>
+    <li><b>Do not test on the live box again until stage 0 is done.</b> That was the cause of today, and it was mine.</li>
+    <li><b>Fix the DKIM key</b> whatever you decide. That one costs nothing and it is losing you enquiries right now.</li>
+  </ol>
+</section>
+
+<footer>ETABLIX &mdash; Integrated Site Services &middot; Part of Groupe Nseya &middot; Platform readiness register &middot; 8 September 2026</footer>
+</div>
