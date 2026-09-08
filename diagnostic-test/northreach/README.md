@@ -17,7 +17,7 @@ The Ridgeway pack tested whether the twelve deliverables could be produced.
 This one tests whether they are produced **well**. It is built so that the
 valuable findings cannot be reached by reading any single document:
 
-- Seventeen documents instead of eight, three of them stale, one an email
+- Eighteen documents instead of eight, three of them stale, one an email
   chain, one a risk log that has not been reviewed since the decisions that
   invalidated it.
 - Two drawings, a Gantt print and a spreadsheet — because a real client
@@ -35,7 +35,7 @@ valuable findings cannot be reached by reading any single document:
 - A commercial direction from the client's Board that a good adviser should
   decline, and say why.
 
-There are **33 planted findings** in `_grading/SCORING-KEY.md`, ranked by how
+There are **33 planted findings** in `SCORING-KEY.md`, one level above this folder — it is deliberately NOT in the pack, so that uploading the whole pack cannot hand the agent the answers, ranked by how
 many documents you have to hold at once to see them. Do not open the key
 until the run has finished.
 
@@ -86,7 +86,7 @@ goes out early is that somebody forwards the PDF.
 
 ## Grading the run
 
-`_grading/SCORING-KEY.md` lists the planted findings in four tiers, with the
+`SCORING-KEY.md`, one level above this folder — it is deliberately NOT in the pack, so that uploading the whole pack cannot hand the agent the answers lists the planted findings in four tiers, with the
 documents each one requires. Score the report against it:
 
 - **Tier 1** (single document) — all six should be found. Any miss is a fault.

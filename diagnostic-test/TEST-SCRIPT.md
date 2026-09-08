@@ -1,9 +1,10 @@
 # Testing the whole circle
 
 Twenty minutes, on the live site, using `NORTHREACH-diagnostic-pack.zip`.
-It is a fair test: the pack contains **33 planted findings** and the scoring
-key at `northreach/_grading/SCORING-KEY.md` says what they are. Do not read
-the key until after you have read the report.
+It is a fair test: the pack contains **33 planted findings** and `SCORING-KEY.md`
+says what they are. The key sits beside the zip and never inside it, so
+uploading the whole pack cannot hand the agent the answers. Do not read it
+until after you have read the report.
 
 ## Before you start
 
@@ -25,13 +26,15 @@ you and the panel has a **Copy** button.
 checklist, the ten-working-day clock note, and the deposit and balance both
 stated with their reasoning.
 
-Unzip the pack. Work down the list, attaching the documents:
+Unzip the pack. Work down the list, attaching the documents. **Every file in the
+pack has a home on this list** — if one is left over, something is wrong, because
+fifteen of the thirty-three planted findings need `inputs/01` or `inputs/03`:
 
 | Checklist line | What to attach from the pack |
 |---|---|
-| Project programme | `programme/*-gantt.pdf` **and** `programme/*-tasks.csv` |
+| Project programme | `programme/*-gantt.pdf`, `programme/*-tasks.csv` **and** `inputs/01-project-programme.md` |
 | Workforce forecast | `inputs/02-workforce-forecast.md` |
-| Proposed site layout | both files in `drawings/` |
+| Proposed site layout | both files in `drawings/` **and** `inputs/03-proposed-site-layout.md` |
 | Logistics plan | `inputs/04-existing-logistics-plan.md` |
 | Temporary services | `inputs/05-…` and `annexes/C-…` |
 | Procurement packages | `registers/*.xlsx` and `inputs/06-…` |
@@ -77,9 +80,9 @@ approval. Mark it received; the engagement closes; the two invoices sum to
 ## Then judge it
 
 Read the report first. Write down what you think it found. **Then** open
-`northreach/_grading/SCORING-KEY.md` and mark it against the 33 planted
-findings — how many it caught, how many it invented, and whether the ones it
-caught are stated well enough to put in front of a client.
+`SCORING-KEY.md` and mark the report against the 33 planted findings — how many
+it caught, how many it invented, and whether the ones it caught are stated well
+enough to put in front of a client.
 
 The four that matter most are the contradictions between two documents
 written weeks apart by different people. Anything can list what is in a
@@ -88,10 +91,24 @@ planning condition in a different file is the thing worth paying for.
 
 ## If something breaks
 
-The same circle runs headless:
+First check the pack itself. The zip is generated from `northreach/`, so
+build it and audit it in one step:
 
+    ./diagnostic-test/build-pack.sh
+
+Eight checks: the zip matches the folder, the answer key is not inside it,
+the zip is not stale, every document has a home on the checklist above, the
+headless test uploads
+the same set you do, the upload gate accepts every file type in the pack, and
+the counts the pack asserts about itself are true.
+
+Then the circle itself, headless — it needs a running server and either a real
+key or the mock:
+
+    PORT=3311 SITE_URL=http://localhost:3311 node backend/server.js &
     node backend/test/circle.e2e.mjs
 
-20 assertions, from the engagement to the closed account. If the live site
-misbehaves, run that first — it will tell you whether the fault is the
+20 assertions, from the engagement to the closed account. It writes to the
+database it runs against, so point it at a scratch copy. If the live site
+misbehaves, run these two first — they tell you whether the fault is the
 platform or the environment.
