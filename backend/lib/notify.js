@@ -17,6 +17,10 @@ const block = (fields) =>
 /** Internal alert: new business project enquiry. */
 export function notifyLead(lead) {
   emit("enquiry.logged", {
+    // Reply goes to the enquirer, not to our own inbox. An alert about a
+    // customer that you cannot answer by pressing reply makes you retype
+    // their address out of the body, which is how enquiries get answered late.
+    replyTo: lead.email ? (lead.name ? `${lead.name} <${lead.email}>` : lead.email) : undefined,
     vars: { reference: ref("ENQ", lead.id), company: lead.company, service: lead.service },
     detailsText: [
       block({

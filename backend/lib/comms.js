@@ -27,6 +27,32 @@ const TO_INTERNAL = process.env.NOTIFY_TO || "contact@etablix.com";
 const rawFrom = process.env.NOTIFY_FROM || "no-reply@etablix.com";
 const FROM = rawFrom.includes("<") ? rawFrom : `ETABLIX <${rawFrom}>`;
 
+// The failure that puts an enquiry in the junk box is not visible from here:
+// the mail is accepted by the SMTP server and then filed as a forgery by the
+// recipient, because a message claiming this domain could not be authenticated
+// as this domain. The two configurations that cause it are worth shouting
+// about at boot, when somebody is watching the log.
+function auditSenderAlignment() {
+  const fromDomain = (rawFrom.match(/@([^>\s]+)/) || [])[1];
+  if (!process.env.SMTP_HOST) {
+    console.warn("[mail] No SMTP_HOST set — every message is written to outbox.log and nobody receives it.");
+    return;
+  }
+  const authDomain = (String(process.env.SMTP_USER || "").match(/@(.+)$/) || [])[1];
+  if (authDomain && fromDomain && authDomain.toLowerCase() !== fromDomain.toLowerCase()) {
+    console.warn(
+      `[mail] SENDER MISALIGNMENT: sending as ${fromDomain} through a mailbox at ${authDomain}. ` +
+      "SPF and DKIM will not align and receiving mailboxes will treat this as a forgery. " +
+      "Run: node tools/mail-doctor.mjs " + fromDomain);
+  }
+  if (/^no-?reply@/i.test(rawFrom)) {
+    console.warn(
+      "[mail] Sending from a no-reply address. It cannot be replied to, it is a mild spam signal, " +
+      "and if the mailbox does not exist the bounces are invisible. Prefer a monitored address.");
+  }
+}
+auditSenderAlignment();
+
 const transport = process.env.SMTP_HOST
   ? nodemailer.createTransport({
       host: process.env.SMTP_HOST,
@@ -110,10 +136,18 @@ export function renderEvent(code, vars = {}, { greeting, detailsText } = {}) {
   return { subject, text, html, event: ev };
 }
 
-async function sendEmail(to, subject, text, html, attachments) {
+async function sendEmail(to, subject, text, html, attachments, replyTo) {
   if (transport) {
     try {
-      await transport.sendMail({ from: FROM, to, subject, text, html, replyTo: TO_INTERNAL, attachments });
+      // The envelope sender is stated explicitly rather than left to the
+      // provider: the Return-Path is what SPF is checked against, and a
+      // rewritten one breaks DMARC alignment silently.
+      const envelopeFrom = (rawFrom.match(/<([^>]+)>/) || [null, rawFrom])[1];
+      await transport.sendMail({
+        from: FROM, to, subject, text, html, attachments,
+        replyTo: replyTo || TO_INTERNAL,
+        envelope: { from: envelopeFrom, to },
+      });
       return { status: "sent", provider: "smtp" };
     } catch (err) {
       console.error("Email delivery failed, writing to outbox:", err.message);
@@ -134,15 +168,18 @@ function appendOutbox(to, subject, text) {
  * Fire an event across its channels.
  *   emit("supplier.approved", { email, greeting, vars, detailsText, test })
  * email: external recipient (omit → internal address). greeting: "Dear X,".
+ * replyTo: who a reply should reach. On an alert about somebody, that is
+ * usually them — an enquiry alert you can answer by pressing reply is worth
+ * more than one that replies to your own inbox.
  */
-export async function emit(code, { email, greeting, vars = {}, detailsText, test = false, attachments } = {}) {
+export async function emit(code, { email, greeting, vars = {}, detailsText, test = false, attachments, replyTo } = {}) {
   const { subject, text, html, event } = renderEvent(code, vars, { greeting, detailsText });
   const results = [];
 
   for (const channel of event.channels) {
     if (channel === "email") {
       const to = email || TO_INTERNAL;
-      const r = await sendEmail(to, subject, text, html, attachments);
+      const r = await sendEmail(to, subject, text, html, attachments, replyTo);
       results.push({ channel, to, ...r });
     } else if (channel === "inapp") {
       insert("notifications", {
