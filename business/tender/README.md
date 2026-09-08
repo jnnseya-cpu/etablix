@@ -79,14 +79,57 @@ belonged. All three are fixed. It now passes.
 
 Run it on P1, P3, P4 and P5 before they are issued rather than after.
 
+## The twelve appendices
+
+    node build-appendices.cjs     # builds them from appendices-content.cjs and appendices-b.cjs
+    python3 qa-appendices.py      # audits them, AND checks they agree with the parent ER
+
+`ETABLIX-ER-P2-Appendices.docx` — 7,789 words, 20 tables, 1,243 cells, 22 pages.
+
+**Eight are the Employer's own and are written in full**: the activity schedule
+(79 priced lines, including the all-in rates for valuing change, competed at
+tender because that is the only moment competition exists); the approved colour
+range; the bed demand curve month by month across 38 months with the four
+sectional completion dates; the design loadings and service supply data; the
+overheating criterion; the collateral warranty content schedule; the asset data
+schema; and the social value framework.
+
+**Four are produced by others** — the fire strategy, the planning consent, the
+CEMP and the abnormal load route assessment. Those are issued as *controlled
+insertion sheets*, not placeholders. Each states what the ER depends on it for,
+**what a tenderer prices until it arrives**, and what happens if the issued
+document differs from that basis. An appendix that says only "to be issued"
+transfers an unpriced risk to a tenderer, who will either price its worst case
+or qualify its return — and both defeat the evaluation model.
+
+Two things in there are worth pulling out. **Appendix 9 carries a criterion that
+is not in CIBSE TM59**: a proportion of these residents sleep between 08:00 and
+16:00, so at least 30% of RT-01 rooms are modelled as day-occupied, with the
+window closed because the village adjoins a live construction site — the
+window-open assumption that rescues most residential overheating models is not
+available here. And **Appendix 8 marks seven values TO BE CONFIRMED** with the
+assumption to design to, because a figure confirmed later at a worse value is a
+change under section 17, while a figure a tenderer assumed silently is not.
+
+### The audit catches disagreement between documents
+
+`qa-appendices.py` runs six checks, and the fourth is the one that matters: an
+appendix that contradicts the document it is an appendix *to* is worse than a
+missing one, because the missing one is a known gap and the contradiction gets
+priced. It compares fourteen shared values across both files, and asserts that
+peak bed demand equals the room schedule (225 = 199 + 12 + 14) and that the
+sectional completions sum to it.
+
+It found two real faults during the build. The bed curve needed 62 beds in month
+5 when only 60 would have been complete — the section sizes were wrong, not the
+curve. And the prose said the peak was reached in month 13 when the data said
+15; there is now a check that reads the sentence and compares it against the
+array, so the two cannot drift apart again.
+
 ## What this still is not
 
 **One package of five.** A full tender pack is five of these plus the ITT, the
 pricing schedules and the drawings. This is a fifth of a pack.
-
-**The appendices are named, not written.** Twelve are listed at section 20 and
-none exists. Appendices 10, 11 and 12 are new at Rev B and the document says
-explicitly what a tenderer should price on until they are issued.
 
 **Not opened in Word.** LibreOffice cannot load a .docx in this environment, so
 the file is verified structurally instead: the OOXML is parsed, every table's

@@ -338,7 +338,9 @@ more.push(h1("20  Appendices"));
  ["9","Overheating criterion and the Employer's comfort brief"],["10","Form of collateral warranty"],
  ["11","Asset information requirements, the data schema and the common data environment"],["12","Social value framework and the travel-to-work area"]]
  .forEach(([n,t])=>more.push(p("Appendix "+n+"   —   "+t,{indent:{left:280},before:20,after:20})));
-more.push(p("Appendices 10, 11 and 12 are new at Rev B. They are named here and are not yet written; a tenderer shall price on the basis that Appendix 10 is a warranty in a standard industry form with step-in rights, that Appendix 11 requires COBie-compatible structured data, and that Appendix 12 is scored as stated at 16.5. Each will be issued as an addendum before the clarification deadline.",{italics:true,color:RED}));
+more.push(p("All twelve are issued, in NR-ER-P2-APX Rev A, which forms part of these Employer's Requirements and has the same contractual force as this document.",{bold:true}));
+more.push(p("Eight are the Employer's own and are written in full: the activity schedule, the approved colour range, the bed demand curve with the sectional completion dates, the design and supply data, the overheating criterion, the collateral warranty content schedule, the asset data schema and the social value framework. Four are produced by others — the fire strategy, the planning consent, the CEMP and the abnormal load route assessment — and are issued as controlled insertion sheets. Each of those four states what this document depends on it for, WHAT A TENDERER PRICES UNTIL IT ARRIVES, and what happens if the issued document differs from that basis.",{color:SLATE}));
+more.push(p("A tenderer shall price on the stated basis and say in its tender that it has done so. It shall not price a worst case against an appendix that has not yet been issued, and it shall not assume the basis away. A value confirmed later at a worse position is a change under section 17; a value assumed silently is not.",{italics:true,color:RED}));
 
 // ── Annex A
 more.push(new Paragraph({ children: [new PageBreak()] }));
