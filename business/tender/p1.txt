@@ -1,0 +1,1264 @@
+ETABLIX 
+I N T E G R A T E D   S I T E   S E R V I C E S   ·   P A R T   O F   G R O U P E   N S E Y A 
+EMPLOYER'S REQUIREMENTS 
+P1 — Civil Works and Infrastructure 
+Client 
+Marrowbridge Infrastructure Ltd 
+Project 
+Project NORTHREACH — Workforce Accommodation Village 
+Package 
+P1 — Civil Works and Infrastructure 
+Scope 
+Bases for 114 modules across 8 accommodation blocks and the amenity, kitchen and reception buildings; roads, hardstanding, drainage, services to the termination points, and reinstatement 
+Document reference 
+NR-ER-P1 
+Revision 
+A 
+Date 
+September 2026 
+Status 
+Issued for tender 
+This package is on site first and leaves last, and every other package is built on what it leaves behind. Section 4 — the tolerances — is the most important section in this document, and a tenderer should read it before pricing anything else. 
+ 
+Contents 
+ 
+1  Introduction, and what this package really is 
+1.1  First on, last off, and everything is built on what this package leaves behind 
+This package is on site before anyone else and it is still there after everyone else has gone. It builds nothing anybody sleeps in and it is the reason everything else stands up. 
+THE DEFINING FACT. Every other package works to a tolerance this one sets. 114 modules are manufactured 400 miles away to a dimension, and they are set on bases built here to a tolerance measured in millimetres. A base 8 mm out is not a civils defect; it is a module that does not sit, a joint that does not seal, and a delivery vehicle standing on a haul road with nowhere to put its load. 
+THE SECOND FACT. This package builds much of its work BEFORE the packages that depend on it have finished designing. Drainage inverts, service positions and base levels are fixed while P2 is still developing its module and P3 is still selecting its equipment. That is unavoidable and it is why section 4 and the interface schedule at section 6 matter more here than the specification of any material. 
+THE THIRD FACT, and the one that gets people hurt. This package excavates, it lifts, and from month 3 it does both alongside a village where people are asleep. section 10 and section 8 are written for that and they are not boilerplate. 
+1.2  Output specification, and where this document departs from it 
+The default is an OUTPUT specification. The Employer states the outcome — a bearing pressure, a tolerance, a discharge rate, a settlement limit — and the Contractor designs the earthworks, the pavement, the drainage and the foundations that achieve it, and warrants that they do. 
+Every line of the works register at section 3 carries a code. 
+E — EMPLOYER-PRESCRIBED. The Employer has specified the thing. The Contractor provides it as described and the Employer carries the risk that what is described achieves the outcome. 
+C — CONTRACTOR-DESIGNED. The Employer has stated a duty. The Contractor investigates, designs, selects and warrants the means. 
+The prescribed lines here are of two kinds and no others: a TOLERANCE or LEVEL that another package has to build to and cannot discover later, and a STATUTORY or LIFE-SAFETY requirement. Everything else is a duty. 
+GROUND CONDITIONS ARE THE CONTRACTOR'S. The ground investigation available is at section 19 and it is not exhaustive. The Contractor shall satisfy itself, shall carry out any further investigation its design requires, and shall price it. Where a condition is encountered that could not reasonably have been foreseen from the information provided and a competent investigation, 12.3 states how it is dealt with — because pretending that risk does not exist produces a priced allowance nobody can see and an argument nobody can settle. 
+1.3  What is NOT in this package 
+Anything above the termination points, and anything inside a building. The modules, their structure and their internal services are P2 Modular Accommodation. The kitchen fit-out is P3. Loose furniture is P4. Operation is P5. 
+The distinction is stated in a single line because it is where the money is lost: THIS PACKAGE DELIVERS A SERVICE TO A POINT, AT A POSITION, AT AN INVERT, WITH A STATED CHARACTERISTIC. What happens on the other side of that point belongs to somebody else, and what happens on this side of it belongs here, including making good if it is wrong. 
+Where a requirement of another package cannot be met because of something delivered here, the Contractor's duty is to raise it under section 12, not to leave it for the package that finds it. 
+ 
+2  Definitions 
+Term 
+Meaning 
+Base 
+The foundation on which one module sits. 114 of them, and the tolerance at section 4 applies to every one. 
+Block 
+One accommodation building, formed of several modules set on adjacent bases. 8 of them, plus the amenity, kitchen and reception buildings. 
+CBR 
+California Bearing Ratio — the measure of subgrade strength the pavement design is built on. Established by the Contractor's investigation, not assumed. 
+Differential settlement 
+The difference in settlement between two points. It is the figure that damages a building; total settlement on its own rarely does. section 4. 
+E / C 
+The basis codes at clause 1.2. E means the Employer prescribed it and carries the risk it works; C means the Employer stated a duty and the Contractor warrants the means. 
+FFL 
+Finished floor level of a module, set by the base level. The 15 mm threshold requirement at P2 clause 4.5 is measured from it to the external finished level — see T-04. 
+HSG47 
+The HSE guidance on avoiding danger from underground services. The basis of the permit-to-dig regime at 10.3. 
+Outrigger pressure 
+The load a crane puts into the ground through one outrigger pad. Stated by P2, designed for here. The most dangerous number in this document — 5.7. 
+Segregation line 
+The physical line between the village and the live construction site. Built under this package and shown on NR-TW-VIL-0201. 
+Termination point 
+Where a service provided under this package ends and another package's begins. One per service per block: water, foul, power, data. Position, invert and characteristic all stated. 
+Tolerance 
+The permitted deviation from a stated dimension or level. Not an aspiration and not a target — the figure beyond which the work is rejected. 
+ 
+3  The works 
+Every line carries a basis code. E means the Employer has prescribed the thing and carries the risk that what is described achieves the outcome; C means the Employer has stated a duty and the Contractor investigates, designs, selects and warrants the means. Clause 1.2 states the only two reasons a line here is prescribed. 
+Ref 
+Work 
+The requirement, or the duty 
+ 
+Note 
+GROUND AND EARTHWORKS 
+ 
+ 
+ 
+ 
+W-01 
+Site clearance and preparation 
+Clear the village and laydown areas of vegetation, obstructions and made ground, within the ecological constraints of the CEMP and the seasonal restrictions it imposes 
+C 
+The seasonal restriction is the programme risk. Confirm it before pricing 
+W-02 
+Earthworks 
+Cut, fill, compact and test to achieve the formation levels and the subgrade the pavement and foundation designs require. Cut and fill balanced on site so far as the levels permit 
+C 
+Material taken off site is a cost and a carbon consequence — section 14 
+W-03 
+Ground improvement 
+Where the Contractor's investigation shows the ground will not achieve the settlement limits at section 4 without it 
+C 
+The need is the Contractor's to establish. The limits are the Employer's 
+W-04 
+Module bases 
+114 bases, to the tolerances at section 4, each surveyed and the survey issued 
+E 
+THE TOLERANCES ARE PRESCRIBED. Everything else about the base is the Contractor's design 
+W-05 
+Building slabs 
+Slabs to the kitchen and dining, amenity and reception buildings, to the loadings at 5.4 
+E 
+The kitchen loading is at 5.4 and it is NOT the loading P2 Appendix 8 currently carries 
+ROADS, HARDSTANDING AND EXTERNAL AREAS 
+ 
+ 
+ 
+ 
+W-06 
+Site roads and haul routes 
+Designed for the construction traffic including 114 abnormal load deliveries, and for the operational traffic for 38 months thereafter, without reconstruction in between 
+C 
+A road built for construction and re-laid for operation is two roads 
+W-07 
+Crane hardstanding 
+Designed to the outrigger bearing pressure P2 states, proved by plate bearing test before any lift 
+E 
+5.7. THE MOST DANGEROUS NUMBER IN THIS DOCUMENT 
+W-08 
+Laydown area 
+0.42 ha as shown on NR-TW-VIL-0201, surfaced and drained for module storage at the stated bearing pressure 
+E 
+The extent is fixed. P2 has been told it is smaller than it may assume 
+W-09 
+Car parking and transport pick-up 
+Parking to the planning allocation, and a bus turning and pick-up facility sized for the transport fleet under P5 
+C 
+P5 runs buses on shift change. The turning circle is sized for the vehicle it will actually use 
+W-10 
+Footpaths and external routes 
+Between every block and the amenity, kitchen and reception buildings, and to the transport pick-up. Slip resistant, drained, lit, and gritted in winter by P5 
+E 
+A night-shift worker walks these at 05:00 in January. 5.11 
+DRAINAGE 
+ 
+ 
+ 
+ 
+W-11 
+Foul drainage 
+Collection from every block termination point to the outfall, sized for the peak occupancy at Appendix 6 of the P2 requirements with a congested-use discharge unit loading 
+C 
+124 leave for day shift and 101 come off nights inside the same 40 minutes. Domestic loading is the wrong basis 
+W-12 
+Surface water and attenuation 
+Discharge from the site restricted to 5 litres/second per hectare, with attenuation sized for the 1 in 100 year event plus 40% for climate change 
+E 
+The 5 l/s/ha is the planning condition. The 1 in 100 + 40% is the Employer's requirement 
+W-13 
+Grease separator chamber and connection 
+Chamber, access and connection for the separator provided under P3, sited so it can be emptied without a tanker entering the village or crossing a footpath 
+E 
+5.10, and P3 IF-06. A separator that can only be emptied from inside is not emptied 
+SERVICES TO THE TERMINATION POINTS 
+ 
+ 
+ 
+ 
+W-14 
+Water supply and distribution 
+To 8 block termination points plus the kitchen, at not less than 2.0 bar dynamic at 1.5 l/s at each, with a static head not exceeding 5 bar 
+E 
+P2 and P3 design to these figures. If they cannot be achieved, say so before they are relied on 
+W-15 
+Electrical supply and distribution 
+To 8 block termination points at 400/230 V, 50 Hz, three phase and neutral, TN-S, at not less than 250 kVA per block, plus a dedicated supply to the kitchen at not less than 200 kVA 
+E 
+5.12. The prospective fault current is confirmed by the Contractor, not assumed 
+W-16 
+Standby generation 
+One 500 kVA set, its base, enclosure, fuel storage, bunding and changeover, serving life-safety and essential loads only 
+E 
+P2 and P5 state the circuits they require supported. This package provides the set and the changeover 
+W-17 
+Data and communications ducting 
+Duct and draw rope to every block termination point and to the kitchen, with 2 no. single-mode fibre pairs per block terminated 
+E 
+ 
+W-18 
+External lighting 
+To every footpath, road, car park, transport pick-up and assembly point, to the levels at 5.11, full cut-off, and not spilling into a bedroom window 
+E 
+Two requirements pulling against each other, and both are stated 
+FIRE, BOUNDARY AND SITE 
+ 
+ 
+ 
+ 
+W-19 
+Fire appliance access and hydrants 
+Access and hydrants to 5.14, available from the FIRST occupation and not from completion 
+E 
+People sleep here from month 3. The fire service does not wait for the last block 
+W-20 
+Fencing, gates and the segregation line 
+The village boundary, the gatehouse position, and the physical segregation line between the village and the live construction site 
+E 
+section 8. It is a physical line, not a notional one 
+W-21 
+Landscape and ecology 
+Planting, habitat and the works the CEMP requires, within its seasonal constraints 
+C 
+ 
+TEMPORARY WORKS, RECORDS AND REINSTATEMENT 
+ 
+ 
+ 
+ 
+W-22 
+Temporary works and temporary drainage 
+All temporary works to BS 5975, and drainage of the site during construction so that a partly built village does not flood the part that is occupied 
+C 
+10.2 
+W-23 
+As-built survey and the relocation record 
+Every base, service, invert, chamber and duct surveyed and recorded to a stated coordinate system, issued as data 
+E 
+section 11. This is what the village is relocated with, and it is a deliverable in its own right 
+W-24 
+Reinstatement 
+Removal of hardstanding, bases and services at the end of the deployment, and reinstatement to the condition the planning consent requires 
+E 
+section 16. Priced now, carried out in 38 months, and it is the item everybody forgets to price 
+A shaded row is a group heading. A tinted basis cell is a Contractor-designed line. 
+ 
+4  Tolerances — the section the rest of the project is built on 
+This is the section the rest of the project is built on. Every figure is a REJECTION THRESHOLD, not a target: work outside it is not accepted and is corrected before the package that depends on it arrives. 
+The tolerances at rows 1 to 3 are taken verbatim from clause 4.1 of the P2 Employer's Requirements, because they are P2's requirement of this package and there must be one version of them. The rest are this package's own. 
+Ref 
+What 
+Tolerance 
+Measured how 
+Why it matters 
+T-01 
+Level across any single base 
+± 5 mm 
+Levelled survey, every base, before handover 
+A module sits on the base. Out of level, it does not sit flat and the inter-module joint does not close 
+T-02 
+Plan position of a base 
+± 10 mm 
+Coordinated survey against the setting-out drawing 
+Out of position, the module overhangs or the services miss their termination 
+T-03 
+Relative level between adjacent bases supporting ONE module 
+± 3 mm 
+Survey, every adjacent pair, computed and reported 
+THE TIGHTEST FIGURE IN THIS DOCUMENT. A module spanning two bases at different levels is racked before it is loaded 
+T-04 
+External finished level at every door threshold, relative to module FFL 
+−15 mm to 0 mm 
+Survey at every external door after external works 
+P2 clause 4.5 requires a threshold not exceeding 15 mm. It is achievable only if this package's finished level is right, and it is scheduled at P2 IF-15 
+T-05 
+Base bearing surface flatness 
+3 mm under a 1 m straightedge in any direction 
+Straightedge, at not fewer than 5 positions per base 
+A base level on average and dished in the middle bears on its edges 
+T-06 
+Setting-out of the block grid, cumulative 
+± 15 mm over the length of any block 
+Survey against the setting-out drawing 
+Cumulative error across 8 or 10 bases is what pushes the last module off its base 
+T-07 
+Service termination position, horizontal 
+± 50 mm 
+As-built survey 
+P2 and P3 connect to it. Beyond this it is a re-route, on their side, at their cost or an argument about whose 
+T-08 
+Service termination invert, vertical 
+± 25 mm 
+As-built survey 
+A foul invert 60 mm high is a drain that does not fall. It is discovered when the building is occupied 
+T-09 
+Finished road and hardstanding level 
+± 20 mm 
+Survey grid at not more than 10 m centres 
+Ponding, and a haul route that holds water in front of a delivery 
+T-10 
+Drainage gradient 
+Within 10% of the design gradient, and never flatter than the minimum for the pipe size 
+Survey of invert levels at every manhole 
+A gradient laid flat is a blockage in year two 
+T-11 
+Total settlement of any base over the deployment 
+15 mm maximum 
+Monitoring per 5.5 
+See 5.5. Total settlement rarely damages a building on its own 
+T-12 
+Differential settlement between adjacent bases under one module 
+5 mm maximum 
+Monitoring, computed per pair 
+THIS IS THE ONE THAT DAMAGES THE BUILDING. It racks the module, opens the joint and breaks the service connection 
+T-13 
+Differential settlement across any one block 
+10 mm maximum 
+Monitoring, computed across the block 
+Doors bind, drainage falls reverse, and nobody connects it to the ground 
+The two shaded rows are the ones that damage a building rather than merely annoy a surveyor: T-03, because a module spanning two bases at different levels is racked before it is loaded, and T-12, because differential settlement opens the joint and breaks the service connection two years after everybody has left. 
+ 
+5  Specification, element by element 
+5.1  Design responsibility, and the Contractor's Proposals 
+This is a contractor-designed package. The Employer has stated the outcomes: the tolerances at section 4, the loadings at 5.4, the settlement limits at 5.5, the discharge rate at 5.10, the supply characteristics at 5.12 and 5.13, and the life-safety requirements at 5.14. The earthworks, pavements, foundations, drainage and services that achieve them are the Contractor's design and the Contractor warrants that they do. 
+WITH ITS TENDER the Contractor shall submit Contractor's Proposals containing, as a minimum: its ground investigation strategy under 5.2; its earthworks specification and the class of material it intends to reuse; its pavement design and the subgrade CBR it has assumed; its foundation type for the bases and the settlement prediction that supports 5.5; its drainage design with the hydraulic calculations and the attenuation volume; its crane hardstanding design under 5.7; and its programme against the sectional dates at section 9. 
+EVERY DEPARTURE from this document shall be listed in a Schedule of Departures with the clause, what is offered instead, the reason, the effect on every other requirement, and the price effect as a plus or a minus. A departure not listed is not accepted, whether or not it is visible on a drawing. 
+DESIGN SUBMISSION AFTER AWARD. Each design package shall be submitted not less than 4 weeks before the work it covers is due to start, and the Employer shall respond within 10 working days. A package submitted later than that does not create an entitlement to time, and a response not given within 10 working days does. Both are stated because a design approval regime with a period on only one side of it is a delay mechanism. 
+Review, comment or acceptance by the Employer does not transfer design responsibility, and it applies to an accepted submission as fully as to a commented one. 
+5.2  Ground investigation, and what the Employer's information is and is not 
+THE EMPLOYER'S INFORMATION IS FACTUAL. The ground investigation issued at section 19 is a factual report. It reports what was found in the holes that were sunk. It contains no interpretation, no design parameters and no warranty, and no interpretative report will be issued. 
+It is not exhaustive and it is not represented as exhaustive. It was carried out before the layout was fixed and it does not have a hole under every base. 
+THE CONTRACTOR SHALL CARRY OUT ITS OWN INVESTIGATION before it completes its design, and shall price it. As a minimum that investigation shall include not fewer than one exploratory hole per accommodation block and one per building, taken to a depth not less than 1.5 times the width of the widest foundation below formation or as its own design requires, whichever is the deeper, together with sufficient in-situ and laboratory testing to establish the parameters its foundation, pavement and drainage designs rely on. 
+UNFORESEEN CONDITIONS. A physical condition is unforeseen for the purposes of 12.3 only if it could not reasonably have been anticipated by an experienced contractor from the factual data provided, a site inspection, and the investigation required above. A condition that the required investigation would have found is not unforeseen, and a condition that no reasonable investigation would have found is not the Contractor's risk. 
+That definition is written down for one reason: an undefined ground risk is priced as an invisible allowance by every tenderer, at a different number, and it is settled two years later by argument. This states the line before anybody prices it. 
+5.3  Earthworks, formation and the testing that proves it 
+Earthworks shall be carried out and tested to Series 600 of the Specification for Highway Works, or to an equivalent standard the Contractor states in its Proposals and justifies. 
+MATERIAL. Cut and fill balanced on site so far as the levels permit. The Contractor shall state in its Proposals the classes of material it intends to reuse and the volume it expects to take off site; material removed from site is a cost, a lorry movement and a carbon consequence, and it is reported under section 14. 
+COMPACTION AND TESTING. Compaction to the method or end-product specification the Contractor's design requires, tested at not fewer than one in-situ density test per 500 m² per layer, with a minimum of three tests per layer in any one area, and every result recorded and issued. 
+FORMATION. Every formation shall be proof-rolled and inspected before anything is laid on it, and the inspection recorded with photographs and a date. Formation strength shall be verified at not fewer than one test per 200 m² by plate bearing test or dynamic cone penetrometer, and shall achieve the CBR the Contractor's design assumes. 
+A formation shall not be left open for more than 24 hours without protection, and any formation that has been softened by water, frost or trafficking shall be removed and replaced. It shall not be dried out and re-rolled. 
+WORKING IN WINTER. Earthworks on this site will run through two winters. The Contractor shall state in its Proposals the weather limits beyond which it will stop, and shall programme accordingly. A programme that assumes an uninterrupted earthworks season is not accepted, and the consequences of stopping are dealt with at 9.4, not by a claim. 
+5.4  Bases and slabs, and the loadings they are designed to 
+THE BASES. 114 module bases, to the tolerances at section 4, each surveyed individually and the survey issued before any module is delivered to it. The foundation type is the Contractor's; the tolerance and the settlement limit are not. 
+Each base shall be designed for the module reactions P2 states in its Contractor's Proposals. Until those are stated, and for tender purposes, the Contractor shall design for a bedroom module of 3.6 m by 12.0 m with a self-weight not exceeding 14 tonnes, plus the imposed loads below, and shall confirm the design against P2's stated reactions before construction — see IF-02. 
+THE LOADINGS. Imposed floor loads, from Appendix 8 of the P2 Employer's Requirements: 
+Bedrooms — 1.5 kN/m². Circulation and stairs — 2.0 kN/m². Amenity and dining — 3.0 kN/m². Roof, maintenance access only — 0.6 kN/m². Characteristic ground snow load — 0.50 kN/m². 
+THE KITCHEN, WHICH THAT APPENDIX DOES NOT COVER. Appendix 8 gives 3.0 kN/m² for 'amenity and dining' and states NO loading for a kitchen production floor. A kitchen production floor is not an amenity floor. The slab to the kitchen and dining building shall therefore be designed for: 
+5.0 kN/m² uniformly distributed across the production kitchen and wash-up. 
+7.5 kN/m² beneath the walk-in chill and freezer rooms and beneath any equipment the P3 Contractor's schedule identifies as exceeding it. 
+3.0 kN/m² across dining. 
+Point loads item by item as the P3 fixing schedule states them, confirmed under IF-09. 
+These are the same figures the P3 Employer's Requirements require of the shell. They are stated here as well because this package builds the slab, and because a tenderer that reads Appendix 8, prices a 3.0 kN/m² floor and then finds a cold room standing on it has been failed by the Employer's own documents. Appendix 8 is to be updated to carry these figures; until it is, this clause prevails. 
+SLAB TOLERANCE. Building slabs to the same level and flatness tolerances as the bases at T-01 and T-05, and the kitchen slab additionally to the falls the P3 drainage design requires — falls are set here and the P3 Contractor cannot create them later without losing the coving detail. 
+5.5  Settlement, and the 38 months of monitoring nobody prices 
+THE LIMITS at T-11, T-12 and T-13 are: 15 mm total settlement of any base; 5 mm differential between adjacent bases supporting one module; 10 mm differential across any one block. 
+THE 5 mm FIGURE IS THE ONE THAT MATTERS. A whole village settling 15 mm uniformly damages nothing. Two bases under one module settling 5 mm apart racks the module, opens the inter-module joint, breaks the service connection at the termination point and produces a leak that is diagnosed as a plumbing defect for six months before anybody measures the ground. 
+MONITORING IS PART OF THIS PACKAGE AND IT DOES NOT END AT COMPLETION. The Contractor shall install monitoring points to every base and shall monitor and report: 
+Before module delivery — a baseline reading of every base, issued with the base survey. 
+Months 1 to 6 after a module is set — monthly. 
+Months 7 to 12 — quarterly. 
+Month 13 to the end of the deployment — six-monthly, and after any exceedance. 
+Each report states the reading, the movement since baseline, the movement since the last reading, and the computed differential for every adjacent pair and across every block. A report that gives absolute levels without the computed differentials does not discharge this clause, because the differential is the number that matters and nobody calculates it by eye. 
+EXCEEDANCE. Reaching 60% of any limit triggers an immediate report to the Employer, an increase to monthly monitoring, and the Contractor's assessment of the trend. Reaching a limit triggers remedial action at the Contractor's cost where the cause is within its design or workmanship. 
+Every report is issued to the Employer and to P5 under IF-14, because P5 is the party that will see the door start to bind. 
+THIS IS PRICED SEPARATELY at item section 17 so that it is visible. Monitoring folded into a preliminaries figure is monitoring that stops in month 14 when the site team leaves. 
+5.6  Setting out, survey and the control network 
+THE CONTROL NETWORK. The Contractor shall establish and maintain a survey control network, tied to OSGB36 / OSTN15 and to Ordnance Datum Newlyn, with not fewer than 4 permanent stations sited outside the working area and outside the zone of influence of any excavation, each protected and each verifiable. 
+The network shall be re-verified at not more than quarterly intervals and after any event that could have disturbed a station, and the verification issued. Every setting-out dimension, every base level and every as-built record in this project is measured from this network, and a network that has moved is a village that is out of position with a full set of records saying it is not. 
+ONE VERSION OF THE TRUTH. P2 sets modules using this network. P3, P4 and P5 all work to what it produced. The Contractor shall issue the network and its verifications to the Employer for reissue to those packages under section 11 and IF-01. 
+SURVEY OF THE WORK. Every base surveyed individually and the record issued before the module for it is delivered; every service termination surveyed as built; every drainage invert surveyed at every manhole. The tolerances at section 4 are demonstrated by survey and not by assertion, and a base is not handed over until its survey has been issued and accepted — IF-03. 
+INDEPENDENT CHECK. Not fewer than 10% of bases, selected by the Employer and not by the Contractor, shall be re-surveyed independently at the Contractor's cost. A discrepancy exceeding the tolerance in any checked base triggers a 100% re-survey of that block. 
+5.7  Crane hardstanding, and the number neither party may assume 
+THIS IS THE MOST DANGEROUS CLAUSE IN THIS DOCUMENT. 114 modules are lifted over a site where, from month 3, people are asleep in the buildings already erected. A crane that settles under an outrigger during a lift is not a civils defect. It is a fatality. 
+THE NUMBER. The bearing pressure imposed by each outrigger, the pad size, the crane configuration and the lift radii are stated by the P2 Contractor as part of its lifting plan. This Contractor designs the hardstanding to them. 
+NEITHER PARTY MAY ASSUME THE OTHER'S NUMBER. This Contractor shall not design to an assumed outrigger pressure and shall not proceed on a figure taken from a previous project. P2 shall not lift from a hardstanding whose design capacity it has not been given in writing. Where P2's figures are not available at the time this Contractor must build, the Contractor shall design to a stated capacity, shall state that capacity in writing on the as-built record and on a permanent sign at the hardstanding, and P2's lifting plan shall then be checked against it — see IF-04. 
+PROOF BEFORE ANY LIFT. Every crane hardstanding shall be proved by plate bearing test to not less than the design bearing pressure, at not fewer than 2 positions per crane position, before the first lift from it, and the results issued to the P2 Contractor and to the Employer. A design calculation is not proof. The test is. 
+RE-PROOF. The hardstanding shall be re-tested after any period of more than 14 consecutive days on which it has not been used for lifting during the months of November to March, after any flooding of the area, and after any excavation within 5 m of it. Ground that carried a crane in September does not necessarily carry one in February. 
+RECORD. A register of every hardstanding, its design capacity, its test results and its re-test dates shall be maintained by the Contractor, held on site and issued with the as-built record at 5.20. 
+5.8  Roads, hardstanding and pavement design 
+THE TRAFFIC IS TWO DIFFERENT THINGS AND THE PAVEMENT IS DESIGNED FOR BOTH. Construction traffic includes 114 abnormal load deliveries, the mobile cranes that lift them, and the plant that builds the village. Operational traffic runs for 38 months thereafter: buses at every shift change, delivery vehicles to the kitchen, waste and tanker movements, and the fire service. 
+The pavement shall be designed for the whole life without reconstruction between the two phases. A road built to a construction standard and re-laid for operation is two roads, it is built while the village is occupied, and it is not accepted. 
+GEOMETRY. The Contractor shall design the horizontal and vertical geometry, the swept paths and the turning provision for the largest vehicle that will use each route, and shall state that vehicle. As a minimum the design shall accommodate: the module transporter on the delivery route to every block; a 12 m rigid refuse vehicle to every bin store; a tanker to the grease separator position without entering the village or crossing a footpath, per 5.10; the bus specified by P5 at the transport pick-up, turning without reversing; the furniture delivery vehicle P4 states at IF-11; and the fire appliance to 5.14. 
+NO REVERSING AT THE PICK-UP. A bus that reverses in a village where 225 people are walking to shift in the dark is a design that has been left to the operator to manage. The turning circle is sized here. 
+SURFACES. Finished levels to T-09. All surfaces laid to falls that drain to the drainage system and not to a low point that ponds; there shall be no location on any road, footpath, hardstanding or parking area where standing water can accumulate. Ponding in front of a delivery bay is the one that stops the job. 
+MAINTENANCE HANDOVER. The Contractor shall state the pavement's residual design life at completion and the maintenance regime it requires, and shall issue both to P5 under IF-13. P5 prices the operational maintenance from it. 
+5.9  Foul drainage, and why domestic loading is the wrong basis 
+THE LOADING. The system shall be sized for the peak occupancy at Appendix 6 of the P2 Employer's Requirements — 225 residents — using a CONGESTED-USE discharge unit loading and not a domestic one. 
+WHY. In a domestic building people get up at different times. In this village 124 residents leave for day shift and 101 come off nights inside the same 40 minutes, twice a day, every day, for 38 months. Showers, WCs and the laundry all run in the same window. A system designed on domestic simultaneity is a system that surcharges twice a day and is reported as a smell. 
+The Contractor shall state in its Proposals the discharge unit loading and the simultaneity it has used, and the calculation for the peak flow at the outfall. 
+GRADIENTS. Every run laid within 10% of its design gradient and never flatter than the minimum self-cleansing gradient for the pipe size — T-10. Invert levels surveyed at every manhole and issued, T-08. 
+TERMINATION. One foul termination per block, and one to the kitchen under IF-08, at the position and invert on the coordinated drawing, with the invert not less than 1.20 m below the module finished floor level unless the Contractor's design demonstrates otherwise and P2 accepts it in writing. That figure is carried in P2 Appendix 8 as an assumption TO BE CONFIRMED; this clause confirms it, and the appendix is to be updated to record that it is now a requirement and not an assumption. P2 designs its below-floor drainage from this figure and cannot change it after manufacture — IF-05. 
+PHASED CONNECTION. Blocks are occupied in four sections at months 3, 6, 9 and 12. The system shall work at 65 beds and at 225 beds. A drainage system sized for 225 and laid at the flat gradients that a full flow scours can silt during the nine months it is running at a third of it, and the Contractor shall state how its design deals with that. 
+ADOPTION OR PRIVATE. The Contractor shall state whether it intends the system to be offered for adoption or to remain private, and shall price accordingly. An adoptable standard applied late is a redesign; a private system handed to P5 is an operating cost P5 has to have been told about. 
+5.10  Surface water, attenuation, and the chambers somebody has to empty 
+DISCHARGE. Surface water discharge from the site is restricted to 5 litres per second per hectare. That is a planning condition and it is not negotiable by design. 
+ATTENUATION. Storage sized for the 1 in 100 year event with a 40% allowance for climate change, with no flooding of any building, road, footpath or hardstanding in that event, and no flooding of any adjoining land at any return period that the pre-development site did not flood. The Contractor shall submit the calculation, the storage volume and the assumed rainfall data with its Proposals. 
+TREATMENT. Runoff from the parking, the roads and the fuel storage area shall pass through appropriate treatment before discharge, sized on the SuDS treatment index for the surface it drains. The generator fuel storage bund at 5.12 shall not discharge to the surface water system at all. 
+THE CHAMBERS THAT HAVE TO BE EMPTIED. The grease separator serving the kitchen is provided under P3. Its chamber, its access and its connection are provided here, and they shall be sited so that a tanker can empty it WITHOUT ENTERING THE VILLAGE AND WITHOUT CROSSING A FOOTPATH — from a hardstanding on the perimeter road, with a hose run not exceeding 25 m and a level difference within the lift capability the P3 Contractor states. 
+The same applies to every interceptor, every silt trap and every attenuation chamber that requires periodic emptying: each shall be reachable, from a surface that carries the vehicle, without closing a route the village depends on. The Contractor shall mark every such chamber on a maintenance access drawing and issue it to P5 under IF-13. 
+A separator that can only be emptied by driving a tanker between two occupied blocks is a separator that is emptied late, and a grease separator that is emptied late is a blocked drain in a kitchen serving 490 covers a day. 
+5.11  Footpaths, external levels and lighting 
+THE PERSON THIS CLAUSE IS WRITTEN FOR is walking from a bedroom block to the transport pick-up at 05:00 in January, in the dark, in the wet, in work boots, carrying a bag, having slept badly. Every requirement below exists because of them. 
+ROUTES. A surfaced, drained, lit footpath between every accommodation block and the amenity, kitchen and reception buildings, and to the transport pick-up and every assembly point. Step-free throughout, with gradients not exceeding 1 in 20 on any route and 1 in 12 over a length not exceeding 5 m where the site levels make 1 in 20 impossible, with a level landing at each end. 
+SURFACE. Slip resistance not less than PTV 36 wet on every footpath, ramp and external step, tested on the installed surface and not certified from a data sheet. Cross-fall between 1 in 40 and 1 in 60 — enough to drain, not enough to trip. 
+THRESHOLDS. External finished level at every external door within T-04: from 15 mm below the module finished floor level to level with it, never above. P2 clause 4.5 requires a threshold not exceeding 15 mm and it can only achieve it if this package's finished level is right. This is the tolerance most often missed and it is missed at the last moment, when the paving is laid to the ground rather than to the building. 
+LIGHTING. Maintained average horizontal illuminance, measured on the installed and aged installation: 
+Footpaths and pedestrian routes — 10 lux average, 3 lux minimum, uniformity not less than 0.25. 
+Roads and car parking — 10 lux average, 2.5 lux minimum. 
+Transport pick-up and assembly points — 20 lux average, 5 lux minimum. 
+Building entrances — 30 lux at the door. 
+AND NOT INTO A BEDROOM WINDOW. All external luminaires full cut-off, with upward light ratio zero and with vertical illuminance at any bedroom window not exceeding 5 lux between 23:00 and 07:00, measured at the window in the plane of the glass. Half of this village sleeps during the day and the other half sleeps at night; there is no hour at which lighting a bedroom window is acceptable. 
+These two requirements pull against each other. Both are stated, both are measured at commissioning under 5.18, and the Contractor resolves them by design rather than by choosing one. 
+5.12  Electrical supply, earthing and the standby set 
+SUPPLY TO EACH BLOCK. 400/230 V, 50 Hz, three phase and neutral, TN-S earthing, at not less than 250 kVA per block at the termination point, plus a dedicated supply to the kitchen at not less than 200 kVA. 
+Those are the figures P2 and P3 design to. If the Contractor's design or the distribution network operator's connection cannot achieve them, the Contractor shall say so IN ITS TENDER and not after those packages have been let. 
+EARTHING AND FAULT LEVEL. The earthing arrangement, the prospective fault current and the external earth fault loop impedance at every termination point shall be established by the Contractor by measurement and confirmed in writing, not assumed from the connection offer. P2's protective device discrimination depends on them — IF-06. 
+STANDBY GENERATION. One 500 kVA set with its base, acoustic enclosure, fuel storage, bund and automatic changeover, serving the life-safety and essential loads that P2 and P5 identify and no others. 
+AUTOMATIC CHANGEOVER within 15 seconds of loss of supply, on load, demonstrated at commissioning and thereafter exercised monthly by P5 under IF-13. 
+FUEL STORAGE for not less than 72 hours at the essential load, bunded to 110% of the tank capacity, with the bund not discharging to any drainage system. 
+NOISE from the set, running, not exceeding 40 dB LAeq at the nearest bedroom window at night. The set will be run for a monthly test for 38 months, and a test that wakes the night shift is a test that gets skipped. 
+FUEL SECURITY. Locked fill point, contents monitored and alarmed, and the theft risk treated as real. Diesel on a remote site disappears. 
+WHAT THIS CLAUSE DOES NOT DO is decide which circuits are essential. P2 and P5 state them; this package sizes, provides and proves the set that supports them. 
+5.13  Water supply, and a village that fills up in stages 
+AT EVERY TERMINATION POINT — 8 blocks plus the kitchen — not less than 2.0 bar dynamic pressure at a flow of 1.5 litres per second, with the static pressure not exceeding 5 bar. 
+Both ends of that range are requirements. Below 2.0 bar the showers in the top rooms fail at shift change. Above 5 bar the fittings P2 has specified leak, and they leak in a bedroom above another bedroom. 
+BOOSTING AND STORAGE. Where the incoming supply cannot achieve the duty, the Contractor shall provide boosting and storage, sized on the peak demand at the peak occupancy with the same congested-use simultaneity as 5.9, and shall state the storage volume and the turnover. 
+STAGNATION, WHICH IS THE RISK NOBODY PRICES. The village is occupied in four stages, at months 3, 6, 9 and 12. A distribution main sized for 225 residents and serving 65 of them for nine months has a turnover long enough for Legionella to establish, and it establishes in the part of the system that is not yet in use. 
+The Contractor shall therefore: design the network so that sections not yet occupied can be isolated and drained rather than left charged and static; state a flushing regime for anything that remains charged; provide sampling points; and hand the regime to P5 with the written record of what was flushed and when. A system commissioned in month 3 and left standing to month 12 is recommissioned before occupation, not merely flushed. 
+The Contractor shall carry out chlorination, sampling and bacteriological testing to a satisfactory result at every stage of occupation, not only at practical completion, and shall issue each certificate before the section it covers is occupied. 
+FIRE MAIN. Where the hydrant supply at 5.14 is taken from the same source, the Contractor shall demonstrate that hydrant flow does not reduce the domestic supply below the duty above, and shall state the effect. 
+5.14  Fire appliance access and hydrants, available from the FIRST occupation 
+PEOPLE SLEEP IN THIS VILLAGE FROM MONTH 3. The fire service does not wait for the last block, and neither does this clause. 
+ACCESS. Fire service vehicle access to within 45 m of every point on every storey of every building, on a route designed for an appliance of not less than 12.5 tonnes gross, with a carriageway width of not less than 3.7 m, a gate width of not less than 3.1 m, headroom of not less than 3.7 m, and a turning facility that does not require reversing more than 20 m. 
+HYDRANTS. Hydrants sited so that no point of any building is more than 90 m from one, each capable of not less than 1,500 litres per minute at 1.7 bar running pressure, tested and the result recorded for each hydrant individually. 
+AVAILABLE FROM FIRST OCCUPATION, WHICH IS THE WHOLE POINT. The access route and the hydrants serving each section shall be complete, tested, signed and available BEFORE that section is occupied, and shall remain available throughout construction of the sections that follow. A route that is complete but is being used as a laydown, or a hydrant that is buried under a spoil heap, is not available. 
+The Contractor shall issue, before each sectional occupation, a fire access and hydrant availability statement covering the section being occupied and every section already occupied, and shall reissue it whenever the construction arrangement changes. The Employer will not accept occupation without it. 
+MAINTAINED DURING CONSTRUCTION. This is the requirement that gets broken, and it gets broken by the package's own works: a trench across the only access road, a crane standing on it, a delivery parked on it. section 8 states how it is controlled, and no excavation, closure or obstruction of a fire access route is permitted without a documented alternative route in place first. 
+SIGNAGE AND RECORD. Every hydrant marked to BS 3251 and recorded on the fire service drawing issued to the local fire and rescue service and to P5. 
+5.15  Data and communications ducting 
+Duct and draw rope from the incoming point to every block termination point and to the kitchen, with not fewer than 2 single-mode fibre pairs per block terminated and tested, and spare duct capacity of not less than one spare way per route. 
+Ducts shall be proved by mandrel and by rodding after backfill and before acceptance, and every duct route recorded on the as-built survey at 5.20. A duct that is collapsed is discovered by the cabling contractor with the village occupied, and the route it follows is under a road by then. 
+P5 operates the network and P2 terminates inside the building. This package provides the containment and the termination point, and nothing beyond it — IF-07. 
+5.16  Fencing, gates and the segregation line 
+THE VILLAGE BOUNDARY. Fenced, gated and controlled, with the gatehouse position and the vehicle and pedestrian gates as shown on NR-TW-VIL-0201. Vehicle gates sized for the largest vehicle at 5.8 and for the fire appliance at 5.14, and openable manually on loss of power. 
+THE SEGREGATION LINE. A PHYSICAL line between the occupied village and the live construction site, not a notional one and not a line of cones. Continuous, of a height not less than 2.0 m, with no gap and no informal crossing point, and with defined crossings that are controlled. 
+It moves as the village grows. Each section brought into occupation at months 3, 6, 9 and 12 changes where the line runs, and each move is a planned operation with a drawing, a date and a check that the fire access at 5.14 still works after it. section 8 states the regime. 
+A segregation line that people walk around is worse than no line, because everybody assumes it is working. The Contractor shall inspect it weekly, record the inspection, and close any informal crossing within 24 hours of finding it. 
+5.17  Materials, testing and rejection 
+MATERIALS. All materials to the relevant British or European standard, CE or UKCA marked where the standard requires it, and declared in the Contractor's Proposals where a proprietary product is proposed in place of a standard specification. 
+TESTING. The Contractor shall submit an Inspection and Test Plan before work starts on each element, stating for every test: what is tested, the standard, the frequency, who witnesses it, the acceptance criterion, and what happens on a failure. Work carried out on an element with no accepted ITP is at the Contractor's risk of removal. 
+Each Inspection and Test Plan shall be submitted not less than 10 working days before work starts on that element, and the Employer shall respond within 5 working days. 
+HOLD POINTS, which shall not be passed without the Employer's written release: formation before any layer is laid on it; base reinforcement and level before concrete; every crane hardstanding before the first lift; every drainage run before backfill; every buried service before backfill. 
+The Contractor shall give not less than 24 hours' notice of a hold point, and the Employer shall attend and release or reject it within 24 hours of the notified time. A hold point not released or rejected within that period is deemed released, because a hold point with no time limit on the Employer is a delay the Contractor cannot price. 
+A hold point passed without release is not cured by a subsequent test. The work is opened up at the Contractor's cost if the Employer requires it, and the Employer's decision on whether to require it is not a reason to keep working. 
+REJECTION. Work outside a tolerance at section 4 is rejected and corrected before the package that depends on it arrives. It is not accepted subject to a concession, because there is no concession available: the module is already built to the dimension. Where correction is genuinely impossible the Contractor shall notify under section 12 immediately, so that the package that will find it can be told before it arrives, rather than after. 
+5.18  Commissioning, testing and proving the services 
+Every service provided under this package shall be proved at its termination point, individually, by measurement, and the result recorded against that termination point by reference. 
+WATER — dynamic pressure and flow at each termination, chlorination and bacteriological certificates, per 5.13. 
+ELECTRICAL — supply characteristics, earth fault loop impedance and prospective fault current at each termination, and the full test certificate, per 5.12. 
+STANDBY — changeover on load within 15 seconds, run at full essential load for not less than 4 hours, fuel consumption measured, and noise measured at the nearest bedroom window. 
+FOUL AND SURFACE WATER — CCTV survey of every run, an air or water test to the relevant standard, and the invert survey at every manhole. 
+ATTENUATION AND FLOW CONTROL — the flow control device proved to discharge at the design rate, by measurement. 
+HYDRANTS — flow and pressure at each hydrant individually, per 5.14. 
+LIGHTING — illuminance measured on a grid at each area type, and vertical illuminance at the sample bedroom windows the Employer selects, per 5.11. 
+A commissioning record that states an installation is satisfactory without individual results against individual references will be rejected. The reason is not bureaucratic: the fault is always at one termination, and a record that averages across nine of them cannot find it. 
+SECTIONAL COMMISSIONING. Everything serving a section is commissioned and certified before that section is occupied, at months 3, 6, 9 and 12, and not at practical completion. 
+5.19  Contamination, and when the ground is not what it was said to be 
+The factual report at section 19 records what was found. Where the Contractor encounters contamination, made ground, buried structures, asbestos or any material requiring special handling that is not reasonably inferable from that report and from the investigation required at 5.2, it shall: 
+STOP work in the affected area immediately and secure it. 
+NOTIFY the Employer within 4 hours, in writing, with photographs, the location surveyed, and its immediate assessment. 
+NOT REMOVE, cover, mix or dispose of the material until the Employer has responded, except where health, safety or the environment requires immediate action, in which case it shall act and report what it did. 
+The commercial treatment is at 12.3. The reason the notification duty is separate from the commercial one is that the two get confused: a contractor that believes notifying is claiming will delay notifying until it has priced it, and by then the material has been moved. 
+DISPOSAL. All material leaving site classified, documented and disposed of lawfully, with duty of care documentation issued to the Employer. Reported under section 14 by tonnage and destination. 
+5.20  The as-built survey, and the record the village is relocated with 
+This package produces a record that outlives it by 38 months and is then used to take the village apart. It is a deliverable in its own right and it is priced as one. 
+WHAT IS RECORDED. Every base — position, level, foundation type and depth, and its settlement baseline. Every service run — line, level, size, material and depth. Every termination point — position, invert, and the characteristic proved at 5.18. Every chamber, manhole and invert. Every duct route including spare ways. Every crane hardstanding, its design capacity and its test record. The survey control network and its verifications. 
+FORMAT. Coordinated to the network at 5.6, issued as data in the schema at P2 Appendix 11 and as drawings, with every asset carrying the identifier the asset information requirements specify. A PDF drawing set alone does not discharge this clause. 
+WHEN. Progressively, section by section, issued within 4 weeks of each sectional completion, and not held to the end. A record issued once at the end is a record compiled from memory. 
+WHY IT MATTERS TWICE. In 38 months this village is removed under section 16 and, if the Employer elects, relocated. What is dug up, what is left, what is reused and what the reinstatement has to achieve are all read off this record. And for the whole of the 38 months in between, every excavation P5 makes in this site is planned from it. A wrong depth on this record is a struck service in year three. 
+ 
+6  Interfaces 
+This package hands over to every other package on the project and receives almost nothing back. Each interface states what crosses it, who certifies it and when. 
+Ref 
+With 
+What crosses it 
+Who certifies 
+When 
+IF-01 
+P2 Modular Accommodation 
+THE SETTING-OUT AND THE SURVEY CONTROL NETWORK at 5.6. One network, established here, used by everyone 
+This Contractor issues; the Employer reissues to P2, P3 and P5 
+Before P2 sets the first module 
+IF-02 
+P2 Modular Accommodation 
+Module reactions, self-weights and base bearing requirements, against which the base design at 5.4 is confirmed 
+P2 states them in writing; this Contractor confirms its design against them 
+Before this Contractor constructs the first base 
+IF-03 
+P2 Modular Accommodation 
+The 114 base surveys, each demonstrating the tolerances at section 4 
+This Contractor issues per base; P2 accepts in writing before delivering a module to it 
+Base by base, before each delivery 
+IF-04 
+P2 Modular Accommodation 
+OUTRIGGER BEARING PRESSURE, pad size, crane configuration and lift radii, and the hardstanding capacity and plate bearing results against them 
+P2 states the pressures in its lifting plan; this Contractor states and proves the capacity. Neither assumes the other 
+Before the first lift from each hardstanding — 5.7 
+IF-05 
+P2 Modular Accommodation 
+Service termination points: position, foul invert, water duty, electrical characteristics, data 
+Joint coordination drawing signed by both before either orders material 
+Before P2 commences manufacture 
+IF-06 
+P2 Modular Accommodation 
+Earthing arrangement, prospective fault current and earth fault loop impedance at each termination 
+This Contractor measures and confirms; P2's discrimination study is based on it 
+Before P2 completes its electrical design 
+IF-07 
+P2 Modular Accommodation 
+External door threshold levels — T-04, the −15 mm to 0 mm band that makes P2 clause 4.5 achievable 
+Survey by this Contractor at every external door after external works 
+Before each sectional completion 
+IF-08 
+P3 Kitchen 
+External drainage connection at the invert, and the kitchen water and electrical supplies at 5.13 and 5.12 
+Joint before this Contractor lays external drainage 
+Before drainage commences 
+IF-09 
+P3 Kitchen 
+Kitchen slab loadings — 5.0 / 7.5 / 3.0 kN/m² and the point loads on the P3 fixing schedule 
+P3 states the schedule; this Contractor confirms the slab design against it 
+Not later than the P3 shell freeze date 
+IF-10 
+P3 Kitchen 
+GREASE SEPARATOR chamber, position, access and tanker route — emptied without entering the village or crossing a footpath, 5.10 
+Joint drawing signed by both, and by P5 who will operate it 
+Before drainage commences 
+IF-11 
+P4 Furniture 
+Delivery access, unloading position and the route into each building for furniture deliveries during sectional occupation 
+This Contractor states the available routes; P4 confirms they suit its vehicle 
+4 weeks before each sectional occupation 
+IF-12 
+P5 FM and Operation 
+The transport pick-up, its turning provision and the bus it is sized for at 5.8 
+P5 states the vehicle; this Contractor designs to it 
+Before the external works design is completed 
+IF-13 
+P5 FM and Operation 
+THE OPERATING HANDOVER: maintenance access drawing, chamber emptying schedule, pavement residual life and maintenance regime, generator exercise regime, water flushing and sampling regime, gritting routes 
+P5 acknowledges receipt against a checklist, item by item 
+4 weeks before each sectional occupation 
+IF-14 
+P5 FM and Operation 
+Settlement monitoring reports at 5.5 throughout the deployment, and any exceedance 
+This Contractor issues; P5 and the Employer both receive 
+Per the monitoring frequency at 5.5 
+IF-15 
+Employer / statutory undertakers 
+The DNO connection, the water undertaker's connection, the discharge consent and the adoption position at 5.9 
+The Employer procures the connections; this Contractor designs and applies 
+Per the programme at section 9 
+IF-16 
+Employer / fire and rescue service 
+Fire access routes, hydrant positions, flow test results and the availability statement before each sectional occupation 
+This Contractor issues; the Employer submits to the fire and rescue service 
+Before each sectional occupation — 5.14 
+IF-04 is shaded because it is the only interface on this project where getting it wrong kills somebody. See 5.7. 
+ 
+7  Performance schedule 
+These are the Employer's requirements. Compliance with statute is the Contractor's duty and is not discharged by meeting them. 
+Criterion 
+Requirement 
+How it is verified 
+Base level 
+± 5 mm across any single base 
+Levelled survey of every base, issued before module delivery 
+Base position 
+± 10 mm on plan 
+Coordinated survey against the setting-out drawing 
+Relative level, adjacent bases under one module 
+± 3 mm 
+Survey of every adjacent pair, computed and reported 
+Base flatness 
+3 mm under a 1 m straightedge 
+Straightedge at not fewer than 5 positions per base 
+Threshold level at external doors 
+−15 mm to 0 mm relative to module FFL 
+Survey at every external door after external works 
+Independent survey check 
+100% of a block re-surveyed on any failure in the 10% sample 
+Employer-selected sample, at the Contractor's cost 
+Total settlement 
+15 mm maximum over the deployment 
+Monitoring per the frequency at 5.5 
+Differential settlement, one module 
+5 mm maximum 
+Monitoring, computed for every adjacent pair 
+Differential settlement, one block 
+10 mm maximum 
+Monitoring, computed across the block 
+Formation strength 
+The CBR the pavement design assumes 
+Plate bearing or DCP, 1 test per 200 m² 
+Earthworks compaction 
+As the Contractor's specification requires 
+1 in-situ density test per 500 m² per layer, minimum 3 
+Crane hardstanding capacity 
+Not less than the outrigger pressure P2 states 
+Plate bearing test, 2 positions per crane position, before first lift 
+Road and hardstanding level 
+± 20 mm 
+Survey grid at not more than 10 m centres 
+Ponding 
+No standing water anywhere on any trafficked or walked surface 
+Visual inspection after a rainfall event, recorded 
+Surface water discharge 
+5 l/s per hectare maximum 
+Flow control device proved by measurement 
+Flood risk 
+No flooding of any building, road or footpath in the 1 in 100 year event + 40% 
+Design calculation, submitted and accepted 
+Foul gradient 
+Within 10% of design, never flatter than self-cleansing 
+Invert survey at every manhole 
+Drainage integrity 
+No defect on CCTV; air or water test passed 
+CCTV survey of every run, and test certificate 
+Water pressure at each termination 
+≥ 2.0 bar dynamic at 1.5 l/s; static ≤ 5 bar 
+Measurement at each termination point individually 
+Water quality 
+Satisfactory bacteriological result 
+Sampling and testing before EACH sectional occupation 
+Electrical supply at each termination 
+≥ 250 kVA per block; ≥ 200 kVA kitchen; TN-S 
+Measurement and test certificate per termination 
+Standby changeover 
+On load within 15 seconds 
+Demonstrated at commissioning, and monthly thereafter by P5 
+Standby run 
+4 hours at full essential load 
+Witnessed test with fuel consumption recorded 
+Generator noise 
+≤ 40 dB LAeq at the nearest bedroom window at night 
+Measurement during a night-time test run 
+Hydrant performance 
+≥ 1,500 l/min at 1.7 bar at every hydrant 
+Flow test, each hydrant individually 
+Fire appliance access 
+Within 45 m of every point of every storey 
+Drawing and swept path, verified on the completed route 
+Fire cover availability 
+Complete and tested before each sectional occupation 
+Availability statement issued before occupation 
+Footpath illuminance 
+10 lux average, 3 lux minimum, uniformity ≥ 0.25 
+Measured on a grid on the installed installation 
+Light spill at bedroom windows 
+≤ 5 lux vertical, 23:00–07:00 
+Measured at the window, in the plane of the glass 
+Footpath slip resistance 
+PTV ≥ 36 wet 
+Tested on the installed surface 
+Construction noise at occupied blocks 
+65 dB LAeq,1h 07:00–20:00; 55 dB LAeq,1h 08:00–16:00 at a designated night-shift block 
+Continuous monitoring at 2 boundary positions, logged weekly 
+Night working noise 
+65 dB(A) at the facade, 20:00–07:00, per the Appendix 3 site rule — and not programmed for 
+Appendix 3 governs; this Contractor does not rely on the written agreement 
+Vibration at occupied blocks 
+≤ 3 mm/s peak particle velocity 
+Continuous monitoring during any capable activity 
+Unplanned service interruption 
+Temporary supply within 4 hours 
+Incident record, issued within 24 hours 
+As-built data 
+Issued within 4 weeks of each sectional completion 
+Employer's acceptance against the schema at P2 Appendix 11 
+ 
+8  Working alongside an occupied village 
+8.1  The condition that governs everything from month 3 
+From month 3 this site is TWO SITES sharing a boundary: a live construction site, and a village where up to 225 people sleep, eat, wash and wait for a bus. They are separated by the line at 5.16 and by nothing else. 
+One of those two populations has not been inducted, is not wearing PPE, is asleep for half of every day, and includes people who have just finished a twelve-hour shift. They are not visitors and they are not trespassers. They live here, and they will take the shortest route to the canteen. 
+EVERY REQUIREMENT IN THIS SECTION FOLLOWS FROM THAT. None of it is boilerplate, and a tenderer that prices this package as a greenfield civils job has priced the wrong job. 
+8.2  Sequence, and building the last section without crossing the first 
+The village is occupied in four sections — 65 beds at month 3, cumulative 150 at month 6, 205 at month 9 and 225 at month 12. 
+The Contractor shall submit, with its tender, a sequence and logistics plan showing for each of those four stages: where the segregation line runs; the construction access route and how it reaches the remaining work WITHOUT crossing the occupied village; where deliveries and cranes stand; where the fire access routes at 5.14 run and how they stay available; and the pedestrian routes residents will use. 
+A plan in which a construction vehicle route crosses a resident pedestrian route at grade will be rejected unless the crossing is controlled, signalised or marshalled, and the plan says which. 
+WHERE A CROSSING IS UNAVOIDABLE, it is marshalled — by a person, not by a sign. The Contractor shall price the marshalling. 
+8.3  Noise, and a village where somebody is always asleep 
+THE SITE RULES AT APPENDIX 3 GIVE ONE LIMIT and this document states it before adding to it: once any block is occupied, no work generating more than 65 dB(A) at the facade of an occupied block between 20:00 and 07:00 without the Employer's written agreement. 
+THAT RULE WAS WRITTEN FOR A SITE WHERE PEOPLE SLEEP AT NIGHT. In this village 101 residents work nights and sleep during the working day, and there is no hour at which noisy work is free. Appendix 3 continues to govern and nothing below reduces it; where this clause and Appendix 3 differ, the MORE ONEROUS applies. 
+THIS CONTRACTOR SHALL NOT PROGRAMME any activity between 20:00 and 07:00 that depends on the Employer's written agreement being given. If it needs that agreement it has programmed the work into the wrong window. 
+ADDITIONALLY, and measured to BS 5228-1 at the facade of the nearest occupied block: 
+65 dB LAeq,1h between 07:00 and 20:00 generally. 
+55 dB LAeq,1h between 08:00 and 16:00 at any block P5 has designated as night-shift sleeping accommodation. P5 designates those blocks and notifies the Contractor monthly; the designation moves as the shift pattern moves. 
+PILING, BREAKING, VIBRATORY COMPACTION AND ROCK BREAKING within 50 m of an occupied block only within a window agreed with the Employer and P5 not less than 5 working days in advance, and notified to residents by P5. 
+VIBRATION at any occupied block not exceeding 3 mm/s peak particle velocity, measured to BS 5228-2, monitored continuously during any activity capable of exceeding it, with the record issued weekly. 
+Reversing alarms within the village boundary shall be broadband, not tonal. 
+MONITORING. Continuous noise monitoring at not fewer than 2 positions on the village boundary from first occupation, logged, and the log issued weekly with any exceedance explained. An exceedance discovered from a complaint rather than from the log means the monitoring was not doing its job. 
+A CONTRACTOR THAT WAKES THE NIGHT SHIFT loses the site's cooperation for the rest of the deployment, and it is not recovered by apologising. 
+8.4  Dust, mud and the things that arrive on a boot 
+DUST. Dust suppression on every haul route, every stockpile and every earthworks operation, with water bowsers available and used, and stockpiles sheeted or seeded where they will stand for more than 4 weeks. Dust deposition monitored at the village boundary and the record issued monthly. 
+Dust from an earthworks operation lands on the washing line, on the cars in the car park, and in the kitchen's fresh air intake. The last of those is a food safety issue and it belongs to P3 to manage and to this package not to cause. 
+MUD. Wheel washing at every exit from the working area onto a route used by residents or by the public, and mechanical road sweeping of those routes, not brushing. A road with mud on it is the slip hazard in this document that actually injures somebody, and it injures them at 05:00 in the dark in work boots. 
+MUD ON THE FOOTPATHS is removed the same day. Not at the end of the week. 
+8.5  Interruptions to a service somebody is living on 
+From first occupation, every service this package provides is a service somebody is living on. A water shut-off is 225 people who cannot shower before shift. 
+NO PLANNED INTERRUPTION to water, power, drainage, data, lighting, heating or fire cover to any occupied part of the village without: 
+Not less than 10 working days' written notice to the Employer and to P5, stating the service, the area, the start, the duration and the contingency; 
+An agreed window, which for water and power shall be outside 04:30–07:30 and 17:00–20:00 unless P5 agrees otherwise, because those are the shift-change windows; 
+A contingency in place before the interruption starts — temporary supply, tankered water, or a generator, provided by this Contractor at its cost; 
+And for any interruption to fire detection, alarm, fire access or hydrant cover, an alternative in place FIRST and the Employer's written release, per 5.14. 
+UNPLANNED INTERRUPTION. Notify P5 and the Employer within 15 minutes, restore or provide a temporary supply within 4 hours, and issue a written account within 24 hours of what failed and what has changed so that it does not recur. 
+The Contractor shall price the standby provision this clause requires. A tenderer that has not priced a tanker and a temporary generator has assumed nothing will go wrong on a site where excavation happens next to a live main for eighteen months. 
+8.6  Security, and two populations who both belong here 
+This site has residents who are entitled to be here and are not construction workers, and construction workers who are entitled to be here and are not residents. Access control is written for both. 
+The Contractor's personnel shall be identifiable, inducted and recorded, and shall not enter the occupied village outside the areas and times their work requires. 
+EXCAVATIONS AND OPENINGS within or adjoining the village shall be physically covered or fenced whenever unattended, without exception and regardless of duration, and inspected at the end of every shift. An excavation left open behind a barrier on a site where people walk home in the dark after a twelve-hour shift is an excavation somebody will fall into. 
+PLANT shall be immobilised and keys removed when unattended. Fuel, materials and plant shall be stored inside the construction area and not in the village. 
+SAFEGUARDING AND CONDUCT. The Contractor's personnel are working in what is, for 225 people, their home. The standards of conduct at section 15 apply to every person this Contractor brings to site, including every subcontractor and every agency worker, and a breach is a removal from site. 
+ 
+9  Programme, delay and damages 
+9.1  The dates this package is measured against 
+This package has no single completion date that matters. It has four, and they are the sectional occupation dates the whole village is built around: 65 beds at month 3, cumulative 150 at month 6, 205 at month 9, and 225 at month 12. 
+For each section, this package's works are complete when: the bases are surveyed and accepted; the access and fire routes at 5.14 are available; every service to that section is commissioned and certified under 5.18; the footpaths and lighting to that section are complete; and the as-built data for it has been issued. 
+A section is not occupied on a promise that the lighting follows. The people occupying it walk to the canteen that night. 
+9.2  The programme the Contractor submits, and what it has to show 
+With its tender the Contractor shall submit a programme in a critical path method form, showing the sectional dates above, the earthworks seasons, the ground investigation at 5.2, the design and approval periods, the statutory connections at IF-15, the crane hardstanding dates against P2's lift programme, and the float it holds and where. 
+IT SHALL SHOW THE STATUTORY CONNECTIONS AS THEY REALLY ARE. A DNO connection and a water undertaker's connection are procured by the Employer and delivered by third parties on their own timescales, and they are the single most common cause of a village that is built and cannot be occupied. The Contractor shall state the dates it requires and the date by which a delay in each becomes critical. 
+FLOAT belongs to the project and is available to whichever party needs it, until it is gone. It is not owned by the Contractor by virtue of having programmed it. 
+9.3  Progress, and reporting that is worth reading 
+Monthly progress report against the accepted programme, stating: percentage complete by element; the bases surveyed and accepted to date against the number required for the next sectional date; the critical path as it now stands and how it has changed; every open interface at section 6 and its status; the test and hold point record; and any matter that could affect a sectional occupation date, whether or not it is this Contractor's responsibility. 
+The last of those is the point of the report. A contractor that reports only its own works reports a project that is on programme up to the month it is not. 
+9.4  Adverse weather, and the two winters in this programme 
+This programme contains two winters and a full earthworks operation. Weather is not an unforeseen event on a civil engineering project in the United Kingdom; it is a planned condition. 
+The Contractor shall state in its Proposals the weather limits at which it will stop each principal operation, and shall programme on the basis of the published 10-year average for the site's region for rainfall days, temperature and wind. 
+AN EXTENSION OF TIME FOR WEATHER is available only where the weather encountered in a month is worse than that 10-year average for that month, measured at the nearest published station, and only for the operations actually prevented. It is not available for the winter itself. 
+The Contractor shall record the weather daily from the first day on site, including the operations affected and the hours lost. A claim supported by a retrospective weather report and no site record will not be accepted, because by then nobody can say what was being done that day. 
+9.5  Delay, and what a late section actually costs 
+Delay damages apply to each sectional occupation date separately, at £145 PER BED PER DAY for every bed in that section that cannot be occupied on its date. 
+That is the same rate as the P2 sectional damages because it is the same loss. When a section is late the Employer houses those people somewhere else, and the cost is a bed in a hotel, a longer bus journey and a shift that starts late — and it is incurred whether the bed is late because the module is late or because the base under it is not ready. 
+It is stated as a genuine pre-estimate of that loss and it is not a penalty. It is stated in this document rather than left to a schedule so that a tenderer prices the risk of a late section knowingly. 
+WHERE THE DELAY IS NOT THE CONTRACTOR'S, an extension of time is granted and damages do not run. The causes are: a change instructed under section 12; an unforeseen physical condition meeting the test at 12.3; weather exceeding the threshold at 9.4; a statutory connection at IF-15 delivered late by the third party; and any act of prevention by the Employer or by another package. 
+A claim shall be notified within 10 working days of the event becoming apparent and shall be supported by the records kept at the time. It is not established two years later from a programme rebuilt after the fact. 
+9.6  Acceleration, and what the Employer will and will not pay for 
+Where a sectional occupation date is at risk for a cause within the Contractor's control, the Contractor shall accelerate at its own cost and shall submit a recovery programme within 10 working days of the risk becoming apparent. 
+Where the Employer instructs acceleration for a cause that is not the Contractor's, it is a change under section 12 and it is valued before it is carried out, not after. 
+WORKING LONGER HOURS IS NOT ALWAYS AVAILABLE HERE. From month 3, acceleration by extending hours runs straight into the noise limits at 8.3, and those limits are a planning condition and a duty to the people asleep in the village. A recovery programme built on evening working is not a recovery programme. 
+ 
+10  Health and safety 
+10.1  The duties this section does not restate 
+The Contractor is a designer and a contractor under the Construction (Design and Management) Regulations 2015 and shall discharge those duties. It shall also comply with the Health and Safety at Work etc. Act 1974, the Work at Height Regulations 2005, the Lifting Operations and Lifting Equipment Regulations 1998, the Control of Substances Hazardous to Health Regulations 2002, the Confined Spaces Regulations 1997 and every other applicable statutory requirement. 
+Nothing in this document reduces those duties and nothing in this document is a substitute for them. The clauses that follow are the requirements this site has that a competent contractor's standard arrangements do not automatically cover. 
+10.2  Temporary works, and the ones that fail quietly 
+All temporary works designed, checked and controlled to BS 5975, with a Temporary Works Coordinator appointed by name and a register maintained. 
+EXCAVATION SUPPORT. No person shall enter any excavation deeper than 1.2 m that is not supported or battered to a design, and every excavation shall be inspected at the start of every shift and after any event that could have affected it, with the inspection recorded. 
+TEMPORARY DRAINAGE IS A TEMPORARY WORK AND IT IS THE ONE THAT IS FORGOTTEN. The site shall be drained throughout construction so that a partly built village does not flood the part that is occupied, and so that surface water from the working area does not run onto an occupied section, a footpath or a road. The temporary drainage design shall be in the register, shall be reviewed at each change of the working arrangement, and shall be maintained — a temporary ditch that has silted up is not drainage. 
+CRANE HARDSTANDING is a temporary work in the register and its proof testing at 5.7 is a hold point under 5.17. 
+10.3  Underground services, and the permit to dig 
+Every excavation on this site is carried out under a permit to dig, from the first excavation to the last, without exception for depth, duration or urgency. 
+The regime shall follow HSG47 and shall include, before every excavation: current service drawings including this package's own as-built record at 5.20; a cable avoidance tool and signal generator survey by a trained operative; the marking of located services on the ground; and safe digging practice, with hand digging within 500 mm of any located or suspected service. 
+AS THE VILLAGE FILLS, THE RISK GETS WORSE AND NOT BETTER. Every month there is more buried service and more of it is live and occupied. From month 3 a struck cable is 65 people without power; by month 12 it is 225 people without power, without hot water, and possibly without fire detection. 
+A STRIKE OR NEAR MISS shall be reported to the Employer within 2 hours, investigated, and the finding issued in writing. A near miss that is not reported is the strike that happens next month, and it happens to somebody else. 
+10.4  Lifting over an occupied village 
+Every lifting operation planned under LOLER by an Appointed Person, with a written lift plan for every lift and not one plan for a category of lifts. 
+NO LOAD SHALL BE SLEWED OVER ANY OCCUPIED BUILDING, occupied part of the village, resident pedestrian route or public highway. Where the geometry of a lift makes that impossible, the lift does not proceed until the area beneath is cleared and controlled, and the clearance is a documented and marshalled operation agreed with P5, not an announcement. 
+WIND. A stated maximum wind speed for every lift, measured at the crane and not forecast, and a documented stop. 
+The hardstanding proof at 5.7 is a precondition of every lift and its record is held with the lift plan. 
+10.5  The people this package brings to site 
+Every person inducted before starting work, with the induction covering the segregation line at 5.16, the noise regime at 8.3, the permit to dig at 10.3, the fire access routes at 5.14, and the fact that 225 people live on the other side of the fence. 
+Competence recorded for every person carrying out a task requiring it, including plant operators, banksmen, the Appointed Person and the Temporary Works Coordinator, and verified rather than asserted. 
+Accident, incident and near miss reporting to the Employer within 4 hours for anything reportable under RIDDOR and within 24 hours for anything else, with the investigation issued within 10 working days. 
+ 
+11  Information and asset data 
+11.1  What is delivered, and in what form 
+Asset information to the schema at P2 Appendix 11, which applies to this package unamended. Every asset carries the identifier that schema specifies and is coordinated to the survey control network at 5.6. 
+The deliverables are: the as-built survey at 5.20; the operation and maintenance information for every asset that P5 will maintain; the health and safety file information required under CDM 2015; the test, commissioning and certification records at 5.18; the settlement monitoring baseline and the subsequent reports at 5.5; and the maintenance access drawing at 5.10. 
+A scanned PDF of a marked-up drawing is not asset data and does not discharge this section. 
+11.2  When, which is progressively and not at the end 
+Information for each section is issued within 4 weeks of that section's completion, at months 3, 6, 9 and 12, and is a precondition of the payment for that section under section 17. 
+Information held to the end of the package is information compiled from memory by people who have moved to another job. The Employer would rather have four accurate sets than one complete one. 
+11.3  Why this package's record matters more than most 
+P5 operates this site for 38 months and every excavation it makes is planned from this record. P2, P3 and P4 all work to positions this package set. At the end of the deployment the village is removed and, if the Employer elects, relocated, and what is dug up is read off this record. 
+A depth that is wrong on this record is a struck service in year three, and nobody will be able to ask the person who dug it. 
+ 
+12  Change control 
+12.1  The only route by which anything changes 
+No change to the Employer's Requirements, to the Contractor's accepted Proposals, to a tolerance, to a level, to a termination point or to a specification takes effect except by a written instruction from the Employer's authorised representative. 
+No instruction given verbally, in a meeting, on a drawing marked up on site, or by any other package's contractor has any effect whatsoever. This package sets levels that eight other parties build to, and a level changed by conversation is a level that exists in two versions. 
+12.2  Valuation, and knowing the price before the work 
+Every proposed change is valued and its programme effect stated BEFORE it is instructed, using the rates in the priced schedule at section 17, or where no rate applies, by a build-up the Contractor submits and the Employer accepts. 
+The Contractor shall submit its quotation within 10 working days of a request. Where the Employer instructs work to proceed before the valuation is agreed, the instruction shall say so expressly and the records required to value it shall be kept from the first day, agreed daily, and signed. 
+12.3  Unforeseen physical conditions, and where the line is 
+A physical condition is unforeseen only if it meets the test at 5.2: it could not reasonably have been anticipated by an experienced contractor from the factual data provided, a site inspection, and the investigation this document requires the Contractor to carry out. 
+WHERE IT MEETS THAT TEST, it is a change, valued under 12.2, with the programme effect assessed. Where it does not, it is at the Contractor's risk and it was priced in the tender. 
+THE NOTIFICATION DUTY IS SEPARATE FROM THE COMMERCIAL ONE. The Contractor shall notify within 4 hours of encountering a condition it considers unforeseen, per 5.19, whether or not it has decided to claim, and shall keep the evidence — photographs, survey, samples — before disturbing it. A notification is not a claim and the Employer will not treat it as one. 
+The reason this is written this way is that the alternative does not work. A contractor that thinks notifying means claiming waits until it has priced the claim, and by the time anybody looks, the material is in a lorry. 
+12.4  Change originating in another package 
+Where another package requires a change to this one — a termination moved, a level altered, a loading increased, a hardstanding relocated — it is instructed by the Employer under 12.1 and valued under 12.2. It is not agreed between contractors. 
+Where this Contractor becomes aware that a requirement of another package cannot be met because of something delivered under this one, it shall notify the Employer immediately and shall not leave it for that package to discover on arrival. The cost of finding it here is a survey. The cost of finding it there is a module standing on a low-loader. 
+ 
+13  Defects, response and settlement 
+13.1  The defects period, and the two things it has to cover 
+The defects liability period is 12 months from the completion of each section, running separately for each, and 24 months for buried drainage and buried services. 
+SETTLEMENT IS DIFFERENT AND IT IS LONGER. The settlement limits at section 4 apply for the whole of the 38-month deployment and the monitoring at 5.5 runs for the whole of it. A settlement exceedance arising from the Contractor's design or workmanship is a defect whenever it appears, and it is not extinguished by the expiry of a 12-month period. 
+That is stated plainly because settlement does not appear in twelve months. It appears in year two, in the wet, in one block, and it is the defect this package is most likely to leave behind. 
+13.2  Response, when the site is occupied 
+A defect in this package's work, once the village is occupied, is a defect in somebody's home or in the route they walk to work. Response times are: 
+PRIORITY 1 — anything affecting fire access, hydrant cover, life safety, a live electrical hazard, an open excavation or a total loss of water, power or drainage to an occupied section. Attend within 2 hours, make safe immediately, temporary provision within 4 hours. 
+PRIORITY 2 — partial loss of a service, a drainage blockage, a failed lighting circuit on a pedestrian route, standing water on a route or a settlement exceedance. Attend within 24 hours, rectify or provide a temporary solution within 5 working days. 
+PRIORITY 3 — everything else. Rectify within 20 working days, or by an agreed programme where the work must wait for weather or for an occupation break. 
+These are shorter than the P2 defects response times for Priority 1 and they are meant to be: an open excavation and a struck main cannot wait for a manufacturer's engineer to travel. 
+13.3  Rectification while people are living here 
+Rectification is planned work in an occupied village and it is subject to the same regime as construction: the interruption rules at 8.5, the noise limits at 8.3, the permit to dig at 10.3 and the fire access requirements at 5.14. 
+Reinstatement after a rectification excavation shall restore the surface, the falls, the slip resistance and the lighting to the original requirement. A patch in a footpath that ponds is a new defect and it will be recorded as one. 
+Where a defect is rectified, the as-built record at 5.20 is updated and reissued. An out-of-date record is the second defect. 
+13.4  Recurrence 
+The same defect occurring three times in the same location, or the same defect type occurring five times across the site within any 12-month period, requires a root cause investigation and a written report within 15 working days, and a permanent remedy rather than a further repair. 
+Three blocked gullies in one location is not three blockages. It is a gradient. 
+ 
+14  Earthworks carbon, water and waste 
+14.1  Earthworks, which is where the carbon in this package is 
+The carbon in a civils package is in the concrete, the imported aggregate, and the lorry movements taking material away and bringing material in. The Contractor shall report, monthly: 
+Volume of material excavated, reused on site, and taken off site, with the destination of what left. 
+Volume of material imported, with the source and the haul distance. 
+Concrete volume placed, with the cement replacement percentage achieved. 
+Diesel consumed on site, by plant and by generation. 
+Lorry movements to and from site. 
+With its tender the Contractor shall state the cut and fill balance it expects to achieve and the cement replacement percentage it will use. A design that balances cut and fill on site is worth more than any other single measure available to this package, and it is a design decision made in the first month. 
+14.2  Water, waste and the site itself 
+Water used for dust suppression, wheel washing and testing shall be metered and reported. Water from dewatering shall be treated before discharge and shall not be discharged to a watercourse or to the surface water system without consent. 
+Waste segregated on site and reported by stream and by destination, with a target of not less than 95% diverted from landfill by weight, excluding hazardous waste and contaminated material. 
+The Construction Environmental Management Plan and its seasonal ecological constraints govern and are at section 19. Those constraints are a programme risk, not a formality: a nesting season that stops clearance for eleven weeks is eleven weeks, and a tenderer that has not read them has not priced them. 
+14.3  What is left behind, which is the real measure 
+This package builds a village that is removed in 38 months. The measure of its sustainability is not the specification of its materials; it is how much of what it built can be taken up, reused or recycled, and how completely the site returns to what it was. 
+The Contractor shall state, in its Proposals, which of its permanent works it has designed to be recoverable at the end of the deployment and which it has not, and shall say so honestly. A base that can be lifted and reused is worth more than a base with a low embodied carbon that has to be broken out. section 16 is where that decision is paid for. 
+ 
+15  Labour standards 
+15.1  Standards that apply to everybody this Contractor brings 
+The requirements below apply to every person working on this package, including every subcontractor at every tier and every agency worker, and the Contractor is responsible for them throughout its supply chain. 
+No person shall pay any fee to obtain or to keep work on this project. No person's passport or identity document shall be retained by anybody. Every person shall have a written contract in a language they understand, shall be paid not less than the applicable statutory minimum, shall be paid directly into an account in their own name, and shall be paid in full and on time. 
+Working hours and rest periods shall comply with the Working Time Regulations 1998. On a remote site where accommodation is provided, the pressure to work excessive hours is structural and the Contractor shall manage it actively rather than rely on individuals to decline. 
+The Modern Slavery Act 2015 applies and compliance is evidenced, not asserted. The Employer may audit at any tier without notice. 
+15.2  Local employment and social value 
+The social value framework at P2 Appendix 12 applies to this package unamended. The Contractor shall report against it quarterly. 
+This package is on site before any other and it is on site longest at the labour-intensive end. Its opportunity for local employment, apprenticeships and local supply chain spend is the largest of any package on the project, and the Employer will hold it to that. 
+15.3  Conduct in a village that is somebody's home 
+From month 3 this Contractor's personnel are working where 225 people live. The standards of conduct in the site rules at section 19 apply in full, to every person, at every tier. 
+Harassment, intimidation, filming or photographing residents, and entering residential areas without a work reason are removals from site. There is no verbal warning stage for any of them. 
+The Contractor shall make it possible for a resident or a worker to report a concern without going through the person they are reporting, and shall tell the Employer within 24 hours of any report received. 
+ 
+16  Removal and reinstatement 
+16.1  The item everybody forgets to price 
+In 38 months this village is removed. This package takes up what it laid, removes what it built, and returns the site to the condition the planning consent requires. 
+IT IS PRICED NOW, at section 17, as a separate and identified sum, and it is priced now for two reasons. The first is that a reinstatement obligation left unpriced is an obligation that is argued about in year four by people who were not there. The second is that pricing it now changes the design: a contractor that has to remove its own bases in 38 months designs them differently from one that does not. 
+16.2  What is removed, and what may be left 
+The presumption is that everything built under this package is removed: bases, slabs, roads, hardstanding, fencing, external lighting, the generator base and its bunding, and all buried services to a depth of not less than 600 mm below the reinstated ground level. 
+WHAT MAY BE LEFT is decided by the Employer and not by the Contractor, and it will be decided against the planning consent, the landowner's requirements and the state of the ground. Deep services below 600 mm may be capped, grouted and left in place where the Employer agrees and where they are recorded. Nothing is left because it is difficult to remove. 
+RECOVERY. Where the Employer elects to relocate the village, this package's role is to release it: bases surveyed, services isolated and capped, access maintained for the removal traffic, and the as-built record at 5.20 issued as the removal information. The Contractor shall state in its Proposals which elements it has designed to be recoverable, per 14.3. 
+16.3  Reinstatement, and the condition it has to reach 
+The site shall be reinstated to the condition the planning consent and the CEMP require, which as a minimum is: all imported material removed or, where the Employer agrees, incorporated; the ground restored to the pre-development profile within ± 100 mm; the subsoil ripped and decompacted to relieve the compaction 38 months of construction and operation put into it; topsoil replaced to the depth recorded in the pre-development survey; and seeding, planting and habitat works to the CEMP's requirement, within its seasonal windows. 
+DECOMPACTION IS THE ONE THAT IS SKIPPED. Ground that has carried cranes and haul roads for three years does not recover on its own, and grass sown on compacted ground fails in the first dry summer, which is after everybody has left. 
+A pre-development condition survey shall be carried out by the Contractor BEFORE it starts work, agreed with the Employer and the landowner, and it is the reference against which reinstatement is measured. Without it the argument in 38 months has no evidence on either side. 
+16.4  Handover and the end of the deployment 
+Reinstatement is complete when the Employer, the landowner and the planning authority accept it against the pre-development survey, and not when the Contractor leaves. 
+An aftercare period of 24 months applies to planting, habitat and reinstated ground, with replacement of failures and maintenance to the CEMP's requirement. Seeding that fails in the first summer is replaced, and the aftercare is priced at section 17 as a separate sum for the same reason the reinstatement is. 
+ 
+17  Pricing 
+17.1  How this is priced 
+The tender is priced against the schedule below in its issued structure. A tenderer who alters it produces a return that cannot be compared with the others, and it will be marked accordingly. 
+Rates are inclusive of everything necessary to complete the item — labour, materials, plant, temporary works, design, testing, supervision, overheads and profit — except where an item is stated to be priced separately. A rate left blank is a rate of nil and the item is deemed included elsewhere; a tenderer intending to exclude something lists it as a departure under 5.1 rather than leaving a cell empty. 
+17.2  What is firm and what is remeasured 
+The following are the Employer's and are firm: the number of bases, 114; the number of blocks, 8; the areas and extents shown on NR-TW-VIL-0201, including the 0.42 ha laydown; the sectional bed numbers at section 9; and the loadings, tolerances, discharge rates and supply characteristics stated throughout this document. 
+The following are remeasured against the Contractor's own design and its own investigation: earthworks volumes, ground improvement, pavement thicknesses, drainage lengths and depths, and imported and exported material. The Contractor prices them against its stated assumptions, states those assumptions, and they are measured as executed. 
+A tenderer that prices remeasured items against an unstated assumption has given a number nobody can evaluate. 
+17.3  The four items priced separately, and why 
+Four items are pulled out of the general rates because folding them in makes them invisible and an invisible obligation is one that is not performed. 
+SETTLEMENT MONITORING at 5.5 — because it runs for 38 months, long after the site team has gone, and monitoring inside a preliminaries figure stops when the preliminaries stop. 
+THE AS-BUILT SURVEY AND ASSET DATA at 5.20 — because it is a deliverable in its own right, it is used for 38 months and again at removal, and a record priced as an overhead is a record compiled at the end from memory. 
+REINSTATEMENT at section 16 — because it happens in 38 months and it is the item every tenderer forgets. Pricing it now also changes the design of what is built. 
+THE OCCUPIED-VILLAGE REGIME at section 8 — the marshalling, the monitoring, the wheel washing, the sweeping, the standby tanker and generator. It is not a preliminary. It is a method of working that starts in month 3 and costs money every week thereafter, and a tenderer that has not priced it has priced a different job. 
+17.4  Payment 
+Payment is by monthly application against work properly executed, valued against this schedule. 
+Each sectional payment is conditional on the deliverables for that section: the base surveys accepted, the commissioning certificates at 5.18 issued, the fire access and hydrant availability statement at 5.14 issued, and the asset data for that section issued within 4 weeks per 11.2. 
+Retention is released against sectional completion and against the completion of the reinstatement at 16.4, in the proportions the Contract states. The reinstatement and aftercare sums are not released against practical completion of the construction works. 
+Item 
+Description 
+Basis 
+Note 
+A 
+DESIGN, INVESTIGATION AND MOBILISATION 
+ 
+ 
+A1 
+Ground investigation to 5.2, including all in-situ and laboratory testing 
+Lump sum 
+State the number of holes, the depths and the testing schedule 
+A2 
+Earthworks, pavement, foundation and drainage design 
+Lump sum 
+Including the settlement prediction supporting 5.5 
+A3 
+Survey control network to 5.6, establishment and quarterly verification 
+Lump sum 
+4 permanent stations, and every reverification issued 
+A4 
+Pre-development condition survey and the CEMP baseline 
+Lump sum 
+16.3. Without it there is no reference for reinstatement 
+A5 
+Mobilisation, site establishment and temporary services 
+Lump sum 
+ 
+B 
+EARTHWORKS AND GROUND 
+ 
+ 
+B1 
+Site clearance, within the CEMP's seasonal constraints 
+m² / Lump sum 
+State the seasonal assumption. 14.2 
+B2 
+Excavation, filling and compaction to formation 
+m³, remeasured 
+State the cut and fill balance assumed. 14.1 
+B3 
+Material imported to site 
+m³, remeasured 
+State the source and haul distance 
+B4 
+Material taken off site, by classification 
+m³, remeasured 
+14.1 and 5.19 
+B5 
+Ground improvement 
+Provisional, remeasured 
+5.3. Priced against the Contractor's own investigation 
+B6 
+Formation testing and proof rolling 
+Rate per test 
+1 per 200 m² minimum, 5.3 
+C 
+BASES AND SLABS 
+ 
+ 
+C1 
+Module bases, complete to the tolerances at section 4 
+Rate per base × 114 
+Including the individual survey of each 
+C2 
+Kitchen and dining building slab to the loadings at 5.4 
+m² 
+5.0 / 7.5 / 3.0 kN/m², NOT the 3.0 kN/m² of P2 Appendix 8 
+C3 
+Amenity and reception building slabs 
+m² 
+ 
+C4 
+Generator base, plinth, bunding and enclosure base 
+Lump sum 
+5.12 
+C5 
+Independent survey check of the Employer's 10% sample 
+Lump sum 
+5.6. At the Contractor's cost, including any 100% re-survey triggered 
+D 
+ROADS, HARDSTANDING AND EXTERNAL AREAS 
+ 
+ 
+D1 
+Site roads and haul routes, designed for construction AND 38 months of operation 
+m² 
+5.8. One pavement, not two 
+D2 
+CRANE HARDSTANDING, including plate bearing proof and every re-test 
+Rate per crane position 
+5.7. State the design bearing pressure priced 
+D3 
+Laydown area, 0.42 ha, surfaced and drained 
+Lump sum 
+Extent is fixed and is smaller than a tenderer may assume 
+D4 
+Car parking and the transport pick-up, sized for the P5 vehicle without reversing 
+Lump sum 
+IF-12 
+D5 
+Footpaths, ramps and external steps to 5.11 
+m² 
+PTV ≥ 36 wet, tested on the installed surface 
+D6 
+External finished levels at door thresholds to T-04 
+Included in D5 
+Measured and surveyed at every external door 
+E 
+DRAINAGE 
+ 
+ 
+E1 
+Foul drainage, collection to outfall 
+m, remeasured 
+5.9. State the discharge unit loading and simultaneity used 
+E2 
+Surface water drainage and flow control 
+m, remeasured 
+5.10 
+E3 
+Attenuation storage for the 1 in 100 year event + 40% 
+m³ 
+State the volume and the rainfall data assumed 
+E4 
+Treatment, interceptors and silt traps 
+Lump sum 
+ 
+E5 
+Grease separator chamber, connection and tanker hardstanding 
+Lump sum 
+5.10 and IF-10. Emptied without entering the village 
+E6 
+CCTV survey, air or water testing of every run 
+Lump sum 
+5.18 
+F 
+SERVICES TO THE TERMINATION POINTS 
+ 
+ 
+F1 
+Water supply, distribution, boosting and storage to the duty at 5.13 
+Lump sum 
+2.0 bar at 1.5 l/s, static ≤ 5 bar, at 9 terminations 
+F2 
+Chlorination, sampling and bacteriological testing at EACH sectional occupation 
+Rate per stage × 4 
+5.13. Not once at practical completion 
+F3 
+Electrical distribution to 8 blocks at 250 kVA and the kitchen at 200 kVA 
+Lump sum 
+5.12 
+F4 
+Earthing, fault level and loop impedance measurement at every termination 
+Lump sum 
+IF-06. Measured, not assumed 
+F5 
+Standby generation — 500 kVA set, changeover, fuel storage and bunding 
+Lump sum 
+5.12. Including the 4-hour full-load witnessed test 
+F6 
+Data ducting, draw rope, and 2 fibre pairs per block terminated and tested 
+Lump sum 
+5.15 
+G 
+FIRE, LIGHTING, BOUNDARY AND LANDSCAPE 
+ 
+ 
+G1 
+Fire appliance access routes to 5.14 
+Included in D1 
+Availability from FIRST occupation is the requirement, not completion 
+G2 
+Hydrants, tested individually at 1,500 l/min at 1.7 bar 
+Rate per hydrant 
+5.14 
+G3 
+Fire access and hydrant availability statement before each sectional occupation 
+Rate per statement × 4 
+5.14. Reissued on any change to the construction arrangement 
+G4 
+External lighting to the levels at 5.11, full cut-off 
+Lump sum 
+Including the illuminance and light-spill measurement 
+G5 
+Fencing, gates and the gatehouse position 
+m / Lump sum 
+5.16 
+G6 
+THE SEGREGATION LINE, including every planned move at months 3, 6, 9 and 12 
+Lump sum 
+5.16. Four moves, each a planned operation 
+G7 
+Landscape, planting and CEMP ecology works 
+Lump sum 
+14.2 
+H 
+THE OCCUPIED-VILLAGE REGIME — PRICED SEPARATELY 
+ 
+ 
+H1 
+Marshalling of every construction and pedestrian crossing point 
+Rate per week 
+8.2. A person, not a sign 
+H2 
+Noise and vibration monitoring, 2 boundary positions, logged and issued weekly 
+Rate per week 
+8.3 
+H3 
+Dust suppression, wheel washing and mechanical road sweeping 
+Rate per week 
+8.4 
+H4 
+Standby tanker and temporary generator provision for service interruptions 
+Rate per event / Lump sum 
+8.5. Assume not fewer than 4 events 
+H5 
+Temporary drainage of the working area, maintained 
+Lump sum 
+10.2. The temporary work that is forgotten 
+J 
+COMMISSIONING, TESTING AND RECORDS 
+ 
+ 
+J1 
+Commissioning and testing of every service, results per termination 
+Lump sum 
+5.18 
+J2 
+Sectional commissioning at months 3, 6, 9 and 12 
+Rate per section × 4 
+Not one event at practical completion 
+J3 
+AS-BUILT SURVEY AND ASSET DATA — PRICED SEPARATELY 
+Lump sum 
+5.20. Issued within 4 weeks of each sectional completion 
+J4 
+Health and safety file information and O&M to P5 
+Lump sum 
+IF-13 
+K 
+SETTLEMENT MONITORING — PRICED SEPARATELY 
+ 
+ 
+K1 
+Monitoring point installation and baseline survey of every base 
+Rate per base × 114 
+5.5 
+K2 
+Monitoring and reporting, months 1–6, monthly 
+Rate per report 
+With computed differentials, not absolute levels alone 
+K3 
+Monitoring and reporting, months 7–12, quarterly 
+Rate per report 
+ 
+K4 
+Monitoring and reporting, month 13 to end of deployment, six-monthly 
+Rate per report 
+This is the one that gets dropped. It is priced here 
+L 
+REINSTATEMENT AND AFTERCARE — PRICED SEPARATELY 
+ 
+ 
+L1 
+Removal of bases, slabs, roads, hardstanding, fencing and lighting 
+Lump sum 
+16.2 
+L2 
+Removal or capping of buried services to 600 mm below reinstated level 
+Lump sum 
+16.2. What is left is the Employer's decision, not the Contractor's 
+L3 
+Subsoil ripping and decompaction 
+m² 
+16.3. The step that is skipped 
+L4 
+Topsoil replacement, seeding, planting and habitat works 
+m² 
+To the CEMP, within its seasonal windows 
+L5 
+Aftercare, 24 months, including replacement of failures 
+Lump sum 
+16.4 
+A blank basis and note mark a section heading. Every other line is priced. 
+ 
+18  The twenty-five questions, answered 
+Written against the same twenty-five findings raised against Revision A of the P2 Employer's Requirements. G14 is answered by stating a fault in the Employer's own pack rather than by passing over it. 
+Ref 
+The finding 
+Where this document answers it 
+G01 
+No design responsibility matrix or Contractor's Proposals mechanism 
+5.1: the outcomes the Employer states are listed, everything else is the Contractor's design, the Contractor's Proposals are specified item by item, a Schedule of Departures is required with the tender, and review is stated not to transfer responsibility 
+G02 
+Prescriptive and performance specification mixed 
+Every one of the 24 works lines at section 3 carries an E or C code — 16 prescribed, 8 contractor-designed — and clause 1.2 states that the only prescribed lines are a tolerance another package must build to, or a statutory or life-safety requirement. Everything else is a duty 
+G03 
+No stated failure mode 
+5.12: standby changeover on load within 15 seconds, 72 hours of fuel at the essential load, and a bund that does not discharge to any drainage system. 5.14: fire access and hydrants available from FIRST occupation and maintained throughout construction, with an availability statement before each section is occupied 
+G04 
+No damages or delay mechanism 
+9.5: £145 per bed per day per sectional date, the same rate as the P2 sectional damages because it is the same loss, with the five causes of an extension of time named and a 10-working-day notification duty 
+G05 
+No defects regime 
+section 13: 12 months per section, 24 months for buried services, and SETTLEMENT FOR THE WHOLE 38-MONTH DEPLOYMENT because settlement does not appear in twelve months. Three priorities with times, and Priority 1 shorter than P2's because an open excavation cannot wait for a manufacturer's engineer to travel 
+G06 
+No temporary works regime 
+10.2: BS 5975, a named Temporary Works Coordinator, excavation support and inspection, and TEMPORARY DRAINAGE named as a temporary work in the register — the one that is forgotten, and the one that floods the occupied section 
+G07 
+Relocation imposed without a requirement 
+section 16: what is removed, what may be left and who decides, the 600 mm rule, decompaction, the pre-development condition survey taken BEFORE work starts as the reference, and 24 months of aftercare. All of it priced now at section L 
+G08 
+No information requirements 
+section 11: the P2 Appendix 11 schema unamended, coordinated to the survey network, issued progressively within 4 weeks of each sectional completion and conditional on payment. A scanned PDF is stated not to discharge it 
+G09 
+No site constraints 
+section 8: six clauses on building the last section without crossing the first, written for a person walking to a bus at 05:00 in January. Sequence, noise, dust and mud, service interruptions, and security in a village that is somebody's home 
+G10 
+No electrical supply characteristics 
+5.12: 400/230 V, 50 Hz, TN-S, 250 kVA per block and 200 kVA to the kitchen, with the prospective fault current and earth loop impedance MEASURED at every termination rather than taken from the connection offer 
+G11 
+No water supply characteristics 
+5.13: 2.0 bar dynamic at 1.5 l/s, static not exceeding 5 bar — both ends stated, because below the first the showers fail and above the second the fittings leak. Plus the stagnation regime for a village that fills in four stages over nine months 
+G12 
+No evacuation or alarm strategy 
+5.14 and IF-16: 45 m access to every point of every storey, hydrants within 90 m at 1,500 l/min, and no excavation or closure of a fire route without a documented alternative in place FIRST 
+G13 
+A figure that was tight for the technology 
+The tolerances at section 4 are tight and they are stated as rejection thresholds with the reason for each. The 3 mm relative level between adjacent bases is the tightest figure in the document, and T-03 says why: a module spanning two bases at different levels is racked before it is loaded 
+G14 
+No loading or serviceability criteria 
+5.4 carries the full loading schedule AND states the fault in the Employer's own pack: P2 Appendix 8 gives 3.0 kN/m² for amenity and dining and NO kitchen production loading at all. This document requires 5.0 / 7.5 / 3.0 kN/m² and says the appendix is to be updated. It is the same statement the P3 requirements make from the other side 
+G15 
+No change control 
+section 12: written instruction from the named representative only, valuation before instruction, the unforeseen-conditions test at 12.3, and the rule that a change originating in another package is instructed by the Employer and never agreed between contractors 
+G16 
+Float ownership not stated 
+9.2: float belongs to the project and is available to whichever party needs it until it is gone. The Contractor also shows the statutory connections as they really are and states the date at which a delay in each becomes critical 
+G17 
+No sustainability requirement 
+section 14: monthly reporting of cut and fill balance, imported and exported material with destinations, cement replacement, diesel and lorry movements — and 14.3, which asks the Contractor to state honestly what it has designed to be recoverable in 38 months and what it has not 
+G18 
+No testing regime for the thing that fails 
+5.7: PLATE BEARING PROOF of every crane hardstanding before the first lift, at 2 positions per crane position, with re-testing after winter idleness, flooding or nearby excavation. A design calculation is stated not to be proof 
+G19 
+Missing drainage detail 
+5.9 and 5.10: congested-use discharge loading rather than domestic, gradients and invert tolerances, the 1.20 m foul invert below FFL that P2 designs from, and every chamber that has to be emptied reachable by a tanker without entering the village 
+G20 
+No obsolescence or support period 
+5.8: the pavement's residual design life at completion and the maintenance regime it requires, issued to P5 who prices its operation from it. 5.5: monitoring for the full deployment. 16.4: 24 months of aftercare 
+G21 
+No inspection checklist 
+section 7: 35 criteria, each with a figure and a stated method of verification, and 5.17: an Inspection and Test Plan per element with five named hold points that cannot be passed without written release 
+G22 
+No definitions 
+section 2: 11 terms, including differential settlement, outrigger pressure, termination point, the segregation line, and tolerance defined as the figure beyond which work is rejected rather than an aspiration 
+G23 
+No ethical labour requirement 
+section 15: no recruitment fee, no document retention, direct payment into the worker's own account, flow-down to every tier and every agency worker, audit without notice, and conduct standards for people working where 225 others live 
+G24 
+Clauses with no measurable requirement 
+Every performance criterion carries a figure and a verification method; every tolerance is a number with a measurement method; illuminance, light spill, noise, vibration, slip resistance, hydrant flow, changeover time, generator noise and settlement all carry a value and the way it is measured 
+G25 
+No security requirement 
+8.6: excavations covered or fenced whenever unattended without exception, plant immobilised, materials stored inside the construction area, personnel identifiable and inducted, and fuel security treated as a real risk because diesel on a remote site disappears 
+ 
+19  Appendices 
+The P2 appendices apply to this package as they stand and are not reissued — duplicating a figure creates two versions of it. 
+ 
+Appendix 
+Status 
+1 
+Activity schedule 
+Section 17 is the structure; the schedule is issued with the ITT 
+2 
+Ground investigation — factual report NR-GI-001 
+FACTUAL ONLY. No interpretative report will be issued — 5.2 
+3 
+Planning consent, the CEMP and site rules 
+P2 Appendix 3. The working hours, the noise limits and the seasonal ecological constraints all come from it 
+4 
+Bed demand curve and the sectional occupation dates 
+P2 Appendix 6. Sections 9 and 8 are derived from it 
+5 
+Design loadings and service supply characteristics 
+P2 Appendix 8 — TO BE UPDATED to carry the kitchen floor loading at 5.4 before P2 manufactures 
+6 
+Asset information requirements and the data schema 
+P2 Appendix 11 applies unamended — section 11 
+7 
+Social value framework 
+P2 Appendix 12 applies unamended — 15.2 
+8 
+Site layout NR-TW-VIL-0201 
+The laydown extent, the gatehouse position and the segregation line are taken from it
