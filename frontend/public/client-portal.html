@@ -51,7 +51,9 @@
   .cp-mini { font-size: 0.8rem; font-weight: 600; padding: 7px 14px; border-radius: 20px; border: 1.5px solid var(--line); background: none; cursor: pointer; font-family: inherit; }
   .cp-mini:hover { border-color: var(--orange); }
   .cp-mini.primary { background: var(--ink, #16130f); color: #fff; border-color: var(--ink, #16130f); }
-  .cp-files { list-style: none; margin: 8px 0 0; padding: 0; font-size: 0.83rem; }
+  .cp-held { margin: 9px 0 0; padding: 9px 12px; border-radius: 6px; background: var(--tint, #f2efe7);
+             border-left: 3px solid var(--gold, #9c7a3c); font-size: 0.84rem; }
+  .cp-files { list-style: none; margin: 6px 0 0; padding: 0; font-size: 0.83rem; }
   .cp-files li { padding: 3px 0; }
   .cp-pill { display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; border: 1.5px solid var(--line); white-space: nowrap; }
   .cp-pill.ok { border-color: #1f9d61; color: #1f9d61; }
@@ -233,7 +235,7 @@ function renderChecklist(e, pack) {
         <div class="cp-why">${esc(i.why)}</div>
         <div class="cp-fmt"><b>Format</b>${esc(i.format)}</div>
         ${i.note ? `<div class="cp-why" style="margin-top:8px;"><b>Your answer:</b> ${esc(i.note)}</div>` : ""}
-        ${(i.files || []).length ? `<ul class="cp-files">${i.files.map((f) => `<li>📎 <a href="${api}/files/${encodeURIComponent(f.stored)}">${esc(f.name)}</a></li>`).join("")}</ul>` : ""}
+        ${(i.files || []).length ? `<div class="cp-held"><b>We hold ${i.files.length} document${i.files.length === 1 ? "" : "s"} against this line</b> — sending one with the same name again replaces it, so nothing is ever counted twice.<ul class="cp-files">${i.files.map((f) => `<li>📎 <a href="${api}/files/${encodeURIComponent(f.stored)}">${esc(f.name)}</a></li>`).join("")}</ul></div>` : ""}
         <div class="cp-choices">
           <button class="cp-mini" data-act="open" data-mode="supplied">${i.state === "supplied" ? "Add more" : ANSWER_LABEL[i.accepts] || "Supply this"}</button>
           <button class="cp-mini" data-act="open" data-mode="not_held">${NOT_HELD_LABEL[i.accepts] || "I do not hold this"}</button>
@@ -385,8 +387,22 @@ document.addEventListener("click", async (ev) => {
       fd.append("note", answer.querySelector("textarea").value.trim());
       for (const f of answer.querySelector("input[type=file]").files) fd.append("documents", f);
       btn.disabled = true; btn.textContent = "Saving…";
-      const res = await fetch(`${api}/checklist/${encodeURIComponent(item.dataset.item)}`, { method: "POST", body: fd });
-      const out = await res.json().catch(() => ({}));
+      // A request that never comes back used to leave this button saying
+      // "Saving…" for ever, and the client would refresh and assume the
+      // upload had been lost. It says so instead, and tells them what is
+      // actually true: refresh, because it may well have saved.
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 120000);
+      let res, out;
+      try {
+        res = await fetch(`${api}/checklist/${encodeURIComponent(item.dataset.item)}`, { method: "POST", body: fd, signal: ctrl.signal });
+        out = await res.json().catch(() => ({}));
+      } catch (e) {
+        clearTimeout(timer);
+        btn.disabled = false; btn.textContent = "Save this answer";
+        return showError(err, "That did not get through — the connection dropped or timed out. Refresh this page before sending it again: it may already have saved, and this page will show you exactly what we hold.");
+      }
+      clearTimeout(timer);
       btn.disabled = false; btn.textContent = "Save this answer";
       if (!res.ok) return showError(err, out.error || "Could not save that.");
       STATE.engagement = out.engagement; render(STATE);

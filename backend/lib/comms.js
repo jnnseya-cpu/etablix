@@ -58,6 +58,12 @@ const transport = process.env.SMTP_HOST
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT || 587),
       secure: Number(process.env.SMTP_PORT) === 465,
+      // A firewalled or wrong SMTP host does not refuse the connection, it
+      // simply never answers. Without these the send waits minutes, and if
+      // anything is awaiting it, so does the customer's browser.
+      connectionTimeout: Number(process.env.SMTP_TIMEOUT_MS || 10000),
+      greetingTimeout: Number(process.env.SMTP_TIMEOUT_MS || 10000),
+      socketTimeout: Number(process.env.SMTP_TIMEOUT_MS || 20000),
       auth: process.env.SMTP_USER
         ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
         : undefined,
@@ -75,6 +81,13 @@ export const interpolate = (str, vars = {}) =>
 
 const escHtml = (s) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+/** Strip a salutation a caller has already written, and any trailing comma. */
+const cleanGreeting = (g) =>
+  String(g ?? "")
+    .replace(/^\s*(dear|hi|hello)\b[\s,]*/i, "")
+    .replace(/[\s,]+$/, "")
+    .trim();
 
 export const SIGNATURE_TEXT = [
   "ETABLIX — Integrated Site Services · Part of Groupe Nseya",
@@ -124,9 +137,13 @@ export function renderEvent(code, vars = {}, { greeting, detailsText } = {}) {
   if (!ev) throw new Error(`Unknown communication event: ${code}`);
   const subject = interpolate(ev.subject, vars);
   const line = interpolate(ev.line, vars);
-  const bodyLines = [greeting ? `Dear ${greeting},` : null, line];
+  // The salutation is owned HERE and nowhere else. Callers pass a name;
+  // some passed "Dear John," and the result was "Dear Dear John,,", on every
+  // email a customer received. Whatever arrives is reduced to the name.
+  const salutation = greeting ? `Dear ${cleanGreeting(greeting)},` : null;
+  const bodyLines = [salutation, line];
   const text = [
-    ...(greeting ? [`Dear ${greeting},`, ""] : []),
+    ...(salutation ? [salutation, ""] : []),
     line,
     ...(detailsText ? ["", detailsText] : []),
     "",
@@ -172,6 +189,23 @@ function appendOutbox(to, subject, text) {
  * usually them — an enquiry alert you can answer by pressing reply is worth
  * more than one that replies to your own inbox.
  */
+/**
+ * Fire an event WITHOUT holding the caller open.
+ *
+ * Use this on any request path a person is waiting on. Raising the invoice is
+ * the transaction; telling somebody about it is a consequence of it, and a
+ * mail server that has stopped answering must never be able to make a
+ * customer think their instruction failed — which is exactly what happened:
+ * the invoice was raised, both notifications blocked on a dead SMTP host, and
+ * the browser span until it gave up.
+ *
+ * It never throws and never rejects. Failures are logged and recorded in the
+ * deliveries log by emit() itself, which is where they belong.
+ */
+export function emitDetached(code, opts = {}) {
+  emit(code, opts).catch((err) => console.error(`[mail] ${code} could not be sent:`, err.message));
+}
+
 export async function emit(code, { email, greeting, vars = {}, detailsText, test = false, attachments, replyTo } = {}) {
   const { subject, text, html, event } = renderEvent(code, vars, { greeting, detailsText });
   const results = [];

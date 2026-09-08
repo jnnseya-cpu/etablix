@@ -40,5 +40,17 @@ const c = sent.at(-1);
 ok(c.replyTo && !c.replyTo.includes("clientcompany"),
    "the client acknowledgement replies to US, not back to the client", c.replyTo);
 
-console.log(`\n=== ${pass} passed, ${fail} failed ===`);
+// --- the salutation is written once, by the template, whatever the caller sends
+sent.length = 0;
+for (const [label, g] of [["a bare first name", "John"], ["a full name", "John Smith"],
+                          ["a caller that wrote its own salutation", "Dear John,"],
+                          ["one with a different opener", "Hi John"]]) {
+  await emit("enquiry.received", { email: "x@y.test", greeting: g,
+    vars: { reference: "ENQ-2026-002", service: "Site Systems Diagnostic" } });
+  const m = sent.at(-1);
+  const first = m.text.split("\n")[0];
+  ok(/^Dear [^,]+,$/.test(first) && !/Dear\s+Dear/i.test(m.text) && !/Dear\s+Dear/i.test(m.html),
+     `${label} → "${first}"`, first);
+}
+console.log(`\n=== ${pass} passed, ${fail} failed (salutation included) ===`);
 process.exit(fail ? 1 : 0);

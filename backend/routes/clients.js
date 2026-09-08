@@ -29,7 +29,7 @@ import { collection, insert, update, remove } from "../lib/store.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 import { ROLES, ACCESS } from "../../shared/constants.js";
 import { acceptDocuments, describeFiles, UPLOAD_DIR } from "../lib/uploads.js";
-import { emit } from "../lib/comms.js";
+import { emit, emitDetached } from "../lib/comms.js";
 import { createDocument, renderDocument, splitDiagnostic } from "./docs.js";
 import { startPipelineRun } from "./agents.js";
 import {
@@ -262,9 +262,9 @@ router.post("/:id/issue-portal", ...finance, async (req, res) => {
     events: [...(e.events || []), { at: Date.now(), by: req.user.name, what: "Portal issued", detail: `Checklist of ${chk.total} items sent to ${e.contactEmail}` }],
   });
 
-  await emit("client.portal.issued", {
+  emitDetached("client.portal.issued", {
     email: e.contactEmail,
-    greeting: e.contactName ? `Dear ${e.contactName.split(" ")[0]},` : undefined,
+    greeting: e.contactName ? e.contactName.split(" ")[0] : undefined,
     vars: { reference: reference(e), company: e.client, item: deliverable(e.deliverable).name },
     detailsText:
       `Your portal (keep this link to your project team):\n${link}\n\n` +
@@ -285,9 +285,9 @@ router.post("/:id/remind", ...finance, async (req, res) => {
   const chk = checklistState(e.checklist || []);
   if (chk.canStart) return res.status(400).json({ error: "Nothing mandatory is outstanding — there is nothing to chase." });
   const outstanding = chk.outstandingItems.filter((i) => i.mandatory);
-  await emit("client.portal.reminder", {
+  emitDetached("client.portal.reminder", {
     email: e.contactEmail,
-    greeting: e.contactName ? `Dear ${e.contactName.split(" ")[0]},` : undefined,
+    greeting: e.contactName ? e.contactName.split(" ")[0] : undefined,
     vars: { reference: reference(e), value: String(outstanding.length), item: outstanding.map((i) => i.title).join("; ") },
     detailsText: `Your portal:\n${SITE_URL}/client-portal?t=${e.portalToken}\n\nOutstanding:\n${outstanding.map((i) => "• " + i.title).join("\n")}`,
   });
@@ -319,15 +319,15 @@ router.post("/:id/payment-received", ...finance, async (req, res) => {
   });
 
   if (kind === "deposit") {
-    await emit("client.deposit.received", {
+    emitDetached("client.deposit.received", {
       email: e.contactEmail,
-      greeting: e.contactName ? `Dear ${e.contactName.split(" ")[0]},` : undefined,
+      greeting: e.contactName ? e.contactName.split(" ")[0] : undefined,
       vars: { reference: reference(e), item: target.number, value: money(target.amount) },
     });
   } else if (!m.recurring) {
-    await emit("client.engagement.closed", {
+    emitDetached("client.engagement.closed", {
       email: e.contactEmail,
-      greeting: e.contactName ? `Dear ${e.contactName.split(" ")[0]},` : undefined,
+      greeting: e.contactName ? e.contactName.split(" ")[0] : undefined,
       vars: { reference: reference(e) },
       detailsText: `Your portal stays open:\n${SITE_URL}/client-portal?t=${e.portalToken}`,
     });
@@ -406,9 +406,9 @@ router.post("/:id/deliverable", ...finance, acceptDocuments, async (req, res) =>
     events: [...(e.events || []), { at: Date.now(), by: req.user.name, what: "Deliverable issued", detail: `${label} (rev ${item.revision})` }],
   });
 
-  await emit("client.deliverable.issued", {
+  emitDetached("client.deliverable.issued", {
     email: e.contactEmail,
-    greeting: e.contactName ? `Dear ${e.contactName.split(" ")[0]},` : undefined,
+    greeting: e.contactName ? e.contactName.split(" ")[0] : undefined,
     vars: { reference: reference(e), item: label },
     detailsText:
       `Your portal:\n${SITE_URL}/client-portal?t=${e.portalToken}\n\n` +
@@ -531,7 +531,23 @@ router.post("/portal/:token/checklist/:itemId", acceptDocuments, async (req, res
   const item = list[idx];
   const state = ["supplied", "not_held", "outstanding"].includes(req.body?.state) ? req.body.state : item.state;
   const note = clampStr(req.body?.note, 2000);
-  const files = [...(item.files || []), ...describeFiles(req.files || [])];
+  // A client who cannot see the file they sent will send it again. Appending
+  // blindly meant the same document was then counted twice: twice in the pack
+  // the diagnostic reads, twice in the evidence a finding is drawn from, and
+  // twice on the record the client is shown. A re-sent document REPLACES the
+  // one it supersedes, matched on the name and the size the client's own
+  // machine gave it.
+  const incoming = describeFiles(req.files || []);
+  // Matched on the NAME alone, not the name and size. The common case is not
+  // an identical re-send, it is a corrected one: the client sends
+  // programme.pdf again because the first was wrong or because they could not
+  // see it. Sending a document of the same name against the same line means
+  // "this is the programme" — the latest is the one that counts, and the
+  // earlier one must not stay behind to be read a second time.
+  const superseded = new Set(incoming.map((f) => f.name.toLowerCase()));
+  const kept = (item.files || []).filter((f) => !superseded.has(String(f.name).toLowerCase()));
+  const replaced = (item.files || []).length - kept.length;
+  const files = [...kept, ...incoming];
 
   if (state === "not_held" && !note) {
     return res.status(400).json({ error: "Tell us in a line why it does not exist or is not held. An absence we know about is a finding; an absence we do not is a hole." });
@@ -550,13 +566,14 @@ router.post("/portal/:token/checklist/:itemId", acceptDocuments, async (req, res
 
   update("clientEngagements", e.id, {
     checklist: updated,
-    events: [...(e.events || []), { at: Date.now(), by: e.contactName || e.client, what: "Checklist updated", detail: `${item.title} — ${STATE_WORDS[state]}` }],
+    events: [...(e.events || []), { at: Date.now(), by: e.contactName || e.client, what: "Checklist updated",
+      detail: `${item.title} — ${STATE_WORDS[state]}` + (replaced ? ` (${replaced} document${replaced === 1 ? "" : "s"} replaced by a newer copy of the same name)` : "") }],
   });
 
   // The moment the last mandatory item lands, the desk is told — the
   // clock on a diagnostic starts here and nobody should have to notice.
   if (!before.canStart && after.canStart) {
-    await emit("client.information.complete", {
+    emitDetached("client.information.complete", {
       vars: { company: e.client, reference: reference(e) },
       detailsText: `${e.project}\n${deliverable(e.deliverable).name}\n\nNot held (${after.notHeldItems.length}):\n${after.notHeldItems.map((i) => `• ${i.title} — ${i.note}`).join("\n") || "none"}`,
     });
@@ -616,13 +633,13 @@ router.post("/portal/:token/start", async (req, res) => {
     events: [...(e.events || []), { at: Date.now(), by, what: "Start confirmed by the client", detail: `${doc.number} raised automatically — ${money(terms.amount)}` }],
   });
 
-  await emit("client.deposit.requested", {
+  emitDetached("client.deposit.requested", {
     email: e.contactEmail,
-    greeting: e.contactName ? `Dear ${e.contactName.split(" ")[0]},` : undefined,
+    greeting: e.contactName ? e.contactName.split(" ")[0] : undefined,
     vars: { reference: reference(e), item: doc.number, value: money(terms.amount), outcome: terms.basis },
     detailsText: `Your portal:\n${SITE_URL}/client-portal?t=${e.portalToken}\n\n${terms.narrative}`,
   });
-  await emit("client.start.confirmed", {
+  emitDetached("client.start.confirmed", {
     vars: { company: e.client, reference: reference(e), actor: by, item: doc.number, value: money(terms.amount) },
   });
   res.json({ engagement: forClient(find(e.id)), invoice: { number: doc.number, amount: terms.amount } });
@@ -703,14 +720,14 @@ router.post("/portal/:token/decision", async (req, res) => {
   update("clientEngagements", e.id, patch);
 
   if (invoice) {
-    await emit("client.balance.requested", {
+    emitDetached("client.balance.requested", {
       email: e.contactEmail,
-      greeting: e.contactName ? `Dear ${e.contactName.split(" ")[0]},` : undefined,
+      greeting: e.contactName ? e.contactName.split(" ")[0] : undefined,
       vars: { reference: reference(e), item: invoice.number, value: money(invoice.amount), outcome: item.label },
       detailsText: `Your portal:\n${SITE_URL}/client-portal?t=${e.portalToken}`,
     });
   }
-  await emit("client.decision.recorded", {
+  emitDetached("client.decision.recorded", {
     vars: {
       company: e.client, reference: reference(e), actor: by, item: `${item.label} rev ${item.revision}`, outcome: spec.label,
       value: invoice ? `Invoice ${invoice.number} for ${money(invoice.amount)} was raised automatically.` : `${comments.length} comment(s) to answer.`,
