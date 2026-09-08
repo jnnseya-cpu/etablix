@@ -37,6 +37,15 @@ let CAT = null;
 let ROWS = [];
 let openId = null;
 
+/** The button only appears where the endpoint would accept it. Offering an
+    action that will be refused is a worse experience than not offering it. */
+function canRunDiagnostic(e) {
+  return e.deliverable === "feasibility"
+    && e.checklistState.canStart
+    && !e.diagnosticRunId
+    && ["deposit", "in_progress"].includes(e.stage);
+}
+
 const TONE = { agreed: "", information: "warning", ready: "warning", deposit: "warning", in_progress: "ok", decision: "warning", balance: "warning", closed: "approved" };
 const DEC_TONE = { approved: "approved", review: "warning", rejected: "declined" };
 
@@ -116,6 +125,7 @@ function detail() {
     dep ? `<button class="btn" data-act="paid" data-kind="deposit">Deposit ${esc(dep.number)} received</button>` : "",
     bal ? `<button class="btn" data-act="paid" data-kind="balance">Balance ${esc(bal.number)} received</button>` : "",
     e.portalToken ? `<button class="btn" data-act="copy">Copy the client's portal link</button>` : "",
+    canRunDiagnostic(e) ? `<button class="btn btn-primary" data-act="diagnostic">Run the diagnostic on their pack</button>` : "",
   ].filter(Boolean).join(" ");
 
   const checklist = (e.checklist || []).map((i) => `<tr>
@@ -142,6 +152,7 @@ function detail() {
   </tr>`).join("");
 
   const canIssue = ["in_progress", "decision", "deposit"].includes(e.stage);
+  const run = e.diagnosticRunId ? { id: e.diagnosticRunId } : null;
 
   return `<div class="section-block" id="cl-detail" data-id="${esc(e.id)}">
     <h3>${esc(e.reference)} — ${esc(e.client)}</h3>
@@ -159,12 +170,19 @@ function detail() {
       <b style="font-size:0.92rem;">Publish a deliverable for the client's decision</b>
       <p class="panel-sub" style="margin:4px 0 10px;">Listing the sections is what makes a review round answerable — the client's portal makes them pick one per comment, so "make it better" is not an option available to them.</p>
       <form id="cl-deliverable" class="team-form" style="grid-template-columns:1fr;">
+        ${run ? `<label class="dec"><input type="checkbox" name="useRun" checked> Issue the completed diagnostic run as the report — the document is minted from the run, with its handover and due dates</label><input type="hidden" name="runId" value="${esc(run.id)}">` : ""}
         <input name="label" placeholder="${e.recurring ? "Period label (blank = next month)" : "Deliverable name (blank = the engagement's)"}">
         <textarea name="summary" rows="2" placeholder="One or two lines the client reads first."></textarea>
         <textarea name="sections" rows="3" placeholder="Sections they can comment against — one per line, e.g.&#10;1 Findings&#10;3 Supplier-interface matrix"></textarea>
-        <input type="file" name="documents" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.png,.jpg,.jpeg,.txt">
+        <input type="file" name="documents" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.xlsm,.csv,.png,.jpg,.jpeg,.webp,.txt,.md,.json">
         <button class="btn btn-primary" type="submit">Publish to the portal</button>
       </form>
+    </div>` : ""}
+
+    ${e.diagnosticRunId ? `<div style="border:1.5px solid var(--line,#dcd7cc);border-left:4px solid var(--orange,#9c7a3c);border-radius:8px;padding:14px 16px;margin:14px 0;">
+      <b style="font-size:0.92rem;">Diagnostic run</b>
+      <p class="panel-sub" style="margin:4px 0 0;">Handover ${esc(e.handoverDate || "—")} · report due ${esc(e.reportDueDate || "—")} · run <code>${esc(e.diagnosticRunId)}</code>.
+      Watch it finish under <b>Organisation → AI agents</b>, then publish it from the box above.</p>
     </div>` : ""}
 
     ${block("The client's checklist", wrapT(`<table class="data-table"><thead><tr><th>Item</th><th>State</th><th>Their answer</th><th>Files</th></tr></thead><tbody>${checklist}</tbody></table>`))}
@@ -223,6 +241,12 @@ function wire(body) {
       if (btn.dataset.act === "issue") { const out = await api(`/api/clients/${id}/issue-portal`, { method: "POST" }); await loadClients(); note(`Portal issued. Link: ${out.link}`); return; }
       if (btn.dataset.act === "remind") { const out = await api(`/api/clients/${id}/remind`, { method: "POST" }); note(`Chased ${out.sent} outstanding item(s).`); return; }
       if (btn.dataset.act === "paid") { await api(`/api/clients/${id}/payment-received`, { method: "POST", body: JSON.stringify({ kind: btn.dataset.kind }) }); await loadClients(); return; }
+      if (btn.dataset.act === "diagnostic") {
+        const out = await api(`/api/clients/${id}/run-diagnostic`, { method: "POST" });
+        await loadClients();
+        note(`Diagnostic started on ${out.files} client document(s). Handover ${out.handover}, report due ${out.due}. It runs six passes and takes several minutes — watch it under Organisation → AI agents.`);
+        return;
+      }
       if (btn.dataset.act === "copy") {
         const link = `${location.origin}/client-portal?t=${e.portalToken}`;
         await navigator.clipboard.writeText(link).catch(() => {});
@@ -235,6 +259,9 @@ function wire(body) {
     ev.preventDefault();
     const id = document.getElementById("cl-detail").dataset.id;
     const fd = new FormData(ev.target);
+    // The hidden runId always travels; the tick decides whether it is used.
+    if (!fd.get("useRun")) fd.delete("runId");
+    fd.delete("useRun");
     try {
       await api(`/api/clients/${id}/deliverable`, { method: "POST", body: fd });
       await loadClients();

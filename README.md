@@ -113,6 +113,30 @@ second ledger is discovered during a dispute.
 
     node backend/test/clientflow.test.mjs      # 26 checks, no server needed
     node backend/test/clientflow.e2e.mjs       # 55 checks, against a running server
+    node backend/test/circle.e2e.mjs           # 20 checks, the WHOLE circle on the real pack
+
+**The circle is one process, not two.** The client answers the requirement
+checklist in the portal and attaches their pack; the diagnostic then runs on
+**those files**, with no second upload. Asking a client to upload a pack and
+then asking ourselves to upload it again is two processes with a person in
+between, and the person is where the version drift comes from. The handover
+date — the day the last mandatory line was answered — is read from the record,
+so the ten working days run from the truth rather than from whoever starts the
+run. `backend/test/circle.e2e.mjs` drives all of it on the 18-document
+NORTHREACH pack: engagement → portal → 18 documents attached → start confirmed
+and the deposit invoicing itself → six pipeline passes on the client's own
+files (3 of them routed to vision, not text) → the run minted into a numbered
+SSD and published → approval raising the balance → closed, with the two
+invoices summing to the agreed fee.
+
+Building that found a bug that would have failed a live test: the upload gate
+checked only the MIME type the browser reports, and a `.md` or `.csv` commonly
+arrives as `application/octet-stream`. Half the NORTHREACH pack was being
+rejected by a filter whose own file input had invited those files. It now
+accepts by extension as well, which is also what the extractor dispatches on,
+so the gate and the reader agree.
+
+`diagnostic-test/TEST-SCRIPT.md` is the twenty-minute manual version.
 
 ## Architecture
 

@@ -30,6 +30,21 @@ const ALLOWED = new Set([
   "application/json",
 ]);
 
+/**
+ * Extensions we can actually read. The MIME type a browser reports is not
+ * reliable: a .md or a .csv frequently arrives as application/octet-stream,
+ * and rejecting it on that basis rejects a file we can read perfectly well
+ * and that the file input invited the user to choose.
+ *
+ * The extension is also what extract.js dispatches on, so filtering by the
+ * same thing keeps the gate and the reader in agreement.
+ */
+const ALLOWED_EXT = new Set([
+  ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".xlsm",
+  ".jpg", ".jpeg", ".png", ".webp",
+  ".txt", ".md", ".csv", ".json",
+]);
+
 const storage = multer.diskStorage({
   destination: UPLOAD_DIR,
   filename: (req, file, cb) => {
@@ -44,8 +59,12 @@ export const uploadDocuments = multer({
   storage,
   limits: { fileSize: 25 * 1024 * 1024, files: 20 },
   fileFilter: (req, file, cb) => {
-    if (ALLOWED.has(file.mimetype)) return cb(null, true);
-    cb(new Error("Only PDF, Word, Excel or image files are accepted."));
+    const ext = path.extname(file.originalname || "").toLowerCase();
+    if (ALLOWED.has(file.mimetype) || ALLOWED_EXT.has(ext)) return cb(null, true);
+    cb(new Error(
+      `“${file.originalname}” is not a type we can read. Send PDF, Word, Excel, CSV, text or an image. ` +
+      "A drawing exported to PDF at scale, and a programme as a PDF print plus a CSV task list."
+    ));
   },
 }).array("documents", 20);
 

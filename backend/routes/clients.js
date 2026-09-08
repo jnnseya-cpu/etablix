@@ -30,13 +30,15 @@ import { requireAuth, requireRole } from "../middleware/auth.js";
 import { ROLES, ACCESS } from "../../shared/constants.js";
 import { acceptDocuments, describeFiles, UPLOAD_DIR } from "../lib/uploads.js";
 import { emit } from "../lib/comms.js";
-import { createDocument, renderDocument } from "./docs.js";
+import { createDocument, renderDocument, splitDiagnostic } from "./docs.js";
+import { startPipelineRun } from "./agents.js";
 import {
   STAGES, stage, stageIndex, MODELS, MODEL_IDS, model,
   DELIVERABLES, deliverable, REQUIREMENT_PACKS, packFor, buildChecklist,
   checklistState, nextAction, DECISIONS, DECISION_IDS, nextPeriodLabel,
-  depositTerms, balanceTerms, money,
+  depositTerms, balanceTerms, money, diagnosticInputs, handoverDate, DIAGNOSTIC_FIELD_MAP,
 } from "../lib/clientflow.js";
+import { diagnosticDates } from "../lib/workingdays.js";
 
 const router = Router();
 const finance = [requireAuth, requireRole(...ACCESS.DELIVERY_FINANCE)];
@@ -281,7 +283,36 @@ router.post("/:id/deliverable", ...finance, acceptDocuments, async (req, res) =>
   const sections = String(req.body?.sections || "")
     .split("\n").map((s) => s.trim()).filter(Boolean).slice(0, 40);
   const files = describeFiles(req.files || []);
-  const linkedId = clampStr(req.body?.documentId, 40);
+  let linkedId = clampStr(req.body?.documentId, 40);
+
+  // A completed diagnostic becomes the report here, in one act, rather than
+  // being copied by hand into the document studio and then published. The
+  // report carries the run's own handover and due dates, so a slipped
+  // handover cannot move a date the client was already given.
+  const runId = clampStr(req.body?.runId, 40);
+  if (runId && !linkedId) {
+    const run = collection("agentTasks").find((r) => r.id === runId);
+    if (!run) return res.status(404).json({ error: "That run does not exist." });
+    if (run.status === "running") return res.status(400).json({ error: "That run has not finished yet." });
+    if (!run.output) return res.status(400).json({ error: "That run produced no output to issue." });
+    const { data } = splitDiagnostic(run.output);
+    const dates = diagnosticDates(String(run.inputs?.handover || "").slice(0, 10));
+    const doc = createDocument({
+      template: "diagnostic",
+      issuedBy: req.user.name,
+      data: {
+        ...data,
+        client: e.client,
+        project: e.project,
+        handover: String(run.inputs?.handover || "").slice(0, 10),
+        dueDate: dates?.due || "",
+        promisedDays: dates?.days || null,
+        datesAssured: dates?.assured || false,
+      },
+    });
+    linkedId = doc.id;
+  }
+
   const linked = linkedId ? collection("documents").find((d) => d.id === linkedId) : null;
   if (!files.length && !linked) {
     return res.status(400).json({ error: "Attach the deliverable, or link a document from the studio. A decision needs something to decide on." });
@@ -318,6 +349,64 @@ router.post("/:id/deliverable", ...finance, acceptDocuments, async (req, res) =>
       `Approving raises ${balanceTerms(e).label.toLowerCase()} — ${money(balanceTerms(e).amount)} — automatically.`,
   });
   res.status(201).json({ engagement: decorate(find(e.id)) });
+});
+
+/**
+ * POST /api/clients/:id/run-diagnostic — run the diagnostic on the pack the
+ * client already supplied through the portal.
+ *
+ * This is the join that makes the process one process. Without it the client
+ * uploads a pack to the portal and somebody downloads it and uploads it again
+ * to the agent, which is two processes with a person in between — and the
+ * person is where the version drift comes from.
+ *
+ * The handover date is read from the record: the day the last mandatory item
+ * was settled. The ten working days run from there, whoever starts the run
+ * and whenever they get round to it.
+ */
+router.post("/:id/run-diagnostic", ...finance, async (req, res) => {
+  const e = find(req.params.id);
+  if (!e) return res.status(404).json({ error: "Engagement not found." });
+  if (deliverable(e.deliverable).pack !== "feasibility") {
+    return res.status(400).json({ error: "The diagnostic runs on a feasibility engagement. This one is a " + deliverable(e.deliverable).name + "." });
+  }
+  const chk = checklistState(e.checklist || []);
+  if (!chk.canStart) {
+    return res.status(400).json({ error: `${chk.mandatoryOutstanding} mandatory item(s) are still unanswered. The clock has not started.` });
+  }
+  const handover = handoverDate(e);
+  if (!handover) return res.status(400).json({ error: "The handover date cannot be read from the checklist. Every mandatory item must carry the date it was answered." });
+
+  // The client's own files, read straight from where the portal stored them.
+  const files = [];
+  for (const item of e.checklist || []) {
+    for (const f of item.files || []) {
+      const full = path.join(UPLOAD_DIR, path.basename(f.stored));
+      if (fs.existsSync(full)) files.push({ originalname: f.name, path: full, mimetype: f.type });
+    }
+  }
+
+  try {
+    const run = await startPipelineRun({
+      agentId: "diagnostic",
+      title: `${e.project} — Site Systems Diagnostic`,
+      runBy: req.user.name,
+      engagementId: e.id,
+      inputs: { client: e.client, project: e.project, handover, ...diagnosticInputs(e) },
+      files,
+    });
+    const dates = diagnosticDates(handover);
+    update("clientEngagements", e.id, {
+      diagnosticRunId: run.id,
+      handoverDate: handover,
+      reportDueDate: dates?.due || null,
+      events: [...(e.events || []), { at: Date.now(), by: req.user.name, what: "Diagnostic started",
+        detail: `${files.length} client document(s) · handover ${handover} · report due ${dates?.due || "—"}` }],
+    });
+    res.status(202).json({ runId: run.id, files: files.length, handover, due: dates?.due || null, engagement: decorate(find(e.id)) });
+  } catch (err) {
+    res.status(502).json({ error: err.message });
+  }
 });
 
 /** DELETE /api/clients/:id — admin only. */

@@ -145,6 +145,55 @@ export function failOrphanedRuns() {
   return n;
 }
 
+/**
+ * Start a run from a plain file list rather than from a multipart request.
+ *
+ * Exported because the client portal collects the information pack against
+ * its requirement checklist, and the diagnostic then has to run on THOSE
+ * files. Asking a client to upload a pack and then asking ourselves to
+ * upload it again is not one process, it is two with a person in between —
+ * and the person is where the version drift comes from.
+ *
+ * `files` are {originalname, path, mimetype} — the shape multer produces and
+ * the shape extractFile reads, so a stored file and an uploaded one travel
+ * the same path and get the same treatment.
+ */
+export async function startPipelineRun({ agentId, inputs = {}, title, files = [], runBy, engagementId = null }) {
+  const agent = AI_AGENTS.find((a) => a.id === agentId);
+  if (!agent) throw new Error("Unknown agent.");
+  const merged = { ...inputs };
+  let sources = [], visualFiles = [];
+  if (files.length) {
+    const brief = AGENT_BRIEFS[agent.id];
+    const target = brief?.fields.find((f) => f.type === "textarea" && f.required)?.name
+      || brief?.fields.find((f) => f.type === "textarea")?.name;
+    const { text, files: results } = await extractAll(files);
+    sources = results;
+    if (text && target) {
+      merged[target] = [String(merged[target] || "").trim(), text].filter(Boolean).join("\n\n");
+    }
+    const byName = new Map(results.map((f) => [f.name, f.route]));
+    visualFiles = files.filter((f) => byName.get(f.originalname || f.filename) === "visual");
+  }
+  assertInputs(agent.id, merged);
+  const run = insert("agentTasks", {
+    agent: agent.id,
+    agentName: agent.name,
+    title: String(title || `${agent.name} — ${new Date().toLocaleDateString("en-GB")}`).slice(0, 140),
+    inputs: merged,
+    sources: sources.map((f) => ({ name: f.name, chars: f.chars || 0, pages: f.pages || null, route: f.route || null, error: f.error || null })),
+    runBy,
+    engagementId,
+    output: "",
+    status: "running",
+    startedAt: Date.now(),
+    stages: DIAGNOSTIC_STAGES.map((st) => ({ ...st, state: "pending" })),
+  });
+  trimLog();
+  workPipeline(run.id, agent, merged, runBy, visualFiles);
+  return run;
+}
+
 router.post("/:id/run", acceptDocuments, async (req, res) => {
   const agent = AI_AGENTS.find((a) => a.id === req.params.id);
   if (!agent) return res.status(404).json({ error: "Unknown agent." });

@@ -912,4 +912,60 @@ export function nextPeriodLabel(engagement) {
   return `Month ${issued + 1}`;
 }
 
+/**
+ * Which checklist line feeds which field of the diagnostic agent.
+ *
+ * The client answers a requirement list; the agent takes named inputs. This
+ * is the join between them, and it is a table rather than a guess so that a
+ * renamed checklist item breaks the build instead of silently sending the
+ * agent an empty field.
+ */
+export const DIAGNOSTIC_FIELD_MAP = {
+  "f-programme": "programme",
+  "f-workforce": "workforce",
+  "f-layout": "layout",
+  "f-logistics": "logistics",
+  "f-services": "services",
+  "f-packages": "packages",
+  "f-constraints": "constraints",
+  "f-surveys": "siteInfo",
+};
+
+/**
+ * The information handover date: the day the LAST mandatory item was
+ * settled. The ten working days at DIAGNOSTIC_WORKING_DAYS run from here,
+ * and the clock is read from the record rather than typed by whoever
+ * happens to be starting the run — a slipped handover cannot quietly move
+ * a date the client was already given.
+ */
+export function handoverDate(engagement) {
+  const list = (engagement.checklist || []).filter((i) => i.mandatory);
+  if (!list.length) return null;
+  const settled = list.filter((i) => i.state === "supplied" || i.state === "not_held");
+  if (settled.length !== list.length) return null;
+  const last = Math.max(...settled.map((i) => i.updatedAt || 0));
+  return last ? new Date(last).toISOString().slice(0, 10) : null;
+}
+
+/**
+ * The agent's inputs, assembled from what the client answered. An item the
+ * client marked "not held" is passed through AS an absence with their
+ * reason attached — a diagnostic that is told what does not exist reads
+ * differently from one that is told nothing, and the absence is a finding.
+ */
+export function diagnosticInputs(engagement) {
+  const out = {};
+  for (const item of engagement.checklist || []) {
+    const field = DIAGNOSTIC_FIELD_MAP[item.id];
+    if (!field) continue;
+    if (item.state === "not_held") {
+      out[field] = `NOT HELD BY THE CLIENT. Their stated reason: ${item.note || "none given"}.`;
+    } else if (item.state === "supplied") {
+      const files = (item.files || []).map((f) => f.name).join(", ");
+      out[field] = [item.note, files ? `Documents supplied: ${files}` : ""].filter(Boolean).join("\n") || "Supplied — see the attached documents.";
+    }
+  }
+  return out;
+}
+
 export { money };
