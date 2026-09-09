@@ -14,6 +14,12 @@
 #             receives it, so testing the client journey cannot email a real
 #             client. This is not optional and the script strips SMTP settings
 #             out of the environment to enforce it.
+#   AI        NOT disabled. The Anthropic key is inherited if the environment
+#             file carries one, because testing the diagnostic is most of the
+#             point of having a staging instance — but an agent run on staging
+#             is six passes over the whole document set and it is billed like
+#             any other. The script says which state it is in at startup.
+#             STAGING_NO_AI=1 strips the key if you would rather it could not.
 #
 # It binds to loopback because a fresh staging database seeds the demo
 # accounts, whose passwords are in the source. Reach it with an SSH tunnel:
@@ -94,7 +100,9 @@ if [ -f "$STAGING_ENV" ]; then
 else
   # Strip every mail setting so staging physically cannot send, and drop the
   # site URL and port so they can be set correctly below.
-  grep -Ev '^(SMTP_[A-Z]+|NOTIFY_[A-Z]+|SITE_URL|PORT)=' "$LIVE_ENV" > "$TMPENV" 2>/dev/null || true
+  STRIP='^(SMTP_[A-Z]+|NOTIFY_[A-Z]+|SITE_URL|PORT)='
+  [ "${STAGING_NO_AI:-0}" = "1" ] && STRIP='^(SMTP_[A-Z]+|NOTIFY_[A-Z]+|SITE_URL|PORT|ANTHROPIC_API_KEY)='
+  grep -Ev "$STRIP" "$LIVE_ENV" > "$TMPENV" 2>/dev/null || true
   say "environment derived from $LIVE_ENV with all mail settings removed"
 fi
 {
@@ -102,6 +110,14 @@ fi
   echo "SITE_URL=http://localhost:$PORT"
   echo "ETABLIX_STAGING=1"
 } >> "$TMPENV"
+
+# Say plainly whether an agent run here will cost money. Finding that out
+# from an invoice is not the way to find it out.
+if grep -qE '^ANTHROPIC_API_KEY=.' "$TMPENV"; then
+  say "AI KEY PRESENT — an agent run on staging is billed exactly like one on live."
+else
+  say "no AI key in this environment — agent runs will report the provider as not connected."
+fi
 
 # ---- the data ---------------------------------------------------------------
 if [ "${RESET:-0}" = "1" ]; then
