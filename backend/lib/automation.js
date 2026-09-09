@@ -24,6 +24,25 @@ import { PLATFORMS, isConnected, platformFetch } from "./platforms.js";
 import { takeSnapshot } from "./portfolio.js";
 import { noticeStatus } from "./paymentdates.js";
 import { releaseStatus, human as humanDate } from "./workingdays.js";
+import { checkMailAuth } from "./mailauth.js";
+import { reportError } from "./alerts.js";
+import { sweepRetention } from "./retention.js";
+import fs from "node:fs";
+import path from "node:path";
+import { dataDir } from "./store.js";
+
+/**
+ * When the last backup ran.
+ *
+ * backup.sh writes a stamp file into the data directory each time it
+ * completes. Reading it here is what turns "backups are configured" into
+ * "backups ran", which are not the same claim and only one of them is worth
+ * anything at three in the morning.
+ */
+function lastBackupAt() {
+  try { return Number(fs.readFileSync(path.join(dataDir(), "last-backup"), "utf8").trim()) || null; }
+  catch { return null; }
+}
 
 const DAY = 86400000;
 const HOUR = 3600000;
@@ -41,6 +60,11 @@ export const RULES = [
   { id: "diagnostic_release", name: "Diagnostic release dates", description: "Watches every Site Systems Diagnostic against the ten working days it was sold on: reminds the day before, says so on the day it is due, and escalates once it is late. Sending early is as much a broken promise as sending late.", cooldownMs: 0 },
   { id: "portfolio_snapshot", name: "Monthly portfolio snapshot", description: "Records the portfolio position — project count, average progress, budget consumed and the health split — once per calendar month, so the VERYX trend line has real history rather than a projection.", cooldownMs: 0 },
   { id: "daily_digest", name: "Daily operating digest", description: "One summary email each morning: pipeline, risks, EVM and exposure status across the business.", cooldownMs: 0 },
+  { id: "mail_auth", name: "Mail authentication watch", description: "Reads the live DNS for SPF, DKIM and DMARC once a day. A revoked key or a deleted record is why enquiries land in junk, and it is invisible from inside the application — this is the platform noticing rather than a customer.", cooldownMs: DAY },
+  { id: "run_failures", name: "Failed agent run watch", description: "Alerts when an agent run fails, naming the run and the error. A failed run used to be a red line on a screen nobody was looking at.", cooldownMs: 0 },
+  { id: "mail_delivery", name: "Outbound mail watch", description: "Alerts when messages are failing to send. Mail is the channel every other alert depends on, so its failure has to be reported through the ones that do not.", cooldownMs: 6 * HOUR },
+  { id: "backup_watch", name: "Backup watch", description: "Alerts when no backup has been recorded for 36 hours. An untested backup is not a backup, and an unrecorded one is not even that.", cooldownMs: 12 * HOUR },
+  { id: "retention_sweep", name: "Retention sweep", description: "Erases client information packs whose retention period has passed, and records each erasure. A retention policy that depends on somebody remembering is a retention policy in name only.", cooldownMs: 0 },
 ];
 
 const DEFAULT_CONFIG = { enabled: true, intervalMin: 60, rules: {} };
@@ -300,6 +324,81 @@ export async function runAutomation(trigger = "schedule") {
         }
       }
       checks.push(`Exposure rule: ${latest.size} projects, ${exposureBreaches.length} in breach`);
+    }
+
+    // --- Mail authentication ----------------------------------------------
+    // The check the platform never made: is the DNS still vouching for our
+    // mail? Nothing inside the application can see this failing — the app
+    // sends, the server accepts, and the receiving mailbox files it as a
+    // forgery. It was found by a customer saying they never heard back.
+    if (ruleEnabled(config, "mail_auth") && shouldAlert(state, "mail.auth", DAY)) {
+      try {
+        const domain = (process.env.NOTIFY_FROM || process.env.SMTP_USER || "etablix.com").split("@").pop().replace(/[>\s]/g, "") || "etablix.com";
+        const auth = await checkMailAuth(domain);
+        checks.push(`Mail authentication (${domain}): ${auth.ok ? "SPF, DKIM and DMARC all in order" : auth.problems.length + " problem(s)"}`);
+        const wasOk = state.mailAuthOk !== false;
+        state.mailAuthOk = auth.ok;
+        if (!auth.ok) {
+          await fire("system.error", {
+            vars: { item: `Mail authentication for ${domain}`, outcome: auth.problems[0] },
+            detailsText: auth.problems.join("\n\n") + "\n\nRun: node tools/mail-doctor.mjs " + domain,
+          }, `Mail authentication: ${auth.problems.length} problem(s) on ${domain}`);
+        } else if (!wasOk) {
+          await fire("system.restored", { vars: { item: `Mail authentication for ${domain}` } }, `Mail authentication restored on ${domain}`);
+        }
+      } catch (err) {
+        checks.push(`Mail authentication check failed: ${err.message}`);
+      }
+    }
+
+    // --- Failed agent runs --------------------------------------------------
+    if (ruleEnabled(config, "run_failures")) {
+      const since = state.lastRunFailureAt || 0;
+      const failed = collection("agentTasks").filter((r) => r.status === "failed" && (r.finishedAt || 0) > since);
+      if (failed.length) {
+        state.lastRunFailureAt = Math.max(...failed.map((r) => r.finishedAt || 0));
+        await fire("system.error", {
+          vars: { item: `${failed.length} agent run(s) failed`, outcome: failed[0].error || "no error recorded" },
+          detailsText: failed.map((r) => `${r.agentName} — ${r.title}\n${r.error || "no error recorded"}`).join("\n\n"),
+        }, `${failed.length} agent run(s) failed`);
+      }
+      checks.push(`Agent runs: ${failed.length} new failure(s)`);
+    }
+
+    // --- Outbound mail ------------------------------------------------------
+    // Reported through the alert routes that do NOT depend on mail: the disk
+    // log and the webhook. Emailing somebody to tell them email is broken is
+    // the alarm wired to the fuse that keeps blowing.
+    if (ruleEnabled(config, "mail_delivery")) {
+      const recent = collection("deliveries").filter((d) => (d.at || d.createdAt || 0) > Date.now() - 6 * HOUR);
+      const failedMail = recent.filter((d) => d.status === "failed" || d.error);
+      if (failedMail.length >= 3 && shouldAlert(state, "mail.delivery", 6 * HOUR)) {
+        reportError(new Error(`${failedMail.length} outbound messages failed in six hours: ${failedMail[0].error || "no error recorded"}`), "mail delivery");
+        findings.push(`${failedMail.length} outbound message(s) failed`);
+      }
+      checks.push(`Outbound mail: ${recent.length} sent in six hours, ${failedMail.length} failed`);
+    }
+
+    // --- Backups ------------------------------------------------------------
+    if (ruleEnabled(config, "backup_watch")) {
+      const last = lastBackupAt();
+      const age = last ? Date.now() - last : null;
+      if ((!last || age > 36 * HOUR) && shouldAlert(state, "backup.stale", 12 * HOUR)) {
+        reportError(new Error(last
+          ? `The last recorded backup was ${Math.round(age / HOUR)} hours ago. Nightly backups are not running.`
+          : "No backup has ever been recorded. deploy/backup.sh is not installed, or its cron entry is missing."), "backups");
+        findings.push("Backups are not running");
+      }
+      checks.push(`Backups: ${last ? `last ${Math.round(age / HOUR)}h ago` : "NONE RECORDED"}`);
+    }
+
+    // --- Retention ----------------------------------------------------------
+    if (ruleEnabled(config, "retention_sweep")) {
+      const swept = sweepRetention({});
+      if (swept.erased) {
+        findings.push(`${swept.erased} client information pack(s) erased at the end of their retention period`);
+      }
+      checks.push(`Retention: ${swept.due} pack(s) due, ${swept.erased} erased`);
     }
 
     // --- Daily digest -----------------------------------------------------

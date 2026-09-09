@@ -1,4 +1,7 @@
-FROM node:20-alpine
+# Node 22, because the store uses node:sqlite from the standard library —
+# a real transactional database with no dependency to install and no server
+# to host. See backend/lib/store.js.
+FROM node:22-alpine
 
 WORKDIR /app
 
@@ -9,7 +12,7 @@ COPY backend ./backend
 COPY frontend ./frontend
 COPY shared ./shared
 
-# Persistent state (JSON store + uploaded documents) lives here — mount a
+# Persistent state (the SQLite database + uploaded documents) lives here — mount a
 # volume over /app/backend/data in production.
 VOLUME ["/app/backend/data"]
 

@@ -25,6 +25,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { DatabaseSync } from "node:sqlite";
 
 const B = process.env.BASE || "http://localhost:3318";
 const DATA = process.env.DATA || "";
@@ -96,16 +97,18 @@ ok(small && small.cut === false && small.charsRead === small.chars,
 
 // --- 3. the database did not swallow the documents
 if (DATA) {
-  const db = fs.readFileSync(path.join(DATA, "db.json"), "utf8");
-  ok(!db.includes("PLANNING CONDITION 14"),
-    "THE DOCUMENT TEXT IS NOT IN db.json — the file rewritten on every change in the system");
+  const sql = new DatabaseSync(path.join(DATA, "db.sqlite"), { readOnly: true });
+  const rowText = sql.prepare("SELECT doc FROM rows WHERE collection = 'agentTasks'").all().map((r) => r.doc).join("");
+  ok(!rowText.includes("PLANNING CONDITION 14"),
+    "THE DOCUMENT TEXT IS NOT IN THE DATABASE — it lives in the run's own pack file");
   const packFile = path.join(DATA, "runs", `${runId}.json`);
   ok(fs.existsSync(packFile), "it is in the run's own pack file");
   const pack = JSON.parse(fs.readFileSync(packFile, "utf8"));
   ok(pack.documents.length === 3, `the pack holds all three documents — ${pack.documents.length}`);
   ok(Object.keys(pack.passes || {}).length === 0, "and a finished run keeps no passes it no longer needs");
-  const row = JSON.parse(db).agentTasks.find((x) => x.id === runId);
-  ok(JSON.stringify(row).length < 60000, `the run row is ${JSON.stringify(row).length} characters, not megabytes`);
+  const row = sql.prepare("SELECT doc FROM rows WHERE collection = 'agentTasks' AND id = ?").get(runId);
+  ok(row && row.doc.length < 60000, `the run row is ${row?.doc.length} characters, not megabytes`);
+  sql.close();
 } else {
   console.log("  · DATA not set — skipping the database checks");
 }

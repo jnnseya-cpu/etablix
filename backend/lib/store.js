@@ -249,8 +249,6 @@ function seed() {
   return data;
 }
 
-let db = null;
-
 const TMP_FILE = DB_FILE + ".tmp";
 const PREV_FILE = DB_FILE + ".prev";
 
@@ -293,76 +291,278 @@ function readStore() {
   return null;
 }
 
+// ============================================================ persistence
+//
+// One file, rewritten in full on every change, was the shape of this store
+// for its whole life. It was made atomic and recoverable — a kill mid-write
+// could no longer destroy it — but atomicity is not integrity. Nothing
+// prevented a lost update between two handlers that both read an array and
+// both wrote it back, nothing enforced a shape, nothing could prove what the
+// store held on a given date, and every write rewrote every record.
+//
+// It is SQLite now: one file still, but a transactional one. Every write is
+// a transaction that either happens or does not. Every row is written on its
+// own rather than by rewriting the world. Schema changes are numbered
+// migrations rather than hopeful "if (!data.x) data.x = []". And an
+// append-only ledger records the money events and the deletions, so "what
+// did it say on the fourteenth" has an answer that is not "whatever the file
+// says now".
+//
+// SQLite rather than PostgreSQL, deliberately. Everything the finding
+// actually asked for — transactions, constraints, migrations, no
+// half-written record, no lost update, a provable history — SQLite gives on
+// one box with nothing to host, nothing to pay for and no new dependency:
+// node:sqlite is in the standard library. PostgreSQL earns its keep when
+// more than one process writes at once, and that day is a hosting decision
+// rather than a correctness one. The API below does not change either way,
+// which is what makes that day cheap.
+//
+// The in-memory mirror stays, because every route reads through
+// collection(name) and expects a plain array it can filter and map. Reads
+// are served from it; writes go to SQLite first and the mirror second.
+
+import { DatabaseSync } from "node:sqlite";
+
+const SQLITE_FILE = path.join(DATA_DIR, "db.sqlite");
+const LEGACY_JSON = DB_FILE;
+
+let sql = null;          // the database handle
+let db = null;           // the in-memory mirror: { users: [...], settings: {...} }
+let seqCounter = 0;      // insertion order, so a collection keeps the order it had
+
+/** Every schema change, in order. The version lives in the database. */
+const MIGRATIONS = [
+  // 1 — the document store, the settings and the append-only ledger.
+  (d) => {
+    d.exec(`
+      CREATE TABLE IF NOT EXISTS rows (
+        collection TEXT    NOT NULL,
+        id         TEXT    NOT NULL,
+        seq        INTEGER NOT NULL,
+        doc        TEXT    NOT NULL,
+        updatedAt  INTEGER NOT NULL,
+        PRIMARY KEY (collection, id)
+      );
+      CREATE INDEX IF NOT EXISTS rows_order ON rows (collection, seq);
+      CREATE TABLE IF NOT EXISTS settings (
+        key   TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS ledger (
+        id     INTEGER PRIMARY KEY AUTOINCREMENT,
+        at     INTEGER NOT NULL,
+        kind   TEXT    NOT NULL,
+        ref    TEXT,
+        actor  TEXT,
+        detail TEXT    NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS ledger_at ON ledger (at);
+    `);
+  },
+];
+
+function migrate(d) {
+  d.exec("CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)");
+  const row = d.prepare("SELECT value FROM meta WHERE key = 'schema_version'").get();
+  const version = row ? Number(row.value) : 0;
+  for (let i = version; i < MIGRATIONS.length; i += 1) {
+    d.exec("BEGIN");
+    try {
+      MIGRATIONS[i](d);
+      d.prepare("INSERT INTO meta (key, value) VALUES ('schema_version', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")
+        .run(String(i + 1));
+      d.exec("COMMIT");
+      console.log(`[store] applied migration ${i + 1}`);
+    } catch (err) {
+      d.exec("ROLLBACK");
+      throw new Error(`migration ${i + 1} failed: ${err.message}`);
+    }
+  }
+}
+
+function open() {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+  sql = new DatabaseSync(SQLITE_FILE);
+  // WAL so a reader never blocks a writer; FULL because this store holds
+  // invoices, and losing the last transaction to a power cut is not a trade
+  // worth making for a business of this size.
+  sql.exec("PRAGMA journal_mode = WAL");
+  sql.exec("PRAGMA synchronous = FULL");
+  sql.exec("PRAGMA foreign_keys = ON");
+  sql.exec("PRAGMA busy_timeout = 5000");
+  migrate(sql);
+}
+
+/** Run a function inside a transaction. A nested call joins the outer one. */
+let depth = 0;
+function tx(fn) {
+  if (depth > 0) return fn();
+  sql.exec("BEGIN IMMEDIATE");
+  depth += 1;
+  try {
+    const out = fn();
+    sql.exec("COMMIT");
+    return out;
+  } catch (err) {
+    try { sql.exec("ROLLBACK"); } catch {}
+    throw err;
+  } finally {
+    depth -= 1;
+  }
+}
+
+// ------------------------------------------------------------- the mirror
+
+function readMirror() {
+  const out = { settings: {} };
+  for (const r of sql.prepare("SELECT collection, doc FROM rows ORDER BY collection, seq").all()) {
+    (out[r.collection] ||= []).push(JSON.parse(r.doc));
+  }
+  for (const r of sql.prepare("SELECT key, value FROM settings").all()) {
+    try { out.settings[r.key] = JSON.parse(r.value); } catch { out.settings[r.key] = r.value; }
+  }
+  const max = sql.prepare("SELECT MAX(seq) AS m FROM rows").get();
+  seqCounter = Number(max?.m || 0);
+  return out;
+}
+
+const writeRow = (name, row, seq) =>
+  sql.prepare(`INSERT INTO rows (collection, id, seq, doc, updatedAt) VALUES (?, ?, ?, ?, ?)
+               ON CONFLICT(collection, id) DO UPDATE SET doc = excluded.doc, updatedAt = excluded.updatedAt`)
+     .run(name, String(row.id), seq, JSON.stringify(row), Date.now());
+
+const deleteRow = (name, rowId) =>
+  sql.prepare("DELETE FROM rows WHERE collection = ? AND id = ?").run(name, String(rowId));
+
+const readRow = (name, rowId) => {
+  const r = sql.prepare("SELECT doc FROM rows WHERE collection = ? AND id = ?").get(name, String(rowId));
+  return r ? JSON.parse(r.doc) : null;
+};
+
+const rowSeq = (name, rowId) => {
+  const r = sql.prepare("SELECT seq FROM rows WHERE collection = ? AND id = ?").get(name, String(rowId));
+  return r ? Number(r.seq) : (seqCounter += 1);
+};
+
+// ------------------------------------------------------ import and rescue
+
+/**
+ * The one-way move from the JSON file.
+ *
+ * The JSON is read, written into the database in ONE transaction, and then
+ * kept — renamed, never deleted, because a migration that throws away the
+ * only copy of the thing it is migrating is not a migration, it is a bet.
+ */
+function importFromJson() {
+  const found = readStore();
+  if (!found) return false;
+  const collections = Object.entries(found).filter(([, v]) => Array.isArray(v));
+  const settings = found.settings && typeof found.settings === "object" ? found.settings : {};
+  tx(() => {
+    let seq = 0;
+    for (const [name, rows] of collections) {
+      for (const row of rows) {
+        if (!row || typeof row !== "object") continue;
+        if (!row.id) row.id = id();
+        writeRow(name, row, (seq += 1));
+      }
+    }
+    for (const [k, v] of Object.entries(settings)) {
+      sql.prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")
+         .run(k, JSON.stringify(v));
+    }
+    seqCounter = seq;
+    recordLedger("store.migrated", null, "system",
+      `${collections.length} collections, ${collections.reduce((a, [, v]) => a + v.length, 0)} rows imported from db.json`);
+  });
+  const kept = `${LEGACY_JSON}.migrated-${new Date().toISOString().slice(0, 10)}`;
+  try { fs.renameSync(LEGACY_JSON, kept); } catch {}
+  console.log(`[store] migrated ${collections.length} collections from db.json into SQLite. The JSON is kept as ${path.basename(kept)}.`);
+  return true;
+}
+
 export function load() {
   if (db) return db;
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-  const found = readStore();
-  if (found) {
-    db = found;
-  } else {
-    if (fs.existsSync(DB_FILE)) {
-      console.error("[store] NO READABLE STORE. Seeding a new one. The unreadable files are kept beside it — do not overwrite them, and restore from backup.");
+  if (!sql) open();
+  const any = sql.prepare("SELECT COUNT(*) AS n FROM rows").get();
+  if (!Number(any?.n)) {
+    if (fs.existsSync(LEGACY_JSON)) {
+      importFromJson();
+    } else {
+      const seeded = seed();
+      tx(() => {
+        let seq = 0;
+        for (const [name, rows] of Object.entries(seeded)) {
+          if (!Array.isArray(rows)) continue;
+          for (const row of rows) writeRow(name, row, (seq += 1));
+        }
+        seqCounter = seq;
+        recordLedger("store.seeded", null, "system", "a new store was seeded");
+      });
+      console.log("[store] seeded a new database");
     }
-    db = seed();
-    persist();
   }
+  db = readMirror();
   return db;
 }
 
-/**
- * Write the store so that an interrupted write cannot destroy it.
- *
- *   1. serialise first — a serialisation error must not touch the file
- *   2. write the whole thing to a temporary file and fsync it, so the bytes
- *      are on the disk and not sitting in a buffer
- *   3. keep the current file as the previous good copy
- *   4. rename the temporary file over the real one — rename is atomic on the
- *      same filesystem, so a reader sees the old file or the new one, never
- *      half of either
- *
- * A kill at any point in that sequence leaves a complete file behind.
- */
-let writing = false;
-let pendingWrite = false;
+// --------------------------------------------------------------- the API
+//
+// Everything below keeps the signature it had when this was a JSON file, so
+// no route had to change. What changed is underneath: a write is a
+// transaction, and it writes one row rather than the world.
 
+/**
+ * Reconcile the whole mirror into the database, in one transaction.
+ *
+ * Kept because handlers exist that mutate a row or splice an array in place
+ * and then call persist(), which is exactly what this used to mean. It is
+ * O(rows) and rare; the ordinary write paths below touch one row.
+ */
 export function persist() {
-  // Re-entrancy guard. persist() is called from inside collection(), which is
-  // called from everywhere; without this a nested call could interleave with
-  // the rename and write a stale snapshot over a newer one.
-  if (writing) { pendingWrite = true; return; }
-  writing = true;
-  try {
-    do {
-      pendingWrite = false;
-      const json = JSON.stringify(db, null, 2);        // 1
-      const fd = fs.openSync(TMP_FILE, "w");           // 2
-      try {
-        fs.writeFileSync(fd, json);
-        fs.fsyncSync(fd);
-      } finally {
-        fs.closeSync(fd);
+  if (!db) return;
+  tx(() => {
+    const present = new Set();
+    let seq = 0;
+    for (const [name, rows] of Object.entries(db)) {
+      if (!Array.isArray(rows)) continue;
+      for (const row of rows) {
+        if (!row || typeof row !== "object") continue;
+        if (!row.id) row.id = id();
+        present.add(`${name} ${row.id}`);
+        writeRow(name, row, (seq += 1));
       }
-      if (fs.existsSync(DB_FILE)) {                    // 3
-        try { fs.copyFileSync(DB_FILE, PREV_FILE); } catch {}
-      }
-      fs.renameSync(TMP_FILE, DB_FILE);                // 4
-    } while (pendingWrite);
-  } finally {
-    writing = false;
-  }
+    }
+    seqCounter = seq;
+    for (const r of sql.prepare("SELECT collection, id FROM rows").all()) {
+      if (!present.has(`${r.collection} ${r.id}`)) deleteRow(r.collection, r.id);
+    }
+    for (const [k, v] of Object.entries(db.settings || {})) {
+      sql.prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")
+         .run(k, JSON.stringify(v));
+    }
+  });
 }
 
-/** Flush anything held and report whether the store is readable. Used by the
- *  shutdown sequence and by the backup verifier. */
+/** Flush anything held and report whether the store is readable. */
 export function flush() {
   if (!db) return { ok: true, wrote: false };
   try {
     persist();
-    JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
+    sql.exec("PRAGMA wal_checkpoint(TRUNCATE)");
+    sql.prepare("SELECT COUNT(*) AS n FROM rows").get();
     return { ok: true, wrote: true };
   } catch (err) {
     return { ok: false, wrote: true, error: err.message };
   }
+}
+
+/** Close the database cleanly. Called by the shutdown sequence. */
+export function close() {
+  try { sql?.exec("PRAGMA wal_checkpoint(TRUNCATE)"); } catch {}
+  try { sql?.close(); } catch {}
+  sql = null;
+  db = null;
 }
 
 /** Row counts, for the backup verifier and the health endpoint. */
@@ -373,45 +573,31 @@ export function counts() {
     .map(([k, v]) => [k, v.length]));
 }
 
-/**
- * Key-value settings (e.g. platform integration credentials). Created
- * lazily so existing databases pick it up without migration.
- */
 export function getSettings() {
   const data = load();
-  if (!data.settings || typeof data.settings !== "object") {
-    data.settings = {};
-    persist();
-  }
+  if (!data.settings || typeof data.settings !== "object") data.settings = {};
   return data.settings;
 }
 
 export function saveSettings(patch) {
   const settings = getSettings();
   Object.assign(settings, patch);
-  persist();
+  tx(() => {
+    for (const [k, v] of Object.entries(patch)) {
+      sql.prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")
+         .run(k, JSON.stringify(v));
+    }
+  });
   return settings;
 }
 
 export function collection(name) {
   const data = load();
-  if (!Array.isArray(data[name])) {
-    // Collections added after a database was first seeded (e.g.
-    // notifications, deliveries) are created lazily — no migration needed.
-    data[name] = [];
-    persist();
-  }
+  if (!Array.isArray(data[name])) data[name] = [];
   return data[name];
 }
 
-/**
- * Append-only collections that must not grow for ever.
- *
- * The whole store is rewritten on every change, so an unbounded collection
- * makes every future write slower and every future interruption more
- * dangerous. Caps are applied here, in one place, rather than in the routes
- * where they were being forgotten — notifications had no cap at all.
- */
+/** Append-only collections that must not grow for ever. */
 const CAPS = {
   notifications: 500,
   deliveries: 500,
@@ -424,22 +610,30 @@ const CAPS = {
 export function insert(name, record) {
   const row = { id: id(), createdAt: Date.now(), ...record };
   const rows = collection(name);
-  rows.push(row);
-  const cap = CAPS[name];
-  if (cap && rows.length > cap) rows.splice(0, rows.length - cap);
-  persist();
+  tx(() => {
+    writeRow(name, row, (seqCounter += 1));
+    rows.push(row);
+    const cap = CAPS[name];
+    if (cap && rows.length > cap) {
+      for (const gone of rows.splice(0, rows.length - cap)) deleteRow(name, gone.id);
+    }
+  });
   return row;
 }
 
-/** Trim every capped collection — run at boot, so an old oversized store
- *  is brought back inside its limits without waiting for the next insert. */
+/** Trim every capped collection — run at boot, so an old oversized store is
+ *  brought back inside its limits without waiting for the next insert. */
 export function trimCapped() {
   let removed = 0;
-  for (const [name, cap] of Object.entries(CAPS)) {
-    const rows = collection(name);
-    if (rows.length > cap) { removed += rows.length - cap; rows.splice(0, rows.length - cap); }
-  }
-  if (removed) persist();
+  tx(() => {
+    for (const [name, cap] of Object.entries(CAPS)) {
+      const rows = collection(name);
+      if (rows.length <= cap) continue;
+      const gone = rows.splice(0, rows.length - cap);
+      for (const row of gone) deleteRow(name, row.id);
+      removed += gone.length;
+    }
+  });
   return removed;
 }
 
@@ -447,7 +641,7 @@ export function update(name, rowId, patch) {
   const row = collection(name).find((r) => r.id === rowId);
   if (!row) return null;
   Object.assign(row, patch);
-  persist();
+  tx(() => writeRow(name, row, rowSeq(name, rowId)));
   return row;
 }
 
@@ -456,6 +650,95 @@ export function remove(name, rowId) {
   const idx = rows.findIndex((r) => r.id === rowId);
   if (idx === -1) return null;
   const [row] = rows.splice(idx, 1);
-  persist();
+  tx(() => deleteRow(name, rowId));
   return row;
+}
+
+/**
+ * Change one row from its CURRENT state, inside a transaction.
+ *
+ * This is the fix for the fault route code kept walking into: read a row,
+ * await something, then write back a whole array built from the copy read
+ * before the await. Anything that changed in between is silently discarded —
+ * six concurrent uploads survived only because those handlers happened to be
+ * synchronous, and one added await anywhere would have lost them.
+ *
+ *   mutate("clientEngagements", id, (current) => ({ checklist: [...] }))
+ *
+ * The function receives the row AS IT IS NOW, at write time, and returns a
+ * patch. It runs inside the transaction and cannot be interleaved with
+ * anything, because there is no await inside it to interleave at.
+ */
+export function mutate(name, rowId, fn) {
+  const rows = collection(name);
+  const live = rows.find((r) => r.id === rowId);
+  if (!live) return null;
+  return tx(() => {
+    const current = readRow(name, rowId) || live;
+    const patch = fn(current) || {};
+    const next = { ...current, ...patch };
+    writeRow(name, next, rowSeq(name, rowId));
+    // Keep the mirror object's identity, so anything already holding a
+    // reference to it sees the new state.
+    for (const k of Object.keys(live)) if (!(k in next)) delete live[k];
+    Object.assign(live, next);
+    return live;
+  });
+}
+
+/**
+ * Append to an array field on one row without reading it first.
+ *
+ * The safe form of update(id, { events: [...e.events, entry] }), which is
+ * the exact shape that loses the other handler's entry.
+ */
+export function append(name, rowId, field, item, { cap = 0 } = {}) {
+  return mutate(name, rowId, (current) => {
+    const list = Array.isArray(current[field]) ? [...current[field], item] : [item];
+    return { [field]: cap && list.length > cap ? list.slice(list.length - cap) : list };
+  });
+}
+
+// ------------------------------------------------------------- the ledger
+//
+// Append-only, never updated, never deleted by the application. It exists so
+// that "what did this say on the fourteenth" has an answer: the money events
+// and the deletions are written here as they happen, and nothing in the
+// routes can rewrite them.
+
+export function recordLedger(kind, ref, actor, detail) {
+  try {
+    sql.prepare("INSERT INTO ledger (at, kind, ref, actor, detail) VALUES (?, ?, ?, ?, ?)")
+       .run(Date.now(), String(kind), ref ? String(ref) : null, actor ? String(actor) : null, String(detail).slice(0, 2000));
+  } catch {}
+}
+
+export function ledger({ kind = null, since = 0, limit = 500 } = {}) {
+  load();
+  const rows = kind
+    ? sql.prepare("SELECT * FROM ledger WHERE kind = ? AND at >= ? ORDER BY at DESC, id DESC LIMIT ?")
+         .all(String(kind), Number(since), Number(limit))
+    : sql.prepare("SELECT * FROM ledger WHERE at >= ? ORDER BY at DESC, id DESC LIMIT ?")
+         .all(Number(since), Number(limit));
+  return rows.map((r) => ({ ...r }));
+}
+
+/**
+ * A consistent copy of the whole database, taken while it is running.
+ *
+ * Copying the file underneath a live SQLite database gives a torn copy;
+ * VACUUM INTO gives a whole one, checkpointed and compacted, with nothing
+ * stopped.
+ */
+export function backupTo(file) {
+  load();
+  const target = path.resolve(file);
+  try { fs.unlinkSync(target); } catch {}
+  sql.exec(`VACUUM INTO '${target.replace(/'/g, "''")}'`);
+  return target;
+}
+
+/** The whole store as plain JSON — for the backup verifier and portability. */
+export function exportJson() {
+  return JSON.parse(JSON.stringify(load()));
 }

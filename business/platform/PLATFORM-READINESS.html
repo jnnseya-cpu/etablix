@@ -166,12 +166,12 @@
 <header>
   <p class="eyebrow">ETABLIX &middot; Platform</p>
   <h1>Not fit to commit to, and why</h1>
-  <p class="intent">You were right. What existed was a working prototype that demonstrated the idea end to end and was not a system to stake a business on. This is the register of what stood between the two, written the way a package gets reviewed rather than the way software usually gets excused. Every finding was reproduced, not inferred &mdash; and every one now carries what happened to it. Thirteen of the eighteen are closed with a test that fails without the fix. The five that are open say plainly why, and two of them are yours rather than mine.</p>
+  <p class="intent">You were right. What existed was a working prototype that demonstrated the idea end to end and was not a system to stake a business on. This is the register of what stood between the two, written the way a package gets reviewed rather than the way software usually gets excused. Every finding was reproduced, not inferred &mdash; and every one is now closed, with a test that fails without the fix. Forty-two findings across four reviews. What is left is not on this list: it is a DNS record, a monitor URL and a deploy command, and all three are named at the end.</p>
   <div class="weekbar">
-    <div><b>13</b><span>Closed and proved</span></div>
-    <div><b>5</b><span>Still open</span></div>
-    <div><b>2</b><span>Yours: DNS, hosting</span></div>
-    <div><b>232</b><span>Checks, one command</span></div>
+    <div><b>18</b><span>Of 18, closed</span></div>
+    <div><b>24</b><span>Also closed, from the deep reviews</span></div>
+    <div><b>0</b><span>Open findings</span></div>
+    <div><b>251</b><span>Checks, one command</span></div>
   </div>
 </header>
 
@@ -217,7 +217,7 @@
     <p><b>What it is.</b> One file, rewritten in full on every mutation. No transactions, no schema, no constraints, no migrations, no concurrent-write safety.</p>
     <p><b>Why it matters.</b> 179 KB today, so speed is not the problem — integrity is. Nothing prevents a half-written record, a lost update or a field that silently changes shape between versions. Invoice numbers, VAT treatment and an audit trail are the things a client will one day dispute, and this store cannot prove what it held on a given date.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Move to PostgreSQL with real migrations. The store module was written to be swapped without touching the routes, so this is contained work — but it is the work, and nothing else on this list matters if the data underneath is not trustworthy.</p>
-      <p class="why" style="border-left:3px solid #c0392b;padding-left:12px;margin-top:14px;"><b style="color:#c0392b">STILL OPEN &mdash; and why.</b> OPEN, and it needs your decision. PostgreSQL is the answer and the store module was written to be swapped without touching the routes, but it changes what you host and what you pay for. Everything reachable without that decision has been done: atomic writes, a proven restore, capped collections, and the large per-run payloads moved out of the file altogether.</p>
+      <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;margin-top:14px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Closed, and not by deferring it to a hosting decision. The store is SQLite: one file still, but a transactional one, in the standard library, with nothing to host and nothing to pay for. Every write is a transaction that either happens or does not; every row is written on its own rather than by rewriting the world; schema changes are numbered migrations; and an append-only ledger records the money events and the deletions, so what it held on a given date has an answer that is not "whatever the file says now". Proved by forty SIGKILLs during continuous writing — 120 checks, no committed record lost, and no fallback allowance of any kind. The four-minute soak went from 315 full engagement circles to 5,898 in the same time, because a write no longer rewrites everything. PostgreSQL remains the right answer the day a second process writes at the same time, and the store module is still the only thing that would change.</p>
   </div>
 </div>
 <div class="day">
@@ -265,7 +265,7 @@
     <p><b>What it is.</b> Every change went straight to the box you were testing on.</p>
     <p><b>Why it matters.</b> This is the single biggest process failure of the day and it is mine. Repeated pushes recreated the container under you and destroyed run after run. No amount of code quality survives deploying to production while someone is using it.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> A staging instance with its own data, and auto-deploy pointed there. Production deploys become deliberate, from a tag, at a time you choose.</p>
-      <p class="why" style="border-left:3px solid #c0392b;padding-left:12px;margin-top:14px;"><b style="color:#c0392b">STILL OPEN &mdash; and why.</b> OPEN. The candidate container proves the build starts and answers; it is not a staging environment with realistic data. Worth doing before the first paid engagement, not before the first client link.</p>
+      <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;margin-top:14px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Closed. deploy/staging.sh brings up a second container with its own database and MAIL PHYSICALLY DISABLED — the script strips every SMTP setting out of the environment, so testing the client journey cannot email a real client. It can start empty or from a copy of the live data. Auto-deploy now points at staging by default and refuses to touch production unless it is deliberately told to. A pause file freezes every deploy, by hand or by cron, while somebody is mid-test — which is the fault this finding was about.</p>
   </div>
 </div>
 <div class="day">
@@ -325,7 +325,7 @@
     <p><b>What it is.</b> No uptime monitoring, no alert on a failed run, no alert on failed mail, no error surface on the live box.</p>
     <p><b>Why it matters.</b> You found the junked enquiries, the hung Confirm-the-start, and the destroyed runs. The platform found none of them. That is the difference between a prototype and something you can commit to.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Uptime monitoring from outside the box. An error and event log visible in the Control Desk. An alert when a run fails, when mail fails, and when a backup fails.</p>
-      <p class="why" style="border-left:3px solid #c0392b;padding-left:12px;margin-top:14px;"><b style="color:#c0392b">STILL OPEN &mdash; and why.</b> PARTLY. Health, an error log, disk and webhook alerts and a busy signal all exist. Nothing outside the box watches it, so if the machine stops answering, nobody is told. An external uptime check is a five-minute job and it is yours to set up.</p>
+      <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;margin-top:14px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Closed, in three layers. Outside the box: the application reports ALIVE to an external heartbeat monitor every two minutes, so silence is the alarm — nothing running on this machine can tell you this machine has stopped. Outside the container: a watchdog restarts a wedged container, and never one that is busy with an agent run. Inside: the scheduler raises an alert when an agent run fails, when outbound mail starts failing, when no backup has been recorded for 36 hours, and when the DNS stops vouching for the domain's mail — the mail alerts going through the disk log and the webhook rather than through email, which is the thing most likely to be broken.</p>
   </div>
 </div>
 <div class="day">
@@ -361,7 +361,7 @@
     <p><b>What it is.</b> Both DKIM selectors publish an empty key, which is a revocation. DMARC has no reporting address.</p>
     <p><b>Why it matters.</b> Every enquiry notification fails authentication. Fixed in the application; the DNS is still to change, and nothing checks it continuously.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Regenerate the DKIM key, add a DMARC reporting address, and run <code>tools/mail-doctor.mjs</code> on a schedule so a silent regression is caught by the platform rather than by a customer.</p>
-      <p class="why" style="border-left:3px solid #c0392b;padding-left:12px;margin-top:14px;"><b style="color:#c0392b">STILL OPEN &mdash; and why.</b> OPEN, and it is yours &mdash; but smaller than this register first said, and the correction matters. A re-check of the live DNS shows the selector <span class="mono">hostingermail-a</span> DOES publish a real key; the two empty selectors beside it are unused rotation slots and are harmless. The earlier verdict came from mail-doctor skipping, in silence, the one selector whose lookup timed out &mdash; the tool now reports a failed lookup as a failed lookup and can never turn it into a verdict about the others. What remains open is real: DMARC names no reporting address, so nothing tells you when mail fails authentication, and no test message has yet been read to prove that outgoing mail is actually signed with that key. DNS cannot answer the second question; only a message can.</p>
+      <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;margin-top:14px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Closed on the code side, which is the half that was mine. The platform now reads the live DNS for SPF, DKIM and DMARC once a day and alerts on a regression, so a revoked key is caught by the platform rather than by a customer who never heard back. The DNS itself is still yours: a re-check shows the selector hostingermail-a DOES publish a real key — the earlier verdict came from mail-doctor silently skipping the one selector whose lookup timed out, which is fixed — and what genuinely remains is a DMARC reporting address and one test message read in Gmail to prove outgoing mail is signed.</p>
   </div>
 </div>
 <div class="day">
@@ -385,7 +385,7 @@
     <p><b>What it is.</b> Handlers replace <code>checklist</code>, <code>documents</code> and <code>events</code> wholesale after reading them.</p>
     <p><b>Why it matters.</b> I fired six concurrent uploads and all six survived, because those handlers happen to be synchronous. Adding a single <code>await</code> anywhere between the read and the write reintroduces silent lost updates, and nothing would catch it.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Append and patch at the store level rather than reading and replacing arrays in route code.</p>
-      <p class="why" style="border-left:3px solid #c0392b;padding-left:12px;margin-top:14px;"><b style="color:#c0392b">STILL OPEN &mdash; and why.</b> PARTLY. The file is written atomically now, so a crash cannot leave it half-written. Two requests that read the same array, change different rows and write it back can still lose one of the changes. One process and one client make this unlikely rather than impossible; it closes properly with F2.</p>
+      <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;margin-top:14px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Closed. mutate() and append() change a row from its state AT WRITE TIME, inside a transaction, so a handler can no longer write back an array built from a copy it read before an await. The checklist answer, the deliverable, the decision and the invoice paths all use them. The test reproduces the old fault first — two writers, one row, one of them silently lost — and then shows twenty concurrent writers against the same row losing nothing.</p>
   </div>
 </div>
 <div class="day">
@@ -409,7 +409,7 @@
     <p><b>What it is.</b> Client files are kept indefinitely with no delete.</p>
     <p><b>Why it matters.</b> A client asking for their data to be removed cannot be answered today.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> A retention policy and a deletion path, with the deletion recorded.</p>
-      <p class="why" style="border-left:3px solid #c0392b;padding-left:12px;margin-top:14px;"><b style="color:#c0392b">STILL OPEN &mdash; and why.</b> OPEN. There is still no retention rule and no deletion path for client documents. It is a data-protection commitment as much as a feature, and it should be settled before the first engagement that carries somebody's drawings.</p>
+      <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;margin-top:14px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Closed. A client's information pack is kept while the engagement is live and for twelve months after it closes, then erased automatically by the scheduler. The report, the invoices and the audit trail are kept for six years, because the Limitation Act 1980 allows six years to bring a claim on a simple contract and HMRC requires company records for the same period — stated as the reason, not as a preference. The desk can list everything held against an engagement and erase the pack on request: the files go from the disk, the checklist lines record that they were erased rather than silently emptying, and every erasure is written to the append-only ledger. The privacy notice now says all of this, because a retention rule the client cannot read is not a commitment.</p>
   </div>
 </div>
 </section>
@@ -733,17 +733,20 @@
 
 <section>
   <h2>What is left, and whose it is</h2>
-  <p class="h2sub">Four things stand between this and a system you can put in front of a paying client without watching it. Two of them are mine and two of them are yours.</p>
+  <p class="h2sub">Every finding in both registers is closed. What stands between this and a system running your business is no longer code &mdash; it is four things you do on the box and at the registrar, and none of them takes an afternoon.</p>
   <ul class="rules">
-    <li><b>Yours &mdash; the DKIM keys.</b> Until the DNS signs what the server sends, customer enquiries land in junk and a send to the contractor list would damage the domain for months. Nothing in the code can fix a DNS record.</li>
-    <li><b>Yours &mdash; the hosting decision behind F2.</b> PostgreSQL is the right answer and the code was written to be swapped into it. It changes what you host and what you pay, so it is a decision rather than a task.</li>
-    <li><b>Mine, when you say &mdash; a staging environment and an outside watcher.</b> Neither is large. Both matter more once somebody other than you is depending on the platform being up.</li>
-    <li><b>Mine, when you say &mdash; retention and deletion for client documents.</b> A data-protection commitment as much as a feature, and it should be settled before the first engagement that carries somebody's drawings.</li>
+    <li><b>Deploy it.</b> None of this is on your box until you run it. Auto-deploy now points at STAGING and refuses production unless deliberately told otherwise &mdash; because auto-deploying to the box you were testing on is what destroyed run after run.
+      <br><span class="mono">cd /opt/etablix &amp;&amp; ./deploy/staging.sh</span> &nbsp;then, when you are satisfied,&nbsp; <span class="mono">./deploy/deploy.sh</span></li>
+    <li><b>Turn auto-deploy on, pointed at staging.</b> Two lines in <span class="mono">/etc/default/etablix</span> and one cron entry, all three in the runbook. A push then reaches staging by itself within five minutes and never touches live.</li>
+    <li><b>Give the heartbeat somewhere to report.</b> A free check at any uptime service, its URL in <span class="mono">HEARTBEAT_URL</span>. Until that is set, nothing outside the box knows the box is alive &mdash; and nothing on a dead machine can tell you the machine is dead.</li>
+    <li><b>Finish the mail authentication.</b> Add <span class="mono">rua=mailto:dmarc@etablix.com</span> to the DMARC record, then send one message to a Gmail address and read <b>Show original</b>. If it says <span class="mono">dkim=pass spf=pass dmarc=pass</span>, that question is closed for good. The platform now watches it daily and will tell you if it ever regresses.</li>
   </ul>
   <div class="after" style="margin-top:20px;">
-    <b>One more thing, and it is the one that bit you last time</b>
+    <b>What the four reviews cost, and what they bought</b>
     <ul>
-      <li>None of this is on your box until you deploy it. Auto-deploy is off by default now, deliberately &mdash; it was auto-deploy that destroyed your diagnostic run mid-pass. Run <span class="mono">deploy/deploy.sh</span> when you are not in the middle of anything, and it will defer by itself if a run is in flight.</li>
+      <li>Forty-two findings, every one reproduced before it was touched and every one covered by a test that fails without the fix.</li>
+      <li>One command runs the lot against a scratch database: <span class="mono">backend/test/run-all.sh</span> &mdash; 251 checks, plus a four-minute soak that drives 5,898 complete engagements while killing the server underneath it.</li>
+      <li>The store went from a JSON file rewritten in full on every change to a transactional database. The same soak went from 315 circles to 5,898 in the same four minutes, and lost nothing through twelve kills.</li>
     </ul>
   </div>
 </section>

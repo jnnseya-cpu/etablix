@@ -8,9 +8,10 @@
  */
 
 import express from "express";
-import { collection, flush, counts, trimCapped } from "./lib/store.js";
+import { collection, flush, counts, trimCapped, close as closeStore, recordLedger } from "./lib/store.js";
 import { auditSecretStorage } from "./lib/ai.js";
 import { packBytes } from "./lib/runstore.js";
+import { startHeartbeat, stopHeartbeat, heartbeatState } from "./lib/heartbeat.js";
 import { requireAuth, requireRole } from "./middleware/auth.js";
 import { ROLES } from "../shared/constants.js";
 import fs from "node:fs";
@@ -105,6 +106,7 @@ app.get("/api/health/detail", requireAuth, requireRole(ROLES.ADMIN), (req, res) 
     shuttingDown,
     rows: counts(),
     runPackBytes: packBytes(),
+    heartbeat: heartbeatState(),
   });
 });
 app.get("/api/human-check", (req, res) => res.json(issueChallenge())); // anti-bot challenge for the public forms
@@ -192,6 +194,13 @@ const swept = sweepRunPacks();
 if (swept) console.log(`Removed ${swept} orphaned run pack(s) from the disk.`);
 auditSecretStorage();
 startScheduler(); // delivery automation: scheduled sweeps, guardrails and the daily digest
+// Reports "alive" to something that is NOT this box, so that silence is the
+// alarm. Nothing on this machine can tell you the machine has stopped.
+startHeartbeat({
+  busy: () => {
+    try { counts(); return "ok"; } catch { return "broken"; }
+  },
+});
 const server = app.listen(PORT, () => {
   console.log(`ETABLIX running on http://localhost:${PORT}`);
   console.log(`  Public site:      http://localhost:${PORT}/`);
@@ -239,6 +248,11 @@ function shutdown(signal, code = 0) {
     } catch (err) { console.error("[shutdown] could not mark runs interrupted:", err.message); }
     const f = flush();
     console.log(`[shutdown] ${why}; store ${f.ok ? "flushed and readable" : "FLUSH FAILED: " + f.error}`);
+    // Checkpoint the write-ahead log and close the handle, so the files on
+    // disk are a complete database rather than a database plus a journal
+    // nobody has replayed.
+    try { stopHeartbeat(); } catch {}
+    try { closeStore(); } catch {}
     process.exit(f.ok ? code : 1);
   }
 }

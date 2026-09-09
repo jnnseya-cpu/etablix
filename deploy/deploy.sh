@@ -30,6 +30,19 @@ GRACE=${ETABLIX_STOP_GRACE:-30}
 
 say() { echo "[$(date -Is)] $*" | tee -a "$LOG"; }
 
+# ---- 0. the pause switch and the session secret ----------------------------
+PAUSE=${ETABLIX_PAUSE_FILE:-/var/lib/etablix/pause-deploy}
+if [ -f "$PAUSE" ]; then
+  say "paused by $PAUSE — nothing deployed. Remove the file to resume."
+  exit 0
+fi
+# Without a fixed token secret every restart signs new sessions with a new
+# key, so a deploy silently signs everybody out mid-task. Worth one line here
+# rather than an afternoon wondering why.
+if ! grep -qE '^ETABLIX_TOKEN_SECRET=.+' "$ENVFILE" 2>/dev/null; then
+  say "WARNING: ETABLIX_TOKEN_SECRET is not set in $ENVFILE — this deploy will sign everyone out. Set it: openssl rand -hex 32"
+fi
+
 cd "$REPO"
 git fetch origin "$BRANCH" --quiet
 TARGET=$(git rev-parse "origin/${1:-$BRANCH}")

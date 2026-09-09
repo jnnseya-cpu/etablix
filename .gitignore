@@ -9,6 +9,14 @@ diagnostic-test/*.zip
 
 # Generated at deploy time from the commit being built
 BUILD_COMMIT
+# The database, its write-ahead log, and the JSON it was migrated from
+backend/data/db.sqlite
+backend/data/db.sqlite-wal
+backend/data/db.sqlite-shm
+backend/data/db.json.migrated-*
+backend/data/last-backup
+# Per-run payloads: the client's document text and the agent's passes
+backend/data/runs/
 # Store working files and the crash-rescue copies
 backend/data/db.json.tmp
 backend/data/db.json.prev

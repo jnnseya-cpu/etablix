@@ -47,7 +47,19 @@ for (let round = 1; round <= ROUNDS; round++) {
     env: { ...process.env, ETABLIX_DATA_DIR: dataDir },
     stdio: ["ignore", "pipe", "ignore"],
   });
-  child.stdout.on("data", (b) => { for (const l of String(b).split("\n")) if (l.trim()) confirmed.push(l.trim()); });
+  // Reassemble the stream properly. A chunk boundary lands in the middle of
+  // an id often enough at this write rate to invent two ids that were never
+  // written, and then to report them as records the store lost. The store
+  // was not losing them; this loop was making them up.
+  let tail = "";
+  child.stdout.on("data", (b) => {
+    const parts = (tail + String(b)).split("\n");
+    tail = parts.pop() ?? "";
+    // Ids only. The store logs its own boot lines to stdout, and counting
+    // "[store] seeded a new database" as a record it then failed to hold is
+    // how a working store gets reported as a broken one.
+    for (const l of parts) if (/^[0-9a-f]{16}$/.test(l.trim())) confirmed.push(l.trim());
+  });
 
   // Wait until the child has confirmed at least one write, so the kill lands
   // inside the write storm rather than during module load. Killing a process
@@ -61,19 +73,20 @@ for (let round = 1; round <= ROUNDS; round++) {
   child.kill("SIGKILL");
   await new Promise((r) => child.on("exit", r));
 
-  const dbFile = path.join(dataDir, "db.json");
+  // Read it back the way the server does: open the database and look. A
+  // SIGKILL mid-transaction leaves a write-ahead log to roll back, and
+  // opening it is what rolls it back — so this reads through the real store
+  // rather than parsing a file, which is also the only way to find out
+  // whether the database is openable at all after a kill.
   let recovered = null, how = "";
   try {
-    // Read it the way the server does — through the store's own recovery.
-    const mod = await import(`${path.resolve("backend/lib/store.js")}?kill=${round}`);
     process.env.ETABLIX_DATA_DIR = dataDir;
-    recovered = JSON.parse(fs.readFileSync(dbFile, "utf8"));
-    how = "main file";
-  } catch {
-    const prev = dbFile + ".prev";
-    if (fs.existsSync(prev)) {
-      try { recovered = JSON.parse(fs.readFileSync(prev, "utf8")); how = "previous copy"; } catch {}
-    }
+    const mod = await import(`${path.resolve("backend/lib/store.js")}?kill=${round}`);
+    recovered = mod.exportJson();
+    how = "the database";
+    mod.close();
+  } catch (err) {
+    how = "unreadable: " + err.message;
   }
 
   ok(!!recovered, `round ${round}: a readable store survived the kill`,
@@ -84,7 +97,7 @@ for (let round = 1; round <= ROUNDS; round++) {
     // fall back to the previous copy — that is the documented cost of the
     // fallback, and it must never happen from the main file.
     const missing = confirmed.filter((id) => !held.has(id));
-    const acceptable = how === "main file" ? 0 : Infinity;
+    const acceptable = 0;   // a committed transaction is never lost. No fallback, no allowance.
     ok(missing.length <= acceptable,
        `round ${round}: every confirmed record survived (${confirmed.length} written, ${missing.length} missing, via ${how})`,
        { written: confirmed.length, missing: missing.length, via: how });

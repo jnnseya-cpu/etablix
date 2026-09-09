@@ -28,7 +28,7 @@ cleanup() {
 trap cleanup EXIT
 
 echo "=== unit ==="
-for t in clientflow.test workingdays.test mail.test pipeline.test store-kill.test; do
+for t in clientflow.test workingdays.test mail.test pipeline.test concurrent.test store-kill.test; do
   printf '  %-22s ' "$t"
   if node "backend/test/$t.mjs" > "$LOGS/$t.log" 2>&1; then echo "ok"; else echo "FAILED  → $LOGS/$t.log"; fail=1; fi
 done
@@ -43,7 +43,7 @@ for _ in $(seq 1 40); do sleep 0.25; curl -sf "http://localhost:$PORT/api/health
 curl -sf "http://localhost:$PORT/api/health" >/dev/null || { echo "the server did not come up — $LOGS/server.log"; exit 1; }
 
 echo "=== end to end ==="
-SUITES="money.e2e clientflow.e2e enquiry-to-engagement.e2e portal-promises.e2e upload-dedupe.test pipeline.e2e circle.e2e security.e2e"
+SUITES="money.e2e clientflow.e2e enquiry-to-engagement.e2e portal-promises.e2e upload-dedupe.test pipeline.e2e retention.e2e circle.e2e security.e2e"
 [ "${SOAK:-0}" = "1" ] && SUITES="$SUITES soak.e2e"
 for t in $SUITES; do
   printf '  %-28s ' "$t"

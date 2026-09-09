@@ -22,6 +22,7 @@
  */
 import { spawn, spawnSync } from "node:child_process";
 import fs from "node:fs";
+import { DatabaseSync } from "node:sqlite";
 import os from "node:os";
 import path from "node:path";
 
@@ -52,17 +53,25 @@ if (tar.status !== 0) process.exit(1);
 // whatever it is given, so an unreadable live store produces a perfect archive
 // of nothing. That is an emergency in its own right and it must not be
 // reported as "the backup failed".
-let srcDb;
+const countRows = (dir) => {
+  const db = new DatabaseSync(path.join(dir, "db.sqlite"), { readOnly: true });
+  try {
+    const out = {};
+    for (const r of db.prepare("SELECT collection, COUNT(*) AS n FROM rows GROUP BY collection").all()) out[r.collection] = Number(r.n);
+    return out;
+  } finally { db.close(); }
+};
+
+let srcCounts;
 try {
-  srcDb = JSON.parse(fs.readFileSync(path.join(DATA, "db.json"), "utf8"));
+  srcCounts = countRows(DATA);
 } catch (err) {
   console.log(`  ✗ THE LIVE STORE IS UNREADABLE — ${err.message}`);
-  console.log("\n  This is not a backup problem. The application is running on a store that");
-  console.log("  cannot be parsed, or has been left mid-write. Check db.json.prev and any");
-  console.log("  db.json.corrupt-* beside it, and restore from the last good archive.\n");
+  console.log("\n  This is not a backup problem. The application is running on a database that");
+  console.log("  cannot be opened. Restore from the last good archive, and keep the current");
+  console.log("  db.sqlite beside it for inspection rather than overwriting it.\n");
   process.exit(2);
 }
-const srcCounts = Object.fromEntries(Object.entries(srcDb).filter(([, v]) => Array.isArray(v)).map(([k, v]) => [k, v.length]));
 const srcUploads = fs.existsSync(path.join(DATA, "uploads")) ? fs.readdirSync(path.join(DATA, "uploads")).length : 0;
 step(true, "recorded what went in", `${Object.keys(srcCounts).length} collections, ${Object.values(srcCounts).reduce((a, b) => a + b, 0)} rows, ${srcUploads} files`);
 
@@ -70,7 +79,7 @@ step(true, "recorded what went in", `${Object.keys(srcCounts).length} collection
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "etablix-restore-"));
 const untar = spawnSync("tar", ["-xzf", archive, "-C", scratch], { encoding: "utf8" });
 const restored = path.join(scratch, path.basename(DATA));
-step(untar.status === 0 && fs.existsSync(path.join(restored, "db.json")),
+step(untar.status === 0 && fs.existsSync(path.join(restored, "db.sqlite")),
      "the archive extracted", untar.status === 0 ? restored : untar.stderr?.slice(0, 200));
 
 // ------------------------------------------------- 3. boot the real thing on it
@@ -99,12 +108,11 @@ if (health) {
   // health endpoint: the endpoint no longer publishes them, because a
   // public URL that says how many clients a business has is a public URL
   // that says how many clients a business has.
-  const back = (() => {
-    try {
-      const db = JSON.parse(fs.readFileSync(path.join(restored, "db.json"), "utf8"));
-      return Object.fromEntries(Object.entries(db).filter(([, v]) => Array.isArray(v)).map(([k, v]) => [k, v.length]));
-    } catch { return {}; }
-  })();
+  // The counts are read from the restored DATABASE rather than from the
+  // health endpoint: the endpoint no longer publishes them, because a public
+  // URL that says how many clients a business has is a public URL that says
+  // how many clients a business has.
+  const back = (() => { try { return countRows(restored); } catch { return {}; } })();
   const missing = Object.entries(srcCounts).filter(([k, n]) => (back[k] ?? -1) !== n);
   step(missing.length === 0, "every collection restored with the same row count",
        missing.length ? missing.map(([k, n]) => `${k}: ${n} in, ${back[k] ?? "absent"} back`).join("; ") : `${Object.keys(back).length} collections`);
@@ -115,7 +123,7 @@ if (health) {
 
   // and the store is readable, not merely present
   try {
-    JSON.parse(fs.readFileSync(path.join(restored, "db.json"), "utf8"));
+    countRows(restored);
     step(true, "the restored store parses");
   } catch (e) { step(false, "the restored store parses", e.message); }
 }

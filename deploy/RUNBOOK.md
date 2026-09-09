@@ -7,6 +7,11 @@ The one rule that matters: **the data lives in the `etablix-data` volume,
 mounted at `/app/backend/data`.** Containers are disposable; that volume is
 not. Every recovery below is about keeping it intact.
 
+The store is **SQLite** — `db.sqlite` in that volume, with `db.sqlite-wal`
+beside it while the application is running. Never copy those files by hand
+while the app is up: a copy taken mid-transaction is torn, and you find out on
+the day you need it. `deploy/backup.sh` takes a whole one with `VACUUM INTO`.
+
 ---
 
 ## Daily — is it healthy?
@@ -17,8 +22,19 @@ not. Every recovery below is about keeping it intact.
 |---|---|
 | `build` | the commit that is actually running — check this after every deploy |
 | `busy` / `runningAgentRuns` | a diagnostic is in flight; do not deploy |
-| `rows` | row counts per collection; a sudden drop means data loss |
 | `uptimeSeconds` | a number that keeps resetting means it is crash-looping |
+
+Row counts and the rest are on the authenticated view, because a public URL
+that publishes how many clients a business has is a public URL that publishes
+how many clients a business has:
+
+    curl -s -H "Authorization: Bearer $TOKEN" https://etablix.com/api/health/detail | python3 -m json.tool
+
+| Field | What it tells you |
+|---|---|
+| `rows` | row counts per collection; a sudden drop means data loss |
+| `heartbeat` | whether an outside monitor is being told this box is alive |
+| `runPackBytes` | disk held by agent-run payloads |
 
 ## Weekly — prove the backup
 
@@ -159,13 +175,91 @@ to destroy runs.
 
 ---
 
+## Staging — test here, never on live
+
+A second container on the same box, with its own database and **mail
+physically disabled**, so testing the client journey cannot email a real
+client.
+
+    cd /opt/etablix && ./deploy/staging.sh                    # build the branch head
+    cd /opt/etablix && ./deploy/staging.sh --with-live-data   # ...starting from a copy of live
+    cd /opt/etablix && ./deploy/staging.sh --reset            # throw the staging data away
+
+It binds to loopback, because a fresh staging database seeds the demo accounts
+and their passwords are in the source. Reach it through a tunnel:
+
+    ssh -L 3001:localhost:3001 <you>@<server>     # then http://localhost:3001
+
+## Auto-deploy — on, and pointed at staging
+
+    printf 'ETABLIX_AUTODEPLOY=1\nETABLIX_AUTODEPLOY_TARGET=staging\n' >> /etc/default/etablix
+    cp deploy/autodeploy.sh /opt/etablix-autodeploy.sh && chmod +x /opt/etablix-autodeploy.sh
+    echo '*/5 * * * * root flock -n /run/etablix-deploy.lock /opt/etablix-autodeploy.sh' > /etc/cron.d/etablix-autodeploy
+
+Every push then reaches staging by itself within five minutes. **Live is never
+auto-deployed** unless you set `ETABLIX_AUTODEPLOY_TARGET=live`, which you
+should not: production deploys are a decision, taken with `./deploy.sh`.
+
+Freeze everything while you are mid-test, without editing cron:
+
+    mkdir -p /var/lib/etablix && touch /var/lib/etablix/pause-deploy   # nothing is rebuilt
+    rm /var/lib/etablix/pause-deploy                                   # resume
+
+## Watching — so silence is the alarm
+
+Three layers, and the first is the only one that survives the box dying.
+
+**1. Outside the box.** Create a free check at any heartbeat monitor
+(healthchecks.io, Better Stack, Cronitor) with a period of five minutes and a
+grace of ten, then put its URL in the environment file:
+
+    HEARTBEAT_URL=https://hc-ping.com/<uuid>
+
+The application pings it every two minutes. If the container, the disk or the
+machine dies, the pings stop and the monitor tells you. Nothing running on
+this box can tell you this box has stopped.
+
+**2. Outside the container.** The watchdog restarts a wedged container — but
+never one that is busy with an agent run.
+
+    cp deploy/watchdog.sh /opt/etablix-watchdog.sh && chmod +x /opt/etablix-watchdog.sh
+    echo '*/2 * * * * root /opt/etablix-watchdog.sh' > /etc/cron.d/etablix-watchdog
+
+**3. Inside.** The scheduler now raises an alert when an agent run fails, when
+outbound mail starts failing, when no backup has been recorded for 36 hours,
+and when the DNS stops vouching for the domain's mail. Set a webhook so those
+reach you without depending on email, which is the thing most likely to be
+broken:
+
+    ALERT_WEBHOOK_URL=https://hooks.slack.com/services/...
+
+## Retention and erasure
+
+A client asking for their documents back is answered from the desk.
+
+- **What we hold:** `GET /api/clients/:id/holdings` lists every file, answer,
+  deliverable and invoice, with the retention period against each.
+- **Erasing the pack:** `POST /api/clients/:id/erase-pack` with a stated
+  reason and `confirm: true`. The files are deleted from the disk, the
+  checklist lines record that they were erased, and the erasure is written to
+  the append-only ledger.
+- **Automatic:** an information pack is erased twelve months after the
+  engagement closes, by the scheduler, without anybody remembering.
+- **What is kept:** the report, the invoices and the audit trail, for six
+  years — the Limitation Act 1980 and HMRC, not a preference.
+
+---
+
 ## What this runbook does not yet cover
 
 Stated plainly rather than left to be discovered:
 
-- **There is no uptime monitoring.** Nothing tells you the site is down except
-  looking. Point an external monitor at `/api/health` and alert on it.
-- **There is no alert when a backup fails.** The cron writes to a log nobody
-  reads. Set `ALERT_WEBHOOK_URL` and have the cron post to it on failure.
-- **The store is still a JSON file.** It is now safe against interruption, but
-  it has no transactions and no schema. That is the open structural item.
+- **There is no staging environment with a realistic data set unless you make
+  one.** `./deploy/staging.sh --with-live-data` copies live; without that flag
+  staging starts empty and seeded.
+- **The heartbeat and the watchdog do nothing until you configure them.** Both
+  are three lines above and neither costs anything.
+- **PostgreSQL is still the answer for more than one instance.** SQLite gives
+  transactions, migrations and a provable history on one box, which is what
+  the finding actually needed; the day a second instance writes at the same
+  time, the store module is the only thing that changes.

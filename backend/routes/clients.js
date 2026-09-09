@@ -25,12 +25,13 @@ import { Router } from "express";
 import crypto from "node:crypto";
 import path from "node:path";
 import fs from "node:fs";
-import { collection, insert, update, remove } from "../lib/store.js";
+import { collection, insert, update, remove, mutate, recordLedger } from "../lib/store.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 import { ROLES, ACCESS } from "../../shared/constants.js";
 import { acceptDocuments, describeFiles, UPLOAD_DIR } from "../lib/uploads.js";
 import { emit, emitDetached } from "../lib/comms.js";
 import { rateLimit } from "../lib/ratelimit.js";
+import { RETENTION, describeHoldings, erasePack, packDueAt } from "../lib/retention.js";
 import { createDocument, renderDocument, splitDiagnostic } from "./docs.js";
 import { startPipelineRun } from "./agents.js";
 import {
@@ -147,6 +148,11 @@ function decorate(e) {
     // The desk reads the same figures the client reads.
     documents: (e.documents || []).map((d) => ({ ...d, ...docMoney(e, d) })),
     vatMode: vatModeFor(e),
+    retention: {
+      packDueAt: packDueAt(e),
+      packErasedAt: e.packErasedAt || null,
+      policy: RETENTION,
+    },
   };
 }
 
@@ -433,6 +439,8 @@ router.post("/:id/payment-received", ...finance, async (req, res) => {
   const cycle = kind === "balance" && m.recurring;
   const nextStage = stageIndex(wanted) > stageIndex(e.stage) || cycle || wanted === "closed" ? wanted : e.stage;
 
+  recordLedger("payment.received", target.number, req.user.name,
+    `${reference(e)} · ${kind} · ${money(docMoney(e, target).gross)}`);
   update("clientEngagements", e.id, {
     documents: updatedDocs,
     stage: nextStage,
@@ -526,11 +534,11 @@ router.post("/:id/deliverable", ...finance, acceptDocuments, async (req, res) =>
     revision: (e.deliverables || []).filter((d) => d.label === label).length + 1,
     decision: null,
   };
-  update("clientEngagements", e.id, {
-    deliverables: [...(e.deliverables || []), item],
+  mutate("clientEngagements", e.id, (current) => ({
+    deliverables: [...(current.deliverables || []), item],
     stage: "decision",
-    events: trail(e.events, { at: Date.now(), by: req.user.name, what: "Deliverable issued", detail: `${label} (rev ${item.revision})` }),
-  });
+    events: trail(current.events, { at: Date.now(), by: req.user.name, what: "Deliverable issued", detail: `${label} (rev ${item.revision})` }),
+  }));
 
   emitDetached("client.deliverable.issued", {
     email: e.contactEmail,
@@ -611,6 +619,45 @@ router.post("/:id/run-diagnostic", ...finance, async (req, res) => {
   } catch (err) {
     res.status(502).json({ error: err.message });
   }
+});
+
+/**
+ * GET /api/clients/:id/holdings — everything held about this client.
+ *
+ * The answer to "what do you have of ours", which is the first half of a
+ * subject access request and the half that used to have no answer at all.
+ */
+router.get("/:id/holdings", ...finance, (req, res) => {
+  const e = find(req.params.id);
+  if (!e) return res.status(404).json({ error: "Engagement not found." });
+  res.json({ holdings: describeHoldings(e), policy: RETENTION });
+});
+
+/**
+ * POST /api/clients/:id/erase-pack — delete the client's information pack.
+ *
+ * The second half: a client asks for their drawings back and they go, for
+ * real, from the disk as well as from the record. The deliverables and the
+ * commercial record stay, because a six-year limitation period and HMRC both
+ * attach to them — and the reply to the client says so rather than implying
+ * everything was destroyed.
+ *
+ * Every erasure is written to the append-only ledger. A deletion nobody can
+ * evidence is worse than no deletion at all.
+ */
+router.post("/:id/erase-pack", ...finance, (req, res) => {
+  const e = find(req.params.id);
+  if (!e) return res.status(404).json({ error: "Engagement not found." });
+  if (e.packErasedAt) return res.status(400).json({ error: "The information pack on this engagement has already been erased." });
+  const reason = clampStr(req.body?.reason, 300);
+  if (!reason) {
+    return res.status(400).json({ error: "State why it is being erased — a client request, or the retention period. It goes on the record and it cannot be added afterwards." });
+  }
+  if (req.body?.confirm !== true) {
+    return res.status(400).json({ error: "Confirm the deletion. The files are removed from the disk and cannot be recovered from the application." });
+  }
+  const out = erasePack(e.id, { by: req.user.name, reason });
+  res.json({ erased: out.removed, engagement: decorate(find(e.id)), policy: RETENTION });
 });
 
 /** DELETE /api/clients/:id — admin only. */
@@ -756,11 +803,21 @@ router.post("/portal/:token/checklist/:itemId", ...portalGate, acceptDocuments, 
     vatPatch.vatNeedsReview = Boolean(declared && declared !== vatModeFor(e));
   }
 
-  update("clientEngagements", e.id, {
-    ...vatPatch,
-    checklist: updated,
-    events: trail(e.events, { at: Date.now(), by: e.contactName || e.client, what: "Checklist updated",
-      detail: `${item.title} — ${STATE_WORDS[state]}` + (replaced ? ` (${replaced} document${replaced === 1 ? "" : "s"} replaced by a newer copy of the same name)` : "") }),
+  // Computed against the row AS IT IS AT WRITE TIME, not against the copy
+  // read before the upload was parsed. A client answering three lines at
+  // once — which a browser does — would otherwise have two of the three
+  // answers overwritten by whichever handler finished last.
+  mutate("clientEngagements", e.id, (current) => {
+    const list = current.checklist || [];
+    const at = list.findIndex((i) => i.id === req.params.itemId);
+    const next = [...list];
+    if (at >= 0) next[at] = { ...list[at], state, note, files, updatedAt: Date.now() };
+    return {
+      ...vatPatch,
+      checklist: next,
+      events: trail(current.events, { at: Date.now(), by: e.contactName || e.client, what: "Checklist updated",
+        detail: `${item.title} — ${STATE_WORDS[state]}` + (replaced ? ` (${replaced} document${replaced === 1 ? "" : "s"} replaced by a newer copy of the same name)` : "") }),
+    };
   });
 
   if (vatPatch.vatNeedsReview) {
@@ -829,13 +886,18 @@ router.post("/portal/:token/start", ...portalGate, async (req, res) => {
   });
 
   const record = docRecord(e, doc, "deposit", terms);
-  update("clientEngagements", e.id, {
+  mutate("clientEngagements", e.id, (current) => ({
     stage: "deposit",
     startConfirmedAt: Date.now(),
     startConfirmedBy: by,
-    documents: [...(e.documents || []), record],
-    events: trail(e.events, { at: Date.now(), by, what: "Start confirmed by the client", detail: `${doc.number} raised automatically — ${terms.payable}` }),
-  });
+    documents: [...(current.documents || []), record],
+    events: trail(current.events, { at: Date.now(), by, what: "Start confirmed by the client", detail: `${doc.number} raised automatically — ${terms.payable}` }),
+  }));
+  // The money events go to the append-only ledger as well as to the row.
+  // The row is the current position; the ledger is what happened, and
+  // nothing in the routes can rewrite it.
+  recordLedger("invoice.raised", doc.number, by,
+    `${reference(e)} · deposit · net ${money(terms.net)}, VAT ${money(terms.vat)}, gross ${money(terms.gross)} · ${terms.vatMode}`);
 
   emitDetached("client.deposit.requested", {
     email: e.contactEmail,
@@ -886,10 +948,11 @@ router.post("/portal/:token/decision", ...portalGate, async (req, res) => {
   const updated = [...list];
   updated[idx] = { ...item, decision };
 
-  const patch = {
-    deliverables: updated,
-    events: trail(e.events, { at: Date.now(), by, what: `Client decision: ${spec.label}`, detail: `${item.label} rev ${item.revision}${comments.length ? ` — ${comments.length} comment(s)` : ""}` }),
-  };
+  // The new trail entries are kept apart from the row they will be added
+  // to, so they can be appended to the row AS IT IS at write time rather
+  // than to the copy read at the start of the request.
+  const newEvents = [{ at: Date.now(), by, what: `Client decision: ${spec.label}`, detail: `${item.label} rev ${item.revision}${comments.length ? ` — ${comments.length} comment(s)` : ""}` }];
+  const patch = { deliverables: updated };
 
   let invoice = null;
   if (choice === "approved") {
@@ -898,7 +961,11 @@ router.post("/portal/:token/decision", ...portalGate, async (req, res) => {
     // A later approval — a re-issued deliverable, a second deliverable —
     // records the decision and raises nothing.
     if (!m.recurring && hasInvoice(e, "balance")) {
-      update("clientEngagements", e.id, { ...patch, stage: "balance" });
+      mutate("clientEngagements", e.id, (current) => ({
+        stage: "balance",
+        deliverables: (current.deliverables || []).map((d, i) => (i === idx ? { ...d, decision } : d)),
+        events: newEvents.reduce((acc, ev) => trail(acc, ev), current.events || []),
+      }));
       return res.json({ engagement: forClient(find(e.id)), invoice: null });
     }
     const terms = balanceTerms(e);
@@ -920,15 +987,25 @@ router.post("/portal/:token/decision", ...portalGate, async (req, res) => {
     });
     invoice = { number: doc.number, amount: terms.gross, net: terms.net, vat: terms.vat, payable: terms.payable };
     patch.documents = [...(e.documents || []), docRecord(e, doc, "balance", terms)];
+    recordLedger("invoice.raised", doc.number, by,
+      `${reference(e)} · balance · net ${money(terms.net)}, VAT ${money(terms.vat)}, gross ${money(terms.gross)} · ${terms.vatMode}`);
     patch.stage = "balance";
-    patch.events.push({ at: Date.now(), by: "ETABLIX", what: "Balance invoice raised automatically", detail: `${doc.number} — ${terms.payable}` });
+    newEvents.push({ at: Date.now(), by: "ETABLIX", what: "Balance invoice raised automatically", detail: `${doc.number} — ${terms.payable}` });
   } else {
     // Review and rejection both put the work back with us. The
     // difference is what we owe the client back: a revision, or an
     // explanation of how it missed the requirement.
     patch.stage = "in_progress";
   }
-  update("clientEngagements", e.id, patch);
+  mutate("clientEngagements", e.id, (current) => ({
+    ...patch,
+    // Rebuilt from the row as it is now, so a decision cannot overwrite a
+    // checklist answer or a document that landed while the decision was
+    // being processed.
+    deliverables: (current.deliverables || []).map((d, i) => (i === idx ? { ...d, decision } : d)),
+    documents: patch.documents || current.documents,
+    events: newEvents.reduce((acc, ev) => trail(acc, ev), current.events || []),
+  }));
 
   if (invoice) {
     emitDetached("client.balance.requested", {
