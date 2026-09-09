@@ -32,13 +32,13 @@ import { acceptDocuments, describeFiles, UPLOAD_DIR } from "../lib/uploads.js";
 import { emit, emitDetached } from "../lib/comms.js";
 import { rateLimit } from "../lib/ratelimit.js";
 import { RETENTION, describeHoldings, erasePack, packDueAt } from "../lib/retention.js";
-import { createDocument, renderDocument, splitDiagnostic } from "./docs.js";
+import { createDocument, renderDocument, splitDiagnostic, splitSiteRequirements } from "./docs.js";
 import { startPipelineRun } from "./agents.js";
 import {
   STAGES, stage, stageIndex, MODELS, MODEL_IDS, model, deliverableOrNull,
   DELIVERABLES, deliverable, REQUIREMENT_PACKS, packFor, buildChecklist,
   checklistState, nextAction, DECISIONS, DECISION_IDS, nextPeriodLabel,
-  depositTerms, balanceTerms, money, diagnosticInputs, handoverDate, DIAGNOSTIC_FIELD_MAP,
+  depositTerms, balanceTerms, money, diagnosticInputs, handoverDate, DIAGNOSTIC_FIELD_MAP, pipelineFor,
   charge, vatModeFor, reverseChargeAvailable, declaredVatMode,
 } from "../lib/clientflow.js";
 import { diagnosticDates, releaseStatus, DIAGNOSTIC_WORKING_DAYS } from "../lib/workingdays.js";
@@ -625,9 +625,15 @@ router.post("/:id/deliverable", ...finance, acceptDocuments, async (req, res) =>
     const held = heldRefusal(dates?.due || "", null);
     if (held?.status) return res.status(held.status).json(held.body);
 
-    const { data } = splitDiagnostic(run.output);
+    // The run decides the template. This minted a diagnostic whatever the
+    // run was, so an approved Agent 9 requirements package would have been
+    // published to the client under the wrong headings.
+    const mint = run.agent === "site-requirements"
+      ? { template: "sitereq", split: splitSiteRequirements }
+      : { template: "diagnostic", split: splitDiagnostic };
+    const { data } = mint.split(run.output);
     const doc = createDocument({
-      template: "diagnostic",
+      template: mint.template,
       issuedBy: req.user.name,
       data: {
         ...data,
@@ -721,8 +727,15 @@ router.post("/:id/deliverable", ...finance, acceptDocuments, async (req, res) =>
 router.post("/:id/run-diagnostic", ...finance, async (req, res) => {
   const e = find(req.params.id);
   if (!e) return res.status(404).json({ error: "Engagement not found." });
-  if (deliverable(e.deliverable).pack !== "feasibility") {
-    return res.status(400).json({ error: "The diagnostic runs on a feasibility engagement. This one is a " + deliverable(e.deliverable).name + "." });
+  // Which agent this engagement's deliverable is produced by. Two of the five
+  // have one; the other three are an intake and a price with nothing behind
+  // them yet, and this says so plainly rather than starting the wrong agent.
+  const pipeline = pipelineFor(e.deliverable);
+  if (!pipeline) {
+    return res.status(400).json({
+      error: `${deliverable(e.deliverable).name} has no production agent yet, so there is nothing to run on this engagement. `
+        + "It has to be produced by hand — which is what the fee assumes, and is the reason parity across the deliverables matters.",
+    });
   }
   const chk = checklistState(e.checklist || []);
   if (!chk.canStart) {
@@ -759,7 +772,7 @@ router.post("/:id/run-diagnostic", ...finance, async (req, res) => {
       if (fs.existsSync(full)) {
         files.push({
           originalname: f.name, path: full, mimetype: f.type,
-          stored: f.stored, field: DIAGNOSTIC_FIELD_MAP[item.id] || null, label: item.title,
+          stored: f.stored, field: pipeline.fieldMap[item.id] || null, label: item.title,
         });
       }
     }
@@ -767,7 +780,7 @@ router.post("/:id/run-diagnostic", ...finance, async (req, res) => {
 
   try {
     const run = await startPipelineRun({
-      agentId: "diagnostic",
+      agentId: pipeline.agent,
       title: `${e.project} — Site Systems Diagnostic`,
       runBy: req.user.name,
       engagementId: e.id,

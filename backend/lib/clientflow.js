@@ -1245,6 +1245,40 @@ export const DIAGNOSTIC_FIELD_MAP = {
 };
 
 /**
+ * Which agent produces which deliverable, and how the client's checklist
+ * answers reach that agent's fields.
+ *
+ * The join between the portal and the agent existed for exactly one
+ * deliverable. Every other one had an intake, a price, and nothing to
+ * produce it — so a £14,000 to £45,000 requirements package arrived as nine
+ * answered checklist items and a blank page.
+ *
+ * A deliverable with no agent is not a fault; three of the five are genuinely
+ * next. But a deliverable whose agent exists must be joined up here, or the
+ * client's own uploaded pack gets downloaded and re-uploaded by a person, and
+ * the person is where the version drift comes from.
+ */
+export const DELIVERABLE_PIPELINES = {
+  feasibility: { agent: "diagnostic", fieldMap: DIAGNOSTIC_FIELD_MAP },
+  "site-requirements": {
+    agent: "site-requirements",
+    fieldMap: {
+      "s-scope": "scope",
+      "s-programme": "programme",
+      "s-layout": "layout",
+      "s-workforce": "workforce",
+      "s-standards": "standards",
+      "s-planning": "planning",
+      "s-utilities": "utilities",
+      "s-hse": "hse",
+      "s-tender": "tender",
+    },
+  },
+};
+
+export const pipelineFor = (deliverableId) => DELIVERABLE_PIPELINES[deliverableId] || null;
+
+/**
  * The information handover date: the day the LAST mandatory item was
  * settled. The ten working days at DIAGNOSTIC_WORKING_DAYS run from here,
  * and the clock is read from the record rather than typed by whoever
@@ -1268,8 +1302,9 @@ export function handoverDate(engagement) {
  */
 export function diagnosticInputs(engagement) {
   const out = {};
+  const map = pipelineFor(engagement.deliverable)?.fieldMap || DIAGNOSTIC_FIELD_MAP;
   for (const item of engagement.checklist || []) {
-    const field = DIAGNOSTIC_FIELD_MAP[item.id];
+    const field = map[item.id];
     if (!field) continue;
     if (item.state === "not_held") {
       out[field] = `NOT HELD BY THE CLIENT. Their stated reason: ${item.note || "none given"}.`;

@@ -20,6 +20,7 @@ import { collection, insert, update, remove, recordLedger, getSettings, saveSett
 import { sessionFromQuery } from "../middleware/auth.js";
 import { AGENT_BRIEFS } from "../lib/ai.js";
 import { diagnosticDates, releaseStatus, human as humanDate, DIAGNOSTIC_WORKING_DAYS } from "../lib/workingdays.js";
+import { SECTIONS as SR_SECTIONS } from "../lib/pipelines/site-requirements.js";
 
 const router = Router();
 
@@ -90,6 +91,9 @@ export const DIAGNOSTIC_SECTIONS = [
 /** The two sections the client-facing specimen shows in full. */
 export const SPECIMEN_SECTIONS = ["s3", "s7"];
 
+/** Agent 9's twelve, in the order the package is read. */
+export const SITEREQ_SECTIONS = SR_SECTIONS;
+
 export const TEMPLATES = [
   {
     id: "diagnostic", prefix: "SSD", name: "Site Systems Diagnostic report",
@@ -104,6 +108,22 @@ export const TEMPLATES = [
       ...DIAGNOSTIC_SECTIONS.map(([id, label], i) => F(id, `${i + 1}. ${label}`, "textarea")),
       F("appendix", "Appendix A — document reconciliation ledger", "textarea", {
         placeholder: "Which of the client's own documents disagree with which",
+      }),
+    ],
+  },
+  {
+    id: "sitereq", prefix: "SMR", name: "Site Management Requirements Package",
+    documentTitle: "Site Management Requirements Package",
+    description: "Agent 9's twelve deliverables as an issued document: the requirements summary, the twelve sections, and the traceability appendix. Draft it from an approved Agent 9 run rather than typing it.",
+    fields: [
+      F("client", "Client / organisation", "text", { required: true }),
+      F("project", "Project / site", "text", { required: true }),
+      F("handover", `Information handover date — the issue date is ${DIAGNOSTIC_WORKING_DAYS} working days after this`, "date", { required: true }),
+      F("basis", "Basis of preparation", "textarea", { placeholder: "Information relied on, and what was not provided" }),
+      F("findings", "Requirements summary in one paragraph", "textarea", { required: true }),
+      ...SITEREQ_SECTIONS.map(([id, label], i) => F(id, `${i + 1}. ${label}`, "textarea")),
+      F("appendix", "Appendix A — requirement traceability and open items", "textarea", {
+        placeholder: "Every requirement traced to its source, and everything that must close before issue",
       }),
     ],
   },
@@ -450,8 +470,16 @@ function namingBreach(data) {
 router.get("/from-run/:id", requireAuth, deliveryFinance, (req, res) => {
   const run = collection("agentTasks").find((r) => r.id === req.params.id);
   if (!run) return res.status(404).json({ error: "Run not found." });
-  if (run.agent !== "diagnostic") {
-    return res.status(400).json({ error: "Only a Site Systems Diagnostic run can draft this document." });
+  // Two pipeline agents now produce a twelve-section deliverable, and each
+  // drafts into its own template. Hardcoding the diagnostic here would have
+  // made Agent 9's £14,000–£45,000 package a retyping exercise.
+  const DRAFTS = {
+    diagnostic: { template: "diagnostic", split: splitDiagnostic },
+    "site-requirements": { template: "sitereq", split: splitSiteRequirements },
+  };
+  const draft = DRAFTS[run.agent];
+  if (!draft) {
+    return res.status(400).json({ error: "This agent does not produce a document. Only the pipeline agents do." });
   }
   if (run.status !== "approved") {
     return res.status(409).json({
@@ -459,7 +487,7 @@ router.get("/from-run/:id", requireAuth, deliveryFinance, (req, res) => {
     });
   }
 
-  const { data, missing, matched } = splitDiagnostic(run.output);
+  const { data, missing, matched } = draft.split(run.output);
 
   // ?template=specimen — the same run, cut down to the client-safe extract
   // that goes on the website and into a pitch: the findings paragraph, the
@@ -472,7 +500,7 @@ router.get("/from-run/:id", requireAuth, deliveryFinance, (req, res) => {
   // project is identifiable from its constraints alone, so the name is
   // typed by a person who has decided the extract is safe to publish, not
   // inherited from a run.
-  if (req.query.template === "specimen") {
+  if (req.query.template === "specimen" && run.agent === "diagnostic") {
     const shown = SPECIMEN_SECTIONS.filter((id) => data[id]);
     return res.json({
       template: "specimen",
@@ -497,7 +525,7 @@ router.get("/from-run/:id", requireAuth, deliveryFinance, (req, res) => {
   }
 
   res.json({
-    template: "diagnostic",
+    template: draft.template,
     runTitle: run.title,
     matched,
     missing,
@@ -686,7 +714,18 @@ function headingSuffix(doc) {
  * than left silently blank — an empty section in a diagnostic is a
  * failed engagement, and the person needs to see which one.
  */
-export function splitDiagnostic(output) {
+export const splitDiagnostic = (output) => splitPipelineOutput(output, DIAGNOSTIC_SECTIONS);
+export const splitSiteRequirements = (output) => splitPipelineOutput(output, SITEREQ_SECTIONS);
+
+/**
+ * The same parse for any twelve-section deliverable.
+ *
+ * Agent 8 and Agent 9 both produce a findings paragraph, twelve numbered
+ * sections and a lettered appendix. Only the field names differ, so the
+ * parser takes them rather than being written twice — two copies of this
+ * would drift the first time either agent's headings changed.
+ */
+export function splitPipelineOutput(output, sections) {
   const lines = String(output || "").replace(/\r\n/g, "\n").split("\n");
 
   // A heading line: optional markdown hashes or bold, a number 0-12, a
@@ -725,7 +764,7 @@ export function splitDiagnostic(output) {
   if (findings) data.findings = findings;
   else missing.push("Findings in one paragraph");
 
-  DIAGNOSTIC_SECTIONS.forEach(([id, label], i) => {
+  sections.forEach(([id, label], i) => {
     const body = take(i + 1);
     if (body) data[id] = body;
     else missing.push(`${i + 1}. ${label}`);
@@ -1084,6 +1123,24 @@ function renderBody(doc) {
       </div>
       ${d.note ? `<div class="blk"><h3>For this engagement</h3>${richText(d.note)}</div>` : ""}
       <p class="legalnote">Information supplied for this engagement is treated as confidential and used only to produce your report. Send it however suits you — if a secure transfer is preferred, say so and we will arrange one.</p>`;
+  }
+
+  if (doc.template === "sitereq") {
+    const rel = d.dueDate ? releaseStatus(d.dueDate) : null;
+    const hold =
+      rel?.state === "held" && !doc.earlyRelease
+        ? `<div class="holdnote"><b>Do not issue before ${esc(humanDate(d.dueDate))}.</b> This engagement was sold as ${d.promisedDays || DIAGNOSTIC_WORKING_DAYS} working days from information handover on ${esc(humanDate(d.handover))}. ${rel.days} working day${rel.days === 1 ? "" : "s"} remain. Internal review copy.</div>`
+        : "";
+    return `
+      ${hold}
+      <table class="meta">${t("Client", d.client)}${t("Project / site", d.project)}${
+        d.handover ? t("Information handover", humanDate(d.handover)) : ""
+      }${d.dueDate ? t("Issue date", `${humanDate(d.dueDate)} — ${d.promisedDays || DIAGNOSTIC_WORKING_DAYS} working days from handover`) : ""}${t("Prepared by", doc.issuedBy)}</table>
+      ${d.findings ? `<div class="blk"><h3>Requirements summary in one paragraph</h3>${richText(d.findings)}</div>` : ""}
+      ${SITEREQ_SECTIONS.map(([id, label], i) => section(i + 1, label, d[id])).join("")}
+      ${d.appendix ? `<div class="blk"><h3>Appendix A · Requirement traceability and open items</h3><p class="rt-lede">Every requirement traced to the document, duty or condition that mandates it — and everything that must close before this package is issued.</p>${richText(d.appendix)}</div>` : ""}
+      ${d.basis ? `<div class="blk"><h3>Basis of preparation</h3>${richText(d.basis)}</div>` : ""}
+      <p class="legalnote">This package is decision support and a drafting service. It is not a design, not a price and not legal advice, and nothing within it appoints ETABLIX as Principal Contractor under CDM 2015 — that is a defined legal role and holding it must be an explicit, priced and insured decision. Requirements marked [PROPOSED] require the client's approval before issue. Every load, ratio, rate and duration is a first-pass planning figure requiring validation by a competent person.</p>`;
   }
 
   if (doc.template === "specimen") {

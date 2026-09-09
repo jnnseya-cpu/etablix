@@ -42,8 +42,12 @@ let openId = null;
     that failed, hung, or was started against the wrong pack ended the
     engagement's use of the agent — the endpoint would have taken a second
     one all along, and there was no way to ask for it. */
+const PRODUCED_BY_AGENT = ["feasibility", "site-requirements"];
 function canRunDiagnostic(e) {
-  return e.deliverable === "feasibility"
+  // Two of the five Model A deliverables have a production agent. The others
+  // are an intake and a price, and offering a button that the endpoint will
+  // refuse is worse than not offering one.
+  return PRODUCED_BY_AGENT.includes(e.deliverable)
     && e.checklistState.canStart
     && ["deposit", "in_progress"].includes(e.stage);
 }

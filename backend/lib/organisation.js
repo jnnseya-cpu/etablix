@@ -231,6 +231,15 @@ export const AI_AGENTS = [
     backing: ["llm"],
     desk: "The paid entry engagement: eight client inputs in, twelve deliverables out, ten working days. This agent drafts them; a director validates and issues.",
   },
+  {
+    id: "site-requirements",
+    name: "Agent 9 — Site Management Requirements Package",
+    inputs: ["The scope package by package, the programme and required-on-site dates, the site layout", "The client's own standards and specifications, planning consents and conditions", "Utility positions and capacities, workforce and shift pattern, HSE and CDM arrangements, intended route to market"],
+    outputs: ["Package structure with every scope boundary stated as a witnessed physical point", "Employer's Requirements package by package — every obligation verifiable and traced to its source", "Interface and responsibility matrix, technical, welfare and service-level requirements", "Statutory and CDM duties with the role holder named, programme requirements worked backwards", "Commercial requirements, evaluation model, contract strategy and the tender issue plan"],
+    boundary: "A drafting service and decision support, not a design, a price or legal advice. Nothing in it appoints ETABLIX as CDM Principal Contractor. Requirements marked [PROPOSED] need the client's approval before issue.",
+    backing: ["llm"],
+    desk: "The document set that goes to market. Where the diagnostic reports what does not hold, this writes the instruments a tenderer prices and a contract enforces — so every requirement is objectively verifiable and traced to the document, duty or condition that mandates it.",
+  },
 ];
 
 /** Function → how much AI genuinely replaces → the human control that remains. */

@@ -14,7 +14,7 @@ import { ROLES } from "../../shared/constants.js";
 import { collection, insert, update, remove, persist } from "../lib/store.js";
 import { emit } from "../lib/comms.js";
 import { AI_AGENTS } from "../lib/organisation.js";
-import { AGENT_BRIEFS, publicProvider, setProvider, testProvider, runAgent, assertInputs, PIPELINE_AGENTS, DIAGNOSTIC_STAGES } from "../lib/ai.js";
+import { AGENT_BRIEFS, publicProvider, setProvider, testProvider, runAgent, assertInputs, PIPELINE_AGENTS, stagesFor } from "../lib/ai.js";
 import { acceptDocuments, UPLOAD_DIR } from "../lib/uploads.js";
 import { extractAll } from "../lib/extract.js";
 import { readPack, savePack, savePass, deletePack, sweepPacks } from "../lib/runstore.js";
@@ -220,7 +220,9 @@ export async function startPipelineRun({ agentId, inputs = {}, title, files = []
     output: "",
     status: "running",
     startedAt: Date.now(),
-    stages: DIAGNOSTIC_STAGES.map((st) => ({ ...st, state: "pending" })),
+    // Was DIAGNOSTIC_STAGES for every pipeline agent, so a second one would
+    // have reported the diagnostic's six stage names while running its own.
+    stages: stagesFor(agent.id).map((st) => ({ ...st, state: "pending" })),
   });
   savePack(run.id, { documents, passes: {} });
   trimLog();
@@ -304,7 +306,7 @@ router.post("/:id/run", acceptDocuments, async (req, res) => {
         output: "",
         status: "running",
         startedAt: Date.now(),
-        stages: DIAGNOSTIC_STAGES.map((st) => ({ ...st, state: "pending" })),
+        stages: stagesFor(agent.id).map((st) => ({ ...st, state: "pending" })),
       });
       savePack(run.id, { documents, passes: {} });
       trimLog();

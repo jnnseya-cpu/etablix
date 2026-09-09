@@ -65,6 +65,19 @@ done
 # diagnostic more than once — so they run last and on their own ports.
 # This one owns its own mock, because it needs the model to run out of room
 # on demand and then to do so for ever — two different mock modes.
+# Owns its own mock and server: it walks a second pipeline agent end to end
+# and needs the mock answering that agent's passes rather than the suite's.
+echo "=== delivery parity ==="
+printf '  %-28s ' "parity.e2e"
+PDATA=$(mktemp -d)
+if ETABLIX_DATA_DIR=$PDATA PORT=$((PORT + 20)) MOCK_PORT=$((MOCK_PORT + 20)) \
+   ANTHROPIC_API_KEY=mock-key node backend/test/parity.e2e.mjs > "$LOGS/parity.log" 2>&1; then
+  grep -Eo '[0-9]+ passed' "$LOGS/parity.log" | tail -1
+else
+  echo "FAILED  → $LOGS/parity.log"; fail=1
+fi
+[ "${KEEP:-0}" = "1" ] || rm -rf "$PDATA"
+
 echo "=== truncation ==="
 printf '  %-28s ' "truncation.e2e"
 TRDATA=$(mktemp -d)

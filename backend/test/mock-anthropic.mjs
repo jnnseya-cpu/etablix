@@ -32,6 +32,28 @@ const sec = (n, t, body) => `## ${n} · ${t}\n${body}`;
 
 function answer(task) {
   if (/Reply with exactly/.test(task)) return "ETABLIX AI online";
+  // AGENT 9 FIRST, and the order is the point. Both agents' passes say
+  // "Write deliverables 1, 2 and 3", so matching the diagnostic's generic
+  // phrase first returned the DIAGNOSTIC's sections for Agent 9's passes —
+  // and because the output splitter takes sections by number rather than by
+  // title, the wrong content landed in the right fields and looked fine.
+  // Agent 9 — Site Management Requirements Package. Its passes ask for
+  // deliverables 1-3, 4-6, 7-9 and 10-12 like the diagnostic's, so they are
+  // matched on the words that are specific to it.
+  if (/REQUIREMENT SOURCE REGISTER/.test(task))
+    return "## A · REQUIREMENT SOURCE REGISTER\n| Ref | Requirement | Source | Mandatory? | Verifiable? |\n|---|---|---|---|---|\n| RS-01 | Welfare for 340 | Cabin schedule rev C | Mandatory | Yes |\n\n## C · STANDARDS THE CLIENT HAS NOT STATED\n| Ref | Needs a standard | Why | Proposed |\n|---|---|---|---|\n| RG-01 | Cleaning frequency | Cannot be priced | Twice per shift |";
+  if (/Package structure and scope boundaries/.test(task))
+    return [sec(1, "Package structure and scope boundaries", "| Ref | Package | Boundary |\n|---|---|---|\n| P01 | Compound civils | Top of formation, witnessed |"), sec(2, "Employer's Requirements by package", "The Contractor shall provide 22 WCs. **[PROPOSED — client approval required]**"), sec(3, "Interface and responsibility matrix", "| Ref | Between | Physical point | Who signs |\n|---|---|---|---|\n| IF-01 | Civils / cabins | Slab edge and level | TWC |")].join("\n\n");
+  if (/Technical requirements/.test(task))
+    return [sec(4, "Technical requirements", "### Power\n| Load | kW | Diversity | Demand |\n|---|---|---|---|\n| Cabins | 203 | 0.7 | 142 |"), sec(5, "Welfare, accommodation and workforce requirements", "Schedule 2 sets no numeric ratios; 1 WC per 15.5 applied."), sec(6, "Performance and service-level requirements", "| Service | Standard | Measured | Frequency | Consequence |\n|---|---|---|---|---|\n| Welfare cleaning | Twice per shift | Inspection | Weekly | Deduction |")].join("\n\n");
+  if (/HSEQ, CDM and statutory requirements/.test(task))
+    return [sec(7, "HSEQ, CDM and statutory requirements", "Nothing here appoints ETABLIX as Principal Contractor."), sec(8, "Programme, access and phasing requirements", "| Requirement | Date | Lead time | Latest responsible start |\n|---|---|---|---|\n| S278 | 2027-04-06 | 22 weeks | PASSED |"), sec(9, "Commercial requirements", "Payment provisions to comply with Part II of the 1996 Act.")].join("\n\n");
+  if (/Evaluation model/.test(task))
+    return [sec(10, "Evaluation model", "| Criterion | Weighting | Evidence |\n|---|---|---|\n| Price | 40% | Pricing schedule |"), sec(11, "Contract strategy and terms schedule", "| Risk | Carried by | Why |\n|---|---|---|\n| Ground | Client | No GI exists |"), sec(12, "Tender document register and issue plan", "| Document | Rev | Status | For |\n|---|---|---|---|\n| Requirements | A | Issue | Pricing |")].join("\n\n");
+  if (/REQUIREMENTS SUMMARY IN ONE PARAGRAPH/.test(task))
+    return "## 0 · REQUIREMENTS SUMMARY IN ONE PARAGRAPH\nTwelve packages, and the S278 access date has already passed its latest responsible start.\n\n## A · Requirement traceability and open items\n| Requirement | Source ref | Client mandate or proposal |\n|---|---|---|\n| R-01 | RS-01 | Client mandate |";
+
+
   if (/working paper/.test(task))
     return "## FACTS\n| ID | Fact | Value | Source |\n|---|---|---|---|\n| F01 | Site access date | 1 March 2027 | Input 1, milestones |\n\n## CONTRADICTIONS\n| ID | A | B | Why both cannot hold |\n|---|---|---|---|\n| C01 | Two-shift from Jan 2028 (Input 1) | Condition 14 prohibits it (Input 7) | One of them is wrong |";
   if (/deliverables 1, 2 and 3/.test(task))

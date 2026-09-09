@@ -15,7 +15,8 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { getSettings, saveSettings } from "./store.js";
-import { runDiagnostic, STANDARD, DIAGNOSTIC_STAGES } from "./diagnostic.js";
+import { runPipeline, pipelineSpec, DIAGNOSTIC_SPEC, STANDARD, DIAGNOSTIC_STAGES } from "./diagnostic.js";
+import * as SR from "./pipelines/site-requirements.js";
 
 const DEFAULT_MODEL = "claude-opus-5";
 
@@ -286,6 +287,10 @@ competent person rather than resolved.`,
       { name: "siteInfo", label: "Available site and utility information — and what is NOT available", type: "textarea" },
     ],
   },
+  "site-requirements": {
+    system: `${COMPANY_BRIEF}\n\n${SR.BRIEF_SYSTEM}`,
+    fields: SR.FIELDS,
+  },
   commercial: {
     system: `${COMPANY_BRIEF}
 
@@ -452,7 +457,29 @@ Use ONLY facts given in the brief — never invent quantities, dates, locations 
 }
 
 /** Which agents run as a multi-pass pipeline rather than a single call. */
-export const PIPELINE_AGENTS = new Set(["diagnostic"]);
+/**
+ * The agents that produce a full deliverable rather than answering one
+ * question, and the spec each one is built from.
+ *
+ * ETABLIX sells five Model A deliverables. Only the diagnostic had a
+ * production engine, which meant four of them — including a £14,000 to
+ * £45,000 requirements package — were an intake checklist, a price, and
+ * somebody writing forty pages by hand. The margins certified in the pricing
+ * review assume the effort of an engine, so parity is a commercial
+ * requirement rather than a nicety.
+ */
+export const PIPELINE_SPECS = {
+  diagnostic: DIAGNOSTIC_SPEC,
+  "site-requirements": pipelineSpec({
+    id: "site-requirements",
+    reconcileTask: SR.RECONCILE_TASK,
+    sectionPasses: SR.SECTION_PASSES,
+    finalTask: SR.FINAL_TASK,
+    finalLabel: "Requirements summary and traceability",
+  }),
+};
+export const PIPELINE_AGENTS = new Set(Object.keys(PIPELINE_SPECS));
+export const stagesFor = (agentId) => (PIPELINE_SPECS[agentId] || DIAGNOSTIC_SPEC).stages;
 export { DIAGNOSTIC_STAGES };
 
 /**
@@ -490,7 +517,8 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
   assertInputs(agentId, inputs, documents);
 
   if (PIPELINE_AGENTS.has(agentId)) {
-    return runDiagnostic({
+    return runPipeline({
+      spec: PIPELINE_SPECS[agentId],
       anthropic: client(),
       model,
       // The standard travels with every pass; the brief alone is what the
