@@ -1,6 +1,13 @@
 # Pricing review — every model, every deliverable
 
-**Prepared 9 September 2026. A recommendation for a decision, not a decision.**
+**Prepared 9 September 2026. ADOPTED — the catalogue now carries these figures.**
+
+The Managing Director's instruction was to take numbers that reflect the level
+of quality produced and price accordingly. Every recommendation below is now in
+the system as a named band with the scope that makes its fee fixed, and Models B
+and C carry the fee structure they had been missing. What remains outstanding is
+section 9: none of this has been tested against the market, and four people can
+each turn one part of it into evidence with a single question.
 
 Two things before any number. First, every market level in this paper is my
 reasoning from construction fee conventions and from the arithmetic of your own

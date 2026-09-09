@@ -185,15 +185,16 @@ function detail() {
       <p class="panel-sub" style="margin:4px 0 10px;">It was opened automatically from their enquiry, so nothing had to be retyped — and it carries no price, because the platform does not price your work. Set the deliverable, the model and the fee, and it becomes an ordinary engagement. Until then no portal and no invoice can be issued from it.</p>
       ${e.internalNotes ? `<pre style="white-space:pre-wrap;font-size:0.83rem;background:var(--paper,#f6f4ef);border-radius:6px;padding:10px 12px;margin:0 0 10px;">${esc(e.internalNotes)}</pre>` : ""}
       <form id="cl-terms" class="team-form">
-        <label>Deliverable<select name="deliverable" required>${CAT.deliverables.map((d) => `<option value="${esc(d.id)}"${d.id === e.deliverable ? " selected" : ""}>${esc(d.name)}${d.low ? ` (guide £${d.low.toLocaleString()}–£${d.high.toLocaleString()})` : ""}</option>`).join("")}</select></label>
+        <label>Deliverable<select name="deliverable" required>${CAT.deliverables.map((d) => `<option value="${esc(d.id)}"${d.id === e.deliverable ? " selected" : ""}>${esc(d.name)}</option>`).join("")}</select></label>
+        <div id="cl-bands" style="grid-column:1/-1;"></div>
         <label>Model<select name="model">${CAT.models.map((m) => `<option value="${esc(m.id)}"${m.id === e.model ? " selected" : ""}>${esc(m.name)}</option>`).join("")}</select></label>
-        <label>Fixed fee (Model A)<input name="fee" type="number" min="0" step="50" placeholder="The fee you agreed with them"></label>
+        <label>Fixed fee (Model A)<input name="fee" type="number" min="0" step="50" placeholder="Pick a band above, or type the fee you agreed"></label>
         <label>Monthly fee (Models B and C)<input name="monthlyFee" type="number" min="0" step="50"></label>
         <label>Project<input name="project" value="${esc(e.project)}"></label>
         <label>VAT<select name="vatMode"><option value="standard">Standard</option><option value="reverse">CIS domestic reverse charge</option><option value="none">Outside scope</option></select></label>
         <button class="btn btn-primary" type="submit">Agree the terms</button>
       </form>
-      <p class="muted" style="font-size:0.78rem;margin:8px 0 0;">The guide range is the catalogue's, not a quotation. Nothing on the website publishes a price.</p>
+      <p class="muted" style="font-size:0.78rem;margin:8px 0 0;">A band is the catalogue price for a defined scope, not a quotation — and nothing on the website publishes a price. Quote the band, not a range: a range printed anywhere a client can see it means the bottom of the range.</p>
     </div>` : ""}
 
     ${canIssue ? `<div style="border:1.5px solid var(--line,#dcd7cc);border-radius:8px;padding:14px 16px;margin:14px 0;">
@@ -230,8 +231,58 @@ function detail() {
 
 /* -------------------------------------------------------------- wiring */
 
+/**
+ * The bands for whichever deliverable is selected, as things to click.
+ *
+ * The catalogue used to be shown as "(guide £2,500–£7,500)" against the
+ * deliverable name, and a range is a negotiation already lost — nobody reads
+ * one and picks the top. Each band states the scope that makes its fee fixed,
+ * so the desk is choosing which band the project is rather than what the
+ * number should be.
+ */
+function renderBands(form) {
+  const holder = form.querySelector("#cl-bands");
+  if (!holder) return;
+  const d = CAT.deliverables.find((x) => x.id === form.querySelector('[name="deliverable"]').value);
+  const m = CAT.models.find((x) => x.id === form.querySelector('[name="model"]').value);
+
+  if (d?.bands?.length) {
+    holder.innerHTML = `<p class="panel-sub" style="margin:2px 0 6px;">Catalogue bands — click one to set the fee. Quote the band and its scope, never a range.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">${d.bands.map((b) => `
+        <button type="button" class="btn" data-band="${esc(String(b.fee))}" style="text-align:left;padding:8px 12px;max-width:260px;">
+          <b>${esc(b.label)} — £${b.fee.toLocaleString()}</b>
+          <div class="muted" style="font-size:0.75rem;font-weight:400;white-space:normal;margin-top:3px;">${esc(b.scope)}</div>
+        </button>`).join("")}</div>`;
+    holder.querySelectorAll("button[data-band]").forEach((btn) => btn.addEventListener("click", () => {
+      form.querySelector('[name="fee"]').value = btn.dataset.band;
+    }));
+    return;
+  }
+
+  // Models B and C carry a structure rather than a price, because the fee is
+  // a percentage of something that is not known until the scope is.
+  const g = m?.feeGuide;
+  if (!g) { holder.innerHTML = ""; return; }
+  const rows = g.monthly
+    ? `<li><b>Mobilisation</b> — ${g.mobilisation.map((x) => `${esc(x.label)} £${x.fee.toLocaleString()}`).join(" · ")}</li>
+       <li><b>Monthly</b> — ${esc(g.monthly.basis)}, floor <b>£${g.monthly.floor.toLocaleString()}</b>. ${esc(g.monthly.note)}</li>
+       <li><b>Platform</b> — £${g.platform.low.toLocaleString()}–£${g.platform.high.toLocaleString()} per month. ${esc(g.platform.basis)}</li>
+       <li>${esc(g.note)}</li>`
+    : `<li><b>Management fee</b> — ${esc(g.managementFee.firstEngagements)}; ${esc(g.managementFee.atScale)}. Never below ${g.managementFee.floorPct}%.</li>
+       <li><b>Mobilisation</b> — £${g.mobilisation.low.toLocaleString()}–£${g.mobilisation.high.toLocaleString()}. ${esc(g.mobilisation.basis)}</li>
+       <li><b>Advance</b> — ${esc(g.advance)}</li>
+       ${g.nonNegotiable.map((n) => `<li style="color:var(--danger,#c0392b);">${esc(n)}</li>`).join("")}`;
+  holder.innerHTML = `<p class="panel-sub" style="margin:2px 0 6px;">This model is priced from a structure, not a catalogue figure.</p>
+    <ul style="margin:0;padding-left:18px;font-size:0.82rem;line-height:1.6;">${rows}</ul>`;
+}
+
 function wire(body) {
   const termsForm = document.getElementById("cl-terms");
+  if (termsForm) {
+    renderBands(termsForm);
+    termsForm.querySelector('[name="deliverable"]').addEventListener("change", () => renderBands(termsForm));
+    termsForm.querySelector('[name="model"]').addEventListener("change", () => renderBands(termsForm));
+  }
   if (termsForm) termsForm.addEventListener("submit", async (ev) => {
     ev.preventDefault();
     const id = document.getElementById("cl-detail")?.dataset.id;

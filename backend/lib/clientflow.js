@@ -161,6 +161,29 @@ export const MODELS = {
       "A recurring appointment. The mobilisation fee and the first month are payable in advance; each following month is invoiced when you approve the month that has just ended.",
     depositNarrative:
       "Mobilisation and planning fee plus the first month's integration and management fee, and the platform fee where CONSTRUX is in scope. Paid in advance because month one is the month we buy the team and stand the systems up.",
+    // The desk had no fee basis for a recurring appointment at all, so the
+    // first one would have been priced under pressure in front of a
+    // procurement person who does it weekly. The monthly figure is built two
+    // ways and both reach the same place: a Site Integration Manager on site
+    // is roughly £8–10k a month fully loaded, a part-time PM £4–5k and
+    // commercial support £2–3k, plus overhead and margin — £18–25k for a
+    // modest appointment; and 5% of a £15m estate over 34 months is about
+    // £22k a month. Two methods, one answer.
+    feeGuide: {
+      minimumTermMonths: 6,
+      mobilisation: [
+        { label: "Single site", fee: 18000 },
+        { label: "Multi-compound", fee: 32000 },
+        { label: "Programme", fee: 55000 },
+      ],
+      monthly: {
+        floor: 14000,
+        basis: "4–7% of the annualised supply-chain spend under management",
+        note: "Below the floor the appointment does not fund a Site Integration Manager and ETABLIX is subsidising it.",
+      },
+      platform: { low: 1800, high: 4500, basis: "Per project per month where CONSTRUX is in scope, by user count and number of sites" },
+      note: "Minimum six months. A shorter appointment does not repay the mobilisation, and a client who wants three months wants an advisory engagement with a different name on it.",
+    },
     balanceNarrative:
       "The next month's fee, raised automatically when you approve the report for the month just ended. Approval and invoice are the same act, so there is no month where you are paying for something you have not seen.",
   },
@@ -177,6 +200,26 @@ export const MODELS = {
       "Single-point accountability for the site services. The advance covers month-one supplier expenditure, mobilisation and the first month's fee; each following month is invoiced when you approve the month just ended.",
     depositNarrative:
       "The advance: forecast month-one supplier expenditure, the mobilisation fee, the first month's management fee, early procurement commitments and the agreed early-risk contingency. Every figure here is net of VAT; VAT is added once, by the invoice, so it is never charged on a sum that already carries it. No supplier order is placed until the advance has cleared — that is the protection it buys you as much as us.",
+    // Prime is where a wrong number is not a lost margin but a lost company:
+    // ETABLIX holds the supply chain contracts, so it carries the working
+    // capital, the credit risk and the performance risk. The first ones are
+    // dearer because a new prime has no framework rates, no volume leverage
+    // and no record — and saying so out loud is a stronger position than a
+    // low number that later has to be raised.
+    feeGuide: {
+      managementFee: {
+        firstEngagements: "9–14% of supplier expenditure on the first two engagements",
+        atScale: "7–10% once there is a delivery record and real buying power",
+        floorPct: 8,
+      },
+      mobilisation: { low: 35000, high: 90000, basis: "As Model B plus the procurement build-out, by scale" },
+      advance: "Month-one supplier expenditure + mobilisation + month-one management fee + early procurement commitments + the agreed early-risk contingency.",
+      nonNegotiable: [
+        "No supplier order before the advance has cleared. It is the one control that stops a client's insolvency taking ETABLIX with it.",
+        "Never price a prime appointment without a package-by-package build-up. A client's own total multiplied out of three tendered numbers is not a basis.",
+        "The six prime gates in the Commercial OS are gates, not guidance: working capital, insurance, contractual protection, a creditworthy client, back-to-back terms, board approval.",
+      ],
+    },
     balanceNarrative:
       "The next month's valuation, raised automatically on your approval of the month just ended, with the supplier reserve replenished on the same cycle.",
   },
@@ -859,16 +902,93 @@ export const REQUIREMENT_PACKS = {
 
 export const PACK_IDS = Object.keys(REQUIREMENT_PACKS);
 
-/** The deliverable catalogue: what a client can be engaged for, and the pack it needs. */
+/**
+ * The deliverable catalogue: what a client can be engaged for, the pack it
+ * needs, and what it costs.
+ *
+ * BANDS, NOT RANGES. The catalogue used to carry a low and a high — the
+ * diagnostic at "£2,500–£7,500" — and a range printed anywhere a client can
+ * see it means the bottom of the range. Nobody has ever read one and chosen
+ * the top. Three named scopes at three fixed prices turns the conversation
+ * from what the number should be into which band this project is, which is
+ * a question the documents answer rather than the client.
+ *
+ * Each band states the boundary that makes the fee fixed. Without it a fixed
+ * fee on an unbounded document set is an open-ended commitment, and the first
+ * client with eighteen documents and five compounds teaches that lesson at
+ * ETABLIX's expense.
+ *
+ * The levels are set against the depth of the work rather than the hours it
+ * takes, and deliberately below what a tier-one consultancy charges for the
+ * same depth — the first engagements have to buy the delivery record that
+ * justifies more. See business/pricing/PRICING-REVIEW-2026.md for the
+ * reasoning, the arithmetic and what still needs testing against the market.
+ */
+const BAND = (id, label, fee, scope) => ({ id, label, fee, scope });
+
 export const DELIVERABLES = [
-  { id: "feasibility", model: "A", name: "Site-services feasibility review / Site Systems Diagnostic", pack: "feasibility", low: 2500, high: 7500 },
-  { id: "site-requirements", model: "A", name: "Site Management Requirements Package", pack: "site-requirements", low: 7500, high: 25000 },
-  { id: "village-requirements", model: "A", name: "Workforce Village Requirements Package", pack: "village-requirements", low: 10000, high: 35000 },
-  { id: "procurement", model: "A", name: "Procurement management and tender evaluation", pack: "procurement", low: 7500, high: 30000 },
-  { id: "mobilisation-review", model: "A", name: "Mobilisation-readiness / village-readiness review", pack: "mobilisation-review", low: 5000, high: 15000 },
-  { id: "integrator", model: "B", name: "Management Integrator appointment", pack: "integrator", low: null, high: null },
-  { id: "prime", model: "C", name: "Prime Service Contractor appointment", pack: "prime", low: null, high: null },
-];
+  {
+    id: "feasibility", model: "A", pack: "feasibility",
+    name: "Site-services feasibility review / Site Systems Diagnostic",
+    bands: [
+      BAND("s", "Single site", 6500, "One site, one compound, up to 10 documents, peak workforce under 200. One revision round."),
+      BAND("m", "Multi-compound", 11500, "Two sites or up to 3 compounds, up to 25 documents, peak under 400. One revision round."),
+      BAND("l", "Programme", 18500, "Linear scheme or 4+ compounds, 25+ documents, or a temporary estate above £10m. One revision round."),
+    ],
+  },
+  {
+    id: "site-requirements", model: "A", pack: "site-requirements",
+    name: "Site Management Requirements Package",
+    bands: [
+      BAND("s", "Single compound", 14000, "One compound, up to 6 packages specified to tender-ready requirements."),
+      BAND("m", "Multi-compound", 26000, "Multi-compound, up to 12 packages."),
+      BAND("l", "Programme", 45000, "Programme, 12+ packages, or requirements written to go into a framework."),
+    ],
+  },
+  {
+    id: "village-requirements", model: "A", pack: "village-requirements",
+    name: "Workforce Village Requirements Package",
+    bands: [
+      BAND("s", "Up to 150 beds", 18000, "Up to 150 beds, existing stock only, no consent route required."),
+      BAND("m", "150–400 beds", 32000, "150–400 beds, or a mixed strategy across existing stock and new provision."),
+      BAND("l", "400+ or purpose-built", 55000, "400+ beds, or a purpose-built facility with its planning consent route established."),
+    ],
+  },
+  {
+    id: "procurement", model: "A", pack: "procurement",
+    name: "Managed Procurement Desk — procurement management and tender evaluation",
+    // Priced as a desk, not as a report. A fixed fee against an unknown number
+    // of packages, rounds and clarifications is how a consultancy loses money
+    // quietly. The two monthly options carry a three-month minimum: a one-month
+    // procurement desk is a mobilisation with no delivery.
+    bands: [
+      BAND("pkg", "One package", 4500, "A single straightforward package: enquiry, evaluation, recommendation."),
+      BAND("pkgx", "One package, complex", 9500, "A single package, multi-round, or where the requirements are written first."),
+      BAND("desk4", "Desk — up to 4 packages", 6500, "Per month, minimum three months. Up to 4 live packages."),
+      BAND("desk10", "Desk — 5 to 10 packages", 11500, "Per month, minimum three months. 5 to 10 live packages."),
+    ],
+  },
+  {
+    id: "mobilisation-review", model: "A", pack: "mobilisation-review",
+    name: "Mobilisation-readiness / village-readiness review",
+    // Deliberately beneath the diagnostic. It is narrower, it sells weeks
+    // before mobilising rather than at bid stage, and it is the way in where
+    // a client will not buy a full diagnostic.
+    bands: [
+      BAND("s", "Single site", 5500, "One site, readiness assessed against a fixed mobilisation date."),
+      BAND("m", "Multi-compound", 9500, "Multi-compound readiness."),
+      BAND("l", "Programme", 15000, "Programme, or with a workforce village included."),
+    ],
+  },
+  { id: "integrator", model: "B", name: "Management Integrator appointment", pack: "integrator", bands: [] },
+  { id: "prime", model: "C", name: "Prime Service Contractor appointment", pack: "prime", bands: [] },
+].map((d) => ({
+  // low and high are derived, never typed. They exist so anything that reads a
+  // range still works, and so the two can never drift apart.
+  ...d,
+  low: d.bands.length ? Math.min(...d.bands.map((b) => b.fee)) : null,
+  high: d.bands.length ? Math.max(...d.bands.map((b) => b.fee)) : null,
+}));
 
 export const deliverable = (id) => DELIVERABLES.find((d) => d.id === id) || DELIVERABLES[0];
 /** The honest version: null when nothing has been chosen. deliverable() falls

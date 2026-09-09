@@ -227,4 +227,37 @@ t("periods number themselves from what the client has APPROVED, not from what we
 });
 
 const total = pass + (process.exitCode ? 1 : 0);
+
+console.log("\nclientflow — pricing\n");
+
+// The catalogue used to carry a low and a high. A range printed anywhere a
+// client can see it means the bottom of the range, so every Model A
+// deliverable now carries named bands with the scope that makes each fee
+// fixed, and low/high are derived from them rather than typed — so the two
+// can never drift apart.
+const modelA = DELIVERABLES.filter((d) => d.model === "A");
+t("every Model A deliverable is banded", () => assert.ok(modelA.every((d) => d.bands.length >= 3)));
+t("no band carries an empty price", () => assert.ok(modelA.every((d) => d.bands.every((b) => b.fee > 0))));
+t("every band states the scope that makes its fee fixed",
+  () => assert.ok(modelA.every((d) => d.bands.every((b) => (b.scope || "").length > 20))));
+t("low and high are DERIVED from the bands, not typed — so they cannot drift", () =>
+  assert.ok(modelA.every((d) => d.low === Math.min(...d.bands.map((b) => b.fee))
+                             && d.high === Math.max(...d.bands.map((b) => b.fee)))));
+
+const diag = DELIVERABLES.find((d) => d.id === "feasibility");
+t("the diagnostic's entry band stays under a commercial manager's authority threshold",
+  () => assert.ok(diag.low < 10000, `entry band is £${diag.low}`));
+t("and above the level that reads as a template rather than a deliverable",
+  () => assert.ok(diag.low >= 5000, `entry band is £${diag.low}`));
+t("the mobilisation review stays beneath the diagnostic — narrower scope, later in the cycle",
+  () => assert.ok(DELIVERABLES.find((d) => d.id === "mobilisation-review").low < diag.low));
+
+// Models B and C had no fee basis at all, so the first appointment would have
+// been priced under pressure in front of a procurement person who does it weekly.
+t("Model B carries a monthly floor", () => assert.ok(MODELS.B.feeGuide.monthly.floor >= 10000));
+t("Model B states a minimum term", () => assert.ok(MODELS.B.feeGuide.minimumTermMonths >= 6));
+t("Model C carries a management-fee floor", () => assert.ok(MODELS.C.feeGuide.managementFee.floorPct >= 8));
+t("Model C keeps 'no supplier order before the advance clears' as non-negotiable",
+  () => assert.ok(MODELS.C.feeGuide.nonNegotiable.some((n) => /advance has cleared/.test(n))));
+
 console.log(`\n${pass} checks passed${process.exitCode ? " — with failures above" : ""}\n`);
