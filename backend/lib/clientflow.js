@@ -128,6 +128,8 @@ export const stageIndex = (id) => Math.max(0, STAGE_IDS.indexOf(id));
  * month at a time — the client is never funding work we have not done,
  * and we are never funding a month we have not been paid for.
  */
+import { B_MONTHLY_FLOOR } from "./pricing.js";
+
 export const MODELS = {
   A: {
     id: "A",
@@ -177,7 +179,10 @@ export const MODELS = {
         { label: "Programme", fee: 55000 },
       ],
       monthly: {
-        floor: 16000,
+        // Derived from the cost model, never typed. It has been wrong twice
+        // as a constant: £14,000 sat beneath the cheapest team's cost and
+        // £16,000 sat beneath it once expenses were counted.
+        floor: B_MONTHLY_FLOOR,
         basis: "4–7% of the annualised supply-chain spend under management",
         note: "Below the floor the appointment does not fund a Site Integration Manager and ETABLIX is subsidising it.",
       },
@@ -924,34 +929,45 @@ export const PACK_IDS = Object.keys(REQUIREMENT_PACKS);
  * justifies more. See business/pricing/PRICING-REVIEW-2026.md for the
  * reasoning, the arithmetic and what still needs testing against the market.
  */
-const BAND = (id, label, fee, scope) => ({ id, label, fee, scope });
+/**
+ * A band carries the effort it assumes, not just its price.
+ *
+ * A fixed fee without a stated effort is a guess: there is no way to tell a
+ * profitable engagement from one that is quietly eating the founder, and no
+ * way to notice when it stops being profitable. `effort` is days by role and
+ * `spend` is how the work is done, which decides the expenses — desk work
+ * costs almost nothing to travel to and a site-based month costs a great
+ * deal. backend/lib/pricing.js turns both into a margin.
+ */
+const BAND = (id, label, fee, scope, effort, expenseProfile = "desk") =>
+  ({ id, label, fee, scope, effort, expenseProfile });
 
 export const DELIVERABLES = [
   {
     id: "feasibility", model: "A", pack: "feasibility",
     name: "Site-services feasibility review / Site Systems Diagnostic",
     bands: [
-      BAND("s", "Single site", 6500, "One site, one compound, up to 10 documents, peak workforce under 200. One revision round."),
-      BAND("m", "Multi-compound", 11500, "Two sites or up to 3 compounds, up to 25 documents, peak under 400. One revision round."),
-      BAND("l", "Programme", 18500, "Linear scheme or 4+ compounds, 25+ documents, or a temporary estate above £10m. One revision round."),
+      BAND("s", "Single site", 6500, "One site, one compound, up to 10 documents, peak workforce under 200. One revision round.", { director: 1, seniorConsultant: 2 }),
+      BAND("m", "Multi-compound", 11500, "Two sites or up to 3 compounds, up to 25 documents, peak under 400. One revision round.", { director: 2, seniorConsultant: 4 }),
+      BAND("l", "Programme", 18500, "Linear scheme or 4+ compounds, 25+ documents, or a temporary estate above £10m. One revision round.", { director: 3, seniorConsultant: 7 }),
     ],
   },
   {
     id: "site-requirements", model: "A", pack: "site-requirements",
     name: "Site Management Requirements Package",
     bands: [
-      BAND("s", "Single compound", 14000, "One compound, up to 6 packages specified to tender-ready requirements."),
-      BAND("m", "Multi-compound", 26000, "Multi-compound, up to 12 packages."),
-      BAND("l", "Programme", 45000, "Programme, 12+ packages, or requirements written to go into a framework."),
+      BAND("s", "Single compound", 14000, "One compound, up to 6 packages specified to tender-ready requirements.", { director: 2, seniorConsultant: 8 }),
+      BAND("m", "Multi-compound", 26000, "Multi-compound, up to 12 packages.", { director: 4, seniorConsultant: 16 }),
+      BAND("l", "Programme", 45000, "Programme, 12+ packages, or requirements written to go into a framework.", { director: 6, seniorConsultant: 28 }),
     ],
   },
   {
     id: "village-requirements", model: "A", pack: "village-requirements",
     name: "Workforce Village Requirements Package",
     bands: [
-      BAND("s", "Up to 150 beds", 18000, "Up to 150 beds, existing stock only, no consent route required."),
-      BAND("m", "150–400 beds", 32000, "150–400 beds, or a mixed strategy across existing stock and new provision."),
-      BAND("l", "400+ or purpose-built", 55000, "400+ beds, or a purpose-built facility with its planning consent route established."),
+      BAND("s", "Up to 150 beds", 18000, "Up to 150 beds, existing stock only, no consent route required.", { director: 3, seniorConsultant: 10 }, "visiting"),
+      BAND("m", "150–400 beds", 32000, "150–400 beds, or a mixed strategy across existing stock and new provision.", { director: 5, seniorConsultant: 18 }, "visiting"),
+      BAND("l", "400+ or purpose-built", 55000, "400+ beds, or a purpose-built facility with its planning consent route established.", { director: 8, seniorConsultant: 30 }, "visiting"),
     ],
   },
   {
@@ -962,10 +978,10 @@ export const DELIVERABLES = [
     // quietly. The two monthly options carry a three-month minimum: a one-month
     // procurement desk is a mobilisation with no delivery.
     bands: [
-      BAND("pkg", "One package", 4500, "A single straightforward package: enquiry, evaluation, recommendation."),
-      BAND("pkgx", "One package, complex", 9500, "A single package, multi-round, or where the requirements are written first."),
-      BAND("desk4", "Desk — up to 4 packages", 6500, "Per month, minimum three months. Up to 4 live packages."),
-      BAND("desk10", "Desk — 5 to 10 packages", 11500, "Per month, minimum three months. 5 to 10 live packages."),
+      BAND("pkg", "One package", 5000, "A single straightforward package: enquiry, evaluation, recommendation.", { seniorConsultant: 4, coordinator: 2 }),
+      BAND("pkgx", "One package, complex", 10500, "A single package, multi-round, or where the requirements are written first.", { director: 1, seniorConsultant: 8, coordinator: 3 }),
+      BAND("desk4", "Desk — up to 4 packages", 7500, "Per month, minimum three months. Up to 4 live packages.", { seniorConsultant: 6, coordinator: 4 }),
+      BAND("desk10", "Desk — 5 to 10 packages", 13500, "Per month, minimum three months. 5 to 10 live packages.", { seniorConsultant: 11, coordinator: 7 }),
     ],
   },
   {
@@ -975,9 +991,9 @@ export const DELIVERABLES = [
     // before mobilising rather than at bid stage, and it is the way in where
     // a client will not buy a full diagnostic.
     bands: [
-      BAND("s", "Single site", 5500, "One site, readiness assessed against a fixed mobilisation date."),
-      BAND("m", "Multi-compound", 9500, "Multi-compound readiness."),
-      BAND("l", "Programme", 15000, "Programme, or with a workforce village included."),
+      BAND("s", "Single site", 5500, "One site, readiness assessed against a fixed mobilisation date.", { director: 1, seniorConsultant: 1.5 }),
+      BAND("m", "Multi-compound", 9500, "Multi-compound readiness.", { director: 1.5, seniorConsultant: 3.5 }),
+      BAND("l", "Programme", 15000, "Programme, or with a workforce village included.", { director: 2, seniorConsultant: 6 }),
     ],
   },
   { id: "integrator", model: "B", name: "Management Integrator appointment", pack: "integrator", bands: [] },

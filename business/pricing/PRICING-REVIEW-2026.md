@@ -290,6 +290,72 @@ forgive a price rise that was not signalled.
 
 ---
 
+## 6A · The cost stack, and what it changed
+
+**Every price above was originally set against what a client would pay, and
+nothing was set against what delivery costs.** That is how a consultancy
+discovers, two years in, that its busiest year was its worst one. There is now
+a cost model in `backend/lib/margin.js`, every band carries the effort it
+assumes, and the console shows the net margin on every fee before it is agreed.
+
+**The stack, in the order the money leaves.** Direct cost — the chargeable
+people, fully loaded at roughly 1.3× salary. Project expenses — travel,
+accommodation, vehicles, PPE, site IT: 4% of direct for desk work, 12% for
+visiting, **22% for somebody resident on a remote site**, which is exactly what
+Models B and C sell. Contingency at 8% for unbilled time, because scope creep
+and client delay are always there and a model that omits them is a wish.
+Overhead recovery, derived from the annual central cost divided by the direct
+chargeable cost the business expects to incur — currently **£112,500 a year
+against a £320,000 forecast, so 35%**. Then margin: **25% target, 15% floor**.
+
+The overhead is line items, not a percentage, so it can be argued with rather
+than believed: the Managing Director's unchargeable time at £62,000, £11,000 of
+professional indemnity, £5,000 of accreditations, £9,500 of software and AI, and
+so on. **The founder's own day is costed.** A business that treats it as free
+cannot tell a profitable engagement from one that is quietly eating him.
+
+### What the model found, once it existed
+
+**The procurement desk was underpriced and no eye would have caught it.** At
+£6,500 a month the four-package desk returned 21.8% net and the ten-package
+desk 19.9% — both below target. Raised to £7,500 and £13,500, and the two
+per-package options to £5,000 and £10,500. A test now asserts that **every band
+in the catalogue clears the 25% target**, so this cannot drift back.
+
+**The Model A bands are strong.** The diagnostic returns 61–66% net, the
+requirements packages 47–51%, the review 62–66%. High gross margin is not
+greed in professional services; it is what pays for the days nobody buys.
+
+**The 38% uplift on Models B and C was badly wrong.** It was labelled "central
+cost and margin", which is two different things in one number, and it carried
+**no project expenses at all** — so a site-based appointment was priced as
+though nobody travelled to it, slept away from home, or ran a vehicle. Replaced
+with the full stack.
+
+**Which changed the Model B answer completely.** A single-site integrator
+appointment costs about £18,800 a month to deliver and must sell at **£25,000**.
+Model B is not a small-job product, and the honest conclusion is that the
+smallest appointment worth taking is around £22,000 a month. Mid and large
+appointments come out at £47,700 and £80,300 — which, checked back against
+spend, are **6.4% and 4.8%**, inside the 4–7% a procurement function
+benchmarks. So the band was right and the derivation was wrong.
+
+**The monthly floor has now been wrong three times.** £14,000 sat beneath the
+cheapest team's cost. £16,000 sat beneath it once expenses were counted.
+£22,129 is the cheapest team priced at the minimum margin — and the honest
+finding is that **with a real cost stack the team cost always binds and no flat
+floor ever sets a fee.** The floor is kept because "our minimum monthly
+appointment is £22,000" is a useful sentence in a proposal. It communicates the
+minimum; it does not protect it. A test records this so nobody re-adds a
+hand-typed floor believing it does.
+
+**Break-even, stated plainly.** £4,842 of each entry-band diagnostic is
+available to pay for the company, so **24 a year covers the central cost** and
+everything beyond that is profit. Two a month. That is the number to run the
+business against, not the fee.
+
+---
+
 ## 7 · Four commercial rules worth more than the numbers
 
 **Never discount the catalogue. Discount the position.** If you need a reason to
@@ -322,13 +388,13 @@ picks a moment.
 
 | Item | Now | Recommended | Direction |
 |---|---|---|---|
-| Site Systems Diagnostic | £2,500 – £7,500 | £6,500 / £11,500 / £18,500 | **Raise** |
+| Site Systems Diagnostic | £2,500 – £7,500 | £6,500 / £11,500 / £18,500 — 61–66% net | **Raise** |
 | Site Management Requirements | £7,500 – £25,000 | £14,000 / £26,000 / £45,000 | **Raise** |
 | Workforce Village Requirements | £10,000 – £35,000 | £18,000 / £32,000 / £55,000 | **Raise** |
-| Procurement / Managed Desk | £7,500 – £30,000 fixed | £4,500 / £9,500 per package · £6,500 / £11,500 per month | **Restructure** |
+| Procurement / Managed Desk | £7,500 – £30,000 fixed | £5,000 / £10,500 per package · £7,500 / £13,500 per month | **Restructure and raise** |
 | Mobilisation-readiness review | £5,000 – £15,000 | £5,500 / £9,500 / £15,000 | **Keep, band it** |
 | Model B mobilisation | — | £18,000 / £32,000 / £55,000 | **New** |
-| Model B monthly | — | 4–7% of managed spend, floor £14,000 | **New** |
+| Model B monthly | — | Team cost at 25% margin; 4–7% of spend as the cross-check; minimum £22,000 | **New** |
 | Model B platform | — | £1,800 – £4,500 / month | **New** |
 | Model C management fee | — | 9–14%, reducing to 7–10% | **New** |
 | Model C mobilisation | — | £35,000 – £90,000 | **New** |

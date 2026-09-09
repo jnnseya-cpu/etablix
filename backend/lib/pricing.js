@@ -25,6 +25,11 @@
  * rather than buried. See business/pricing/PRICING-REVIEW-2026.md.
  */
 
+import {
+  teamMonthlyCost, priceFor, marginOf, MONTH_COST,
+  TARGET_NET_MARGIN, MINIMUM_NET_MARGIN, OVERHEAD_RECOVERY, EXPENSES,
+} from "./margin.js";
+
 const p2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
 const p0 = (n) => Math.round(Number(n) || 0);
 const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : 0);
@@ -95,8 +100,17 @@ function teamFor(scale, annualisedSpend) {
   return { ...base, siteIntegrationManager: Math.round(sim * 100) / 100 };
 }
 export const B_ROLE_COST = { siteIntegrationManager: 9000, projectManager: 11000, commercial: 10000 };
-/** Central cost and margin on top of the site team. */
-export const B_OVERHEAD = 0.38;
+
+/**
+ * The 38% uplift that used to sit here is gone.
+ *
+ * It was labelled "central cost and margin", which is two different things in
+ * one number, and it carried NO PROJECT EXPENSES AT ALL — so a site-based
+ * appointment was priced as though nobody travelled to it, slept away from
+ * home or ran a vehicle. Cost now comes from margin.js: people, then
+ * expenses, then contingency, then overhead recovery, then a target margin
+ * on top. See teamMonthlyCost() and priceFor().
+ */
 
 /**
  * The monthly floor, and why it is not £14,000.
@@ -110,7 +124,18 @@ export const B_OVERHEAD = 0.38;
  * £16,000 is the true minimum: the cheapest defensible team, plus enough to
  * mean something. Below it ETABLIX is paying to hold the appointment.
  */
-export const B_MONTHLY_FLOOR = 16000;
+/**
+ * The floor is DERIVED, so it can never be decoration again.
+ *
+ * It has now been wrong twice: £14,000 was beneath the cheapest team's cost,
+ * and £16,000 was beneath it once expenses were counted. A floor that is
+ * lower than the thing it protects is a number that never binds. So it is
+ * computed — the smallest team this model can field, priced at the minimum
+ * acceptable margin — and it moves whenever the cost model does.
+ */
+export const B_MONTHLY_FLOOR = p2(
+  priceFor(teamMonthlyCost({ siteIntegrationManager: 0.5, projectManager: 0.4, commercial: 0.25 }).total, MINIMUM_NET_MARGIN)
+);
 export const B_MINIMUM_TERM_MONTHS = 6;
 export const B_PLATFORM = { base: 1800, perExtraSite: 450, perUserOver25: 18, cap: 4500 };
 
@@ -134,8 +159,8 @@ export function integratorFee({
   const byPercent = p2((spend * band.pct) / 12);
 
   const team = teamFor(scale, spend);
-  const teamCost = Object.entries(team).reduce((s, [role, n]) => s + n * B_ROLE_COST[role], 0);
-  const byTeam = p2(teamCost * (1 + B_OVERHEAD));
+  const cost = teamMonthlyCost(team, { roleCost: B_ROLE_COST, expenseProfile: "resident" });
+  const byTeam = priceFor(cost.total, TARGET_NET_MARGIN);
 
   // The higher of the two, then the floor. Below the floor the appointment
   // does not fund a Site Integration Manager and ETABLIX subsidises it.
@@ -163,6 +188,7 @@ export function integratorFee({
     mobilisation,
     monthly,
     platform,
+    margin: marginOf(monthly, cost),
     firstInvoice: p2(mobilisation + monthly + platform),
     termValue: p2(mobilisation + (monthly + platform) * term),
     termMonths: term,
@@ -170,7 +196,10 @@ export function integratorFee({
     working: {
       percentBand: `${(band.pct * 100).toFixed(0)}% of annualised managed spend`,
       byPercent, byTeam,
-      teamCost: p2(teamCost), teamComposition: team, overheadPct: B_OVERHEAD,
+      teamComposition: team,
+      cost,
+      overheadPct: OVERHEAD_RECOVERY,
+      expensesPct: EXPENSES.resident,
       floorApplied: beforeFloor < B_MONTHLY_FLOOR,
       driver,
       effectivePct,
@@ -238,8 +267,7 @@ export const C_TEAM = {
   multi: { siteIntegrationManager: 1.5, projectManager: 1, commercial: 1, procurement: 0.75 },
   programme: { siteIntegrationManager: 2, projectManager: 1, commercial: 1.5, procurement: 1 },
 };
-export const C_ROLE_COST = { ...{ siteIntegrationManager: 9000, projectManager: 11000, commercial: 10000 }, procurement: 9500 };
-export const C_OVERHEAD = 0.38;
+export const C_ROLE_COST = { ...MONTH_COST };
 
 /**
  * Price a Prime Service Contractor appointment, and say what it costs to fund.
@@ -265,8 +293,8 @@ export function primeFee({
 
   const byPercentMonthly = p2((spend * pct) / term);
   const team = C_TEAM[scale.id];
-  const teamCost = Object.entries(team).reduce((s2, [role, n]) => s2 + n * C_ROLE_COST[role], 0);
-  const byTeamMonthly = p2(teamCost * (1 + C_OVERHEAD));
+  const cost = teamMonthlyCost(team, { roleCost: C_ROLE_COST, expenseProfile: "resident" });
+  const byTeamMonthly = priceFor(cost.total, TARGET_NET_MARGIN);
 
   // The higher of the two, always. A prime that does not fund its own team is
   // insolvent by design, and the client's percentage benchmark is not a
@@ -316,6 +344,7 @@ export function primeFee({
       earlyProcurementCommitments: commitments,
       earlyRiskContingency: contingency,
     },
+    margin: marginOf(monthlyFee, cost),
     workingCapital: {
       steadyStateMonthlySupplierSpend: evenMonth,
       paymentGapDays: gapDays,
@@ -331,7 +360,10 @@ export function primeFee({
     working: {
       percentBand: `${(pct * 100).toFixed(0)}% of supplier expenditure`,
       byPercentMonthly, byTeamMonthly,
-      teamCost: p2(teamCost), teamComposition: team, overheadPct: C_OVERHEAD,
+      teamComposition: team,
+      cost,
+      overheadPct: OVERHEAD_RECOVERY,
+      expensesPct: EXPENSES.resident,
       driver: byTeamMonthly > byPercentMonthly ? "team cost" : "percentage of spend",
       effectivePct: spend > 0 ? p2((managementFee / spend) * 100) : null,
     },

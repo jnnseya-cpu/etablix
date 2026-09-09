@@ -43,6 +43,7 @@ import {
 } from "../lib/clientflow.js";
 import { diagnosticDates, releaseStatus, DIAGNOSTIC_WORKING_DAYS } from "../lib/workingdays.js";
 import { integratorFee, primeFee } from "../lib/pricing.js";
+import { costOf, marginOf } from "../lib/margin.js";
 
 const router = Router();
 const finance = [requireAuth, requireRole(...ACCESS.DELIVERY_FINANCE)];
@@ -221,7 +222,16 @@ function forClient(e) {
 router.get("/catalogue", ...finance, (req, res) => {
   res.json({
     models: MODEL_IDS.map((id) => MODELS[id]),
-    deliverables: DELIVERABLES,
+    // The margin travels with the band. A fee agreed without knowing what is
+    // left of it after people, expenses, unbilled time and central overhead
+    // is how a consultancy's busiest year becomes its worst one.
+    deliverables: DELIVERABLES.map((d) => ({
+      ...d,
+      bands: (d.bands || []).map((b) => ({
+        ...b,
+        margin: marginOf(b.fee, costOf({ effort: b.effort, expenseProfile: b.expenseProfile })),
+      })),
+    })),
     packs: Object.values(REQUIREMENT_PACKS).map((p) => ({ id: p.id, name: p.name, items: p.items.length, clockNote: p.clockNote })),
     stages: STAGES,
     decisions: Object.values(DECISIONS),

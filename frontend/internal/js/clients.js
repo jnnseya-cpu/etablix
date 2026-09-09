@@ -250,11 +250,12 @@ function renderBands(form) {
   const m = CAT.models.find((x) => x.id === form.querySelector('[name="model"]').value);
 
   if (d?.bands?.length) {
-    holder.innerHTML = `<p class="panel-sub" style="margin:2px 0 6px;">Catalogue bands — click one to set the fee. Quote the band and its scope, never a range.</p>
+    holder.innerHTML = `<p class="panel-sub" style="margin:2px 0 6px;">Catalogue bands — click one to set the fee. Quote the band and its scope, never a range. The margin shown is after people, expenses, unbilled time and central overhead.</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">${d.bands.map((b) => `
         <button type="button" class="btn" data-band="${esc(String(b.fee))}" style="text-align:left;padding:8px 12px;max-width:260px;">
           <b>${esc(b.label)} — £${b.fee.toLocaleString()}</b>
           <div class="muted" style="font-size:0.75rem;font-weight:400;white-space:normal;margin-top:3px;">${esc(b.scope)}</div>
+          ${b.margin ? `<div style="font-size:0.72rem;font-weight:600;margin-top:4px;color:${b.margin.meetsTarget ? "var(--amber,#9c7a3c)" : "var(--danger,#c0392b)"};">${b.margin.netMarginPct}% net · assumes ${Object.entries(b.effort).map(([r, n]) => `${n} ${r.replace(/([A-Z])/g, " $1").toLowerCase()} day${n === 1 ? "" : "s"}`).join(", ")}</div>` : ""}
         </button>`).join("")}</div>`;
     holder.querySelectorAll("button[data-band]").forEach((btn) => btn.addEventListener("click", () => {
       form.querySelector('[name="fee"]').value = btn.dataset.band;
@@ -328,12 +329,18 @@ function renderPricing(p, isC) {
       + row("First invoice", gbp(p.firstInvoice))
       + row(`Value over ${p.termMonths} months`, gbp(p.termValue));
 
+  const mg = p.margin;
+  const c = w.cost;
   return `<table style="font-size:0.85rem;">${numbers}</table>
     <p class="panel-sub" style="margin:8px 0 0;font-size:0.78rem;">
       Set by <b>${esc(w.driver)}</b>. ${esc(w.percentBand)} gives ${gbp(isC ? w.byPercentMonthly : w.byPercent)} a month;
-      the ${esc(p.scale.label.toLowerCase())} team costs ${gbp(isC ? w.byTeamMonthly : w.byTeam)} a month fully loaded
-      (${Object.entries(w.teamComposition).map(([r, n]) => `${n} ${r.replace(/([A-Z])/g, " $1").toLowerCase()}`).join(", ")}, plus ${Math.round(w.overheadPct * 100)}% overhead).
-      Effective rate <b>${w.effectivePct}%</b>.
+      the ${esc(p.scale.label.toLowerCase())} team — ${Object.entries(w.teamComposition).map(([r, n]) => `${n} ${r.replace(/([A-Z])/g, " $1").toLowerCase()}`).join(", ")} — costs ${gbp(isC ? w.byTeamMonthly : w.byTeam)} a month to sell.
+      Effective rate <b>${w.effectivePct}%</b> of spend.
+    </p>
+    <p class="panel-sub" style="margin:6px 0 0;font-size:0.78rem;">
+      <b>After everything:</b> people ${gbp(c.direct)} · expenses ${gbp(c.expenses)} · unbilled ${gbp(c.contingency)} · overhead ${gbp(c.overhead)}
+      = ${gbp(c.total)} a month. Fee ${gbp(mg.fee)}. <b style="color:${mg.meetsTarget ? "inherit" : "var(--danger,#c0392b)"};">Net margin ${mg.netMarginPct}%.</b>
+      ${esc(mg.verdict)}
     </p>
     ${(p.warnings || []).map((x) => `<p class="panel-sub" style="margin:6px 0 0;font-size:0.78rem;color:var(--danger,#c0392b);">${esc(x)}</p>`).join("")}
     ${isC ? `<p class="panel-sub" style="margin:6px 0 0;font-size:0.78rem;">${esc(p.workingCapital.note)}</p>
