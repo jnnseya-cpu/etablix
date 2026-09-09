@@ -24,6 +24,9 @@ import { SECTIONS as SR_SECTIONS } from "../lib/pipelines/site-requirements.js";
 import { SECTIONS as MR_SECTIONS } from "../lib/pipelines/mobilisation-review.js";
 import { SECTIONS as VR_SECTIONS } from "../lib/pipelines/village-requirements.js";
 import { SECTIONS as PR_SECTIONS } from "../lib/pipelines/procurement.js";
+import { SECTIONS as TP_SECTIONS } from "../lib/pipelines/tender-pack.js";
+import { splitPipelineOutput } from "../lib/sections.js";
+import { packStatement } from "../lib/tenderpack.js";
 
 const router = Router();
 
@@ -72,9 +75,9 @@ const VAT_MODES = [
  * the labels and the legal note differ. Written out four times these would
  * drift the first time an agent's headings changed.
  */
-function PIPELINE_TEMPLATE({ id, prefix, name, documentTitle, description, sections, summaryLabel, appendixLabel, legal }) {
+function PIPELINE_TEMPLATE({ id, prefix, name, documentTitle, description, sections, summaryLabel, appendixLabel, legal, parts = false, partNoun = "Part" }) {
   return {
-    id, prefix, name, documentTitle, description, sections, summaryLabel, appendixLabel, legal,
+    id, prefix, name, documentTitle, description, sections, summaryLabel, appendixLabel, legal, parts, partNoun,
     pipeline: true,
     fields: [
       F("client", "Client / organisation", "text", { required: true }),
@@ -83,6 +86,8 @@ function PIPELINE_TEMPLATE({ id, prefix, name, documentTitle, description, secti
       F("basis", "Basis of preparation", "textarea", { placeholder: "Information relied on, and what was not provided" }),
       F("findings", summaryLabel, "textarea", { required: true }),
       ...sections.map(([sid, label], i) => F(sid, `${i + 1}. ${label}`, "textarea")),
+      ...(parts ? [F("packStatement", "Issue check — produced by the system, not typed", "textarea",
+        { placeholder: "Filled in when the pack is drafted from an approved run: the scope-to-price reconciliation as the engine performed it." })] : []),
       F("appendix", appendixLabel, "textarea"),
     ],
   };
@@ -122,6 +127,7 @@ export const SITEREQ_SECTIONS = SR_SECTIONS;
 export const MOBREVIEW_SECTIONS = MR_SECTIONS;
 export const VILLAGE_SECTIONS = VR_SECTIONS;
 export const PROCUREMENT_SECTIONS = PR_SECTIONS;
+export const TENDERPACK_SECTIONS = TP_SECTIONS;
 
 export const TEMPLATES = [
   {
@@ -170,6 +176,21 @@ export const TEMPLATES = [
     summaryLabel: "Recommendation in one paragraph",
     appendixLabel: "Appendix A — audit trail and open items",
     legal: "This report is a recommendation for a named human with delegated authority to accept or reject. ETABLIX does not award, does not place orders and does not commit the client to any supplier. Adjustments made to bring returns onto a common basis are shown with their source and are open to challenge; where an adjustment could not be derived it is carried as an open item and the ranking is provisional. Questions of financial standing, legal exposure and challenge risk are flagged for the client's own advisers rather than resolved.",
+  }),
+  // The only deliverable whose sections are not chapters of one report but
+  // SEPARATE ISSUABLE DOCUMENTS. It is registered and numbered once, because
+  // it is issued once and a document register with eight rows for one issue
+  // is a register nobody can reconcile — and every part prints on its own at
+  // /render?part=N, which is how a tenderer actually receives it.
+  PIPELINE_TEMPLATE({
+    id: "ittpack", prefix: "ITT", name: "Invitation to tender — the pack that goes to market",
+    documentTitle: "Invitation to tender",
+    description: "Agent 13's eight parts as the files that go to market: instructions, conditions, a scope sheet per package, the blank pricing schedule, the return forms, the form of tender and the issue register. Each part prints on its own. Draft it from an approved Agent 13 run.",
+    sections: TP_SECTIONS,
+    summaryLabel: "Issue summary in one paragraph",
+    appendixLabel: "Appendix A — traceability and open items",
+    parts: true,
+    legal: "This pack is prepared and administered by ETABLIX for the client. THE CLIENT ISSUES IT AND THE CLIENT AWARDS: ETABLIX does not award, does not place orders and does not commit the client to any tenderer. It is assembled from the approved Site Management Requirements Package and adds no requirement to it; anything that package left unsettled is carried as an open item in Part 8 and must be closed before issue. It is a drafting service and not legal advice — a payment mechanism mixing construction operations with pure services, a liability cap or an indemnity is flagged for the client's construction solicitor rather than settled. Nothing in it appoints ETABLIX as Principal Contractor under CDM 2015.",
   }),
   {
     id: "sitereq", prefix: "SMR", name: "Site Management Requirements Package",
@@ -423,6 +444,15 @@ function cleanLines(raw) {
     .filter((l) => l.description);
 }
 
+/** The issuable parts of a pack, or null for a document issued whole. */
+function partsOf(template, data) {
+  const tpl = TEMPLATES.find((x) => x.id === template);
+  if (!tpl?.parts) return null;
+  return tpl.sections.map(([sid, label], i) => ({
+    part: i + 1, label, empty: !String(data?.[sid] || "").trim(),
+  }));
+}
+
 router.get("/", requireAuth, deliveryFinance, (req, res) =>
   res.json({
     documents: [...collection("documents")].reverse().map(({ data, ...meta }) => ({
@@ -430,6 +460,10 @@ router.get("/", requireAuth, deliveryFinance, (req, res) =>
       // A diagnostic waiting for its date is the one thing about a
       // document you need to know without opening it.
       release: data?.dueDate ? { ...releaseStatus(data.dueDate), dueDate: data.dueDate, assured: data.datesAssured !== false } : null,
+      // A pack is issued as separate files, so the register carries the
+      // parts. Without them the only link is to the bound pack and the
+      // separate files are a feature only their author can reach.
+      parts: partsOf(meta.template, data),
     })),
   })
 );
@@ -533,14 +567,7 @@ router.get("/from-run/:id", requireAuth, deliveryFinance, (req, res) => {
   // Two pipeline agents now produce a twelve-section deliverable, and each
   // drafts into its own template. Hardcoding the diagnostic here would have
   // made Agent 9's £14,000–£45,000 package a retyping exercise.
-  const DRAFTS = {
-    diagnostic: { template: "diagnostic", split: splitDiagnostic },
-    "site-requirements": { template: "sitereq", split: splitSiteRequirements },
-    "mobilisation-review": { template: "mobreview", split: splitMobReview },
-    "village-requirements": { template: "village", split: splitVillage },
-    procurement: { template: "tendereval", split: splitTenderEval },
-  };
-  const draft = DRAFTS[run.agent];
+  const draft = PIPELINE_DOCUMENTS[run.agent];
   if (!draft) {
     return res.status(400).json({ error: "This agent does not produce a document. Only the pipeline agents do." });
   }
@@ -594,6 +621,10 @@ router.get("/from-run/:id", requireAuth, deliveryFinance, (req, res) => {
     missing,
     data: {
       ...data,
+      // The engine's own reconciliation, printed on the pack rather than the
+      // model's claim about it. A pack whose issue certificate says it was
+      // checked, checked by nobody, is worse than one that says nothing.
+      ...(run.packCheck ? { packStatement: packStatement(run.packCheck) } : {}),
       project: String(run.inputs?.project || run.title || "").slice(0, 300),
       client: String(run.inputs?.client || "").slice(0, 300),
       // The date the ten days run from, captured when the engagement
@@ -762,93 +793,48 @@ function headingSuffix(doc) {
 }
 
 /**
- * Turn an approved Agent 8 run into a diagnostic draft.
+ * Each pipeline agent's own split, bound to its own section list.
  *
- * The agent is required to produce thirteen blocks under numbered
- * headings — a findings paragraph and the twelve deliverables. This
- * finds each heading in the raw output and hands back the text between
- * it and the next one, so the person issuing the report reviews and
- * edits thirteen filled fields instead of retyping them.
+ * The parse itself is in lib/sections.js because three things need it: the
+ * document studio's draft, the client route's mint, and the tender pack's
+ * scope-to-price reconciliation, which reads two sections out of a finished
+ * run before anybody approves it.
  *
- * It matches on the heading NUMBER rather than its wording, because a
- * model will decorate a heading (`## 7. Mobilisation constraints`,
- * `**7 · MOBILISATION CONSTRAINTS**`) far more readily than it will
- * renumber it. Anything it cannot find is reported as missing rather
- * than left silently blank — an empty section in a diagnostic is a
- * failed engagement, and the person needs to see which one.
+ * Binding each agent's section list HERE and not there is what stops a run
+ * being split against the wrong product's sections — the splitter takes
+ * sections by number, so the wrong content lands in the right fields and the
+ * document looks entirely correct.
  */
 export const splitDiagnostic = (output) => splitPipelineOutput(output, DIAGNOSTIC_SECTIONS);
 export const splitSiteRequirements = (output) => splitPipelineOutput(output, SITEREQ_SECTIONS);
 export const splitMobReview = (output) => splitPipelineOutput(output, MOBREVIEW_SECTIONS);
 export const splitVillage = (output) => splitPipelineOutput(output, VILLAGE_SECTIONS);
 export const splitTenderEval = (output) => splitPipelineOutput(output, PROCUREMENT_SECTIONS);
+export const splitTenderPack = (output) => splitPipelineOutput(output, TENDERPACK_SECTIONS);
+export { splitPipelineOutput };
 
 /**
- * The same parse for any twelve-section deliverable.
+ * Which document each pipeline agent's approved run becomes.
  *
- * Agent 8 and Agent 9 both produce a findings paragraph, twelve numbered
- * sections and a lettered appendix. Only the field names differ, so the
- * parser takes them rather than being written twice — two copies of this
- * would drift the first time either agent's headings changed.
+ * One map, read by three things: the draft endpoint, the client route's mint,
+ * and the run view — which offered "Draft as SSD report" and offered it only
+ * for the diagnostic, so an approved £45,000 requirements package had no way
+ * out of the run box except being retyped.
  */
-export function splitPipelineOutput(output, sections) {
-  const lines = String(output || "").replace(/\r\n/g, "\n").split("\n");
+export const PIPELINE_DOCUMENTS = {
+  diagnostic: { template: "diagnostic", prefix: "SSD", label: "SSD report", split: splitDiagnostic },
+  "site-requirements": { template: "sitereq", prefix: "SMR", label: "SMR package", split: splitSiteRequirements },
+  "mobilisation-review": { template: "mobreview", prefix: "MRR", label: "MRR review", split: splitMobReview },
+  "village-requirements": { template: "village", prefix: "WVR", label: "WVR package", split: splitVillage },
+  procurement: { template: "tendereval", prefix: "TEV", label: "TEV report", split: splitTenderEval },
+  "tender-pack": { template: "ittpack", prefix: "ITT", label: "ITT pack", split: splitTenderPack },
+};
 
-  // A heading line: optional markdown hashes or bold, a number 0-12, a
-  // separator, then title text. The title must not read as a sentence,
-  // which is what keeps "10. Issue the DNO enquiry" inside section 12
-  // from being mistaken for the start of section 10.
-  const HEADING = /^\s*(?:#{1,4}\s*)?(?:\*\*|__)?\s*(\d{1,2})\s*[.)·:—-]\s*([^\n]*?)\s*(?:\*\*|__)?\s*$/;
-
-  const found = new Map();
-  const marks = [];
-  for (let i = 0; i < lines.length; i += 1) {
-    const m = HEADING.exec(lines[i]);
-    if (!m) continue;
-    const n = Number(m[1]);
-    if (n < 0 || n > 12 || found.has(n)) continue;
-    const title = m[2].trim();
-    // Headings are short and unpunctuated; list items are neither.
-    const decorated = /^\s*#/.test(lines[i]) || /^\s*(?:\*\*|__)/.test(lines[i]);
-    const headingish = title.length > 2 && title.length <= 70 && !/[.;]$/.test(title);
-    if (!decorated && !headingish) continue;
-    found.set(n, marks.length);
-    marks.push({ n, at: i });
-  }
-
-  const data = {};
-  const missing = [];
-  const take = (n) => {
-    const idx = found.get(n);
-    if (idx === undefined) return "";
-    const start = marks[idx].at + 1;
-    const end = idx + 1 < marks.length ? marks[idx + 1].at : lines.length;
-    return lines.slice(start, end).join("\n").trim();
-  };
-
-  const findings = take(0);
-  if (findings) data.findings = findings;
-  else missing.push("Findings in one paragraph");
-
-  sections.forEach(([id, label], i) => {
-    const body = take(i + 1);
-    if (body) data[id] = body;
-    else missing.push(`${i + 1}. ${label}`);
-  });
-
-  // The appendix is lettered, not numbered, so it never collides with a
-  // deliverable. It is not counted as missing: it exists only when the
-  // reconciliation pass found something worth appending.
-  const appendixAt = lines.findIndex((l) => /^\s*(?:#{1,4}\s*)?(?:\*\*|__)?\s*A\s*[.)·:—-]\s*\S/.test(l));
-  if (appendixAt >= 0) {
-    const after = marks.filter((m) => m.at > appendixAt).map((m) => m.at);
-    const end = after.length ? Math.min(...after) : lines.length;
-    const body = lines.slice(appendixAt + 1, end).join("\n").trim();
-    if (body) data.appendix = body;
-  }
-
-  return { data, missing, matched: 13 - missing.length };
-}
+/** The same map without the parser, for anything that only needs to say so. */
+export const documentForAgent = (agentId) => {
+  const d = PIPELINE_DOCUMENTS[agentId];
+  return d ? { template: d.template, prefix: d.prefix, label: d.label } : null;
+};
 
 /** Rendered documents open in a new tab, so auth arrives as ?token=. */
 function tokenAuth(req, res, next) {
@@ -989,7 +975,7 @@ function richText(text) {
 const section = (n, label, text) =>
   text ? `<div class="blk"><h3>${n} · ${label}</h3>${richText(text)}</div>` : "";
 
-function renderBody(doc) {
+function renderBody(doc, part = null) {
   const d = doc.data;
   const b = billing();
   const t = (label, value) => (value ? `<tr><th>${label}</th><td>${esc(value)}</td></tr>` : "");
@@ -1200,6 +1186,33 @@ function renderBody(doc) {
       rel?.state === "held" && !doc.earlyRelease
         ? `<div class="holdnote"><b>Do not issue before ${esc(humanDate(d.dueDate))}.</b> This engagement was sold as ${d.promisedDays || DIAGNOSTIC_WORKING_DAYS} working days from information handover on ${esc(humanDate(d.handover))}. ${rel.days} working day${rel.days === 1 ? "" : "s"} remain. Internal review copy.</div>`
         : "";
+
+    // ONE PART, ISSUED ON ITS OWN.
+    //
+    // A tender pack is not a report with chapters. The tenderer's estimator
+    // opens the pricing schedule, their bid manager opens the instructions,
+    // and their commercial lead opens the form of tender — three people, three
+    // documents, and handing all three one 90-page PDF makes every one of them
+    // slower. So each part renders as its own document, under the pack's
+    // number with the part on it, and says which pack it belongs to.
+    if (part && pipelineTpl.parts) {
+      const idx = part - 1;
+      const [sid, label] = pipelineTpl.sections[idx];
+      const body = d[sid];
+      return `
+        ${hold}
+        <table class="meta">${t("Client", d.client)}${t("Project / site", d.project)}${t(
+          "Part",
+          `${part} of ${pipelineTpl.sections.length} — ${label}`
+        )}${t("Issued with", `${doc.number}, ${pipelineTpl.documentTitle}`)}${t("Prepared by", doc.issuedBy)}</table>
+        ${body ? richText(body) : '<p><b>This part is empty.</b> It was not produced by the run this pack was drafted from, and an empty part must not be issued — a tenderer reads an omission as a decision.</p>'}
+        ${part === pipelineTpl.sections.length && d.packStatement ? `<div class="blk"><h3>Issue check</h3><p class="rt-lede">Performed by the system on the run this pack was drafted from, not by eye.</p>${richText(d.packStatement)}</div>` : ""}
+        <div class="blk"><h3>Where this part sits</h3><table class="lines contents"><thead><tr><th>Part</th><th>Document</th><th>Status</th></tr></thead><tbody>${pipelineTpl.sections
+          .map(([oid, olabel], i) => `<tr><td class="num">${i + 1}</td><td>${esc(olabel)}</td><td class="st">${i === idx ? "This document" : d[oid] ? "Issued with this pack" : "NOT ISSUED"}</td></tr>`)
+          .join("")}</tbody></table></div>
+        <p class="legalnote">${esc(pipelineTpl.legal)}</p>`;
+    }
+
     return `
       ${hold}
       <table class="meta">${t("Client", d.client)}${t("Project / site", d.project)}${
@@ -1207,6 +1220,7 @@ function renderBody(doc) {
       }${d.dueDate ? t("Issue date", `${humanDate(d.dueDate)} — ${d.promisedDays || DIAGNOSTIC_WORKING_DAYS} working days from handover`) : ""}${t("Prepared by", doc.issuedBy)}</table>
       ${d.findings ? `<div class="blk"><h3>${esc(pipelineTpl.summaryLabel)}</h3>${richText(d.findings)}</div>` : ""}
       ${pipelineTpl.sections.map(([sid, label], i) => section(i + 1, label, d[sid])).join("")}
+      ${d.packStatement ? `<div class="blk"><h3>Issue check</h3><p class="rt-lede">Performed by the system on the run this pack was drafted from, not by eye.</p>${richText(d.packStatement)}</div>` : ""}
       ${d.appendix ? `<div class="blk"><h3>${esc(pipelineTpl.appendixLabel.replace(/^Appendix A — /, "Appendix A · "))}</h3>${richText(d.appendix)}</div>` : ""}
       ${d.basis ? `<div class="blk"><h3>Basis of preparation</h3>${richText(d.basis)}</div>` : ""}
       <p class="legalnote">${esc(pipelineTpl.legal)}</p>`;
@@ -1272,9 +1286,12 @@ function renderBody(doc) {
  * renders. Two renderers would be two documents with one number on them,
  * which is the sort of thing that is discovered in a dispute.
  */
-export function renderDocument(doc) {
+export function renderDocument(doc, part = null) {
+  const tpl = TEMPLATES.find((x) => x.id === doc.template);
+  const partLabel = part && tpl?.parts ? ` / ${tpl.partNoun} ${part}` : "";
+  const partTitle = part && tpl?.parts ? tpl.sections[part - 1]?.[1] : null;
   const dateStr = new Date(doc.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>${esc(doc.number)} — ${esc(doc.templateName)}</title>
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>${esc(doc.number)}${esc(partLabel)} — ${esc(partTitle || doc.templateName)}</title>
 <style>
   body { font-family: Georgia, "Times New Roman", serif; color: #1d232a; margin: 0; background: #fff; }
   .page { max-width: 820px; margin: 0 auto; padding: 48px 52px 60px; }
@@ -1331,10 +1348,10 @@ export function renderDocument(doc) {
 <div class="page">
   <div class="head">
     <div class="wordmark">ETABLIX<small>INTEGRATED SITE SERVICES · PART OF GROUPE NSEYA</small></div>
-    <div class="docid"><b>${esc(doc.number)}</b><span>${esc(doc.templateName)}<br>${dateStr}<br>Issued by ${esc(doc.issuedBy)}</span></div>
+    <div class="docid"><b>${esc(doc.number)}${esc(partLabel)}</b><span>${esc(doc.templateName)}<br>${dateStr}<br>Issued by ${esc(doc.issuedBy)}</span></div>
   </div>
-  <h2 class="doctitle">${esc(headingFor(doc))}${headingSuffix(doc)}</h2>
-  ${renderBody(doc)}
+  <h2 class="doctitle">${esc(partTitle || headingFor(doc))}${partTitle ? "" : headingSuffix(doc)}</h2>
+  ${renderBody(doc, part)}
   <div class="foot">
     ETABLIX is a trading name of JNN GLOBAL LTD · Registered in England &amp; Wales · Company No. 15405437<br>
     Registered office: Groupe Nseya House, Kingstanding, Birmingham B44 8DJ, United Kingdom<br>
@@ -1343,10 +1360,46 @@ export function renderDocument(doc) {
 </div></body></html>`;
 }
 
+/**
+ * The parts of a pack, each with the link that renders it on its own.
+ *
+ * Without this the desk has one link to a bound pack and has to know that
+ * ?part=4 exists to get the pricing schedule out of it — which means the
+ * separate files are a feature only the person who built it can use.
+ */
+router.get("/:id/parts", requireAuth, deliveryFinance, (req, res) => {
+  const doc = collection("documents").find((x) => x.id === req.params.id);
+  if (!doc) return res.status(404).json({ error: "Document not found." });
+  const tpl = TEMPLATES.find((x) => x.id === doc.template);
+  if (!tpl?.parts) return res.status(400).json({ error: "This document is not issued in parts." });
+  res.json({
+    number: doc.number,
+    documentTitle: tpl.documentTitle,
+    parts: tpl.sections.map(([sid, label], i) => ({
+      part: i + 1,
+      id: sid,
+      label,
+      empty: !String(doc.data?.[sid] || "").trim(),
+      path: `/api/docs/${doc.id}/render?part=${i + 1}`,
+    })),
+  });
+});
+
 router.get("/:id/render", tokenAuth, (req, res) => {
   const doc = collection("documents").find((x) => x.id === req.params.id);
   if (!doc) return res.status(404).send("Document not found.");
-  res.send(renderDocument(doc));
+  // ?part=4 renders one part of a pack as its own issuable document. Out of
+  // range is refused rather than clamped: a link to part 9 of an eight-part
+  // pack is a wrong link, and silently serving part 8 hides that.
+  const tpl = TEMPLATES.find((x) => x.id === doc.template);
+  const raw = String(req.query.part || "").trim();
+  if (!raw) return res.send(renderDocument(doc));
+  if (!tpl?.parts) return res.status(400).send("This document is not issued in parts.");
+  const part = Number(raw);
+  if (!Number.isInteger(part) || part < 1 || part > tpl.sections.length) {
+    return res.status(404).send(`This pack has parts 1 to ${tpl.sections.length}.`);
+  }
+  res.send(renderDocument(doc, part));
 });
 
 /**

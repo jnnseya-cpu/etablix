@@ -578,11 +578,28 @@ async function cosDocs() {
     return `${pill(r.label, cls)}${warn}`;
   };
 
+  /**
+   * A pack is issued as separate files, so the register offers them.
+   *
+   * The tenderer's estimator opens the pricing schedule and their bid manager
+   * opens the instructions — two people, two documents. Handing both one
+   * bound PDF and telling them which pages to read is how a pack gets priced
+   * against the wrong revision.
+   */
+  const partLinks = (d) => {
+    if (!d.parts) return "";
+    return `<div style="margin-top:6px;font-size:0.72rem;line-height:1.9;">${d.parts
+      .map((p) => p.empty
+        ? `<span class="muted" title="This part is empty and must not be issued">${p.part}. ${esc(p.label)} — not produced</span>`
+        : `<a href="/api/docs/${d.id}/render?part=${p.part}&token=${encodeURIComponent(token)}" target="_blank" rel="noopener">${p.part}. ${esc(p.label)}</a>`)
+      .join("<br>")}</div>`;
+  };
+
   const registry = documents.length
     ? wrapT(`<table><thead><tr><th>Number</th><th>Type</th><th>Party</th><th>Title</th><th>Value</th><th>Release</th><th>Issued</th><th></th></tr></thead><tbody>${documents
         .map(
           (d) => `<tr><td><b>${esc(d.number)}</b></td><td>${esc(d.templateName)}</td><td>${esc(d.party)}</td><td class="muted">${esc(d.title)}</td><td>${d.total ? money(d.total) : "—"}</td><td>${releaseCell(d.release)}</td><td class="muted">${new Date(d.createdAt).toLocaleDateString("en-GB")} · ${esc(d.issuedBy)}</td>
-          <td style="white-space:nowrap;"><a class="btn-run" style="text-decoration:none;display:inline-block;" href="/api/docs/${d.id}/render?token=${encodeURIComponent(token)}" target="_blank" rel="noopener">Open</a>${isAdmin ? ` <button class="btn-run" data-doc-del="${d.id}">Delete</button>` : ""}</td></tr>`
+          <td style="white-space:nowrap;"><a class="btn-run" style="text-decoration:none;display:inline-block;" href="/api/docs/${d.id}/render?token=${encodeURIComponent(token)}" target="_blank" rel="noopener">${d.parts ? "Open whole" : "Open"}</a>${isAdmin ? ` <button class="btn-run" data-doc-del="${d.id}">Delete</button>` : ""}${partLinks(d)}</td></tr>`
         )
         .join("")}</tbody></table>`)
     : '<p class="empty-note">No documents generated yet — pick a template above. Every generated document is numbered and registered here.</p>';
@@ -1520,24 +1537,53 @@ function renderStages(run) {
   </div>`;
 }
 
+/**
+ * The tender pack's issue check, shown where the approval happens.
+ *
+ * It is not a note. Notes are the exception report — depth reduced, this pass
+ * is INCOMPLETE, carried over from an interrupted run — and they render red,
+ * so a clean reconciliation among them reads as one more thing that went
+ * wrong. This is the one line that says whether the pack may leave.
+ */
+function packCheck(run) {
+  const c = run.packCheck;
+  if (!c) return "";
+  const good = c.ok;
+  const border = good ? "var(--ok,#2e7d4f)" : "var(--danger,#c0392b)";
+  const head = good
+    ? `Scope and price reconcile — ${c.matched} of ${c.scopeItems} scope items priced, ${c.pricedLines} priced lines, every one specified.`
+    : "This pack does not reconcile and must not be issued as it stands.";
+  const detail = good
+    ? "Checked by the system on this run, not by eye. The result is printed on the issue certificate at Part 8."
+    : "The exceptions are listed below. Each one has to be closed before the pack goes out.";
+  return `<div style="border-left:4px solid ${border};padding:8px 12px;margin-top:12px;">
+    <p style="margin:0;font-size:0.86rem;color:${border};"><b>${esc(head)}</b></p>
+    <p class="muted" style="margin:4px 0 0;font-size:0.8rem;">${esc(detail)}</p>
+  </div>`;
+}
+
 function renderRunView(run) {
   const decide =
     run.status === "awaiting_approval"
       ? `<div style="margin-top:10px;">
           <button class="btn-block" data-run-decide="approve" data-run-id="${run.id}" style="width:auto;padding:10px 20px;">Approve</button>
           <button class="btn-run" data-run-decide="reject" data-run-id="${run.id}" style="margin-left:8px;">Reject</button>
-          <span class="muted" style="margin-left:10px;font-size:0.8rem;">Approval is recorded against your name — nothing is acted on until a human approves.${run.agent === "diagnostic" ? " <b>Approving this run is what puts the report into the document studio</b> — the button to draft it appears here once you have." : ""}</span>
+          <span class="muted" style="margin-left:10px;font-size:0.8rem;">Approval is recorded against your name — nothing is acted on until a human approves.${run.document ? " <b>Approving this run is what puts it into the document studio</b> — the button to draft it appears here once you have." : ""}</span>
         </div>`
       : `<p class="muted" style="margin-top:10px;">${esc(run.status)}${run.decidedBy ? ` by ${esc(run.decidedBy)}` : ""}${run.decisionNote ? ` — "${esc(run.decisionNote)}"` : ""}</p>`;
   // An approved diagnostic is one click from being an issued report: the
   // twelve sections are split out of the output and land in the document
   // form for review, rather than being retyped from this box.
   const draft =
-    run.agent === "diagnostic" && run.status === "approved"
+    run.document && run.status === "approved"
       ? `<div style="margin-top:10px;">
-          <button class="btn-block" data-run-draft="${run.id}" style="width:auto;padding:10px 20px;">Draft as SSD report</button>
-          <button class="btn-run" data-run-specimen="${run.id}" style="margin-left:8px;">Draft as specimen extract</button>
-          <span class="muted" style="margin-left:10px;font-size:0.8rem;">The report is the client's. The specimen is the client-safe extract for the website and for a pitch — the findings, two sections in full, and a contents list of the rest, watermarked and labelled as a worked example.</span>
+          <button class="btn-block" data-run-draft="${run.id}" style="width:auto;padding:10px 20px;">Draft as ${esc(run.document.label)}</button>
+          ${run.agent === "diagnostic" ? `<button class="btn-run" data-run-specimen="${run.id}" style="margin-left:8px;">Draft as specimen extract</button>` : ""}
+          <span class="muted" style="margin-left:10px;font-size:0.8rem;">${run.agent === "diagnostic"
+            ? "The report is the client's. The specimen is the client-safe extract for the website and for a pitch — the findings, two sections in full, and a contents list of the rest, watermarked and labelled as a worked example."
+            : run.agent === "tender-pack"
+            ? "The pack is numbered once and issued once, and every part prints on its own from the document register — which is how a tenderer receives it."
+            : "The sections are split out of the output and land in the document form for review, rather than being retyped from this box."}</span>
         </div>`
       : "";
   const head = `<h3>${esc(run.title)} <span class="muted" style="font-weight:400;font-size:0.78rem;">· ${esc(run.agentName)}${run.model ? ` · ${esc(run.model)}` : ""}${run.usage ? ` · ${(run.usage.input + run.usage.output).toLocaleString()} tokens` : ""}</span></h3>`;
@@ -1554,6 +1600,7 @@ function renderRunView(run) {
   return wrap(`
     ${renderStages(run)}
     ${run.truncated ? '<p class="muted" style="color:var(--danger,#c0392b);">Output hit the length limit — the end may be cut off; re-run with a narrower scope if needed.</p>' : ""}
+    ${packCheck(run)}
     ${(run.notes || []).map((n) => `<p class="muted" style="color:var(--danger,#c0392b);font-size:0.84rem;">${esc(n)}</p>`).join("")}
     <pre style="white-space:pre-wrap;font-family:inherit;font-size:0.88rem;line-height:1.6;background:var(--paper,#f7f5f0);border:1px solid var(--line);border-radius:7px;padding:14px 16px;max-height:520px;overflow:auto;">${esc(run.output || "")}</pre>
     ${decide}
@@ -1608,7 +1655,7 @@ document.addEventListener("click", async (e) => {
       // omission.
       if (d.missing.length) {
         alert(
-          `${d.matched} of 13 sections were found in this run.\n\nNot found, and left blank for you to complete:\n· ${d.missing.join("\n· ")}\n\nThe agent may have been cut off, or used different headings.`
+          `${d.matched} of ${d.matched + d.missing.length} sections were found in this run.\n\nNot found, and left blank for you to complete:\n· ${d.missing.join("\n· ")}\n\nThe agent may have been cut off, or used different headings.`
         );
       }
       await openDocPrefill(d.template, d.data);

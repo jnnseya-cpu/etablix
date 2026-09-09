@@ -98,6 +98,9 @@ for (const c of CASES) {
      `${c.agent} is registered with its own ${a?.fields?.length} input fields`);
 }
 
+let SMR = null;   // the requirements engagement, for the pack that follows it
+let FEAS = null;  // a deliverable with no second stage, for the refusal
+
 for (const c of CASES) {
   console.log(`\n--- ${c.deliverable}\n`);
 
@@ -143,7 +146,18 @@ for (const c of CASES) {
   const keys = (run?.stages || []).map((x) => x.key);
   ok(keys.join(",") === c.stages, `its own ${keys.length} stages: ${keys.join(", ")}`, keys);
 
+  // The tender pack is assembled from what a person APPROVED, not from a
+  // draft. Asserted here, in the one window where the run exists and the
+  // approval does not.
+  if (c.deliverable === "site-requirements") {
+    const early = await api(`/api/clients/${E.id}/run-follow-on`, { method: "POST" }, T);
+    ok(early.s === 409 && /approve/i.test(early.b.error || ""),
+       "the tender pack refuses to assemble from an unapproved requirements package", early.b);
+  }
+
   await api(`/api/agents/runs/${runId}/decision`, { json: { decision: "approve" } }, T);
+  if (c.deliverable === "site-requirements") SMR = { id: E.id, runId };
+  if (c.deliverable === "feasibility") FEAS = { id: E.id };
   r = await api(`/api/docs/from-run/${runId}`, {}, T);
   const data = r.b.data || {};
   const re = new RegExp(`^${c.field}\\d+$`);
@@ -177,6 +191,103 @@ for (const c of CASES) {
      "with the wordmark and company particulars — issuable as it stands");
   ok(!/(^|>)\s*#{1,6}\s/m.test(html.replace(/<style[\s\S]*?<\/style>/g, "")),
      "and no markdown hash reaching the client");
+}
+
+// --- the second stage: the files that actually go to market
+console.log("\n--- the tender pack that goes to market\n");
+{
+  let r2 = await api(`/api/clients/${FEAS.id}/run-follow-on`, { method: "POST" }, T);
+  ok(r2.s === 400 && /no second stage/i.test(r2.b.error || ""),
+     "a deliverable with no second stage says so rather than starting something", r2.b);
+
+  r2 = await api(`/api/clients/${SMR.id}/run-follow-on`, { method: "POST" }, T);
+  ok(r2.s === 202, "the pack assembles from the approved package — nothing re-uploaded, nothing re-typed", r2.b);
+  const packRun = r2.b.runId;
+
+  let run = null;
+  for (let i = 0; i < 240; i++) {
+    const g = await api(`/api/agents/runs/${packRun}`, {}, T);
+    run = g.b.run || g.b;
+    if (run?.status && run.status !== "running") break;
+    await wait(1000);
+  }
+  ok(["awaiting_approval", "complete", "completed", "done"].includes(run?.status),
+     `it finished — status ${run?.status}`, { status: run?.status, error: run?.error });
+  ok(run?.agent === "tender-pack", `produced by ${run?.agent}`);
+  ok((run?.stages || []).map((x) => x.key).join(",") === "reconcile,t1_2,t3,t4,t5_6,t7_8,final",
+     "seven stages, with the scope sheets and the pricing schedule written in separate passes",
+     (run?.stages || []).map((x) => x.key));
+
+  // The approved requirements package reached it whole, rather than being
+  // summarised into the prompt by whoever started the run.
+  ok(/Employer's Requirements|Contractor shall/.test(String(run?.inputs?.requirements || "")),
+     "the approved requirements package travelled into the run as itself", String(run?.inputs?.requirements || "").slice(0, 90));
+
+  // THE CHECK THAT DECIDES WHETHER THE PACK MAY BE ISSUED.
+  ok(run?.packCheck?.ok === true, "scope and price reconcile", run?.packCheck);
+  ok(run?.packCheck?.scopeItems === 4 && run?.packCheck?.pricedLines === 4,
+     "four scope items, four priced lines, every one matched", run?.packCheck);
+  ok((run?.notes || []).length === 0,
+     "and raises no exception note — a pack that reconciles has nothing to report", run?.notes);
+
+  await api(`/api/agents/runs/${packRun}/decision`, { json: { decision: "approve" } }, T);
+  r2 = await api(`/api/docs/from-run/${packRun}`, {}, T);
+  ok(r2.b.template === "ittpack", "it drafts into the invitation-to-tender template", r2.b.template);
+  const parts = Object.keys(r2.b.data || {}).filter((k) => /^t\d+$/.test(k) && String(r2.b.data[k]).trim());
+  ok(parts.length === 8, "all eight parts came across", parts);
+  ok(/Scope ref/.test(String(r2.b.data.t4 || "")) && /SS-P01\.1/.test(String(r2.b.data.t4 || "")),
+     "part 4 is a pricing schedule referenced to the scope sheet, not a description of one",
+     String(r2.b.data.t4 || "").slice(0, 140));
+
+  const pub = await (async () => {
+    const fd = new FormData();
+    fd.append("runId", packRun);
+    fd.append("label", "Invitation to tender — NORTHREACH");
+    fd.append("summary", "The pack that goes to market.");
+    fd.append("releaseEarly", "true");
+    fd.append("releaseReason", "End-to-end test; the promised date has not arrived.");
+    const res = await fetch(`${B}/api/clients/${SMR.id}/deliverable`, { method: "POST", headers: { Authorization: "Bearer " + T }, body: fd });
+    return { s: res.status, b: await J(res) };
+  })();
+  ok(pub.s === 201, "it publishes to the client's portal", pub.b);
+  const d = pub.b.engagement?.deliverables?.at(-1);
+  ok(Boolean(d?.documentNumber?.startsWith("ITT-")), `in its own series: ${d?.documentNumber}`);
+
+  // --- and now the thing this whole stage exists for: SEPARATE FILES.
+  const R = async (q = "") => (await fetch(`${B}/api/docs/${d.documentId}/render?token=${encodeURIComponent(T)}${q}`)).text();
+
+  const whole = await R();
+  ok(/Instructions to tenderers/.test(whole) && /Form of tender/.test(whole), "the bound pack carries every part");
+
+  const p4 = await R("&part=4");
+  ok(/Pricing schedule/.test(p4), "part 4 renders on its own as the pricing schedule");
+  ok(/SS-P01\.1/.test(p4) && /Scope ref/.test(p4), "with its priced lines and their scope references");
+  ok(!/certify that this tender has not been arrived at by collusion/.test(p4),
+     "and WITHOUT the form of tender — a separate file is separate, or it is not a file");
+  ok(/4 of 8/.test(p4), "it says which part of which pack it is", (p4.match(/\d of 8[^<]*/) || ["not found"])[0]);
+  ok(/ETABLIX<small>INTEGRATED SITE SERVICES/.test(p4) && /15405437/.test(p4),
+     "and it is branded and issuable as it stands, not an extract");
+
+  const p8 = await R("&part=8");
+  ok(/Issue check/.test(p8) && /This pack reconciles/.test(p8),
+     "part 8 carries the reconciliation as the system performed it, not as the model claimed it");
+  ok(/4 of 4/.test(p8), "with the counts on the page, so a reader can see what was checked");
+  ok(!/Issue check/.test(p4), "and only there — the pricing schedule is the schedule");
+
+  const p7 = await R("&part=7");
+  ok(/collusion/.test(p7) && !/Scope ref/.test(p7), "part 7 renders on its own as the form of tender");
+
+  const bad = await fetch(`${B}/api/docs/${d.documentId}/render?token=${encodeURIComponent(T)}&part=9`);
+  ok(bad.status === 404, "a link to a part that does not exist is refused, not quietly clamped to the last one");
+
+  const listed = await api(`/api/docs/${d.documentId}/parts`, {}, T);
+  ok(listed.b.parts?.length === 8 && listed.b.parts.every((x) => !x.empty),
+     "the register lists all eight parts, none of them empty", listed.b.parts?.map((x) => x.part));
+
+  ok(/does not award|does not place orders/.test(whole) && /CLIENT ISSUES IT/.test(whole),
+     "the pack says on its face that the client issues and the client awards");
+  ok(!/(^|>)\s*#{1,6}\s/m.test(whole.replace(/<style[\s\S]*?<\/style>/g, "")),
+     "and no markdown hash reaching the tenderer");
 }
 
 // --- the two boundaries that must appear on the face of a document

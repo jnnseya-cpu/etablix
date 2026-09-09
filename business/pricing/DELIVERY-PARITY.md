@@ -1,7 +1,8 @@
 # Delivery parity — every deliverable at the level of the diagnostic
 
 **Prepared 9 September 2026. CLOSED — all five deliverables now have a
-production engine.**
+production engine, and the requirements package now has the second stage that
+makes "ready to issue" literally true (section 8).**
 
 The Site Systems Diagnostic works. A client answers nine questions in their
 portal, uploads their pack once, and an engine reads eighteen documents against
@@ -203,3 +204,92 @@ What remains is the same thing that remains for the diagnostic: read the
 output before it goes to a client. An engine that produces twelve sections in
 six passes produces them from the client's own documents, and the sections that
 matter most are the ones a client checks hardest.
+
+---
+
+## 8 · The gap that was left: packaging, not thinking
+
+*Added 9 September 2026, after the five engines were in.*
+
+Agent 9 writes everything that should go to market and binds it into one
+report. That is not what "ready to issue" means. **A real invitation to tender
+leaves as separate files**, because that is how a tenderer receives it: their
+estimator opens the pricing schedule, their bid manager opens the instructions,
+their commercial lead opens the form of tender. Three people, three documents.
+Handing all three one ninety-page PDF and telling them which pages to read is
+how a pack gets priced against the wrong revision.
+
+Two consequences for the website as it was written. **"Ready to issue" was not
+literally true**, and **"pricing schedules" read as a document you hand a
+tenderer** where Agent 9 only specified what such a document must contain.
+
+### Agent 13 — the assembler
+
+| | |
+|---|---|
+| Input | The **approved** Site Management Requirements Package |
+| Output | 8 parts, each a separate issuable document |
+| Passes | 7 — pack register, then 1-2, 3, 4, 5-6, 7-8, then the issue summary |
+| Document | ITT series, and `?part=4` renders the pricing schedule on its own |
+| Fee | **None of its own.** It is the second stage of the requirements package |
+
+**It has no fee of its own on purpose.** The requirements package is already
+sold as "the document set that goes to market". Charging separately for the
+set would be selling the same promise twice.
+
+**It assembles; it does not re-decide.** Nothing is added to the approved
+package and no silence in it is filled — a gap becomes an open item in Part 8.
+A requirement invented at assembly is a requirement nobody approved arriving in
+a contract, and it would arrive with ETABLIX's name on it.
+
+**It refuses to run against a draft.** The endpoint returns 409 until a human
+has approved the package it assembles from.
+
+### The one control that makes the pack safe to issue
+
+The scope sheets and the pricing schedule are written in **two separate
+passes**, so the schedule is written against the sheets rather than alongside
+them. Then they are reconciled **by machine, on every run**, before anybody can
+approve it:
+
+- every scope item carries the reference `SS-<package>.<item>`
+- every priced line names the scope reference it prices, in a column headed
+  exactly `Scope ref`
+- every priced line names a unit from a stated vocabulary
+
+A scope item with no priced line is work the tenderer is instructed to do and
+given nowhere to price — it returns after award as a variation at their rate.
+A priced line with no scope item is priced by every tenderer on a different
+assumption, and no two assumptions match, which is precisely the condition
+that makes returns incomparable. Both stop the pack being issued, and the
+result is printed on the issue certificate so a client can see it was checked.
+
+Telling the model to keep them aligned would not have been a control. This is:
+`lib/tenderpack.js`, 27 checks in `tenderpack.test.mjs`, run on every pack.
+
+### Three defects this build found
+
+**The splitter truncated every eight-section deliverable.** The heading number
+ceiling was a hard 12 whatever the product, so a line like "10. Provide the
+RAMS" inside section 8 of a mobilisation review was taken for the start of a
+section 10 — and everything after it was cut from section 8 and then thrown
+away, because no field 10 existed to receive it. It never failed loudly. The
+bound is now the deliverable's own section count.
+
+**The matched count was a hard 13.** An eight-section deliverable missing three
+sections still reported thirteen matched.
+
+### One decision that is yours, not the code's
+
+**When is the pack due?** The requirements package's ten working days run from
+information handover. The pack cannot start until the package is approved, so
+its own ten working days currently run **from the day the package was
+approved** — that is when its information handover genuinely happened, and the
+requirements package's promised date is never touched.
+
+The alternative is that the pack is due with the package, inside the same ten
+days. That is closer to what "the document set that goes to market" sounds
+like when a client reads it, and it is undeliverable whenever the client takes
+five days to approve. Confirm which one you are selling before the next
+requirements package goes out, because it belongs in the engagement letter and
+not in a settings file.

@@ -20,6 +20,9 @@ import * as SR from "./pipelines/site-requirements.js";
 import * as MR from "./pipelines/mobilisation-review.js";
 import * as VR from "./pipelines/village-requirements.js";
 import * as PR from "./pipelines/procurement.js";
+import * as TP from "./pipelines/tender-pack.js";
+import { splitPipelineOutput } from "./sections.js";
+import { reconcileScopeToPrice, packNotes } from "./tenderpack.js";
 
 const DEFAULT_MODEL = "claude-opus-5";
 
@@ -306,6 +309,10 @@ competent person rather than resolved.`,
     system: `${COMPANY_BRIEF}\n\n${PR.BRIEF_SYSTEM}`,
     fields: PR.FIELDS,
   },
+  "tender-pack": {
+    system: `${COMPANY_BRIEF}\n\n${TP.BRIEF_SYSTEM}`,
+    fields: TP.FIELDS,
+  },
   commercial: {
     system: `${COMPANY_BRIEF}
 
@@ -518,6 +525,18 @@ export const PIPELINE_SPECS = {
     finalTask: PR.FINAL_TASK,
     finalLabel: "Recommendation and audit trail",
   }),
+  // The only agent whose input is another agent's approved output. Its scope
+  // sheets and its pricing schedule are written in two separate passes so the
+  // second is written against the first rather than alongside it — and then
+  // reconciled by machine, below, because a pack whose price and scope have
+  // drifted apart looks perfectly correct until the returns are in.
+  "tender-pack": pipelineSpec({
+    id: "tender-pack",
+    reconcileTask: TP.RECONCILE_TASK,
+    sectionPasses: TP.SECTION_PASSES,
+    finalTask: TP.FINAL_TASK,
+    finalLabel: "Issue summary, traceability and open items",
+  }),
 };
 export const PIPELINE_AGENTS = new Set(Object.keys(PIPELINE_SPECS));
 export const stagesFor = (agentId) => (PIPELINE_SPECS[agentId] || DIAGNOSTIC_SPEC).stages;
@@ -544,6 +563,34 @@ export function assertInputs(agentId, inputs, documents = []) {
   }
 }
 
+
+/**
+ * The tender pack's issue check, run on the finished pack rather than asked
+ * for in the prompt.
+ *
+ * A tender pack fails in one way that nobody sees until the returns are in:
+ * the scope sheet specifies work the pricing schedule gives the tenderer
+ * nowhere to price, or the schedule asks for a price against something the
+ * scope sheet never specified. Both produce a pack that reads perfectly and
+ * returns prices that cannot be compared.
+ *
+ * Instructing the model to keep them aligned is not a control. Comparing the
+ * two reference sets by machine, on every run, before anybody can approve it,
+ * is — and the result goes into the run notes, where the person approving it
+ * has to read it.
+ */
+function withPackCheck(result) {
+  const { data } = splitPipelineOutput(result.output, TP.SECTIONS);
+  const check = reconcileScopeToPrice(data[TP.SCOPE_SECTION] || "", data[TP.PRICE_SECTION] || "");
+  return {
+    ...result,
+    packCheck: check,
+    // Ahead of the pipeline's own notes: this is the one that decides whether
+    // the pack may leave, so it is not read after four notes about pass length.
+    notes: [...packNotes(check), ...(result.notes || [])],
+  };
+}
+
 /**
  * Run one agent for real. Returns { output, model, usage }.
  *
@@ -558,7 +605,7 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
   assertInputs(agentId, inputs, documents);
 
   if (PIPELINE_AGENTS.has(agentId)) {
-    return runPipeline({
+    const result = await runPipeline({
       spec: PIPELINE_SPECS[agentId],
       anthropic: client(),
       model,
@@ -572,6 +619,7 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
       onStage,
       resume,
     });
+    return agentId === "tender-pack" ? withPackCheck(result) : result;
   }
 
   const parts = brief.fields

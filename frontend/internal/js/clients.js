@@ -64,6 +64,35 @@ function diagnosticButton(e) {
     data-again="${again ? "1" : ""}" data-running="${e.diagnosticRunning ? "1" : ""}">${label}</button>`;
 }
 
+/**
+ * The second stage, where a deliverable has one.
+ *
+ * The requirements package is sold as the document set that goes to market,
+ * and the set is assembled from the package once a human has approved it. The
+ * button is therefore never simply hidden while it cannot run — it says why,
+ * because "the button is not there" is indistinguishable from "the feature
+ * does not exist" and that is how the first four agents went unused.
+ */
+function followButton(e) {
+  const f = e.follow;
+  if (!f) return "";
+  if (!f.ready) {
+    const why = !f.sourceStatus
+      ? "run the requirements package first"
+      : f.sourceStatus === "running" ? "the requirements package is still running"
+      : f.sourceStatus === "awaiting_approval" ? "approve the requirements package first — the pack is assembled from what a person approved, not from a draft"
+      : `the requirements package is at "${f.sourceStatus}"`;
+    return `<button class="btn" disabled title="${esc(why)}">Assemble the tender pack — ${esc(why)}</button>`;
+  }
+  const again = Boolean(f.runId);
+  const label = !again ? "Assemble the tender pack from the approved package"
+    : f.missing ? "Assemble the tender pack again — the earlier run has gone"
+    : f.running ? "Start another assembly — the current one has hung"
+    : "Assemble the tender pack again";
+  return `<button class="btn ${again ? "" : "btn-primary"}" data-act="follow"
+    data-again="${again ? "1" : ""}" data-running="${f.running ? "1" : ""}">${label}</button>`;
+}
+
 const TONE = { enquiry: "warning", agreed: "", information: "warning", ready: "warning", deposit: "warning", in_progress: "ok", decision: "warning", balance: "warning", closed: "approved" };
 const DEC_TONE = { approved: "approved", review: "warning", rejected: "declined" };
 
@@ -144,6 +173,7 @@ function detail() {
     bal ? `<button class="btn" data-act="paid" data-kind="balance">Balance ${esc(bal.number)} received</button>` : "",
     e.portalToken ? `<button class="btn" data-act="copy">Copy the client's portal link</button>` : "",
     diagnosticButton(e),
+    followButton(e),
   ].filter(Boolean).join(" ");
 
   const checklist = (e.checklist || []).map((i) => `<tr>
@@ -431,6 +461,19 @@ function wire(body) {
         });
         await loadClients();
         note(`${out.replaced ? "New run started" : "Diagnostic started"} on ${out.files} client document(s). Handover ${out.handover}, report due ${out.due}. It runs six passes and takes several minutes — watch it under Organisation → AI agents.`);
+        return;
+      }
+      if (btn.dataset.act === "follow") {
+        if (btn.dataset.again && !confirm(btn.dataset.running
+          ? "An assembly on this engagement is still working. Starting another spends a second set of passes and replaces it. Only do this if it has hung.\n\nStart another assembly?"
+          : "This assembles the tender pack again from the approved requirements package. It becomes the engagement's current pack; the existing one stays in the run log.\n\nAssemble it again?")) {
+          btn.disabled = false; return;
+        }
+        const out = await api(`/api/clients/${id}/run-follow-on`, {
+          method: "POST", body: JSON.stringify({ force: Boolean(btn.dataset.running) }),
+        });
+        await loadClients();
+        note(`Tender pack assembly started from the approved requirements package. Handover ${out.handover}, due ${out.due}. Watch it under Organisation → AI agents; when it finishes, the run notes carry the scope-to-price reconciliation and a pack that does not reconcile must not be issued.`);
         return;
       }
       if (btn.dataset.act === "copy") {

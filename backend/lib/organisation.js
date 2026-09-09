@@ -267,6 +267,15 @@ export const AI_AGENTS = [
     backing: ["llm"],
     desk: "A recurring service, so it runs again every time returns land. Its value is normalisation rather than scoring: three tenderers price one enquiry on three different bases, and added up as returned the cheapest is whoever excluded most.",
   },
+  {
+    id: "tender-pack",
+    name: "Agent 13 — Tender pack assembler",
+    inputs: ["The APPROVED Site Management Requirements Package, in full", "The tender timetable the client has set, the tenderers, and the confirmed contract form", "How clarifications are handled and where returns go, the client's own forms and procurement rules, and which [PROPOSED] requirements have since been approved"],
+    outputs: ["Instructions to tenderers and conditions of tendering, written as the documents a tenderer receives", "A scope sheet for every package — boundary, items, attendances, acceptance and exclusions", "The pricing schedule BLANK AND PRICEABLE: every line referenced to a scope item, with a unit and a quantity", "Technical and commercial return forms mapped to the criteria they are evidence for, and the form of tender", "The issue register and an issue certificate carrying the scope-to-price reconciliation"],
+    boundary: "An assembly of an approved document, not a second opinion: nothing is added to the requirements package and no silence in it is filled — a gap is an open item. The CLIENT issues and the CLIENT awards; ETABLIX does not award, place orders or commit the client to any tenderer.",
+    backing: ["llm", "engine"],
+    desk: "The part of Advisory that makes \"ready to issue\" literally true. Its scope sheets and pricing schedule share one reference set, and the engine reconciles them by machine on every run: a scope item with no priced line, or a priced line with no scope item, stops the pack being issued — because that is the failure nobody sees until the returns are in and the cheapest tender is whoever guessed lowest.",
+  },
 ];
 
 /** Function → how much AI genuinely replaces → the human control that remains. */

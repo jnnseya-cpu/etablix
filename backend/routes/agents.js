@@ -18,6 +18,7 @@ import { AGENT_BRIEFS, publicProvider, setProvider, testProvider, runAgent, asse
 import { acceptDocuments, UPLOAD_DIR } from "../lib/uploads.js";
 import { extractAll } from "../lib/extract.js";
 import { readPack, savePack, savePass, deletePack, sweepPacks } from "../lib/runstore.js";
+import { documentForAgent } from "./docs.js";
 import { visualBlocks, visualPreamble } from "../lib/visual.js";
 
 const router = Router();
@@ -25,8 +26,18 @@ router.use(requireAuth);
 
 const admin = requireRole(ROLES.ADMIN);
 
-const publicRun = ({ inputs, output, ...meta }, full = false) =>
-  full ? { ...meta, inputs, output } : { ...meta, preview: String(output || "").slice(0, 180) };
+/**
+ * `document` says which document an approved run becomes, so the run view can
+ * offer to draft it. It used to be hardcoded to the diagnostic in the browser,
+ * which meant an approved requirements package, village package, review or
+ * evaluation had no way out of the run box except being retyped by hand.
+ */
+const publicRun = ({ inputs, output, ...meta }, full = false) => {
+  const document = documentForAgent(meta.agent);
+  return full
+    ? { ...meta, document, inputs, output }
+    : { ...meta, document, preview: String(output || "").slice(0, 180) };
+};
 
 router.get("/", (req, res) => {
   const runs = [...collection("agentTasks")].reverse().slice(0, 60);
@@ -135,6 +146,10 @@ async function workPipeline(runId, agent, inputs, runBy, visualFiles = [], resum
       usage: r.usage,
       truncated: Boolean(r.truncated),
       notes: r.notes || [],
+      // The tender pack's scope-to-price reconciliation, kept on the run so
+      // the issue certificate prints the same result the desk approved
+      // against rather than a second one worked out later.
+      ...(r.packCheck ? { packCheck: r.packCheck } : {}),
       status: "awaiting_approval",
       finishedAt: Date.now(),
       passesHeld: [],

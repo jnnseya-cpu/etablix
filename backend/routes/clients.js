@@ -34,17 +34,18 @@ import { rateLimit } from "../lib/ratelimit.js";
 import { RETENTION, describeHoldings, erasePack, packDueAt } from "../lib/retention.js";
 import {
   createDocument, renderDocument,
-  splitDiagnostic, splitSiteRequirements, splitMobReview, splitVillage, splitTenderEval,
+  PIPELINE_DOCUMENTS,
 } from "./docs.js";
 import { startPipelineRun } from "./agents.js";
 import {
   STAGES, stage, stageIndex, MODELS, MODEL_IDS, model, deliverableOrNull,
   DELIVERABLES, deliverable, REQUIREMENT_PACKS, packFor, buildChecklist,
   checklistState, nextAction, DECISIONS, DECISION_IDS, nextPeriodLabel,
-  depositTerms, balanceTerms, money, diagnosticInputs, handoverDate, DIAGNOSTIC_FIELD_MAP, pipelineFor,
+  depositTerms, balanceTerms, money, diagnosticInputs, handoverDate, DIAGNOSTIC_FIELD_MAP, pipelineFor, followFor,
   charge, vatModeFor, reverseChargeAvailable, declaredVatMode,
 } from "../lib/clientflow.js";
 import { diagnosticDates, releaseStatus, DIAGNOSTIC_WORKING_DAYS } from "../lib/workingdays.js";
+import { packStatement } from "../lib/tenderpack.js";
 import { integratorFee, primeFee } from "../lib/pricing.js";
 import { costOf, marginOf } from "../lib/margin.js";
 
@@ -163,6 +164,44 @@ function diagnosticState(e) {
     // always a mis-click, so it is named as such rather than silently done.
     diagnosticRunning: current ? current.status === "running" : false,
     diagnosticRuns: history,
+    ...followState(e),
+  };
+}
+
+/**
+ * The second stage, where a deliverable has one.
+ *
+ * The requirements package is sold as the document set that goes to market,
+ * and the set is assembled by Agent 13 from the package once a human has
+ * approved it. The desk needs to know three things and no more: whether this
+ * deliverable has a second stage at all, whether the first one is approved so
+ * the second can start, and where the second one has got to.
+ */
+function followState(e) {
+  const follow = followFor(e.deliverable);
+  if (!follow) return { follow: null };
+  const runs = collection("agentTasks");
+  const source = e.diagnosticRunId ? runs.find((r) => r.id === e.diagnosticRunId) : null;
+  const current = e.followRunId ? runs.find((r) => r.id === e.followRunId) : null;
+  return {
+    follow: {
+      agent: follow.agent,
+      label: follow.label,
+      // It assembles from an APPROVED package. Running it against an
+      // unapproved draft would put requirements nobody signed off into files
+      // a tenderer prices.
+      ready: source?.status === "approved",
+      sourceStatus: source ? source.status : null,
+      runId: e.followRunId || null,
+      status: current ? current.status : null,
+      running: current ? current.status === "running" : false,
+      missing: Boolean(e.followRunId && !current),
+      dueDate: e.followDueDate || null,
+      runs: (e.followRuns || []).map((h) => {
+        const row = runs.find((r) => r.id === h.id);
+        return { ...h, status: row ? row.status : "gone" };
+      }),
+    },
   };
 }
 
@@ -631,20 +670,16 @@ router.post("/:id/deliverable", ...finance, acceptDocuments, async (req, res) =>
     // The run decides the template. This minted a diagnostic whatever the
     // run was, so an approved Agent 9 requirements package would have been
     // published to the client under the wrong headings.
-    const MINTS = {
-      diagnostic: { template: "diagnostic", split: splitDiagnostic },
-      "site-requirements": { template: "sitereq", split: splitSiteRequirements },
-      "mobilisation-review": { template: "mobreview", split: splitMobReview },
-      "village-requirements": { template: "village", split: splitVillage },
-      procurement: { template: "tendereval", split: splitTenderEval },
-    };
-    const mint = MINTS[run.agent] || MINTS.diagnostic;
+    const mint = PIPELINE_DOCUMENTS[run.agent] || PIPELINE_DOCUMENTS.diagnostic;
     const { data } = mint.split(run.output);
     const doc = createDocument({
       template: mint.template,
       issuedBy: req.user.name,
       data: {
         ...data,
+        // The engine's own scope-to-price reconciliation, carried onto the
+        // pack. Printed by the system rather than claimed by the model.
+        ...(run.packCheck ? { packStatement: packStatement(run.packCheck) } : {}),
         client: e.client,
         project: e.project,
         handover: String(run.inputs?.handover || "").slice(0, 10),
@@ -720,6 +755,100 @@ router.post("/:id/deliverable", ...finance, acceptDocuments, async (req, res) =>
 });
 
 /**
+ * POST /api/clients/:id/run-follow-on — assemble the tender pack from the
+ * requirements package this engagement has already produced and approved.
+ *
+ * This is the join that makes "ready to issue" literally true. Agent 9 writes
+ * everything that should go to market and binds it into one report; a tenderer
+ * receives separate files, so Agent 13 assembles them — and assembles them
+ * from the APPROVED package rather than from the draft, because a requirement
+ * nobody signed off has no business inside a document a tenderer prices.
+ *
+ * The pack's own ten working days run from the day the package was approved,
+ * which is the day its information handover genuinely happened. The
+ * requirements package's promised date is untouched.
+ */
+router.post("/:id/run-follow-on", ...finance, async (req, res) => {
+  const e = find(req.params.id);
+  if (!e) return res.status(404).json({ error: "Engagement not found." });
+  const follow = followFor(e.deliverable);
+  if (!follow) {
+    return res.status(400).json({
+      error: `${deliverable(e.deliverable).name} has no second stage. Only the requirements package does — its fee promises the document set that goes to market, and the set is assembled from the approved package.`,
+    });
+  }
+  const source = e.diagnosticRunId ? collection("agentTasks").find((r) => r.id === e.diagnosticRunId) : null;
+  if (!source) {
+    return res.status(400).json({ error: "There is no requirements package on this engagement yet. Run it first." });
+  }
+  if (source.status !== "approved") {
+    return res.status(409).json({
+      error: `The requirements package is ${source.status === "awaiting_approval" ? "waiting for approval" : `at "${source.status}"`}. The tender pack is assembled from what a competent person has approved, not from a draft — approve it under Organisation → AI agents first.`,
+      runId: source.id, sourceStatus: source.status,
+    });
+  }
+  if (!String(source.output || "").trim()) {
+    return res.status(400).json({ error: "That requirements package produced no output to assemble from." });
+  }
+
+  const state = diagnosticState(e);
+  if (state.follow?.running && !req.body?.force) {
+    return res.status(409).json({
+      error: "That tender pack is still being assembled. Watch it under Organisation → AI agents, or start another anyway if it has hung.",
+      runId: e.followRunId, running: true,
+    });
+  }
+
+  // The day the package was approved is the day this stage's information
+  // handover happened. Reading it from the run rather than from today means a
+  // pack started a week late is still measured from the right day.
+  const approvedAt = source.decidedAt || source.finishedAt || Date.now();
+  const handover = new Date(approvedAt).toISOString().slice(0, 10);
+
+  try {
+    const run = await startPipelineRun({
+      agentId: follow.agent,
+      title: `${e.project} — ${follow.label}`,
+      runBy: req.user.name,
+      engagementId: e.id,
+      inputs: {
+        client: e.client,
+        project: e.project,
+        handover,
+        // The approved package, whole. Agent 13 assembles from it and adds
+        // nothing to it, so it travels complete rather than summarised.
+        [follow.into]: source.output,
+        // Anything the desk supplies with the request — the timetable the
+        // client has since set, the confirmed contract form, who it goes to.
+        // Whitelisted, so a stray body field cannot become an instrument.
+        ...Object.fromEntries(
+          (follow.optional || [])
+            .map((f) => [f, clampStr(req.body?.[f], 6000)])
+            .filter(([, v]) => v)
+        ),
+      },
+    });
+    const dates = diagnosticDates(handover);
+    const superseded = e.followRunId || null;
+    update("clientEngagements", e.id, {
+      followRunId: run.id,
+      followRuns: superseded
+        ? trailCap([...(e.followRuns || []), { id: superseded, supersededAt: Date.now(), by: req.user.name }])
+        : (e.followRuns || []),
+      followDueDate: dates?.due || null,
+      events: trail(e.events, { at: Date.now(), by: req.user.name,
+        what: superseded ? "Tender pack assembled again" : "Tender pack assembly started",
+        detail: `from the approved requirements package · handover ${handover} · due ${dates?.due || "\u2014"}`
+          + (superseded ? ` · replaces run ${superseded}` : "") }),
+    });
+    res.status(202).json({ runId: run.id, handover, due: dates?.due || null,
+      replaced: superseded, engagement: decorate(find(e.id)) });
+  } catch (err) {
+    res.status(502).json({ error: err.message });
+  }
+});
+
+/**
  * POST /api/clients/:id/run-diagnostic — run the diagnostic on the pack the
  * client already supplied through the portal.
  *
@@ -789,7 +918,10 @@ router.post("/:id/run-diagnostic", ...finance, async (req, res) => {
   try {
     const run = await startPipelineRun({
       agentId: pipeline.agent,
-      title: `${e.project} — Site Systems Diagnostic`,
+      // Every run was titled "Site Systems Diagnostic" whatever it produced,
+      // so a £45,000 requirements package appeared in the run log under
+      // another product's name and the log could not be read.
+      title: `${e.project} — ${deliverable(e.deliverable).name}`,
       runBy: req.user.name,
       engagementId: e.id,
       inputs: { client: e.client, project: e.project, handover, ...diagnosticInputs(e) },

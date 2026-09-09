@@ -1272,6 +1272,32 @@ export const DELIVERABLE_PIPELINES = {
   feasibility: { agent: "diagnostic", fieldMap: DIAGNOSTIC_FIELD_MAP },
   "site-requirements": {
     agent: "site-requirements",
+    // The second stage of the same deliverable, not a second deliverable.
+    //
+    // The requirements package's fee already promises "the document set that
+    // goes to market", and a bound report containing everything that should
+    // go out is not that set: a tenderer receives separate files. So the pack
+    // is assembled by Agent 13 from the APPROVED requirements package, inside
+    // the same engagement and the same fee, and it cannot start until a human
+    // has approved what it is assembled from.
+    follow: {
+      agent: "tender-pack",
+      label: "Tender pack",
+      // The field the approved run's output is handed to. Agent 13 assembles
+      // from it and adds nothing to it.
+      into: "requirements",
+      // The pack's own optional inputs — the tender timetable, who it goes to,
+      // the confirmed contract form — which the desk may supply and which are
+      // NOT inherited from the requirements package's answers.
+      //
+      // They look inheritable and are not. The package asks for the intended
+      // route to market; the pack asks for the timetable the client has since
+      // set. Handing the first answer to the second question produces a tender
+      // programme nobody agreed, printed as fact. Where the desk supplies
+      // nothing the pack prints [DATE TO BE INSERTED BY THE CLIENT BEFORE
+      // ISSUE], which is the honest output.
+      optional: ["timetable", "tenderers", "contract", "clarifications", "returnform", "confidentiality", "governance", "approvals"],
+    },
     fieldMap: {
       "s-scope": "scope",
       "s-programme": "programme",
@@ -1328,6 +1354,9 @@ export const DELIVERABLE_PIPELINES = {
 };
 
 export const pipelineFor = (deliverableId) => DELIVERABLE_PIPELINES[deliverableId] || null;
+
+/** The follow-on stage a deliverable has, if it has one. */
+export const followFor = (deliverableId) => pipelineFor(deliverableId)?.follow || null;
 
 /**
  * The information handover date: the day the LAST mandatory item was
