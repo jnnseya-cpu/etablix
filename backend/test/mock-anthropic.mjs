@@ -49,8 +49,18 @@ http.createServer((req, res) => {
     let j; try { j = JSON.parse(b || "{}"); } catch { j = {}; }
     if (!Array.isArray(j.messages)) { res.writeHead(400, {"Content-Type":"application/json"}); return res.end(JSON.stringify({type:"error",error:{type:"invalid_request_error",message:"no messages"}})); }
     const task = j.messages?.[0]?.content?.at(-1)?.text || j.messages?.[0]?.content || "";
+    // The prompt itself is recorded, because "did the layout drawing
+    // reach the model, and under which heading" is not answerable from a
+    // character count.
+    const promptText = (j.messages || [])
+      .flatMap((m) => (Array.isArray(m.content) ? m.content : [{ type: "text", text: String(m.content || "") }]))
+      .filter((b) => b.type === "text")
+      .map((b) => b.text)
+      .join("\n");
     log.push({ max: j.max_tokens, thinking: j.thinking?.budget_tokens || 0, stream: !!j.stream,
-      cacheBreakpoints: JSON.stringify(j).split('"ephemeral"').length - 1, promptChars: JSON.stringify(j.messages || []).length });
+      effort: j.output_config?.effort || null, adaptive: j.thinking?.type === "adaptive",
+      cacheBreakpoints: JSON.stringify(j).split('"ephemeral"').length - 1, promptChars: JSON.stringify(j.messages || []).length,
+      promptText });
     fs.writeFileSync(LOG_FILE, JSON.stringify(log, null, 1));
     await new Promise((r) => setTimeout(r, DELAY));
 

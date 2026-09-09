@@ -1499,8 +1499,10 @@ function renderStages(run) {
     })
     .join("");
   const done = run.stages.filter((s) => s.state === "done").length;
-  // How many passes actually survived — that is what a resume starts from.
-  const held = Object.keys(run.passes || {}).length;
+  // How many passes actually survived — that is what a resume starts
+  // from. The pass text itself lives in the run's pack file, so the row
+  // carries only the list of keys.
+  const held = (run.passesHeld || Object.keys(run.passes || {})).length;
   return `<div style="margin:10px 0 4px;">
     <p class="muted" style="font-size:0.84rem;margin-bottom:6px;">
       ${run.status === "running"

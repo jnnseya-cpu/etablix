@@ -32,7 +32,7 @@ import automationRoutes from "./routes/automation.js";
 import commercialRoutes from "./routes/commercial.js";
 import orgRoutes from "./routes/org.js";
 import docsRoutes from "./routes/docs.js";
-import agentRoutes, { failOrphanedRuns } from "./routes/agents.js";
+import agentRoutes, { failOrphanedRuns, sweepRunPacks } from "./routes/agents.js";
 import paymentRoutes from "./routes/payments.js";
 import engagementRoutes from "./routes/engagements.js";
 import clientRoutes from "./routes/clients.js";
@@ -159,6 +159,8 @@ const orphaned = failOrphanedRuns();
 if (orphaned) console.log(`Marked ${orphaned} interrupted agent run(s) as failed.`);
 const trimmed = trimCapped();
 if (trimmed) console.log(`Trimmed ${trimmed} row(s) from capped collections.`);
+const swept = sweepRunPacks();
+if (swept) console.log(`Removed ${swept} orphaned run pack(s) from the disk.`);
 auditSecretStorage();
 startScheduler(); // delivery automation: scheduled sweeps, guardrails and the daily digest
 const server = app.listen(PORT, () => {

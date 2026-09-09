@@ -28,12 +28,12 @@ cleanup() {
 trap cleanup EXIT
 
 echo "=== unit ==="
-for t in clientflow.test workingdays.test mail.test store-kill.test; do
+for t in clientflow.test workingdays.test mail.test pipeline.test store-kill.test; do
   printf '  %-22s ' "$t"
   if node "backend/test/$t.mjs" > "$LOGS/$t.log" 2>&1; then echo "ok"; else echo "FAILED  → $LOGS/$t.log"; fail=1; fi
 done
 
-MOCK_PORT=$MOCK_PORT MOCK_DELAY=${MOCK_DELAY:-200} node backend/test/mock-anthropic.mjs > "$LOGS/mock.log" 2>&1 &
+MOCK_PORT=$MOCK_PORT MOCK_DELAY=${MOCK_DELAY:-200} MOCK_LOG="$LOGS/mock-log.json" node backend/test/mock-anthropic.mjs > "$LOGS/mock.log" 2>&1 &
 MOCK=$!
 ETABLIX_DATA_DIR=$DATA PORT=$PORT SITE_URL=http://localhost:$PORT \
   ANTHROPIC_BASE_URL=http://127.0.0.1:$MOCK_PORT ANTHROPIC_API_KEY=mock-key \
@@ -43,16 +43,30 @@ for _ in $(seq 1 40); do sleep 0.25; curl -sf "http://localhost:$PORT/api/health
 curl -sf "http://localhost:$PORT/api/health" >/dev/null || { echo "the server did not come up — $LOGS/server.log"; exit 1; }
 
 echo "=== end to end ==="
-SUITES="money.e2e clientflow.e2e enquiry-to-engagement.e2e portal-promises.e2e upload-dedupe.test circle.e2e"
+SUITES="money.e2e clientflow.e2e enquiry-to-engagement.e2e portal-promises.e2e upload-dedupe.test pipeline.e2e circle.e2e"
 [ "${SOAK:-0}" = "1" ] && SUITES="$SUITES soak.e2e"
 for t in $SUITES; do
   printf '  %-28s ' "$t"
-  if BASE=http://localhost:$PORT node "backend/test/$t.mjs" > "$LOGS/$t.log" 2>&1; then
+  if BASE=http://localhost:$PORT DATA="$DATA" MOCK_LOG="$LOGS/mock-log.json" node "backend/test/$t.mjs" > "$LOGS/$t.log" 2>&1; then
     grep -Eo '[0-9]+ passed' "$LOGS/$t.log" | tail -1
   else
     echo "FAILED  → $LOGS/$t.log"; fail=1
   fi
 done
+
+# This one starts, kills and restarts a server of its own — it is about
+# what survives a container being recreated mid-run — so it runs last and
+# on its own port.
+echo "=== interruption ==="
+printf '  %-28s ' "run-resume.e2e"
+RRDATA=$(mktemp -d)
+if ETABLIX_DATA_DIR=$RRDATA PORT=$((PORT + 6)) ANTHROPIC_BASE_URL=http://127.0.0.1:$MOCK_PORT \
+   ANTHROPIC_API_KEY=mock-key node backend/test/run-resume.e2e.mjs > "$LOGS/run-resume.log" 2>&1; then
+  grep -Eo '[0-9]+ passed' "$LOGS/run-resume.log" | tail -1
+else
+  echo "FAILED  → $LOGS/run-resume.log"; fail=1
+fi
+[ "${KEEP:-0}" = "1" ] || rm -rf "$RRDATA"
 
 echo
 [ $fail -eq 0 ] && echo "=== everything passed ===" || echo "=== there are failures above ==="

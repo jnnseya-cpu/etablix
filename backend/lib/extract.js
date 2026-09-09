@@ -158,25 +158,98 @@ export async function extractFile(file) {
 }
 
 /**
- * Extract every uploaded file into one labelled block for the agent,
- * with a per-run character ceiling. Returns { text, files } where files
- * carries the per-document result for the run record.
+ * Extract every uploaded file, and share the run's character budget out
+ * between them fairly.
+ *
+ * This used to spend the budget in upload order and then `break`. One
+ * long document — a 300-page employer's requirements is ordinary — took
+ * the whole 180,000 characters and every document after it was dropped
+ * WITHOUT A WORD: no note in the prompt, no mark on the run record, and
+ * a `sources` row still reporting the character count as though it had
+ * been read. The report then confidently found no contradiction between
+ * two documents, one of which the model had never seen.
+ *
+ * So the budget is now shared. Every document gets an equal allowance;
+ * anything under its allowance gives the remainder back, and the
+ * documents over it divide what is left over, repeatedly, until nothing
+ * more can be given away. Every document therefore reaches the model,
+ * and any that had to be cut says so in its own block and on the run
+ * record.
+ *
+ * Returns { text, files, documents, notes }.
  */
-export async function extractAll(files = []) {
+export async function extractAll(files = [], { budget = MAX_EXTRACT_CHARS } = {}) {
   const results = [];
-  for (const f of files) results.push(await extractFile(f));
-
-  let budget = MAX_EXTRACT_CHARS;
-  const blocks = [];
-  for (const r of results) {
-    if (!r.text) continue; // visual files travel as pages, handled by visual.js
-    let body = r.text;
-    if (body.length > budget) {
-      body = body.slice(0, Math.max(0, budget)) + `\n\n[TRUNCATED — this document exceeded the per-run limit. Split it and run again to cover the remainder.]`;
-    }
-    budget -= body.length;
-    blocks.push(`===== DOCUMENT: ${r.name}${r.pages ? ` (${r.pages} pages)` : ""} =====\n${body}`);
-    if (budget <= 0) break;
+  for (const f of files) {
+    const r = await extractFile(f);
+    // Where the caller knows what a document was supplied against — the
+    // portal does, because the client attached it to a named requirement
+    // — that travels with it, so the model reads it under the right
+    // heading instead of in one undifferentiated heap.
+    if (f.field) r.field = f.field;
+    if (f.label) r.label = f.label;
+    if (f.stored || f.filename) r.stored = f.stored || f.filename;
+    if (f.mimetype) r.type = f.mimetype;
+    results.push(r);
   }
-  return { text: blocks.join("\n\n"), files: results };
+
+  const textDocs = results.filter((r) => r.text);
+  const allowances = shareOut(textDocs.map((r) => r.text.length), budget);
+
+  const notes = [];
+  const documents = [];
+  const blocks = [];
+  textDocs.forEach((r, i) => {
+    const allowed = allowances[i];
+    const cut = r.text.length > allowed;
+    const body = cut
+      ? r.text.slice(0, allowed) +
+        `\n\n[CUT HERE — ${r.name} is ${r.text.length.toLocaleString("en-GB")} characters and ${allowed.toLocaleString("en-GB")} were read. ` +
+        `Everything above was read in full; nothing below it was seen. Say so wherever a finding would have depended on the rest.]`
+      : r.text;
+    r.chars = r.text.length;
+    r.charsRead = Math.min(allowed, r.text.length);
+    r.cut = cut;
+    if (cut) notes.push(`${r.name}: ${r.charsRead.toLocaleString("en-GB")} of ${r.chars.toLocaleString("en-GB")} characters were read.`);
+    const heading = `===== DOCUMENT: ${r.name}${r.pages ? ` (${r.pages} pages)` : ""}${r.label ? ` — supplied against: ${r.label}` : ""} =====`;
+    documents.push({ name: r.name, label: r.label || null, field: r.field || null, pages: r.pages || null, text: body, cut });
+    blocks.push(`${heading}\n${body}`);
+  });
+
+  if (notes.length) {
+    blocks.unshift(
+      `===== A NOTE ON WHAT YOU WERE GIVEN =====\n` +
+      `${notes.length} of these ${textDocs.length} documents were too long to send whole, so each was cut at the point marked in its own block. ` +
+      `Nothing was dropped silently and nothing was summarised for you. Where a finding would have needed the part that was cut, say so rather than inferring it.\n\n` +
+      notes.map((n) => `• ${n}`).join("\n")
+    );
+  }
+
+  return { text: blocks.join("\n\n"), files: results, documents, notes };
+}
+
+/**
+ * Share a budget between documents by their length: equal shares, with
+ * whatever the short ones do not need handed to the long ones, until no
+ * more can be given away. Ten documents and one giant then means the
+ * giant is cut and the other nine arrive whole — the opposite of what
+ * spending the budget in upload order does.
+ */
+export function shareOut(lengths, budget) {
+  const out = lengths.map(() => 0);
+  let remaining = budget;
+  let open = lengths.map((_, i) => i);
+  while (open.length && remaining > 0) {
+    const share = Math.floor(remaining / open.length);
+    if (share <= 0) break;
+    const settled = open.filter((i) => lengths[i] <= share);
+    if (!settled.length) {
+      for (const i of open) out[i] = share;
+      remaining -= share * open.length;
+      break;
+    }
+    for (const i of settled) { out[i] = lengths[i]; remaining -= lengths[i]; }
+    open = open.filter((i) => !settled.includes(i));
+  }
+  return out;
 }

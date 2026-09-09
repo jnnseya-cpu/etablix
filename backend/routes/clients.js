@@ -544,11 +544,21 @@ router.post("/:id/run-diagnostic", ...finance, async (req, res) => {
   if (!handover) return res.status(400).json({ error: "The handover date cannot be read from the checklist. Every mandatory item must carry the date it was answered." });
 
   // The client's own files, read straight from where the portal stored them.
+  // Each file carries the requirement it was supplied against, so the
+  // agent reads the layout drawing as the layout rather than as the
+  // middle of a programme. `stored` travels too: a resumed run rebuilds
+  // the drawing pages from it, and without it a resumed run looked at no
+  // drawings and said nothing about that.
   const files = [];
   for (const item of e.checklist || []) {
     for (const f of item.files || []) {
       const full = path.join(UPLOAD_DIR, path.basename(f.stored));
-      if (fs.existsSync(full)) files.push({ originalname: f.name, path: full, mimetype: f.type });
+      if (fs.existsSync(full)) {
+        files.push({
+          originalname: f.name, path: full, mimetype: f.type,
+          stored: f.stored, field: DIAGNOSTIC_FIELD_MAP[item.id] || null, label: item.title,
+        });
+      }
     }
   }
 

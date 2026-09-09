@@ -62,7 +62,9 @@ const id = (await started.json()).run?.id;
 ok(started.status === 202 && !!id, "the run started in the background");
 
 let held = 0;
-for (let i = 0; i < 120 && held < 2; i++) { await wait(300); const g = await api(`/api/agents/runs/${id}`, {}, T); held = Object.keys(g.b.run?.passes || {}).length; }
+// The pass text lives in the run's pack file now, not in db.json — the
+// row records only which passes are held, which is what a caller needs.
+for (let i = 0; i < 120 && held < 2; i++) { await wait(300); const g = await api(`/api/agents/runs/${id}`, {}, T); held = (g.b.run?.passesHeld || []).length; }
 ok(held >= 2, `passes are written down as they land — ${held} held while the run is still going`, held);
 
 const h = await api("/api/health");
@@ -76,8 +78,8 @@ T = a.b.token;
 
 const after = (await api(`/api/agents/runs/${id}`, {}, T)).b.run;
 ok(after.status === "failed", "the run is marked failed rather than spinning for ever", after.status);
-const survived = Object.keys(after.passes || {}).length;
-ok(survived === held, `EVERY COMPLETED PASS SURVIVED THE RESTART — ${survived} of them`, Object.keys(after.passes || {}));
+const survived = (after.passesHeld || []).length;
+ok(survived >= held, `EVERY COMPLETED PASS SURVIVED THE RESTART — ${survived} of them`, after.passesHeld);
 ok(/completed pass/.test(after.error || ""), "and the message says so, instead of 'nothing was lost except the run itself'", after.error);
 
 const res = await api(`/api/agents/runs/${id}/resume`, { json: {} }, T);

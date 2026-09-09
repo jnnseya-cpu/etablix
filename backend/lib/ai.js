@@ -83,10 +83,28 @@ export function publicProvider() {
   };
 }
 
+/**
+ * How long one call may take before it is abandoned, and how many times
+ * the SDK may retry on its own.
+ *
+ * Both used to be the SDK's defaults, which meant a call that simply
+ * never answered held a pipeline pass open indefinitely: the run sat at
+ * "running" with no error and no end, and the only thing that moved it
+ * was somebody restarting the server. A thinking pass over a full
+ * document set is genuinely slow, so the ceiling is generous — but it is
+ * a ceiling.
+ *
+ * The SDK's own retries are turned OFF because the pipeline retries
+ * deliberately, with its own backoff and its own ceiling; two retry
+ * mechanisms stacked on top of each other multiply, and a 5-minute
+ * outage became half an hour of invisible waiting.
+ */
+export const CALL_TIMEOUT_MS = Number(process.env.ETABLIX_AI_TIMEOUT_MS || 15 * 60 * 1000);
+
 const client = () => {
   const { apiKey } = getProvider();
   if (!apiKey) throw new Error("The AI provider is not connected — an administrator adds the API key under Organisation → AI agents.");
-  return new Anthropic({ apiKey });
+  return new Anthropic({ apiKey, timeout: CALL_TIMEOUT_MS, maxRetries: 0 });
 };
 
 export async function testProvider() {
@@ -437,14 +455,24 @@ Use ONLY facts given in the brief — never invent quantities, dates, locations 
 export const PIPELINE_AGENTS = new Set(["diagnostic"]);
 export { DIAGNOSTIC_STAGES };
 
-/** Throws on the first required field the run is missing. */
-export function assertInputs(agentId, inputs) {
+/**
+ * Throws on the first required field the run is missing.
+ *
+ * A document supplied against a field answers it. The document text is
+ * no longer folded into the field it belongs to — it travels as itself —
+ * so a run whose whole answer is an attached programme would otherwise
+ * be refused for having an empty programme box.
+ */
+export function assertInputs(agentId, inputs, documents = []) {
   const brief = AGENT_BRIEFS[agentId];
   if (!brief) throw new Error("Unknown agent.");
+  const covered = new Set((documents || []).map((d) => d.field).filter(Boolean));
+  const anyDocument = (documents || []).length > 0;
   for (const f of brief.fields) {
-    if (f.required && !String(inputs?.[f.name] || "").trim()) {
-      throw new Error(`"${f.label}" is required for this agent.`);
-    }
+    if (!f.required) continue;
+    if (String(inputs?.[f.name] || "").trim()) continue;
+    if (covered.has(f.name) || (f.type === "textarea" && anyDocument)) continue;
+    throw new Error(`"${f.label}" is required for this agent.`);
   }
 }
 
@@ -455,11 +483,11 @@ export function assertInputs(agentId, inputs) {
  * `onStage`; the caller runs it in the background and polls. Everything
  * else is one call and returns when it returns.
  */
-export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resume } = {}) {
+export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resume, documents = [] } = {}) {
   const brief = AGENT_BRIEFS[agentId];
   if (!brief) throw new Error("Unknown agent.");
   const { model } = getProvider();
-  assertInputs(agentId, inputs);
+  assertInputs(agentId, inputs, documents);
 
   if (PIPELINE_AGENTS.has(agentId)) {
     return runDiagnostic({
@@ -470,6 +498,7 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
       system: `${brief.system}\n\n${STANDARD}`,
       brief,
       inputs,
+      documents,
       visuals,
       onStage,
       resume,
@@ -483,6 +512,10 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
     })
     .filter(Boolean);
 
+  const documentBlock = (documents || [])
+    .map((d) => `===== DOCUMENT: ${d.name}${d.pages ? ` (${d.pages} pages)` : ""} =====\n${d.text}`)
+    .join("\n\n");
+
   const response = await client().messages.create({
     model,
     max_tokens: 16000,
@@ -490,7 +523,9 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
     messages: [
       {
         role: "user",
-        content: `Run your task on the following inputs. Prepared by ${runBy} — address the output to them for review.\n\n${parts.join("\n\n")}`,
+        content:
+          `Run your task on the following inputs. Prepared by ${runBy} — address the output to them for review.\n\n${parts.join("\n\n")}` +
+          (documentBlock ? `\n\n## The documents supplied with this run\n\n${documentBlock}` : ""),
       },
     ],
   });

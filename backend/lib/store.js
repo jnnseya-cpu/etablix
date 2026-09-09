@@ -20,6 +20,9 @@ const DATA_DIR = process.env.ETABLIX_DATA_DIR
   : path.join(__dirname, "..", "data");
 const DB_FILE = path.join(DATA_DIR, "db.json");
 
+/** Where the big, per-run payloads live. See lib/runstore.js. */
+export const dataDir = () => DATA_DIR;
+
 export function id() {
   return crypto.randomBytes(8).toString("hex");
 }

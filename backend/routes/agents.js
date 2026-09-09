@@ -17,6 +17,7 @@ import { AI_AGENTS } from "../lib/organisation.js";
 import { AGENT_BRIEFS, publicProvider, setProvider, testProvider, runAgent, assertInputs, PIPELINE_AGENTS, DIAGNOSTIC_STAGES } from "../lib/ai.js";
 import { acceptDocuments, UPLOAD_DIR } from "../lib/uploads.js";
 import { extractAll } from "../lib/extract.js";
+import { readPack, savePack, savePass, deletePack, sweepPacks } from "../lib/runstore.js";
 import { visualBlocks, visualPreamble } from "../lib/visual.js";
 
 const router = Router();
@@ -59,12 +60,19 @@ router.post("/provider/test", admin, async (req, res) => {
   res.json({ result, provider: publicProvider() });
 });
 
-/** Keep the run log bounded. */
+/**
+ * Keep the run log bounded — and the packs with it.
+ *
+ * A row that falls off the end takes its document text and its passes
+ * with it, otherwise the disk keeps them for ever for a run nobody can
+ * open any more.
+ */
 function trimLog() {
   const log = collection("agentTasks");
   if (log.length > 300) {
-    log.splice(0, log.length - 300);
+    const dropped = log.splice(0, log.length - 300);
     persist();
+    for (const r of dropped) deletePack(r.id);
   }
 }
 
@@ -87,7 +95,13 @@ async function workPipeline(runId, agent, inputs, runBy, visualFiles = [], resum
     // and real money; losing five of them because the container was recreated
     // mid-run — which a deploy does — is not something to shrug at.
     const patch = { stages, stageKey: key, stageState: state };
-    if (state === "done" && text) patch.passes = { ...(run.passes || {}), [key]: text };
+    if (state === "done" && text) {
+      // The text goes to the run's pack file; the row records only THAT
+      // it landed. Six passes of reasoning inside a row of db.json meant
+      // every unrelated write in the system re-serialised megabytes.
+      savePass(runId, key, text);
+      patch.passesHeld = Object.keys(readPack(runId).passes || {});
+    }
     update("agentTasks", runId, patch);
   };
 
@@ -113,6 +127,7 @@ async function workPipeline(runId, agent, inputs, runBy, visualFiles = [], resum
       onStage: stage,
       visuals: { blocks, preamble: visualPreamble(seen) },
       resume,
+      documents: readPack(runId).documents || [],
     });
     update("agentTasks", runId, {
       output: r.output,
@@ -122,7 +137,10 @@ async function workPipeline(runId, agent, inputs, runBy, visualFiles = [], resum
       notes: r.notes || [],
       status: "awaiting_approval",
       finishedAt: Date.now(),
+      passesHeld: [],
     });
+    // The finished report supersedes the passes it was assembled from.
+    savePack(runId, { passes: {} });
     await emit("agent.run_completed", {
       vars: { item: agent.name, outcome: `finished and is awaiting approval — "${collection("agentTasks").find((x) => x.id === runId)?.title || ""}"` },
     }).catch(() => {});
@@ -144,7 +162,7 @@ export function failOrphanedRuns() {
   let n = 0;
   for (const r of collection("agentTasks")) {
     if (r.status !== "running") continue;
-    const held = Object.keys(r.passes || {}).length;
+    const held = Object.keys(readPack(r.id).passes || {}).length;
     update("agentTasks", r.id, {
       status: "failed",
       interrupted: true,
@@ -175,26 +193,28 @@ export async function startPipelineRun({ agentId, inputs = {}, title, files = []
   const agent = AI_AGENTS.find((a) => a.id === agentId);
   if (!agent) throw new Error("Unknown agent.");
   const merged = { ...inputs };
-  let sources = [], visualFiles = [];
+  let sources = [], visualFiles = [], documents = [];
   if (files.length) {
-    const brief = AGENT_BRIEFS[agent.id];
-    const target = brief?.fields.find((f) => f.type === "textarea" && f.required)?.name
-      || brief?.fields.find((f) => f.type === "textarea")?.name;
-    const { text, files: results } = await extractAll(files);
-    sources = results;
-    if (text && target) {
-      merged[target] = [String(merged[target] || "").trim(), text].filter(Boolean).join("\n\n");
-    }
-    const byName = new Map(results.map((f) => [f.name, f.route]));
+    // The document text is NOT folded into one input field any more. It
+    // used to be appended to `programme` — every document, whatever it
+    // was — while the other seven fields said "Supplied — see the
+    // attached documents". The model was then asked about the layout and
+    // handed a field that said nothing, with the layout drawing buried
+    // in the middle of a programme. Each document now travels as itself,
+    // under the requirement it was supplied against.
+    const out = await extractAll(files);
+    sources = out.files;
+    documents = out.documents;
+    const byName = new Map(out.files.map((f) => [f.name, f.route]));
     visualFiles = files.filter((f) => byName.get(f.originalname || f.filename) === "visual");
   }
-  assertInputs(agent.id, merged);
+  assertInputs(agent.id, merged, documents);
   const run = insert("agentTasks", {
     agent: agent.id,
     agentName: agent.name,
     title: String(title || `${agent.name} — ${new Date().toLocaleDateString("en-GB")}`).slice(0, 140),
     inputs: merged,
-    sources: sources.map((f) => ({ name: f.name, chars: f.chars || 0, pages: f.pages || null, route: f.route || null, error: f.error || null })),
+    sources: sources.map(sourceRow),
     runBy,
     engagementId,
     output: "",
@@ -202,10 +222,33 @@ export async function startPipelineRun({ agentId, inputs = {}, title, files = []
     startedAt: Date.now(),
     stages: DIAGNOSTIC_STAGES.map((st) => ({ ...st, state: "pending" })),
   });
+  savePack(run.id, { documents, passes: {} });
   trimLog();
   workPipeline(run.id, agent, merged, runBy, visualFiles);
   return run;
 }
+
+/**
+ * What the run row records about one source document.
+ *
+ * `stored` and `type` are on it because a resumed run rebuilds the
+ * drawing pages from the files on disk, and without the stored name it
+ * cannot find them: a resumed run then wrote its report having looked at
+ * no drawings at all, and said nothing about it.
+ */
+const sourceRow = (f) => ({
+  name: f.name,
+  chars: f.chars || 0,
+  charsRead: f.charsRead ?? f.chars ?? 0,
+  cut: Boolean(f.cut),
+  pages: f.pages || null,
+  route: f.route || null,
+  field: f.field || null,
+  label: f.label || null,
+  stored: f.stored || null,
+  type: f.type || null,
+  error: f.error || null,
+});
 
 router.post("/:id/run", acceptDocuments, async (req, res) => {
   const agent = AI_AGENTS.find((a) => a.id === req.params.id);
@@ -226,21 +269,17 @@ router.post("/:id/run", acceptDocuments, async (req, res) => {
     // reaches the agent whole rather than as a partial paste.
     let sources = [];
     let visualFiles = [];
+    let documents = [];
     if (req.files?.length) {
-      const brief = AGENT_BRIEFS[agent.id];
-      const target = brief?.fields.find((f) => f.type === "textarea" && f.required)?.name
-        || brief?.fields.find((f) => f.type === "textarea")?.name;
-      const { text, files } = await extractAll(req.files);
-      sources = files;
-      if (text && target) {
-        inputs[target] = [String(inputs[target] || "").trim(), text].filter(Boolean).join("\n\n");
-      }
+      const out = await extractAll(req.files);
+      sources = out.files;
+      documents = out.documents;
       // Drawings, printed programmes and scans do not become text — they
       // are shown to the model as pages. Keep them aside for the pipeline.
-      const byName = new Map(files.map((f) => [f.name, f.route]));
+      const byName = new Map(out.files.map((f) => [f.name, f.route]));
       visualFiles = req.files.filter((f) => byName.get(f.originalname || f.filename) === "visual");
-      const unreadable = files.filter((f) => f.error);
-      if (!text && !visualFiles.length && unreadable.length) {
+      const unreadable = out.files.filter((f) => f.error);
+      if (!documents.length && !visualFiles.length && unreadable.length) {
         return res.status(400).json({ error: `Could not read ${unreadable[0].name}: ${unreadable[0].error}` });
       }
     }
@@ -250,13 +289,7 @@ router.post("/:id/run", acceptDocuments, async (req, res) => {
       agentName: agent.name,
       title: String(req.body?.title || "").trim().slice(0, 140) || `${agent.name} — ${new Date().toLocaleDateString("en-GB")}`,
       inputs,
-      sources: sources.map((f) => ({
-        name: f.name,
-        chars: f.chars || 0,
-        pages: f.pages || null,
-        route: f.route || null,
-        error: f.error || null,
-      })),
+      sources: sources.map(sourceRow),
       runBy: req.user.name,
     };
 
@@ -265,7 +298,7 @@ router.post("/:id/run", acceptDocuments, async (req, res) => {
     // is recorded first, answered immediately, and worked in the
     // background with each pass saved as it lands.
     if (PIPELINE_AGENTS.has(agent.id)) {
-      assertInputs(agent.id, inputs);
+      assertInputs(agent.id, inputs, documents);
       const run = insert("agentTasks", {
         ...common,
         output: "",
@@ -273,13 +306,14 @@ router.post("/:id/run", acceptDocuments, async (req, res) => {
         startedAt: Date.now(),
         stages: DIAGNOSTIC_STAGES.map((st) => ({ ...st, state: "pending" })),
       });
+      savePack(run.id, { documents, passes: {} });
       trimLog();
       res.status(202).json({ run: publicRun(run, true) });
       workPipeline(run.id, agent, inputs, req.user.name, visualFiles);
       return;
     }
 
-    const { output, model, usage, truncated } = await runAgent(agent.id, inputs, req.user.name);
+    const { output, model, usage, truncated } = await runAgent(agent.id, inputs, req.user.name, { documents });
     const run = insert("agentTasks", {
       ...common,
       output,
@@ -288,6 +322,7 @@ router.post("/:id/run", acceptDocuments, async (req, res) => {
       truncated: Boolean(truncated),
       status: "awaiting_approval",
     });
+    savePack(run.id, { documents, passes: {} });
     trimLog();
     res.status(201).json({ run: publicRun(run, true) });
   } catch (err) {
@@ -315,17 +350,26 @@ router.post("/runs/:id/resume", async (req, res) => {
   if (!agent || !PIPELINE_AGENTS.has(agent.id)) {
     return res.status(400).json({ error: "Only a pipeline run can be resumed." });
   }
-  const passes = run.passes || {};
+  const passes = readPack(run.id).passes || {};
   if (!Object.keys(passes).length) {
     return res.status(400).json({ error: "No completed pass was saved from that run — start it again rather than resuming it." });
   }
 
   // The files the run read are still where the portal put them.
   const visualFiles = [];
+  const missingDrawings = [];
   for (const src of run.sources || []) {
     if (src.route !== "visual" && src.kind !== "visual") continue;
-    const full = path.join(UPLOAD_DIR, path.basename(src.stored || ""));
-    if (src.stored && fs.existsSync(full)) visualFiles.push({ originalname: src.name, path: full, mimetype: src.type });
+    const full = src.stored ? path.join(UPLOAD_DIR, path.basename(src.stored)) : null;
+    if (full && fs.existsSync(full)) visualFiles.push({ originalname: src.name, path: full, mimetype: src.type });
+    else missingDrawings.push(src.name);
+  }
+  // A resumed run that quietly looked at no drawings is worse than one
+  // that refuses: the report reads exactly the same and is built on less.
+  if (missingDrawings.length) {
+    return res.status(409).json({
+      error: `The drawings this run read are no longer on disk (${missingDrawings.join(", ")}). Resuming would produce the same report having looked at none of them. Start the run again with the pack.`,
+    });
   }
 
   update("agentTasks", run.id, {
@@ -334,6 +378,7 @@ router.post("/runs/:id/resume", async (req, res) => {
     interrupted: false,
     resumedAt: Date.now(),
     resumedFrom: Object.keys(passes).length,
+    passesHeld: Object.keys(passes),
     stages: (run.stages || []).map((st) => (passes[st.key] ? { ...st, state: "done" } : { ...st, state: "pending" })),
   });
   res.status(202).json({ run: publicRun(collection("agentTasks").find((r) => r.id === run.id), true), resumingFrom: Object.keys(passes).length });
@@ -361,7 +406,13 @@ router.post("/runs/:id/decision", async (req, res) => {
 router.delete("/runs/:id", admin, (req, res) => {
   const row = remove("agentTasks", req.params.id);
   if (!row) return res.status(404).json({ error: "Run not found." });
+  deletePack(row.id);
   res.json({ deleted: true });
 });
+
+/** At boot: drop packs whose run is gone, so the disk follows the log. */
+export function sweepRunPacks() {
+  return sweepPacks(collection("agentTasks").map((r) => r.id));
+}
 
 export default router;

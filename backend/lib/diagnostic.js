@@ -345,6 +345,102 @@ const BUDGET = {
   final: { effort: "high", max: 16000 },
 };
 
+/**
+ * The context guard.
+ *
+ * The prompt grows on every pass: the standard, the client's documents
+ * and the drawings are constant, but the working paper is added after
+ * pass one and every section written is added to the passes after it. By
+ * the last section pass that is the whole report so far. Nothing was
+ * measuring it, so a thick pack simply hit the model's context window
+ * and the API returned a 400 — five completed passes thrown away at the
+ * sixth, with an error message about tokens that told the user nothing
+ * they could act on.
+ *
+ * So it is measured before the call and trimmed to fit, in the order a
+ * person would sacrifice it: the sections already written first (the
+ * pass is told which are missing and that it must not contradict them),
+ * then the tail of the working paper, and only then the client's own
+ * documents — and if it ever comes to that, the run says so in the
+ * report rather than quietly writing a thinner one.
+ *
+ * The estimate is deliberately crude and deliberately pessimistic: 3.4
+ * characters per token against an English average nearer 4, so the guard
+ * trims a little early rather than a little late.
+ */
+export const CONTEXT_TOKENS = Number(process.env.ETABLIX_AI_CONTEXT_TOKENS || 170000);
+const TOKENS_PER_IMAGE = 1700;
+export const estimateTokens = (text) => Math.ceil(String(text || "").length / 3.4);
+
+/** Trim the tail of a block to a token allowance, saying where it was cut. */
+function clip(text, tokens, what) {
+  const marker = `\n\n[${what} WAS CUT HERE to fit the model's context. Everything above is complete. Do not treat the absence of anything below as a finding.]`;
+  const chars = Math.max(0, Math.floor(tokens * 3.4));
+  if (text.length <= chars) return text;
+  return text.slice(0, Math.max(0, chars - marker.length)) + marker;
+}
+
+/**
+ * Fit the parts of one call inside the context window.
+ * Returns the (possibly trimmed) blocks and a note when anything was cut.
+ */
+export function fitContext({ system, inputsBlock, ledgerBlock, priorBlock, task, images = 0, maxOutput = 0, budget = CONTEXT_TOKENS }) {
+  const notes = [];
+  let inputs = inputsBlock || "";
+  let ledger = ledgerBlock || "";
+  let prior = priorBlock || "";
+
+  // What the three variable blocks have to fit inside, once the fixed
+  // parts and the room the answer needs are taken out.
+  const ceiling =
+    budget - estimateTokens(system) - estimateTokens(task) - images * TOKENS_PER_IMAGE - maxOutput;
+  const total = () => estimateTokens(inputs) + estimateTokens(ledger) + estimateTokens(prior);
+  if (total() <= ceiling) return { inputsBlock: inputs, ledgerBlock: ledger || null, priorBlock: prior || null, notes };
+
+  // First sacrifice: the sections already written, then the tail of the
+  // working paper. The client's own documents are never touched while
+  // anything else can go.
+  const room = ceiling - estimateTokens(inputs);
+  if (room > 0) {
+    const ledgerAllowance = Math.min(estimateTokens(ledger), Math.floor(room * 0.66));
+    const priorAllowance = Math.max(0, room - ledgerAllowance);
+    if (estimateTokens(prior) > priorAllowance) {
+      const marker =
+        "\n\n[EARLIER SECTIONS OMITTED to fit the context — you are being shown the most recent ones. Do not repeat or contradict what you cannot see; where you need an earlier section, refer to it by number.]\n\n";
+      // The head, the marker and the tail all count against the
+      // allowance — trimming to the allowance and then adding a
+      // paragraph puts it back over, which then cut the client's
+      // documents by a token for no reason.
+      const chars = Math.floor(priorAllowance * 3.4) - marker.length - 200;
+      if (chars < 400) {
+        prior = "";
+        notes.push("The sections already written were too long to send with this pass, so it was written from the working paper alone. Cross-references between sections may be thinner than usual.");
+      } else {
+        // Keep the MOST RECENT sections: a pass is likeliest to repeat
+        // or contradict the section immediately before it.
+        prior = prior.slice(0, 200) + marker + prior.slice(prior.length - chars);
+        notes.push("Some earlier sections were omitted from the later passes to fit the model's context.");
+      }
+    }
+    if (estimateTokens(ledger) > ledgerAllowance) {
+      ledger = clip(ledger, ledgerAllowance, "THE WORKING PAPER");
+      notes.push("The working paper was too long to send whole and was cut; the report says where.");
+    }
+  } else {
+    prior = "";
+    ledger = "";
+    notes.push("The client's documents alone filled this pass, so the working paper and the sections already written could not be sent with it.");
+  }
+
+  // Last resort. A report written on part of the pack must say so.
+  const forInputs = ceiling - estimateTokens(ledger) - estimateTokens(prior);
+  if (estimateTokens(inputs) > forInputs) {
+    inputs = clip(inputs, Math.max(0, forInputs), "THE CLIENT'S INFORMATION");
+    notes.push("THE CLIENT'S DOCUMENTS DID NOT FIT THE MODEL'S CONTEXT AND WERE CUT. The report is written on part of the pack — say so in the findings, and split the pack across two runs.");
+  }
+  return { inputsBlock: inputs, ledgerBlock: ledger || null, priorBlock: prior || null, notes };
+}
+
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /**
@@ -354,6 +450,54 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
  */
 const TRANSIENT =
   /overloaded|rate.?limit|429|500|502|503|504|529|timeout|timed out|connection error|ETIMEDOUT|ECONNRESET|ECONNREFUSED|EPIPE|ENOTFOUND|EAI_AGAIN|socket hang up|network|fetch failed|aborted/i;
+
+/**
+ * The only errors that mean "this model will not accept the request as
+ * shaped" — the ones a shallower rung can actually fix.
+ *
+ * The old test was `/invalid_request/`, which matches every 400 the API
+ * returns. A run whose key had run out of credit, or whose prompt was
+ * too long, or which named a model the account cannot use, was therefore
+ * "degraded" down four rungs, failed on all of them, and reported the
+ * last and least informative error — while the console told the user
+ * their model did not support extended thinking, which was not true and
+ * sent them looking in the wrong place.
+ */
+const CAPABILITY = /max_tokens|thinking|budget_tokens|adaptive|effort|output_config|temperature|top_p|does not support|not supported|unsupported/i;
+
+/**
+ * Errors no amount of retrying or degrading will fix, and which should
+ * stop the run at once with the provider's own words. Spending four
+ * rungs and twenty retries to arrive at "your credit balance is too low"
+ * wastes ten minutes to say what the first response said.
+ */
+const FATAL = /credit balance|billing|payment required|authentication|invalid x-api-key|permission|not_found_error|model.*(not found|does not exist)|prompt is too long|context.*(too long|window)/i;
+
+/**
+ * What to do about one error, decided in one place so the pipeline and
+ * the tests agree: "wait" (transient — retry it), "degrade" (this model
+ * will not take the request as shaped — try a shallower rung), "stop"
+ * (nothing here is going to change the answer).
+ */
+export function classifyError(err) {
+  const message = String(err?.message || err || "");
+  const status = err?.status ?? err?.statusCode ?? null;
+  if (/declined this request/.test(message)) return "stop";
+  if (FATAL.test(message)) return "stop";
+  if (TRANSIENT.test(message)) return "wait";
+  if ((status === null || status === 400 || status === 422) && CAPABILITY.test(message)) return "degrade";
+  return "stop";
+}
+
+/** How long the provider asked us to wait, if it said. */
+function retryAfterMs(err) {
+  const h = err?.headers?.["retry-after"] ?? err?.headers?.get?.("retry-after");
+  const n = Number(h);
+  if (Number.isFinite(n) && n > 0) return Math.min(n * 1000, 120000);
+  const when = h ? Date.parse(h) : NaN;
+  if (Number.isFinite(when)) return Math.min(Math.max(0, when - Date.now()), 120000);
+  return null;
+}
 
 /**
  * One call, with the fallbacks that stop a provider or model change from
@@ -366,21 +510,28 @@ const TRANSIENT =
  * Transient errors are a separate matter: those are waited out, because
  * losing five completed passes to one busy minute would be absurd.
  */
-async function call(anthropic, { model, system, inputsBlock, visualBlocks, visualNote, ledgerBlock, priorBlock, task, budget, caps }) {
+async function call(anthropic, { model, system, inputsBlock, visualBlocks, visualNote, ledgerBlock, priorBlock, task, budget, caps, deadline = null }) {
+  const started = Date.now();
   // The standard, the written inputs and the drawings are identical
   // across all six passes, and the working paper across the last five,
   // so both spans are cached rather than re-billed every time. Order
   // matters: a breakpoint only helps if everything before it is
   // unchanged, which is why the accumulating sections come last and why
   // the marker sits on the final stable block rather than the first.
+  const fitted = fitContext({
+    system, inputsBlock, ledgerBlock, priorBlock, task,
+    images: visualBlocks?.length || 0,
+    maxOutput: budget.max,
+  });
+
   const content = [];
   if (visualBlocks) {
     content.push({ type: "text", text: visualNote });
     content.push(...visualBlocks);
   }
-  content.push({ type: "text", text: inputsBlock, cache_control: { type: "ephemeral" } });
-  if (ledgerBlock) content.push({ type: "text", text: ledgerBlock, cache_control: { type: "ephemeral" } });
-  if (priorBlock) content.push({ type: "text", text: priorBlock });
+  content.push({ type: "text", text: fitted.inputsBlock, cache_control: { type: "ephemeral" } });
+  if (fitted.ledgerBlock) content.push({ type: "text", text: fitted.ledgerBlock, cache_control: { type: "ephemeral" } });
+  if (fitted.priorBlock) content.push({ type: "text", text: fitted.priorBlock });
   content.push({ type: "text", text: task });
 
   const base = {
@@ -416,8 +567,21 @@ async function call(anthropic, { model, system, inputsBlock, visualBlocks, visua
           res = await anthropic.messages.stream(req).finalMessage();
           break;
         } catch (err) {
-          if (attempt >= 4 || !TRANSIENT.test(String(err?.message || err))) throw err;
-          await sleep(2000 * 2 ** attempt);
+          const message = String(err?.message || err);
+          if (FATAL.test(message)) throw err;
+          // Two ceilings, not one. The attempt count stops a fast
+          // failure looping; the deadline stops a slow one from holding
+          // a pass open all afternoon while each retry waits its turn.
+          const outOfTime = deadline && Date.now() > deadline;
+          if (attempt >= 4 || outOfTime || classifyError(err) !== "wait") {
+            if (outOfTime) throw new Error(`Gave up after ${Math.round((Date.now() - started) / 60000)} minutes of retries: ${message}`);
+            throw err;
+          }
+          // Honour what the provider asked for, when it asked for
+          // something — guessing at the backoff against a rate limit
+          // that has told us the number is how a run gets throttled for
+          // longer than it needed to be.
+          await sleep(retryAfterMs(err) ?? 2000 * 2 ** attempt);
         }
       }
       const text = res.content.filter((b) => b.type === "text").map((b) => b.text).join("\n").trim();
@@ -428,6 +592,7 @@ async function call(anthropic, { model, system, inputsBlock, visualBlocks, visua
       return {
         text,
         model: res.model,
+        contextNotes: fitted.notes,
         truncated: res.stop_reason === "max_tokens",
         degraded: i > 0,
         usage: {
@@ -441,20 +606,46 @@ async function call(anthropic, { model, system, inputsBlock, visualBlocks, visua
       lastErr = err;
       // A refusal is a decision, not a capability problem — do not retry it.
       if (/declined this request/.test(err.message)) throw err;
-      const retryable = /max_tokens|thinking|budget_tokens|adaptive|effort|output_config|not support|invalid_request/i.test(err.message || "");
-      if (!retryable || i === all.length - 1) throw err;
+      if (FATAL.test(String(err?.message || err))) throw err;
+      // Only a 400 about a parameter this ladder actually changes is
+      // worth another rung. Anything else is reported as itself.
+      if (classifyError(err) !== "degrade" || i === all.length - 1) throw err;
+      caps.reason = String(err.message || "").slice(0, 200);
     }
   }
   throw lastErr;
 }
 
-/** The written inputs, laid out once and reused by every pass. */
-function buildInputsBlock(brief, inputs) {
+/**
+ * The written inputs and the client's documents, laid out once and
+ * reused by every pass.
+ *
+ * Every document used to be appended to ONE field — the programme —
+ * while the other seven said "Supplied — see the attached documents". A
+ * pass asked about the site layout was handed a field that said nothing
+ * and a layout drawing buried in the middle of a programme, and the
+ * report then reported no layout constraints. Each document now appears
+ * under the requirement it was supplied against, in its own block, and a
+ * field with a document behind it says which one.
+ */
+export function buildInputsBlock(brief, inputs, documents = []) {
+  const byField = new Map();
+  for (const d of documents) {
+    const key = d.field || "__other";
+    if (!byField.has(key)) byField.set(key, []);
+    byField.get(key).push(d);
+  }
   const parts = brief.fields
     .filter((f) => f.type === "textarea")
     .map((f) => {
       const v = String(inputs?.[f.name] || "").trim();
-      return v ? `### INPUT — ${f.label}\n${v}` : `### INPUT — ${f.label}\n(not provided)`;
+      const docs = byField.get(f.name) || [];
+      const named = docs.length ? `\nDocuments supplied against this requirement: ${docs.map((d) => d.name).join(", ")} — their full text is below.` : "";
+      return v
+        ? `### INPUT — ${f.label}\n${v}${named}`
+        : docs.length
+          ? `### INPUT — ${f.label}\nAnswered by document.${named}`
+          : `### INPUT — ${f.label}\n(not provided)`;
     });
   const who = [
     inputs?.client && `Client: ${inputs.client}`,
@@ -463,7 +654,29 @@ function buildInputsBlock(brief, inputs) {
   ]
     .filter(Boolean)
     .join("\n");
-  return `THE CLIENT'S INFORMATION\n\n${who}\n\nToday's date is ${new Date().toISOString().slice(0, 10)}; every "latest responsible start" and "days remaining" is computed from it.\n\n${parts.join("\n\n")}`;
+  const docBlocks = documents.map((d) => {
+    const against = d.label ? ` — supplied against: ${d.label}` : "";
+    return `===== DOCUMENT: ${d.name}${d.pages ? ` (${d.pages} pages)` : ""}${against} =====\n${d.text}`;
+  });
+
+  // A pass that does not know a document was cut will read the absence
+  // of a clause as the absence of a requirement, and report it as a
+  // finding. So it is told, by name, before it reads any of them.
+  const trimmed = documents.filter((d) => d.cut);
+  if (trimmed.length) {
+    docBlocks.unshift(
+      `===== A NOTE ON WHAT YOU WERE GIVEN =====\n` +
+      `${trimmed.length} of these ${documents.length} documents were too long to send whole and were cut at the point marked inside each one: ` +
+      `${trimmed.map((d) => d.name).join(", ")}. Nothing was dropped and nothing was summarised for you. ` +
+      `Where a finding would have needed the part that was cut, say so rather than inferring it, and never read the absence of something below a cut as evidence that it does not exist.`
+    );
+  }
+
+  return (
+    `THE CLIENT'S INFORMATION\n\n${who}\n\nToday's date is ${new Date().toISOString().slice(0, 10)}; every "latest responsible start" and "days remaining" is computed from it.\n\n` +
+    parts.join("\n\n") +
+    (docBlocks.length ? `\n\n## THE DOCUMENTS THEMSELVES\n\n${docBlocks.join("\n\n")}` : "")
+  );
 }
 
 /**
@@ -473,8 +686,12 @@ function buildInputsBlock(brief, inputs) {
  * as it happens: a run that dies at pass four leaves four passes of work
  * on the record rather than nothing.
  */
-export async function runDiagnostic({ anthropic, model, system, brief, inputs, visuals, onStage, resume = {} }) {
-  const inputsBlock = buildInputsBlock(brief, inputs);
+export async function runDiagnostic({ anthropic, model, system, brief, inputs, documents = [], visuals, onStage, resume = {} }) {
+  const inputsBlock = buildInputsBlock(brief, inputs, documents);
+  // A ceiling on the whole run, not just on one call. Six passes that
+  // each retry patiently can add up to an afternoon, and a run nobody
+  // can see the end of is a run somebody restarts the server to kill.
+  const deadline = Date.now() + Number(process.env.ETABLIX_AI_RUN_MINUTES || 90) * 60 * 1000;
   // Drawings and printed programmes lead, because they are the only part
   // of the pack that has to be looked at, and because they are as stable
   // across the six passes as the written inputs — so they sit inside the
@@ -499,6 +716,7 @@ export async function runDiagnostic({ anthropic, model, system, brief, inputs, v
       );
     }
     if (r.truncated) notes.push(`The "${key}" pass hit the length limit and may be cut off.`);
+    for (const n of r.contextNotes || []) if (!notes.includes(n)) notes.push(n);
   };
 
   // A pass already held from an interrupted run is not paid for twice. The
@@ -513,10 +731,37 @@ export async function runDiagnostic({ anthropic, model, system, brief, inputs, v
   } else {
     await onStage?.({ key: "reconcile", state: "running", index: 0 });
     const ledgerRun = await call(anthropic, {
-      model, system, inputsBlock, visualBlocks, visualNote, task: RECONCILE_TASK, budget: BUDGET.reconcile, caps,
+      model, system, inputsBlock, visualBlocks, visualNote, task: RECONCILE_TASK, budget: BUDGET.reconcile, caps, deadline,
     });
     record(ledgerRun, "reconcile");
     ledger = ledgerRun.text;
+
+    // The working paper is the spine: five passes are written from it,
+    // and the contradictions table is the single most valuable thing in
+    // the engagement. If it hit the output limit it stops MID-TABLE, and
+    // everything downstream was built on a truncated spine while the
+    // report said nothing about it. So it is continued once, from where
+    // it stopped, rather than used as it is.
+    if (ledgerRun.truncated) {
+      const tail = ledger.slice(-4000);
+      const more = await call(anthropic, {
+        model, system, inputsBlock, visualBlocks, visualNote,
+        ledgerBlock: `THE WORKING PAPER SO FAR — it stopped mid-way because it reached the length limit.\n\n${ledger}`,
+        task:
+          `Continue the working paper from exactly where it stopped. The last thing you wrote was:\n\n${tail}\n\n` +
+          `Do not restart, do not repeat a row already written, and do not summarise what is above. ` +
+          `Carry on from the next row of the table you were in the middle of, finish that table, and then write the tables that had not been reached. ` +
+          `Use the same table headings and the same ID series.`,
+        budget: BUDGET.reconcile, caps, deadline,
+      });
+      record(more, "reconcile-continued");
+      ledger = `${ledger}\n\n${more.text}`;
+      // The pass was continued, so the note saying it was cut off is no
+      // longer true — replace it rather than carry both.
+      const cut = notes.findIndex((n) => /^The "reconcile" pass hit the length limit/.test(n));
+      if (cut >= 0) notes.splice(cut, 1);
+      notes.push("The working paper reached the length limit and was continued in a second call — the tables it was cutting off are complete.");
+    }
     await onStage?.({ key: "reconcile", state: "done", index: 0, chars: ledger.length, text: ledger });
   }
 
@@ -534,7 +779,7 @@ export async function runDiagnostic({ anthropic, model, system, brief, inputs, v
       priorBlock: sections.length
         ? `THE SECTIONS ALREADY WRITTEN — stay consistent with them, refer to them by number, and do not repeat their content.\n\n${sections.map((s) => s.text).join("\n\n")}`
         : null,
-      task: pass.task, budget: BUDGET.section, caps,
+      task: pass.task, budget: BUDGET.section, caps, deadline,
     });
     record(r, pass.key);
     sections.push({ key: pass.key, text: r.text });
@@ -552,6 +797,7 @@ export async function runDiagnostic({ anthropic, model, system, brief, inputs, v
     task: FINAL_TASK,
     budget: BUDGET.final,
     caps,
+    deadline,
   });
   record(finalRun, "final");
   await onStage?.({ key: "final", state: "done", index: SECTION_PASSES.length + 1, chars: finalRun.text.length, text: finalRun.text });
