@@ -37,13 +37,27 @@ let CAT = null;
 let ROWS = [];
 let openId = null;
 
-/** The button only appears where the endpoint would accept it. Offering an
-    action that will be refused is a worse experience than not offering it. */
+/** The button appears wherever the endpoint would accept it, and nowhere
+    else. It used to disappear the moment a run existed, which meant a run
+    that failed, hung, or was started against the wrong pack ended the
+    engagement's use of the agent — the endpoint would have taken a second
+    one all along, and there was no way to ask for it. */
 function canRunDiagnostic(e) {
   return e.deliverable === "feasibility"
     && e.checklistState.canStart
-    && (!e.diagnosticRunId || e.diagnosticRunMissing)
     && ["deposit", "in_progress"].includes(e.stage);
+}
+
+/** What the button says, and what it warns before it spends anything. */
+function diagnosticButton(e) {
+  if (!canRunDiagnostic(e)) return "";
+  const again = Boolean(e.diagnosticRunId);
+  const label = !again ? "Run the diagnostic on their pack"
+    : e.diagnosticRunMissing ? "Run the diagnostic again — the earlier run has gone"
+    : e.diagnosticRunning ? "Start another run — the current one has hung"
+    : "Run the diagnostic again on their pack";
+  return `<button class="btn ${again ? "" : "btn-primary"}" data-act="diagnostic"
+    data-again="${again ? "1" : ""}" data-running="${e.diagnosticRunning ? "1" : ""}">${label}</button>`;
 }
 
 const TONE = { enquiry: "warning", agreed: "", information: "warning", ready: "warning", deposit: "warning", in_progress: "ok", decision: "warning", balance: "warning", closed: "approved" };
@@ -125,7 +139,7 @@ function detail() {
     dep ? `<button class="btn" data-act="paid" data-kind="deposit">Deposit ${esc(dep.number)} received</button>` : "",
     bal ? `<button class="btn" data-act="paid" data-kind="balance">Balance ${esc(bal.number)} received</button>` : "",
     e.portalToken ? `<button class="btn" data-act="copy">Copy the client's portal link</button>` : "",
-    canRunDiagnostic(e) ? `<button class="btn btn-primary" data-act="diagnostic">Run the diagnostic on their pack</button>` : "",
+    diagnosticButton(e),
   ].filter(Boolean).join(" ");
 
   const checklist = (e.checklist || []).map((i) => `<tr>
@@ -197,10 +211,14 @@ function detail() {
 
     ${e.diagnosticRunId ? `<div style="border:1.5px solid var(--line,#dcd7cc);border-left:4px solid ${e.diagnosticRunMissing ? "var(--red,#c0392b)" : "var(--orange,#9c7a3c)"};border-radius:8px;padding:14px 16px;margin:14px 0;">
       <b style="font-size:0.92rem;">Diagnostic run</b>
-      <p class="panel-sub" style="margin:4px 0 0;">Handover ${esc(e.handoverDate || "—")} · report due ${esc(e.reportDueDate || "—")} · run <code>${esc(e.diagnosticRunId)}</code>.
+      <p class="panel-sub" style="margin:4px 0 0;">Handover ${esc(e.handoverDate || "—")} · report due ${esc(e.reportDueDate || "—")} · run <code>${esc(e.diagnosticRunId)}</code>${e.diagnosticRunStatus ? ` · ${esc(e.diagnosticRunStatus)}` : ""}.
       ${e.diagnosticRunMissing
         ? `<b>This run is no longer in the run log.</b> It was started, and the record of it has gone — a capped log, or a store restored from before it finished. There is nothing to resume or publish, and the dates above still stand. Run it again on the client's pack; the button is above.`
-        : `Watch it finish under <b>Organisation → AI agents</b>, then publish it from the box above.`}</p>
+        : e.diagnosticRunning
+          ? `It is working now — six passes over the client's pack, several minutes. Watch it under <b>Organisation → AI agents</b>. Do not start another unless it has genuinely stopped moving.`
+          : `Watch it finish under <b>Organisation → AI agents</b>, then publish it from the box above.`}</p>
+      <p class="panel-sub" style="margin:8px 0 0;font-size:0.8rem;">You can run it again at any time — on the same pack, as many times as you need. A new run replaces this one as the engagement's current run; the earlier ones stay in the run log and are listed below. <b>Neither date moves</b>: the handover and the report due date are read from the client's checklist, not from when you pressed the button.</p>
+      ${(e.diagnosticRuns || []).length ? `<p class="panel-sub" style="margin:8px 0 0;font-size:0.8rem;">Superseded: ${e.diagnosticRuns.map((h) => `<code>${esc(h.id)}</code> (${esc(h.status)})`).join(" · ")}</p>` : ""}
     </div>` : ""}
 
     ${block("The client's checklist", wrapT(`<table class="data-table"><thead><tr><th>Item</th><th>State</th><th>Their answer</th><th>Files</th></tr></thead><tbody>${checklist}</tbody></table>`))}
@@ -271,9 +289,19 @@ function wire(body) {
       if (btn.dataset.act === "remind") { const out = await api(`/api/clients/${id}/remind`, { method: "POST" }); note(`Chased ${out.sent} outstanding item(s).`); return; }
       if (btn.dataset.act === "paid") { await api(`/api/clients/${id}/payment-received`, { method: "POST", body: JSON.stringify({ kind: btn.dataset.kind }) }); await loadClients(); return; }
       if (btn.dataset.act === "diagnostic") {
-        const out = await api(`/api/clients/${id}/run-diagnostic`, { method: "POST" });
+        // A run is six passes over the whole pack. Cheap in money and slow
+        // in time, but not free of either — so a repeat is confirmed, and
+        // the confirmation says what is actually about to happen.
+        if (btn.dataset.again && !confirm(btn.dataset.running
+          ? "A run on this engagement is still working. Starting another spends a second set of six passes and replaces it as the engagement's current run. Only do this if it has hung.\n\nStart another run?"
+          : "This starts a fresh run over the client's pack — six passes, several minutes. It becomes the engagement's current run; the existing one stays in the run log. The handover and report dates do not move.\n\nRun it again?")) {
+          btn.disabled = false; return;
+        }
+        const out = await api(`/api/clients/${id}/run-diagnostic`, {
+          method: "POST", body: JSON.stringify({ force: Boolean(btn.dataset.running) }),
+        });
         await loadClients();
-        note(`Diagnostic started on ${out.files} client document(s). Handover ${out.handover}, report due ${out.due}. It runs six passes and takes several minutes — watch it under Organisation → AI agents.`);
+        note(`${out.replaced ? "New run started" : "Diagnostic started"} on ${out.files} client document(s). Handover ${out.handover}, report due ${out.due}. It runs six passes and takes several minutes — watch it under Organisation → AI agents.`);
         return;
       }
       if (btn.dataset.act === "copy") {

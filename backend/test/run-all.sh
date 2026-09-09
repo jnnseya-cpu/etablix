@@ -60,9 +60,20 @@ for t in $SUITES; do
   [ -n "$SOAKDIR" ] && { [ "${KEEP:-0}" = "1" ] || rm -rf "$SOAKDIR"; }
 done
 
-# This one starts, kills and restarts a server of its own — it is about
-# what survives a container being recreated mid-run — so it runs last and
-# on its own port.
+# These start servers of their own — one is about what survives a container
+# being recreated mid-run, the other about running the same engagement's
+# diagnostic more than once — so they run last and on their own ports.
+echo "=== re-run ==="
+printf '  %-28s ' "rerun.e2e"
+RUDATA=$(mktemp -d)
+if ETABLIX_DATA_DIR=$RUDATA PORT=$((PORT + 8)) ANTHROPIC_BASE_URL=http://127.0.0.1:$MOCK_PORT \
+   ANTHROPIC_API_KEY=mock-key node backend/test/rerun.e2e.mjs > "$LOGS/rerun.log" 2>&1; then
+  grep -Eo '[0-9]+ passed' "$LOGS/rerun.log" | tail -1
+else
+  echo "FAILED  → $LOGS/rerun.log"; fail=1
+fi
+[ "${KEEP:-0}" = "1" ] || rm -rf "$RUDATA"
+
 echo "=== interruption ==="
 printf '  %-28s ' "run-resume.e2e"
 RRDATA=$(mktemp -d)

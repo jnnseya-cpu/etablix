@@ -70,9 +70,9 @@ function reference(e) {
  */
 const TRAIL_MAX = 400;
 function trail(existing, entry) {
-  const next = [...(existing || []), entry];
-  return next.length > TRAIL_MAX ? next.slice(next.length - TRAIL_MAX) : next;
+  return trailCap([...(existing || []), entry]);
 }
+const trailCap = (rows) => (rows.length > TRAIL_MAX ? rows.slice(rows.length - TRAIL_MAX) : rows);
 
 /**
  * The money on a stored document row.
@@ -127,6 +127,40 @@ function vatModeOrError(mode, modelId) {
 
 const hasInvoice = (e, kind) => (e.documents || []).some((d) => d.kind === kind);
 
+/**
+ * What the desk needs to know about the diagnostic run, and what it may do next.
+ *
+ * A run id pointing at a run that no longer exists used to block the
+ * engagement for ever: the console hid the button because a run was
+ * started, and there was nothing to open, resume or publish. It happens —
+ * a run log is capped, a store is restored from a moment before the run, a
+ * container dies between the two writes.
+ *
+ * The wider fault was the same shape. The console offered the run once and
+ * never again, so a run that finished badly, died, or was started against
+ * the wrong pack ended the engagement's use of the agent — even though the
+ * endpoint would have accepted a second one all along. The desk can now
+ * always start another; what it is told is what that will cost it.
+ */
+function diagnosticState(e) {
+  const runs = collection("agentTasks");
+  const current = e.diagnosticRunId ? runs.find((r) => r.id === e.diagnosticRunId) : null;
+  const history = (e.diagnosticRuns || []).map((h) => {
+    const row = runs.find((r) => r.id === h.id);
+    return { ...h, status: row ? row.status : "gone", title: row ? row.title : null };
+  });
+  return {
+    diagnosticRunMissing: Boolean(e.diagnosticRunId && !current),
+    diagnosticRunStatus: current ? current.status : null,
+    diagnosticRunStartedAt: current ? current.startedAt || null : null,
+    // Six passes over the client's whole pack is several minutes and real
+    // money. Starting a second while the first is still working is almost
+    // always a mis-click, so it is named as such rather than silently done.
+    diagnosticRunning: current ? current.status === "running" : false,
+    diagnosticRuns: history,
+  };
+}
+
 function decorate(e) {
   const chk = checklistState(e.checklist || []);
   const m = model(e.model);
@@ -154,9 +188,7 @@ function decorate(e) {
     // — a run log is capped, a store is restored from a moment before the
     // run, a container dies between the two writes. The desk is told the
     // truth and offered the re-run.
-    diagnosticRunMissing: Boolean(
-      e.diagnosticRunId && !collection("agentTasks").some((r) => r.id === e.diagnosticRunId)
-    ),
+    ...diagnosticState(e),
     retention: {
       packDueAt: packDueAt(e),
       packErasedAt: e.packErasedAt || null,
@@ -585,6 +617,21 @@ router.post("/:id/run-diagnostic", ...finance, async (req, res) => {
   if (!chk.canStart) {
     return res.status(400).json({ error: `${chk.mandatoryOutstanding} mandatory item(s) are still unanswered. The clock has not started.` });
   }
+
+  // A second run while the first is still working is nearly always a
+  // mis-click, and it costs six more passes over the whole pack. It is
+  // refused with the reason rather than obeyed — but it is refused, not
+  // forbidden: `force` exists because a run can also hang, and the desk
+  // must not need a database edit to get past that.
+  const state = diagnosticState(e);
+  if (state.diagnosticRunning && !req.body?.force) {
+    return res.status(409).json({
+      error: "That diagnostic is still running. Watch it under Organisation → AI agents, or start another anyway if it has hung.",
+      runId: e.diagnosticRunId,
+      running: true,
+    });
+  }
+
   const handover = handoverDate(e);
   if (!handover) return res.status(400).json({ error: "The handover date cannot be read from the checklist. Every mandatory item must carry the date it was answered." });
 
@@ -617,14 +664,33 @@ router.post("/:id/run-diagnostic", ...finance, async (req, res) => {
       files,
     });
     const dates = diagnosticDates(handover);
+    // `e` is the LIVE row — update() mutates it in place — so the id being
+    // replaced is read now, before the write, and not after it. Reading it
+    // afterwards returns the new run and the response says a run replaced
+    // itself, which is how this was first written and what the test caught.
+    const superseded = e.diagnosticRunId || null;
+    // The superseded run is kept, not dropped. Before this, starting again
+    // overwrote the only pointer to the previous one and the earlier report
+    // became unreachable from the engagement that paid for it.
+    const previous = superseded
+      ? trailCap([...(e.diagnosticRuns || []), { id: superseded, supersededAt: Date.now(), by: req.user.name }])
+      : (e.diagnosticRuns || []);
+    // The client's deadline does not move because the desk ran the agent
+    // again. Both dates are derived from the checklist, so they come out
+    // the same — which is the point, and the reason they are recomputed
+    // rather than left alone.
     update("clientEngagements", e.id, {
       diagnosticRunId: run.id,
+      diagnosticRuns: previous,
       handoverDate: handover,
       reportDueDate: dates?.due || null,
-      events: trail(e.events, { at: Date.now(), by: req.user.name, what: "Diagnostic started",
-        detail: `${files.length} client document(s) · handover ${handover} · report due ${dates?.due || "—"}` }),
+      events: trail(e.events, { at: Date.now(), by: req.user.name,
+        what: superseded ? "Diagnostic run again" : "Diagnostic started",
+        detail: `${files.length} client document(s) · handover ${handover} · report due ${dates?.due || "—"}`
+          + (superseded ? ` · replaces run ${superseded}` : "") }),
     });
-    res.status(202).json({ runId: run.id, files: files.length, handover, due: dates?.due || null, engagement: decorate(find(e.id)) });
+    res.status(202).json({ runId: run.id, files: files.length, handover, due: dates?.due || null,
+      replaced: superseded, engagement: decorate(find(e.id)) });
   } catch (err) {
     res.status(502).json({ error: err.message });
   }

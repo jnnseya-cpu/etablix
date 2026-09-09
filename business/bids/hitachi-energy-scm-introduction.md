@@ -43,6 +43,11 @@ costs him one line.
 
 ## 2. The email — written to be forwarded
 
+**He has since given you his work address: Gary.coleman@hitachienergy.com.**
+The send-ready version, with the subject line, the attachment and the checks to
+make before pressing send, is in
+**business/bids/hitachi-energy-email-to-gary.md**.
+
 Gary is going to press forward on this. That means the real audience is a UK
 SCM manager in HVDC who has never heard of you, opening a forwarded message
 with no context. Everything they need is in it, and nothing they do not.
