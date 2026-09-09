@@ -16,6 +16,7 @@
  * MOCK_PORT    port to listen on (default 4199)
  * MOCK_FAIL    "overload" | "400" | "timeout" — fail every call this way
  * MOCK_TRUNCATE "1" truncate every fresh pass once | "always" never finish
+ *               | "ledger" truncate only the working paper, for ever
  */
 import http from "node:http";
 import fs from "node:fs";
@@ -94,9 +95,17 @@ http.createServer((req, res) => {
     // assert the two were joined with nothing between them. Anything
     // that inserts a newline breaks a table row in the real report.
     const continuing = /YOU HAVE ALREADY WRITTEN PART OF THIS/.test(promptText);
+    // MOCK_TRUNCATE=ledger truncates ONLY the working paper, for ever, and
+    // lets every pass that reaches the client's report finish. That is what
+    // a real client pack did: five passes complete, the reconciliation
+    // ledger still going after four attempts.
+    const ledgerOnly = TRUNCATE === "ledger";
+    const isLedger = /working paper|WORKING PAPER/.test(String(task));
     let text = answer(String(task));
     let stopReason = "end_turn";
-    if (TRUNCATE && (!continuing || TRUNCATE === "always")) {
+    if (ledgerOnly) {
+      if (isLedger) { text = text.slice(0, Math.floor(text.length * 0.6)) + "SPLIT-HEAD"; stopReason = "max_tokens"; }
+    } else if (TRUNCATE && (!continuing || TRUNCATE === "always")) {
       text = text.slice(0, Math.floor(text.length * 0.6)) + "SPLIT-HEAD";
       stopReason = "max_tokens";
     } else if (TRUNCATE && continuing) {

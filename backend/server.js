@@ -50,6 +50,17 @@ const root = path.join(__dirname, "..");
 const app = express();
 app.disable("x-powered-by");
 app.set("trust proxy", 1); // correct client IPs behind Caddy/nginx/platform proxies
+// 200kb was sized for an invoice. A Site Systems Diagnostic is twelve
+// deliverables and a reconciliation ledger of sixty-five rows — the first
+// real one ran to several hundred kilobytes of text — and the document
+// studio posts every section as JSON. So the report the client pays for
+// could be produced by the agent and then refused by the body parser on
+// the way to becoming a document, with nothing but "request entity too
+// large" to say why. The larger limit is applied ONLY to the documents
+// API, which is behind authentication; everything else keeps the small
+// one, because a public endpoint accepting megabytes of JSON is a denial
+// of service waiting to be found.
+app.use("/api/docs", express.json({ limit: "12mb" }));
 app.use(express.json({ limit: "200kb" }));
 
 // --- API ---

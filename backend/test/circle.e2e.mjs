@@ -136,6 +136,25 @@ ok(visual.length >= 3, `   ${visual.length} routed to vision (drawings/Gantt), n
   ok(Boolean(d?.documentNumber?.startsWith("SSD-")), `   it carries a real document number: ${d?.documentNumber}`);
 }
 
+// 6b — a real diagnostic is far bigger than an invoice, and the document
+// studio posts every section as JSON. The body limit was 200kb, so a report
+// the agent had produced was refused on the way to becoming a document with
+// nothing but "request entity too large" to explain it.
+{
+  const big = "The reconciliation ledger row. ".repeat(1200); // ~36 KB per section
+  const r2 = await api("/api/docs/generate", { json: {
+    template: "diagnostic",
+    data: {
+      client: "Marrowbridge Infrastructure Ltd", project: "Project NORTHREACH",
+      handover: "2026-09-08", dueDate: "2026-09-22",
+      findings: big, appendix: big,
+      s1: big, s2: big, s3: big, s4: big, s5: big, s6: big,
+      s7: big, s8: big, s9: big, s10: big, s11: big, s12: big,
+    },
+  } }, T);
+  ok(r2.status === 201, "8b. a 500 KB diagnostic is accepted by the document studio, not refused as too large", r2.body);
+}
+
 // 7 — the client reads it, approves, and the balance invoices itself
 r = await api(`/api/clients/portal/${tok}`);
 const issued = r.body.engagement.deliverables.at(-1);

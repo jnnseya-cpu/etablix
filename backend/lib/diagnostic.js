@@ -340,10 +340,31 @@ export const DIAGNOSTIC_STAGES = [
  * summarise what is already written.
  */
 const BUDGET = {
-  reconcile: { effort: "max", max: 32000 },
+  // The working paper gets the model's whole output ceiling. On the first
+  // real client pack it hit 32,000 four times running — roughly 128,000
+  // tokens of reconciliation table and still unfinished — because a
+  // contradictions ledger over eighteen documents is simply long. Four
+  // continuations of 32,000 cost the same as two of 64,000 and produce a
+  // less coherent table, since each continuation re-reads its own tail
+  // rather than holding the whole thing in one pass.
+  reconcile: { effort: "max", max: 64000 },
   section: { effort: "xhigh", max: 32000 },
   final: { effort: "high", max: 16000 },
 };
+
+/**
+ * Which passes end up in the document the client reads.
+ *
+ * The reconcile pass does not. It is the working paper the twelve
+ * deliverables are written from, and the report never contains it. That
+ * distinction matters at the top of the run record: a truncated working
+ * paper means the sections were built on a partial ledger, which is a
+ * depth problem; a truncated section means the report itself stops
+ * mid-sentence, which is a "do not send this" problem. Reporting both as
+ * "output hit the length limit" told the desk its finished report was
+ * cut off when it was whole.
+ */
+const IN_REPORT = new Set(["s1_3", "s4_6", "s7_9", "s10_12", "final"]);
 
 /**
  * The context guard.
@@ -675,11 +696,20 @@ async function complete(anthropic, args, key, record, notes) {
     text += r.text;
   }
 
-  if (r.truncated) {
+  if (r.truncated && IN_REPORT.has(key)) {
     // Loud, and phrased so the desk cannot mistake it for a caveat.
     notes.push(
       `The "${key}" pass is INCOMPLETE. It reached the length limit ${rounds + 1} times and is still cut off, ` +
       `so this part of the report stops before its end. Do not issue it as it stands — re-run with a narrower scope.`
+    );
+  } else if (r.truncated) {
+    // The working paper, and only the working paper. Say what it actually
+    // costs — depth, not completeness — and say plainly that the report is
+    // unaffected, because the desk's next question is whether to send it.
+    notes.push(
+      `The working paper reached the length limit ${rounds + 1} times and stops before its end, so the twelve ` +
+      `deliverables were written from a partial reconciliation ledger and may be less complete than they could be. ` +
+      `THE REPORT ITSELF IS NOT CUT OFF — the working paper is internal and never forms part of it.`
     );
   } else if (rounds) {
     notes.push(
@@ -875,6 +905,9 @@ export async function runDiagnostic({ anthropic, model, system, brief, inputs, d
     // A pass that was continued to the end also mentions the length limit
     // in its note, so this matches the INCOMPLETE note specifically. The
     // old test matched the word and flagged a finished report as cut off.
+    // True only when a pass that REACHES THE REPORT is cut off. A truncated
+    // working paper is reported in the notes and does not raise this flag,
+    // because this flag is what tells the desk the document stops early.
     truncated: notes.some((n) => /pass is INCOMPLETE/.test(n)),
     notes,
     passes: DIAGNOSTIC_STAGES.length,
