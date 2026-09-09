@@ -54,7 +54,7 @@ WAITED=0
 while true; do
   BUSY=$(docker exec "$NAME" wget -qO- http://localhost:3000/api/health 2>/dev/null | grep -o '"busy":true' || true)
   [ -z "$BUSY" ] && break
-  if [ "$WAITED" -ge "${ETABLIX_BUSY_MAX:-3600}" ]; then
+  if [ "$WAITED" -ge "${ETABLIX_BUSY_MAX:-14400}" ]; then
     say "a run has been going for ${WAITED}s — deploying anyway"; break
   fi
   say "an agent run is in progress — deferring"; sleep 60; WAITED=$((WAITED + 60))

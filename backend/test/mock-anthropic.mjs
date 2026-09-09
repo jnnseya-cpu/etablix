@@ -40,7 +40,7 @@ function answer(task) {
   if (/deliverables 7, 8 and 9/.test(task))
     return [sec(7, "Mobilisation constraints", "| Consent | Lead time | Latest start | Applied? |\n|---|---|---|---|\n| Section 278 | 20 weeks | 12 Oct 2026 | No |"), sec(8, "Procurement strategy", "Five bundles."), sec(9, "Preliminary risk register", "| Risk | P | I | Score |\n|---|---|---|---|\n| Access lost | 4 | 5 | 20 |")].join("\n\n");
   if (/deliverables 10, 11 and 12/.test(task))
-    return [sec(10, "Indicative cost structure", "£6.6m – £11.9m across five bundles."), sec(11, "Recommended delivery model", "**Model 02 — Management Integrator.**"), sec(12, "30/60/90-day mobilisation actions", "### First 30 days\n1. Submit the Section 278 application. **Client, with ETABLIX support.**")].join("\n\n");
+    return [sec(10, "Indicative cost structure", "£6.6m – £11.9m across five bundles."), sec(11, "Recommended delivery model", "**Model 02 — Management Integrator.**\n\n## Why Model 02\nNobody owns the space between packages."), sec(12, "30/60/90-day mobilisation actions", "### First 30 days\n1. Submit the Section 278 application. **Client, with ETABLIX support.**")].join("\n\n");
   return "## 0 · FINDINGS IN ONE PARAGRAPH\nThe access date is undeliverable because three consents that must precede it have not been applied for.\n\n## A · Document reconciliation ledger\n| Statement A | Source | Statement B | Source |\n|---|---|---|---|\n| Two-shift from Jan 2028 | Input 1 | Condition 14 prohibits it | Input 7 |";
 }
 

@@ -145,6 +145,17 @@ ok(Boolean(issued?.documentId), "9. the client can see the report in their porta
   const html = await res.text();
   ok(res.status === 200 && /Site Systems Diagnostic/i.test(html), "   and can open it");
   ok(/ten working days|working days/i.test(html), "   the report states the ten-working-day basis");
+  // The agent writes every top-level section title with one or two hashes.
+  // The renderer only matched three or more, so those titles reached the
+  // client as literal "## 0 · FINDINGS IN ONE PARAGRAPH" — a text file with
+  // a letterhead on it rather than a report.
+  ok(!/(^|>)\s*#{1,6}\s/m.test(html.replace(/<style[\s\S]*?<\/style>/g, "")),
+     "   no markdown hash reaches the client's document",
+     (html.match(/#{1,6}\s[^<\n]{0,60}/g) || []).slice(0, 3));
+  ok(/class="rt-h1"[^>]*>Why Model 02</.test(html),
+     "   and a sub-heading written with two hashes becomes a heading, not body text");
+  ok(/ETABLIX<small>INTEGRATED SITE SERVICES/.test(html) && /15405437/.test(html),
+     "   it carries the wordmark and the company particulars — it is issuable as it stands");
 }
 r = await api(`/api/clients/portal/${tok}/decision`, { json: { decision: "approved", name: "Dale Okonjo" } });
 ok(r.status === 200 && r.body.invoice?.net === 4550 && r.body.invoice?.amount === 5460,

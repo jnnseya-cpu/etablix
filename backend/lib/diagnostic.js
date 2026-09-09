@@ -761,10 +761,20 @@ export function buildInputsBlock(brief, inputs, documents = []) {
  */
 export async function runDiagnostic({ anthropic, model, system, brief, inputs, documents = [], visuals, onStage, resume = {} }) {
   const inputsBlock = buildInputsBlock(brief, inputs, documents);
-  // A ceiling on the whole run, not just on one call. Six passes that
-  // each retry patiently can add up to an afternoon, and a run nobody
-  // can see the end of is a run somebody restarts the server to kill.
-  const deadline = Date.now() + Number(process.env.ETABLIX_AI_RUN_MINUTES || 90) * 60 * 1000;
+  // NO TIME LIMIT by default. The run takes as long as the work takes.
+  //
+  // This ceiling only ever governed RETRIES — it never cut a pass short
+  // mid-write — but with continuations a long, honest run can now pass
+  // ninety minutes legitimately, and losing five finished passes to a
+  // clock because the sixth met one busy minute is the wrong trade on a
+  // report somebody is waiting to send a client.
+  //
+  // Nothing runs away as a result: every individual call is still bounded
+  // at five attempts with exponential backoff, and every pass at three
+  // continuations. Set ETABLIX_AI_RUN_MINUTES to put a wall back if a
+  // deployment needs one.
+  const minutes = Number(process.env.ETABLIX_AI_RUN_MINUTES || 0);
+  const deadline = minutes > 0 ? Date.now() + minutes * 60 * 1000 : null;
   // Drawings and printed programmes lead, because they are the only part
   // of the pack that has to be looked at, and because they are as stable
   // across the six passes as the written inputs — so they sit inside the

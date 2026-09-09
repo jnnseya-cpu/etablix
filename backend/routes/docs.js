@@ -724,13 +724,22 @@ function richText(text) {
   const cells = (l) => l.trim().slice(1, -1).split("|").map((c) => inline(c.trim()));
   const isDivider = (l) => /^\s*\|[\s:|-]+\|\s*$/.test(l);
   const isBullet = (l) => /^\s*(?:[-*\u2022]|\d+[.)])\s+/.test(l);
-  const isHeading = (l) => /^\s*#{3,6}\s+\S/.test(l);
+  // One and two hashes were not matched, and the agent writes every
+  // top-level section title with them — "## 10. INDICATIVE COST
+  // STRUCTURE", "## A · DOCUMENT RECONCILIATION LEDGER". They fell
+  // through to the paragraph branch and appeared in the client's
+  // document as literal hashes, which is the difference between a report
+  // and a text file with a letterhead on it.
+  const isHeading = (l) => /^\s*#{1,6}\s+\S/.test(l);
+  const headingLevel = (l) => (l.match(/^\s*(#{1,6})/) || [, "###"])[1].length;
 
   while (i < lines.length) {
     const line = lines[i];
 
     if (isHeading(line)) {
-      out.push(`<h4 class="rt-h">${inline(line.replace(/^\s*#{3,6}\s+/, "").trim())}</h4>`);
+      const level = headingLevel(line);
+      const cls = level <= 2 ? "rt-h1" : "rt-h";
+      out.push(`<h4 class="${cls}">${inline(line.replace(/^\s*#{1,6}\s+/, "").trim())}</h4>`);
       i += 1;
       continue;
     }
@@ -1051,6 +1060,8 @@ export function renderDocument(doc) {
   ul.rt, ol.rt { margin: 8px 0 0; padding-left: 20px; font-size: 13.5px; line-height: 1.65; }
   p.rt-lede { font-size: 13px; color: #5b6672; margin: 0 0 8px; }
   h4.rt-h { font-family: Arial, sans-serif; font-size: 12.5px; letter-spacing: 0.4px; margin: 16px 0 2px; color: #14181d; }
+  h4.rt-h1 { font-family: Arial, sans-serif; font-size: 15px; letter-spacing: 0.2px; margin: 26px 0 8px; padding-bottom: 5px; border-bottom: 1px solid #dcd7cc; color: #14181d; }
+  h4.rt-h1:first-child { margin-top: 4px; }
   ul.rt li, ol.rt li { margin-bottom: 5px; }
   .blk table.lines { font-size: 12.5px; }
   .blk table.lines td, .blk table.lines th { padding-right: 12px; }
