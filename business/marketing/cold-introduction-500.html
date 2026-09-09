@@ -1,0 +1,406 @@
+<title>The 500-Contractor Introduction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f7f5f0;
+    --surface: #fdfcf9;
+    --ink: #1d232a;
+    --muted: #66707c;
+    --gold: #9c7a3c;
+    --gold-soft: #f0e9db;
+    --line: #e2ddd2;
+    --post-bg: #ffffff;
+    --good: #1f7a4d;
+  }
+  :root:not([data-theme="light"]) { }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14181d;
+      --surface: #1b2129;
+      --ink: #e8e5de;
+      --muted: #97a0aa;
+      --gold: #c9a96a;
+      --gold-soft: #2a2418;
+      --line: #2a323d;
+      --post-bg: #10141a;
+      --good: #4cb97f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14181d;
+    --surface: #1b2129;
+    --ink: #e8e5de;
+    --muted: #97a0aa;
+    --gold: #c9a96a;
+    --gold-soft: #2a2418;
+    --line: #2a323d;
+    --post-bg: #10141a;
+    --good: #4cb97f;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Inter", -apple-system, "Segoe UI", sans-serif;
+    font-size: 15.5px;
+    line-height: 1.65;
+    margin: 0;
+    padding: 0 20px 80px;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  h1, h2, h3, .daytag { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; text-wrap: balance; }
+
+  header { padding: 52px 0 8px; }
+  .eyebrow {
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: 0.82rem; font-weight: 700; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold); margin: 0 0 10px;
+  }
+  h1 { font-size: 3rem; font-weight: 800; line-height: 1.02; margin: 0 0 14px; letter-spacing: -0.01em; }
+  .intent { color: var(--muted); max-width: 58ch; margin: 0; }
+
+  .weekbar {
+    display: flex; flex-wrap: wrap; gap: 0;
+    border: 1px solid var(--line); background: var(--surface);
+    margin: 30px 0 0; border-radius: 4px; overflow: hidden;
+  }
+  .weekbar div { flex: 1 1 140px; padding: 16px 20px; border-right: 1px solid var(--line); }
+  .weekbar div:last-child { border-right: 0; }
+  .weekbar b {
+    display: block; font-family: "Barlow Condensed", sans-serif;
+    font-size: 1.5rem; font-weight: 700; line-height: 1.1;
+  }
+  .weekbar span { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  section { margin-top: 52px; }
+  h2 {
+    font-size: 1.85rem; font-weight: 700; margin: 0 0 6px;
+    padding-top: 18px; border-top: 2px solid var(--ink);
+  }
+  .h2sub { color: var(--muted); margin: 0 0 22px; max-width: 60ch; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 10px 14px 10px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 700;
+    font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+  }
+  td:first-child { white-space: nowrap; font-weight: 600; padding-right: 22px; font-variant-numeric: tabular-nums; }
+  .tscroll { overflow-x: auto; }
+
+  .day { margin-top: 44px; border: 1px solid var(--line); background: var(--surface); border-radius: 4px; }
+  .dayhead {
+    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+    padding: 18px 26px 14px; border-bottom: 1px solid var(--line);
+  }
+  .daytag {
+    font-size: 0.85rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--gold);
+  }
+  .dayhead h3 { font-size: 1.55rem; font-weight: 700; margin: 0; flex: 1; }
+  .daytime { font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .daybody { padding: 20px 26px 26px; }
+  .daybody p { margin: 0 0 14px; }
+  .why { color: var(--muted); font-size: 0.95rem; }
+  .why b { color: var(--ink); }
+
+  .postblock { position: relative; margin: 18px 0 6px; }
+  .postlabel {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: "Barlow Condensed", sans-serif; font-size: 0.8rem; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .copybtn {
+    font-family: "Inter", sans-serif; font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 0.04em; text-transform: none;
+    background: none; border: 1px solid var(--gold); color: var(--gold);
+    padding: 4px 14px; border-radius: 3px; cursor: pointer;
+  }
+  .copybtn:hover, .copybtn:focus-visible { background: var(--gold-soft); outline: none; }
+  .copybtn.done { border-color: var(--good); color: var(--good); }
+  pre.post {
+    margin: 0; padding: 20px 22px;
+    background: var(--post-bg); border: 1px solid var(--line);
+    border-left: 3px solid var(--gold); border-radius: 3px;
+    font-family: "Inter", sans-serif; font-size: 0.93rem; line-height: 1.65;
+    white-space: pre-wrap; overflow-x: auto;
+  }
+  .after {
+    margin-top: 16px; padding: 14px 18px;
+    background: var(--gold-soft); border-radius: 3px; font-size: 0.9rem;
+  }
+  .after b { font-family: "Barlow Condensed", sans-serif; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.82rem; }
+  .after ul { margin: 6px 0 0; padding-left: 18px; }
+  .after li { margin: 3px 0; }
+  .visual { font-size: 0.9rem; color: var(--muted); margin-top: 12px; }
+  .visual b { color: var(--ink); }
+
+  .rules { list-style: none; margin: 0; padding: 0; counter-reset: r; }
+  .rules li {
+    padding: 13px 0 13px 40px; border-bottom: 1px solid var(--line);
+    position: relative; counter-increment: r;
+  }
+  .rules li::before {
+    content: counter(r);
+    position: absolute; left: 0; top: 13px;
+    font-family: "Barlow Condensed", sans-serif; font-weight: 800; font-size: 1.15rem;
+    color: var(--gold); font-variant-numeric: tabular-nums;
+  }
+  .rules b { font-weight: 600; }
+
+  a { color: var(--gold); }
+  footer { margin-top: 60px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.85rem; }
+  @media (max-width: 560px) {
+    h1 { font-size: 2.3rem; }
+    .dayhead, .daybody { padding-left: 18px; padding-right: 18px; }
+  }
+
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.9em; background: var(--gold-soft); padding: 1px 5px; border-radius: 3px; }
+</style>
+
+<div class="wrap">
+<header>
+  <p class="eyebrow">ETABLIX &middot; Part of Groupe Nseya</p>
+  <h1>500 addresses, one job: get forwarded</h1>
+  <p class="intent">Almost none of these inboxes belongs to the person who buys this. A switchboard address and a recruitment address have one thing in common &mdash; whoever reads them decides in four seconds whether to forward or delete, and they cannot buy anything either way. So the first email is not a pitch. Its entire job is to name the person it needs to reach clearly enough that a stranger can forward it without thinking. The pitch is the second email, and it goes to a named person who is expecting it.</p>
+  <div class="weekbar">
+    <div><b>Email 1</b><span>Reception &middot; forward me</span></div>
+    <div><b>Email 2</b><span>The named person</span></div>
+    <div><b>Email 3</b><span>One follow-up, then stop</span></div>
+    <div><b>40 a day</b><span>Not 500 at once</span></div>
+  </div>
+</header>
+
+<section>
+  <h2>Before you send one of them</h2>
+  <p class="h2sub">Two of these will decide whether the other 500 words are ever read.</p>
+  <ul class="rules">
+    <li><b>Fix the DKIM keys first.</b> The domain currently publishes selector records that no longer sign anything. Sending 500 cold emails from a domain whose signatures fail is not a deliverability inconvenience &mdash; it is how a young domain gets classified as a spam source permanently, and it takes months to undo. Send nothing to this list until a test message to a Gmail address shows <span class="mono">dkim=pass spf=pass dmarc=pass</span> in the raw headers.</li>
+    <li><b>Send from the company domain, never from a free mailbox.</b> A message about construction commercial risk from a gmail.com address answers the credibility question before the reader reaches the second line, and answers it the wrong way.</li>
+    <li><b>Forty a day, by hand or by staged send.</b> A new domain that emits 500 messages in an hour is indistinguishable from a compromised one. Four hundred a fortnight arrives; five hundred in one morning does not.</li>
+    <li><b>Skip the recruitment inboxes, or send them the two-line version.</b> Business development into a recruitment queue is the fastest route to a spam complaint, and a complaint costs more than the address is worth. Where <span class="mono">recruitment@</span> is the only address you hold, use the short variant below and expect nothing.</li>
+    <li><b>No attachment, one link.</b> An attachment from an unknown sender is filtered before a person sees it. One plain link to etablix.com is enough; a person who wants the detail will click it.</li>
+    <li><b>Every message carries the legal footer and a real way to opt out.</b> Corporate addresses at limited companies may lawfully be emailed for business purposes under PECR, and that permission depends on an unsubscribe route that works and a sender who is identified. Both are in the footer below. Honour an opt-out the day it arrives and remove the address from the file, not just from the next send.</li>
+    <li><b>Record who asked to be left alone.</b> One list, one column, checked before every send. Emailing somebody twice after they have said no is the only thing on this page that turns a marketing decision into a regulatory one.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Email 1 &mdash; the one reception reads</h2>
+  <p class="h2sub">Under 150 words. It has to fit on one phone screen, because that is where it will be read and forwarded from. Notice that it asks for a redirection, not a meeting: the person reading it can give you a redirection.</p>
+
+  <div class="day">
+    <div class="dayhead">
+      <span class="daytag">Subject line</span>
+      <h3>Pick one and keep it for the whole list</h3>
+      <span class="daytime">A/B on the first 100</span>
+    </div>
+    <div class="daybody">
+      <div class="postblock">
+        <div class="postlabel"><span>Option A &mdash; the redirection</span><button class="copybtn">Copy</button></div>
+        <pre class="post">For whoever prices site setup on your major bids</pre>
+      </div>
+      <div class="postblock">
+        <div class="postlabel"><span>Option B &mdash; the question</span><button class="copybtn">Copy</button></div>
+        <pre class="post">Who owns site establishment pricing at bid stage?</pre>
+      </div>
+      <div class="postblock">
+        <div class="postlabel"><span>Option C &mdash; the plainest</span><button class="copybtn">Copy</button></div>
+        <pre class="post">Please forward: pre-construction / site infrastructure</pre>
+      </div>
+      <p class="why"><b>Why these work in a switchboard inbox.</b> None of them says who you are, because the reader does not care yet. Each one names a department, which is the only decision the reader has to make. Avoid anything that reads as a service offer &mdash; "introducing", "our services", "partnership opportunity" &mdash; because those are the words the delete key is trained on.</p>
+    </div>
+  </div>
+
+  <div class="day">
+    <div class="dayhead">
+      <span class="daytag">Body</span>
+      <h3>The forwardable email</h3>
+      <span class="daytime">142 words</span>
+    </div>
+    <div class="daybody">
+      <div class="postblock">
+        <div class="postlabel"><span>Send as plain text</span><button class="copybtn">Copy</button></div>
+<pre class="post">Hello,
+
+Could you please forward this to whoever owns site setup and temporary works at bid stage — pre-construction, work winning, or the commercial lead on major projects. It is not a recruitment enquiry and I am not selling labour.
+
+I was a construction subcontract manager at GE Vernova, on EPC and turnkey projects across the UK, Ireland and Europe, where the civils, the site management and the site infrastructure sat inside our own contract. The site establishment number in those bids was always built at speed, from client documents that did not agree with each other, by engineers who had other work on.
+
+ETABLIX does that one piece of work properly, as a fixed-fee report in ten working days.
+
+If you can tell me the right name, I will take it from there and stop emailing this address.
+
+Thank you,</pre>
+      </div>
+      <p class="why"><b>What each part is doing.</b> The first line is an instruction a stranger can act on. The second sentence closes down the two wrong assumptions a reception desk makes about an unknown sender &mdash; agency and recruiter &mdash; before either has time to form. The credential is one clause, not a paragraph, and it is a job title at a named employer rather than an adjective. The last line is the part that gets it forwarded: you have offered to go away, which is the only thing that inbox actually wants.</p>
+      <div class="after">
+        <b>The two-line variant for recruitment@ addresses</b>
+        <ul>
+          <li>Subject: <span class="mono">Wrong department &mdash; please redirect</span></li>
+          <li>Body: <span class="mono">This is not a recruitment enquiry. Could you pass it to whoever owns site setup and temporary works pricing at bid stage? I will not email this address again. Thank you.</span> Then the footer.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Email 2 &mdash; the one that has to earn ten minutes</h2>
+  <p class="h2sub">This goes to a person whose name you have been given, or who replied. It is longer because it has been asked for. It still fits on one screen and a half.</p>
+
+  <div class="day">
+    <div class="dayhead">
+      <span class="daytag">Subject line</span>
+      <h3>Use their own words back</h3>
+      <span class="daytime">Reply-to-thread where possible</span>
+    </div>
+    <div class="daybody">
+      <div class="postblock">
+        <div class="postlabel"><span>If reception gave you the name</span><button class="copybtn">Copy</button></div>
+        <pre class="post">Passed on by your front desk — site establishment pricing</pre>
+      </div>
+      <div class="postblock">
+        <div class="postlabel"><span>If they replied themselves</span><button class="copybtn">Copy</button></div>
+        <pre class="post">The site setup number, and where it comes from</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="day">
+    <div class="dayhead">
+      <span class="daytag">Body</span>
+      <h3>Model 01 &middot; Advisory &mdash; the Site Systems Diagnostic</h3>
+      <span class="daytime">290 words</span>
+    </div>
+    <div class="daybody">
+      <div class="postblock">
+        <div class="postlabel"><span>Send as plain text</span><button class="copybtn">Copy</button></div>
+<pre class="post">Dear [First name],
+
+Thank you for taking this. I will be direct about what it is.
+
+On every major bid, somebody has to say what it costs to establish and run the site: the enabling civils, the compound, the temporary power and water, the welfare, the logistics, the accommodation where the labour cannot travel daily. That number is usually built in a fortnight, from a client information pack whose documents were written months apart by different people who have never read them side by side. The programme says one thing, the planning conditions say another, and the utility lead times say the access date was undeliverable before anybody priced it.
+
+Nobody inside the bid has time to read all eight documents against each other. That is the whole of what we do.
+
+The Site Systems Diagnostic is a fixed-fee report delivered in ten working days from the day your information pack lands. Twelve deliverables: the package map, the scope gaps, the interface matrix, the workforce and welfare demand, the temporary utilities load, the mobilisation constraints with every consent worked backwards from your own dates, the procurement strategy, the risk register, an indicative cost structure and the first ninety days of actions with owners. The appendix is a reconciliation ledger — which of your own documents contradict which, with both sources quoted.
+
+It is yours to keep whatever you do next. There is no retainer behind it and nothing to sign beyond the engagement itself.
+
+If it is useful, the honest test is a live one: give it a bid you are pricing now, or a project about to mobilise, and judge it on whether the first two pages tell you something your team had not already found.
+
+Ten minutes on a call, or send me the project and I will tell you whether it is worth doing.
+
+Kind regards,</pre>
+      </div>
+      <p class="why"><b>Why this is the persuasive one.</b> It never claims to be better than their team. It claims to do a thing their team demonstrably has no time to do, and it names the thing precisely enough that the reader recognises their own last bid in it. The reconciliation ledger is the sentence that sells: it is the one deliverable a main contractor cannot produce internally at bid stage, and every commercial manager who has been surprised on site knows exactly what it would have been worth.</p>
+      <div class="after">
+        <b>Two things to keep out of it</b>
+        <ul>
+          <li><b>No price.</b> The fee follows the pack and the project. Naming one in a cold email invites a comparison against a number they have in their head for a document, and this is not a document.</li>
+          <li><b>No client names and no case study.</b> You have not delivered one under this banner yet. Say what the work is; never imply a track record you cannot evidence. The credibility here is the job you did, and that is real.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Email 3 &mdash; the single follow-up</h2>
+  <p class="h2sub">Seven working days later, once, to people who did not reply. Then stop and leave them alone. A second chase on a cold list buys nothing and costs the domain.</p>
+  <div class="day">
+    <div class="daybody">
+      <div class="postblock">
+        <div class="postlabel"><span>Reply in the same thread &mdash; no new subject</span><button class="copybtn">Copy</button></div>
+<pre class="post">Hello [First name],
+
+Bringing this back once, in case it arrived in a bad week.
+
+The offer is narrow: one fixed-fee report, ten working days, on a live bid or a project about to mobilise, telling you where your own information pack disagrees with itself before it costs you anything on site.
+
+If it is not for you, a one-line no is genuinely useful and I will close the file.
+
+Kind regards,</pre>
+      </div>
+      <p class="why"><b>Why "a one-line no is useful" belongs in it.</b> It gives a busy reader the cheapest possible action, and the reply rate to a request for a no is higher than the reply rate to a request for a meeting. Every no you collect also cleans the list, which is worth more than the send.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>The footer, on every one of them</h2>
+  <p class="h2sub">Identification and an opt-out are what make a business-to-business send lawful and what make a reader trust the sender. Fill in the two bracketed lines and never send without it.</p>
+  <div class="postblock">
+    <div class="postlabel"><span>Signature block</span><button class="copybtn">Copy</button></div>
+<pre class="post">[Your name]
+[Your title] · ETABLIX — Integrated Site Services
+[phone] · [name]@etablix.com · etablix.com
+
+ETABLIX is a trading name of JNN GLOBAL LTD, registered in England and Wales,
+company number 15405437. Registered office: Birmingham B44 8DJ.
+Part of Groupe Nseya.
+
+You are receiving this at a published business address. Reply with "no thank you"
+and I will remove it and not contact you again.</pre>
+  </div>
+</section>
+
+<section>
+  <h2>What to do with the replies</h2>
+  <p class="h2sub">The reason for sending these in batches of forty is that forty is the number you can answer properly the same day.</p>
+  <div class="tscroll">
+  <table>
+    <thead><tr><th>What comes back</th><th>What it means</th><th>What you do, the same day</th></tr></thead>
+    <tbody>
+      <tr><td>A name and an address</td><td>Reception did its job</td><td>Send Email 2 within the hour, addressed to the person, and say who passed it on.</td></tr>
+      <tr><td>&ldquo;Send us your details&rdquo;</td><td>A polite filing exercise</td><td>Send Email 2 anyway, then ask one question: which live bid would you test it on? A question restarts a conversation that a brochure ends.</td></tr>
+      <tr><td>&ldquo;We do this in-house&rdquo;</td><td>The commonest answer, and the honest one</td><td>Agree, then narrow it: ask whether anyone reads the eight documents against each other before the number goes in. That is the gap, and they know it.</td></tr>
+      <tr><td>&ldquo;Register on our portal&rdquo;</td><td>Supply-chain routing, not a rejection</td><td>Register where it is free. Never pay to be listed. Then reply to the person as well &mdash; a portal record is not a conversation.</td></tr>
+      <tr><td>A no</td><td>A cleaned list</td><td>Remove the address that day and write it down. Thank them in one line.</td></tr>
+      <tr><td>Nothing</td><td>The normal outcome</td><td>One follow-up at seven working days, then stop.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="after">
+    <b>What good looks like on 500 cold addresses</b>
+    <ul>
+      <li>Most will never be read by the right person. That is the arithmetic of a switchboard list, not a failure of the writing.</li>
+      <li>Ten to twenty redirections to a named person is a good return, and those names are the asset &mdash; they outlast this campaign.</li>
+      <li>One or two conversations that reach a live bid is what pays for the whole exercise, because the first paid diagnostic is also the first reference.</li>
+    </ul>
+  </div>
+</section>
+
+<footer style="margin:56px 0 40px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:0.88rem;">
+  ETABLIX &mdash; Integrated Site Services &middot; a trading name of JNN GLOBAL LTD (15405437), Birmingham B44 8DJ &middot; part of Groupe Nseya.
+</footer>
+</div>
+
+<script>
+  document.querySelectorAll(".copybtn").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const pre = btn.closest(".postblock").querySelector("pre.post");
+      const text = pre.textContent;
+      let ok = false;
+      try { await navigator.clipboard.writeText(text); ok = true; } catch (e) {
+        try {
+          const range = document.createRange();
+          range.selectNodeContents(pre);
+          const sel = getSelection();
+          sel.removeAllRanges(); sel.addRange(range);
+          ok = document.execCommand("copy");
+          sel.removeAllRanges();
+        } catch (e2) { ok = false; }
+      }
+      btn.textContent = ok ? "Copied" : "Select & copy manually";
+      btn.classList.toggle("done", ok);
+      setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove("done"); }, 2200);
+    });
+  });
+</script>

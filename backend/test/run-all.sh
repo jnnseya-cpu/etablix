@@ -47,11 +47,17 @@ SUITES="money.e2e clientflow.e2e enquiry-to-engagement.e2e portal-promises.e2e u
 [ "${SOAK:-0}" = "1" ] && SUITES="$SUITES soak.e2e"
 for t in $SUITES; do
   printf '  %-28s ' "$t"
-  if BASE=http://localhost:$PORT DATA="$DATA" MOCK_LOG="$LOGS/mock-log.json" node "backend/test/$t.mjs" > "$LOGS/$t.log" 2>&1; then
-    grep -Eo '[0-9]+ passed' "$LOGS/$t.log" | tail -1
+  # The soak starts and kills servers of its own, so it gets its own
+  # scratch directory rather than sharing the one in flight.
+  SOAKDIR=""
+  [ "$t" = "soak.e2e" ] && SOAKDIR=$(mktemp -d)
+  if BASE=http://localhost:$PORT DATA="$DATA" MOCK_LOG="$LOGS/mock-log.json" \
+     ETABLIX_DATA_DIR="${SOAKDIR:-$DATA}" node "backend/test/$t.mjs" > "$LOGS/$t.log" 2>&1; then
+    grep -Eo '[0-9]+ (passed|full circles)' "$LOGS/$t.log" | tail -1
   else
     echo "FAILED  → $LOGS/$t.log"; fail=1
   fi
+  [ -n "$SOAKDIR" ] && { [ "${KEEP:-0}" = "1" ] || rm -rf "$SOAKDIR"; }
 done
 
 # This one starts, kills and restarts a server of its own — it is about

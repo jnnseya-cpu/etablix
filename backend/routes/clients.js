@@ -642,15 +642,27 @@ const portal = (req, res) => {
  * hundred requests a minute.
  */
 const portalGate = [
+  // Two limits. The link is the first one, because a portal is one
+  // client answering one checklist: two a second on a single link is
+  // already far more than a person, and counting per link means several
+  // clients behind one corporate proxy never share an allowance. The
+  // address is the second, set high enough that only a machine meets it.
   rateLimit({
-    name: "portal",
+    name: "portal-link",
     windowMs: 60_000,
-    // Four a second, sustained. A client working down a fourteen-item
-    // checklist with a document on each line never comes close; a script
-    // filling the disk does so in the first second. The ceiling is set
-    // where it stops the second without ever meeting the first.
-    max: 240,
+    max: Number(process.env.ETABLIX_PORTAL_LINK_RATE_PER_MIN || 120),
+    keyOf: (req) => String(req.params.token || "").slice(0, 64),
     message: "Too many requests on this portal link. Wait a minute and try again.",
+  }),
+  rateLimit({
+    name: "portal-net",
+    windowMs: 60_000,
+    // Configurable because the right number depends on the deployment:
+    // several hundred people behind one corporate address is a different
+    // shape from one client on a broadband line. The default is set for
+    // the second and is far above any real client.
+    max: Number(process.env.ETABLIX_PORTAL_RATE_PER_MIN || 600),
+    message: "Too many portal requests from this address. Wait a minute and try again.",
   }),
   (req, res, next) => {
     if (!byToken(req.params.token)) {

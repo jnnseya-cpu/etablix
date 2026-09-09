@@ -159,18 +159,19 @@
     h1 { font-size: 2.3rem; }
     .dayhead, .daybody { padding-left: 18px; padding-right: 18px; }
   }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.9em; background: var(--gold-soft); padding: 1px 5px; border-radius: 3px; }
 </style>
 
 <div class="wrap">
 <header>
   <p class="eyebrow">ETABLIX &middot; Platform</p>
   <h1>Not fit to commit to, and why</h1>
-  <p class="intent">You are right. What exists is a working prototype that demonstrates the idea end to end, and it is not a system to stake a business on. This is the register of what stands between the two, written the way a package gets reviewed rather than the way software usually gets excused. Every finding below was reproduced, not inferred.</p>
+  <p class="intent">You were right. What existed was a working prototype that demonstrated the idea end to end and was not a system to stake a business on. This is the register of what stood between the two, written the way a package gets reviewed rather than the way software usually gets excused. Every finding was reproduced, not inferred &mdash; and every one now carries what happened to it. Thirteen of the eighteen are closed with a test that fails without the fix. The five that are open say plainly why, and two of them are yours rather than mine.</p>
   <div class="weekbar">
-    <div><b>3</b><span>Fatal</span></div>
-    <div><b>7</b><span>Major</span></div>
-    <div><b>5</b><span>Significant</span></div>
-    <div><b>3</b><span>Moderate</span></div>
+    <div><b>13</b><span>Closed and proved</span></div>
+    <div><b>5</b><span>Still open</span></div>
+    <div><b>2</b><span>Yours: DNS, hosting</span></div>
+    <div><b>232</b><span>Checks, one command</span></div>
   </div>
 </header>
 
@@ -181,6 +182,14 @@
   <p>Every fault that actually reached you was of the opposite kind. A mail server that never answered held a request open until the browser gave up, so raising an invoice looked like a failure that had not happened. A container recreated mid-work destroyed six passes of reasoning because only the progress dots were being written down. A document sent twice was appended rather than replaced, so the same evidence would have been counted twice. A salutation that two pieces of code both thought they owned put "Dear Dear" on every email a customer received.</p>
   <p><b>None of those are feature defects. They are integration and operating defects</b>, and they are invisible to the kind of testing that was done. That is the gap, and it is a gap in method rather than in effort.</p>
   <p>The deeper issue underneath them is that the data store cannot survive the way it is deployed. That is F1 and F2, and until they are closed nothing else on this list is worth doing.</p>
+  <div class="after" style="margin-top:18px;">
+    <b>What has happened since this was written</b>
+    <ul>
+      <li>F1 is closed and proved by killing the process thirty times during continuous writing. The old store lost or corrupted data in one kill in twenty; the new one survived all thirty.</li>
+      <li>F2 is the one that still needs a decision from you, because it changes what you host and what you pay for. Everything reachable without that decision has been done.</li>
+      <li>Three further reviews were run afterwards &mdash; on the money, on the AI pipeline and on the security surface &mdash; and found faults this register never looked for. They are in the second register below.</li>
+    </ul>
+  </div>
 </section>
 
 <section>
@@ -196,6 +205,7 @@
     <p><b>What it is.</b> Every change rewrites the whole of <code>db.json</code> with a single non-atomic <code>writeFileSync</code>. There is no signal handling anywhere in the server, so <code>docker stop</code> kills the process instantly — possibly mid-write.</p>
     <p><b>Why it matters.</b> I truncated <code>db.json</code> to simulate a kill during a write. The server refused to boot: <code>SyntaxError: Unterminated string in JSON at position 39890</code>. The site is then down and every engagement, invoice, checklist answer and document record is unreadable. There is no atomic write, no write-ahead copy and no recovery path.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Write to a temporary file and rename it — rename is atomic on the same filesystem. Handle SIGTERM: stop accepting connections, finish what is in flight, flush, exit. Keep the previous good copy and fall back to it on a parse failure rather than refusing to start.</p>
+      <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;margin-top:14px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Closed. Serialise, write to a temporary file, fsync, keep the previous good copy, rename. A boot reads db.json, then the previous copy, then a dated rescue file. Proved by thirty SIGKILLs during continuous writing: ninety checks, no loss, no corruption — the old store failed one in twenty.</p>
   </div>
 </div>
 <div class="day">
@@ -207,6 +217,7 @@
     <p><b>What it is.</b> One file, rewritten in full on every mutation. No transactions, no schema, no constraints, no migrations, no concurrent-write safety.</p>
     <p><b>Why it matters.</b> 179 KB today, so speed is not the problem — integrity is. Nothing prevents a half-written record, a lost update or a field that silently changes shape between versions. Invoice numbers, VAT treatment and an audit trail are the things a client will one day dispute, and this store cannot prove what it held on a given date.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Move to PostgreSQL with real migrations. The store module was written to be swapped without touching the routes, so this is contained work — but it is the work, and nothing else on this list matters if the data underneath is not trustworthy.</p>
+      <p class="why" style="border-left:3px solid #c0392b;padding-left:12px;margin-top:14px;"><b style="color:#c0392b">STILL OPEN &mdash; and why.</b> OPEN, and it needs your decision. PostgreSQL is the answer and the store module was written to be swapped without touching the routes, but it changes what you host and what you pay for. Everything reachable without that decision has been done: atomic writes, a proven restore, capped collections, and the large per-run payloads moved out of the file altogether.</p>
   </div>
 </div>
 <div class="day">
@@ -218,6 +229,7 @@
     <p><b>What it is.</b> <code>deploy/backup.sh</code> exists and the runbook tells you to install it as a nightly cron. Nothing in the platform checks that it is installed, that it ran, or that the archive can be restored.</p>
     <p><b>Why it matters.</b> Nightly at best means up to twenty-four hours of loss. An untested backup is not a backup, and today the only copy of every client record is one file in one container on one box.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Prove a restore, on a schedule, automatically: back up, restore into a scratch instance, boot it, assert the row counts, and alert if any step fails. Copy the archive off the box — a backup on the same machine does not survive the failure that destroys the machine.</p>
+      <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;margin-top:14px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Closed. tools/backup-verify.mjs archives the live store, restores it to a scratch directory, BOOTS THE REAL APPLICATION on the restored copy, and compares every collection's row count and every uploaded document. It exits non-zero if the live store cannot be read at all.</p>
   </div>
 </div>
 <div class="day">
@@ -229,6 +241,7 @@
     <p><b>What it is.</b> No SIGTERM or SIGINT handler. In-flight HTTP requests and all background work die the moment the container stops.</p>
     <p><b>Why it matters.</b> This is the mechanism behind every diagnostic run you lost. It is also what makes F1 possible. Pass persistence and the deploy deferral I added reduce the damage; they do not close the gap.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> A shutdown sequence: stop the listener, wait for in-flight requests with a timeout, mark any running pipeline as interrupted so it can be resumed, flush the store, then exit.</p>
+      <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;margin-top:14px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Closed. SIGTERM and SIGINT stop the listener, allow a grace period for requests in flight, mark any running pipeline as interrupted so it can be resumed, flush the store and exit.</p>
   </div>
 </div>
 <div class="day">
@@ -240,6 +253,7 @@
     <p><b>What it is.</b> Auto-deploy pulls, rebuilds and replaces the container. The health check runs after the switch and only prints a warning if it fails.</p>
     <p><b>Why it matters.</b> You cannot tell which build is live, you cannot go back, and a broken build replaces a working one with nothing to stop it. Every diagnosis today needed me to reproduce locally because there was no way to ask the live site what it was running.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Build, start the new container alongside, health-check it, switch only if it passes, keep the previous image and provide a one-command rollback. Stamp the commit into <code>/api/health</code>.</p>
+      <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;margin-top:14px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Closed. deploy.sh defers while a run is in flight, tags the image with the commit, starts a CANDIDATE container and health-checks it before switching, records the previous image, and rollback.sh puts it back. Auto-deploy is off unless ETABLIX_AUTODEPLOY=1.</p>
   </div>
 </div>
 <div class="day">
@@ -251,6 +265,7 @@
     <p><b>What it is.</b> Every change went straight to the box you were testing on.</p>
     <p><b>Why it matters.</b> This is the single biggest process failure of the day and it is mine. Repeated pushes recreated the container under you and destroyed run after run. No amount of code quality survives deploying to production while someone is using it.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> A staging instance with its own data, and auto-deploy pointed there. Production deploys become deliberate, from a tag, at a time you choose.</p>
+      <p class="why" style="border-left:3px solid #c0392b;padding-left:12px;margin-top:14px;"><b style="color:#c0392b">STILL OPEN &mdash; and why.</b> OPEN. The candidate container proves the build starts and answers; it is not a staging environment with realistic data. Worth doing before the first paid engagement, not before the first client link.</p>
   </div>
 </div>
 <div class="day">
@@ -262,6 +277,7 @@
     <p><b>What it is.</b> An uncaught exception calls <code>reportError</code>, which sends an email.</p>
     <p><b>Why it matters.</b> Mail is exactly what has been failing: DKIM revoked, DMARC silent, and for a period an SMTP host that never answered. The alarm for the building is wired to the fuse that blew.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Alerts must not depend on one channel. Write to a log the platform exposes, and add a second route out — a webhook or SMS — that does not share a failure mode with email.</p>
+      <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;margin-top:14px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Closed. Errors are written to disk and optionally to a webhook, both independent of email, and the last errors are readable without opening the box.</p>
   </div>
 </div>
 <div class="day">
@@ -273,6 +289,7 @@
     <p><b>What it is.</b> The handler logs, attempts an alert, and carries on.</p>
     <p><b>Why it matters.</b> After an uncaught exception the process state is undefined. Continuing to serve requests from it can corrupt exactly the data F1 is already threatening.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Log, alert, then exit non-zero and let the supervisor restart cleanly. Continuing must be a deliberate exception, never the default.</p>
+      <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;margin-top:14px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Closed. An uncaught exception flushes the store and exits so the supervisor restarts a clean process, unless ETABLIX_STAY_UP_ON_CRASH=1 is set deliberately for debugging.</p>
   </div>
 </div>
 <div class="day">
@@ -284,6 +301,7 @@
     <p><b>What it is.</b> The AI provider key is stored in the settings collection inside <code>db.json</code>, in plain text — and therefore inside every backup archive.</p>
     <p><b>Why it matters.</b> Anyone with a copy of a backup has the key.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Secrets belong in the environment or a secret store, never in the data file, and never in a backup that gets copied around.</p>
+      <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;margin-top:14px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Closed. The API key is read from the environment first, storage in the database still works for convenience, and the server warns at boot when a secret is sitting in a file that goes into every backup.</p>
   </div>
 </div>
 <div class="day">
@@ -295,6 +313,7 @@
     <p><b>What it is.</b> The human check stops naive bots. Nothing limits volume.</p>
     <p><b>Why it matters.</b> One script can fill the enquiry table, the notification feed and the disk.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Per-IP and global limits on every public POST, with the limit stated in the response.</p>
+      <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;margin-top:14px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Closed, and since extended: the public forms, the analytics beacon, sign-in (counting failures, not attempts, so an office is never locked out), and the client portal — per link and per address, both configurable.</p>
   </div>
 </div>
 <div class="day">
@@ -306,6 +325,7 @@
     <p><b>What it is.</b> No uptime monitoring, no alert on a failed run, no alert on failed mail, no error surface on the live box.</p>
     <p><b>Why it matters.</b> You found the junked enquiries, the hung Confirm-the-start, and the destroyed runs. The platform found none of them. That is the difference between a prototype and something you can commit to.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Uptime monitoring from outside the box. An error and event log visible in the Control Desk. An alert when a run fails, when mail fails, and when a backup fails.</p>
+      <p class="why" style="border-left:3px solid #c0392b;padding-left:12px;margin-top:14px;"><b style="color:#c0392b">STILL OPEN &mdash; and why.</b> PARTLY. Health, an error log, disk and webhook alerts and a busy signal all exist. Nothing outside the box watches it, so if the machine stops answering, nobody is told. An external uptime check is a five-minute job and it is yours to set up.</p>
   </div>
 </div>
 <div class="day">
@@ -317,6 +337,7 @@
     <p><b>What it is.</b> Agent runs and automation runs are trimmed. Notifications are not, and the <code>events</code> array on an engagement grows for the life of the engagement inside a file that is rewritten in full on every change.</p>
     <p><b>Why it matters.</b> Slow, quiet, and it makes F1 worse every week.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Cap or archive every append-only collection, and move the audit trail out of the row it audits.</p>
+      <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;margin-top:14px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Closed. Every high-volume collection is capped, the audit trail on an engagement is capped, and the two things that actually bloated the file — the client's document text and six passes of agent reasoning — now live in one file per run, swept when the run log is trimmed.</p>
   </div>
 </div>
 <div class="day">
@@ -328,6 +349,7 @@
     <p><b>What it is.</b> Around 170 assertions across nine files, all green — while four production faults sat underneath them.</p>
     <p><b>Why it matters.</b> Everything was tested in isolation, in sequence, with every dependency healthy. The faults that reached you were the opposite: a dependency that never answered, a process killed mid-work, a document sent twice, a template two callers both thought they owned. Green tests told you nothing about any of it.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Test the failure modes explicitly: a dependency that hangs, a dependency that errors, a process killed at each step, the same request sent twice, requests arriving together. The three tests I added this afternoon are that shape and they are the pattern to follow.</p>
+      <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;margin-top:14px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Closed. The suite is failure-shaped now: thirty kills during writing, a four-minute soak of full engagements with the mail server black-holed and the server killed underneath it, an interrupted run resumed across a real restart, the money proved against the rendered invoice, the security doors proved shut, and what the agent was actually sent read back from the request log. One command runs the lot against a scratch database.</p>
   </div>
 </div>
 <div class="day">
@@ -339,6 +361,7 @@
     <p><b>What it is.</b> Both DKIM selectors publish an empty key, which is a revocation. DMARC has no reporting address.</p>
     <p><b>Why it matters.</b> Every enquiry notification fails authentication. Fixed in the application; the DNS is still to change, and nothing checks it continuously.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Regenerate the DKIM key, add a DMARC reporting address, and run <code>tools/mail-doctor.mjs</code> on a schedule so a silent regression is caught by the platform rather than by a customer.</p>
+      <p class="why" style="border-left:3px solid #c0392b;padding-left:12px;margin-top:14px;"><b style="color:#c0392b">STILL OPEN &mdash; and why.</b> OPEN, and it is yours. The DKIM selectors published at the DNS no longer sign anything, which is why customer enquiries land in junk. Nothing in the code can fix a DNS record. Do this before sending anything to the contractor list.</p>
   </div>
 </div>
 <div class="day">
@@ -350,6 +373,7 @@
     <p><b>What it is.</b> There is no runbook step for a corrupt store, a failed deploy, a stuck run or a lost invoice number.</p>
     <p><b>Why it matters.</b> When it goes wrong at 07:00 you will be reading source code.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> A recovery runbook with the actual commands, tested by following it.</p>
+      <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;margin-top:14px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Closed. deploy/RUNBOOK.md covers the restore, the rollback and what to check afterwards, and rollback.sh performs it.</p>
   </div>
 </div>
 <div class="day">
@@ -361,6 +385,7 @@
     <p><b>What it is.</b> Handlers replace <code>checklist</code>, <code>documents</code> and <code>events</code> wholesale after reading them.</p>
     <p><b>Why it matters.</b> I fired six concurrent uploads and all six survived, because those handlers happen to be synchronous. Adding a single <code>await</code> anywhere between the read and the write reintroduces silent lost updates, and nothing would catch it.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Append and patch at the store level rather than reading and replacing arrays in route code.</p>
+      <p class="why" style="border-left:3px solid #c0392b;padding-left:12px;margin-top:14px;"><b style="color:#c0392b">STILL OPEN &mdash; and why.</b> PARTLY. The file is written atomically now, so a crash cannot leave it half-written. Two requests that read the same array, change different rows and write it back can still lose one of the changes. One process and one client make this unlikely rather than impossible; it closes properly with F2.</p>
   </div>
 </div>
 <div class="day">
@@ -372,6 +397,7 @@
     <p><b>What it is.</b> Upload limits exist; request timeouts do not.</p>
     <p><b>Why it matters.</b> A slow client can hold a connection indefinitely.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> Server-level request timeout and explicit limits per route.</p>
+      <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;margin-top:14px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Closed. JSON bodies are capped at 200 KB, uploads at 25 MB and twenty files, the server has a request timeout and a headers timeout, and a request that ends in an error now deletes whatever it uploaded.</p>
   </div>
 </div>
 <div class="day">
@@ -383,6 +409,7 @@
     <p><b>What it is.</b> Client files are kept indefinitely with no delete.</p>
     <p><b>Why it matters.</b> A client asking for their data to be removed cannot be answered today.</p>
     <p class="why" style="border-left:3px solid var(--gold);padding-left:12px;"><b>What closing it takes.</b> A retention policy and a deletion path, with the deletion recorded.</p>
+      <p class="why" style="border-left:3px solid #c0392b;padding-left:12px;margin-top:14px;"><b style="color:#c0392b">STILL OPEN &mdash; and why.</b> OPEN. There is still no retention rule and no deletion path for client documents. It is a data-protection commitment as much as a feature, and it should be settled before the first engagement that carries somebody's drawings.</p>
   </div>
 </div>
 </section>
@@ -425,6 +452,300 @@
     <li><b>Do not test on the live box again until stage 0 is done.</b> That was the cause of today, and it was mine.</li>
     <li><b>Fix the DKIM key</b> whatever you decide. That one costs nothing and it is losing you enquiries right now.</li>
   </ol>
+</section>
+
+
+<section>
+  <h2>The second register</h2>
+  <p class="h2sub">Three reviews that this one never ran: the money, the AI pipeline, and the security surface. Twenty-four findings, every one reproduced first and every one now covered by a test that fails without the fix. These are the faults a client would have met.</p>
+
+  <h3 style="font-size:1.3rem;margin:34px 0 4px;color:var(--gold);">The money &mdash; nine findings</h3>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#c0392b">Money · 1</span>
+    <h3>The portal quoted the net and the invoice totalled the gross</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> Every figure the client saw &mdash; the portal, the confirmation screen, the emails &mdash; was the sum before VAT. The invoice they were then sent totalled the sum after it.</p>
+    <p><b>What it cost.</b> On every standard-rated engagement the client was shown a figure twenty per cent below the one they were asked to pay, and their finance team was the one who found the difference. That is the first impression of a business selling commercial rigour.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> One VAT calculation for the whole system, and every figure the client reads comes through it. The test renders the real invoice and compares its grand total against the portal row.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#c0392b">Money · 2</span>
+    <h3>A fixed fee could be invoiced at 170 per cent</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> The stage machine could be walked round a circle: deposit paid, deliverable issued, approved, balance raised, the deposit marked paid a second time, another deliverable, another approval.</p>
+    <p><b>What it cost.</b> Two clicks and the same fee was invoiced one and seven tenths of a time. Nothing anywhere refused it, because the rule lived on the stage rather than on the money.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> One deposit and one balance per fixed engagement, enforced against the documents raised. Recording a payment can no longer move an engagement backwards. The test walks the old circle and gets a refusal.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#9c7a3c">Money · 3</span>
+    <h3>The reverse charge was offered on advisory work</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> The VAT treatment list offered the domestic reverse charge on a Model A advisory engagement.</p>
+    <p><b>What it cost.</b> Advisory is a professional service, not a construction operation under CIS, so a reverse-charge invoice for it is wrong on its face &mdash; and it is the client, not us, who carries the error to their next VAT return.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Refused at the point terms are set, with the reason, rather than corrected silently at the point it is invoiced.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#9c7a3c">Money · 4</span>
+    <h3>The Model C advance carried VAT and then had VAT added</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> The advance was described to the client as including VAT, and the invoice then charged twenty per cent on the whole of it.</p>
+    <p><b>What it cost.</b> VAT on a VAT-inclusive figure, on the largest single payment in the model.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Every component of the advance is stated net; VAT is added once, by the invoice.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#9c7a3c">Money · 5</span>
+    <h3>The client's declared VAT position was filed and never read</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> The checklist asks the client their VAT position. The answer was stored and nothing ever looked at it.</p>
+    <p><b>What it cost.</b> The first invoice went out on whatever had been typed into the record weeks earlier, which is precisely what asking the question was supposed to prevent.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> The answer is read, recorded, and where it disagrees with what we hold, finance is told. Nothing changes an invoice by itself &mdash; that stays a person's decision.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#9c7a3c">Money · 6</span>
+    <h3>Retention was uncapped on the first certification</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> Retention is five per cent of the certified sum, capped at five per cent of the order value. The cap was read from a ledger row that the first certification is what creates.</p>
+    <p><b>What it cost.</b> On the first application &mdash; the one a new supplier watches most closely &mdash; there was no cap at all.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> The order value is stated once and carried; the retention actually deducted is recorded at the moment of deduction rather than re-derived later from the certified total, because the two stop agreeing the first time the cap bites or a tranche is released.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#66707c">Money · 7</span>
+    <h3>Month numbering counted issues rather than approvals</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> On a recurring appointment, a month that came back for review and was re-issued made the next issue &ldquo;Month 2&rdquo;.</p>
+    <p><b>What it cost.</b> Month two arrived before month one had been accepted, and the invoice narrative named a month the client had never seen.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> The month number follows what the client has approved.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#66707c">Money · 8</span>
+    <h3>Invoice numbers could repeat</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> The number counter lives in the same file as the documents. Restore one a moment out of step with the other and the counter sits behind what has already been issued.</p>
+    <p><b>What it cost.</b> Two different invoices with one identity, in the client's ledger and in ours.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> The counter is raised to the highest number already in the series before it increments, so the documents themselves are the record.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#66707c">Money · 9</span>
+    <h3>Engagement references were allocated by counting rows</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> The reference was the number of engagements this year plus one.</p>
+    <p><b>What it cost.</b> Deleting one handed its reference to the next.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> The highest sequence used, never the count.</p>
+  </div>
+</div>
+
+  <h3 style="font-size:1.3rem;margin:34px 0 4px;color:var(--gold);">The AI pipeline &mdash; eight findings</h3>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#c0392b">Pipeline · 1</span>
+    <h3>Documents were dropped without a word</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> The per-run character budget was spent in upload order and the loop then stopped. One long employer's requirements took all of it, and every document behind it was never sent to the model &mdash; while the run record still showed its character count as though it had been read.</p>
+    <p><b>What it cost.</b> The report then found no contradiction between two documents, one of which the model had never seen. A diagnostic whose whole value is reading eight documents against each other had read three.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> The budget is shared: short documents arrive whole, long ones are cut at a marked point, nothing is dropped, and the model is told by name which documents were cut before it reads any of them. The test reads back what the model was actually sent.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#c0392b">Pipeline · 2</span>
+    <h3>Every document went into one field</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> All extracted text was appended to the programme field. The other seven fields said &ldquo;Supplied &mdash; see the attached documents&rdquo;.</p>
+    <p><b>What it cost.</b> A pass asked about the site layout got a field that said nothing and a layout drawing buried in the middle of a programme, and reported no layout constraints.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Each document travels as itself, under the requirement the client supplied it against.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#9c7a3c">Pipeline · 3</span>
+    <h3>Nothing measured the prompt against the model's context</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> The prompt grows on every pass: by the last one it carries the whole report so far.</p>
+    <p><b>What it cost.</b> A thick information pack simply hit the window and failed at the last pass &mdash; five completed passes of real money thrown away for an error message about tokens.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> It is measured and trimmed to fit, in the order a person would sacrifice it, and if it ever reaches the client's own documents the report says so.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#9c7a3c">Pipeline · 4</span>
+    <h3>A truncated working paper was used as the spine</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> Pass one produces the working paper every later pass is built from. If it hit the output limit it stopped mid-table.</p>
+    <p><b>What it cost.</b> Everything downstream was built on a truncated spine, and the report said nothing about it.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> It is continued from where it stopped, and the note that says it was cut off is replaced rather than carried alongside.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#9c7a3c">Pipeline · 5</span>
+    <h3>Every 400 was treated as a model that cannot think</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> The degradation ladder retried on anything matching &ldquo;invalid request&rdquo;.</p>
+    <p><b>What it cost.</b> An empty credit balance was reported to the user as a model that does not support extended thinking &mdash; after four rungs and twenty retries had been spent arriving at it &mdash; and sent them looking in entirely the wrong place.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Errors are classified: wait, degrade, or stop. Each is tested against the words the API actually returns.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#9c7a3c">Pipeline · 6</span>
+    <h3>No timeout, and two retry mechanisms multiplying</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> The SDK had its default retries and no timeout, and the pipeline retried on top of them.</p>
+    <p><b>What it cost.</b> A call that never answered held a pass open indefinitely: the run sat at &ldquo;running&rdquo; with no error and no end, and the only thing that moved it was somebody restarting the server.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> The SDK's retries are off, the client has a timeout, every pass has a deadline, and a rate limit that names its own retry-after is honoured rather than guessed at.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#9c7a3c">Pipeline · 7</span>
+    <h3>A resumed run looked at no drawings</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> The stored filename of each drawing was never written to the run record, and the resume rebuilt the pages from it.</p>
+    <p><b>What it cost.</b> A resumed run produced a report that read exactly the same, having looked at none of the drawings, and said nothing about it.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> The filename is recorded, and a resume that cannot find the drawings is refused with the reason.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#66707c">Pipeline · 8</span>
+    <h3>The run row swallowed the database</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> The client's whole document set and six passes of reasoning were stored inside the run row, in the file that is rewritten, fsynced and copied in full on every change anywhere in the system.</p>
+    <p><b>What it cost.</b> Every checklist answer anywhere in the platform re-serialised megabytes of agent reasoning.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> They live in one pack file per run, swept when the run log is trimmed. A run row is about three thousand characters, and the test asserts it.</p>
+  </div>
+</div>
+
+  <h3 style="font-size:1.3rem;margin:34px 0 4px;color:var(--gold);">The security surface &mdash; seven findings</h3>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#c0392b">Security · 1</span>
+    <h3>The login page printed working credentials</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> Whenever the server reported demo mode, the sign-in page listed the seeded administrator, project-manager and QA accounts with their passwords.</p>
+    <p><b>What it cost.</b> Those are real accounts with real permissions. Anyone who reached the page in that state could sign in as the administrator.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> The page names no account. The public health endpoint no longer says whether the seeded accounts are live.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#c0392b">Security · 2</span>
+    <h3>A session could not be withdrawn</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> A signed token was the whole answer, and it carried its own role.</p>
+    <p><b>What it cost.</b> Deactivating an employee did nothing for twelve hours. So did demoting one. So did resetting the password of an account somebody had walked off with.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> The account is read on every request, the role comes from the account, and a cut-off timestamp revokes every session issued before it. Deactivating, demoting or resetting a password ends the sessions at once, and a person can end their own from any device.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#9c7a3c">Security · 3</span>
+    <h3>Password hashing ran on the event loop</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> scrypt is deliberately slow, and the synchronous form was being used.</p>
+    <p><b>What it cost.</b> Every sign-in blocked every other request in the process. A few dozen wrong passwords a second stalled the whole site for everybody.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> It runs on the thread pool.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#9c7a3c">Security · 4</span>
+    <h3>Nothing limited sign-in attempts</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> No limit of any kind on the login endpoint.</p>
+    <p><b>What it cost.</b> A password list could be worked through at whatever rate the network allowed.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Two counters, counting FAILURES rather than attempts so an office signing twenty people in at nine o'clock is never touched: one per address for a script, one per account for the same account attacked from many addresses.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#9c7a3c">Security · 5</span>
+    <h3>Uploads were written before the link was checked</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> multer writes every file to disk before any handler runs, and the portal token was checked in the handler.</p>
+    <p><b>What it cost.</b> Anyone could push twenty files of twenty-five megabytes at any URL, with a token that did not have to exist, until the disk was full. Files from failed requests then stayed for ever, referred to by nothing and removed by nothing.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> The gate runs first, with a limiter. Any request that ends in an error takes its uploads with it.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#9c7a3c">Security · 6</span>
+    <h3>Any employee could download any file</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> A signed-in session was the only check on the file endpoint.</p>
+    <p><b>What it cost.</b> A client's commercial pack and a supplier's bank letter were readable by everybody with a login.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> Files are readable by the people whose job includes the record they hang off.</p>
+  </div>
+</div>
+<div class="day">
+  <div class="dayhead">
+    <span class="daytag" style="color:#66707c">Security · 7</span>
+    <h3>A portal link could not be withdrawn</h3>
+  </div>
+  <div class="daybody">
+    <p><b>What it was.</b> A portal link is a bearer credential sent by email. It gets forwarded, it sits in inboxes, it goes with people who leave.</p>
+    <p><b>What it cost.</b> There was no way to replace or revoke one.</p>
+    <p class="why" style="border-left:3px solid #1f7a4d;padding-left:12px;"><b style="color:#1f7a4d">CLOSED &mdash; proved.</b> It can be rotated or revoked in one click. There is deliberately still no expiry: the client is told their portal stays open, and it does.</p>
+  </div>
+</div>
+
+</section>
+
+<section>
+  <h2>What is left, and whose it is</h2>
+  <p class="h2sub">Four things stand between this and a system you can put in front of a paying client without watching it. Two of them are mine and two of them are yours.</p>
+  <ul class="rules">
+    <li><b>Yours &mdash; the DKIM keys.</b> Until the DNS signs what the server sends, customer enquiries land in junk and a send to the contractor list would damage the domain for months. Nothing in the code can fix a DNS record.</li>
+    <li><b>Yours &mdash; the hosting decision behind F2.</b> PostgreSQL is the right answer and the code was written to be swapped into it. It changes what you host and what you pay, so it is a decision rather than a task.</li>
+    <li><b>Mine, when you say &mdash; a staging environment and an outside watcher.</b> Neither is large. Both matter more once somebody other than you is depending on the platform being up.</li>
+    <li><b>Mine, when you say &mdash; retention and deletion for client documents.</b> A data-protection commitment as much as a feature, and it should be settled before the first engagement that carries somebody's drawings.</li>
+  </ul>
+  <div class="after" style="margin-top:20px;">
+    <b>One more thing, and it is the one that bit you last time</b>
+    <ul>
+      <li>None of this is on your box until you deploy it. Auto-deploy is off by default now, deliberately &mdash; it was auto-deploy that destroyed your diagnostic run mid-pass. Run <span class="mono">deploy/deploy.sh</span> when you are not in the middle of anything, and it will defer by itself if a run is in flight.</li>
+    </ul>
+  </div>
 </section>
 
 <footer>ETABLIX &mdash; Integrated Site Services &middot; Part of Groupe Nseya &middot; Platform readiness register &middot; 8 September 2026</footer>

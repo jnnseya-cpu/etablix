@@ -36,19 +36,46 @@ const ledger = new Map();   // engagement id → { ref, fee, invoices: [] }
 const problems = [];
 const fault = (m, d) => { problems.push(m + (d ? " — " + JSON.stringify(d).slice(0, 200) : "")); };
 
+let throttled = 0;
+const waits = [];                       // [when, ms] — client-side backoff, excluded from timings
+const waitedSince = (from) => waits.filter(([at]) => at >= from).reduce((a, [, ms]) => a + ms, 0);
+
+/**
+ * One request, retried when the rate limiter says wait.
+ *
+ * This test drives more portal traffic through one address in four
+ * minutes than the real portal sees in a year, so it meets the limiter
+ * that protects that portal — and a 429 is the SERVER BEING RIGHT, not a
+ * lost transaction: nothing was committed, so nothing was lost. They are
+ * counted and reported rather than treated as faults, and the request is
+ * made again after the wait the server asked for.
+ */
 const api = async (p, o = {}, t) => {
   const h = { ...(o.headers || {}) }; if (t) h.Authorization = "Bearer " + t;
   if (o.json) { h["Content-Type"] = "application/json"; o.body = JSON.stringify(o.json); o.method = o.method || "POST"; }
-  const r = await fetch(B + p, { ...o, headers: h, signal: AbortSignal.timeout(30000) });
-  const x = await r.text();
-  try { return { s: r.status, b: JSON.parse(x) }; } catch { return { s: r.status, b: { _raw: x.slice(0, 200) } }; }
+  for (let attempt = 0; ; attempt += 1) {
+    const r = await fetch(B + p, { ...o, headers: h, signal: AbortSignal.timeout(30000) });
+    const x = await r.text();
+    let b; try { b = JSON.parse(x); } catch { b = { _raw: x.slice(0, 200) }; }
+    if (r.status !== 429 || attempt >= 3) return { s: r.status, b };
+    throttled += 1;
+    const ms = Math.min(2000 + attempt * 2000, (Number(r.headers.get("retry-after")) || 2) * 1000);
+    waits.push([Date.now(), ms]);
+    await wait(ms);
+  }
 };
 
 async function start() {
   srv = spawn(process.execPath, ["backend/server.js"], {
     env: { ...process.env, PORT: String(PORT), SITE_URL: B, ETABLIX_DATA_DIR: DATA,
       // the fault injection: a mail server that never answers, for the whole run
-      SMTP_HOST: "10.255.255.1", SMTP_PORT: "587", SMTP_USER: "no-reply@etablix.com", SMTP_PASS: "x" },
+      SMTP_HOST: "10.255.255.1", SMTP_PORT: "587", SMTP_USER: "no-reply@etablix.com", SMTP_PASS: "x",
+      // This test drives more portal traffic through ONE address in four
+      // minutes than the real portal sees in a year, so the per-address
+      // ceiling is raised for it. The PER-LINK limit is left at its
+      // default and is still enforced — what is being tested here is
+      // durability under kill, not the limiter.
+      ETABLIX_PORTAL_RATE_PER_MIN: "100000" },
     stdio: "ignore",
   });
   for (let i = 0; i < 60; i++) { await wait(300); try { if ((await fetch(B + "/api/health")).ok) return true; } catch {} }
@@ -87,7 +114,9 @@ async function cycle(T, n) {
   // confirm the start — this is the path that used to hang on the dead mail host
   const t0 = Date.now();
   r = await api(`/api/clients/portal/${tok}/start`, { json: { authorised: true, name: "Soak Client" } });
-  const took = Date.now() - t0;
+  // Time the SERVER, not this test's own backoff: a 429 that was retried
+  // is the limiter working, and the wait belongs to the client.
+  const took = Date.now() - t0 - waitedSince(t0);
   if (took > 10000) fault(`confirming the start took ${took} ms with mail down — it must not wait on mail`);
   if (r.s >= 400) { fault("could not confirm the start", r.b); return; }
 
@@ -168,7 +197,7 @@ else { T = await token(); const a = await auditLedger(T);
   console.log(`  final · ${cycles} cycles · ${a.engagements} engagements · ${a.numbers} documents`); }
 await stop("SIGKILL");
 
-console.log(`\n  ${cycles} full circles, ${restarts} kills, ${errors} thrown`);
+console.log(`\n  ${cycles} full circles, ${restarts} kills, ${errors} thrown, ${throttled} rate-limited and retried`);
 if (problems.length) {
   console.log(`\n  ${problems.length} PROBLEM(S):`);
   for (const p of [...new Set(problems)].slice(0, 25)) console.log("   · " + p);

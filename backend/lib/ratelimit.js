@@ -49,12 +49,16 @@ export function hit({ windowMs, max, key, peek = false }) {
  * The client address is taken from the proxy header only when TRUST_PROXY is
  * set, because a header anyone can send is not an identity.
  */
-export function rateLimit({ name, windowMs = 60_000, max = 20, message }) {
+export function rateLimit({ name, windowMs = 60_000, max = 20, message, keyOf }) {
   return function (req, res, next) {
     const ip = (process.env.TRUST_PROXY === "1"
       ? String(req.headers["x-forwarded-for"] || "").split(",")[0].trim()
       : "") || req.ip || req.socket?.remoteAddress || "unknown";
-    const r = hit({ windowMs, max, key: `${name}:${ip}` });
+    // `keyOf` counts against something other than the address — a client
+    // portal link, say. Several clients behind one corporate proxy share
+    // an address and should not share an allowance, and one link being
+    // hammered should not be paid for by everybody else on that network.
+    const r = hit({ windowMs, max, key: `${name}:${keyOf ? keyOf(req) : ip}` });
     res.setHeader("X-RateLimit-Limit", String(max));
     res.setHeader("X-RateLimit-Remaining", String(r.remaining));
     if (r.allowed) return next();
