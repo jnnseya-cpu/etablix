@@ -1,111 +1,83 @@
 # LinkedIn — Aaron Hall, Operations Director, Morgan Sindall Infrastructure
 
-**This one is not outreach. Do not treat it like the others.**
+**You are in ongoing contact.** He knows your role, you know his. That rules
+out everything a reconnection message does: no reintroduction, no "I was an
+assistant project manager under you", no explaining your own CV, no asking how
+Morgan Sindall is. Between people who already talk, that reads as oddly formal
+— cold, even — and it wastes the one advantage you have here.
 
-He managed you at Turner & Townsend in 2015, when you were an assistant
-project manager. That is eleven years of relationship equity, and it is the
-most valuable thing in your contact list — which is exactly why the first
-message must not spend any of it.
-
-Morgan Sindall Infrastructure works in highways, rail, water, energy and
-nuclear. An Operations Director there is, on paper, the best prospect of the
-five. Ignore that for now. If you turn a former manager into a lead in message
-one, you lose the relationship and the lead together, and you do not get
-either back.
-
-The sequence is: reconnect, then ask for advice, then — much later, and
-probably at his suggestion rather than yours — talk about work. Former
-managers like being asked for advice. They dislike being sold to by someone
-they trained.
+What it buys you instead is the right to be direct. A former manager you have
+stayed in touch with can be asked a straight question and answer it straight.
+So ask for his judgement first, because an honest "it won't work, and here's
+why" from an MRICS operations director is worth more than a polite
+introduction — and then ask him to point, not to open the door himself.
 
 ---
 
-## Message one — reconnection, and nothing else
+## The message
 
-No project detail, no "do you remember when". Eleven years is long enough that
-reaching for a specific job can land as an awkward test of his memory, and the
-relationship stands on its own without one. Name the time and the role, and
-move on.
-
-> Aaron — good to be connected again.
+> Aaron — quick one, and I'd rather have your honest read than a polite one.
 >
-> You may have to reach back a bit: I was an assistant project manager under
-> you at Turner & Townsend, back in 2015.
+> The business I've been building does one narrow thing: the site
+> establishment and the serviced environment around a project — compound,
+> temporary utilities, welfare, waste, logistics, accommodation — taken as one
+> accountable package instead of five or six orders with the gaps between them
+> belonging to nobody. It came out of watching that scope get built from
+> scratch, badly, on every turnkey job I priced at GE Vernova.
 >
-> I've stayed on the construction side since. Spent years at GE Vernova doing
-> construction subcontract management on EPC and turnkey projects across the
-> UK, Ireland and Europe, and last year I set up my own thing in Birmingham
-> doing site establishment and site services. Early days, and I'm enjoying it
-> more than I expected to.
+> Two things I'd value, and neither is a favour:
 >
-> Saw you're Operations Director at Morgan Sindall Infrastructure now — that's
-> a serious patch. How is it, and what are you actually spending your time on
-> these days?
+> Is that a real gap, or does it exist because contractors would rather keep
+> it in house and control it? I'd genuinely rather hear "it won't work, and
+> here's why" from you now than find it out slowly and expensively.
 >
-> No agenda; it just seemed daft to be connected and say nothing.
-
-That is the whole message. One line about ETABLIX, no description of what it
-sells, no link, and a real question about him at the end.
-
-**"No agenda" has to be true.** If you follow it a week later with a pitch, it
-was a lie and he will notice. Give it a proper conversation first.
+> And if it is real — who inside Morgan Sindall Infrastructure would be the
+> right person to talk to about the supply chain, when I'm ready? Not asking
+> you to make the call, just to point me at the door.
+>
+> Whenever suits — no rush on it.
 
 ---
 
-## Message two — only after he has replied properly
+## Why it is shaped like that
 
-If he engages, this is where a former manager becomes genuinely useful. Ask
-for his judgement, not his business:
+**"I'd rather have your honest read than a polite one"** is the line that gets
+a real answer rather than encouragement. People who like you default to
+encouragement unless you release them from it, and encouragement is worthless
+here.
 
-> That's good to hear — [respond properly to whatever he said].
->
-> Since you've seen a lot more of this than I have, can I ask your opinion on
-> something rather than your business?
->
-> What I set up does one narrow thing: the site establishment and the serviced
-> environment around a project — compound, temporary utilities, welfare, waste,
-> logistics, accommodation — taken as one accountable package instead of five
-> or six orders with the gaps between them belonging to nobody. It came out of
-> watching that scope get built from scratch, badly, on every turnkey job I
-> priced.
->
-> From where you sit at Morgan Sindall: is that a real gap in the market, or
-> is it a gap that exists because main contractors would rather keep it in
-> house and control it? I would genuinely rather hear "it won't work, and
-> here's why" from you now than find it out slowly.
+**"Not asking you to make the call, just to point me at the door"** protects
+him. An operations director spends real capital making an introduction, and he
+should not have to weigh that before replying to you. Asking for a name costs
+him nothing, and if he wants to do more he will offer — and he is likelier to
+offer precisely because you did not ask.
 
-That question is doing three things at once. It gets you a straight answer
-from someone with no reason to flatter you. It tells him what you do without
-selling it. And it treats him as the senior figure he is, which is what he
-will actually enjoy about the exchange.
+**Two asks, and no third.** No meeting request, no attachment, no link. If he
+wants any of those he will say so.
 
 ---
 
-## Where this can go, and how not to rush it
+## When he answers
 
-A former manager who thinks well of you does three things over time: he tells
-you the truth about your idea, he tells you who to talk to, and — eventually,
-if it fits — he opens a door inside his own business. All three are downstream
-of him believing you are not working him.
+**If he says it won't work** — take it seriously and thank him properly. That
+is the most useful message anyone sends you this year, and the fact that he
+was willing to say it is worth more than the answer. Ask what he would do
+instead.
 
-**Do not ask for an introduction in the first two exchanges.** If it is going
-to come, it comes because he offers it, and he will offer it sooner if you
-have not asked.
+**If he gives you a name** — go to that person, use his name only if he offered
+it, and then tell Aaron what happened. Reporting back is the thing almost
+nobody does and the reason people give a second introduction.
 
-**Do not send a capability statement unless he asks.** With everyone else on
-your list a document is a step forward; here it turns a conversation into a
-transaction.
-
-**Do report back.** If he gives you advice and you act on it, tell him what
-happened. Almost nobody does, and the people who do are the ones who get the
-next piece of advice and the introduction after it.
+**If he asks what the company looks like now** — be straight: it is new, the
+delivery record is yours personally, and you would rather start on something
+small and be judged on it. He has known you long enough that overselling would
+register immediately.
 
 ## What to keep out
 
-- **The service pitch in message one.** One line about the company, and stop.
 - **Any suggestion Morgan Sindall has a problem you could fix.** You do not
-  know their business, he does, and telling an Operations Director what is
-  wrong with his operation is the fastest way to end this.
-- **Confidential detail from GE Vernova or from Turner & Townsend.** The shape
-  of the work is yours to describe; clients, values and commercial positions
-  are not.
+  know their operation; he runs it.
+- **Confidential detail from GE Vernova.** The shape of the work is yours to
+  describe; clients, values and commercial terms are not.
+- **A capability statement he did not ask for.** With him, a document sent
+  unprompted turns a conversation into a transaction.
