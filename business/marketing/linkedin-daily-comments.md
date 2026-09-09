@@ -87,3 +87,59 @@ conversation belongs on his post until he moves it.
 His discipline is oil and gas; yours is power and infrastructure. If he says the
 pattern is different in his sector, take it — that is worth more than being
 right, and it is the second exchange that makes the connection real.
+
+---
+
+## Day 1, second post · UK Power Networks — the 1914 Kingswood substation
+
+**Be honest about what this is.** It is a heritage PR post. There is no question,
+no problem, and no discipline to contribute to. Every comment under it will be
+"amazing" and an emoji. Any attempt to make it about site establishment would
+read as self-serving on a post about conservation, and people would be right.
+
+**But the account is worth being visible to.** UK Power Networks is a
+distribution network operator. Every one of the thirty-odd UKPR sites depended
+on a DNO connection, and half of what ETABLIX will ever do for temporary power
+runs through a DNO's process. Being a recognised name in that audience has real
+value; it just is not earned on this post.
+
+**So the right move is a short, human, honest line and nothing else.** One
+sentence, no business content, no pitch, no question. It costs nothing, it
+cannot misfire, and it puts your name and headline in front of a large network
+audience in a warm context.
+
+### The comment
+
+> I spent years at the other end of this network — new connections for
+> generation and storage sites. Good to see the 1914 end of it being looked
+> after with the same seriousness.
+
+That is the whole comment. Do not add a second paragraph.
+
+---
+
+## Which posts are worth a comment, and which are not
+
+You do not need five posts a day; you need five *right* posts, and most feeds do
+not contain five. A post earns a substantive comment when it has all three:
+
+- **A question, a claim, or a problem** — something to answer, sharpen or
+  disagree with. A photo, an award, a milestone or a job advert has none.
+- **An author who reads their own comments.** An individual practitioner does.
+  A corporate brand account usually does not, and its audience skims.
+- **A subject where your experience is genuinely first-hand.** Construction
+  subcontracting, site establishment, temporary services, pre-construction,
+  buying scope out on EPC and turnkey work, and the buying-side view of anyone
+  else's discipline. Not design, not commissioning, not M&E, not policy.
+
+If a post has all three, write the three-paragraph comment. If it has only the
+third, write one honest sentence like the UKPN one above and move on. If it has
+none, scroll past — a filler comment on a post nobody engages with costs you the
+half hour and buys nothing.
+
+**Where to find the right five.** Individual practitioners in your sector posting
+about problems: commissioning leads, construction managers, project directors,
+procurement and supply-chain managers at main contractors and OEMs. The seven
+people already in your outreach list are the obvious place to start — commenting
+on Gary's, Jason's and Neil's posts keeps you visible to them without another
+direct message, and that is worth more than a stranger's thread.
