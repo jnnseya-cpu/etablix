@@ -347,3 +347,39 @@ to connect — one line referencing the thread, no pitch, same rule as Mehdi.
 storage developer read that thread, and a proportion of them are the people who
 buy this scope. Being the one substantive comment under a milestone post is
 worth more than most direct messages you could send.
+
+---
+
+## Day 1, fifth post · Morgan Sindall Infrastructure — MK Job Show
+
+**Do not comment on this one.** It fails all three tests: a recruitment advert
+has no claim to answer, a corporate brand account does not read its thread, and
+hiring is not your subject. There is nothing to add that would not be
+manufactured.
+
+**And there is a specific risk here that the other posts do not carry.** Aaron
+Hall is Operations Director at Morgan Sindall Infrastructure and is a live
+relationship you have kept for a decade. A supplier leaving a clever comment
+under his company's recruitment post, in front of his colleagues, reads as
+fishing — and it spends a little of a relationship worth far more than a
+comment.
+
+**Four good comments is a complete day.** Manufacturing a fifth to hit a number
+is how a habit that works turns into noise. The count is a floor for effort, not
+a quota for output.
+
+### But the post is still useful — as a prompt, not as content
+
+Morgan Sindall Infrastructure's rail team is mobilising Wixams Rail Station and
+recruiting across it. That tells you the business is active and moving, which is
+a perfectly good reason to stop deferring the message to Aaron that is already
+written and sitting in **business/marketing/linkedin-aaron-hall.md**.
+
+**Send it unchanged. Do not bolt Wixams onto it.** That message works because it
+asks for his judgement — "is this a real gap, or does it exist because
+contractors would rather keep it in house" — and a named project turns the same
+words into "I have spotted an opportunity at your company". That is the one
+register shift that would make an operations director answer carefully instead
+of honestly, and the honest answer is the entire point of writing to him.
+
+Use the post as your reminder. Keep it out of the message.
