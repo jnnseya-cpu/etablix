@@ -460,6 +460,42 @@ router.get("/from-run/:id", requireAuth, deliveryFinance, (req, res) => {
   }
 
   const { data, missing, matched } = splitDiagnostic(run.output);
+
+  // ?template=specimen — the same run, cut down to the client-safe extract
+  // that goes on the website and into a pitch: the findings paragraph, the
+  // supplier-interface matrix and the mobilisation constraints in full, and
+  // a contents list of the other ten.
+  //
+  // THE CLIENT AND PROJECT NAMES ARE DELIBERATELY NOT CARRIED ACROSS. A
+  // specimen is a marketing document, and the one way it can do real damage
+  // is by naming a real engagement — construction is small enough that a
+  // project is identifiable from its constraints alone, so the name is
+  // typed by a person who has decided the extract is safe to publish, not
+  // inherited from a run.
+  if (req.query.template === "specimen") {
+    const shown = SPECIMEN_SECTIONS.filter((id) => data[id]);
+    return res.json({
+      template: "specimen",
+      runTitle: run.title,
+      matched: shown.length + (data.findings ? 1 : 0),
+      missing: [
+        ...(data.findings ? [] : ["Findings in one paragraph"]),
+        ...SPECIMEN_SECTIONS.filter((id) => !data[id]).map(
+          (id) => `${DIAGNOSTIC_SECTIONS.findIndex(([x]) => x === id) + 1}. ${DIAGNOSTIC_SECTIONS.find(([x]) => x === id)[1]}`
+        ),
+      ],
+      specimenWarning:
+        "The project name is blank on purpose. A specimen is published, so it must name an illustrative project, never a real engagement — " +
+        "read the three sections through and remove any client name, site name, supplier name or figure that identifies a real project before you generate it.",
+      data: {
+        project: "",
+        findings: data.findings || "",
+        s3: data.s3 || "",
+        s7: data.s7 || "",
+      },
+    });
+  }
+
   res.json({
     template: "diagnostic",
     runTitle: run.title,

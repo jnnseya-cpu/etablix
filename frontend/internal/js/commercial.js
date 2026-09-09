@@ -1536,7 +1536,8 @@ function renderRunView(run) {
     run.agent === "diagnostic" && run.status === "approved"
       ? `<div style="margin-top:10px;">
           <button class="btn-block" data-run-draft="${run.id}" style="width:auto;padding:10px 20px;">Draft as SSD report</button>
-          <span class="muted" style="margin-left:10px;font-size:0.8rem;">Opens the Site Systems Diagnostic document with all twelve sections filled from this run. You review and edit before it is generated.</span>
+          <button class="btn-run" data-run-specimen="${run.id}" style="margin-left:8px;">Draft as specimen extract</button>
+          <span class="muted" style="margin-left:10px;font-size:0.8rem;">The report is the client's. The specimen is the client-safe extract for the website and for a pitch — the findings, two sections in full, and a contents list of the rest, watermarked and labelled as a worked example.</span>
         </div>`
       : "";
   const head = `<h3>${esc(run.title)} <span class="muted" style="font-weight:400;font-size:0.78rem;">· ${esc(run.agentName)}${run.model ? ` · ${esc(run.model)}` : ""}${run.usage ? ` · ${(run.usage.input + run.usage.output).toLocaleString()} tokens` : ""}</span></h3>`;
@@ -1564,6 +1565,26 @@ document.addEventListener("click", async (e) => {
   const decide = e.target.closest("button[data-run-decide]");
   const del = e.target.closest("button[data-run-del]");
   const draft = e.target.closest("button[data-run-draft]");
+  const spec = e.target.closest("button[data-run-specimen]");
+  if (spec) {
+    spec.disabled = true;
+    try {
+      const d = await api(`/api/docs/from-run/${spec.dataset.runSpecimen}?template=specimen`);
+      // Said before the form appears, not after. A specimen is published,
+      // and the one way it does real damage is by naming a real engagement.
+      alert(
+        `${d.specimenWarning}\n\n`
+        + (d.missing.length ? `Not found in this run, and left blank:\n· ${d.missing.join("\n· ")}\n\n` : "")
+        + "Give it an illustrative project name, read the three sections through, then generate."
+      );
+      await openDocPrefill(d.template, d.data);
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      spec.disabled = false;
+    }
+    return;
+  }
   const resume = e.target.closest("button[data-run-resume]");
   if (resume) {
     resume.disabled = true; resume.textContent = "Resuming…";

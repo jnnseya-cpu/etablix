@@ -194,6 +194,35 @@ const docCount = async () => (await api("/api/docs", {}, T)).body.documents?.len
   ok(r2.status === 201, "8b. a 500 KB diagnostic is accepted by the document studio, not refused as too large", r2.body);
 }
 
+// 6d — the same run, cut down to the client-safe extract for the website
+{
+  // Approve it first — a specimen is drafted from the same approved run.
+  await api(`/api/agents/runs/${runId}/decision`, { json: { decision: "approve" } }, T).catch(() => {});
+  const r = await api(`/api/docs/from-run/${runId}?template=specimen`, {}, T);
+  if (r.status === 200) {
+    ok(r.body.template === "specimen", "8d. a specimen extract drafts from the same approved run", r.body.template);
+    ok(r.body.data.project === "",
+       "   the project name is BLANK — a published document must name an illustrative project, never a real engagement");
+    ok(!("client" in r.body.data), "   and no client name is carried across at all");
+    ok(/never a real engagement/.test(r.body.specimenWarning || ""), "   the desk is warned before the form appears");
+    ok(Boolean(r.body.data.s3) && Boolean(r.body.data.s7),
+       "   the two sections shown in full came across", { s3: (r.body.data.s3 || "").slice(0, 40), s7: (r.body.data.s7 || "").slice(0, 40) });
+
+    const g = await api("/api/docs/generate", { json: {
+      template: "specimen",
+      data: { project: "Worked example — a 400 kV converter station", findings: r.body.data.findings, s3: r.body.data.s3, s7: r.body.data.s7 },
+    } }, T);
+    ok(g.status === 201, "   it generates a numbered SPEC document", g.body);
+    const html = await (await fetch(`${B}/api/docs/${g.body.document.id}/render?token=${encodeURIComponent(T)}`)).text();
+    ok(/class="wm"/.test(html) && /SPECIMEN/.test(html), "   watermarked SPECIMEN on every printed page");
+    ok(/not a project ETABLIX has delivered/.test(html),
+       "   and it says on its face that it is a worked example, not delivered work");
+    ok(/In the full report/.test(html), "   the other ten sections are listed, not printed");
+  } else {
+    ok(false, "8d. the specimen draft endpoint answered", r.body);
+  }
+}
+
 // 7 — the client reads it, approves, and the balance invoices itself
 r = await api(`/api/clients/portal/${tok}`);
 const issued = r.body.engagement.deliverables.at(-1);
