@@ -213,37 +213,46 @@ properly. This is not the moment to be brief, and it is not the moment to
 mention ETABLIX — answering well **is** the marketing, and your headline is one
 click away.
 
-**Formatting note:** LinkedIn strips markdown. Asterisks show as asterisks. Use
-plain sentences and blank lines between them, as below.
+**Two formatting facts, learned the hard way.** LinkedIn strips markdown —
+asterisks show as asterisks — and **a comment is capped at 1,250 characters**,
+including spaces. The first draft of this reply ran to about 1,450 and was
+rejected. Everything below is measured; the reply is 1,203.
 
-### The reply
+The cuts were all connective tissue rather than content: the thank-you, the
+hedges, and the words "contract" and "required" where the sentence worked
+without them. Every one of the four points survived, which is the test. If a
+trim has to remove a point, the comment was carrying too many.
 
-> Thank you — and it is a fair question to put back to me.
->
-> My honest answer is that you do not. Procurement is accountable for buying
-> what the requisition asked for, and it usually does that well. If the
-> requisition carries only the construction demand profile, the buyer has done
-> the job correctly and the project still fails. So everything I would change
-> sits upstream of the buyer.
+### The reply — 1,203 characters, fits
+
+> Honest answer: you do not. Procurement is accountable for buying what the
+> requisition asked for, and it usually does that well. If the requisition
+> carries only the construction demand profile, the buyer did the job correctly
+> and the project still failed. So everything I would change sits upstream of
+> the buyer.
 >
 > Two profiles in the requisition instead of one. Temporary power, water,
 > welfare and access each carry a construction load and a commissioning load,
 > with different durations. Same document, two columns.
 >
 > The commissioning manager signs the requisition and the award recommendation.
-> Not consulted — signs. Consultation produces an opinion; a required signature
-> produces a boundary somebody owns. It is the only item on this list that costs
-> nothing.
+> Not consulted — signs. Consultation produces an opinion; a signature produces
+> a boundary someone owns. It costs nothing.
 >
-> The contract term written to handover, not to mechanical completion. This was
-> the one I saw most often, and nothing was undersized: the hire, the welfare and
-> the generators simply ran out, because the term followed the construction
-> programme. Commissioning then arrives to find the compound being demobilised
-> around them.
+> The term written to handover, not to mechanical completion. That was the one I
+> saw most: nothing undersized, the hire and the generators simply ran out
+> because the term followed the construction programme. Commissioning arrives to
+> find the compound being demobilised around them.
 >
-> And one question worth putting in the tender itself: ask bidders how they will
-> handle the step change in demand between construction peak and commissioning.
-> The ones who cannot answer are usually the ones who raise the variation.
+> And one question in the tender itself — how will you handle the step change in
+> demand between construction peak and commissioning? The bidders who cannot
+> answer are usually the ones who raise the variation.
+
+**If it is still refused,** the count is being measured differently than you
+expect — smart quotes and em dashes each count as one character, but a paste
+that carries hidden formatting can add more. Retype the last sentence rather
+than hunting: dropping "And one question in the tender itself — " and starting
+at "How will you handle" saves 40 characters and loses nothing.
 
 ### Why this answer and not a shorter one
 
