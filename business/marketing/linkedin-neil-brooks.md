@@ -79,10 +79,15 @@ whether he is a client, a route, or neither, without proposing anything.
 ## What his answer could be worth
 
 **If he confirms the pattern** — ask if he would say so on the record. A line
-from a former Head of Projects with a 628MW portfolio behind him, describing
-the problem in his own words, is the most credible thing you could put in front
-of a client, and you have no delivery record of your own yet. Do not push if he
-hesitates: a private confirmation is still worth having.
+from a former Head of Projects with that portfolio behind him, describing the
+problem in his own words, is the most credible thing you could put in front of
+a client, and you have no delivery record under the company yet.
+
+He is freer to say it than most people in his position would be: UK Power
+Reserve no longer exists, so there is no current employer's commercial
+position to protect and no live programme to be careful about. That removes
+the usual reason a senior figure declines. Do not push if he still hesitates —
+a private confirmation is worth having on its own.
 
 **If Root-Power builds sites** — that is a potential first engagement, and the
 best possible one, because he already knows how you work. Let him raise it. If
