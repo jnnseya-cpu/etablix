@@ -196,9 +196,14 @@ and their passwords are in the source. Reach it through a tunnel:
     cp deploy/autodeploy.sh /opt/etablix-autodeploy.sh && chmod +x /opt/etablix-autodeploy.sh
     echo '*/5 * * * * root flock -n /run/etablix-deploy.lock /opt/etablix-autodeploy.sh' > /etc/cron.d/etablix-autodeploy
 
-Every push then reaches staging by itself within five minutes. **Live is never
-auto-deployed** unless you set `ETABLIX_AUTODEPLOY_TARGET=live`, which you
-should not: production deploys are a decision, taken with `./deploy.sh`.
+Every push then reaches staging by itself within five minutes. A tick with
+nothing new costs nothing: if the running container is already on that commit
+and answering, the script exits without rebuilding, so cron cannot recreate the
+container under somebody who is mid-test. **Live is never auto-deployed**
+unless you set `ETABLIX_AUTODEPLOY_TARGET=live`, which you should not:
+production deploys are a decision, taken with `./deploy.sh`.
+
+To rebuild staging even though the commit has not moved: `FORCE=1 ./deploy/staging.sh`.
 
 Freeze everything while you are mid-test, without editing cron:
 

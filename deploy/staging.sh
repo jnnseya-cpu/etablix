@@ -57,6 +57,20 @@ git reset --hard "origin/$BRANCH" --quiet
 SHORT=$(git rev-parse --short=12 HEAD)
 echo "$SHORT" > BUILD_COMMIT
 
+# ---- nothing to do is the commonest case, and it must cost nothing ---------
+# Run from cron every five minutes, this script would otherwise rebuild and
+# RECREATE THE CONTAINER on every tick, whether anything had changed or not —
+# under whoever happened to be testing at the time. That is the exact fault
+# this whole arrangement exists to prevent. If the running container is
+# already on this commit, and answering, there is nothing to do.
+if [ -z "${RESET:-}${SEED_FROM_LIVE:-}" ] && [ "${FORCE:-0}" != "1" ]; then
+  RUNNING=$(docker exec "$NAME" printenv BUILD_COMMIT 2>/dev/null || true)
+  if [ "$RUNNING" = "$SHORT" ] &&
+     docker exec "$NAME" wget -qO- --timeout=5 http://localhost:3000/api/health 2>/dev/null | grep -q '"ok":true'; then
+    exit 0   # already on this commit and healthy — silence is correct from cron
+  fi
+fi
+
 # ---- never rebuild over work in flight -------------------------------------
 WAITED=0
 while docker exec "$NAME" wget -qO- http://localhost:3000/api/health 2>/dev/null | grep -q '"busy":true'; do
