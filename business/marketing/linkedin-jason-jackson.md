@@ -115,3 +115,91 @@ one thing that would close the door permanently is chasing.
 - **A capability statement, a link, or a deck in the first message.** It turns
   a conversation between two people who do the same job into a sales sequence,
   and he has met a hundred of those.
+
+---
+
+## What he actually said, and the reply
+
+He answered, and he answered properly:
+
+> "Yes, broadly Justin, that's still how it works. It gets priced internally
+> at bid stage, often with limited information, then sourcing goes to market
+> and the contractor effectively prices it again.
+>
+> The civils themselves are rarely the main problem. It's usually the gaps
+> around power, water, welfare, access, accommodation, logistics and, most
+> importantly, who owns each interface."
+
+Two things happened there.
+
+**He confirmed the mechanism, unprompted and in his own words.** Priced
+internally on limited information, then re-priced by the market. That is now
+validated by a programme director at a company that runs exactly the contracts
+in question — not by you asserting it.
+
+**And he corrected the diagnosis, in a way that is worth more than the
+confirmation.** You had been describing this as a pricing and capability
+problem. He says the civils are rarely the issue: it is the gaps around them,
+and above all **who owns each interface**. That is a sharper articulation than
+anything in the marketing so far, and it points straight at the one deliverable
+a client cannot produce internally — the interface matrix.
+
+Use the insight everywhere. **Do not attribute it to him or to Siemens Energy
+without asking**, and do not ask yet.
+
+### The reply
+
+> That's useful, thank you — and the interface point is the bit I had
+> underweighted.
+>
+> From the buying side it looked like a pricing problem: we could not get a
+> number we trusted, so we bought the number. Your framing is better. The
+> number was the symptom. What we actually failed to define was who owned each
+> boundary, and every boundary we left undefined came back later either as a
+> variation or as two suppliers each waiting for the other to move.
+>
+> Power was the one I saw most often. A generator sized off a load schedule
+> that had already been superseded, a connection date worked backwards from
+> nothing, and no single party accountable for distribution between the
+> compound, the welfare and the plant. Everybody held a piece of it and nobody
+> held the whole.
+>
+> One more question, if you will indulge it. When interface ownership does get
+> settled on your jobs, what settles it? A document somebody maintains — a
+> responsibility matrix, a schedule of who provides what — or people working it
+> out on site as it comes up?
+>
+> I ask because I am building the answer as a document, and if in practice it
+> always gets resolved by people rather than by paper, I would rather know that
+> now than in a year.
+
+### Why that reply and not a pitch
+
+**It concedes something.** He corrected you and you say so, plainly, in the
+first line. Senior people notice who can take a correction and who deflects
+it.
+
+**It pays him back with something specific.** The power example is first-hand,
+technical and checkable, and it is the buying-side view he does not have. That
+is what turns an interview into a conversation between peers, and it is the
+only reason he replies a third time.
+
+**The question could invalidate your product, and you ask it anyway.** If
+interface ownership is always settled by people rather than paper, the
+diagnostic is worth less than you think and you need to know. Asking that of
+somebody who could confirm it is the strongest signal of seriousness available
+to you, and it costs nothing but nerve.
+
+### What to do with his answer
+
+- **If he says a document settles it** — ask what document, and whether it is
+  ever produced before the packages are let. That answer tells you where the
+  diagnostic sits in the timeline and what it must look like.
+- **If he says people settle it on site** — that is not a refutation. It means
+  the paper does not exist, which is the gap; ask what it costs when the wrong
+  people settle it late.
+- **Either way, do not pitch on this exchange.** Two useful replies from a
+  programme director is a relationship. Ask on the fourth message, if at all,
+  and ask for critique rather than a purchase: whether he would look at the
+  interface matrix and tell you what is missing. People at his level say yes to
+  being an expert far more often than they say yes to being a customer.
