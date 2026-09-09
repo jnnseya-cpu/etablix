@@ -317,6 +317,49 @@ side by side. Do not soften it and do not editorialise: set out what the
 documents say.`;
 
 /** The passes in order, for progress reporting and resumability. */
+/**
+ * A deliverable is a SPEC, not code.
+ *
+ * Everything above — the working-paper task, the section passes, the final
+ * pass — describes one product: the Site Systems Diagnostic. The engine below
+ * it describes none: reading a client's documents against each other,
+ * continuing a pass that runs out of room, resuming an interrupted run,
+ * caching the pack across six calls, keeping the money and the notes straight.
+ *
+ * That engine took months of defects to get right, and ETABLIX sells five
+ * Model A deliverables. Four of them had no production at all — an intake
+ * checklist, a price, and somebody writing forty pages by hand. So the engine
+ * takes a spec now, and a new deliverable is a description of what it must
+ * contain rather than a second copy of the machinery.
+ *
+ * A spec is: the working-paper task, the passes that write the report, the
+ * final reconciliation pass, and which of those reach the client's document.
+ */
+export function pipelineSpec({ id, reconcileTask, sectionPasses, finalTask, finalLabel = "Findings and reconciliation ledger" }) {
+  return {
+    id,
+    reconcileTask,
+    sectionPasses,
+    finalTask,
+    stages: [
+      { key: "reconcile", label: "Reading the documents against each other" },
+      ...sectionPasses.map((p) => ({ key: p.key, label: p.label })),
+      { key: "final", label: finalLabel },
+    ],
+    // Which passes end up in the document the client reads. The working paper
+    // does not: it is the spine the sections are written from, and a truncated
+    // spine costs depth rather than making the report stop mid-sentence.
+    inReport: new Set([...sectionPasses.map((p) => p.key), "final"]),
+  };
+}
+
+export const DIAGNOSTIC_SPEC = pipelineSpec({
+  id: "diagnostic",
+  reconcileTask: RECONCILE_TASK,
+  sectionPasses: SECTION_PASSES,
+  finalTask: FINAL_TASK,
+});
+
 export const DIAGNOSTIC_STAGES = [
   { key: "reconcile", label: "Reading the documents against each other" },
   ...SECTION_PASSES.map((p) => ({ key: p.key, label: p.label })),
@@ -364,7 +407,8 @@ const BUDGET = {
  * "output hit the length limit" told the desk its finished report was
  * cut off when it was whole.
  */
-const IN_REPORT = new Set(["s1_3", "s4_6", "s7_9", "s10_12", "final"]);
+/** Kept for the one call site that predates the spec; see pipelineSpec(). */
+const IN_REPORT = DIAGNOSTIC_SPEC.inReport;
 
 /**
  * The context guard.
@@ -665,7 +709,7 @@ const MAX_CONTINUATIONS = 3;
  * reconcile continuation did, leaves a broken table row wherever the cut
  * fell inside one.
  */
-async function complete(anthropic, args, key, record, notes) {
+async function complete(anthropic, args, key, record, notes, inReport = IN_REPORT) {
   let r = await call(anthropic, args);
   record(r, key);
   let text = r.text;
@@ -696,7 +740,7 @@ async function complete(anthropic, args, key, record, notes) {
     text += r.text;
   }
 
-  if (r.truncated && IN_REPORT.has(key)) {
+  if (r.truncated && inReport.has(key)) {
     // Loud, and phrased so the desk cannot mistake it for a caveat.
     notes.push(
       `The "${key}" pass is INCOMPLETE. It reached the length limit ${rounds + 1} times and is still cut off, ` +
@@ -789,7 +833,7 @@ export function buildInputsBlock(brief, inputs, documents = []) {
  * as it happens: a run that dies at pass four leaves four passes of work
  * on the record rather than nothing.
  */
-export async function runDiagnostic({ anthropic, model, system, brief, inputs, documents = [], visuals, onStage, resume = {} }) {
+export async function runPipeline({ spec = DIAGNOSTIC_SPEC, anthropic, model, system, brief, inputs, documents = [], visuals, onStage, resume = {} }) {
   const inputsBlock = buildInputsBlock(brief, inputs, documents);
   // NO TIME LIMIT by default. The run takes as long as the work takes.
   //
@@ -847,14 +891,14 @@ export async function runDiagnostic({ anthropic, model, system, brief, inputs, d
     // engagement. If it stops mid-table, everything downstream is built on
     // a truncated spine — so it is written to the end, not used as it is.
     const ledgerRun = await complete(anthropic, {
-      model, system, inputsBlock, visualBlocks, visualNote, task: RECONCILE_TASK, budget: BUDGET.reconcile, caps, deadline,
-    }, "reconcile", record, notes);
+      model, system, inputsBlock, visualBlocks, visualNote, task: spec.reconcileTask, budget: BUDGET.reconcile, caps, deadline,
+    }, "reconcile", record, notes, spec.inReport);
     ledger = ledgerRun.text;
     await onStage?.({ key: "reconcile", state: "done", index: 0, chars: ledger.length, text: ledger });
   }
 
   const sections = [];
-  for (const [i, pass] of SECTION_PASSES.entries()) {
+  for (const [i, pass] of spec.sectionPasses.entries()) {
     if (resume[pass.key]) {
       sections.push({ key: pass.key, text: resume[pass.key] });
       await onStage?.({ key: pass.key, state: "done", index: i + 1, chars: resume[pass.key].length, resumed: true });
@@ -868,12 +912,12 @@ export async function runDiagnostic({ anthropic, model, system, brief, inputs, d
         ? `THE SECTIONS ALREADY WRITTEN — stay consistent with them, refer to them by number, and do not repeat their content.\n\n${sections.map((s) => s.text).join("\n\n")}`
         : null,
       task: pass.task, budget: BUDGET.section, caps, deadline,
-    }, pass.key, record, notes);
+    }, pass.key, record, notes, spec.inReport);
     sections.push({ key: pass.key, text: r.text });
     await onStage?.({ key: pass.key, state: "done", index: i + 1, chars: r.text.length, text: r.text });
   }
 
-  await onStage?.({ key: "final", state: "running", index: SECTION_PASSES.length + 1 });
+  await onStage?.({ key: "final", state: "running", index: spec.sectionPasses.length + 1 });
   // The final pass is never carried over: it reconciles the twelve sections
   // against each other, so it has to be written against the set that actually
   // exists rather than an earlier one.
@@ -881,12 +925,12 @@ export async function runDiagnostic({ anthropic, model, system, brief, inputs, d
     model, system, inputsBlock, visualBlocks, visualNote,
     ledgerBlock: `THE WORKING PAPER FROM PASS ONE — every finding below is sourced; build on it, cite its references, and do not contradict it without saying why.\n\n${ledger}`,
     priorBlock: `THE TWELVE DELIVERABLES AS WRITTEN\n\n${sections.map((s) => s.text).join("\n\n")}`,
-    task: FINAL_TASK,
+    task: spec.finalTask,
     budget: BUDGET.final,
     caps,
     deadline,
-  }, "final", record, notes);
-  await onStage?.({ key: "final", state: "done", index: SECTION_PASSES.length + 1, chars: finalRun.text.length, text: finalRun.text });
+  }, "final", record, notes, spec.inReport);
+  await onStage?.({ key: "final", state: "done", index: spec.sectionPasses.length + 1, chars: finalRun.text.length, text: finalRun.text });
 
   // The findings paragraph is written last but read first, so the
   // assembled report puts it back where it belongs.
@@ -910,8 +954,16 @@ export async function runDiagnostic({ anthropic, model, system, brief, inputs, d
     // because this flag is what tells the desk the document stops early.
     truncated: notes.some((n) => /pass is INCOMPLETE/.test(n)),
     notes,
-    passes: DIAGNOSTIC_STAGES.length,
+    passes: spec.stages.length,
   };
 }
 
 export { STANDARD };
+
+/**
+ * The Site Systems Diagnostic, by its original name.
+ *
+ * Kept so nothing that called it has to change while the other deliverables
+ * are built on the same engine.
+ */
+export const runDiagnostic = (args) => runPipeline({ ...args, spec: DIAGNOSTIC_SPEC });

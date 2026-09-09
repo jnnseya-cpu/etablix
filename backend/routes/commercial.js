@@ -26,6 +26,9 @@ import { ROLES, ACCESS } from "../../shared/constants.js";
 import { collection, insert, update, remove, getSettings, saveSettings } from "../lib/store.js";
 import { emit } from "../lib/comms.js";
 import { DPS_STAGES, DPS_REQUIREMENTS, DPS_EVIDENCE, DPS_SEED, readiness } from "../lib/dps.js";
+// One catalogue, read here rather than copied. See the comment on MODEL.modelA.
+import { DELIVERABLES, MODELS } from "../lib/clientflow.js";
+import { costOf, marginOf } from "../lib/margin.js";
 
 const router = Router();
 router.use(requireAuth);
@@ -39,32 +42,48 @@ const toNum = (v) => (Number.isFinite(Number(v)) ? Number(v) : 0);
 
 // ---------------------------------------------------------------- model
 
-const MODEL = {
+export const MODEL = {
   namingRule:
     'In client documents Model C is the "Prime Service Contractor", never "Principal Service Contractor" — under CDM 2015 "Principal Contractor" is a defined legal role with specific health-and-safety duties. Acting as CDM Principal Contractor must be an explicit, priced, insured decision — never an accident of branding.',
+  // THIS LIST IS DERIVED. It used to be a second, hand-typed copy of every
+  // Model A price — and when the catalogue was rebanded it silently kept
+  // quoting £2,500–£7,500 for a diagnostic that had become £6,500–£18,500.
+  // A second price list is a second ledger, and a second ledger is
+  // discovered in front of a client. There is one catalogue now, in
+  // clientflow.js, and this reads it.
   modelA: {
     name: "Model A — Advisory",
-    // `id` is the catalogue deliverable this row prices, so a price made here
-    // can be put straight onto an engagement. Matching the two lists by
-    // position instead would break silently the first time either is reordered.
-    items: [
-      { id: "feasibility", deliverable: "Site-services feasibility review / Site Systems Diagnostic", low: 2500, high: 7500 },
-      { id: "site-requirements", deliverable: "Site Management Requirements Package", low: 7500, high: 25000 },
-      { id: "village-requirements", deliverable: "Workforce Village Requirements Package", low: 10000, high: 35000 },
-      { id: "procurement", deliverable: "Procurement management and tender evaluation", low: 7500, high: 30000 },
-      { id: "mobilisation-review", deliverable: "Mobilisation-readiness / village-readiness review", low: 5000, high: 15000 },
-    ],
+    items: DELIVERABLES.filter((d) => d.model === "A").map((d) => ({
+      id: d.id,
+      deliverable: d.name,
+      low: d.low,
+      high: d.high,
+      bands: d.bands.map((b) => ({
+        id: b.id, label: b.label, fee: b.fee, scope: b.scope,
+        margin: marginOf(b.fee, costOf({ effort: b.effort, expenseProfile: b.expenseProfile })),
+      })),
+    })),
   },
   modelB: {
     name: "Model B — Management Integrator",
     note: "The engine of the first 18–24 months: recurring fee income, no supplier financing, and every project feeds the supplier database, rate benchmarks and the CONSTRUX product.",
+    // Also derived. These were hand-typed too, and the monthly figure said
+    // £7,500 when the cheapest team this model can field costs £18,810 a
+    // month to deliver — a fee that would have lost money on every
+    // appointment it won.
     components: [
-      { component: "Mobilisation and planning fee", basis: "£15,000 – £50,000 fixed", lowFee: 15000, highFee: 50000, kind: "fixed" },
-      { component: "Procurement fee", basis: "3% – 5% of procured supplier value", lowPct: 3, highPct: 5, kind: "pct" },
-      { component: "Monthly integration and management fee", basis: "£7,500 – £30,000 per month (scaled to package count and workforce)", lowFee: 7500, highFee: 30000, kind: "monthly" },
-      { component: "Embedded site personnel", basis: "Cost + agreed margin, or day rates", kind: "cost-plus" },
-      { component: "CONSTRUX platform and reporting", basis: "£1,000 – £5,000 per month per project", lowFee: 1000, highFee: 5000, kind: "monthly" },
-      { component: "Demobilisation and closeout fee", basis: "Fixed, scoped at appointment", kind: "fixed" },
+      { component: "Mobilisation and planning fee", kind: "fixed",
+        basis: MODELS.B.feeGuide.mobilisation.map((x) => `${x.label} £${x.fee.toLocaleString()}`).join(" · "),
+        lowFee: Math.min(...MODELS.B.feeGuide.mobilisation.map((x) => x.fee)),
+        highFee: Math.max(...MODELS.B.feeGuide.mobilisation.map((x) => x.fee)) },
+      { component: "Monthly integration and management fee", kind: "monthly",
+        basis: `Team cost at target margin, cross-checked against ${MODELS.B.feeGuide.monthly.basis}. Minimum £${Math.round(MODELS.B.feeGuide.monthly.floor).toLocaleString()} per month.`,
+        lowFee: Math.round(MODELS.B.feeGuide.monthly.floor), highFee: null },
+      { component: "Embedded site personnel beyond the named team", basis: "Cost plus agreed margin, or day rates. The monthly fee must state which roles and how many it includes, or this line cannot be charged.", kind: "cost-plus" },
+      { component: "CONSTRUX platform and reporting", kind: "monthly",
+        basis: MODELS.B.feeGuide.platform.basis,
+        lowFee: MODELS.B.feeGuide.platform.low, highFee: MODELS.B.feeGuide.platform.high },
+      { component: "Demobilisation and closeout fee", basis: "Fixed, scoped at appointment. Never assumed inside the mobilisation fee.", kind: "fixed" },
     ],
   },
   modelC: {

@@ -17,14 +17,14 @@
 import assert from "node:assert/strict";
 import {
   integratorFee, primeFee, scaleOf,
-  B_MONTHLY_FLOOR, B_MINIMUM_TERM_MONTHS, C_PCT_FLOOR,
+  B_MONTHLY_FLOOR, B_MINIMUM_TERM_MONTHS, C_PCT_FLOOR, C_STACK, C_STACK_TOTAL, C_RETAINED,
 } from "../lib/pricing.js";
 import {
   costOf, marginOf, priceFor, breakEven, teamMonthlyCost,
   TARGET_NET_MARGIN, MINIMUM_NET_MARGIN, OVERHEAD_RECOVERY,
   ANNUAL_OVERHEAD, ANNUAL_OVERHEAD_TOTAL, EXPENSES,
 } from "../lib/margin.js";
-import { DELIVERABLES } from "../lib/clientflow.js";
+import { DELIVERABLES, MODELS } from "../lib/clientflow.js";
 
 let pass = 0;
 const t = (name, fn) => { try { fn(); pass++; console.log("  ✓ " + name); } catch (e) { console.log("  ✗ " + name + "\n      " + e.message); process.exitCode = 1; } };
@@ -99,20 +99,51 @@ t("the platform fee is charged only when CONSTRUX is in scope, and is capped", (
 });
 
 console.log("\npricing — Model C\n");
-t("a first engagement is priced above one at scale, on the same spend", () => {
-  const first = primeFee({ supplierSpend: 18_000_000, termMonths: 34, compounds: 3, firstEngagement: true });
-  const later = primeFee({ supplierSpend: 18_000_000, termMonths: 34, compounds: 3, firstEngagement: false });
-  assert.ok(first.pct > later.pct);
-  assert.ok(later.pct >= C_PCT_FLOOR, "and never below the floor");
+t("Model C has ONE basis — the stack — and it is what the client is shown", () => {
+  // There were two: the stack in the Commercial OS (8+5+7+5) and a separate
+  // 9–14% I had written. Two bases for the same work means whichever is
+  // quoted, the other is evidence against it. The stack won.
+  const r = primeFee({ supplierSpend: 12_000_000, termMonths: 24, compounds: 3 });
+  assert.equal(r.pct, C_STACK_TOTAL);
+  assert.equal(r.stack.length, 4);
+  assert.ok(r.pctLabel.includes("returnable contingency"));
 });
-t("the fee funds the team even when the percentage does not — a prime that cannot pay its own team is insolvent by design", () => {
-  const r = primeFee({ supplierSpend: 18_000_000, termMonths: 34, compounds: 5 });
+t("the contingency is NOT counted as fee — the margin is measured on the retained share", () => {
+  const r = primeFee({ supplierSpend: 12_000_000, termMonths: 24, compounds: 3 });
+  assert.equal(r.retainedPct, C_RETAINED);
+  assert.ok(r.retainedPct < r.pct, "charged 25%, retained 20%");
+  assert.ok(r.stack.some((x) => x.returnable === true));
+});
+t("a first engagement is charged above one at scale, and it is management and profit that move", () => {
+  const first = primeFee({ supplierSpend: 12_000_000, termMonths: 24, compounds: 3, firstEngagement: true });
+  const later = primeFee({ supplierSpend: 12_000_000, termMonths: 24, compounds: 3, firstEngagement: false });
+  assert.ok(first.pct > later.pct);
+  const overheadFirst = first.stack.find((x) => x.id === "overhead").pct;
+  const overheadLater = later.stack.find((x) => x.id === "overhead").pct;
+  assert.equal(overheadFirst, overheadLater, "overhead recovery does not fall — the company still has to exist");
+});
+t("a real appointment can be priced on its real resource plan, not a default", () => {
+  const dflt = primeFee({ supplierSpend: 12_000_000, termMonths: 24, compounds: 3 });
+  const real = primeFee({ supplierSpend: 12_000_000, termMonths: 24, compounds: 3,
+    team: { siteIntegrationManager: 3, projectManager: 2, commercial: 2, procurement: 1 } });
+  assert.ok(real.working.cost.total > dflt.working.cost.total);
+  // A standing caveat lives in notes, not warnings — otherwise a clean
+  // quotation looks flagged and a real flag stops standing out.
+  assert.ok(dflt.notes.some((n) => /DEFAULT, not a resource plan/.test(n)));
+  assert.equal(real.notes.length, 0);
+});
+t("the fee funds the team even when the stack does not — a prime that cannot pay its own team is insolvent by design", () => {
+  // A deliberately heavy resource plan against a modest spend: the stack
+  // cannot pay for it, so the fee is set at team cost and says so.
+  const r = primeFee({ supplierSpend: 4_000_000, termMonths: 24, compounds: 2,
+    team: { siteIntegrationManager: 3, projectManager: 2, commercial: 2, procurement: 1.5 } });
   assert.equal(r.working.driver, "team cost");
   assert.ok(r.monthlyFee >= r.working.byTeamMonthly);
   assert.ok(r.warnings.some((w) => /does not fund the team/.test(w)));
 });
-t("a small prime is refused rather than priced — the commercial apparatus does not shrink", () => {
-  const r = primeFee({ supplierSpend: 2_500_000, termMonths: 12, compounds: 1 });
+t("a prime whose team costs more than the whole stack is refused, not priced", () => {
+  const r = primeFee({ supplierSpend: 2_000_000, termMonths: 12, compounds: 3,
+    team: { siteIntegrationManager: 3, projectManager: 2, commercial: 2, procurement: 1.5 } });
   assert.ok(r.warnings.some((w) => /not a prime opportunity/.test(w)), r.warnings.join(" | "));
 });
 t("the advance carries all five components, and month one is flagged when assumed", () => {
@@ -204,5 +235,45 @@ t("break-even says how many a year the central cost needs", () => {
   assert.ok(be.engagementsToBreakEven > 0 && be.engagementsToBreakEven < 60, `${be.engagementsToBreakEven}`);
   assert.equal(be.annualOverhead, ANNUAL_OVERHEAD_TOTAL);
 });
+
+console.log("\npricing — one catalogue, everywhere\n");
+
+// The Commercial OS carried a SECOND, hand-typed copy of every Model A price.
+// When the catalogue was rebanded it silently kept quoting £2,500–£7,500 for a
+// diagnostic that had become £6,500–£18,500, and a Model B monthly of £7,500
+// against a team that costs £18,810 a month to field. A second price list is a
+// second ledger, and a second ledger is discovered in front of a client.
+{
+  const { MODEL } = await import("../routes/commercial.js");
+  t("the Commercial OS reads the catalogue rather than copying it", () => {
+    const cat = DELIVERABLES.filter((d) => d.model === "A");
+    assert.equal(MODEL.modelA.items.length, cat.length);
+    for (const d of cat) {
+      const row = MODEL.modelA.items.find((x) => x.id === d.id);
+      assert.ok(row, `no commercial row for ${d.id}`);
+      assert.equal(row.low, d.low);
+      assert.equal(row.high, d.high);
+      assert.equal(row.bands.length, d.bands.length);
+    }
+  });
+  t("and its Model B components read the fee guide rather than restating it", () => {
+    const monthly = MODEL.modelB.components.find((c) => /Monthly integration/.test(c.component));
+    assert.equal(monthly.lowFee, Math.round(MODELS.B.feeGuide.monthly.floor));
+    const platform = MODEL.modelB.components.find((c) => /CONSTRUX/.test(c.component));
+    assert.equal(platform.lowFee, MODELS.B.feeGuide.platform.low);
+    assert.equal(platform.highFee, MODELS.B.feeGuide.platform.high);
+  });
+  t("no superseded price survives anywhere in the two lists", () => {
+    const dead = [2500, 7500, 25000, 35000, 30000, 15000];
+    const flat = JSON.stringify({ a: MODEL.modelA, b: MODEL.modelB });
+    const cat = JSON.stringify(DELIVERABLES);
+    for (const n of [2500]) {
+      // 2,500 was the diagnostic floor and appears nowhere legitimate.
+      assert.ok(!new RegExp(`\\b${n}\\b`).test(cat), `${n} still in the catalogue`);
+      assert.ok(!new RegExp(`"low":${n}\\b|"fee":${n}\\b`).test(flat), `${n} still priced in the Commercial OS`);
+    }
+    assert.ok(dead.length > 0);
+  });
+}
 
 console.log(`\n${pass} checks passed${process.exitCode ? " — with failures above" : ""}\n`);

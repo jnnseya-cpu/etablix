@@ -30,6 +30,16 @@ import {
   TARGET_NET_MARGIN, MINIMUM_NET_MARGIN, OVERHEAD_RECOVERY, EXPENSES,
 } from "./margin.js";
 
+/**
+ * A standing caveat, kept out of `warnings` on purpose.
+ *
+ * Mixing a permanent note with a flag about this particular price means a
+ * clean quotation looks flagged and a real flag stops standing out.
+ */
+const DEFAULT_TEAM_NOTE =
+  "The team composition is a DEFAULT, not a resource plan — it is what to say before there is one. "
+  + "Before signing, price the people this appointment actually needs by passing the real plan; the margin then tells you whether the fee affords them.";
+
 const p2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
 const p0 = (n) => Math.round(Number(n) || 0);
 const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : 0);
@@ -149,7 +159,7 @@ export const B_PLATFORM = { base: 1800, perExtraSite: 450, perUserOver25: 18, ca
  */
 export function integratorFee({
   annualisedSpend = 0, compounds = 1, sites = 1, termMonths = 12,
-  construx = false, users = 25,
+  construx = false, users = 25, team: teamOverride = null,
 } = {}) {
   const scale = scaleOf({ compounds, sites });
   const spend = Math.max(num(annualisedSpend), 0);
@@ -158,7 +168,7 @@ export function integratorFee({
   const band = B_PCT_BANDS.find((b) => spend <= b.upTo);
   const byPercent = p2((spend * band.pct) / 12);
 
-  const team = teamFor(scale, spend);
+  const team = teamOverride || teamFor(scale, spend);
   const cost = teamMonthlyCost(team, { roleCost: B_ROLE_COST, expenseProfile: "resident" });
   const byTeam = priceFor(cost.total, TARGET_NET_MARGIN);
 
@@ -221,6 +231,7 @@ export function integratorFee({
         ? `${term} months is below the ${B_MINIMUM_TERM_MONTHS}-month minimum. The mobilisation fee does not repay itself over a shorter term.`
         : null,
     ].filter(Boolean),
+    notes: teamOverride ? [] : [DEFAULT_TEAM_NOTE],
   };
 }
 
@@ -236,19 +247,47 @@ export function integratorFee({
  * record, so the same scope genuinely costs more to deliver. Clients
  * understand a learning curve; they do not forgive an unsignalled rise.
  */
-export const C_PCT_BANDS_FIRST = [
-  { upTo: 3_000_000, pct: 0.14 },
-  { upTo: 8_000_000, pct: 0.12 },
-  { upTo: 15_000_000, pct: 0.10 },
-  { upTo: Infinity, pct: 0.09 },
+/**
+ * The Model C stack — one basis, presented as it is charged.
+ *
+ * This existed already, in the Commercial OS, as the client-facing
+ * presentation: 8% management, 5% overhead recovery, 7% profit and prime risk,
+ * 5% controlled contingency. Twenty-five per cent, shown as four lines rather
+ * than hidden inside one, because "20% overhead" invites a haggle and a
+ * decomposition invites a conversation.
+ *
+ * And I had written a SECOND basis alongside it — 9–14% of supplier
+ * expenditure — which is a different price for the same work. Two bases is
+ * the same fault as two price lists: whichever one is quoted, the other is
+ * evidence against it. The stack wins, for three reasons: it came from the
+ * business plan rather than from me, it decomposes in front of a client, and
+ * when the cost model was built it turned out to be roughly what delivery
+ * actually costs. The 9–14% would have underpriced every prime appointment.
+ *
+ * CONTINGENCY IS NOT MARGIN. It is drawn only against a joint risk register
+ * through a change process, and unused contingency is returned or shared. So
+ * the retained fee is 20%, not 25%, and every margin check below uses 20%.
+ */
+export const C_STACK = [
+  { id: "pm", component: "Project management and integration", pct: 0.08,
+    pays: "Site-services managers, planners, quantity surveying, HSEQ support, coordination" },
+  { id: "overhead", component: "Corporate overhead recovery", pct: 0.05,
+    pays: "Insurance, accreditation, systems, back office" },
+  { id: "profit", component: "Profit and prime-contractor risk", pct: 0.07,
+    pays: "Margin, and the price of single-point accountability" },
+  { id: "contingency", component: "Controlled contingency", pct: 0.05, returnable: true,
+    pays: "Held against a joint risk register with a defined drawdown process. Unused contingency is returned or shared — it is not profit." },
 ];
-export const C_PCT_BANDS_AT_SCALE = [
-  { upTo: 3_000_000, pct: 0.10 },
-  { upTo: 8_000_000, pct: 0.09 },
-  { upTo: 15_000_000, pct: 0.08 },
-  { upTo: Infinity, pct: 0.07 },
-];
-export const C_PCT_FLOOR = 0.08;
+export const C_STACK_TOTAL = p2(C_STACK.reduce((s2, r) => s2 + r.pct, 0));
+export const C_RETAINED = p2(C_STACK.filter((r) => !r.returnable).reduce((s2, r) => s2 + r.pct, 0));
+
+/**
+ * At scale the stack comes down, and it is the management and profit lines
+ * that move — overhead recovery does not fall because the company still has
+ * to exist, and the contingency is the client's money either way.
+ */
+export const C_AT_SCALE_REDUCTION = { pm: 0.02, profit: 0.02 };
+export const C_PCT_FLOOR = C_RETAINED;
 export const C_MOBILISATION = { single: 35000, multi: 60000, programme: 90000 };
 /** The early-risk contingency inside the advance, as a share of month one. */
 export const C_CONTINGENCY_PCT = 0.10;
@@ -270,6 +309,27 @@ export const C_TEAM = {
 export const C_ROLE_COST = { ...MONTH_COST };
 
 /**
+ * The same thinning as Model B, for the same reason.
+ *
+ * A default team is a guess. It is a useful guess for a quotation and a bad
+ * one for an appointment, so both functions take a `team` override: when
+ * there is a real resource plan, price the real resource plan. The default is
+ * what to say before there is one.
+ */
+function cTeamFor(scale, supplierSpendPerYear) {
+  const base = C_TEAM[scale.id];
+  const perCompound = scale.compounds > 0 ? supplierSpendPerYear / scale.compounds : 0;
+  if (perCompound >= B_FULL_TIME_SIM_SPEND_PER_COMPOUND) return base;
+  const thin = (n) => Math.round(Math.max(n * 0.6, 0.5) * 100) / 100;
+  return {
+    siteIntegrationManager: thin(base.siteIntegrationManager),
+    projectManager: thin(base.projectManager),
+    commercial: thin(base.commercial),
+    procurement: thin(base.procurement),
+  };
+}
+
+/**
  * Price a Prime Service Contractor appointment, and say what it costs to fund.
  *
  * The working-capital line is the reason this function exists. A prime
@@ -282,17 +342,26 @@ export function primeFee({
   supplierSpend = 0, termMonths = 12, compounds = 1, sites = 1,
   monthOneSupplierSpend = null, earlyProcurementCommitments = 0,
   firstEngagement = true, supplierPaymentDays = 30, clientPaymentDays = 30,
+  team: teamOverride = null,
 } = {}) {
   const scale = scaleOf({ compounds, sites });
   const spend = Math.max(num(supplierSpend), 0);
   const term = Math.max(num(termMonths), 1);
 
-  const bands = firstEngagement ? C_PCT_BANDS_FIRST : C_PCT_BANDS_AT_SCALE;
-  const band = bands.find((b) => spend <= b.upTo);
-  const pct = Math.max(band.pct, C_PCT_FLOOR);
+  // The stack, adjusted for a first engagement or one at scale. The percentage
+  // charged is the whole stack; the percentage the margin is measured against
+  // is the retained part, because the contingency is not ETABLIX's money.
+  const stack = C_STACK.map((r) => ({
+    ...r,
+    pct: firstEngagement ? r.pct : p2(Math.max(r.pct - (C_AT_SCALE_REDUCTION[r.id] || 0), 0)),
+  }));
+  const pct = p2(stack.reduce((a, r) => a + r.pct, 0));
+  const retainedPct = p2(stack.filter((r) => !r.returnable).reduce((a, r) => a + r.pct, 0));
 
-  const byPercentMonthly = p2((spend * pct) / term);
-  const team = C_TEAM[scale.id];
+  // Measured on the retained share only — charging 25% and counting all of it
+  // as fee is how a prime discovers the contingency was never its to spend.
+  const byPercentMonthly = p2((spend * retainedPct) / term);
+  const team = teamOverride || cTeamFor(scale, term > 0 ? (spend / term) * 12 : spend);
   const cost = teamMonthlyCost(team, { roleCost: C_ROLE_COST, expenseProfile: "resident" });
   const byTeamMonthly = priceFor(cost.total, TARGET_NET_MARGIN);
 
@@ -329,7 +398,9 @@ export function primeFee({
     model: "C",
     scale,
     pct,
-    pctLabel: `${(pct * 100).toFixed(0)}% of supplier expenditure`,
+    retainedPct,
+    stack,
+    pctLabel: `${(pct * 100).toFixed(0)}% of supplier expenditure, of which ${(retainedPct * 100).toFixed(0)}% is retained and ${((pct - retainedPct) * 100).toFixed(0)}% is returnable contingency`,
     firstEngagement,
     managementFee,
     monthlyFee,
@@ -377,10 +448,11 @@ export function primeFee({
       // A prime carries the full commercial apparatus whatever its size, so a
       // small one is expensive as a percentage and no client will accept it.
       // That is not a pricing problem to solve; it is an opportunity to decline.
-      spend > 0 && (managementFee / spend) > 0.16
-        ? `At ${p2((managementFee / spend) * 100)}% this is not a prime opportunity. The commercial apparatus a prime needs does not shrink with the spend, so a small prime is expensive to the client and thin for ETABLIX. Offer Model B instead, or decline.`
+      spend > 0 && (managementFee / spend) > 0.30
+        ? `At ${p2((managementFee / spend) * 100)}% of spend this is not a prime opportunity — the stack is 25% and the team this scope needs costs more than that. The commercial apparatus a prime needs does not shrink with the spend. Offer Model B instead, or decline.`
         : null,
     ].filter(Boolean),
+    notes: teamOverride ? [] : [DEFAULT_TEAM_NOTE],
     nonNegotiable: [
       "No supplier order is placed before the advance has cleared.",
       "No prime appointment is priced without a package-by-package build-up.",
