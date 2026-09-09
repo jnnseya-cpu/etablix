@@ -95,3 +95,33 @@ and only when he asks for it.
 - No claim to hold accreditations, insurances or certifications that are not
   in place today. In his job, verifying that is a five-minute task, and it is
   the first thing he does.
+
+
+---
+
+## What he actually said
+
+He replied within the hour, and he is at **Hitachi Energy**, not a main
+contractor:
+
+> "Personally I don't normally deal with these packages, my role focuses mostly
+> of MEP and Main Installation scope. I know from attending meetings we
+> normally have multiple contracts for the scope you mention. We would directly
+> contract with a cabin/site establishment provider and then separately have a
+> subcontractor for M&E works. The other services like waste etc are handled by
+> our SCM team as individual contracts including site security.
+>
+> To become part of Hitachi Energy you need to register with our supply chain.
+> If you want to send me an email with your company brochure attached I can
+> share with our UK SCM managers in HVDC."
+
+Three things came out of that, and the reply and the email are in
+**business/bids/hitachi-energy-scm-introduction.md**:
+
+- **He is not the buyer and said so.** Do not sell to him. Make it easy and
+  make him look good for forwarding it.
+- **He described the fragmentation unprompted** — a second independent
+  confirmation of the proposition, from a second tier-one OEM.
+- **He offered an internal referral to the UK SCM managers in HVDC**, which is
+  the thing you could not have bought. The email has to be written to be
+  forwarded, because a stranger will read it with no context.
