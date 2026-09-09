@@ -22,15 +22,15 @@ they trained.
 
 ## Message one — reconnection, and nothing else
 
-Fill in the two bracketed details. Eleven years is long enough that a specific
-memory does more work than anything else in the message.
+No project detail, no "do you remember when". Eleven years is long enough that
+reaching for a specific job can land as an awkward test of his memory, and the
+relationship stands on its own without one. Name the time and the role, and
+move on.
 
 > Aaron — good to be connected again.
 >
-> You probably have to reach back a bit: I was an assistant project manager
-> under you at Turner & Townsend in 2015, on [the project / in the ... office].
-> [One specific thing you remember — a job, a client, something he said, the
-> thing you got wrong and he corrected.]
+> You may have to reach back a bit: I was an assistant project manager under
+> you at Turner & Townsend, back in 2015.
 >
 > I've stayed on the construction side since. Spent years at GE Vernova doing
 > construction subcontract management on EPC and turnkey projects across the
