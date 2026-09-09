@@ -36,7 +36,7 @@ router.get("/", (req, res) => {
 });
 
 /** POST /api/users — create an employee account. */
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const name = String(req.body.name || "").trim();
   const email = String(req.body.email || "").trim().toLowerCase();
   const role = String(req.body.role || "").trim();
@@ -51,12 +51,12 @@ router.post("/", (req, res) => {
   }
 
   const position = String(req.body.position || "").trim().slice(0, 120);
-  const user = insert("users", { name, email, role, position, active: true, password: hashPassword(password) });
+  const user = insert("users", { name, email, role, position, active: true, password: await hashPassword(password), sessionsValidFrom: Date.now() });
   res.status(201).json({ user: publicUser(user) });
 });
 
 /** PATCH /api/users/:id — change role, reset password, or (de)activate. */
-router.patch("/:id", (req, res) => {
+router.patch("/:id", async (req, res) => {
   const target = collection("users").find((u) => u.id === req.params.id);
   if (!target) return res.status(404).json({ error: "Account not found." });
 
@@ -68,11 +68,19 @@ router.patch("/:id", (req, res) => {
   }
   if (req.body.password !== undefined) {
     if (String(req.body.password).length < 10) return res.status(400).json({ error: "New password must be at least 10 characters." });
-    patch.password = hashPassword(String(req.body.password));
+    patch.password = await hashPassword(String(req.body.password));
+    // A new password ends every session that was opened with the old
+    // one. Otherwise resetting the password of a compromised account
+    // changes nothing for twelve hours.
+    patch.sessionsValidFrom = Date.now();
   }
   if (req.body.active !== undefined) {
     patch.active = Boolean(req.body.active);
+    // Deactivating an account must take effect now, not when its token
+    // happens to expire.
+    if (!patch.active) patch.sessionsValidFrom = Date.now();
   }
+  if (req.body.role !== undefined) patch.sessionsValidFrom = Date.now();  // a demotion is immediate
   if (req.body.position !== undefined) {
     patch.position = String(req.body.position).trim().slice(0, 120);
   }

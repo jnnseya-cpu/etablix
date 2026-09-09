@@ -17,7 +17,7 @@ import { Router } from "express";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 import { ROLES, ACCESS } from "../../shared/constants.js";
 import { collection, insert, remove, getSettings, saveSettings } from "../lib/store.js";
-import { verifyToken } from "../lib/auth.js";
+import { sessionFromQuery } from "../middleware/auth.js";
 import { AGENT_BRIEFS } from "../lib/ai.js";
 import { diagnosticDates, releaseStatus, human as humanDate, DIAGNOSTIC_WORKING_DAYS } from "../lib/workingdays.js";
 
@@ -656,7 +656,7 @@ export function splitDiagnostic(output) {
 
 /** Rendered documents open in a new tab, so auth arrives as ?token=. */
 function tokenAuth(req, res, next) {
-  const payload = verifyToken(req.query.token || "");
+  const payload = sessionFromQuery(req.query.token || "");
   if (!payload) return res.status(401).send("Authentication required.");
   if (!ACCESS.DELIVERY_FINANCE.includes(payload.role)) return res.status(403).send("Insufficient permissions.");
   req.user = payload;

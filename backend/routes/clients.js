@@ -30,6 +30,7 @@ import { requireAuth, requireRole } from "../middleware/auth.js";
 import { ROLES, ACCESS } from "../../shared/constants.js";
 import { acceptDocuments, describeFiles, UPLOAD_DIR } from "../lib/uploads.js";
 import { emit, emitDetached } from "../lib/comms.js";
+import { rateLimit } from "../lib/ratelimit.js";
 import { createDocument, renderDocument, splitDiagnostic } from "./docs.js";
 import { startPipelineRun } from "./agents.js";
 import {
@@ -333,7 +334,14 @@ router.post("/:id/issue-portal", ...finance, async (req, res) => {
     });
   }
   if (!e.contactEmail) return res.status(400).json({ error: "Add the client contact email before issuing the portal — the link has to go somewhere." });
-  const token = e.portalToken || crypto.randomBytes(24).toString("hex");
+  // `rotate` mints a new link and kills the old one in the same act. A
+  // portal link is a bearer credential sent by email: it gets forwarded,
+  // it sits in inboxes, it goes with people who leave. There was no way
+  // to withdraw one. There is no expiry, deliberately — the client is
+  // told their portal stays open and it does — but a link that is known
+  // to have gone astray can now be replaced in one click.
+  const rotate = req.body?.rotate === true;
+  const token = (!rotate && e.portalToken) || crypto.randomBytes(24).toString("hex");
   const pack = packFor(e.deliverable);
   const link = `${SITE_URL}/client-portal?t=${token}`;
   const chk = checklistState(e.checklist || []);
@@ -343,7 +351,9 @@ router.post("/:id/issue-portal", ...finance, async (req, res) => {
     portalIssuedAt: Date.now(),
     portalIssuedBy: req.user.name,
     stage: e.stage === "agreed" ? "information" : e.stage,
-    events: trail(e.events, { at: Date.now(), by: req.user.name, what: "Portal issued", detail: `Checklist of ${chk.total} items sent to ${e.contactEmail}` }),
+    events: trail(e.events, { at: Date.now(), by: req.user.name,
+      what: rotate ? "Portal link replaced" : "Portal issued",
+      detail: rotate ? "The previous link stopped working immediately." : `Checklist of ${chk.total} items sent to ${e.contactEmail}` }),
   });
 
   emitDetached("client.portal.issued", {
@@ -359,6 +369,24 @@ router.post("/:id/issue-portal", ...finance, async (req, res) => {
       `${balanceTerms(e).label.toLowerCase()}.`,
   });
   res.json({ engagement: decorate(find(e.id)), link });
+});
+
+/**
+ * POST /api/clients/:id/revoke-portal — close a portal link for good.
+ *
+ * The counterpart to rotation, for a link that should not exist at all
+ * any more rather than be replaced.
+ */
+router.post("/:id/revoke-portal", ...finance, (req, res) => {
+  const e = find(req.params.id);
+  if (!e) return res.status(404).json({ error: "Engagement not found." });
+  if (!e.portalToken) return res.status(400).json({ error: "This engagement has no portal link." });
+  update("clientEngagements", e.id, {
+    portalToken: null,
+    portalRevokedAt: Date.now(),
+    events: trail(e.events, { at: Date.now(), by: req.user.name, what: "Portal link revoked", detail: "The link stopped working immediately." }),
+  });
+  res.json({ revoked: true, engagement: decorate(find(e.id)) });
 });
 
 /** POST /api/clients/:id/remind — nudge, naming exactly what is outstanding. */
@@ -603,6 +631,35 @@ const portal = (req, res) => {
   return e;
 };
 
+/**
+ * Check the link BEFORE anything is accepted on it.
+ *
+ * multer writes every uploaded file to disk before the handler runs, so
+ * the token was being checked after up to twenty files of twenty-five
+ * megabytes had already been written — by anyone, at any URL, with a
+ * token that did not have to exist. The gate goes first now, and the
+ * limiter with it: a portal is one client answering a checklist, not a
+ * hundred requests a minute.
+ */
+const portalGate = [
+  rateLimit({
+    name: "portal",
+    windowMs: 60_000,
+    // Four a second, sustained. A client working down a fourteen-item
+    // checklist with a document on each line never comes close; a script
+    // filling the disk does so in the first second. The ceiling is set
+    // where it stops the second without ever meeting the first.
+    max: 240,
+    message: "Too many requests on this portal link. Wait a minute and try again.",
+  }),
+  (req, res, next) => {
+    if (!byToken(req.params.token)) {
+      return res.status(404).json({ error: "This portal link is not valid. Contact contact@etablix.com and quote your project name." });
+    }
+    next();
+  },
+];
+
 /** GET /api/clients/portal/:token — everything the client's portal renders. */
 router.get("/portal/:token", (req, res) => {
   const e = portal(req, res);
@@ -628,7 +685,7 @@ router.get("/portal/:token", (req, res) => {
  * chasing them for it again is exactly the repetition this is built to
  * remove.
  */
-router.post("/portal/:token/checklist/:itemId", acceptDocuments, async (req, res) => {
+router.post("/portal/:token/checklist/:itemId", ...portalGate, acceptDocuments, async (req, res) => {
   const e = portal(req, res);
   if (!e) return;
   if (["closed"].includes(e.stage)) return res.status(400).json({ error: "This engagement is closed." });
@@ -721,7 +778,7 @@ router.post("/portal/:token/checklist/:itemId", acceptDocuments, async (req, res
  * proceed. This raises the deposit invoice automatically: the same act,
  * one click, no email in between.
  */
-router.post("/portal/:token/start", async (req, res) => {
+router.post("/portal/:token/start", ...portalGate, async (req, res) => {
   const e = portal(req, res);
   if (!e) return;
   if (!["information", "ready"].includes(e.stage) || hasInvoice(e, "deposit")) {
@@ -787,7 +844,7 @@ router.post("/portal/:token/start", async (req, res) => {
  * which the client has approved and somebody still has to remember to
  * invoice: that gap is where a month of cash goes.
  */
-router.post("/portal/:token/decision", async (req, res) => {
+router.post("/portal/:token/decision", ...portalGate, async (req, res) => {
   const e = portal(req, res);
   if (!e) return;
   if (e.stage !== "decision") return res.status(400).json({ error: "There is nothing awaiting your decision." });

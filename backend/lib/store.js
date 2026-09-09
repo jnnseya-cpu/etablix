@@ -9,7 +9,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import crypto from "node:crypto";
-import { hashPassword } from "./auth.js";
+import { hashPasswordSync } from "./auth.js";
 import { ROLES } from "../../shared/constants.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -44,7 +44,7 @@ function seedUsers() {
         name: process.env.ETABLIX_ADMIN_NAME || "ETABLIX Administrator",
         email: process.env.ETABLIX_ADMIN_EMAIL.toLowerCase(),
         role: ROLES.ADMIN,
-        password: hashPassword(process.env.ETABLIX_ADMIN_PASSWORD),
+        password: hashPasswordSync(process.env.ETABLIX_ADMIN_PASSWORD),
       },
     ];
   }
@@ -54,21 +54,21 @@ function seedUsers() {
       name: "Alex Morgan",
       email: "admin@etablix.com",
       role: ROLES.ADMIN,
-      password: hashPassword("etablix-admin-2026"),
+      password: hashPasswordSync("etablix-admin-2026"),
     },
     {
       id: id(),
       name: "Dana Okafor",
       email: "pm@etablix.com",
       role: ROLES.PROJECT_MANAGER,
-      password: hashPassword("etablix-pm-2026"),
+      password: hashPasswordSync("etablix-pm-2026"),
     },
     {
       id: id(),
       name: "Sam Reyes",
       email: "qa@etablix.com",
       role: ROLES.QA_INSPECTOR,
-      password: hashPassword("etablix-qa-2026"),
+      password: hashPasswordSync("etablix-qa-2026"),
     },
   ];
 }

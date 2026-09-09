@@ -5,8 +5,11 @@
  */
 
 import crypto from "node:crypto";
+import { promisify } from "node:util";
 
-const TOKEN_TTL_HOURS = 12;
+export const TOKEN_TTL_HOURS = 12;
+
+const scrypt = promisify(crypto.scrypt);
 
 const SECRET =
   process.env.ETABLIX_TOKEN_SECRET ||
@@ -14,21 +17,42 @@ const SECRET =
   // every restart. Set ETABLIX_TOKEN_SECRET in production.
   crypto.randomBytes(32).toString("hex");
 
-export function hashPassword(password) {
+/**
+ * scrypt is deliberately slow — that is what makes it worth using — and
+ * the synchronous form runs that slowness ON THE EVENT LOOP. One process
+ * serves the whole platform, so every login blocked every other request
+ * for as long as it took to derive a key, and a few dozen wrong passwords
+ * a second was enough to stall the site for everybody. The work goes to
+ * the thread pool now. The synchronous forms remain for seeding, where
+ * there is no loop to block.
+ */
+export function hashPasswordSync(password) {
   const salt = crypto.randomBytes(16).toString("hex");
   const hash = crypto.scryptSync(password, salt, 64).toString("hex");
   return `${salt}:${hash}`;
 }
 
-export function verifyPassword(password, stored) {
+export async function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const hash = (await scrypt(password, salt, 64)).toString("hex");
+  return `${salt}:${hash}`;
+}
+
+function compare(candidate, hash) {
+  const expected = Buffer.from(hash, "hex");
+  return candidate.length === expected.length && crypto.timingSafeEqual(candidate, expected);
+}
+
+export function verifyPasswordSync(password, stored) {
   const [salt, hash] = String(stored).split(":");
   if (!salt || !hash) return false;
-  const candidate = crypto.scryptSync(password, salt, 64);
-  const expected = Buffer.from(hash, "hex");
-  return (
-    candidate.length === expected.length &&
-    crypto.timingSafeEqual(candidate, expected)
-  );
+  return compare(crypto.scryptSync(password, salt, 64), hash);
+}
+
+export async function verifyPassword(password, stored) {
+  const [salt, hash] = String(stored).split(":");
+  if (!salt || !hash) return false;
+  return compare(await scrypt(password, salt, 64), hash);
 }
 
 function b64url(buf) {
@@ -45,6 +69,11 @@ export function issueToken(user) {
     email: user.email,
     name: user.name,
     role: user.role,
+    // When it was issued, so a session can be revoked: an administrator
+    // moves the account's cut-off forward and every token older than it
+    // stops working. A signed token with no way of being withdrawn is
+    // valid for its whole life whatever happens to the account behind it.
+    iat: Date.now(),
     exp: Date.now() + TOKEN_TTL_HOURS * 3600 * 1000,
   };
   const body = b64url(JSON.stringify(payload));

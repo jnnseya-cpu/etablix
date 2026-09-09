@@ -70,6 +70,25 @@ export const uploadDocuments = multer({
   },
 }).array("documents", 20);
 
+/**
+ * Delete what was uploaded for a request that then failed.
+ *
+ * multer writes every file to disk before any handler runs, so a
+ * rejected request — wrong stage, unknown checklist item, closed
+ * engagement, a bad token — left its files behind for ever. Nothing ever
+ * referred to them and nothing ever removed them, so the disk filled at
+ * the speed somebody chose to fill it. A response of 400 or worse now
+ * takes its uploads with it.
+ */
+function discardOnFailure(req, res) {
+  res.on("finish", () => {
+    if (res.statusCode < 400) return;
+    for (const f of req.files || []) {
+      if (f?.path) fs.unlink(f.path, () => {});
+    }
+  });
+}
+
 /** Wrap the multer middleware so upload errors return clean JSON. */
 export function acceptDocuments(req, res, next) {
   uploadDocuments(req, res, (err) => {
@@ -78,8 +97,10 @@ export function acceptDocuments(req, res, next) {
         err.code === "LIMIT_FILE_SIZE"
           ? "Each supporting document must be 10 MB or smaller."
           : err.message || "Upload failed.";
+      for (const f of req.files || []) if (f?.path) fs.unlink(f.path, () => {});
       return res.status(400).json({ error: message });
     }
+    discardOnFailure(req, res);
     next();
   });
 }

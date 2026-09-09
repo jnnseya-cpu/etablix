@@ -95,7 +95,16 @@ if (!failed) {
 
 // ----------------------------------------------------- 4. compare what came back
 if (health) {
-  const back = health.rows || {};
+  // The counts are read from the restored file rather than from the
+  // health endpoint: the endpoint no longer publishes them, because a
+  // public URL that says how many clients a business has is a public URL
+  // that says how many clients a business has.
+  const back = (() => {
+    try {
+      const db = JSON.parse(fs.readFileSync(path.join(restored, "db.json"), "utf8"));
+      return Object.fromEntries(Object.entries(db).filter(([, v]) => Array.isArray(v)).map(([k, v]) => [k, v.length]));
+    } catch { return {}; }
+  })();
   const missing = Object.entries(srcCounts).filter(([k, n]) => (back[k] ?? -1) !== n);
   step(missing.length === 0, "every collection restored with the same row count",
        missing.length ? missing.map(([k, n]) => `${k}: ${n} in, ${back[k] ?? "absent"} back`).join("; ") : `${Object.keys(back).length} collections`);

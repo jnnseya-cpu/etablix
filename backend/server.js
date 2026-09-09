@@ -10,6 +10,9 @@
 import express from "express";
 import { collection, flush, counts, trimCapped } from "./lib/store.js";
 import { auditSecretStorage } from "./lib/ai.js";
+import { packBytes } from "./lib/runstore.js";
+import { requireAuth, requireRole } from "./middleware/auth.js";
+import { ROLES } from "../shared/constants.js";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -63,7 +66,32 @@ const BUILD = (() => {
 })();
 const STARTED = Date.now();
 
+/**
+ * Health, in two views.
+ *
+ * The public one is what a deploy and a monitor need: is it up, which
+ * build, is it busy with a run it would be destructive to interrupt, is
+ * it shutting down. Nothing else. It used to answer with the row count of
+ * every collection and whether the seeded demo accounts were live —
+ * which told any passer-by how many clients the business has and that
+ * the published demo passwords would work.
+ *
+ * The detail is the same object plus the counts, behind an admin session.
+ */
 app.get("/api/health", (req, res) => {
+  const running = collection("agentTasks").filter((r) => r.status === "running");
+  res.json({
+    ok: true,
+    service: "etablix",
+    build: BUILD,
+    startedAt: STARTED,
+    uptimeSeconds: Math.round((Date.now() - STARTED) / 1000),
+    busy: running.length > 0,
+    shuttingDown,
+  });
+});
+
+app.get("/api/health/detail", requireAuth, requireRole(ROLES.ADMIN), (req, res) => {
   const running = collection("agentTasks").filter((r) => r.status === "running");
   res.json({
     ok: true,
@@ -76,6 +104,7 @@ app.get("/api/health", (req, res) => {
     runningAgentRuns: running.length,
     shuttingDown,
     rows: counts(),
+    runPackBytes: packBytes(),
   });
 });
 app.get("/api/human-check", (req, res) => res.json(issueChallenge())); // anti-bot challenge for the public forms

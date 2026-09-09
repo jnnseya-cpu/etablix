@@ -22,18 +22,21 @@ function sweep(now) {
  * limit({ windowMs, max, key })
  *   → { allowed, remaining, retryAfterSeconds }
  */
-export function hit({ windowMs, max, key }) {
+export function hit({ windowMs, max, key, peek = false }) {
   const now = Date.now();
   if (buckets.size > MAX_KEYS) sweep(now);
   let b = buckets.get(key);
   if (!b || b.resetAt <= now) {
     b = { count: 0, resetAt: now + windowMs };
-    buckets.set(key, b);
+    if (!peek) buckets.set(key, b);
   }
-  b.count += 1;
+  // `peek` asks whether the allowance is spent without spending any of
+  // it — for a limit that counts failures, where the check happens
+  // before the thing that might fail.
+  if (!peek) b.count += 1;
   const remaining = Math.max(0, max - b.count);
   return {
-    allowed: b.count <= max,
+    allowed: peek ? b.count < max : b.count <= max,
     remaining,
     retryAfterSeconds: Math.ceil((b.resetAt - now) / 1000),
   };

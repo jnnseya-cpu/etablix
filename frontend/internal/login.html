@@ -29,12 +29,7 @@
       </div>
       <button class="btn-block" type="submit" id="submit">Sign In</button>
     </form>
-    <div class="demo-hint" id="demo-hint" hidden>
-      <b>Demo accounts</b><br>
-      Admin: <code>admin@etablix.com</code> / <code>etablix-admin-2026</code><br>
-      PM: <code>pm@etablix.com</code> / <code>etablix-pm-2026</code><br>
-      QA: <code>qa@etablix.com</code> / <code>etablix-qa-2026</code>
-    </div>
+    <p class="back-link" style="margin-top:14px;">Forgotten your password? Your administrator can reset it.</p>
     <a class="back-link" href="/">← Back to etablix.com</a>
   </div>
 </div>
@@ -45,13 +40,10 @@
     location.replace("/internal/index.html");
   }
 
-  // Show demo credentials only in local development (never in production).
-  fetch("/api/health")
-    .then((r) => r.json())
-    .then(({ demo }) => {
-      if (demo) document.getElementById("demo-hint").hidden = false;
-    })
-    .catch(() => {});
+  // Working credentials were printed on this page whenever the server
+  // reported demo mode — and the seeded accounts are real accounts with
+  // real permissions, so anyone who reached the page in that state could
+  // sign in as the administrator. Nothing here names an account any more.
 
   const form = document.getElementById("login-form");
   const error = document.getElementById("error");

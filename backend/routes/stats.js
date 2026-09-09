@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { collection, insert, update } from "../lib/store.js";
 import { requireAuth } from "../middleware/auth.js";
+import { rateLimit } from "../lib/ratelimit.js";
 
 const router = Router();
 
@@ -12,8 +13,16 @@ const router = Router();
 const PATH_RE = /^\/[a-zA-Z0-9\-_/.]{0,80}$/;
 const BOT_RE = /bot|crawl|spider|slurp|preview|headless|monitor|curl|python|wget/i;
 
-/** POST /api/stats/hit — public page-view beacon from the site. */
-router.post("/hit", (req, res) => {
+/**
+ * POST /api/stats/hit — public page-view beacon from the site.
+ *
+ * Public, unauthenticated, and it WRITES: each call updates the day's
+ * traffic row, which rewrites the whole database file. A loop against
+ * this one endpoint was therefore a way to make the server spend all its
+ * time serialising JSON, from anywhere, with no account. A page view a
+ * second from one address is already far more than a person browsing.
+ */
+router.post("/hit", rateLimit({ name: "beacon", windowMs: 60_000, max: 60, message: "Too many beacons." }), (req, res) => {
   res.status(204).end(); // answer immediately; never block a page on analytics
   try {
     if (BOT_RE.test(req.get("user-agent") || "")) return;

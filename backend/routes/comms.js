@@ -5,8 +5,7 @@
 
 import { Router } from "express";
 import { collection, update } from "../lib/store.js";
-import { verifyToken } from "../lib/auth.js";
-import { requireAuth, requireRole } from "../middleware/auth.js";
+import { requireAuth, requireRole, sessionFromQuery } from "../middleware/auth.js";
 import { ROLES } from "../../shared/constants.js";
 import { CATEGORIES, EVENTS, SAMPLE_VARS } from "../lib/catalog.js";
 import { emit, renderEvent } from "../lib/comms.js";
@@ -19,7 +18,7 @@ const router = Router();
  * downloads do.
  */
 router.get("/preview/:code", (req, res) => {
-  const payload = verifyToken(req.query.token);
+  const payload = sessionFromQuery(req.query.token);
   if (!payload) return res.status(401).send("Authentication required.");
   if (!EVENTS[req.params.code]) return res.status(404).send("Unknown event.");
   const { html } = renderEvent(req.params.code, SAMPLE_VARS, { greeting: payload.name });
