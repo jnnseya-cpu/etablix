@@ -15,6 +15,12 @@
  * The nastiest case, and the one this was written for: a DKIM selector that
  * exists but publishes "p=" with no key. That is the DNS way of REVOKING a
  * key. Every message signed with it fails. It looks configured and it is not.
+ *
+ * The second nastiest case is this tool's own: a selector whose lookup timed
+ * out was skipped in silence, so a domain whose working key simply had not
+ * answered was reported as having no working key at all. A lookup that fails
+ * is now reported as a lookup that failed, and it can never turn into a
+ * verdict about the selectors that did answer.
  */
 import dns from "node:dns/promises";
 
@@ -34,12 +40,55 @@ const bad  = (t, d, fix) => findings.push({ level: "FAIL", t, d, fix });
 const warn = (t, d, fix) => findings.push({ level: "WARN", t, d, fix });
 const good = (t, d)      => findings.push({ level: "OK",   t, d });
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 const txt = async (name) => {
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 4; i++) {
     try { return (await dns.resolveTxt(name)).map((r) => r.join("")); }
-    catch (e) { if (e.code === "ENOTFOUND" || e.code === "ENODATA") return null; if (i === 2) throw e; }
+    catch (e) {
+      if (e.code === "ENOTFOUND" || e.code === "ENODATA") return null;
+      if (i === 3) throw e;
+      await sleep(300 * (i + 1));
+    }
   }
 };
+
+const cname = async (name) => {
+  try { return (await dns.resolveCname(name))[0] || null; } catch { return null; }
+};
+
+/**
+ * Read one DKIM selector.
+ *
+ * A selector is usually a CNAME into the mail host's own zone, and the key
+ * lives at the far end of it. Querying TXT through the CNAME works, but it
+ * is the query that times out first when a resolver is slow — so the CNAME
+ * is followed explicitly and the target read directly, with the through-the
+ * -CNAME lookup as the fallback rather than the only attempt.
+ *
+ * Returns { state: "key" | "revoked" | "absent" | "unresolved", ... }.
+ */
+async function readSelector(sel) {
+  const name = `${sel}._domainkey.${DOMAIN}`;
+  const target = await cname(name);
+  let records = null, error = null;
+  for (const at of [target, name].filter(Boolean)) {
+    try { records = await txt(at); } catch (e) { error = e.code || String(e); continue; }
+    if (records) break;
+  }
+  if (!records) {
+    // A lookup that TIMED OUT is not a selector that is absent, and it is
+    // certainly not a selector that is broken. Reporting it as either is
+    // how this tool once told me every key on the domain was revoked when
+    // the one carrying the real key had simply not answered in time.
+    if (error) return { sel, state: "unresolved", detail: error, target };
+    return { sel, state: "absent", target };
+  }
+  const rec = records.join("");
+  const key = /(?:^|;)\s*p=([^;]*)/.exec(rec)?.[1]?.trim();
+  if (!key) return { sel, state: "revoked", target };
+  return { sel, state: "key", chars: key.length, target };
+}
 
 console.log(`\n=== mail doctor · ${DOMAIN} ===\n`);
 
@@ -72,31 +121,37 @@ if (!spf) {
 }
 
 // ------------------------------------------------------------------------ DKIM
-let found = 0, revoked = [];
+const selectors = [];
 for (const s of SELECTORS) {
-  let r; try { r = await txt(`${s}._domainkey.${DOMAIN}`); } catch { continue; }
-  if (!r) continue;
-  const rec = r.join("");
-  found++;
-  const key = /(?:^|;)\s*p=([^;]*)/.exec(rec)?.[1]?.trim();
-  if (key === "" || key === undefined) {
-    revoked.push(s);
-    console.log(`  DKIM ${s} → p= (EMPTY)`);
-  } else {
-    console.log(`  DKIM ${s} → key present, ${key.length} chars`);
-  }
+  const r = await readSelector(s);
+  if (r.state === "absent") continue;
+  selectors.push(r);
+  const via = r.target ? `  (via ${r.target})` : "";
+  if (r.state === "key") console.log(`  DKIM ${r.sel} → KEY PRESENT, ${r.chars} chars${via}`);
+  else if (r.state === "revoked") console.log(`  DKIM ${r.sel} → p= (EMPTY — revoked)${via}`);
+  else console.log(`  DKIM ${r.sel} → LOOKUP FAILED (${r.detail}) — not read, not judged${via}`);
 }
-if (!found) {
+const withKey = selectors.filter((r) => r.state === "key");
+const revoked = selectors.filter((r) => r.state === "revoked");
+const unresolved = selectors.filter((r) => r.state === "unresolved");
+
+if (!selectors.length) {
   bad("DKIM", "no selector found under any name we know",
       "Turn DKIM on in your mail host's control panel and publish the record it gives you. Without DKIM the only thing vouching for your mail is the sending IP.");
-} else if (revoked.length && revoked.length === found) {
-  bad("DKIM", `every selector found (${revoked.join(", ")}) publishes an EMPTY key — "p=" with nothing after it`,
-      "An empty p= is how DNS says a key is REVOKED. Every message signed with it fails DKIM. Regenerate the DKIM key in your mail host's control panel so the record publishes a real key.");
-} else if (revoked.length) {
-  warn("DKIM", `${revoked.join(", ")} publishes an empty key (revoked); others carry a real key`,
-       "Remove the revoked selectors or regenerate them, so a signature cannot be made with a dead key.");
+} else if (withKey.length) {
+  good("DKIM", `${withKey.map((r) => r.sel).join(", ")} publish${withKey.length === 1 ? "es" : ""} a real key`);
+  if (revoked.length) {
+    warn("DKIM", `${revoked.map((r) => r.sel).join(", ")} publish an empty key (a revoked or unused rotation slot)`,
+         "Harmless while another selector carries a real key — a signature is checked against the selector it names — but it is worth knowing which one your host actually signs with.");
+  }
+  warn("DKIM", "a published key does not prove your mail is SIGNED with it",
+       "The only proof is a message. Send one to a Gmail address, open it, choose Show original, and look for dkim=pass header.i=@" + DOMAIN + ". Nothing in DNS can tell you this.");
+} else if (revoked.length && !unresolved.length) {
+  bad("DKIM", `every selector that answered (${revoked.map((r) => r.sel).join(", ")}) publishes an EMPTY key — "p=" with nothing after it`,
+      "An empty p= is how DNS says a key is REVOKED. Every message signed with it fails DKIM. Regenerate the key in your mail host's control panel.");
 } else {
-  good("DKIM", `${found} selector${found === 1 ? "" : "s"} publishing a real key`);
+  warn("DKIM", `${unresolved.map((r) => r.sel).join(", ")} could not be read (${unresolved.map((r) => r.detail).join(", ")})`,
+       "Run this again on a better connection before concluding anything. A selector that did not answer is not a selector that is broken.");
 }
 
 // ----------------------------------------------------------------------- DMARC
