@@ -286,3 +286,64 @@ in one line.
 
 **Watch his next post and comment on that too.** Two good comments make you a
 familiar name; one makes you a stranger who had a good day.
+
+---
+
+## Day 1, fourth post · Island Green Power — consent for a 500MW BESS at New Deer
+
+**This is a milestone post, not a question post — but it is squarely your lane.**
+A developer has just consented a 500MW battery storage project in rural
+Aberdeenshire. That is the exact thing you spent five years doing
+pre-construction on: new generation and storage sites, one after another, each
+needing an access route, a compound, temporary supplies and somewhere for the
+workforce to sleep before anything of value happens.
+
+So congratulate in one line, then say the thing nobody in that thread will say.
+Everyone comments on the consent. Nobody comments on the six months after it,
+which is where the programme is actually decided.
+
+**Two details in the post give you something concrete.** Five kilometres west of
+New Deer is rural — the access route and the temporary supplies come off a rural
+network, and daily travel for a construction workforce is a real question. And
+nine hectares of built footprint for 500MW is dense, which raises the question
+of whether the compound and laydown sit inside that nine or outside it.
+
+**Do not pitch, and do not hint.** The comment is close enough to what you sell
+that any nudge toward it would be obvious and would cheapen the observation.
+Say the true thing and stop.
+
+### The comment — 764 characters
+
+> Congratulations — consent at that scale in Aberdeenshire is not a small piece
+> of work.
+>
+> The part I would watch now is the window between consent and mobilisation. On
+> the storage portfolio I worked on, that was where programmes were won or lost,
+> and rarely for technical reasons. The access route, the temporary supplies and
+> where the workforce sleeps are all set by decisions taken in those months, and
+> they are often inherited from an application written to answer planning
+> questions rather than construction ones.
+>
+> Nine hectares of built footprint for 500MW reads as a dense site. Is the
+> construction compound and laydown inside that nine or outside it? On the jobs
+> I saw, the answer to that one moved the programme more than anything on the
+> single line diagram.
+
+### Why the question at the end
+
+It is a real question, it is cheap for them to answer, and the answer tells you
+whether this project has a problem you could solve. It also does the
+qualification for you without a single word of selling: a developer who has not
+yet decided where the compound goes is a developer at exactly the stage where
+this conversation is useful.
+
+### Afterwards
+
+**Nick Bowen, Project Development Manager, is named in the post.** If the
+comment gets a reply from the company account or from him, that is your warrant
+to connect — one line referencing the thread, no pitch, same rule as Mehdi.
+
+**If nobody replies, it still worked.** Seven and a half thousand followers of a
+storage developer read that thread, and a proportion of them are the people who
+buy this scope. Being the one substantive comment under a milestone post is
+worth more than most direct messages you could send.
