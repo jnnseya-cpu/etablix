@@ -16,7 +16,7 @@
 import { Router } from "express";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 import { ROLES, ACCESS } from "../../shared/constants.js";
-import { collection, insert, remove, getSettings, saveSettings } from "../lib/store.js";
+import { collection, insert, update, remove, recordLedger, getSettings, saveSettings } from "../lib/store.js";
 import { sessionFromQuery } from "../middleware/auth.js";
 import { AGENT_BRIEFS } from "../lib/ai.js";
 import { diagnosticDates, releaseStatus, human as humanDate, DIAGNOSTIC_WORKING_DAYS } from "../lib/workingdays.js";
@@ -549,6 +549,61 @@ router.post("/generate", requireAuth, deliveryFinance, (req, res) => {
   res.status(201).json({ document: { id: doc.id, number: doc.number, template: doc.template } });
 });
 
+/**
+ * POST /:id/release — issue a diagnostic before the date the client was promised.
+ *
+ * The hold banner is worked out at render time from the due date, so it
+ * removes itself on the day. That is right for the normal case and wrong
+ * for the case where there is a real reason to go early: the only way to
+ * send early was to send a document carrying "Internal review copy" and
+ * hope the client did not read the red box.
+ *
+ * So early release is a deliberate act with a reason attached, and three
+ * things about it are not negotiable:
+ *
+ *   - THE PROMISED DATE DOES NOT MOVE. The engagement was sold as ten
+ *     working days from handover, and rewriting the due date would erase
+ *     what the client was told. The date stays; the departure from it is
+ *     recorded against it.
+ *   - A reason is required, and it is stored. "Released early" with no
+ *     reason is the same as nobody noticing.
+ *   - It goes in the append-only ledger as well as on the document, because
+ *     a record that lives only in a row somebody can edit is not a record.
+ */
+router.post("/:id/release", requireAuth, deliveryFinance, (req, res) => {
+  const doc = collection("documents").find((x) => x.id === req.params.id);
+  if (!doc) return res.status(404).json({ error: "Document not found." });
+  if (doc.template !== "diagnostic") {
+    return res.status(400).json({ error: "Only a diagnostic report is held to a promised issue date." });
+  }
+  if (doc.earlyRelease) {
+    return res.status(400).json({ error: `This report was already released early on ${new Date(doc.earlyRelease.at).toLocaleDateString("en-GB")} by ${doc.earlyRelease.by}.` });
+  }
+  const dueDate = doc.data?.dueDate || "";
+  const rel = dueDate ? releaseStatus(dueDate) : null;
+  if (rel?.state !== "held") {
+    return res.status(400).json({ error: "This report is not being held — its issue date has arrived, so it can be sent as it stands." });
+  }
+  const reason = String(req.body?.reason || "").trim().slice(0, 500);
+  if (reason.length < 15) {
+    return res.status(400).json({ error: "Give the reason for issuing before the promised date — at least a sentence. It is recorded on the document." });
+  }
+
+  const earlyRelease = {
+    at: Date.now(),
+    by: req.user.name,
+    reason,
+    // The promised date is kept ON the release record too, so the document
+    // still evidences what was sold even if the data is edited later.
+    promisedDate: dueDate,
+    workingDaysEarly: rel.days,
+  };
+  update("documents", doc.id, { earlyRelease });
+  recordLedger("document.released-early", doc.id, req.user.name,
+    `${doc.number} issued ${rel.days} working day(s) before the promised date of ${dueDate}. Reason: ${reason}`);
+  res.json({ document: { id: doc.id, number: doc.number, earlyRelease } });
+});
+
 router.delete("/:id", requireAuth, admin, (req, res) => {
   const row = remove("documents", req.params.id);
   if (!row) return res.status(404).json({ error: "Document not found." });
@@ -869,8 +924,12 @@ function renderBody(doc) {
     // The banner is on the document itself, not only in the console,
     // because the way a report goes out early is that someone forwards
     // the PDF without looking at the console.
+    // A deliberately released report shows the client nothing about the
+    // hold. The record of it lives on the document row, in the engagement's
+    // audit trail and in the append-only ledger — not in a red box the
+    // client reads and draws their own conclusion from.
     const hold =
-      rel?.state === "held"
+      rel?.state === "held" && !doc.earlyRelease
         ? `<div class="holdnote"><b>Do not issue before ${esc(humanDate(d.dueDate))}.</b> This engagement was sold as ${d.promisedDays || DIAGNOSTIC_WORKING_DAYS} working days from information handover on ${esc(humanDate(d.handover))}. ${rel.days} working day${rel.days === 1 ? "" : "s"} remain. Internal review copy.</div>`
         : "";
     return `

@@ -319,9 +319,37 @@ function wire(body) {
     // The hidden runId always travels; the tick decides whether it is used.
     if (!fd.get("useRun")) fd.delete("runId");
     fd.delete("useRun");
+    const send = async () => {
+      const res = await fetch(`/api/clients/${id}/deliverable`, {
+        method: "POST", headers: { Authorization: `Bearer ${token}` }, body: fd,
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw Object.assign(new Error(body.error || `Request failed (${res.status})`), body);
+      return body;
+    };
     try {
-      await api(`/api/clients/${id}/deliverable`, { method: "POST", body: fd });
+      await send();
       await loadClients();
-    } catch (e2) { err(e2.message); }
+    } catch (e2) {
+      // A report held to its promised date is not an error to report and
+      // walk away from — it is a decision. The desk is told what the client
+      // would see, and can go early on the record if there is a reason.
+      if (!e2.held) { err(e2.message); return; }
+      const reason = prompt(
+        `${e2.error || e2.message}\n\n`
+        + "If you have a reason to issue before the promised date, type it here. "
+        + "It is recorded on the document, in this engagement's audit trail and in the append-only ledger. "
+        + "The promised date does not change.\n\nLeave blank to cancel and publish on the date instead."
+      );
+      if (!reason || reason.trim().length < 15) {
+        err(reason === null || !reason.trim()
+          ? "Not published. It will publish without this step once the promised date arrives."
+          : "Not published — the reason needs to be at least a sentence, because it goes on the record.");
+        return;
+      }
+      fd.append("releaseEarly", "true");
+      fd.append("releaseReason", reason.trim());
+      try { await send(); await loadClients(); } catch (e3) { err(e3.message); }
+    }
   });
 }

@@ -122,18 +122,57 @@ ok((run?.sources || []).length >= 17, `   it read ${(run?.sources || []).length}
 const visual = (run?.sources || []).filter((s) => s.route === "visual");
 ok(visual.length >= 3, `   ${visual.length} routed to vision (drawings/Gantt), not to text extraction`, visual.map((v) => v.name));
 
-// 6 — publish it to the client as the report
-{
+// 6 — the report is held to the date the client was promised
+//
+// The handover is today, so the ten working days have not run. The hold
+// banner on the document stopped a PDF leaving unnoticed, but the client
+// portal renders the same document — so publishing put "Internal review
+// copy · do not issue before…" in front of the client and let them draw
+// their own conclusion about the ten days they had bought.
+const publish = async (extra = {}) => {
   const fd = new FormData();
   fd.append("runId", runId);
   fd.append("label", "Site Systems Diagnostic — NORTHREACH");
   fd.append("summary", "Twelve deliverables against the pack you supplied.");
   fd.append("sections", "0 Findings\n3 Supplier-interface matrix\n7 Mobilisation constraints");
+  for (const [k, v] of Object.entries(extra)) fd.append(k, v);
   const res = await fetch(`${B}/api/clients/${E.id}/deliverable`, { method: "POST", headers: { Authorization: "Bearer " + T }, body: fd });
-  const body = await J(res);
-  ok(res.status === 201, "8. the run was minted into a numbered SSD document and published to the portal", body);
-  const d = body.engagement?.deliverables?.at(-1);
+  return { status: res.status, body: await J(res) };
+};
+const docCount = async () => (await api("/api/docs", {}, T)).body.documents?.length ?? null;
+
+{
+  const before = await docCount();
+  let r2 = await publish();
+  ok(r2.status === 409 && r2.body.held === true,
+     `8. a report held to its promised date is refused, not published — ${r2.body.workingDaysToGo} working days to go`, r2.body);
+
+  r2 = await publish({ releaseEarly: "true", releaseReason: "too short" });
+  ok(r2.status === 409, "   a one-word reason is refused — the reason goes on the record", r2.body);
+
+  ok(before !== null && (await docCount()) === before,
+     "   and a refused publish mints no document — the check runs before the SSD number is taken");
+
+  r2 = await publish({ releaseEarly: "true",
+    releaseReason: "The client asked for it ahead of their board meeting and accepted it in writing." });
+  ok(r2.status === 201, "   with a real reason, it publishes", r2.body);
+  const d = r2.body.engagement?.deliverables?.at(-1);
   ok(Boolean(d?.documentNumber?.startsWith("SSD-")), `   it carries a real document number: ${d?.documentNumber}`);
+
+  ok((r2.body.engagement?.events || []).some((v) => /ISSUED EARLY/.test(v.detail || "")),
+     "   the audit trail records that it went early, how early, and why");
+
+  const html = await (await fetch(`${B}/api/docs/${d.documentId}/render?token=${encodeURIComponent(T)}`)).text();
+  ok(!/Internal review copy/.test(html),
+     "   and the released report carries no 'internal review copy' notice for the client to read");
+
+  if (process.env.DATA) {
+    const { DatabaseSync } = await import("node:sqlite");
+    const db = new DatabaseSync(path.join(process.env.DATA, "db.sqlite"), { readOnly: true });
+    const rows = db.prepare("SELECT * FROM ledger WHERE kind = ?").all("document.released-early");
+    db.close();
+    ok(rows.length > 0, "   the append-only ledger carries it too, with the reason", rows.slice(0, 1).map((r) => r.detail));
+  }
 }
 
 // 6b — a real diagnostic is far bigger than an invoice, and the document

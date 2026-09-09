@@ -41,7 +41,7 @@ import {
   depositTerms, balanceTerms, money, diagnosticInputs, handoverDate, DIAGNOSTIC_FIELD_MAP,
   charge, vatModeFor, reverseChargeAvailable, declaredVatMode,
 } from "../lib/clientflow.js";
-import { diagnosticDates } from "../lib/workingdays.js";
+import { diagnosticDates, releaseStatus, DIAGNOSTIC_WORKING_DAYS } from "../lib/workingdays.js";
 
 const router = Router();
 const finance = [requireAuth, requireRole(...ACCESS.DELIVERY_FINANCE)];
@@ -533,13 +533,48 @@ router.post("/:id/deliverable", ...finance, acceptDocuments, async (req, res) =>
   // report carries the run's own handover and due dates, so a slipped
   // handover cannot move a date the client was already given.
   const runId = clampStr(req.body?.runId, 40);
+
+  // Issuing before the promised date is a decision with a reason attached.
+  // The hold banner on the document stops a PDF leaving unnoticed, but the
+  // client portal renders the same document — so without this, publishing
+  // today put "Internal review copy · do not issue before 22 September" in
+  // front of the client and let them draw their own conclusion about the
+  // ten working days they had bought.
+  //
+  // THE PROMISED DATE DOES NOT MOVE. Rewriting it would erase what the
+  // client was told; the departure from it is recorded against it instead,
+  // on the document, in this engagement's audit trail, and in the
+  // append-only ledger.
+  const releaseEarly = req.body?.releaseEarly === true || req.body?.releaseEarly === "true";
+  const releaseReason = clampStr(req.body?.releaseReason, 500);
+  const heldRefusal = (dueDate, docId) => {
+    const rel = dueDate ? releaseStatus(dueDate) : null;
+    if (rel?.state !== "held") return null;
+    if (releaseEarly && releaseReason.length >= 15) return { rel, release: true };
+    return {
+      status: 409,
+      body: {
+        error: releaseEarly
+          ? "Give the reason for issuing before the promised date — at least a sentence. It is recorded on the document and in the ledger."
+          : `This report is held until ${dueDate} — ${rel.days} working day(s) to go. The client would see the "internal review copy" notice, and the engagement was sold on ${DIAGNOSTIC_WORKING_DAYS} working days from handover. Publish it on the date, or release it early with a reason.`,
+        held: true, dueDate, workingDaysToGo: rel.days, documentId: docId || null,
+      },
+    };
+  };
+
   if (runId && !linkedId) {
     const run = collection("agentTasks").find((r) => r.id === runId);
     if (!run) return res.status(404).json({ error: "That run does not exist." });
     if (run.status === "running") return res.status(400).json({ error: "That run has not finished yet." });
     if (!run.output) return res.status(400).json({ error: "That run produced no output to issue." });
-    const { data } = splitDiagnostic(run.output);
     const dates = diagnosticDates(String(run.inputs?.handover || "").slice(0, 10));
+
+    // Checked BEFORE the document is minted. Refusing afterwards would leave
+    // a numbered SSD document behind on every attempt that was turned away.
+    const held = heldRefusal(dates?.due || "", null);
+    if (held?.status) return res.status(held.status).json(held.body);
+
+    const { data } = splitDiagnostic(run.output);
     const doc = createDocument({
       template: "diagnostic",
       issuedBy: req.user.name,
@@ -553,10 +588,31 @@ router.post("/:id/deliverable", ...finance, acceptDocuments, async (req, res) =>
         datesAssured: dates?.assured || false,
       },
     });
+    if (held?.release) {
+      const earlyRelease = { at: Date.now(), by: req.user.name, reason: releaseReason,
+        promisedDate: dates.due, workingDaysEarly: held.rel.days };
+      update("documents", doc.id, { earlyRelease });
+      recordLedger("document.released-early", doc.id, req.user.name,
+        `${doc.number} issued ${held.rel.days} working day(s) before the promised date of ${dates.due}. Reason: ${releaseReason}`);
+    }
     linkedId = doc.id;
   }
 
   const linked = linkedId ? collection("documents").find((d) => d.id === linkedId) : null;
+
+  // The same gate for a document drafted in the studio and linked here.
+  if (linked?.template === "diagnostic" && !linked.earlyRelease) {
+    const held = heldRefusal(linked.data?.dueDate || "", linked.id);
+    if (held?.status) return res.status(held.status).json(held.body);
+    if (held?.release) {
+      const earlyRelease = { at: Date.now(), by: req.user.name, reason: releaseReason,
+        promisedDate: linked.data.dueDate, workingDaysEarly: held.rel.days };
+      update("documents", linked.id, { earlyRelease });
+      recordLedger("document.released-early", linked.id, req.user.name,
+        `${linked.number} issued ${held.rel.days} working day(s) before the promised date of ${linked.data.dueDate}. Reason: ${releaseReason}`);
+    }
+  }
+
   if (!files.length && !linked) {
     return res.status(400).json({ error: "Attach the deliverable, or link a document from the studio. A decision needs something to decide on." });
   }
@@ -578,7 +634,11 @@ router.post("/:id/deliverable", ...finance, acceptDocuments, async (req, res) =>
   mutate("clientEngagements", e.id, (current) => ({
     deliverables: [...(current.deliverables || []), item],
     stage: "decision",
-    events: trail(current.events, { at: Date.now(), by: req.user.name, what: "Deliverable issued", detail: `${label} (rev ${item.revision})` }),
+    events: trail(current.events, { at: Date.now(), by: req.user.name, what: "Deliverable issued",
+      detail: `${label} (rev ${item.revision})`
+        + (linked?.earlyRelease
+          ? ` · ISSUED EARLY, ${linked.earlyRelease.workingDaysEarly} working day(s) before the promised ${linked.earlyRelease.promisedDate}. Reason: ${linked.earlyRelease.reason}`
+          : "") }),
   }));
 
   emitDetached("client.deliverable.issued", {
