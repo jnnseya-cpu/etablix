@@ -1526,7 +1526,7 @@ function renderRunView(run) {
       ? `<div style="margin-top:10px;">
           <button class="btn-block" data-run-decide="approve" data-run-id="${run.id}" style="width:auto;padding:10px 20px;">Approve</button>
           <button class="btn-run" data-run-decide="reject" data-run-id="${run.id}" style="margin-left:8px;">Reject</button>
-          <span class="muted" style="margin-left:10px;font-size:0.8rem;">Approval is recorded against your name — nothing is acted on until a human approves.</span>
+          <span class="muted" style="margin-left:10px;font-size:0.8rem;">Approval is recorded against your name — nothing is acted on until a human approves.${run.agent === "diagnostic" ? " <b>Approving this run is what puts the report into the document studio</b> — the button to draft it appears here once you have." : ""}</span>
         </div>`
       : `<p class="muted" style="margin-top:10px;">${esc(run.status)}${run.decidedBy ? ` by ${esc(run.decidedBy)}` : ""}${run.decisionNote ? ` — "${esc(run.decisionNote)}"` : ""}</p>`;
   // An approved diagnostic is one click from being an issued report: the
