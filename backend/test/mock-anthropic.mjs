@@ -15,6 +15,7 @@
  * MOCK_LOG     where to write the request log (default alongside this file)
  * MOCK_PORT    port to listen on (default 4199)
  * MOCK_FAIL    "overload" | "400" | "timeout" — fail every call this way
+ * MOCK_TRUNCATE "1" truncate every fresh pass once | "always" never finish
  */
 import http from "node:http";
 import fs from "node:fs";
@@ -24,6 +25,7 @@ const DELAY = Number(process.env.MOCK_DELAY || 2500);
 const PORT = Number(process.env.MOCK_PORT || 4199);
 const LOG_FILE = process.env.MOCK_LOG || path.join(path.dirname(fileURLToPath(import.meta.url)), "mock-log.json");
 const FAIL = process.env.MOCK_FAIL || "";
+const TRUNCATE = process.env.MOCK_TRUNCATE || "";
 const log = [];
 const sec = (n, t, body) => `## ${n} · ${t}\n${body}`;
 
@@ -76,13 +78,36 @@ http.createServer((req, res) => {
       return res.end(JSON.stringify({ type: "error", error: { type: "invalid_request_error", message: "max_tokens: 128000 > 64000, which is the maximum allowed" } }));
     }
     if (FAIL === "timeout") return;  // hold the socket open and say nothing
-    const text = answer(String(task));
+
+    // Truncation, on demand. A real pass that runs out of output room
+    // comes back with stop_reason "max_tokens" and a body that stops
+    // wherever it stopped — often mid-word. That is what has to be
+    // continued, and it cannot be tested without being able to cause it.
+    //
+    //   MOCK_TRUNCATE=1        every fresh pass truncates once; a
+    //                          continuation completes
+    //   MOCK_TRUNCATE=always   every call truncates, so the ceiling and
+    //                          the INCOMPLETE note are exercised
+    //
+    // The markers are deliberate: the head ends in SPLIT-HEAD with no
+    // trailing space and the tail begins with SPLIT-TAIL, so a test can
+    // assert the two were joined with nothing between them. Anything
+    // that inserts a newline breaks a table row in the real report.
+    const continuing = /YOU HAVE ALREADY WRITTEN PART OF THIS/.test(promptText);
+    let text = answer(String(task));
+    let stopReason = "end_turn";
+    if (TRUNCATE && (!continuing || TRUNCATE === "always")) {
+      text = text.slice(0, Math.floor(text.length * 0.6)) + "SPLIT-HEAD";
+      stopReason = "max_tokens";
+    } else if (TRUNCATE && continuing) {
+      text = "SPLIT-TAIL" + text.slice(Math.floor(text.length * 0.6));
+    }
     const usage = { input_tokens: 12000, output_tokens: 3000, cache_read_input_tokens: 9000, cache_creation_input_tokens: 3000 };
 
     if (!j.stream) {
       res.writeHead(200, { "content-type": "application/json" });
       res.end(JSON.stringify({ id: "msg_mock", type: "message", role: "assistant", model: "claude-opus-5-mock",
-        content: [{ type: "text", text }], stop_reason: "end_turn", stop_sequence: null, usage }));
+        content: [{ type: "text", text }], stop_reason: stopReason, stop_sequence: null, usage }));
       return;
     }
 
@@ -95,7 +120,7 @@ http.createServer((req, res) => {
       ev("content_block_delta", { index: 0, delta: { type: "text_delta", text: text.slice(i, i + 400) } });
     }
     ev("content_block_stop", { index: 0 });
-    ev("message_delta", { delta: { stop_reason: "end_turn", stop_sequence: null }, usage: { output_tokens: usage.output_tokens } });
+    ev("message_delta", { delta: { stop_reason: stopReason, stop_sequence: null }, usage: { output_tokens: usage.output_tokens } });
     ev("message_stop", {});
     res.end();
   });

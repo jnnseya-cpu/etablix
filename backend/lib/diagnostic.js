@@ -617,6 +617,79 @@ async function call(anthropic, { model, system, inputsBlock, visualBlocks, visua
 }
 
 /**
+ * How many times one pass may be continued after it runs out of room.
+ *
+ * Three is generous and it is a ceiling, not a target: a pass that is
+ * still cutting off after three continuations is not going to be rescued
+ * by a fourth, and at that point the report has to SAY it is incomplete
+ * rather than quietly hand the desk a document that stops mid-row.
+ */
+const MAX_CONTINUATIONS = 3;
+
+/**
+ * One pass, written to the end.
+ *
+ * `call` returns whatever the model produced before it hit `max_tokens`.
+ * For months only the reconcile pass did anything about that, and the
+ * other five did not — so on a real client pack every one of the twelve
+ * deliverables and the whole contradictions appendix came back cut off,
+ * some of them mid-sentence, and the run said so in a note nobody could
+ * act on. A report that stops in the middle of a word cannot be issued,
+ * however good the analysis above it is.
+ *
+ * So a truncated pass is continued from exactly where it stopped, and
+ * the continuation is appended with NOTHING between the two — which is
+ * why the instruction is explicit that the model may have to resume
+ * mid-word. Joining the parts with a blank line, which is what the old
+ * reconcile continuation did, leaves a broken table row wherever the cut
+ * fell inside one.
+ */
+async function complete(anthropic, args, key, record, notes) {
+  let r = await call(anthropic, args);
+  record(r, key);
+  let text = r.text;
+
+  let rounds = 0;
+  while (r.truncated && rounds < MAX_CONTINUATIONS) {
+    rounds += 1;
+    // The tail is what makes the join seamless. The whole partial is not
+    // resent: the working paper and the earlier sections are already in
+    // the request, and the model only needs to see where its own pen
+    // stopped.
+    const tail = text.slice(-4000);
+    r = await call(anthropic, {
+      ...args,
+      task:
+        `${args.task}\n\n---\n\n` +
+        `YOU HAVE ALREADY WRITTEN PART OF THIS. It stopped because it reached the length limit. ` +
+        `Continue it. Do not restart it, do not repeat a heading, a row or a sentence that is already written, ` +
+        `and do not summarise what came before.\n\n` +
+        `Your reply will be appended directly to what you wrote, with nothing at all in between — ` +
+        `no newline, no separator. So begin at the exact character where it stopped, even if that is ` +
+        `the middle of a word, the middle of a table row or the middle of a sentence. ` +
+        `Finish whatever was in progress, then write everything that had not been reached, ` +
+        `using the same headings, the same table columns and the same ID series.\n\n` +
+        `WHAT YOU WROTE ENDS LIKE THIS:\n\n${tail}`,
+    });
+    record(r, `${key}-continued-${rounds}`);
+    text += r.text;
+  }
+
+  if (r.truncated) {
+    // Loud, and phrased so the desk cannot mistake it for a caveat.
+    notes.push(
+      `The "${key}" pass is INCOMPLETE. It reached the length limit ${rounds + 1} times and is still cut off, ` +
+      `so this part of the report stops before its end. Do not issue it as it stands — re-run with a narrower scope.`
+    );
+  } else if (rounds) {
+    notes.push(
+      `The "${key}" pass reached the length limit and was continued in ${rounds} further call${rounds > 1 ? "s" : ""} — it is complete.`
+    );
+  }
+  return { text, rounds, truncated: r.truncated };
+}
+
+/**
  * The written inputs and the client's documents, laid out once and
  * reused by every pass.
  *
@@ -715,7 +788,6 @@ export async function runDiagnostic({ anthropic, model, system, brief, inputs, d
         "Depth reduced: this model would not accept the full thinking or output budget, so every pass ran shallower than designed. A model that supports extended thinking and long output produces a materially deeper report."
       );
     }
-    if (r.truncated) notes.push(`The "${key}" pass hit the length limit and may be cut off.`);
     for (const n of r.contextNotes || []) if (!notes.includes(n)) notes.push(n);
   };
 
@@ -730,38 +802,14 @@ export async function runDiagnostic({ anthropic, model, system, brief, inputs, d
     await onStage?.({ key: "reconcile", state: "done", index: 0, chars: ledger.length, resumed: true });
   } else {
     await onStage?.({ key: "reconcile", state: "running", index: 0 });
-    const ledgerRun = await call(anthropic, {
+    // The working paper is the spine: five passes are written from it, and
+    // the contradictions table is the single most valuable thing in the
+    // engagement. If it stops mid-table, everything downstream is built on
+    // a truncated spine — so it is written to the end, not used as it is.
+    const ledgerRun = await complete(anthropic, {
       model, system, inputsBlock, visualBlocks, visualNote, task: RECONCILE_TASK, budget: BUDGET.reconcile, caps, deadline,
-    });
-    record(ledgerRun, "reconcile");
+    }, "reconcile", record, notes);
     ledger = ledgerRun.text;
-
-    // The working paper is the spine: five passes are written from it,
-    // and the contradictions table is the single most valuable thing in
-    // the engagement. If it hit the output limit it stops MID-TABLE, and
-    // everything downstream was built on a truncated spine while the
-    // report said nothing about it. So it is continued once, from where
-    // it stopped, rather than used as it is.
-    if (ledgerRun.truncated) {
-      const tail = ledger.slice(-4000);
-      const more = await call(anthropic, {
-        model, system, inputsBlock, visualBlocks, visualNote,
-        ledgerBlock: `THE WORKING PAPER SO FAR — it stopped mid-way because it reached the length limit.\n\n${ledger}`,
-        task:
-          `Continue the working paper from exactly where it stopped. The last thing you wrote was:\n\n${tail}\n\n` +
-          `Do not restart, do not repeat a row already written, and do not summarise what is above. ` +
-          `Carry on from the next row of the table you were in the middle of, finish that table, and then write the tables that had not been reached. ` +
-          `Use the same table headings and the same ID series.`,
-        budget: BUDGET.reconcile, caps, deadline,
-      });
-      record(more, "reconcile-continued");
-      ledger = `${ledger}\n\n${more.text}`;
-      // The pass was continued, so the note saying it was cut off is no
-      // longer true — replace it rather than carry both.
-      const cut = notes.findIndex((n) => /^The "reconcile" pass hit the length limit/.test(n));
-      if (cut >= 0) notes.splice(cut, 1);
-      notes.push("The working paper reached the length limit and was continued in a second call — the tables it was cutting off are complete.");
-    }
     await onStage?.({ key: "reconcile", state: "done", index: 0, chars: ledger.length, text: ledger });
   }
 
@@ -773,15 +821,14 @@ export async function runDiagnostic({ anthropic, model, system, brief, inputs, d
       continue;
     }
     await onStage?.({ key: pass.key, state: "running", index: i + 1 });
-    const r = await call(anthropic, {
+    const r = await complete(anthropic, {
       model, system, inputsBlock, visualBlocks, visualNote,
       ledgerBlock: `THE WORKING PAPER FROM PASS ONE — every finding below is sourced; build on it, cite its references, and do not contradict it without saying why.\n\n${ledger}`,
       priorBlock: sections.length
         ? `THE SECTIONS ALREADY WRITTEN — stay consistent with them, refer to them by number, and do not repeat their content.\n\n${sections.map((s) => s.text).join("\n\n")}`
         : null,
       task: pass.task, budget: BUDGET.section, caps, deadline,
-    });
-    record(r, pass.key);
+    }, pass.key, record, notes);
     sections.push({ key: pass.key, text: r.text });
     await onStage?.({ key: pass.key, state: "done", index: i + 1, chars: r.text.length, text: r.text });
   }
@@ -790,7 +837,7 @@ export async function runDiagnostic({ anthropic, model, system, brief, inputs, d
   // The final pass is never carried over: it reconciles the twelve sections
   // against each other, so it has to be written against the set that actually
   // exists rather than an earlier one.
-  const finalRun = await call(anthropic, {
+  const finalRun = await complete(anthropic, {
     model, system, inputsBlock, visualBlocks, visualNote,
     ledgerBlock: `THE WORKING PAPER FROM PASS ONE — every finding below is sourced; build on it, cite its references, and do not contradict it without saying why.\n\n${ledger}`,
     priorBlock: `THE TWELVE DELIVERABLES AS WRITTEN\n\n${sections.map((s) => s.text).join("\n\n")}`,
@@ -798,8 +845,7 @@ export async function runDiagnostic({ anthropic, model, system, brief, inputs, d
     budget: BUDGET.final,
     caps,
     deadline,
-  });
-  record(finalRun, "final");
+  }, "final", record, notes);
   await onStage?.({ key: "final", state: "done", index: SECTION_PASSES.length + 1, chars: finalRun.text.length, text: finalRun.text });
 
   // The findings paragraph is written last but read first, so the
@@ -816,7 +862,10 @@ export async function runDiagnostic({ anthropic, model, system, brief, inputs, d
     output,
     model: modelUsed,
     usage: { input: usage.input, output: usage.output, cacheRead: usage.cacheRead, cacheWrite: usage.cacheWrite },
-    truncated: notes.some((n) => /length limit/.test(n)),
+    // A pass that was continued to the end also mentions the length limit
+    // in its note, so this matches the INCOMPLETE note specifically. The
+    // old test matched the word and flagged a finished report as cut off.
+    truncated: notes.some((n) => /pass is INCOMPLETE/.test(n)),
     notes,
     passes: DIAGNOSTIC_STAGES.length,
   };

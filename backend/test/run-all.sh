@@ -63,6 +63,19 @@ done
 # These start servers of their own — one is about what survives a container
 # being recreated mid-run, the other about running the same engagement's
 # diagnostic more than once — so they run last and on their own ports.
+# This one owns its own mock, because it needs the model to run out of room
+# on demand and then to do so for ever — two different mock modes.
+echo "=== truncation ==="
+printf '  %-28s ' "truncation.e2e"
+TRDATA=$(mktemp -d)
+if ETABLIX_DATA_DIR=$TRDATA PORT=$((PORT + 10)) MOCK_PORT=$((MOCK_PORT + 10)) \
+   ANTHROPIC_API_KEY=mock-key node backend/test/truncation.e2e.mjs > "$LOGS/truncation.log" 2>&1; then
+  grep -Eo '[0-9]+ passed' "$LOGS/truncation.log" | tail -1
+else
+  echo "FAILED  → $LOGS/truncation.log"; fail=1
+fi
+[ "${KEEP:-0}" = "1" ] || rm -rf "$TRDATA"
+
 echo "=== re-run ==="
 printf '  %-28s ' "rerun.e2e"
 RUDATA=$(mktemp -d)
