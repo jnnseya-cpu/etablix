@@ -200,3 +200,80 @@ is that nothing works below the threshold, that is worth saying so publicly and
 briefly — and he may well use the exchange. Do not turn it into ETABLIX. The
 value here is being a name he recognises in infrastructure preparation, not a
 lead.
+
+### He replied, publicly, and asked for the method
+
+He called it one of the most practical observations he has read, restated it in
+his own words, and then asked directly: *how do we make procurement accountable
+for commissioning readiness, not just construction readiness?*
+
+That is the best thing that could have happened. The author of the post is now
+asking you for your approach, in public, in front of his own audience. Answer it
+properly. This is not the moment to be brief, and it is not the moment to
+mention ETABLIX — answering well **is** the marketing, and your headline is one
+click away.
+
+**Formatting note:** LinkedIn strips markdown. Asterisks show as asterisks. Use
+plain sentences and blank lines between them, as below.
+
+### The reply
+
+> Thank you — and it is a fair question to put back to me.
+>
+> My honest answer is that you do not. Procurement is accountable for buying
+> what the requisition asked for, and it usually does that well. If the
+> requisition carries only the construction demand profile, the buyer has done
+> the job correctly and the project still fails. So everything I would change
+> sits upstream of the buyer.
+>
+> Two profiles in the requisition instead of one. Temporary power, water,
+> welfare and access each carry a construction load and a commissioning load,
+> with different durations. Same document, two columns.
+>
+> The commissioning manager signs the requisition and the award recommendation.
+> Not consulted — signs. Consultation produces an opinion; a required signature
+> produces a boundary somebody owns. It is the only item on this list that costs
+> nothing.
+>
+> The contract term written to handover, not to mechanical completion. This was
+> the one I saw most often, and nothing was undersized: the hire, the welfare and
+> the generators simply ran out, because the term followed the construction
+> programme. Commissioning then arrives to find the compound being demobilised
+> around them.
+>
+> And one question worth putting in the tender itself: ask bidders how they will
+> handle the step change in demand between construction peak and commissioning.
+> The ones who cannot answer are usually the ones who raise the variation.
+
+### Why this answer and not a shorter one
+
+**It refuses the premise first, and that is the substance.** You cannot make
+procurement accountable for commissioning readiness, because procurement is
+accountable to the requisition. Saying so plainly is more useful than a list of
+governance suggestions, and it is what someone who has actually let packages
+knows and a consultant does not.
+
+**Every item is something you did, not something you read.** Two load profiles,
+a required signature, a contract term written to handover. None of it is theory,
+and the middle one costs nothing, which is what makes it credible.
+
+**The variation line is the closing argument.** It converts the whole thing from
+good practice into money, which is the language the people reading his thread
+are accountable in.
+
+### What to do straight after posting it
+
+**Send the connection request the next day, not the same hour.** He is 3rd
+degree; two public exchanges of this quality is more than enough warrant. One
+line in the note, referencing the thread, nothing else:
+
+> Mehdi — enjoyed the exchange on your pre-commissioning post. Would value
+> staying connected.
+
+**Do not follow it with a pitch.** Not in the note, not in the first message
+after he accepts, not at all until he asks what you do. The whole value of this
+thread is that you were useful in public. A sales message in private undoes it
+in one line.
+
+**Watch his next post and comment on that too.** Two good comments make you a
+familiar name; one makes you a stranger who had a good day.
