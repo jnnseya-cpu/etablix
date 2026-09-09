@@ -31,7 +31,9 @@ interface ownership: a document, or people on site. That message is already
 written and it contains no ask.
 
 **When he answers that — the ask.** Two things, framed so either can be
-declined without awkwardness.
+declined without awkwardness. If he does not answer the interface question,
+leave it: one good reply from a programme director is not permission to ask
+for work, and the ask keeps.
 
 **In parallel, and starting today — supplier registration.** This is the real
 gating item and it has nothing to do with Jason. A company the size of Siemens
@@ -45,8 +47,12 @@ and he can answer it without committing to anything.
 
 ## The ask, when the moment comes
 
-> Jason — you have been more useful in two messages than a month of my own
-> guessing. Two things, and you can say no to either without it being awkward.
+Not now. This goes after he answers the interface question — his second reply,
+not his first. He has given you one considered answer; coming back with a
+request for work immediately teaches him that answering costs him something.
+
+> Jason — that was more useful than a month of my own guessing. Two things, and
+> you can say no to either without it being awkward.
 >
 > First: would you let me test it on something real? Not a proposal and not a
 > sales process. One site or one package, your choice. I take whatever
