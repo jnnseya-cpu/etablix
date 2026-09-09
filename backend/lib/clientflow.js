@@ -703,6 +703,16 @@ export const REQUIREMENT_PACKS = {
         "A note is enough",
         { accepts: "text" }
       ),
+      // The returns are the thing being evaluated, and this item was missing:
+      // the pack asked for the setup and nothing for the returns themselves,
+      // so the evaluation had no input and the run was refused. They arrive
+      // in a second act, weeks after the rest, which is why the item says so.
+      R(
+        "p-returns",
+        "The tender returns, once they have landed",
+        "Every return in full — price, qualifications, exclusions, assumptions and the covering letter. This one is answered later than the rest: the others set the enquiry up, this is what comes back. Nothing can be evaluated until every return is here, and a return supplied in part is evaluated in part.",
+        "PDF or Word, one set per tenderer"
+      ),
     ],
   },
 
@@ -1272,6 +1282,47 @@ export const DELIVERABLE_PIPELINES = {
       "s-utilities": "utilities",
       "s-hse": "hse",
       "s-tender": "tender",
+    },
+  },
+  "mobilisation-review": {
+    agent: "mobilisation-review",
+    fieldMap: {
+      "m-access": "access",
+      "m-programme": "programme",
+      "m-status": "status",
+      "m-consents": "consents",
+      "m-layout": "layout",
+      "m-suppliers": "suppliers",
+      "m-risks": "risks",
+    },
+  },
+  "village-requirements": {
+    agent: "village-requirements",
+    fieldMap: {
+      "v-demand": "demand",
+      "v-site": "site",
+      "v-planning": "planning",
+      "v-utilities": "utilities",
+      "v-standard": "standard",
+      "v-operation": "operation",
+      "v-duration": "duration",
+      "v-transport": "transport",
+      "v-packages": "packages",
+      "v-hse": "hse",
+    },
+  },
+  procurement: {
+    agent: "procurement",
+    fieldMap: {
+      "p-packages": "packages",
+      "p-requirements": "requirements",
+      "p-programme": "programme",
+      "p-budget": "budget",
+      "p-evaluation": "evaluation",
+      "p-suppliers": "suppliers",
+      "p-terms": "terms",
+      "p-governance": "governance",
+      "p-returns": "returns",
     },
   },
 };

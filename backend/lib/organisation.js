@@ -240,6 +240,33 @@ export const AI_AGENTS = [
     backing: ["llm"],
     desk: "The document set that goes to market. Where the diagnostic reports what does not hold, this writes the instruments a tenderer prices and a contract enforces — so every requirement is objectively verifiable and traced to the document, duty or condition that mandates it.",
   },
+  {
+    id: "mobilisation-review",
+    name: "Agent 10 — Mobilisation-readiness review",
+    inputs: ["What was seen on the review visit, and what could not be reached", "The current programme and the mobilisation date being tested; the status of every service and package today", "Consents and connections, the layout as it will be at mobilisation, supplier appointments and lead times, the client's own risk register"],
+    outputs: ["Readiness by service, rated READY / AT RISK / NOT READY with the evidence class of each", "What will stop mobilisation, ranked by the date it bites rather than by how large it feels", "The consent and connection position worked backwards from the date", "Recovery actions ordered by the date each must START", "A verdict on the date: deliverable, deliverable with named actions, or not deliverable with the earliest date that is"],
+    boundary: "Decision support only. Every readiness statement carries its evidence class — observed, evidenced, asserted or unknown — and a verdict resting substantially on assertion says so. Anything safety-critical is flagged rather than resolved.",
+    backing: ["llm"],
+    desk: "Eight deliverables, not twelve — narrower than the diagnostic and sold weeks before mobilising. It is the only engagement with a site visit, which is why its central distinction is between what was observed, what a document evidences, and what somebody merely asserted.",
+  },
+  {
+    id: "village-requirements",
+    name: "Agent 11 — Workforce Village Requirements Package",
+    inputs: ["Bed demand over the whole programme, the village site, and the planning position", "Utility positions, the intended accommodation standard and how the village is to be operated", "Deployment duration and the exit, transport strategy, committed packages, and the fire strategy if one exists"],
+    outputs: ["Bed demand and occupancy model, with the sensitivity to the travelling proportion shown", "Site capacity appraisal, accommodation standard and unit schedule", "Layout, utility, catering, amenity and operating requirements — each measurable", "Consents and licensing worked backwards from first occupancy", "Deployment, exit and procurement strategy for the village"],
+    boundary: "NOT A FIRE STRATEGY. Fire, means of escape, compartmentation, alarm and detection, evacuation and fire-service access are life-safety matters for a competent fire engineer and the fire and rescue authority; this package states the requirement and refers them. A drafting service and decision support, not a design, a price or legal advice.",
+    backing: ["llm"],
+    desk: "The most specialist deliverable ETABLIX sells. Two things make it different: people sleep here, so life safety is referred rather than resolved; and a village is a consented development, so the consent route decides whether it is available at all — and clients ask for one long after the application had to be made.",
+  },
+  {
+    id: "procurement",
+    name: "Agent 12 — Managed Procurement Desk: tender evaluation",
+    inputs: ["The package and its scope boundary, and the technical requirements the enquiry put to the market", "The tender returns — each tenderer's price, qualifications and exclusions", "The evaluation model as issued, the contract terms, the budget held in confidence, and the client's approval route"],
+    outputs: ["The process record, written so the award can be defended if it is questioned", "Requirement-by-requirement compliance, with the treatment of each non-compliance applied consistently", "The commercial comparison NORMALISED — every adjustment shown as its own line with its source", "Every qualification found and valued: what accepting each return as written costs beyond its price", "Scores against the model as issued, and a recommendation with its conditions and its named alternative"],
+    boundary: "A recommendation for a named human with delegated authority. ETABLIX does not award, does not place orders and does not commit the client to any supplier. No adjustment is ever invented: where one cannot be derived it is carried as an open item and the ranking is provisional.",
+    backing: ["llm"],
+    desk: "A recurring service, so it runs again every time returns land. Its value is normalisation rather than scoring: three tenderers price one enquiry on three different bases, and added up as returned the cheapest is whoever excluded most.",
+  },
 ];
 
 /** Function → how much AI genuinely replaces → the human control that remains. */

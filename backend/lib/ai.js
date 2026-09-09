@@ -17,6 +17,9 @@ import Anthropic from "@anthropic-ai/sdk";
 import { getSettings, saveSettings } from "./store.js";
 import { runPipeline, pipelineSpec, DIAGNOSTIC_SPEC, STANDARD, DIAGNOSTIC_STAGES } from "./diagnostic.js";
 import * as SR from "./pipelines/site-requirements.js";
+import * as MR from "./pipelines/mobilisation-review.js";
+import * as VR from "./pipelines/village-requirements.js";
+import * as PR from "./pipelines/procurement.js";
 
 const DEFAULT_MODEL = "claude-opus-5";
 
@@ -291,6 +294,18 @@ competent person rather than resolved.`,
     system: `${COMPANY_BRIEF}\n\n${SR.BRIEF_SYSTEM}`,
     fields: SR.FIELDS,
   },
+  "mobilisation-review": {
+    system: `${COMPANY_BRIEF}\n\n${MR.BRIEF_SYSTEM}`,
+    fields: MR.FIELDS,
+  },
+  "village-requirements": {
+    system: `${COMPANY_BRIEF}\n\n${VR.BRIEF_SYSTEM}`,
+    fields: VR.FIELDS,
+  },
+  procurement: {
+    system: `${COMPANY_BRIEF}\n\n${PR.BRIEF_SYSTEM}`,
+    fields: PR.FIELDS,
+  },
   commercial: {
     system: `${COMPANY_BRIEF}
 
@@ -476,6 +491,32 @@ export const PIPELINE_SPECS = {
     sectionPasses: SR.SECTION_PASSES,
     finalTask: SR.FINAL_TASK,
     finalLabel: "Requirements summary and traceability",
+  }),
+  // Eight sections and three passes, not twelve and four. A narrower product
+  // padded out to the diagnostic's shape is a diagnostic sold at a discount.
+  "mobilisation-review": pipelineSpec({
+    id: "mobilisation-review",
+    reconcileTask: MR.RECONCILE_TASK,
+    sectionPasses: MR.SECTION_PASSES,
+    finalTask: MR.FINAL_TASK,
+    finalLabel: "Verdict and evidence ledger",
+  }),
+  "village-requirements": pipelineSpec({
+    id: "village-requirements",
+    reconcileTask: VR.RECONCILE_TASK,
+    sectionPasses: VR.SECTION_PASSES,
+    finalTask: VR.FINAL_TASK,
+    finalLabel: "Summary, safety referrals and traceability",
+  }),
+  // A recurring service, so the unit of production is one evaluation per
+  // package rather than one study. Eight sections, three passes, and the
+  // working paper — the normalisation register — carries the value.
+  procurement: pipelineSpec({
+    id: "procurement",
+    reconcileTask: PR.RECONCILE_TASK,
+    sectionPasses: PR.SECTION_PASSES,
+    finalTask: PR.FINAL_TASK,
+    finalLabel: "Recommendation and audit trail",
   }),
 };
 export const PIPELINE_AGENTS = new Set(Object.keys(PIPELINE_SPECS));

@@ -32,6 +32,48 @@ const sec = (n, t, body) => `## ${n} · ${t}\n${body}`;
 
 function answer(task) {
   if (/Reply with exactly/.test(task)) return "ETABLIX AI online";
+  // AGENTS 10, 11 AND 12 BEFORE AGENT 9 AND THE DIAGNOSTIC, for the same
+  // reason: every agent's passes say "Write deliverables 1, 2 and 3", so the
+  // match has to be on wording unique to one product. Getting this wrong does
+  // not fail loudly — the splitter takes sections by number, so another
+  // agent's content lands in the right fields and the document looks correct.
+
+  // Agent 10 — Mobilisation-readiness review. Eight sections, three passes.
+  if (/READINESS EVIDENCE REGISTER/.test(task))
+    return "## A · READINESS EVIDENCE REGISTER\n| Ref | Item | Position | Evidence class |\n|---|---|---|---|\n| RE-01 | S278 bellmouth | Not applied for | EVIDENCED — 07 §2 |\n| RE-02 | Welfare cabins | \"On order\" | ASSERTED — site manager |";
+  if (/Readiness by service, at today's date/.test(task))
+    return [sec(1, "Readiness by service, at today's date", "READY / AT RISK / NOT READY.\n| Ref | Service | Evidence | Rating |\n|---|---|---|---|\n| RE-01 | Access | EVIDENCED | NOT READY |"), sec(2, "What will stop mobilisation", "| Blocker | Date it bites | Recoverable? |\n|---|---|---|\n| S278 | 2027-04-06 | No |"), sec(3, "Consents, conditions and connections", "Pre-commencement conditions are a prohibition on starting, not a risk to the programme.")].join("\n\n");
+  if (/Site and layout readiness/.test(task))
+    return [sec(4, "Site and layout readiness", "Standing water observed in the north-east corner."), sec(5, "Supplier and appointment readiness", "| Package | Appointed? | Latest responsible instruction |\n|---|---|---|\n| TW01 | No | PASSED |"), sec(6, "Welfare and workforce readiness at day one", "Schedule 2 sets no numeric ratios; sized on day-one headcount, not peak.")].join("\n\n");
+  if (/Recovery actions in the time remaining/.test(task))
+    return [sec(7, "Recovery actions in the time remaining", "| Action | Owner | Must START |\n|---|---|---|\n| Commission highway design | Design Management | This week |"), sec(8, "The date verdict", "**NOT DELIVERABLE.** The earliest achievable date is 2027-05-20, set by the S278 chain.")].join("\n\n");
+  if (/VERDICT IN ONE PARAGRAPH/.test(task))
+    return "## 0 · VERDICT IN ONE PARAGRAPH\nThe date does not hold; the S278 chain sets an earliest date of 2027-05-20 and two readiness items rest on assertion.\n\n## A · Evidence and assertion ledger\n| Statement | Class | Source |\n|---|---|---|\n| Cabins on order | ASSERTED | Site manager |";
+
+  // Agent 11 — Workforce Village Requirements. Twelve sections, four passes.
+  if (/DEMAND MODEL/.test(task) && /bed demand/i.test(task))
+    return "## A · DEMAND MODEL\n| Period | Headcount | Travelling % | Beds | Bed-nights |\n|---|---|---|---|---|\n| 2028 Q3 | 340 | 62% | 211 | 13,715 |\n\n## E · STANDARDS THE CLIENT HAS NOT STATED\n| Ref | Needs a standard | Proposed |\n|---|---|---|\n| VG-01 | Acoustic separation between rooms | BS 8233 |";
+  if (/Bed demand and occupancy model/.test(task))
+    return [sec(1, "Bed demand and occupancy model", "211 beds at peak; 87,800 bed-nights on a five-night basis, 122,900 on seven."), sec(2, "Village site appraisal and capacity", "| Constraint | Value | Limits |\n|---|---|---|\n| Developable area | 2.1 ha | 240 beds |"), sec(3, "Accommodation standard and unit schedule", "Room 11 m², single occupancy, en-suite. **[PROPOSED — client approval required]**")].join("\n\n");
+  if (/Village layout and zoning requirements/.test(task))
+    return [sec(4, "Village layout and zoning requirements", "Sleeping zoned away from plant and parking."), sec(5, "Utilities, foul and waste requirements", "Water at 130 l/bed/day = 27.4 m³/day."), sec(6, "Fire strategy and life-safety requirements", "A fire strategy must exist. **[SAFETY-CRITICAL — for determination by a competent person and the fire authority]** No travel distance, compartment size, alarm category or escape width is proposed here.")].join("\n\n");
+  if (/Catering, welfare and amenity requirements/.test(task))
+    return [sec(7, "Catering, welfare and amenity requirements", "Covers sized on sittings within the shift pattern, not on bed count."), sec(8, "Village operation and management requirements", "| Service | Standard | Measured | Consequence |\n|---|---|---|---|\n| Cleaning | Daily | Inspection | Deduction |"), sec(9, "Transport and access requirements", "Fatigue management is **[SAFETY-CRITICAL — for determination by a competent person]**.")].join("\n\n");
+  if (/Consents, licensing and statutory requirements/.test(task))
+    return [sec(10, "Consents, licensing and statutory requirements", "| Consent | Determination | Latest responsible application |\n|---|---|---|\n| Planning | Not stated | Cannot be computed |"), sec(11, "Deployment, duration and exit requirements", "The exit is separately priced; assumed inside a hire contract it is an unquantified liability."), sec(12, "Procurement and contracting strategy for the village", "Hire versus capital, and the test between them.")].join("\n\n");
+
+  // Agent 12 — Tender evaluation. Eight sections, three passes.
+  if (/NORMALISATION REGISTER/.test(task))
+    return "## B · NORMALISATION REGISTER\n| Item | Tenderer A | Tenderer B | Adjustment |\n|---|---|---|---|\n| Fuel | Included | Excluded | +£410,000 to B, from their own rate |";
+  if (/Package and process record/.test(task))
+    return [sec(1, "Package and process record", "The evaluation model was fixed before returns were opened."), sec(2, "Returns received and admissibility", "Figures AS RETURNED — **not comparable**, see section 4."), sec(3, "Requirement-by-requirement compliance", "| Requirement | A | B | Treatment |\n|---|---|---|---|\n| Rev C load | COMPLIANT | NON-COMPLIANT | Clarify, both |")].join("\n\n");
+  if (/Commercial comparison, normalised/.test(task))
+    return [sec(4, "Commercial comparison, normalised", "| Step | A | B |\n|---|---|---|\n| As returned | £3.1m | £2.7m |\n| Fuel adjustment | — | +£0.41m |\n| Normalised | £3.1m | £3.11m |"), sec(5, "Qualifications, exclusions and assumptions", "Accepting B as written costs £410,000 beyond its price."), sec(6, "Risk in each return", "B has assumed a lead time nobody can achieve.")].join("\n\n");
+  if (/Evaluation against the model/.test(task))
+    return [sec(7, "Evaluation against the model", "| Criterion | Weight | A | B |\n|---|---|---|---|\n| Price | 40% | 38 | 38 |"), sec(8, "Recommendation and its conditions", "Recommend A, on conditions. ETABLIX does not award or place orders.")].join("\n\n");
+  if (/RECOMMENDATION IN ONE PARAGRAPH/.test(task))
+    return "## 0 · RECOMMENDATION IN ONE PARAGRAPH\nTenderer A on a normalised £3.1m, ahead of B by £10,000 once fuel is levelled — provisional until one open item closes.\n\n## A · Audit trail and open items\n| Decision | Basis | Applied to |\n|---|---|---|\n| Fuel adjustment | B's own rate | Both tenderers |";
+
   // AGENT 9 FIRST, and the order is the point. Both agents' passes say
   // "Write deliverables 1, 2 and 3", so matching the diagnostic's generic
   // phrase first returned the DIAGNOSTIC's sections for Agent 9's passes —

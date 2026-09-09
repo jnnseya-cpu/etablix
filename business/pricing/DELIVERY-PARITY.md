@@ -1,6 +1,7 @@
 # Delivery parity — every deliverable at the level of the diagnostic
 
-**Prepared 9 September 2026.**
+**Prepared 9 September 2026. CLOSED — all five deliverables now have a
+production engine.**
 
 The Site Systems Diagnostic works. A client answers nine questions in their
 portal, uploads their pack once, and an engine reads eighteen documents against
@@ -29,16 +30,19 @@ come down to something that pays for the hours.
 
 ## 2 · Where each deliverable stands
 
-| Deliverable | Fee | Client intake | Production engine | Branded document | Portal join |
-|---|---|---|---|---|---|
-| **Site Systems Diagnostic** | £6,500 – £18,500 | 9 questions | **Agent 8** — 6 passes, 12 sections | SSD series | Yes |
-| **Site Management Requirements** | £14,000 – £45,000 | 9 questions | **Agent 9** — 6 passes, 12 sections | SMR series | Yes |
-| Workforce Village Requirements | £18,000 – £55,000 | 9 questions | **none** | none | no |
-| Managed Procurement Desk | £5,000 – £13,500 | 9 questions | **none** | ITT template only | no |
-| Mobilisation-readiness review | £5,500 – £15,000 | 9 questions | **none** | none | no |
+| Deliverable | Fee | Intake | Production engine | Document |
+|---|---|---|---|---|
+| Site Systems Diagnostic | £6,500 – £18,500 | 8 questions | **Agent 8** — 6 passes, 12 sections | SSD |
+| Site Management Requirements | £14,000 – £45,000 | 9 questions | **Agent 9** — 6 passes, 12 sections | SMR |
+| Mobilisation-readiness review | £5,500 – £15,000 | 7 questions | **Agent 10** — 5 passes, 8 sections | MRR |
+| Workforce Village Requirements | £18,000 – £55,000 | 10 questions | **Agent 11** — 6 passes, 12 sections | WVR |
+| Managed Procurement Desk | £5,000 – £13,500 | 9 questions | **Agent 12** — 5 passes, 8 sections | TEV |
 
-Two of five now deliver alike. Three do not, and the console says so rather
-than offering a button the endpoint would refuse.
+**All five, and each with its own shape rather than the diagnostic's.** Every
+one takes the client's portal answers with nothing re-entered, reports its own
+stage names, mints into its own numbered series, and renders as a branded
+document with the print-to-PDF button. `parity.e2e.mjs` walks all five, 79
+checks.
 
 ---
 
@@ -100,7 +104,80 @@ the difference between a test and a formality.
 
 ---
 
-## 5 · The next three, in the order they should be built
+## 5 · What each of the three needed that the others did not
+
+**Agent 10 — Mobilisation-readiness review. Eight sections, not twelve.**
+Padding a £5,500 product out to the diagnostic's shape would be a diagnostic
+sold at a discount, twice dishonest: the client pays less and should get less,
+and a review that repeats a diagnostic is not a second product.
+
+Its method is different because **it is the only engagement with a site
+visit.** So the central distinction of the whole report is between what was
+OBSERVED on the visit, what a named document EVIDENCES, what somebody merely
+ASSERTED, and what is UNKNOWN. Internally a client records an assertion and a
+fact the same way; telling them which of their beliefs is which is the thing
+they cannot do for themselves. And it must reach a verdict — deliverable,
+deliverable with named actions, or not deliverable with the earliest date that
+is — because a review that lists concerns and declines to answer has not been
+delivered.
+
+**Agent 11 — Workforce Village. People sleep there, and it changes what may be
+written.** A compound is a place of work; a village is where several hundred
+people are unconscious at three in the morning. Fire strategy, means of
+escape, compartmentation, alarm and detection, evacuation and fire-service
+access are life-safety matters, and this package states the requirement that a
+strategy must exist and names who must produce it — a competent fire engineer
+and the fire and rescue authority. It proposes no travel distance, no
+compartment size, no alarm category, no escape width. **A package that appears
+to settle a fire strategy is more dangerous than one that is silent**, and the
+document says on its face that it is not one.
+
+It is also a consented development rather than a temporary works arrangement.
+The consent route and its determination period decide whether the village is
+available at all, and clients ask for one long after the application had to be
+made — so every consent is worked backwards from first occupancy and any date
+already passed goes in the first paragraph.
+
+**Agent 12 — Procurement desk. A different shape, and the working paper
+carries the value.** It is a recurring service, so its unit of production is
+one evaluation per package, produced again every time returns land. Eight
+sections, three passes.
+
+Its value is **normalisation, not scoring.** Three tenderers price one enquiry
+on three different bases: one includes fuel and two do not, one priced a
+superseded revision, one excluded standby, one assumed a different term. Added
+up as returned, the cheapest is whoever excluded most. Section 4 brings them
+onto one basis as a build-up the client can follow line by line and disagree
+with — and no adjustment is ever invented. Where one cannot be derived it is
+carried as an open item and the ranking is stated as provisional, because an
+invented adjustment is an award decision taken by whoever guessed.
+
+A level playing field is treated as a duty rather than a courtesy: every
+non-compliance is recorded with its treatment, and the treatment is applied
+consistently, because quietly correcting one return and not another is how an
+award becomes challengeable.
+
+---
+
+## 6 · Two defects the build found
+
+**The procurement intake had no item for the tender returns.** Nine questions
+about the enquiry, the budget, the evaluation model and the approval route,
+and nothing about the thing being evaluated — so the run was refused for a
+missing required field. The returns arrive in a second act, weeks after the
+rest, which is why the new checklist item says so on its face: the others set
+the enquiry up, this is what comes back, and a return supplied in part is
+evaluated in part.
+
+**Section prefixes collided with pack prefixes.** The mobilisation review's
+sections were `v1..v8` while its client questions were `m-*`, and the village
+package's sections were `w1..w12` while its questions were `v-*`. Nothing
+broke loudly — the test simply reported that a client had been given a
+nought-question pack. Each agent's sections now carry its own letter.
+
+---
+
+## 7 · The order these were built in, and why
 
 **Mobilisation-readiness review** first, despite being the cheapest. It is the
 closest sibling of the diagnostic — same intake shape, same "worked backwards
@@ -117,5 +194,12 @@ rather than a document, so the engine it needs is not a six-pass pipeline —
 it is per-package evaluation and comparison against the requirements. Building
 it as a pipeline would be forcing the wrong shape.
 
-Until each exists, its fee assumes hand production. Say that plainly when
-quoting one, and do not quote the top of a band for work that will be typed.
+All three are built. **The pricing certified in PRICING-REVIEW-2026 now holds
+for all five bands**, because every one of them is produced by an engine on
+the effort the margin model assumed. The earlier instruction to quote the
+bottom of a band on the four without engines no longer applies.
+
+What remains is the same thing that remains for the diagnostic: read the
+output before it goes to a client. An engine that produces twelve sections in
+six passes produces them from the client's own documents, and the sections that
+matter most are the ones a client checks hardest.

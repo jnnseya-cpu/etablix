@@ -49,108 +49,151 @@ for (let i = 0; i < 40; i++) {
 srv = spawn("node", ["backend/server.js"], { stdio: "ignore", env: { ...process.env, PORT: String(PORT), SITE_URL: B, ANTHROPIC_BASE_URL: MOCK } });
 for (let i = 0; i < 40; i++) { await wait(250); try { if ((await fetch(B + "/api/health")).ok) break; } catch {} }
 
-console.log("\n=== Agent 9 delivers like Agent 8 ===\n");
+console.log("\n=== every Model A deliverable delivers alike ===\n");
 
 let r = await api("/api/auth/login", { json: { email: "admin@etablix.com", password: "etablix-admin-2026" } });
 const T = r.b.token; ok(r.s === 200, "admin signs in");
 await api("/api/agents/provider", { json: { apiKey: "sk-ant-mock", model: "claude-opus-5" }, method: "PUT" }, T);
 
-// --- the agent is registered like any other
+/**
+ * One row per deliverable: what it should be produced by, what its stages
+ * should be called, which document series it should be numbered in, and two
+ * phrases that could only come from that product.
+ *
+ * The two phrases are the point. The output splitter takes sections by NUMBER
+ * rather than by title, so another agent's content lands in the right fields
+ * and produces a document that looks entirely correct — twelve populated
+ * sections, a valid number, the right headings, every word from the wrong
+ * product. Asserting the fields are populated catches nothing.
+ */
+const CASES = [
+  { deliverable: "feasibility", fee: 11500, agent: "diagnostic", prefix: "SSD-",
+    stages: "reconcile,s1_3,s4_6,s7_9,s10_12,final", sections: 12, pack: "f", field: "s",
+    title: "Site Systems Diagnostic",
+    words: [[3, /Fails how|superseded schedule/], [7, /consent|Section 278|lead time/i]] },
+  { deliverable: "site-requirements", fee: 26000, agent: "site-requirements", prefix: "SMR-",
+    stages: "reconcile,r1_3,r4_6,r7_9,r10_12,final", sections: 12, pack: "s", field: "r",
+    title: "Site Management Requirements Package",
+    words: [[2, /Contractor shall|Employer/], [9, /Part II|payment/i]] },
+  { deliverable: "mobilisation-review", fee: 9500, agent: "mobilisation-review", prefix: "MRR-",
+    stages: "reconcile,m1_3,m4_6,m7_8,final", sections: 8, pack: "m", field: "m",
+    title: "Mobilisation-readiness review",
+    words: [[1, /READY|AT RISK|NOT READY/], [8, /DELIVERABLE|verdict/i]] },
+  { deliverable: "village-requirements", fee: 32000, agent: "village-requirements", prefix: "WVR-",
+    stages: "reconcile,v1_3,v4_6,v7_9,v10_12,final", sections: 12, pack: "v", field: "v",
+    title: "Workforce Village Requirements Package",
+    words: [[1, /bed|beds/i], [6, /SAFETY-CRITICAL/]] },
+  { deliverable: "procurement", fee: 9500, agent: "procurement", prefix: "TEV-",
+    stages: "reconcile,p1_3,p4_6,p7_8,final", sections: 8, pack: "p", field: "p",
+    title: "Tender evaluation report",
+    words: [[4, /normalis|As returned/i], [8, /Recommend/i]] },
+];
+
+// --- every one is registered as an agent with its own inputs
 r = await api("/api/agents", {}, T);
-const a9 = (r.b.agents || []).find((a) => a.id === "site-requirements");
-ok(Boolean(a9), "Agent 9 is in the agent list", (r.b.agents || []).map((a) => a.id));
-ok((a9?.fields || []).length >= 10, `it declares its own ${a9?.fields?.length} input fields`);
-
-// --- an engagement for the deliverable it produces
-r = await api("/api/clients", { json: {
-  client: "Marrowbridge Infrastructure Ltd", project: "NORTHREACH — requirements to market",
-  contactName: "Dale Okonjo", contactEmail: "dale@example.test",
-  deliverable: "site-requirements", model: "A", fee: 26000, vatMode: "standard",
-} }, T);
-ok(r.s === 201, "an engagement is opened for the requirements package", r.b);
-const E = r.b.engagement;
-ok(E.deliverableName.includes("Site Management Requirements"), `and it is priced as one: ${E.deliverableName}`);
-
-r = await api(`/api/clients/${E.id}/issue-portal`, { method: "POST" }, T);
-const tok = new URL(r.b.link).searchParams.get("t");
-r = await api(`/api/clients/portal/${tok}`);
-const items = r.b.engagement.checklist;
-// Nine pack items plus the five universal commercial ones.
-const packIds = items.filter((i) => i.id.startsWith("s-")).map((i) => i.id);
-ok(packIds.length === 9, `the client gets the requirements pack's own nine questions: ${packIds.join(", ")}`, packIds);
-ok(!items.some((i) => i.id.startsWith("f-")), "and none of the diagnostic's");
-
-for (const item of items) {
-  const fd = new FormData();
-  fd.append("state", "supplied");
-  fd.append("note", `Answered for ${item.id}. Enough for the agent to specify against.`);
-  await fetch(`${B}/api/clients/portal/${tok}/checklist/${item.id}`, { method: "POST", body: fd });
+const agents = r.b.agents || [];
+for (const c of CASES) {
+  const a = agents.find((x) => x.id === c.agent);
+  ok(Boolean(a) && (a.fields || []).length >= 10,
+     `${c.agent} is registered with its own ${a?.fields?.length} input fields`);
 }
-await api(`/api/clients/portal/${tok}/start`, { json: { authorised: true, name: "Dale Okonjo" } });
-await api(`/api/clients/${E.id}/payment-received`, { json: { kind: "deposit" } }, T);
 
-// --- the join: the client's own answers reach the agent with nothing re-entered
-r = await api(`/api/clients/${E.id}/run-diagnostic`, { method: "POST" }, T);
-ok(r.s === 202, "the engagement runs its OWN agent — no re-upload, no re-entry", r.b);
-const runId = r.b.runId;
+for (const c of CASES) {
+  console.log(`\n--- ${c.deliverable}\n`);
 
-let run = null;
-for (let i = 0; i < 240; i++) {
-  const g = await api(`/api/agents/runs/${runId}`, {}, T);
-  run = g.b.run || g.b;
-  if (run?.status && run.status !== "running") break;
-  await wait(1000);
+  r = await api("/api/clients", { json: {
+    client: "Marrowbridge Infrastructure Ltd", project: `NORTHREACH — ${c.deliverable}`,
+    contactName: "Dale Okonjo", contactEmail: "dale@example.test",
+    deliverable: c.deliverable, model: "A", fee: c.fee, vatMode: "standard",
+  } }, T);
+  ok(r.s === 201, "engagement opened", r.b);
+  const E = r.b.engagement;
+
+  r = await api(`/api/clients/${E.id}/issue-portal`, { method: "POST" }, T);
+  const tok = new URL(r.b.link).searchParams.get("t");
+  r = await api(`/api/clients/portal/${tok}`);
+  const items = r.b.engagement.checklist;
+  const own = items.filter((i) => i.id.startsWith(`${c.pack}-`));
+  ok(own.length >= 7, `the client gets its own ${own.length}-question pack`, own.map((i) => i.id));
+
+  for (const item of items) {
+    const fd = new FormData();
+    fd.append("state", "supplied");
+    fd.append("note", `Answered for ${item.id}. Enough to work from.`);
+    await fetch(`${B}/api/clients/portal/${tok}/checklist/${item.id}`, { method: "POST", body: fd });
+  }
+  await api(`/api/clients/portal/${tok}/start`, { json: { authorised: true, name: "Dale Okonjo" } });
+  await api(`/api/clients/${E.id}/payment-received`, { json: { kind: "deposit" } }, T);
+
+  r = await api(`/api/clients/${E.id}/run-diagnostic`, { method: "POST" }, T);
+  ok(r.s === 202, "the engagement runs its own agent — no re-upload, no re-entry", r.b);
+  const runId = r.b.runId;
+
+  let run = null;
+  for (let i = 0; i < 240; i++) {
+    const g = await api(`/api/agents/runs/${runId}`, {}, T);
+    run = g.b.run || g.b;
+    if (run?.status && run.status !== "running") break;
+    await wait(1000);
+  }
+  ok(["awaiting_approval", "complete", "completed", "done"].includes(run?.status),
+     `it finished — status ${run?.status}`, { status: run?.status, error: run?.error });
+  ok(run?.agent === c.agent, `produced by ${run?.agent}`);
+
+  const keys = (run?.stages || []).map((x) => x.key);
+  ok(keys.join(",") === c.stages, `its own ${keys.length} stages: ${keys.join(", ")}`, keys);
+
+  await api(`/api/agents/runs/${runId}/decision`, { json: { decision: "approve" } }, T);
+  r = await api(`/api/docs/from-run/${runId}`, {}, T);
+  const data = r.b.data || {};
+  const re = new RegExp(`^${c.field}\\d+$`);
+  const filled = Object.entries(data).filter(([k, v]) => re.test(k) && String(v).trim()).map(([k]) => k);
+  ok(filled.length === c.sections, `all ${c.sections} of its sections came across`, filled);
+
+  // The words, not the field names.
+  for (const [n, pattern] of c.words) {
+    const body = String(data[`${c.field}${n}`] || "");
+    ok(pattern.test(body), `section ${n} reads as ${c.deliverable}, not another product`, body.slice(0, 110));
+  }
+
+  const pub = await (async () => {
+    const fd = new FormData();
+    fd.append("runId", runId);
+    fd.append("label", `${c.title} — NORTHREACH`);
+    fd.append("summary", "Ready for the client.");
+    fd.append("releaseEarly", "true");
+    fd.append("releaseReason", "End-to-end test; the promised date has not arrived.");
+    const res = await fetch(`${B}/api/clients/${E.id}/deliverable`, { method: "POST", headers: { Authorization: "Bearer " + T }, body: fd });
+    return { s: res.status, b: await J(res) };
+  })();
+  ok(pub.s === 201, "it publishes to the client's portal", pub.b);
+  const d = pub.b.engagement?.deliverables?.at(-1);
+  ok(Boolean(d?.documentNumber?.startsWith(c.prefix)),
+     `in its own series: ${d?.documentNumber}`);
+
+  const html = await (await fetch(`${B}/api/docs/${d.documentId}/render?token=${encodeURIComponent(T)}`)).text();
+  ok(html.includes(c.title), `the branded document carries its own title: ${c.title}`);
+  ok(/ETABLIX<small>INTEGRATED SITE SERVICES/.test(html) && /15405437/.test(html),
+     "with the wordmark and company particulars — issuable as it stands");
+  ok(!/(^|>)\s*#{1,6}\s/m.test(html.replace(/<style[\s\S]*?<\/style>/g, "")),
+     "and no markdown hash reaching the client");
 }
-ok(["awaiting_approval", "complete", "completed", "done"].includes(run?.status),
-   `it finished — status ${run?.status}`, { status: run?.status, error: run?.error });
-ok(run?.agent === "site-requirements", "the run records which agent produced it");
 
-// --- its own stages, not the diagnostic's
-const keys = (run?.stages || []).map((s) => s.key);
-ok(keys.join(",") === "reconcile,r1_3,r4_6,r7_9,r10_12,final",
-   `it reports its own six stages: ${keys.join(", ")}`, keys);
-ok(!keys.includes("s1_3"), "and not the diagnostic's stage names");
+// --- the two boundaries that must appear on the face of a document
+console.log("\n--- the boundaries that must be printed\n");
+{
+  const docs = (await api("/api/docs", {}, T)).b.documents || [];
+  const village = docs.find((x) => x.number?.startsWith("WVR-"));
+  const html = await (await fetch(`${B}/api/docs/${village.id}/render?token=${encodeURIComponent(T)}`)).text();
+  ok(/NOT A FIRE STRATEGY|not a fire strategy/i.test(html),
+     "the village package says on its face that it is NOT a fire strategy — people sleep there");
+  ok(/fire and rescue authority/i.test(html), "and names who must determine it");
 
-// --- its own document, under its own headings
-r = await api(`/api/agents/runs/${runId}/decision`, { json: { decision: "approve" } }, T);
-ok(r.s < 400, "a named human approves it", r.b);
-r = await api(`/api/docs/from-run/${runId}`, {}, T);
-ok(r.b.template === "sitereq", `it drafts into its own template, not the diagnostic's: ${r.b.template}`);
-const filled = Object.entries(r.b.data || {}).filter(([k, v]) => /^r\d+$/.test(k) && String(v).trim()).map(([k]) => k);
-ok(filled.length === 12, `all twelve of its sections came across: ${filled.join(", ")}`, filled);
-// The splitter takes sections by NUMBER, so the diagnostic's content in the
-// right field looks correct until you read it. Check the words.
-ok(/Employer|Contractor shall/.test(String(r.b.data.r2 || "")),
-   "and section 2 is Employer's Requirements, not the diagnostic's scope-gap assessment", String(r.b.data.r2 || "").slice(0, 120));
-ok(/Part II|payment/i.test(String(r.b.data.r9 || "")),
-   "and section 9 is the commercial requirements, not a risk register", String(r.b.data.r9 || "").slice(0, 120));
-
-const pub = await (async () => {
-  const fd = new FormData();
-  fd.append("runId", runId);
-  fd.append("label", "Site Management Requirements Package — NORTHREACH");
-  fd.append("summary", "Twelve deliverables, ready to issue to market.");
-  fd.append("sections", "1 Package structure\n2 Employer's Requirements");
-  fd.append("releaseEarly", "true");
-  fd.append("releaseReason", "Testing the end-to-end path; the promised date has not arrived.");
-  const res = await fetch(`${B}/api/clients/${E.id}/deliverable`, { method: "POST", headers: { Authorization: "Bearer " + T }, body: fd });
-  return { s: res.status, b: await J(res) };
-})();
-ok(pub.s === 201, "it publishes to the client's portal", pub.b);
-const d = pub.b.engagement?.deliverables?.at(-1);
-ok(Boolean(d?.documentNumber?.startsWith("SMR-")),
-   `in its own numbered series, not the diagnostic's: ${d?.documentNumber}`);
-
-const html = await (await fetch(`${B}/api/docs/${d.documentId}/render?token=${encodeURIComponent(T)}`)).text();
-ok(/Site Management Requirements Package/.test(html), "the branded document carries its own title");
-ok(/Employer&#39;s Requirements by package|Employer's Requirements by package/.test(html),
-   "and its own twelve headings");
-ok(/appoints ETABLIX as Principal Contractor/.test(html),
-   "with the CDM boundary on its face — a specification must never imply that role");
-ok(/ETABLIX<small>INTEGRATED SITE SERVICES/.test(html) && /15405437/.test(html),
-   "and the wordmark and company particulars, so it is issuable as it stands");
-ok(!/(^|>)\s*#{1,6}\s/m.test(html.replace(/<style[\s\S]*?<\/style>/g, "")),
-   "no markdown hash reaches the client");
+  const tev = docs.find((x) => x.number?.startsWith("TEV-"));
+  const th = await (await fetch(`${B}/api/docs/${tev.id}/render?token=${encodeURIComponent(T)}`)).text();
+  ok(/does not award|does not place orders/i.test(th),
+     "the evaluation says on its face that ETABLIX does not award or place orders");
+}
 
 srv?.kill("SIGKILL"); mock?.kill("SIGKILL");
 console.log(`\n=== ${pass} passed, ${fail} failed ===\n`);

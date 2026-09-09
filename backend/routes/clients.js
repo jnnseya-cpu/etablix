@@ -32,7 +32,10 @@ import { acceptDocuments, describeFiles, UPLOAD_DIR } from "../lib/uploads.js";
 import { emit, emitDetached } from "../lib/comms.js";
 import { rateLimit } from "../lib/ratelimit.js";
 import { RETENTION, describeHoldings, erasePack, packDueAt } from "../lib/retention.js";
-import { createDocument, renderDocument, splitDiagnostic, splitSiteRequirements } from "./docs.js";
+import {
+  createDocument, renderDocument,
+  splitDiagnostic, splitSiteRequirements, splitMobReview, splitVillage, splitTenderEval,
+} from "./docs.js";
 import { startPipelineRun } from "./agents.js";
 import {
   STAGES, stage, stageIndex, MODELS, MODEL_IDS, model, deliverableOrNull,
@@ -628,9 +631,14 @@ router.post("/:id/deliverable", ...finance, acceptDocuments, async (req, res) =>
     // The run decides the template. This minted a diagnostic whatever the
     // run was, so an approved Agent 9 requirements package would have been
     // published to the client under the wrong headings.
-    const mint = run.agent === "site-requirements"
-      ? { template: "sitereq", split: splitSiteRequirements }
-      : { template: "diagnostic", split: splitDiagnostic };
+    const MINTS = {
+      diagnostic: { template: "diagnostic", split: splitDiagnostic },
+      "site-requirements": { template: "sitereq", split: splitSiteRequirements },
+      "mobilisation-review": { template: "mobreview", split: splitMobReview },
+      "village-requirements": { template: "village", split: splitVillage },
+      procurement: { template: "tendereval", split: splitTenderEval },
+    };
+    const mint = MINTS[run.agent] || MINTS.diagnostic;
     const { data } = mint.split(run.output);
     const doc = createDocument({
       template: mint.template,

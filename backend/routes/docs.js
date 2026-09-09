@@ -21,6 +21,9 @@ import { sessionFromQuery } from "../middleware/auth.js";
 import { AGENT_BRIEFS } from "../lib/ai.js";
 import { diagnosticDates, releaseStatus, human as humanDate, DIAGNOSTIC_WORKING_DAYS } from "../lib/workingdays.js";
 import { SECTIONS as SR_SECTIONS } from "../lib/pipelines/site-requirements.js";
+import { SECTIONS as MR_SECTIONS } from "../lib/pipelines/mobilisation-review.js";
+import { SECTIONS as VR_SECTIONS } from "../lib/pipelines/village-requirements.js";
+import { SECTIONS as PR_SECTIONS } from "../lib/pipelines/procurement.js";
 
 const router = Router();
 
@@ -62,6 +65,29 @@ const VAT_MODES = [
   { id: "none", label: "No VAT / outside scope" },
 ];
 
+/**
+ * A pipeline deliverable's document, from its section list.
+ *
+ * Agents 9 to 12 all produce the same document shape and only the sections,
+ * the labels and the legal note differ. Written out four times these would
+ * drift the first time an agent's headings changed.
+ */
+function PIPELINE_TEMPLATE({ id, prefix, name, documentTitle, description, sections, summaryLabel, appendixLabel, legal }) {
+  return {
+    id, prefix, name, documentTitle, description, sections, summaryLabel, appendixLabel, legal,
+    pipeline: true,
+    fields: [
+      F("client", "Client / organisation", "text", { required: true }),
+      F("project", "Project / site", "text", { required: true }),
+      F("handover", `Information handover date — the issue date is ${DIAGNOSTIC_WORKING_DAYS} working days after this`, "date", { required: true }),
+      F("basis", "Basis of preparation", "textarea", { placeholder: "Information relied on, and what was not provided" }),
+      F("findings", summaryLabel, "textarea", { required: true }),
+      ...sections.map(([sid, label], i) => F(sid, `${i + 1}. ${label}`, "textarea")),
+      F("appendix", appendixLabel, "textarea"),
+    ],
+  };
+}
+
 const F = (name, label, type = "text", opts = {}) => ({ name, label, type, ...opts });
 const LINES = (label = "Line items") => F("lines", label, "lines");
 
@@ -91,8 +117,11 @@ export const DIAGNOSTIC_SECTIONS = [
 /** The two sections the client-facing specimen shows in full. */
 export const SPECIMEN_SECTIONS = ["s3", "s7"];
 
-/** Agent 9's twelve, in the order the package is read. */
+/** Each pipeline agent's sections, in the order its document is read. */
 export const SITEREQ_SECTIONS = SR_SECTIONS;
+export const MOBREVIEW_SECTIONS = MR_SECTIONS;
+export const VILLAGE_SECTIONS = VR_SECTIONS;
+export const PROCUREMENT_SECTIONS = PR_SECTIONS;
 
 export const TEMPLATES = [
   {
@@ -111,6 +140,37 @@ export const TEMPLATES = [
       }),
     ],
   },
+  // Four of the five Model A deliverables produce a document of the same
+  // shape — a summary paragraph, its own numbered sections, an appendix — so
+  // the template is built from the section list rather than written out four
+  // times. Four copies would drift the first time any agent's headings moved.
+  PIPELINE_TEMPLATE({
+    id: "mobreview", prefix: "MRR", name: "Mobilisation-readiness review",
+    documentTitle: "Mobilisation-readiness review",
+    description: "Agent 10's eight deliverables as an issued document: the verdict, the eight sections, and the evidence ledger. Draft it from an approved Agent 10 run.",
+    sections: MR_SECTIONS,
+    summaryLabel: "Verdict in one paragraph",
+    appendixLabel: "Appendix A — evidence and assertion ledger",
+    legal: "This review is decision support. Every readiness statement carries its evidence class — observed, evidenced, asserted or unknown — and a verdict resting substantially on assertion says so. Every load, ratio, rate and duration is a first-pass planning figure requiring validation by a competent person. Nothing here is a design, a price or an instruction, and nothing in it appoints ETABLIX as Principal Contractor under CDM 2015.",
+  }),
+  PIPELINE_TEMPLATE({
+    id: "village", prefix: "WVR", name: "Workforce Village Requirements Package",
+    documentTitle: "Workforce Village Requirements Package",
+    description: "Agent 11's twelve deliverables as an issued document. Fire strategy and life safety are referred to a competent person and the fire authority, never settled here. Draft it from an approved Agent 11 run.",
+    sections: VR_SECTIONS,
+    summaryLabel: "Requirements summary in one paragraph",
+    appendixLabel: "Appendix A — traceability, safety referrals and open items",
+    legal: "This package is a drafting service and decision support. It is NOT a fire strategy: fire, means of escape, compartmentation, alarm and detection, evacuation and fire-service access are life-safety matters for determination by a competent fire engineer and the fire and rescue authority, and every item so marked must be determined by them before the village is built or occupied. It is not a design, not a price and not legal advice, and nothing within it appoints ETABLIX as Principal Contractor under CDM 2015. Requirements marked [PROPOSED] require the client's approval before issue. Every bed count, load, volume and duration is a first-pass planning figure requiring validation by a competent person.",
+  }),
+  PIPELINE_TEMPLATE({
+    id: "tendereval", prefix: "TEV", name: "Tender evaluation report",
+    documentTitle: "Tender evaluation report",
+    description: "Agent 12's eight deliverables as an issued document: the recommendation, the normalised comparison, and the audit trail that lets the award be defended. Draft it from an approved Agent 12 run.",
+    sections: PR_SECTIONS,
+    summaryLabel: "Recommendation in one paragraph",
+    appendixLabel: "Appendix A — audit trail and open items",
+    legal: "This report is a recommendation for a named human with delegated authority to accept or reject. ETABLIX does not award, does not place orders and does not commit the client to any supplier. Adjustments made to bring returns onto a common basis are shown with their source and are open to challenge; where an adjustment could not be derived it is carried as an open item and the ranking is provisional. Questions of financial standing, legal exposure and challenge risk are flagged for the client's own advisers rather than resolved.",
+  }),
   {
     id: "sitereq", prefix: "SMR", name: "Site Management Requirements Package",
     documentTitle: "Site Management Requirements Package",
@@ -476,6 +536,9 @@ router.get("/from-run/:id", requireAuth, deliveryFinance, (req, res) => {
   const DRAFTS = {
     diagnostic: { template: "diagnostic", split: splitDiagnostic },
     "site-requirements": { template: "sitereq", split: splitSiteRequirements },
+    "mobilisation-review": { template: "mobreview", split: splitMobReview },
+    "village-requirements": { template: "village", split: splitVillage },
+    procurement: { template: "tendereval", split: splitTenderEval },
   };
   const draft = DRAFTS[run.agent];
   if (!draft) {
@@ -716,6 +779,9 @@ function headingSuffix(doc) {
  */
 export const splitDiagnostic = (output) => splitPipelineOutput(output, DIAGNOSTIC_SECTIONS);
 export const splitSiteRequirements = (output) => splitPipelineOutput(output, SITEREQ_SECTIONS);
+export const splitMobReview = (output) => splitPipelineOutput(output, MOBREVIEW_SECTIONS);
+export const splitVillage = (output) => splitPipelineOutput(output, VILLAGE_SECTIONS);
+export const splitTenderEval = (output) => splitPipelineOutput(output, PROCUREMENT_SECTIONS);
 
 /**
  * The same parse for any twelve-section deliverable.
@@ -1123,6 +1189,27 @@ function renderBody(doc) {
       </div>
       ${d.note ? `<div class="blk"><h3>For this engagement</h3>${richText(d.note)}</div>` : ""}
       <p class="legalnote">Information supplied for this engagement is treated as confidential and used only to produce your report. Send it however suits you — if a secure transfer is preferred, say so and we will arrange one.</p>`;
+  }
+
+  // Every pipeline deliverable renders the same way, from its own template's
+  // section list — so a fifth one needs a spec and not a renderer.
+  const pipelineTpl = TEMPLATES.find((x) => x.id === doc.template && x.pipeline);
+  if (pipelineTpl) {
+    const rel = d.dueDate ? releaseStatus(d.dueDate) : null;
+    const hold =
+      rel?.state === "held" && !doc.earlyRelease
+        ? `<div class="holdnote"><b>Do not issue before ${esc(humanDate(d.dueDate))}.</b> This engagement was sold as ${d.promisedDays || DIAGNOSTIC_WORKING_DAYS} working days from information handover on ${esc(humanDate(d.handover))}. ${rel.days} working day${rel.days === 1 ? "" : "s"} remain. Internal review copy.</div>`
+        : "";
+    return `
+      ${hold}
+      <table class="meta">${t("Client", d.client)}${t("Project / site", d.project)}${
+        d.handover ? t("Information handover", humanDate(d.handover)) : ""
+      }${d.dueDate ? t("Issue date", `${humanDate(d.dueDate)} — ${d.promisedDays || DIAGNOSTIC_WORKING_DAYS} working days from handover`) : ""}${t("Prepared by", doc.issuedBy)}</table>
+      ${d.findings ? `<div class="blk"><h3>${esc(pipelineTpl.summaryLabel)}</h3>${richText(d.findings)}</div>` : ""}
+      ${pipelineTpl.sections.map(([sid, label], i) => section(i + 1, label, d[sid])).join("")}
+      ${d.appendix ? `<div class="blk"><h3>${esc(pipelineTpl.appendixLabel.replace(/^Appendix A — /, "Appendix A · "))}</h3>${richText(d.appendix)}</div>` : ""}
+      ${d.basis ? `<div class="blk"><h3>Basis of preparation</h3>${richText(d.basis)}</div>` : ""}
+      <p class="legalnote">${esc(pipelineTpl.legal)}</p>`;
   }
 
   if (doc.template === "sitereq") {
