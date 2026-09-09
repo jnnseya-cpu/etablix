@@ -42,7 +42,7 @@ let openId = null;
 function canRunDiagnostic(e) {
   return e.deliverable === "feasibility"
     && e.checklistState.canStart
-    && !e.diagnosticRunId
+    && (!e.diagnosticRunId || e.diagnosticRunMissing)
     && ["deposit", "in_progress"].includes(e.stage);
 }
 
@@ -195,10 +195,12 @@ function detail() {
       </form>
     </div>` : ""}
 
-    ${e.diagnosticRunId ? `<div style="border:1.5px solid var(--line,#dcd7cc);border-left:4px solid var(--orange,#9c7a3c);border-radius:8px;padding:14px 16px;margin:14px 0;">
+    ${e.diagnosticRunId ? `<div style="border:1.5px solid var(--line,#dcd7cc);border-left:4px solid ${e.diagnosticRunMissing ? "var(--red,#c0392b)" : "var(--orange,#9c7a3c)"};border-radius:8px;padding:14px 16px;margin:14px 0;">
       <b style="font-size:0.92rem;">Diagnostic run</b>
       <p class="panel-sub" style="margin:4px 0 0;">Handover ${esc(e.handoverDate || "—")} · report due ${esc(e.reportDueDate || "—")} · run <code>${esc(e.diagnosticRunId)}</code>.
-      Watch it finish under <b>Organisation → AI agents</b>, then publish it from the box above.</p>
+      ${e.diagnosticRunMissing
+        ? `<b>This run is no longer in the run log.</b> It was started, and the record of it has gone — a capped log, or a store restored from before it finished. There is nothing to resume or publish, and the dates above still stand. Run it again on the client's pack; the button is above.`
+        : `Watch it finish under <b>Organisation → AI agents</b>, then publish it from the box above.`}</p>
     </div>` : ""}
 
     ${block("The client's checklist", wrapT(`<table class="data-table"><thead><tr><th>Item</th><th>State</th><th>Their answer</th><th>Files</th></tr></thead><tbody>${checklist}</tbody></table>`))}

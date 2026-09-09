@@ -148,6 +148,15 @@ function decorate(e) {
     // The desk reads the same figures the client reads.
     documents: (e.documents || []).map((d) => ({ ...d, ...docMoney(e, d) })),
     vatMode: vatModeFor(e),
+    // A run id pointing at a run that no longer exists blocks the
+    // engagement for ever: the console hides the button because a run was
+    // started, and there is nothing to open, resume or publish. It happens
+    // — a run log is capped, a store is restored from a moment before the
+    // run, a container dies between the two writes. The desk is told the
+    // truth and offered the re-run.
+    diagnosticRunMissing: Boolean(
+      e.diagnosticRunId && !collection("agentTasks").some((r) => r.id === e.diagnosticRunId)
+    ),
     retention: {
       packDueAt: packDueAt(e),
       packErasedAt: e.packErasedAt || null,
