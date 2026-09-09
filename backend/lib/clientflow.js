@@ -177,7 +177,7 @@ export const MODELS = {
         { label: "Programme", fee: 55000 },
       ],
       monthly: {
-        floor: 14000,
+        floor: 16000,
         basis: "4–7% of the annualised supply-chain spend under management",
         note: "Below the floor the appointment does not fund a Site Integration Manager and ETABLIX is subsidising it.",
       },

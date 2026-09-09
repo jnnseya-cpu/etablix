@@ -190,6 +190,9 @@ function detail() {
         <label>Model<select name="model">${CAT.models.map((m) => `<option value="${esc(m.id)}"${m.id === e.model ? " selected" : ""}>${esc(m.name)}</option>`).join("")}</select></label>
         <label>Fixed fee (Model A)<input name="fee" type="number" min="0" step="50" placeholder="Pick a band above, or type the fee you agreed"></label>
         <label>Monthly fee (Models B and C)<input name="monthlyFee" type="number" min="0" step="50"></label>
+        <label>Mobilisation fee (B and C)<input name="mobilisationFee" type="number" min="0" step="50"></label>
+        <label>Platform fee / month (B)<input name="platformFee" type="number" min="0" step="50"></label>
+        <label>Advance (C)<input name="advance" type="number" min="0" step="50"></label>
         <label>Project<input name="project" value="${esc(e.project)}"></label>
         <label>VAT<select name="vatMode"><option value="standard">Standard</option><option value="reverse">CIS domestic reverse charge</option><option value="none">Outside scope</option></select></label>
         <button class="btn btn-primary" type="submit">Agree the terms</button>
@@ -259,21 +262,82 @@ function renderBands(form) {
     return;
   }
 
-  // Models B and C carry a structure rather than a price, because the fee is
-  // a percentage of something that is not known until the scope is.
-  const g = m?.feeGuide;
-  if (!g) { holder.innerHTML = ""; return; }
-  const rows = g.monthly
-    ? `<li><b>Mobilisation</b> — ${g.mobilisation.map((x) => `${esc(x.label)} £${x.fee.toLocaleString()}`).join(" · ")}</li>
-       <li><b>Monthly</b> — ${esc(g.monthly.basis)}, floor <b>£${g.monthly.floor.toLocaleString()}</b>. ${esc(g.monthly.note)}</li>
-       <li><b>Platform</b> — £${g.platform.low.toLocaleString()}–£${g.platform.high.toLocaleString()} per month. ${esc(g.platform.basis)}</li>
-       <li>${esc(g.note)}</li>`
-    : `<li><b>Management fee</b> — ${esc(g.managementFee.firstEngagements)}; ${esc(g.managementFee.atScale)}. Never below ${g.managementFee.floorPct}%.</li>
-       <li><b>Mobilisation</b> — £${g.mobilisation.low.toLocaleString()}–£${g.mobilisation.high.toLocaleString()}. ${esc(g.mobilisation.basis)}</li>
-       <li><b>Advance</b> — ${esc(g.advance)}</li>
-       ${g.nonNegotiable.map((n) => `<li style="color:var(--danger,#c0392b);">${esc(n)}</li>`).join("")}`;
-  holder.innerHTML = `<p class="panel-sub" style="margin:2px 0 6px;">This model is priced from a structure, not a catalogue figure.</p>
-    <ul style="margin:0;padding-left:18px;font-size:0.82rem;line-height:1.6;">${rows}</ul>`;
+  // Models B and C are priced from the client's own spend, so there is
+  // nothing to click — there is a calculation to run. Guidance in a
+  // paragraph and an empty field is how the first appointment gets priced
+  // by mental arithmetic in a meeting.
+  const isC = m?.id === "C";
+  if (!m?.feeGuide) { holder.innerHTML = ""; return; }
+  holder.innerHTML = `
+    <p class="panel-sub" style="margin:2px 0 6px;"><b>${esc(m.name)}</b> is priced from the spend it manages. Put the numbers in and the fee, the mobilisation and ${isC ? "the advance" : "the platform fee"} are worked out with the reasoning shown.</p>
+    <div class="team-form" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:8px;">
+      ${isC
+        ? `<label style="font-size:0.78rem;">Total supplier spend, whole term<input id="pr-spend" type="number" min="0" step="50000" placeholder="e.g. 18000000"></label>
+           <label style="font-size:0.78rem;">Month one supplier spend<input id="pr-m1" type="number" min="0" step="10000" placeholder="blank = even share"></label>
+           <label style="font-size:0.78rem;">Early procurement commitments<input id="pr-commit" type="number" min="0" step="10000" value="0"></label>`
+        : `<label style="font-size:0.78rem;">Annualised managed spend<input id="pr-spend" type="number" min="0" step="50000" placeholder="12 months, not whole life"></label>`}
+      <label style="font-size:0.78rem;">Compounds / sites<input id="pr-compounds" type="number" min="1" step="1" value="1"></label>
+      <label style="font-size:0.78rem;">Term, months<input id="pr-term" type="number" min="1" step="1" value="${isC ? 24 : 12}"></label>
+      ${isC
+        ? `<label class="dec" style="font-size:0.78rem;"><input id="pr-first" type="checkbox" checked> First two engagements</label>`
+        : `<label class="dec" style="font-size:0.78rem;"><input id="pr-construx" type="checkbox"> CONSTRUX in scope</label>
+           <label style="font-size:0.78rem;">Platform users<input id="pr-users" type="number" min="1" step="1" value="25"></label>`}
+    </div>
+    <button type="button" class="btn" id="pr-go">Work out the fee</button>
+    <div id="pr-out" style="margin-top:10px;"></div>`;
+
+  holder.querySelector("#pr-go").addEventListener("click", async () => {
+    const v = (id) => Number(holder.querySelector(id)?.value || 0);
+    const raw = holder.querySelector("#pr-m1")?.value;
+    const body = isC
+      ? { model: "C", supplierSpend: v("#pr-spend"), monthOneSupplierSpend: raw === "" ? null : Number(raw),
+          earlyProcurementCommitments: v("#pr-commit"), compounds: v("#pr-compounds"), termMonths: v("#pr-term"),
+          firstEngagement: holder.querySelector("#pr-first").checked }
+      : { model: "B", annualisedSpend: v("#pr-spend"), compounds: v("#pr-compounds"), termMonths: v("#pr-term"),
+          construx: holder.querySelector("#pr-construx").checked, users: v("#pr-users") };
+    try {
+      const { pricing: p } = await api("/api/clients/price", { method: "POST", body: JSON.stringify(body) });
+      // The fee fields are filled, so the number that was worked out is the
+      // number that gets agreed. Retyping it is where a digit goes missing.
+      form.querySelector('[name="monthlyFee"]').value = isC ? p.monthlyFee : p.monthly;
+      const set = (name, val) => { const el = form.querySelector(`[name="${name}"]`); if (el) el.value = val; };
+      set("mobilisationFee", p.mobilisation);
+      if (!isC) set("platformFee", p.platform);
+      if (isC) set("advance", p.advance);
+      holder.querySelector("#pr-out").innerHTML = renderPricing(p, isC);
+    } catch (e2) {
+      holder.querySelector("#pr-out").innerHTML = `<p class="error-note">${esc(e2.message)}</p>`;
+    }
+  });
+}
+
+/** The answer, and the working — because the next question is always how. */
+function renderPricing(p, isC) {
+  const row = (k, v) => `<tr><td style="padding:3px 14px 3px 0;">${k}</td><td style="text-align:right;"><b>${v}</b></td></tr>`;
+  const gbp = (n) => "£" + Math.round(n).toLocaleString("en-GB");
+  const w = p.working;
+  const numbers = isC
+    ? row("Management fee, whole term", gbp(p.managementFee))
+      + row("Monthly", gbp(p.monthlyFee))
+      + row("Mobilisation", gbp(p.mobilisation))
+      + row("<b>Advance, before any supplier order</b>", gbp(p.advance))
+      + row("If the client runs one cycle late", gbp(p.workingCapital.exposureIfClientRunsOneCycleLate))
+    : row("Mobilisation", gbp(p.mobilisation))
+      + row("Monthly management fee", gbp(p.monthly))
+      + (p.platform ? row("Platform, monthly", gbp(p.platform)) : "")
+      + row("First invoice", gbp(p.firstInvoice))
+      + row(`Value over ${p.termMonths} months`, gbp(p.termValue));
+
+  return `<table style="font-size:0.85rem;">${numbers}</table>
+    <p class="panel-sub" style="margin:8px 0 0;font-size:0.78rem;">
+      Set by <b>${esc(w.driver)}</b>. ${esc(w.percentBand)} gives ${gbp(isC ? w.byPercentMonthly : w.byPercent)} a month;
+      the ${esc(p.scale.label.toLowerCase())} team costs ${gbp(isC ? w.byTeamMonthly : w.byTeam)} a month fully loaded
+      (${Object.entries(w.teamComposition).map(([r, n]) => `${n} ${r.replace(/([A-Z])/g, " $1").toLowerCase()}`).join(", ")}, plus ${Math.round(w.overheadPct * 100)}% overhead).
+      Effective rate <b>${w.effectivePct}%</b>.
+    </p>
+    ${(p.warnings || []).map((x) => `<p class="panel-sub" style="margin:6px 0 0;font-size:0.78rem;color:var(--danger,#c0392b);">${esc(x)}</p>`).join("")}
+    ${isC ? `<p class="panel-sub" style="margin:6px 0 0;font-size:0.78rem;">${esc(p.workingCapital.note)}</p>
+      ${p.nonNegotiable.map((n) => `<p class="panel-sub" style="margin:3px 0 0;font-size:0.76rem;color:var(--danger,#c0392b);">${esc(n)}</p>`).join("")}` : ""}`;
 }
 
 function wire(body) {
@@ -289,7 +353,10 @@ function wire(body) {
     const f = Object.fromEntries(new FormData(termsForm).entries());
     try {
       await api(`/api/clients/${id}/terms`, { method: "POST", json: {
-        ...f, fee: Number(f.fee || 0), monthlyFee: Number(f.monthlyFee || 0) } });
+        ...f, fee: Number(f.fee || 0), monthlyFee: Number(f.monthlyFee || 0),
+        mobilisationFee: Number(f.mobilisationFee || 0),
+        platformFee: Number(f.platformFee || 0),
+        advance: Number(f.advance || 0) } });
       await loadClients();
     } catch (e) { const el = document.getElementById("cl-act-error"); if (el) { el.textContent = e.message; el.hidden = false; } }
   });

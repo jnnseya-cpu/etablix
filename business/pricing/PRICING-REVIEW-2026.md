@@ -199,7 +199,7 @@ mobilisation fee and a platform fee — and nothing tells you what to put in the
 | Component | Basis | Recommended |
 |---|---|---|
 | **Mobilisation and planning fee** | One-off, payable in advance with month one | **£18,000** single site · **£32,000** multi-compound · **£55,000** programme |
-| **Monthly integration and management fee** | The core. Guide: **4–7% of the annualised supply-chain spend under management**, with a floor | **Floor £14,000 / month.** Below that the appointment does not fund a Site Integration Manager and you are subsidising it |
+| **Monthly integration and management fee** | The core. **4–7% of annualised managed spend ABOVE roughly £8m a year.** Below that the percentage does not fund the team and the fee is a team cost — see the correction below | **Floor £16,000 / month** |
 | **CONSTRUX platform fee** | Per project per month, where CONSTRUX is in scope | **£1,800 – £4,500 / month** by user count and number of sites |
 
 **Why 4–7%, and why it triangulates.** Build it from cost instead and you get to
@@ -214,6 +214,31 @@ answer — which is how you know the number is not invented.
 mobilisation, and a client who wants three months wants an advisory engagement
 with a different name on it.
 
+### 5.1 A correction, found by building the calculator
+
+Writing the numbers into a working calculator disproved two things in the
+paragraph above, and both matter.
+
+**"4–7% of managed spend" is only true above roughly £8m a year.** Below that
+the team costs more than the percentage funds. Five compounds against £5m of
+annualised spend needs two site integration managers, and that team is 9% of the
+spend; a single site at £1.5m is 12.6% even with the manager at half time. The
+appointments are not wrong — a client with five thin compounds genuinely needs
+five compounds covered — but **the argument has to change.** Above £8m, quote a
+percentage. Below it, quote the team: "two site integration managers, a project
+manager and commercial support, at £X a month." Never present 12% to a
+procurement function; they will benchmark it against 5% and you will lose on a
+number that was never the point.
+
+**The £14,000 floor could never bind.** The cheapest team this model can field
+— a half-time integration manager, 0.4 of a project manager, a quarter of a
+commercial manager — costs £11,400 before overhead and £15,732 after it. A floor
+beneath the team it is supposed to protect is decoration. It is now **£16,000**,
+which is the cheapest defensible team plus enough to mean something.
+
+Both corrections are enforced in `backend/lib/pricing.js` and tested, so the
+tool cannot quietly produce a number the guidance forbids.
+
 ---
 
 ## 6 · Model C — Prime Service Contractor: the missing structure
@@ -227,6 +252,21 @@ means you carry the working capital, the credit risk and the performance risk.
 | **Management fee on supplier expenditure** | **9–14%** on the first two engagements. **7–10%** once there is a delivery record and real buying power |
 | **Mobilisation fee** | As Model B, plus the procurement build-out — **£35,000 – £90,000** by scale |
 | **Advance, payable before any supplier order** | Month-one supplier expenditure + mobilisation + month-one management fee + early procurement commitments + the agreed early-risk contingency |
+
+**The same correction applies, and harder.** A prime carries the full commercial
+apparatus — procurement, valuation, supplier payment — whatever its size, so on
+a small job the percentage never funds it. £2.5m of supplier spend over twelve
+months prices at 18.5% once the team is paid for, which is not a fee anyone will
+accept. **That is not a pricing problem to solve; it is an opportunity to
+decline.** Offer Model B instead. The calculator says so on its face.
+
+**And the working-capital question is not the one I first wrote.** Invoicing
+monthly in advance means ETABLIX is cash positive while the client pays on time,
+so the steady-state figure is true and useless. The number that decides whether
+the appointment can be taken is **one late cycle**: a month of supplier invoices
+and a month of fee falling due with no client money behind them. On an £18m
+programme that is roughly £600,000, and it has to exist before the appointment
+is signed rather than be found afterwards.
 
 **Why the first ones are dearer, and say so out loud.** A new prime has no
 framework rates, no volume leverage and no track record, so the same scope costs

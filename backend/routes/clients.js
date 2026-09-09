@@ -42,6 +42,7 @@ import {
   charge, vatModeFor, reverseChargeAvailable, declaredVatMode,
 } from "../lib/clientflow.js";
 import { diagnosticDates, releaseStatus, DIAGNOSTIC_WORKING_DAYS } from "../lib/workingdays.js";
+import { integratorFee, primeFee } from "../lib/pricing.js";
 
 const router = Router();
 const finance = [requireAuth, requireRole(...ACCESS.DELIVERY_FINANCE)];
@@ -225,6 +226,46 @@ router.get("/catalogue", ...finance, (req, res) => {
     stages: STAGES,
     decisions: Object.values(DECISIONS),
   });
+});
+
+/**
+ * POST /api/clients/price — what a recurring appointment should cost.
+ *
+ * Models B and C are priced as a share of somebody else's spend, so the fee
+ * cannot live in a catalogue. Before this the desk had a paragraph of
+ * guidance and an empty field, which means the first appointment would have
+ * been priced by mental arithmetic in a meeting, against a procurement person
+ * who does this weekly.
+ *
+ * The response carries the working as well as the answer, because the second
+ * question in that meeting is always "how did you get to that".
+ */
+router.post("/price", ...finance, (req, res) => {
+  const b = req.body || {};
+  const which = String(b.model || "B").toUpperCase();
+  try {
+    if (which === "C") {
+      return res.json({ pricing: primeFee({
+        supplierSpend: toNum(b.supplierSpend),
+        termMonths: toNum(b.termMonths) || 12,
+        compounds: toNum(b.compounds) || 1,
+        monthOneSupplierSpend: b.monthOneSupplierSpend === "" || b.monthOneSupplierSpend == null ? null : toNum(b.monthOneSupplierSpend),
+        earlyProcurementCommitments: toNum(b.earlyProcurementCommitments),
+        firstEngagement: b.firstEngagement !== false && b.firstEngagement !== "false",
+        supplierPaymentDays: toNum(b.supplierPaymentDays) || 30,
+        clientPaymentDays: toNum(b.clientPaymentDays) || 30,
+      }) });
+    }
+    return res.json({ pricing: integratorFee({
+      annualisedSpend: toNum(b.annualisedSpend),
+      compounds: toNum(b.compounds) || 1,
+      termMonths: toNum(b.termMonths) || 12,
+      construx: b.construx === true || b.construx === "true",
+      users: toNum(b.users) || 25,
+    }) });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
 /** GET /api/clients — every engagement, newest first. */
