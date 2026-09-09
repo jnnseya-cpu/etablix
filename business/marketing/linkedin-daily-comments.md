@@ -143,3 +143,60 @@ procurement and supply-chain managers at main contractors and OEMs. The seven
 people already in your outreach list are the obvious place to start — commenting
 on Gary's, Jason's and Neil's posts keeps you visible to them without another
 direct message, and that is worth more than a stranger's thread.
+
+---
+
+## Day 1, third post · Africa Infrastructure & Project Preparation Digest
+
+**This one passes all three tests.** A claim to sharpen, an individual author who
+reads their thread, and a subject where you have genuinely done the work — you
+ran pre-construction on a thirty-odd site portfolio, which is project
+preparation by another name.
+
+**Your objection is the right one and it is worth making.** The post says the
+pipeline is built long before the financing announcement. True, and incomplete:
+preparation is itself a project, it costs money, and the instruments that fund
+it tend to ask for what preparation is supposed to produce. That is a real gap
+and saying it politely is more useful to the author than agreement.
+
+**Two things to be careful about.** Do not claim familiarity with development
+finance instruments you have not worked with — frame that half as an
+observation from outside, which is both honest and harder to argue with. And do
+not claim African project experience you do not have; the comment below works
+entirely from the UK portfolio and is stronger for it.
+
+### The comment
+
+> Agreed on the sequence. The part I would add is what decides who gets into the
+> pipeline at all.
+>
+> Preparation is itself a project, and it has to be funded before anything is
+> bankable. On the portfolio I worked on in the UK — thirty-odd generation and
+> storage sites — that cost sat on a corporate balance sheet and nobody outside
+> the company ever saw it. Take the balance sheet away and the same work still
+> has to be paid for, by someone who does not yet have a project to borrow
+> against.
+>
+> From the outside, that looks like where it breaks for smaller African
+> sponsors: the instruments that fund preparation tend to ask for a track
+> record, a minimum ticket and a sponsor contribution — which is close to asking
+> a developer to be bankable before they can afford to become bankable. Is there
+> anything in the pipeline you track that works below the usual threshold, for
+> local SME sponsors rather than for the projects that were always going to
+> reach close?
+
+### Why it ends with a question
+
+A comment that ends in a full stop is a statement someone may or may not
+answer. A comment that ends in a genuine question the author is well placed to
+answer gives them a reason to reply, and their reply is what puts you in front
+of their subscribers a second time. Ask something you actually want to know —
+this one you do.
+
+### If he replies
+
+He writes a weekly digest, which means he is looking for material. If his answer
+is that nothing works below the threshold, that is worth saying so publicly and
+briefly — and he may well use the exchange. Do not turn it into ETABLIX. The
+value here is being a name he recognises in infrastructure preparation, not a
+lead.
