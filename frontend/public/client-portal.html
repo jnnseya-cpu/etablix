@@ -209,8 +209,12 @@ function renderEngagement(e) {
   $("cp-eng-sub").textContent = e.modelName;
   const rows = [
     ["Reference", esc(e.reference) + (e.clientRef ? " · your ref " + esc(e.clientRef) : "")],
-    ["Deposit", `<b>${money(e.deposit.amount)}</b> — ${esc(e.deposit.label)}<div style="font-size:0.82rem;color:var(--muted,#5b6470);margin-top:3px;">${esc(e.deposit.narrative)}</div>`],
-    [e.recurring ? "Thereafter" : "Balance", `<b>${money(e.balance.amount)}</b> — ${esc(e.balance.label)}<div style="font-size:0.82rem;color:var(--muted,#5b6470);margin-top:3px;">${esc(e.balance.narrative)}</div>`],
+    // The figure shown is what the invoice will total. Showing the net
+    // here and totalling the gross on the invoice is a 20% surprise on
+    // the day the client pays, and it is their finance team, not ours,
+    // that finds it.
+    ["Deposit", `<b>${money(e.deposit.gross)}</b> — ${esc(e.deposit.label)}<div style="font-size:0.82rem;color:var(--muted,#5b6470);margin-top:3px;">${esc(e.deposit.payable)}<br>${esc(e.deposit.narrative)}</div>`],
+    [e.recurring ? "Thereafter" : "Balance", `<b>${money(e.balance.gross)}</b> — ${esc(e.balance.label)}<div style="font-size:0.82rem;color:var(--muted,#5b6470);margin-top:3px;">${esc(e.balance.payable)}<br>${esc(e.balance.narrative)}</div>`],
     ["Stage", `<span class="cp-pill warning">${esc(e.stageLabel)}</span>`],
   ];
   $("cp-eng-rows").innerHTML = rows.map(([k, v]) => `<tr><td style="width:150px;color:var(--muted,#5b6470);">${esc(k)}</td><td>${v}</td></tr>`).join("");
@@ -258,7 +262,7 @@ function renderStart(e) {
   $("cp-start-card").hidden = !show;
   if (!show) return;
   $("cp-start-lede").innerHTML =
-    `Everything required is answered. Confirming below is your instruction to proceed and raises the deposit invoice — <b>${money(e.deposit.amount)}</b>, ${esc(e.deposit.label.toLowerCase())} — automatically. ` +
+    `Everything required is answered. Confirming below is your instruction to proceed and raises the deposit invoice — <b>${money(e.deposit.gross)}</b>, ${esc(e.deposit.label.toLowerCase())} (${esc(e.deposit.payable)}) — automatically. ` +
     `We begin when it clears. We will not start work you have not authorised and then invoice you for it.`;
   $("cp-start-name").value = e.contactName || "";
 }
@@ -322,7 +326,7 @@ function renderPayments(e) {
   $("cp-pay-rows").innerHTML = docs.map((d) => `<tr>
     <td><a href="${api}/documents/${encodeURIComponent(d.id)}" target="_blank" rel="noopener"><b>${esc(d.number)}</b></a></td>
     <td>${esc(d.label)}<div style="font-size:0.8rem;color:var(--muted,#5b6470);">Issued ${dt(d.issuedAt)}</div></td>
-    <td><b>${money(d.amount)}</b></td>
+    <td><b>${money(d.gross ?? d.amount)}</b>${d.vat ? `<div style="font-size:0.8rem;color:var(--muted,#5b6470);">${money(d.net)} + VAT ${money(d.vat)}</div>` : ""}</td>
     <td><span class="cp-pill ${d.paidAt ? "ok" : "warning"}">${d.paidAt ? "Received " + dt(d.paidAt) : "Outstanding"}</span></td>
   </tr>`).join("");
 }

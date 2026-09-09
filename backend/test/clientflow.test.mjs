@@ -214,10 +214,16 @@ t("there are exactly three decisions and two of them demand a reason", () => {
   assert.equal(DECISIONS.rejected.requiresComment, true);
 });
 
-t("periods number themselves from what has already been issued", () => {
+t("periods number themselves from what the client has APPROVED, not from what we issued", () => {
+  const approved = (label) => ({ kind: "period", label, decision: { decision: "approved" } });
   assert.equal(nextPeriodLabel({ deliverables: [] }), "Month 1");
-  assert.equal(nextPeriodLabel({ deliverables: [{ kind: "period" }, { kind: "period" }] }), "Month 3");
+  assert.equal(nextPeriodLabel({ deliverables: [approved("Month 1"), approved("Month 2")] }), "Month 3");
   assert.equal(nextPeriodLabel({ deliverables: [{ kind: "deliverable" }] }), "Month 1");
+  // A month that came back for review is still that month. Counting
+  // issues rather than approvals had month two arriving before month one
+  // was ever accepted, and the invoice naming a month nobody had seen.
+  assert.equal(nextPeriodLabel({ deliverables: [{ kind: "period", label: "Month 1", decision: { decision: "review" } }] }), "Month 1");
+  assert.equal(nextPeriodLabel({ deliverables: [approved("Month 1"), { kind: "period", label: "Month 2", decision: { decision: "rejected" } }] }), "Month 2");
 });
 
 const total = pass + (process.exitCode ? 1 : 0);

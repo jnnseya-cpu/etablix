@@ -143,7 +143,7 @@ function detail() {
 
   const docs = (e.documents || []).map((d) => `<tr>
     <td><a href="/api/docs/${encodeURIComponent(d.id)}/render?token=${encodeURIComponent(token)}" target="_blank" rel="noopener"><b>${esc(d.number)}</b></a></td>
-    <td>${esc(d.label)}</td><td>${money(d.amount)}</td>
+    <td>${esc(d.label)}</td><td>${money(d.gross ?? d.amount)}${d.vat ? ` <span class="muted">(${money(d.net)} + VAT)</span>` : ""}</td>
     <td>${d.paidAt ? pill("Received " + dt(d.paidAt), "approved") : pill("Outstanding", "warning")}</td>
   </tr>`).join("");
 
@@ -159,8 +159,8 @@ function detail() {
     <p class="panel-sub" style="margin:0 0 10px;"><b>${esc(e.project)}</b> · ${esc(e.deliverableName)} · ${esc(e.modelName)}</p>
     <p class="panel-sub" style="margin:0 0 12px;">${esc(e.next.internal)}</p>
     <p style="margin:0 0 14px;font-size:0.88rem;">
-      Deposit <b>${money(e.deposit.amount)}</b> (${esc(e.deposit.label)}) ·
-      ${e.recurring ? "Thereafter" : "Balance"} <b>${money(e.balance.amount)}</b> (${esc(e.balance.label)})
+      Deposit <b>${money(e.deposit.gross)}</b> (${esc(e.deposit.label)} · ${esc(e.deposit.payable)}) ·
+      ${e.recurring ? "Thereafter" : "Balance"} <b>${money(e.balance.gross)}</b> (${esc(e.balance.label)})
     </p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">${actions}</div>
     <p class="error-note" id="cl-act-error" hidden></p>

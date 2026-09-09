@@ -134,6 +134,10 @@ export const MODELS = {
     name: "Model A — Advisory",
     kind: "fixed",
     recurring: false,
+    // Advisory is a professional service, not a construction operation
+    // reported under CIS, so the domestic reverse charge cannot apply to
+    // it. See vatModeFor().
+    cisServices: false,
     depositPct: 30,
     depositLabel: "30% to start",
     balanceLabel: "70% on your approval",
@@ -149,6 +153,7 @@ export const MODELS = {
     name: "Model B — Management Integrator",
     kind: "recurring",
     recurring: true,
+    cisServices: true,
     depositPct: null,
     depositLabel: "First month in advance",
     balanceLabel: "Monthly in advance, on approval of the month just ended",
@@ -164,13 +169,14 @@ export const MODELS = {
     name: "Model C — Prime Service Contractor",
     kind: "recurring",
     recurring: true,
+    cisServices: true,
     depositPct: null,
     depositLabel: "First month in advance",
     balanceLabel: "Monthly in advance, on approval of the month just ended",
     summary:
       "Single-point accountability for the site services. The advance covers month-one supplier expenditure, mobilisation and the first month's fee; each following month is invoiced when you approve the month just ended.",
     depositNarrative:
-      "The advance: forecast month-one supplier expenditure, the mobilisation fee, the first month's management fee, early procurement commitments, VAT and the agreed early-risk contingency. No supplier order is placed until it has cleared — that is the protection it buys you as much as us.",
+      "The advance: forecast month-one supplier expenditure, the mobilisation fee, the first month's management fee, early procurement commitments and the agreed early-risk contingency. Every figure here is net of VAT; VAT is added once, by the invoice, so it is never charged on a sum that already carries it. No supplier order is placed until the advance has cleared — that is the protection it buys you as much as us.",
     balanceNarrative:
       "The next month's valuation, raised automatically on your approval of the month just ended, with the supplier reserve replenished on the same cycle.",
   },
@@ -178,6 +184,62 @@ export const MODELS = {
 
 export const MODEL_IDS = Object.keys(MODELS);
 export const model = (id) => MODELS[String(id || "A").toUpperCase()] || MODELS.A;
+
+// ------------------------------------------------------------------- VAT
+
+export const VAT_RATE = 0.2;
+
+const p2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
+
+/**
+ * Whether the domestic reverse charge can apply to a model at all.
+ *
+ * It applies to construction operations reported under CIS. An advisory
+ * report is a professional service and is standard-rated, so a
+ * reverse-charge invoice for a Model A engagement would be wrong on the
+ * face of it — and it is the client, not us, who would be left carrying
+ * the error at their next VAT return.
+ */
+export const reverseChargeAvailable = (modelId) => model(modelId).cisServices === true;
+
+/** The VAT treatment actually applied, whatever was typed into the record. */
+export function vatModeFor(engagement) {
+  const raw = ["standard", "reverse", "none"].includes(engagement?.vatMode) ? engagement.vatMode : "standard";
+  if (raw === "reverse" && !reverseChargeAvailable(engagement?.model)) return "standard";
+  return raw;
+}
+
+/**
+ * Turn a net sum into the money the client actually owes.
+ *
+ * Every number the client is shown — portal, email, invoice — comes
+ * through here, because the alternative is what this system used to do:
+ * quote the net in the portal and total the gross on the invoice, and
+ * leave the client to discover the 20% difference on the day they pay.
+ *
+ * `gross` is what is payable to us. Under the reverse charge that is the
+ * net: the VAT is real but the client pays it to HMRC, so `reverseVat`
+ * carries it for the wording without ever entering the total.
+ */
+export function charge(engagement, net) {
+  const mode = vatModeFor(engagement);
+  const n = p2(net);
+  if (mode === "standard") {
+    const vat = p2(n * VAT_RATE);
+    return { net: n, vat, gross: p2(n + vat), reverseVat: 0, mode, vatLabel: "VAT @ 20%" };
+  }
+  if (mode === "reverse") {
+    return { net: n, vat: 0, gross: n, reverseVat: p2(n * VAT_RATE), mode, vatLabel: "VAT — domestic reverse charge" };
+  }
+  return { net: n, vat: 0, gross: n, reverseVat: 0, mode, vatLabel: "" };
+}
+
+/** One sentence naming the sum, so no two places can phrase it differently. */
+export function payableText(c) {
+  if (c.mode === "standard") return `${money(c.gross)} (${money(c.net)} plus VAT ${money(c.vat)})`;
+  if (c.mode === "reverse") return `${money(c.net)} — domestic reverse charge, VAT of ${money(c.reverseVat)} accounted for by you to HMRC`;
+  return `${money(c.net)} — no VAT`;
+}
 
 /**
  * What is payable now, and why. Returns the amount, the label the client
@@ -188,33 +250,45 @@ export function depositTerms(engagement) {
   const m = model(engagement.model);
   const fee = Number(engagement.fee) || 0;
   if (m.kind === "fixed") {
-    const amount = Math.round(fee * (m.depositPct / 100) * 100) / 100;
-    return {
+    const amount = p2(fee * (m.depositPct / 100));
+    return withVat(engagement, {
       amount,
       pct: m.depositPct,
       label: `Deposit — ${m.depositPct}% of the agreed fee`,
       narrative: m.depositNarrative,
-      basis: `${m.depositPct}% of ${money(fee)}`,
-    };
+      basis: `${m.depositPct}% of ${money(fee)} (net)`,
+    });
   }
   const monthly = Number(engagement.monthlyFee) || 0;
   const mobilisation = Number(engagement.mobilisationFee) || 0;
   const platform = Number(engagement.platformFee) || 0;
   const advance = Number(engagement.advance) || 0;
-  const amount = Math.round((monthly + mobilisation + platform + advance) * 100) / 100;
+  const amount = p2(monthly + mobilisation + platform + advance);
   const parts = [
     mobilisation ? `mobilisation ${money(mobilisation)}` : null,
     monthly ? `month one ${money(monthly)}` : null,
     platform ? `platform ${money(platform)}` : null,
     advance ? `advance ${money(advance)}` : null,
   ].filter(Boolean);
-  return {
+  return withVat(engagement, {
     amount,
     pct: null,
     label: "First month in advance",
     narrative: m.depositNarrative,
-    basis: parts.join(" + ") || "First month in advance",
-  };
+    basis: (parts.join(" + ") || "First month in advance") + " (all net of VAT)",
+  });
+}
+
+/**
+ * Attach the VAT split to a set of terms.
+ *
+ * `amount` stays the net, because that is what goes on the invoice line.
+ * `gross` is what the client pays, and `payable` is the sentence they
+ * read. Nothing downstream has to remember which is which.
+ */
+function withVat(engagement, terms) {
+  const c = charge(engagement, terms.amount);
+  return { ...terms, net: c.net, vat: c.vat, gross: c.gross, reverseVat: c.reverseVat, vatMode: c.mode, payable: payableText(c) };
 }
 
 /** What falls due when the client approves. */
@@ -223,25 +297,25 @@ export function balanceTerms(engagement) {
   const fee = Number(engagement.fee) || 0;
   if (m.kind === "fixed") {
     const deposit = depositTerms(engagement).amount;
-    const amount = Math.round((fee - deposit) * 100) / 100;
-    return {
+    const amount = p2(fee - deposit);
+    return withVat(engagement, {
       amount,
       label: `Balance — ${100 - m.depositPct}% on approval`,
       narrative: m.balanceNarrative,
-      basis: `${money(fee)} less deposit ${money(deposit)}`,
-    };
+      basis: `${money(fee)} less deposit ${money(deposit)} (net)`,
+    });
   }
   const monthly = Number(engagement.monthlyFee) || 0;
   const platform = Number(engagement.platformFee) || 0;
-  const amount = Math.round((monthly + platform) * 100) / 100;
-  return {
+  const amount = p2(monthly + platform);
+  return withVat(engagement, {
     amount,
     label: "Next month, in advance",
     narrative: m.balanceNarrative,
-    basis: [monthly ? `management ${money(monthly)}` : null, platform ? `platform ${money(platform)}` : null]
+    basis: ([monthly ? `management ${money(monthly)}` : null, platform ? `platform ${money(platform)}` : null]
       .filter(Boolean)
-      .join(" + ") || "Monthly fee",
-  };
+      .join(" + ") || "Monthly fee") + " (net)",
+  });
 }
 
 const money = (n) =>
@@ -981,10 +1055,38 @@ export const DECISIONS = {
 
 export const DECISION_IDS = Object.keys(DECISIONS);
 
-/** Recurring models publish a period at a time; fixed models publish once. */
+/**
+ * Recurring models publish a period at a time; fixed models publish once.
+ *
+ * The month number follows what the client has approved, not how many
+ * times we have issued. A month that comes back for review and is
+ * re-issued is still that month: counting issues would have month two
+ * arriving before month one was ever accepted, and the invoice narrative
+ * would name a month the client never saw.
+ */
 export function nextPeriodLabel(engagement) {
-  const issued = (engagement.deliverables || []).filter((d) => d.kind === "period").length;
-  return `Month ${issued + 1}`;
+  const periods = (engagement.deliverables || []).filter((d) => d.kind === "period");
+  const last = periods[periods.length - 1];
+  if (last && last.decision?.decision !== "approved") return last.label;
+  const approved = new Set(periods.filter((d) => d.decision?.decision === "approved").map((d) => d.label));
+  return `Month ${approved.size + 1}`;
+}
+
+/**
+ * Read the VAT position the client declared on the checklist.
+ *
+ * The client answers this in their own words, so this reads it rather
+ * than parsing it: it returns what the words point to and nobody's
+ * invoice changes on the strength of it. Finance is told, and finance
+ * decides.
+ */
+export function declaredVatMode(text) {
+  const t = String(text || "").toLowerCase();
+  if (!t.trim()) return null;
+  if (/\boutside (the )?scope\b|\bnot vat[- ]registered\b|\bno vat\b/.test(t)) return "none";
+  if (/\breverse charge\b|\bcis\b|\bcontractor client\b|\bdrc\b/.test(t)) return "reverse";
+  if (/\bend[- ]user\b|\bend user\b|\bnormal vat\b|\bstandard\b/.test(t)) return "standard";
+  return null;
 }
 
 /**

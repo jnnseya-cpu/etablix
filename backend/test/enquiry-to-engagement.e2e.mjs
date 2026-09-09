@@ -78,7 +78,7 @@ ok(/no agreed terms/i.test(r.body.error || ""), "and the refusal says why", r.bo
 // --- 3. a person sets the terms, and it behaves like any other engagement
 r = await api(`/api/clients/${eng.id}/terms`, { json: { deliverable: "feasibility", model: "A", fee: 0 } }, T);
 ok(r.status === 400, "terms with no fee are refused", r.body);
-r = await api(`/api/clients/${eng.id}/terms`, { json: { deliverable: "feasibility", model: "A", fee: 6500, vatMode: "reverse" } }, T);
+r = await api(`/api/clients/${eng.id}/terms`, { json: { deliverable: "feasibility", model: "A", fee: 6500, vatMode: "standard" } }, T);
 ok(r.status === 200, "terms with a fee are accepted", r.body);
 ok(r.body.engagement.stage === "agreed", "the engagement moves to agreed", r.body.engagement.stage);
 ok(r.body.engagement.checklistState.total > 0, "the checklist is built for the chosen deliverable", r.body.engagement.checklistState);

@@ -42,7 +42,7 @@ console.log("\n-- Model A: feasibility, £7,500 fixed --");
 r = await api("/api/clients", { json: {
   client: "Marrowbridge Infrastructure Ltd", project: "Project NORTHREACH — feasibility",
   contactName: "Dale Okonjo", contactEmail: "dale@example.test",
-  deliverable: "feasibility", model: "A", fee: 7500, vatMode: "reverse", clientRef: "MBI-PO-88213", construx: true,
+  deliverable: "feasibility", model: "A", fee: 7500, vatMode: "standard", clientRef: "MBI-PO-88213", construx: true,
 } }, T);
 ok(r.status === 201, "engagement opens", r.body);
 const A = r.body.engagement;
@@ -100,7 +100,8 @@ ok(r.status === 400 && /authorised/.test(r.body.error), "start refused without t
 // confirm the start
 r = await api(`/api/clients/portal/${tok}/start`, { json: { authorised: true, name: "Dale Okonjo" } });
 ok(r.status === 200, "start confirmed", r.body);
-ok(r.body.invoice?.amount === 2250, `deposit invoice raised AUTOMATICALLY at £2,250 — got ${r.body.invoice?.amount}`);
+ok(r.body.invoice?.net === 2250 && r.body.invoice?.amount === 2700,
+  `deposit invoice raised AUTOMATICALLY — £2,250 net, £2,700 payable — got ${r.body.invoice?.net} / ${r.body.invoice?.amount}`);
 ok(/^INV-\d{4}-\d{3}$/.test(r.body.invoice?.number || ""), `invoice is in the INV series: ${r.body.invoice?.number}`);
 ok(r.body.engagement.stage === "deposit", "stage → deposit");
 const depositNo = r.body.invoice.number;
@@ -111,8 +112,8 @@ const studioDoc = (r.body.documents || []).find((d) => d.number === depositNo);
 ok(Boolean(studioDoc), "the automatic invoice appears in the document studio", { looked_for: depositNo });
 {
   const html = await (await fetch(`${B}/api/clients/portal/${tok}/documents/${studioDoc.id}`)).text();
-  ok(/domestic reverse charge/i.test(html), "the rendered invoice applies the domestic reverse charge");
-  ok(html.includes("2,250.00"), "it shows £2,250.00");
+  ok(/VAT @ 20%/.test(html), "the rendered invoice charges VAT — advisory work is standard-rated, not reverse-charged");
+  ok(html.includes("2,250.00") && html.includes("2,700.00"), "it shows the net £2,250.00 and the total £2,700.00");
   ok(/MBI-PO-88213/.test(html), "it carries the client's own PO reference");
   ok(/Dale Okonjo/.test(html), "it names who instructed the start, in the portal, on what date");
   ok(/raised automatically on the client/i.test(html), "it says on its face that it was raised automatically");
@@ -166,7 +167,8 @@ ok(r.body.invoice === null, "no invoice is raised on a review");
 // approve
 r = await api(`/api/clients/portal/${tok}/decision`, { json: { decision: "approved", name: "Dale Okonjo" } });
 ok(r.status === 200, "approved", r.body);
-ok(r.body.invoice?.amount === 5250, `balance invoice raised AUTOMATICALLY at £5,250 — got ${r.body.invoice?.amount}`);
+ok(r.body.invoice?.net === 5250 && r.body.invoice?.amount === 6300,
+  `balance invoice raised AUTOMATICALLY — £5,250 net, £6,300 payable — got ${r.body.invoice?.net} / ${r.body.invoice?.amount}`);
 ok(r.body.engagement.stage === "balance", "stage → balance");
 
 r = await api(`/api/clients/${A.id}/payment-received`, { json: { kind: "balance" } }, T);
@@ -195,7 +197,8 @@ for (const it of Bx.checklist) {
   await fetch(`${B}/api/clients/portal/${tokB}/checklist/${it.id}`, { method: "POST", body: fd });
 }
 r = await api(`/api/clients/portal/${tokB}/start`, { json: { authorised: true, name: "Ash Vance" } });
-ok(r.body.invoice?.amount === 39500, `advance invoice raised automatically at £39,500 — got ${r.body.invoice?.amount}`);
+ok(r.body.invoice?.net === 39500 && r.body.invoice?.amount === 47400,
+  `advance invoice raised automatically — £39,500 net, £47,400 payable — got ${r.body.invoice?.net} / ${r.body.invoice?.amount}`);
 await api(`/api/clients/${Bx.id}/payment-received`, { json: { kind: "deposit" } }, T);
 {
   const fd = new FormData();
@@ -206,7 +209,8 @@ await api(`/api/clients/${Bx.id}/payment-received`, { json: { kind: "deposit" } 
   ok(body.engagement.deliverables.at(-1).label === "Month 1", `the period is labelled automatically: ${body.engagement.deliverables.at(-1).label}`);
 }
 r = await api(`/api/clients/portal/${tokB}/decision`, { json: { decision: "approved", name: "Ash Vance" } });
-ok(r.body.invoice?.amount === 14500, `approving month 1 raises month 2 at £14,500 — got ${r.body.invoice?.amount}`);
+ok(r.body.invoice?.net === 14500 && r.body.invoice?.amount === 17400,
+  `approving month 1 raises month 2 — £14,500 net, £17,400 payable — got ${r.body.invoice?.net} / ${r.body.invoice?.amount}`);
 r = await api(`/api/clients/${Bx.id}/payment-received`, { json: { kind: "balance" } }, T);
 ok(r.body.engagement.stage === "in_progress", "a recurring engagement rolls back into delivery, not closed");
 

@@ -14,7 +14,7 @@
  *
  * It writes to the database it runs against. Point it at a scratch copy.
  */
-const B = "http://localhost:3311";
+const B = process.env.BASE || "http://localhost:3311";
 let pass = 0, fail = 0;
 const ok = (c, m, x) => { c ? (pass++, console.log("  ✓ " + m)) : (fail++, console.log("  ✗ " + m + (x ? "  → " + JSON.stringify(x).slice(0, 300) : ""))); };
 const api = async (p, o = {}, tok) => {

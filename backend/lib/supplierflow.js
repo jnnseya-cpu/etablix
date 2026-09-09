@@ -74,19 +74,35 @@ export function maskAccount(value) {
 }
 
 /**
- * Certification maths for one application. Retention is 5% of the sum
- * certified this period, additionally capped so cumulative retention
- * never exceeds 5% of the order value when one is known (the retention
- * ledger tracks the cumulative position).
+ * Certification maths for one application.
+ *
+ * Retention is 5% of the sum certified this period, capped so that the
+ * retention deducted over the life of the order never exceeds 5% of the
+ * order value. The cap is the whole point of the rule and it used to be
+ * skipped entirely on the first certification, because the cap was read
+ * from a ledger row that the first certification is what creates. A
+ * first application for more than the order value therefore had 5%
+ * deducted with nothing holding it — the one case the supplier would
+ * notice and the one the rule exists to prevent.
+ *
+ * `retainedToDate` is the retention actually DEDUCTED so far, not a
+ * figure recomputed from the certified total: releases reduce what is
+ * held, never what has been deducted, so the cap has to be measured
+ * against the deductions themselves.
  */
 export function certificationMaths({ certified = 0, cisDeduction = 0, orderValue = 0, retainedToDate = 0 }) {
   const c = Math.max(0, Number(certified) || 0);
+  const held = Math.max(0, Number(retainedToDate) || 0);
   let retention = Number((0.05 * c).toFixed(2));
-  if (orderValue > 0) {
-    const cap = 0.05 * orderValue;
-    retention = Number(Math.max(0, Math.min(retention, cap - retainedToDate)).toFixed(2));
-  }
+  const cap = 0.05 * (Number(orderValue) || 0);
+  if (cap > 0) retention = Number(Math.max(0, Math.min(retention, cap - held)).toFixed(2));
   const cis = Math.max(0, Math.min(Number(cisDeduction) || 0, c - retention));
   const net = Number((c - retention - cis).toFixed(2));
-  return { certified: c, retention, cisDeduction: Number(cis.toFixed(2)), netPayable: net };
+  return {
+    certified: c,
+    retention,
+    cisDeduction: Number(cis.toFixed(2)),
+    netPayable: net,
+    retentionCapped: cap > 0 && retention < Number((0.05 * c).toFixed(2)),
+  };
 }

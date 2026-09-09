@@ -37,6 +37,7 @@ import {
   DELIVERABLES, deliverable, REQUIREMENT_PACKS, packFor, buildChecklist,
   checklistState, nextAction, DECISIONS, DECISION_IDS, nextPeriodLabel,
   depositTerms, balanceTerms, money, diagnosticInputs, handoverDate, DIAGNOSTIC_FIELD_MAP,
+  charge, vatModeFor, reverseChargeAvailable, declaredVatMode,
 } from "../lib/clientflow.js";
 import { diagnosticDates } from "../lib/workingdays.js";
 
@@ -71,6 +72,59 @@ function trail(existing, entry) {
   return next.length > TRAIL_MAX ? next.slice(next.length - TRAIL_MAX) : next;
 }
 
+/**
+ * The money on a stored document row.
+ *
+ * `amount` on the row is the NET — it is what went on the invoice line.
+ * What the client owes is the gross, and for a while this system showed
+ * one and invoiced the other. Rows raised since carry the split; rows
+ * raised before it are recomputed here from the engagement's own VAT
+ * treatment, which is how the invoice computed it too.
+ */
+function docMoney(e, d) {
+  if (typeof d.gross === "number") {
+    return { amount: d.net ?? d.amount, net: d.net ?? d.amount, vat: d.vat || 0, gross: d.gross, vatMode: d.vatMode || vatModeFor(e) };
+  }
+  const c = charge(e, d.amount);
+  return { amount: c.net, net: c.net, vat: c.vat, gross: c.gross, vatMode: c.mode };
+}
+
+/** The record written when an invoice is raised: net, VAT and gross, once. */
+function docRecord(e, doc, kind, terms) {
+  return {
+    id: doc.id, number: doc.number, kind, label: terms.label,
+    amount: terms.amount, net: terms.net, vat: terms.vat, gross: terms.gross,
+    vatMode: terms.vatMode, issuedAt: Date.now(), paidAt: null,
+  };
+}
+
+/**
+ * Has an invoice of this kind already been raised?
+ *
+ * A Model A engagement is one fee: 30% and then 70%. Nothing may raise
+ * either twice. This used to be left to the stage machine, and the stage
+ * machine could be walked round in a circle — deposit paid, deliverable
+ * issued, approved, balance raised, deposit "received" again, and a
+ * second balance invoice on the same fee. Two clicks and 170% of the fee
+ * was invoiced. The rule belongs on the money, not on the stage.
+ */
+/**
+ * The reverse charge is for construction operations reported under CIS.
+ * A Model A advisory report is a professional service, so offering it
+ * there produces an invoice that is wrong on its face. Refused at the
+ * point somebody sets the terms, where it can be explained, rather than
+ * corrected silently at the point it is invoiced.
+ */
+function vatModeOrError(mode, modelId) {
+  const raw = ["standard", "reverse", "none"].includes(mode) ? mode : null;
+  if (raw === "reverse" && !reverseChargeAvailable(modelId)) {
+    return { error: "The domestic reverse charge does not apply to Model A. An advisory report is a professional service, not a construction operation under CIS, so it is standard-rated. Use standard VAT, or open this as Model B or C if site services are genuinely in scope." };
+  }
+  return { mode: raw };
+}
+
+const hasInvoice = (e, kind) => (e.documents || []).some((d) => d.kind === kind);
+
 function decorate(e) {
   const chk = checklistState(e.checklist || []);
   const m = model(e.model);
@@ -89,6 +143,9 @@ function decorate(e) {
     deposit: depositTerms(e),
     balance: balanceTerms(e),
     recurring: m.recurring,
+    // The desk reads the same figures the client reads.
+    documents: (e.documents || []).map((d) => ({ ...d, ...docMoney(e, d) })),
+    vatMode: vatModeFor(e),
   };
 }
 
@@ -98,7 +155,14 @@ function forClient(e) {
   const { portalToken, internalNotes, margin, ...safe } = full;
   return {
     ...safe,
-    documents: (e.documents || []).map((d) => ({ id: d.id, number: d.number, kind: d.kind, label: d.label, amount: d.amount, issuedAt: d.issuedAt, paidAt: d.paidAt || null })),
+    // Older rows carry the net in `amount` and no split. They are read
+    // through docMoney() so a document raised before this was fixed still
+    // shows the client the same figure the invoice totalled.
+    documents: (e.documents || []).map((d) => ({
+      id: d.id, number: d.number, kind: d.kind, label: d.label,
+      ...docMoney(e, d),
+      issuedAt: d.issuedAt, paidAt: d.paidAt || null,
+    })),
   };
 }
 
@@ -152,9 +216,15 @@ router.post("/", ...finance, (req, res) => {
   const monthlyFee = toNum(b.monthlyFee);
   if (m.kind === "fixed" && fee <= 0) return res.status(400).json({ error: "A Model A engagement needs an agreed fixed fee." });
   if (m.kind === "recurring" && monthlyFee <= 0) return res.status(400).json({ error: "A Model B or C engagement needs a monthly fee." });
+  const vatChoice = vatModeOrError(b.vatMode, m.id);
+  if (vatChoice.error) return res.status(400).json({ error: vatChoice.error });
 
   const year = new Date().getFullYear();
-  const seq = collection("clientEngagements").filter((e) => new Date(e.createdAt).getFullYear() === year).length + 1;
+  // The highest sequence used this year, not the count of rows. Counting
+  // hands the same reference to two engagements the moment one is deleted.
+  const seq = collection("clientEngagements")
+    .filter((e) => new Date(e.createdAt).getFullYear() === year)
+    .reduce((mx, e) => Math.max(mx, Number(e.seq) || 0), 0) + 1;
   const row = insert("clientEngagements", {
     client,
     clientAddress: clampStr(b.clientAddress, 400),
@@ -168,7 +238,7 @@ router.post("/", ...finance, (req, res) => {
     mobilisationFee: toNum(b.mobilisationFee),
     platformFee: toNum(b.platformFee),
     advance: toNum(b.advance),
-    vatMode: ["standard", "reverse", "none"].includes(b.vatMode) ? b.vatMode : "standard",
+    vatMode: vatChoice.mode || "standard",
     clientRef: clampStr(b.clientRef, 80),
     construx: Boolean(b.construx),
     veryx: Boolean(b.veryx),
@@ -212,6 +282,8 @@ router.post("/:id/terms", ...finance, (req, res) => {
   const monthlyFee = toNum(b.monthlyFee);
   if (m.kind === "fixed" && fee <= 0) return res.status(400).json({ error: "A Model A engagement needs an agreed fixed fee." });
   if (m.kind === "recurring" && monthlyFee <= 0) return res.status(400).json({ error: "A Model B or C engagement needs a monthly fee." });
+  const vatChoice = vatModeOrError(b.vatMode, m.id);
+  if (vatChoice.error) return res.status(400).json({ error: vatChoice.error });
 
   // The checklist follows the deliverable. It is only rebuilt while nothing
   // has been answered — replacing a list the client has already worked down
@@ -226,7 +298,7 @@ router.post("/:id/terms", ...finance, (req, res) => {
   update("clientEngagements", e.id, {
     deliverable: d.id, model: m.id, fee, monthlyFee,
     mobilisationFee: toNum(b.mobilisationFee), platformFee: toNum(b.platformFee), advance: toNum(b.advance),
-    vatMode: ["standard", "reverse", "none"].includes(b.vatMode) ? b.vatMode : (e.vatMode || "standard"),
+    vatMode: vatChoice.mode || e.vatMode || "standard",
     clientRef: clampStr(b.clientRef, 80) || e.clientRef,
     client: clampStr(b.client, 160) || e.client,
     clientAddress: clampStr(b.clientAddress, 400) || e.clientAddress,
@@ -283,7 +355,7 @@ router.post("/:id/issue-portal", ...finance, async (req, res) => {
       `Engagement: ${deliverable(e.deliverable).name}\nProject: ${e.project}\n` +
       `Checklist: ${chk.total} items, ${chk.mandatoryTotal} of them required before we start.\n\n` +
       `${pack.clockNote}\n\n` +
-      `Payment: ${depositTerms(e).label} — ${money(depositTerms(e).amount)} when you confirm the start; ` +
+      `Payment: ${depositTerms(e).label} — ${depositTerms(e).payable} when you confirm the start; ` +
       `${balanceTerms(e).label.toLowerCase()}.`,
   });
   res.json({ engagement: decorate(find(e.id)), link });
@@ -322,19 +394,28 @@ router.post("/:id/payment-received", ...finance, async (req, res) => {
   const m = model(e.model);
   // A deposit starts the work. A balance closes a fixed engagement and
   // rolls a recurring one back into delivery for the next month.
-  const nextStage = kind === "deposit" ? "in_progress" : m.recurring ? "in_progress" : "closed";
+  //
+  // Recording a payment must never move the engagement BACKWARDS. Marking
+  // an old deposit paid once the balance was already raised used to reset
+  // the stage to in_progress, which re-opened the route to a second
+  // deliverable and a second balance invoice on the same fee.
+  const wanted = kind === "deposit" ? "in_progress" : m.recurring ? "in_progress" : "closed";
+  // Forward is always allowed. The one backwards move that is real is the
+  // recurring cycle: a paid month rolls the appointment into the next one.
+  const cycle = kind === "balance" && m.recurring;
+  const nextStage = stageIndex(wanted) > stageIndex(e.stage) || cycle || wanted === "closed" ? wanted : e.stage;
 
   update("clientEngagements", e.id, {
     documents: updatedDocs,
     stage: nextStage,
-    events: trail(e.events, { at: Date.now(), by: req.user.name, what: `${kind === "deposit" ? "Deposit" : "Balance"} received`, detail: `${target.number} — ${money(target.amount)}` }),
+    events: trail(e.events, { at: Date.now(), by: req.user.name, what: `${kind === "deposit" ? "Deposit" : "Balance"} received`, detail: `${target.number} — ${money(docMoney(e, target).gross)}` }),
   });
 
   if (kind === "deposit") {
     emitDetached("client.deposit.received", {
       email: e.contactEmail,
       greeting: e.contactName ? e.contactName.split(" ")[0] : undefined,
-      vars: { reference: reference(e), item: target.number, value: money(target.amount) },
+      vars: { reference: reference(e), item: target.number, value: money(docMoney(e, target).gross) },
     });
   } else if (!m.recurring) {
     emitDetached("client.engagement.closed", {
@@ -357,6 +438,11 @@ router.post("/:id/deliverable", ...finance, acceptDocuments, async (req, res) =>
   if (!e) return res.status(404).json({ error: "Engagement not found." });
   if (!["in_progress", "decision", "deposit"].includes(e.stage)) {
     return res.status(400).json({ error: `Nothing can be issued at the stage "${stage(e.stage).label}".` });
+  }
+  if (!model(e.model).recurring && hasInvoice(e, "balance")) {
+    return res.status(400).json({
+      error: "The balance on this engagement has already been invoiced. Issue further work under a new engagement — a fixed fee is invoiced once.",
+    });
   }
   const label = clampStr(req.body?.label, 160) || (model(e.model).recurring ? nextPeriodLabel(e) : deliverable(e.deliverable).name);
   const summary = clampStr(req.body?.summary, 3000);
@@ -426,7 +512,7 @@ router.post("/:id/deliverable", ...finance, acceptDocuments, async (req, res) =>
       `Your portal:\n${SITE_URL}/client-portal?t=${e.portalToken}\n\n` +
       (summary ? `In summary:\n${summary}\n\n` : "") +
       (sections.length ? `Sections you can comment against:\n${sections.map((s) => "• " + s).join("\n")}\n\n` : "") +
-      `Approving raises ${balanceTerms(e).label.toLowerCase()} — ${money(balanceTerms(e).amount)} — automatically.`,
+      `Approving raises ${balanceTerms(e).label.toLowerCase()} — ${balanceTerms(e).payable} — automatically.`,
   });
   res.status(201).json({ engagement: decorate(find(e.id)) });
 });
@@ -576,11 +662,38 @@ router.post("/portal/:token/checklist/:itemId", acceptDocuments, async (req, res
   const before = checklistState(list);
   const after = checklistState(updated);
 
+  // The client is asked their VAT position and, until now, the answer was
+  // filed and never read: the invoice went out on whatever the desk had
+  // typed weeks earlier. Their answer is recorded on the engagement and,
+  // where it disagrees with the treatment we hold, finance is told. It
+  // does not change the invoice by itself — that is a person's decision,
+  // and a wrong one is the client's problem at their next return.
+  const vatPatch = {};
+  if (item.id === "c-vat" && state === "supplied") {
+    const declared = declaredVatMode(note);
+    vatPatch.vatDeclaredText = note;
+    vatPatch.vatDeclaredAt = Date.now();
+    vatPatch.vatDeclared = declared;
+    vatPatch.vatNeedsReview = Boolean(declared && declared !== vatModeFor(e));
+  }
+
   update("clientEngagements", e.id, {
+    ...vatPatch,
     checklist: updated,
     events: trail(e.events, { at: Date.now(), by: e.contactName || e.client, what: "Checklist updated",
       detail: `${item.title} — ${STATE_WORDS[state]}` + (replaced ? ` (${replaced} document${replaced === 1 ? "" : "s"} replaced by a newer copy of the same name)` : "") }),
   });
+
+  if (vatPatch.vatNeedsReview) {
+    emitDetached("client.information.complete", {
+      vars: { company: e.client, reference: reference(e) },
+      detailsText:
+        `VAT — the client's declared position does not match the treatment on this engagement.\n\n` +
+        `We hold: ${vatModeFor(e)}. They have told us: ${vatPatch.vatDeclared}.\n\n` +
+        `Their words: ${note}\n\n` +
+        `Settle this before the deposit invoice is raised. Nothing has been changed automatically.`,
+    });
+  }
 
   // The moment the last mandatory item lands, the desk is told — the
   // clock on a diagnostic starts here and nobody should have to notice.
@@ -601,7 +714,7 @@ router.post("/portal/:token/checklist/:itemId", acceptDocuments, async (req, res
 router.post("/portal/:token/start", async (req, res) => {
   const e = portal(req, res);
   if (!e) return;
-  if (!["information", "ready"].includes(e.stage)) {
+  if (!["information", "ready"].includes(e.stage) || hasInvoice(e, "deposit")) {
     return res.status(400).json({ error: "The start has already been confirmed on this engagement." });
   }
   const chk = checklistState(e.checklist || []);
@@ -627,34 +740,34 @@ router.post("/portal/:token/start", async (req, res) => {
       clientAddress: e.clientAddress,
       clientRef: e.clientRef,
       project: `${e.project} — ${reference(e)}`,
-      vatMode: e.vatMode,
+      vatMode: vatModeFor(e),
       lines: [{ description: `${terms.label} — ${d.name}`, qty: 1, rate: terms.amount }],
       notes:
         `${terms.narrative}\n\nBasis: ${terms.basis}.\n` +
         `Instructed by ${by} in the client portal on ${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}.\n` +
-        `${m.kind === "fixed" ? `Balance: ${balanceTerms(e).label} — ${money(balanceTerms(e).amount)}, raised on your approval of the deliverable and not before.` : `Thereafter: ${balanceTerms(e).label}.`}`,
+        `${m.kind === "fixed" ? `Balance: ${balanceTerms(e).label} — ${balanceTerms(e).payable}, raised on your approval of the deliverable and not before.` : `Thereafter: ${balanceTerms(e).label}.`}`,
     },
   });
 
-  const record = { id: doc.id, number: doc.number, kind: "deposit", label: terms.label, amount: terms.amount, issuedAt: Date.now(), paidAt: null };
+  const record = docRecord(e, doc, "deposit", terms);
   update("clientEngagements", e.id, {
     stage: "deposit",
     startConfirmedAt: Date.now(),
     startConfirmedBy: by,
     documents: [...(e.documents || []), record],
-    events: trail(e.events, { at: Date.now(), by, what: "Start confirmed by the client", detail: `${doc.number} raised automatically — ${money(terms.amount)}` }),
+    events: trail(e.events, { at: Date.now(), by, what: "Start confirmed by the client", detail: `${doc.number} raised automatically — ${terms.payable}` }),
   });
 
   emitDetached("client.deposit.requested", {
     email: e.contactEmail,
     greeting: e.contactName ? e.contactName.split(" ")[0] : undefined,
-    vars: { reference: reference(e), item: doc.number, value: money(terms.amount), outcome: terms.basis },
+    vars: { reference: reference(e), item: doc.number, value: terms.payable, outcome: terms.basis },
     detailsText: `Your portal:\n${SITE_URL}/client-portal?t=${e.portalToken}\n\n${terms.narrative}`,
   });
   emitDetached("client.start.confirmed", {
-    vars: { company: e.client, reference: reference(e), actor: by, item: doc.number, value: money(terms.amount) },
+    vars: { company: e.client, reference: reference(e), actor: by, item: doc.number, value: terms.payable },
   });
-  res.json({ engagement: forClient(find(e.id)), invoice: { number: doc.number, amount: terms.amount } });
+  res.json({ engagement: forClient(find(e.id)), invoice: { number: doc.number, amount: terms.gross, net: terms.net, vat: terms.vat, payable: terms.payable } });
 });
 
 /**
@@ -701,8 +814,15 @@ router.post("/portal/:token/decision", async (req, res) => {
 
   let invoice = null;
   if (choice === "approved") {
-    const terms = balanceTerms(e);
     const m = model(e.model);
+    // On a fixed fee the balance is raised once, on the first approval.
+    // A later approval — a re-issued deliverable, a second deliverable —
+    // records the decision and raises nothing.
+    if (!m.recurring && hasInvoice(e, "balance")) {
+      update("clientEngagements", e.id, { ...patch, stage: "balance" });
+      return res.json({ engagement: forClient(find(e.id)), invoice: null });
+    }
+    const terms = balanceTerms(e);
     const doc = createDocument({
       template: "invoice",
       issuedBy: "ETABLIX — raised automatically on the client's approval",
@@ -711,7 +831,7 @@ router.post("/portal/:token/decision", async (req, res) => {
         clientAddress: e.clientAddress,
         clientRef: e.clientRef,
         project: `${e.project} — ${reference(e)}`,
-        vatMode: e.vatMode,
+        vatMode: vatModeFor(e),
         lines: [{ description: `${terms.label} — ${item.label}`, qty: 1, rate: terms.amount }],
         notes:
           `${terms.narrative}\n\nBasis: ${terms.basis}.\n` +
@@ -719,10 +839,10 @@ router.post("/portal/:token/decision", async (req, res) => {
           (m.recurring ? "" : " The deliverable is yours to keep whatever you decide to do next."),
       },
     });
-    invoice = { number: doc.number, amount: terms.amount };
-    patch.documents = [...(e.documents || []), { id: doc.id, number: doc.number, kind: "balance", label: terms.label, amount: terms.amount, issuedAt: Date.now(), paidAt: null }];
+    invoice = { number: doc.number, amount: terms.gross, net: terms.net, vat: terms.vat, payable: terms.payable };
+    patch.documents = [...(e.documents || []), docRecord(e, doc, "balance", terms)];
     patch.stage = "balance";
-    patch.events.push({ at: Date.now(), by: "ETABLIX", what: "Balance invoice raised automatically", detail: `${doc.number} — ${money(terms.amount)}` });
+    patch.events.push({ at: Date.now(), by: "ETABLIX", what: "Balance invoice raised automatically", detail: `${doc.number} — ${terms.payable}` });
   } else {
     // Review and rejection both put the work back with us. The
     // difference is what we owe the client back: a revision, or an
@@ -735,14 +855,14 @@ router.post("/portal/:token/decision", async (req, res) => {
     emitDetached("client.balance.requested", {
       email: e.contactEmail,
       greeting: e.contactName ? e.contactName.split(" ")[0] : undefined,
-      vars: { reference: reference(e), item: invoice.number, value: money(invoice.amount), outcome: item.label },
+      vars: { reference: reference(e), item: invoice.number, value: invoice.payable, outcome: item.label },
       detailsText: `Your portal:\n${SITE_URL}/client-portal?t=${e.portalToken}`,
     });
   }
   emitDetached("client.decision.recorded", {
     vars: {
       company: e.client, reference: reference(e), actor: by, item: `${item.label} rev ${item.revision}`, outcome: spec.label,
-      value: invoice ? `Invoice ${invoice.number} for ${money(invoice.amount)} was raised automatically.` : `${comments.length} comment(s) to answer.`,
+      value: invoice ? `Invoice ${invoice.number} for ${invoice.payable} was raised automatically.` : `${comments.length} comment(s) to answer.`,
     },
     detailsText: comments.length ? comments.map((c) => `[${c.section || "General"}] ${c.comment}`).join("\n\n") : undefined,
   });

@@ -307,11 +307,30 @@ router.get("/templates", requireAuth, deliveryFinance, (req, res) =>
 
 // ---------------------------------------------------------------- generation
 
+/**
+ * The next document number in a series.
+ *
+ * The counter lives in settings, and settings and documents are two rows
+ * in the same file: restore one from a backup taken a moment before the
+ * other and the counter can sit behind the documents already issued. A
+ * repeated invoice number is not a cosmetic fault — it is two different
+ * invoices with one identity in the client's ledger and ours.
+ *
+ * So the counter is never trusted on its own. It is raised to the
+ * highest number already issued in the series before it is incremented,
+ * which makes the documents themselves the record and the counter merely
+ * the fast path.
+ */
 export function nextNumber(prefix) {
   const counters = { ...(getSettings().doc_counters || {}) };
   const year = new Date().getFullYear();
   const key = `${prefix}-${year}`;
-  counters[key] = (counters[key] || 0) + 1;
+  const re = new RegExp(`^${prefix}-${year}-(\\d+)$`);
+  const highest = collection("documents").reduce((mx, d) => {
+    const m = re.exec(String(d.number || ""));
+    return m ? Math.max(mx, Number(m[1])) : mx;
+  }, 0);
+  counters[key] = Math.max(counters[key] || 0, highest) + 1;
   saveSettings({ doc_counters: counters });
   return `${prefix}-${year}-${String(counters[key]).padStart(3, "0")}`;
 }
@@ -646,10 +665,15 @@ function tokenAuth(req, res, next) {
 
 const vatBlock = (mode, net) => {
   if (mode === "reverse") {
+    // HMRC requires the invoice to state the VAT the customer must
+    // account for, or the rate. Stating £0.00 alone leaves the client's
+    // bookkeeper to work out the number, which is where it gets worked
+    // out wrongly.
+    const due = net * 0.2;
     return {
-      rows: `<tr><td colspan="3" class="tr">VAT — domestic reverse charge</td><td class="tr">£0.00</td></tr>`,
+      rows: `<tr><td colspan="3" class="tr">VAT @ 20% — reverse charge, not charged by us</td><td class="tr">${money(0)}</td></tr>`,
       total: net,
-      note: "Domestic reverse charge: customer to pay the VAT to HMRC. VAT Act 1994 s.55A applies.",
+      note: `Domestic reverse charge: customer to account for the VAT to HMRC. VAT of ${money(due)} at 20% is due on this supply and is not included in the total above. VAT Act 1994 s.55A applies.`,
     };
   }
   if (mode === "standard") {

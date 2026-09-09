@@ -26,6 +26,18 @@ const finance = [requireAuth, requireRole(...ACCESS.DELIVERY_FINANCE)];
 
 const money = (n) => "£" + Number(n || 0).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+/**
+ * Retention deducted to date on a ledger row.
+ *
+ * Rows opened before the ledger recorded the deduction itself fall back
+ * to the old derivation, so an existing row keeps the position it had
+ * rather than resetting to zero and re-retaining money already held.
+ */
+export function retentionDeducted(r) {
+  if (typeof r?.retainedToDate === "number") return r.retainedToDate;
+  return Number(Math.min(0.05 * (r?.certifiedToDate || 0), 0.05 * (r?.contractValue || 0)).toFixed(2));
+}
+
 /** GET /api/payments — the applications queue, newest first, with supplier verification state. */
 router.get("/", ...finance, (req, res) => {
   const suppliers = collection("subcontractors");
@@ -102,11 +114,23 @@ router.post("/:id/certify", ...finance, async (req, res) => {
 
   // Cumulative retention position for this supplier+package from the ledger.
   const ledger = collection("retentions").find((r) => r.supplier === payApp.supplier && r.project === payApp.poRef);
+  // The 5% cap is measured against the order value. On the first
+  // certification there is no ledger row to read it from, which is
+  // exactly when the cap matters, so the assessor states it once and it
+  // is carried from then on.
+  const orderValue = Number(ledger?.contractValue) || Number(req.body?.orderValue) || 0;
+  if (orderValue <= 0) {
+    return res.status(400).json({
+      error: "State the order value for this package. Retention is capped at 5% of it, and without it the deduction has nothing holding it.",
+      needs: "orderValue",
+    });
+  }
+  const retainedToDate = ledger ? retentionDeducted(ledger) : 0;
   const maths = certificationMaths({
     certified,
     cisDeduction: Number(req.body?.cisDeduction) || 0,
-    orderValue: ledger?.contractValue || 0,
-    retainedToDate: ledger ? Math.min(0.05 * (ledger.certifiedToDate || 0), 0.05 * (ledger.contractValue || 0)) : 0,
+    orderValue,
+    retainedToDate,
   });
 
   const updated = update("payApps", payApp.id, {
@@ -118,17 +142,24 @@ router.post("/:id/certify", ...finance, async (req, res) => {
   });
 
   // Keep the retention ledger current: one row per supplier + order ref.
+  // `retainedToDate` is what has actually been deducted. It is written
+  // here, at the moment of the deduction, rather than recomputed later
+  // from the certified total — the two stop agreeing the first time the
+  // cap bites or a tranche is released.
   if (ledger) {
     update("retentions", ledger.id, {
       certifiedToDate: Number(((ledger.certifiedToDate || 0) + maths.certified).toFixed(2)),
-      contractValue: Math.max(ledger.contractValue || 0, payApp.grossToDate || 0),
+      retainedToDate: Number((retainedToDate + maths.retention).toFixed(2)),
+      contractValue: Math.max(ledger.contractValue || 0, orderValue),
     });
   } else {
     insert("retentions", {
       project: payApp.poRef,
       supplier: payApp.supplier,
-      contractValue: payApp.grossToDate || maths.certified,
+      contractValue: orderValue,
       certifiedToDate: maths.certified,
+      retainedToDate: maths.retention,
+      releasedToDate: 0,
       instrument: "Cash retention",
       defectsEndDate: "",
       pcReleased: false,

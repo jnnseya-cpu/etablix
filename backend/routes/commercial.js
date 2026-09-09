@@ -540,12 +540,31 @@ router.delete("/evm/:id", admin, (req, res) => {
 
 // ------------------------------------------------------------- retention ledger
 
+/**
+ * What is actually held on a retention row.
+ *
+ * `retainedToDate` is the retention deducted from certificates — the
+ * money we are holding. It is written when the deduction is made rather
+ * than recomputed here from the certified total, because the two part
+ * company the moment the 5% cap bites on a certificate or a tranche is
+ * released. Rows opened before the ledger recorded it keep the old
+ * derivation so their position does not jump.
+ */
 const retentionDerived = (r) => {
-  const held = Math.min(0.05 * (r.certifiedToDate || 0), 0.05 * (r.contractValue || 0));
-  const pcTranche = held / 2;
+  const deducted =
+    typeof r.retainedToDate === "number"
+      ? r.retainedToDate
+      : Math.min(0.05 * (r.certifiedToDate || 0), 0.05 * (r.contractValue || 0));
+  const pcTranche = deducted / 2;
+  const released =
+    typeof r.releasedToDate === "number"
+      ? r.releasedToDate
+      : (r.pcReleased ? pcTranche : 0) + (r.finalReleased ? pcTranche : 0);
   return {
     ...r,
-    retentionHeld: Number((held - (r.pcReleased ? pcTranche : 0) - (r.finalReleased ? pcTranche : 0)).toFixed(2)),
+    retentionDeducted: Number(deducted.toFixed(2)),
+    retentionReleased: Number(Math.min(released, deducted).toFixed(2)),
+    retentionHeld: Number(Math.max(0, deducted - released).toFixed(2)),
     trancheValue: Number(pcTranche.toFixed(2)),
   };
 };
@@ -572,9 +591,28 @@ router.post("/retentions", deliveryFinance, (req, res) => {
 });
 
 router.patch("/retentions/:id", deliveryFinance, (req, res) => {
+  const existing = collection("retentions").find((r) => r.id === req.params.id);
+  if (!existing) return res.status(404).json({ error: "Record not found." });
   const patch = {};
-  for (const k of ["contractValue", "certifiedToDate"]) if (k in req.body) patch[k] = toNum(req.body[k]);
+  for (const k of ["contractValue", "certifiedToDate", "retainedToDate"]) if (k in req.body) patch[k] = toNum(req.body[k]);
   for (const k of ["pcReleased", "finalReleased"]) if (k in req.body) patch[k] = Boolean(req.body[k]);
+  // Releasing a tranche moves money out of the ledger, so the amount
+  // released is recorded as a figure rather than left to be inferred
+  // from two flags — a later certification would otherwise re-derive the
+  // whole position and quietly re-retain what was already paid back.
+  const before = retentionDerived(existing);
+  const after = retentionDerived({ ...existing, ...patch });
+  const tranches = (x) => (x.pcReleased ? 1 : 0) + (x.finalReleased ? 1 : 0);
+  const moved = tranches({ ...existing, ...patch }) - tranches(existing);
+  if (moved !== 0) {
+    patch.releasedToDate = Number(
+      Math.max(0, Math.min(before.retentionDeducted, (before.retentionReleased || 0) + moved * after.trancheValue)).toFixed(2)
+    );
+    patch.releaseTrail = [
+      ...(existing.releaseTrail || []).slice(-20),
+      { at: Date.now(), by: req.user?.name || "unknown", tranche: moved > 0 ? "released" : "reversed", value: Number(after.trancheValue.toFixed(2)) },
+    ];
+  }
   if ("instrument" in req.body && MODEL.retention.alternatives.includes(req.body.instrument)) patch.instrument = req.body.instrument;
   if ("defectsEndDate" in req.body) patch.defectsEndDate = clampStr(req.body.defectsEndDate, 10);
   if ("notes" in req.body) patch.notes = clampStr(req.body.notes, 600);

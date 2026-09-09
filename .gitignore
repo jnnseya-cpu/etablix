@@ -15,3 +15,4 @@ backend/data/db.json.prev
 backend/data/db.json.corrupt-*
 backend/data/errors.log
 backend/data/errors.log.1
+backend/test/mock-log.json

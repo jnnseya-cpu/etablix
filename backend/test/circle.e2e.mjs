@@ -45,7 +45,7 @@ ok(r.status < 400, "AI provider connected (mock)", r.body);
 r = await api("/api/clients", { json: {
   client: "Marrowbridge Infrastructure Ltd", project: "Project NORTHREACH — site-services feasibility",
   contactName: "Dale Okonjo", contactEmail: "dale@example.test",
-  deliverable: "feasibility", model: "A", fee: 6500, vatMode: "reverse", clientRef: "MBI-PO-90114", construx: true,
+  deliverable: "feasibility", model: "A", fee: 6500, vatMode: "standard", clientRef: "MBI-PO-90114", construx: true,
 } }, T);
 ok(r.status === 201, "1. engagement opened", r.body);
 const E = r.body.engagement;
@@ -93,7 +93,8 @@ ok(r.body.engagement.checklistState.canStart, `3. the client answered every line
 
 // 3 — start, and the deposit invoice raises itself
 r = await api(`/api/clients/portal/${tok}/start`, { json: { authorised: true, name: "Dale Okonjo" } });
-ok(r.status === 200 && r.body.invoice?.amount === 1950, `4. start confirmed → deposit invoice ${r.body.invoice?.number} for £${r.body.invoice?.amount} raised automatically`, r.body);
+ok(r.status === 200 && r.body.invoice?.net === 1950 && r.body.invoice?.amount === 2340,
+  `4. start confirmed → deposit invoice ${r.body.invoice?.number}, £1,950 net and £2,340 payable, raised automatically`, r.body);
 await api(`/api/clients/${E.id}/payment-received`, { json: { kind: "deposit" } }, T);
 ok(true, "5. deposit marked received → in progress");
 
@@ -146,7 +147,8 @@ ok(Boolean(issued?.documentId), "9. the client can see the report in their porta
   ok(/ten working days|working days/i.test(html), "   the report states the ten-working-day basis");
 }
 r = await api(`/api/clients/portal/${tok}/decision`, { json: { decision: "approved", name: "Dale Okonjo" } });
-ok(r.status === 200 && r.body.invoice?.amount === 4550, `10. approved → balance invoice ${r.body.invoice?.number} for £${r.body.invoice?.amount} raised automatically`, r.body);
+ok(r.status === 200 && r.body.invoice?.net === 4550 && r.body.invoice?.amount === 5460,
+  `10. approved → balance invoice ${r.body.invoice?.number}, £4,550 net and £5,460 payable, raised automatically`, r.body);
 r = await api(`/api/clients/${E.id}/payment-received`, { json: { kind: "balance" } }, T);
 ok(r.body.engagement?.stage === "closed", "11. balance received → closed");
 const total = (r.body.engagement?.documents || []).reduce((s, d) => s + d.amount, 0);
