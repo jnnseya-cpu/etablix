@@ -680,3 +680,158 @@ ResponseSection {
 }
 ```
 
+### 15.3 Composition sequence
+
+1. Restate the evaluator's need internally, without wasting submission words.
+2. Identify the response structure that maps directly to the scoring criteria.
+3. Retrieve approved solution facts and evidence.
+4. Draft at the required level of detail and within the exact limit.
+5. Validate every material claim and value.
+6. Check consistency against price, programme, risk and contract positions.
+7. Run clarity, compliance and evaluator-orientation reviews.
+8. Route the section to the required technical, commercial or executive approver.
+9. **Lock the approved version for packaging; a subsequent source change marks it stale.**
+
+---
+
+## 16. Assurance and red-team engine
+
+### 16.1 Independent review model
+
+**The same agent run that authored content shall not provide the final
+automated assurance result.** The assurance service shall use an
+independently versioned prompt, separate context selection and, for
+high-risk checks, a different model route or a deterministic validator.
+
+### 16.2 Review lenses
+
+| Lens | Questions |
+|---|---|
+| Compliance | Did the response answer every requested element and attach the required evidence? |
+| Evaluator | Can a scorer find the answer and award marks without inference? |
+| Commercial | Do commitments create unpriced scope or conflict with qualifications? |
+| Technical | Is the method feasible, coordinated and consistent with design maturity? |
+| Programme | Can the sequence achieve milestones using the stated resources and access? |
+| Contract | Does the wording concede a departure, create a warranty or waive a right? |
+| Evidence | Are claims current, valid, permitted and traceable? |
+| Adversarial | What would a competitor, client reviewer or claims specialist attack? |
+| Executive | Is the risk-adjusted return within authority and appetite? |
+
+### 16.3 Finding severity
+
+| Severity | Definition | Submission effect |
+|---|---|---|
+| Critical | Likely disqualification, unlawful content, unapproved price or material binding exposure | **Hard block** |
+| High | Material score, margin, delivery or contractual risk | Block unless authorised disposition |
+| Medium | Material quality weakness or manageable inconsistency | Review required |
+| Low | Clarity, presentation or minor completeness improvement | May proceed with a recorded disposition |
+
+---
+
+## 17. Submission engine
+
+### 17.1 Submission manifest
+
+| Manifest field | Purpose |
+|---|---|
+| Submission ID and snapshot | Immutable identity of exactly what was approved |
+| Document list | Filename, format, size, hash, revision and required destination |
+| Requirement coverage | Each mandatory requirement and the exported location that satisfies it |
+| Approval record | Approver, role, decision, conditions and time |
+| Price reconciliation | Approved total, schedule totals, currency and rounding |
+| Known exceptions | Approved waivers, outstanding client-controlled items and conditions |
+| Channel record | Portal, email, API or physical method and the authorised operator |
+| Receipt | Portal confirmation, email acknowledgement, timestamp and reference |
+
+### 17.2 Pre-submission hard gates
+
+- No unresolved critical finding.
+- No mandatory requirement without approved satisfaction or an authorised waiver.
+- All exported values reconcile to the approved commercial baseline.
+- All documents use the required format, name, size and page or word limit.
+- Every signature and declaration is present and authorised.
+- The latest acknowledged tender issue has completed impact review.
+- **No expired mandatory evidence at the submission deadline.**
+- **The signatory has explicit authority for the tender value and risk class.**
+
+### 17.3 Portal automation policy
+
+Portal automation may populate fields and stage uploads **where the portal
+permits it.** The system must preserve screenshots or receipts where
+permitted, respect terms and access controls, and **stop before any binding
+submission action unless an authorised human approves that exact snapshot.**
+Credentials shall be handled only by the approved identity and secrets
+services.
+
+---
+
+## 18. Award conversion engine
+
+### 18.1 Reconciliation before conversion
+
+Compare the final tender submission, post-tender clarifications, negotiation
+records, letter of intent, contract documents and executed schedules. **It
+must not assume that a tender qualification was accepted merely because the
+contract was awarded.**
+
+### 18.2 Conversion map
+
+| Tender object | Delivery object | Conversion control |
+|---|---|---|
+| Requirement | Contract or project obligation | Confirm retained, changed or removed |
+| Tender programme | Contract baseline candidate | Reconcile milestones and accepted changes |
+| Estimate | Project budget and control accounts | Separate price, cost, risk and margin |
+| Risk | Live project risk | Update ownership and treatment |
+| Assumption | Validation action or change trigger | Set deadline and evidence |
+| Qualification | Contract reconciliation item | **Confirm express acceptance** |
+| Supplier quote | Procurement package baseline | Refresh validity and scope |
+| Response commitment | Project deliverable or KPI | Assign an accountable owner |
+| Method | Controlled work method draft | Complete project and safety approvals |
+| Evidence schedule | Handover information requirement | Create asset and commissioning tasks |
+
+### 18.3 No-loss handover test
+
+Award conversion passes only when **every material tender commitment is mapped
+to a delivery owner or explicitly classified as superseded.** The system shall
+produce an exception register for unmapped commitments, unresolved
+negotiations, changed price assumptions and unaccepted departures.
+
+---
+
+## 19. User experience requirements
+
+### 19.1 Core workspaces
+
+| Workspace | Mandatory views |
+|---|---|
+| Command Centre | Readiness, deadline, blockers, gate status, agent activity, decisions and forecast completion |
+| ITT Library | Issue register, document tree, version comparison, extraction status and source viewer |
+| Compliance | Requirement matrix, filters, owners, evidence, response and completion rule |
+| Solution | Scope graph, interfaces, methods, clarifications, deliverables and technical reviews |
+| Commercial | Estimate, quotes, reconciliation, risk, cash flow and authority |
+| Programme | WBS, schedule quality, resources, procurement and scenarios |
+| Contract | Clause, obligation, departure, exposure and approval |
+| Response Studio | Evaluator criteria, grounded drafting, evidence, comments, limits and approval |
+| Assurance | Findings, severity, disposition, retest and gate effect |
+| Submission | Manifest, packaging validation, approvals, channel and receipt |
+| Award Handover | Reconciliation, baseline mapping, exceptions and project creation |
+| Agent Operations | Run graph, status, evidence, cost, approvals, errors and replay |
+
+### 19.2 Explainability pattern
+
+Every agent-generated result shall expose **what** the system concluded,
+**why**, **which sources** support it, **what assumptions** remain, **how
+confident** it is, **what action** it took or proposes, and **who** must
+approve the next controlled step.
+
+Raw hidden chain-of-thought is neither required nor displayed; the system
+presents concise decision evidence and reproducible calculations.
+
+### 19.3 High-risk interaction requirements
+
+- Approval screens shall show the exact object version and the material differences from the previously approved version.
+- **Bulk approval shall be disabled for final price, submission, contract departure and safety-critical content.**
+- The user shall see financial value, liability, deadline and affected objects before approval.
+- **Approval shall require an explicit decision, not mere navigation or opening a notification.**
+- Rejected agent actions shall preserve the proposed action and the reason, for audit and learning.
+
