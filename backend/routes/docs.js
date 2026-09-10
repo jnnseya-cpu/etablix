@@ -616,6 +616,15 @@ router.get("/from-run/:id", requireAuth, deliveryFinance, (req, res) => {
 
   res.json({
     template: draft.template,
+    // THE RUN ID TRAVELS WITH THE DRAFT.
+    //
+    // It did not, and the consequence only showed up when a numbered report
+    // went missing: a document carried no link back to the run it was drafted
+    // from, so nothing could answer "can this be recreated" — and the answer
+    // was always yes, because the run and its pack are untouched by anything
+    // that happens to the document. It is also the provenance a client is
+    // entitled to ask about a paid deliverable: which run produced this.
+    runId: run.id,
     runTitle: run.title,
     matched,
     missing,
@@ -693,18 +702,31 @@ router.post("/generate", requireAuth, deliveryFinance, (req, res) => {
     data.datesAssured = dates.assured;
   }
 
+  // Where the draft came from an agent run, record which one. Optional
+  // because most templates — invoices, orders, notices — have no run behind
+  // them, and validated because a runId nobody checked is worse than none:
+  // it would assert a provenance that does not exist.
+  let runId = null;
+  if (req.body?.runId) {
+    const run = collection("agentTasks").find((r) => r.id === String(req.body.runId));
+    if (!run) return res.status(400).json({ error: "That run does not exist, so the document cannot claim to come from it." });
+    if (run.status !== "approved") return res.status(409).json({ error: "That run is not approved, so it cannot produce an issued document." });
+    runId = run.id;
+  }
+
   const number = nextNumber(tpl.prefix);
   const doc = insert("documents", {
     template: tpl.id,
     templateName: tpl.name,
     number,
+    runId,
     title: data.project || data.client || data.supplier || tpl.name,
     party: data.client || data.supplier || data.party || "—",
     total: (data.lines || []).reduce((s, l) => s + l.qty * l.rate, 0),
     issuedBy: req.user.name,
     data,
   });
-  res.status(201).json({ document: { id: doc.id, number: doc.number, template: doc.template } });
+  res.status(201).json({ document: { id: doc.id, number: doc.number, template: doc.template, runId: doc.runId } });
 });
 
 /**
@@ -762,10 +784,48 @@ router.post("/:id/release", requireAuth, deliveryFinance, (req, res) => {
   res.json({ document: { id: doc.id, number: doc.number, earlyRelease } });
 });
 
+/**
+ * DELETE /:id — take a document out of the register.
+ *
+ * WRITTEN TO THE LEDGER, WITH THE PERSON WHO DID IT.
+ *
+ * This route was the only way a document could leave the register, and it
+ * used to answer `{ deleted: true }` and record nothing. So when an issued,
+ * numbered report went missing there was no way to establish whether it had
+ * been deleted, by whom, or on what day — and the store carries an
+ * append-only ledger for exactly that question.
+ *
+ * The reply now also says whether the document can be recreated for nothing.
+ * A document is DERIVED from an agent run: the run and its pack are the
+ * expensive part and they are untouched by this, so if the run is still
+ * there the report can be re-minted at no cost. Answering that here means
+ * the person who has just deleted something learns immediately whether it
+ * mattered, rather than an hour later.
+ */
 router.delete("/:id", requireAuth, admin, (req, res) => {
-  const row = remove("documents", req.params.id);
-  if (!row) return res.status(404).json({ error: "Document not found." });
-  res.json({ deleted: true });
+  const doc = collection("documents").find((x) => x.id === req.params.id);
+  if (!doc) return res.status(404).json({ error: "Document not found." });
+
+  const run = doc.runId ? collection("agentTasks").find((r) => r.id === doc.runId) : null;
+  const row = remove("documents", req.params.id, {
+    by: req.user.name || req.user.email,
+    why: String(req.body?.reason || "").slice(0, 200) || null,
+  });
+
+  recordLedger("document.deleted", doc.id, req.user.name || req.user.email,
+    `${doc.number} (${doc.templateName || doc.template}) removed from the register. ` +
+    (run ? `Run ${run.id} survives — it can be re-minted at no cost.` : "No surviving run: this cannot be re-minted."));
+
+  res.json({
+    deleted: true,
+    number: row.number,
+    // The recovery answer, given at the moment it is needed.
+    remintable: Boolean(run),
+    runId: run ? run.id : null,
+    note: run
+      ? "The agent run this was drafted from is still here, so the document can be drafted again at no cost from the approval queue."
+      : "There is no surviving agent run for this document, so it cannot be drafted again.",
+  });
 });
 
 // ------------------------------------------------------------------ rendering

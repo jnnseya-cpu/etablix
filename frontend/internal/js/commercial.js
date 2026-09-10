@@ -234,7 +234,7 @@ function carryHtml(id) {
 }
 
 /** Jump to Documents with a pre-filled form — the calculators' output. */
-async function openDocPrefill(templateId, data, lines) {
+async function openDocPrefill(templateId, data, lines, runId = null) {
   // The callers are no longer all inside the Commercial OS — an approved
   // agent run drafts from Organisation — so the panel has to be brought
   // to the front, and its own load waited out, or the form is filled in
@@ -249,6 +249,10 @@ async function openDocPrefill(templateId, data, lines) {
   const tbody = document.querySelector("#doc-lines tbody");
   document.getElementById("doc-add-line")?.addEventListener("click", () => tbody.insertAdjacentHTML("beforeend", lineRow()));
   const form = document.getElementById("doc-generate");
+  // Where this draft came from an agent run, the run id rides on the form so
+  // the finished document records which run produced it. Without it a
+  // document has no provenance and nothing can say whether it is recoverable.
+  if (runId) form.dataset.runId = runId;
   for (const [k, v] of Object.entries(data || {})) {
     const el = form.querySelector(`[name="${k}"]`);
     if (el) el.value = v;
@@ -599,7 +603,7 @@ async function cosDocs() {
     ? wrapT(`<table><thead><tr><th>Number</th><th>Type</th><th>Party</th><th>Title</th><th>Value</th><th>Release</th><th>Issued</th><th></th></tr></thead><tbody>${documents
         .map(
           (d) => `<tr><td><b>${esc(d.number)}</b></td><td>${esc(d.templateName)}</td><td>${esc(d.party)}</td><td class="muted">${esc(d.title)}</td><td>${d.total ? money(d.total) : "—"}</td><td>${releaseCell(d.release)}</td><td class="muted">${new Date(d.createdAt).toLocaleDateString("en-GB")} · ${esc(d.issuedBy)}</td>
-          <td style="white-space:nowrap;"><a class="btn-run" style="text-decoration:none;display:inline-block;" href="/api/docs/${d.id}/render?token=${encodeURIComponent(token)}" target="_blank" rel="noopener">${d.parts ? "Open whole" : "Open"}</a>${isAdmin ? ` <button class="btn-run" data-doc-del="${d.id}">Delete</button>` : ""}${partLinks(d)}</td></tr>`
+          <td style="white-space:nowrap;"><a class="btn-run" style="text-decoration:none;display:inline-block;" href="/api/docs/${d.id}/render?token=${encodeURIComponent(token)}" target="_blank" rel="noopener">${d.parts ? "Open whole" : "Open"}</a>${isAdmin ? ` <button class="btn-run" data-doc-del="${d.id}" data-doc-number="${esc(d.number)}" data-doc-run="${d.runId ? 1 : 0}" title="${d.runId ? "Recoverable: an agent run backs this document" : "NOT recoverable: no agent run behind this document"}">Delete</button>` : ""}${partLinks(d)}</td></tr>`
         )
         .join("")}</tbody></table>`)
     : '<p class="empty-note">No documents generated yet — pick a template above. Every generated document is numbered and registered here.</p>';
@@ -684,7 +688,7 @@ document.addEventListener("submit", async (e) => {
   try {
     const { document: doc } = await api("/api/docs/generate", {
       method: "POST",
-      body: JSON.stringify({ template: form.dataset.template, data }),
+      body: JSON.stringify({ template: form.dataset.template, data, runId: form.dataset.runId || null }),
     });
     window.open(`/api/docs/${doc.id}/render?token=${encodeURIComponent(token)}`, "_blank");
     cosSection = "docs";
@@ -711,9 +715,22 @@ document.addEventListener("submit", async (e) => {
 document.addEventListener("click", async (e) => {
   const del = e.target.closest("button[data-doc-del]");
   if (!del) return;
-  if (!confirm("Remove this document from the register? The number is not reused.")) return;
+  // The old wording said only that the number is not reused, which reads as
+  // "this is tidy-up". It is not: for a numbered client deliverable this is
+  // the only way one leaves the register, and until now it left no trace at
+  // all. So the prompt says what is actually at stake, and the reply says
+  // whether the run behind it can redraft it for nothing.
+  const recoverable = del.dataset.docRun === "1";
+  if (!confirm(
+    `Remove ${del.dataset.docNumber || "this document"} from the register?\n\n` +
+    `The number is not reused, and the deletion is recorded against your name in the ledger.\n\n` +
+    (recoverable
+      ? "The agent run behind it survives, so it can be drafted again at no cost."
+      : "There is NO agent run behind it, so it cannot be drafted again. This is the only copy.")
+  )) return;
   try {
-    await api(`/api/docs/${del.dataset.docDel}`, { method: "DELETE" });
+    const out = await api(`/api/docs/${del.dataset.docDel}`, { method: "DELETE" });
+    if (out?.note) alert(`${out.number} removed.\n\n${out.note}`);
     renderCosSection();
   } catch (err) {
     alert(err.message);
@@ -1624,7 +1641,7 @@ document.addEventListener("click", async (e) => {
         + (d.missing.length ? `Not found in this run, and left blank:\n· ${d.missing.join("\n· ")}\n\n` : "")
         + "Give it an illustrative project name, read the three sections through, then generate."
       );
-      await openDocPrefill(d.template, d.data);
+      await openDocPrefill(d.template, d.data, undefined, d.runId);
     } catch (err) {
       alert(err.message);
     } finally {

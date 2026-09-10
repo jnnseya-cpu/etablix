@@ -645,12 +645,62 @@ export function update(name, rowId, patch) {
   return row;
 }
 
-export function remove(name, rowId) {
+/**
+ * Collections whose rows are deleted as a matter of routine, and which must
+ * therefore NOT be written to the ledger.
+ *
+ * Everything else is recorded, including any collection added later. That
+ * direction is deliberate: a new kind of record is traceable by default, and
+ * somebody has to make a case here for it not to be.
+ */
+const UNTRACKED_DELETES = new Set([
+  "pageviews",         // one row per page per day, pruned on a retention window
+  "traffic",           // the retired beacon's history
+  "notifications", "deliveries", "automationRuns", "portfolioSnapshots",
+]);
+
+/**
+ * Delete one row.
+ *
+ * IT IS WRITTEN TO THE LEDGER, AND THAT IS THE POINT OF THIS FUNCTION.
+ *
+ * The note at the top of this file has always said the ledger records "the
+ * money events and the deletions". It recorded the money events. Deletions
+ * were silent, and the consequence arrived the first time somebody asked
+ * where a document had gone: an issued Site Systems Diagnostic report,
+ * numbered and in the register, was no longer there, and the system that
+ * exists to answer "what did this say on the fourteenth" had nothing to say
+ * about it at all. Not who deleted it, not when, not whether it was ever
+ * there.
+ *
+ * A deletion is the single most consequential thing a route can do to a row,
+ * and it was the only one not written down.
+ *
+ * `by` and `why` are optional because most callers are housekeeping. Where a
+ * PERSON deletes something a client paid for, the route must pass them, and
+ * an unattributed deletion of a numbered document is now itself a finding.
+ */
+export function remove(name, rowId, { by = null, why = null } = {}) {
   const rows = collection(name);
   const idx = rows.findIndex((r) => r.id === rowId);
   if (idx === -1) return null;
   const [row] = rows.splice(idx, 1);
   tx(() => deleteRow(name, rowId));
+  if (!UNTRACKED_DELETES.has(name)) {
+    // Never let a bookkeeping failure undo a deletion that has happened, and
+    // never let it throw into a route. The delete is committed; this is the
+    // record of it.
+    try {
+      // The human-readable handle, in the order a person would recognise it.
+      // "ref" is here because the client engagements — the rows most worth
+      // being able to trace — carry their reference under that name, and the
+      // first version of this logged their internal id instead, which is the
+      // one identifier nobody can look up in the interface.
+      const label = row.number || row.ref || row.reference || row.name || row.title || row.email || rowId;
+      recordLedger("row.deleted", String(rowId), by || "unattributed",
+        `${name}: ${label}${why ? ` — ${why}` : ""}`);
+    } catch { /* the row is gone either way */ }
+  }
   return row;
 }
 
