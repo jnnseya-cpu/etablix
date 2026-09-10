@@ -184,11 +184,39 @@ const putItBack = (why) => {
 };
 
 // ------------------------------------------------- rebuild, audit, submit
+//
+// TWO STEPS, WITH DIFFERENT CONSEQUENCES, AND THAT SEPARATION IS THE POINT.
+//
+// The first version of this ran the rebuild, the audit and the search-engine
+// submission as one command and rolled the publication back if any of it
+// failed. That is right for the first two and wrong for the third: an
+// unreachable network, a proxy in the way or a rate limit at Bing would have
+// un-published a finished, passing post. The deploy script already treats
+// notification as best-effort — "the deploy itself is fine" — and this has to
+// agree with it, because a submission is an announcement about a page that is
+// already live and correct.
+//
+// So: --dry-run rebuilds and audits and sends nothing, which is the gate.
+// Then the submission runs on its own and can only warn.
 
 try {
-  run(`node backend/tools/publish.mjs${flag("no-submit") ? " --dry-run" : ""}`);
+  run("node backend/tools/publish.mjs --dry-run");
 } catch (err) {
-  putItBack(`the rebuild, the audit or the submission failed (${err.status ? `exit ${err.status}` : err.message}).`);
+  putItBack(`the rebuild or the audit failed (${err.status ? `exit ${err.status}` : err.message}).`);
+}
+
+if (flag("no-submit")) {
+  console.log("\n  --no-submit: the search engines have not been told. Run publish.mjs when you want them to be.");
+} else {
+  try {
+    run("node backend/tools/publish.mjs --no-build");
+  } catch {
+    // Never a rollback. The post is live and passing; only the announcement
+    // failed, and the next deploy announces the whole sitemap again anyway.
+    console.error("\n  The post is PUBLISHED and passing. The search-engine submission failed —");
+    console.error("  no network, a proxy in the way, or a rate limit. Nothing is rolled back.");
+    console.error("  To retry it later:  node backend/tools/publish.mjs --no-build\n");
+  }
 }
 
 // ------------------------------------------------------------------ commit
