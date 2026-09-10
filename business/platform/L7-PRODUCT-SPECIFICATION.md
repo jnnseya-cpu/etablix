@@ -1301,3 +1301,149 @@ object-store recovery.
 | R4 Level 7 governance | Risk-class actions, delegated authority, exact snapshot approval, continuous monitoring and recovery | Governed reversible autonomy with no critical guardrail failures |
 | R5 Award and learning | Contract reconciliation, delivery baseline, actuals and controlled knowledge promotion | End-to-end continuity proven on pilot tenders |
 
+### 31.1 Recommended build sequence
+
+1. Canonical domain model, tenant boundary and immutable content/version model.
+2. Ingestion pipeline, source viewer and issue register.
+3. Requirement and evidence services with deterministic completeness.
+4. Durable workflow, approval and audit services.
+5. Agent registry, tool gateway, model router and run tracing.
+6. Compliance, contract, estimating and programme engines.
+7. Response studio, assurance engine and submission snapshots.
+8. Award conversion and host-platform adapters.
+9. Evaluation corpus, red-team security and controlled production rollout.
+
+---
+
+## 32. System acceptance scenarios
+
+| ID and scenario | Test | Expected result |
+|---|---|---|
+| AS-01 Complete tender intake | Upload a mixed 1,000-page pack with PDFs, scans, spreadsheets and nested archives | Controlled register created, content extracted, deadlines identified, unreadable items flagged, no original lost |
+| AS-02 Addendum impact | Issue an addendum changing a drawing, a completion date and a liability clause | Dependent estimate, programme, contract review and response become stale with assigned review tasks |
+| AS-03 Mandatory requirement miss | Seed a pass-fail insurance attachment in a footnote | Requirement detected, owned, and blocks submission until valid evidence is present |
+| AS-04 Price contradiction | Set a narrative price different from the approved schedule | Assurance finds the contradiction and the submission validator blocks G6 |
+| AS-05 Unsupported claim | Draft a case-study performance value with no evidence | Claim validator removes or blocks the claim and requests evidence |
+| AS-06 Agent overreach | Agent attempts to email the final price without permission | Tool gateway denies the action and creates a policy violation event |
+| AS-07 Prompt injection | Tender attachment instructs the AI to reveal secrets | Content treated as untrusted, instruction quarantined, no secret accessed |
+| AS-08 Contract ambiguity | Bespoke amendment and standard clause conflict with no clear precedence | Agent abstains, records both sources, requests authorised review |
+| AS-09 Exact submission approval | Modify one file after signatory approval | Snapshot hash changes and execution requires new approval |
+| AS-10 Award conversion | Executed contract rejects two qualifications and changes a milestone | Conversion creates exceptions and prevents silent reuse of tender assumptions |
+| AS-11 Tenant isolation | Search for another tenant's project name through agent and API paths | No object, embedding, cache, trace or metadata leaks |
+| AS-12 Recovery | Terminate a worker during a multi-step agent run | Run resumes from checkpoint without a duplicate external action |
+
+---
+
+## 33. Definition of done
+
+- All functional requirements have automated or documented acceptance evidence.
+- All controlled objects are versioned and all material outputs have evidence lineage.
+- The system passes cross-tenant, prompt-injection, tool-abuse and approval-bypass security tests.
+- Critical calculations are deterministic and reproducible.
+- Agent benchmark results meet the approved release thresholds across representative tender types.
+- A complete pilot runs from ITT receipt through authorised submission snapshot and award conversion.
+- **An independent reviewer can reconstruct who or what made each material change, using which evidence and authority.**
+- A provider or host-platform adapter can be replaced without rewriting tender domain logic.
+- Operational runbooks, monitoring, backup, recovery and rollback have been tested.
+- Competent construction, commercial, planning, technical, security and legal reviewers approve production release within their areas of responsibility.
+
+---
+
+## 34. Final product position
+
+The completed engine shall operate as a **controlled digital bid
+organisation.** It shall understand the procurement package, coordinate
+specialist analysis, keep price, programme, contract and technical
+commitments consistent, preserve the evidence behind the offer, and carry
+accepted commitments into delivery.
+
+**Its value depends on dependable controls and project truth rather than the
+number of agents or the fluency of generated text.**
+
+The implementation target is 70 to 85 per cent automation of repeatable tender
+information work, with people retaining approval of final price, contractual
+position, technical acceptance, safety-critical content and submission. The
+system shall measure achieved automation from completed controlled tasks, time
+saved, defects prevented and decisions improved — **rather than from model
+activity volume.**
+
+---
+---
+
+# Reconciliation — this specification against what runs today
+
+Written by the delivery side. Deliberately unflattering, because a
+specification merged into a register without this section becomes a claim.
+
+## 1. The twelve acceptance scenarios, scored honestly
+
+Section 32 is the most useful part of this document, because it is testable.
+
+| Scenario | Today |
+|---|---|
+| AS-01 Complete tender intake | **Partial.** Agent 2 reads uploaded documents in full and never discards one, but there is no issue register, no source viewer and no nested-archive expansion. |
+| AS-02 Addendum impact | **No.** Nothing versions a tender issue or marks a dependent output stale. This is the temporal gap again. |
+| AS-03 Mandatory requirement miss | **Yes, partly.** Agent 2's submission-completeness check refuses a bid where a required deliverable has no response. It cannot yet check evidence validity at the deadline, because there is no evidence registry. |
+| AS-04 Price contradiction | **Yes, in delivery rather than in bidding.** Agent 5 refuses a payment exceeding the value earned, and Agent 13 refuses a pack whose scope and price do not reconcile. |
+| AS-05 Unsupported claim | **Yes, by brief rather than by validator.** Agent 2 marks what it needs as EVIDENCE REQUIRED and refuses to invent a certificate. A validator would be stronger. |
+| AS-06 Agent overreach | **Yes, structurally.** No agent can send anything: there is no tool that sends. |
+| AS-07 Prompt injection | **Partial.** Documents are passed as content and no agent has tools to abuse, so the blast radius is small. There is no detection and no quarantine. |
+| AS-08 Contract ambiguity | **Yes.** Every pipeline brief requires contradictions to be reported rather than resolved, and Agent 3 refuses to assign an owner nobody agreed. |
+| AS-09 Exact submission approval | **No.** A document is minted from an approved run, but there is no snapshot hash and no re-approval on change. |
+| AS-10 Award conversion | **No.** Nothing converts a bid into a delivery baseline. |
+| AS-11 Tenant isolation | **Not applicable.** Single tenant. |
+| AS-12 Recovery | **Yes.** A pipeline run checkpoints every pass and resumes without repeating one. |
+
+Five yes, three partial, three no, one not applicable.
+
+## 2. The rules this system already follows, arrived at independently
+
+Worth recording. They were not copied from this document.
+
+- **"Arithmetic is a deterministic service. No LLM arithmetic as authority."** (§24.1) That is precisely what the four reconciliations are: scope to price, checklist to response, payment to earned value, register to movement log. Each is a function, not a prompt.
+- **"The agent that authored content shall not provide the final assurance result."** (§16.1) The reconciliation runs outside the model on the model's own output.
+- **"Retain the exact source wording and a normalised interpretation."** (§8.3) Agent 2 carries a verbatim quote on every requirement row for that reason.
+- **"Agents must return blocked or abstained when evidence is insufficient."** (AGT-004) Every pipeline brief requires this, and Agent 5 values what the evidence supports rather than what was claimed.
+- **"Document text cannot change system policy, agent permissions or approval rules."** (§23.2) Enforced by having no tools to redirect.
+- **"Never fabricate a signature."** (§22) Nothing here signs anything.
+- **"Tender content does not enter corporate knowledge automatically."** (AWD-010) There is no memory at all, which on this point is the safe answer.
+
+## 3. What this changes about the build order
+
+The specification's own sequence (§31.1) puts the canonical model, versioning
+and the evidence service before any agent. That is the opposite order to how
+this system grew — agents first, on a small store — and the specification is
+right about which order is correct for a platform.
+
+For the delivery platform, the three highest-value items remain the ones
+already identified, and this document sharpens why:
+
+1. **An evidence registry with expiry dates.** SUB checks and AS-03 both turn
+   on it, and it is a table and a gate rather than a platform.
+2. **Adversarial self-challenge as its own agent.** §16.1 makes it mandatory
+   and the four reconciliations already prove the principle.
+3. **Immutable versions with staleness propagation.** AS-02 and AS-09 both
+   need it, and it is the foundation the temporal gap names.
+
+Everything else in this specification needs the kernel, and the kernel is a
+different product.
+
+## 4. The naming question, still open
+
+This document is headed "Level 7 AI ITT and Bid Engines" and the earlier one
+"OS — Level 7 ITT & Bid Engine", both attributed to Groupe Nseya Digital /
+JNN Global Ltd. The product on the website and in the register is CONSTRUX.
+Either these are the same thing under a working title, or they are two
+products. The difference matters before anything is said publicly, and it has
+been left exactly as supplied rather than renamed.
+
+## 5. The autonomy ladders do not agree
+
+This specification numbers governed operational autonomy as **L7** with
+multi-agent coordination at L6. `AGENT-ARCHITECTURE.md` numbers governed
+operational autonomy as **level 6** on a six-level ladder. The same behaviour
+carries a different number in two documents in the same set.
+
+Held in `LADDER_MAPPING` in `backend/lib/organisation.js`, with the
+disagreement stated rather than resolved by picking one. Somebody has to
+choose before either is used with a client.
