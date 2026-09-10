@@ -154,6 +154,9 @@ async function workPipeline(runId, agent, inputs, runBy, visualFiles = [], resum
       // reason: the bid file prints the result the desk approved against
       // rather than a second one worked out later from the same text.
       ...(r.bidCheck ? { bidCheck: r.bidCheck } : {}),
+      // Agent 5's payment reconciliation, for the same reason again: the
+      // certificate prints the result the desk approved against.
+      ...(r.controlCheck ? { controlCheck: r.controlCheck } : {}),
       status: "awaiting_approval",
       finishedAt: Date.now(),
       passesHeld: [],

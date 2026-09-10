@@ -210,11 +210,23 @@ export const AI_AGENTS = [
   {
     id: "controls",
     name: "Agent 5 — Project Controls",
-    inputs: ["Baseline programme and daily reports", "Delivery records and workforce information", "Supplier, design and procurement status"],
-    outputs: ["Progress update proposal", "Two- and six-week lookaheads", "Delay warnings and milestone forecasts", "Constraint register, recovery-plan options and decision list"],
-    boundary: "The Planner or Project Manager accepts or rejects every proposed update.",
-    backing: ["veryx", "construx"],
-    desk: "Schedule Health Scan and Risk Triage run live on the VERYX agent console; CONSTRUX telemetry joins when its token is connected.",
+    inputs: [
+      "The baseline programme and the budget at award, by package or control account",
+      "Progress this period — daily reports, delivery records, inspection records, supplier updates, with what is measured separated from what is somebody's word",
+      "Applications for payment received, each with the DATE it was received, and last month's report so the control account numbers do not change",
+      "Change instructed, notified and claimed; the commercial terms that govern the money; and the reserve, receivables and committed orders for the exposure test",
+    ],
+    outputs: [
+      "The position at period end, and whether the completion date still holds",
+      "Earned value by control account with SPI and CPI, every figure carrying the class of evidence it rests on",
+      "Change control register, and what the unvalued change will cost to leave another month",
+      "The valuation: gross and net assessed sums, every deduction named and reasoned in the words that go in the payment notice",
+      "Payment recommendations by supplier, each measured against a control account and each carrying its due date, final date and pay-less deadline",
+      "Cost forecast and outturn, the cash and exposure position against the reserve, and the decisions required with their dates",
+    ],
+    boundary: "Decision support and a recommendation, not a certificate. Under Model 02 the client contracts and pays every supplier directly — ETABLIX never holds supply-chain money — so it recommends and the client pays, by a named person with delegated authority. It values what the evidence supports rather than what was claimed, and says on the row which. It does not instruct change, settle a claim, agree an extension of time or overwrite the baseline.",
+    backing: ["llm"],
+    desk: "The monthly deliverable a Management Integrator fee buys, produced on the twenty-fifth for the life of the appointment — fourteen times on a sixty-week job. Value earned is written BEFORE the payment recommendations, and the system then reconciles the two: a payment against a control account nobody measured, or a payment exceeding the value earned on it, stops the report being issued. Every application's due date, payment-notice deadline, final date and pay-less deadline are computed rather than described, because a missed notice makes the sum applied for payable in full. An approved run becomes a numbered MCR report.",
   },
   {
     id: "siteops",

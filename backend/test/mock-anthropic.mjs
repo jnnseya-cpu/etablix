@@ -30,7 +30,7 @@ const TRUNCATE = process.env.MOCK_TRUNCATE || "";
 const log = [];
 const sec = (n, t, body) => `## ${n} · ${t}\n${body}`;
 
-function answer(task) {
+export function answer(task) {
   if (/Reply with exactly/.test(task)) return "ETABLIX AI online";
 
   // AGENT 2 FIRST OF ALL, and the reason is the same one the note below
@@ -45,6 +45,32 @@ function answer(task) {
   // and every deadline an actual date. The completeness check is what decides
   // whether a bid may be submitted, so a mock that did not reconcile would
   // make every test run report a failure that was the mock's fault.
+  // AGENT 5 — the monthly control report. Matched before everything else for
+  // the same reason as Agent 2: its passes say "of the monthly control
+  // report", and a wrong match puts another product's content in the right
+  // numbered field, where it looks correct.
+  //
+  // The earned value and the payment recommendations below deliberately
+  // reconcile: three control accounts, three payments, each measured against
+  // an account that exists, none exceeding what that account earned, and
+  // every statutory date computed and in the right order. The reconciler
+  // decides whether the report may be issued, so a mock that did not
+  // reconcile would make every test run report a failure of its own making.
+  if (/CONTROL LEDGER/.test(task))
+    return "## A · CONTROL ACCOUNT REGISTER\n| Ref | Account | Package / supplier | Budget at award | Cost code |\n|---|---|---|---|---|\n| CA-1 | Compound civils | P01 / Supplier A | £900,000 | 4100 |\n| CA-2 | Welfare hire and service | P02 / Supplier B | £600,000 | 4200 |\n| CA-3 | Temporary power | P03 / Supplier C | £300,000 | 4300 |\n\n## B · WHAT THE EVIDENCE ACTUALLY SUPPORTS\n| CA | Claimed | Evidence | Class | Defensible position |\n|---|---|---|---|---|\n| CA-1 | 55% | Level survey 2026-09-28 | MEASURED | 53% |\n| CA-2 | 30% | Supplier's own email | ASSERTED | 28% |\n| CA-3 | 30% | Commissioning certificate | EVIDENCED | 30% |\n\n## C · APPLICATIONS AND THE PAYMENT TIMETABLE\n| Supplier | Applied for | Received | Due | Notice by | Final date | Pay-less by |\n|---|---|---|---|---|---|---|\n| Supplier A | £128,000 | 2026-09-15 | 2026-10-15 | 2026-10-20 | 2026-10-29 | 2026-10-22 |\n| Supplier B | £52,000 | 2026-09-15 | 2026-10-15 | 2026-10-20 | 2026-10-29 | 2026-10-22 |\n\n## D · CHANGE, AND WHAT IT HAS DONE TO THE NUMBERS\n| Ref | Change | Status | Value | CA | In budget? |\n|---|---|---|---|---|---|\n| CH-01 | Additional hardstanding | INSTRUCTED | £18,000 | CA-1 | In forecast, not budget |\n\n## E · WHERE THE RECORD CONTRADICTS ITSELF\n| CA | Position A | Position B | Affects | To settle |\n|---|---|---|---|---|\n| CA-2 | Supplier claims 30% | Inspection supports 28% | The valuation | Joint measure on site |";
+  if (/Write parts 1 and 2 of the monthly control report/.test(task))
+    return [sec(1, "Position at the end of this period", "Period 09/2026, data date 2026-09-30. The compound is 53% complete against a baseline 56%. The completion date still holds on a two-week float.\n\n| Package | Baseline | Actual | Variance |\n|---|---|---|---|\n| P01 Compound civils | 56% | 53% | -3% |"), sec(2, "Earned value by control account", "| Ref | Control account | Budget | Value earned this period | Value earned to date | SPI | CPI |\n|---|---|---|---|---|---|---|\n| CA-1 | Compound civils | £900,000 | £120,000 | £477,000 | 0.95 | 1.02 |\n| CA-2 | Welfare hire and service | £600,000 | £45,000 | £168,000 | 0.93 | 0.98 |\n| CA-3 | Temporary power | £300,000 | £30,000 | £90,000 | 1.00 | 1.00 |\n\nBasis: measured quantities at award rates. CA-2 is below 0.95 on SPI and triggers commercial review — the welfare service is behind the occupancy curve. CA-2's figure is valued at the inspected 28% rather than the 30% claimed, which is ASSERTED.")].join("\n\n");
+  if (/Write parts 3 and 4 of the monthly control report/.test(task))
+    return [sec(3, "Change control register", "| Ref | Change | Instructed by | Date | Status | Value | CA | Effect on completion |\n|---|---|---|---|---|---|---|---|\n| CH-01 | Additional hardstanding | Client PM | 2026-09-08 | INSTRUCTED | £18,000 | CA-1 | None |\n\nInstructed and valued £18,000; notified and not yet valued £0; claimed and disputed £0."), sec(4, "Valuation this period", "| CA | Earned this period | Instructed change | Not supported | Assessed |\n|---|---|---|---|---|\n| CA-1 | £120,000 | £18,000 | £0 | £138,000 |\n| CA-2 | £45,000 | £0 | £0 | £45,000 |\n| CA-3 | £30,000 | £0 | £0 | £30,000 |\n\nGross assessed this period £213,000. Cumulative £753,000. Less previously certified £540,000. Less retention at 3% £6,390. Net for this period £206,610.\n\nSupplier B applied for £52,000 against an assessed £45,000. The £7,000 difference is the 2% of progress the inspection did not support, and those are the words for the payment notice. Retention is held by the client, not by ETABLIX.")].join("\n\n");
+  if (/THE PAYMENT RECOMMENDATIONS/.test(task))
+    return sec(5, "Payment recommendations", "| Ref | Supplier | Control account | Amount recommended | Due date | Final date for payment | Pay-less by |\n|---|---|---|---|---|---|---|\n| 1 | Supplier A | CA-1 | £120,000 | 2026-10-15 | 2026-10-29 | 2026-10-22 |\n| 2 | Supplier B | CA-2 | £45,000 | 2026-10-15 | 2026-10-29 | 2026-10-22 |\n| 3 | Supplier C | CA-3 | £30,000 | 2026-10-15 | 2026-10-29 | 2026-10-22 |\n\n**Notices due before the next report.** Supplier B's payment notice by 2026-10-20, stating £45,000 and its basis — served by the client's commercial lead. Missing it makes the £52,000 applied for payable in full.\n\n**Anything earned and not recommended.** None this period.\n\n**Set-off and withholding.** Nothing withheld.\n\nETABLIX recommends; the client pays, by a named person with delegated authority. This is not a certificate under the appointment.");
+  if (/Write parts 6 and 7 of the monthly control report/.test(task))
+    return [sec(6, "Cost forecast and outturn", "| CA | Budget | Committed | Spent | Forecast to complete | Outturn | Variance |\n|---|---|---|---|---|---|---|\n| CA-1 | £900,000 | £918,000 | £477,000 | £441,000 | £918,000 | -£18,000 |\n\nBasis: remaining measured work at award rates. The three most likely to move are CA-1 on ground conditions, CA-2 on occupancy, CA-3 on the grid connection date."), sec(7, "Cash flow, exposure and reserve", "| Month | Committed payments | Confirmed receivables | Reserve |\n|---|---|---|---|\n| 2026-10 | £206,610 | £240,000 | £150,000 |\n\nThe exposure test passes: committed exposure £206,610 against receivables plus reserve of £390,000, and the reserve covers next month's forecast of £198,000.")].join("\n\n");
+  if (/Certificate, decisions required and the audit trail/.test(task))
+    return sec(8, "Certificate, decisions required and the audit trail", "**Decisions required this month.**\n\n| Decision | By | If not |\n|---|---|---|\n| Serve Supplier B's payment notice at £45,000 | 2026-10-20 | The £52,000 applied for becomes payable in full |\n| Joint measure of CA-2 on site | 2026-10-10 | Next month's valuation rests on assertion again |\n\n**Notices and deadlines.** Payment notices by 2026-10-20; pay-less by 2026-10-22; final date for payment 2026-10-29.\n\n**The audit trail.** Data date 2026-09-30. CA-2 valued at the inspected position rather than the claimed one; the contradiction is open.\n\n**Valuation certificate.** Gross £213,000, net £206,610. Every payment recommended is measured against a control account and does not exceed the value earned on it. ETABLIX recommends and the client pays. This report is decision support and not a certificate under the appointment.");
+  if (/THE MONTH IN ONE PARAGRAPH/.test(task))
+    return "## 0 · THE MONTH IN ONE PARAGRAPH\nThe completion date still holds on two weeks of float; £195,000 of value was earned and £195,000 is recommended for payment across three suppliers, net £206,610 after change and retention; the largest movement is £18,000 of instructed hardstanding on CA-1, which is in the forecast and not the budget; the exposure test passes; and Supplier B's payment notice must be served by 2026-10-20 or the £52,000 they applied for becomes payable in full against an assessed £45,000.\n\n## A · Traceability and open items\n| Rec | Supplier | CA | Earned this period | Recommended | Evidence class |\n|---|---|---|---|---|---|\n| 1 | Supplier A | CA-1 | £120,000 | £120,000 | MEASURED |\n| 2 | Supplier B | CA-2 | £45,000 | £45,000 | ASSERTED, valued down |\n| 3 | Supplier C | CA-3 | £30,000 | £30,000 | EVIDENCED |";
+
   if (/BID WORKING PAPER/.test(task))
     return "## A · THE INVITATION, IDENTIFIED\n| Document | Ref | Rev | Date | For |\n|---|---|---|---|---|\n| Invitation to tender | ITT-2026-114 | C | 2026-08-28 | Pricing |\n| Conditions of contract | CC-114 | A | 2026-08-28 | Information |\n\n## B · REQUIREMENTS REGISTER\n| Ref | Requirement | Verbatim | Source | Type | Clear? |\n|---|---|---|---|---|---|\n| RQ-1 | Method statement | \"The Tenderer shall submit a method statement of no more than six pages.\" | ITT 4.2 | Mandatory | Clear |\n| RQ-2 | Priced schedule | \"Prices shall be submitted on the Employer's pricing template.\" | ITT 5.1 | Mandatory | Clear |\n| RQ-3 | Insurance | \"Evidence of public liability insurance of not less than £10m.\" | ITT 6.4 | Mandatory | AMBIGUOUS |\n\n## C · WHAT MUST BE RETURNED, AND BY WHEN\n| Deliverable | RQ | Format | Limit | Deadline as written | Where |\n|---|---|---|---|---|---|\n| Method statement | RQ-1 | PDF | 6 pages | \"by 12:00 on 15 September 2026\" | Portal |\n\n## E · WHAT THE DOCUMENTS DO NOT SAY\n| Ref | Missing | Prevents | Clarification or risk |\n|---|---|---|---|\n| OI-01 | Whether insurance is per claim or in aggregate | RQ-3 compliance | Clarification |";
   if (/Write parts 1 and 2 of the bid file/.test(task))
@@ -143,6 +169,22 @@ function answer(task) {
     return [sec(7, "HSEQ, CDM and statutory requirements", "Nothing here appoints ETABLIX as Principal Contractor."), sec(8, "Programme, access and phasing requirements", "| Requirement | Date | Lead time | Latest responsible start |\n|---|---|---|---|\n| S278 | 2027-04-06 | 22 weeks | PASSED |"), sec(9, "Commercial requirements", "Payment provisions to comply with Part II of the 1996 Act.")].join("\n\n");
   if (/Evaluation model/.test(task))
     return [sec(10, "Evaluation model", "| Criterion | Weighting | Evidence |\n|---|---|---|\n| Price | 40% | Pricing schedule |"), sec(11, "Contract strategy and terms schedule", "| Risk | Carried by | Why |\n|---|---|---|\n| Ground | Client | No GI exists |"), sec(12, "Tender document register and issue plan", "| Document | Rev | Status | For |\n|---|---|---|---|\n| Requirements | A | Issue | Pricing |")].join("\n\n");
+  // AGENT 11's FINAL, BEFORE AGENT 9's, and this is the collision the mock's
+  // own notes warn about — found by backend/test/mock.test.mjs rather than by
+  // anybody reading it.
+  //
+  // Both agents produce a requirements package, so both head their final
+  // section "REQUIREMENTS SUMMARY IN ONE PARAGRAPH". Both headings are
+  // correct for their product. The mock matched that phrase once, so since
+  // Agent 11 was built its final pass has been served AGENT 9's content —
+  // twelve packages and an S278 access date, in a workforce village report —
+  // and the tests passed, because a final pass is checked for having section
+  // 0 and an appendix rather than for what is in them.
+  //
+  // So the match is on the words that differ, not on the heading they share.
+  if (/peak bed requirement and the total bed-nights/.test(task))
+    return "## 0 · REQUIREMENTS SUMMARY IN ONE PARAGRAPH\n211 beds at peak and 87,800 bed-nights on a five-night basis; the site takes 240 beds, so capacity holds, but the fire strategy and the planning determination are both unresolved and the second sets the earliest occupation date.\n\n## A · Requirement traceability and open items\n| Requirement | Source ref | Client mandate or proposal |\n|---|---|---|\n| VG-01 | Acoustic separation, BS 8233 | ETABLIX proposal |\n| VG-02 | Fire strategy | SAFETY-CRITICAL — competent person and fire authority |";
+
   if (/REQUIREMENTS SUMMARY IN ONE PARAGRAPH/.test(task))
     return "## 0 · REQUIREMENTS SUMMARY IN ONE PARAGRAPH\nTwelve packages, and the S278 access date has already passed its latest responsible start.\n\n## A · Requirement traceability and open items\n| Requirement | Source ref | Client mandate or proposal |\n|---|---|---|\n| R-01 | RS-01 | Client mandate |";
 
@@ -160,7 +202,7 @@ function answer(task) {
   return "## 0 · FINDINGS IN ONE PARAGRAPH\nThe access date is undeliverable because three consents that must precede it have not been applied for.\n\n## A · Document reconciliation ledger\n| Statement A | Source | Statement B | Source |\n|---|---|---|---|\n| Two-shift from Jan 2028 | Input 1 | Condition 14 prohibits it | Input 7 |";
 }
 
-http.createServer((req, res) => {
+const server = http.createServer((req, res) => {
   let b = "";
   req.on("data", (c) => (b += c));
   req.on("end", async () => {
@@ -248,4 +290,18 @@ http.createServer((req, res) => {
     ev("message_stop", {});
     res.end();
   });
-}).listen(PORT, () => console.log(`mock anthropic (SSE) on ${PORT}` + (FAIL ? ` — failing every call: ${FAIL}` : "")));
+});
+
+/**
+ * The listener starts only when this file IS the command being run.
+ *
+ * backend/test/mock.test.mjs imports answer() to drive the reply chain
+ * directly — which is the only way to prove that each agent's pass reaches
+ * the reply written for it, rather than reading the chain and hoping. An
+ * import that also bound a port would make that test fight whatever else is
+ * using 4199.
+ */
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMain) {
+  server.listen(PORT, () => console.log(`mock anthropic (SSE) on ${PORT}` + (FAIL ? ` — failing every call: ${FAIL}` : "")));
+}

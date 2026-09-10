@@ -22,9 +22,11 @@ import * as VR from "./pipelines/village-requirements.js";
 import * as PR from "./pipelines/procurement.js";
 import * as TP from "./pipelines/tender-pack.js";
 import * as BR from "./pipelines/bid-response.js";
+import * as CR from "./pipelines/control-report.js";
 import { splitPipelineOutput } from "./sections.js";
 import { reconcileScopeToPrice, packNotes } from "./tenderpack.js";
 import { reconcileChecklistToResponse, bidNotes } from "./bidcheck.js";
+import { reconcilePaymentsToEarned, controlNotes } from "./controlcheck.js";
 
 const DEFAULT_MODEL = "claude-opus-5";
 
@@ -355,21 +357,18 @@ Boundary: no supplier appointment or payment ever happens on your recommendation
       { name: "budget", label: "Budget / target price and contract conditions (optional)", type: "textarea" },
     ],
   },
+  // Agent 5 is a PIPELINE now, and it does a bigger job than it used to.
+  //
+  // It was programme controls only: lookaheads, delay warnings and a decision
+  // list, with no valuation anywhere in it. Model 02 sells "monthly
+  // valuations and payment recommendations against evidenced Earned Value",
+  // and earned value IS the bridge between the programme and the money — so
+  // an agent that measured progress without valuing it produced something
+  // nobody could pay against, and the monthly deliverable the management fee
+  // buys was written by hand every month.
   controls: {
-    system: `${COMPANY_BRIEF}
-
-You are Agent 5 — Project Controls. From the programme baseline and progress information, produce, under these exact headings:
-1. PROGRESS UPDATE PROPOSAL — activity-by-activity proposed % complete with the evidence line for each.
-2. TWO-WEEK LOOKAHEAD and 3. SIX-WEEK LOOKAHEAD — what must happen, owner, constraint.
-4. DELAY WARNINGS — activities threatening the critical path, quantified where the data allows.
-5. CONSTRAINT REGISTER — numbered; each with owner and needed-by date.
-6. RECOVERY OPTIONS — realistic options with their cost/programme trade-offs.
-7. DECISION LIST — the decisions a human must make this week, each with its deadline.
-Boundary: the Planner or Project Manager accepts or rejects every proposed update; you never overwrite the baseline.`,
-    fields: [
-      { name: "baseline", label: "Baseline programme — key activities and dates", type: "textarea", required: true },
-      { name: "progress", label: "Progress information — daily reports, delivery records, supplier updates", type: "textarea", required: true },
-    ],
+    system: `${COMPANY_BRIEF}\n\n${CR.BRIEF_SYSTEM}`,
+    fields: CR.FIELDS,
   },
   siteops: {
     system: `${COMPANY_BRIEF}
@@ -577,6 +576,18 @@ export const PIPELINE_SPECS = {
     finalTask: BR.FINAL_TASK,
     finalLabel: "Bid summary, traceability and open items",
   }),
+  // The third product with a money reconciliation in it, and the only one
+  // that runs every month for the life of an appointment. Value earned is
+  // written in its own pass BEFORE the payment recommendations, so the
+  // recommendations are constrained by the measurement rather than reconciled
+  // with it afterwards.
+  controls: pipelineSpec({
+    id: "controls",
+    reconcileTask: CR.RECONCILE_TASK,
+    sectionPasses: CR.SECTION_PASSES,
+    finalTask: CR.FINAL_TASK,
+    finalLabel: "The month in one paragraph, traceability and open items",
+  }),
 };
 export const PIPELINE_AGENTS = new Set(Object.keys(PIPELINE_SPECS));
 /**
@@ -668,6 +679,26 @@ function withBidCheck(result) {
 }
 
 /**
+ * The payment check, on every monthly control report.
+ *
+ * The third of three reconciliations and the only one with money moving on the
+ * other side of it. A payment recommended against a control account that does
+ * not appear in the earned-value section is money leaving against work nobody
+ * measured; a recommendation exceeding what that account earned is
+ * over-certification, which is recovered by set-off if the supplier is
+ * solvent and not at all if they are not.
+ */
+function withControlCheck(result) {
+  const { data } = splitPipelineOutput(result.output, CR.SECTIONS);
+  const check = reconcilePaymentsToEarned(data[CR.EARNED_SECTION] || "", data[CR.PAYMENT_SECTION] || "");
+  return {
+    ...result,
+    controlCheck: check,
+    notes: [...controlNotes(check), ...(result.notes || [])],
+  };
+}
+
+/**
  * Run one agent for real. Returns { output, model, usage }.
  *
  * A pipeline agent takes several minutes and reports progress through
@@ -697,6 +728,7 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
     });
     if (agentId === "tender-pack") return withPackCheck(result);
     if (agentId === "bid") return withBidCheck(result);
+    if (agentId === "controls") return withControlCheck(result);
     return result;
   }
 

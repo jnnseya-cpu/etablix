@@ -26,9 +26,11 @@ import { SECTIONS as VR_SECTIONS } from "../lib/pipelines/village-requirements.j
 import { SECTIONS as PR_SECTIONS } from "../lib/pipelines/procurement.js";
 import { SECTIONS as TP_SECTIONS } from "../lib/pipelines/tender-pack.js";
 import { SECTIONS as BR_SECTIONS } from "../lib/pipelines/bid-response.js";
+import { SECTIONS as CR_SECTIONS } from "../lib/pipelines/control-report.js";
 import { splitPipelineOutput } from "../lib/sections.js";
 import { packStatement } from "../lib/tenderpack.js";
 import { bidStatement } from "../lib/bidcheck.js";
+import { controlStatement } from "../lib/controlcheck.js";
 
 const router = Router();
 
@@ -131,6 +133,7 @@ export const VILLAGE_SECTIONS = VR_SECTIONS;
 export const PROCUREMENT_SECTIONS = PR_SECTIONS;
 export const TENDERPACK_SECTIONS = TP_SECTIONS;
 export const BIDRESPONSE_SECTIONS = BR_SECTIONS;
+export const CONTROLREPORT_SECTIONS = CR_SECTIONS;
 
 export const TEMPLATES = [
   {
@@ -211,6 +214,21 @@ export const TEMPLATES = [
     parts: true,
     partNoun: "Part",
     legal: "This bid file is drafted by ETABLIX against an invitation received from the client or contracting authority named in it, and adds no requirement to that invitation. THE BID OWNER APPROVES AND SUBMITS IT: nothing in it is an offer, a price or a commitment until a person with delegated authority has reviewed and signed it. No accreditation, certification, membership or project reference is claimed in it that is not evidenced in the inputs to the run it was drafted from; anything an answer needs and does not have is marked EVIDENCE REQUIRED and carried as an open item in Part 8. ETABLIX is not a main contractor and does not tender for the design, construction or commissioning of the permanent asset. Where an invitation would place a CDM 2015 duty holder role on ETABLIX the role is named rather than accepted: those duties are taken only by explicit, priced and insured appointment. It is a drafting service and not legal advice — a liability cap, an indemnity or a payment mechanism is flagged for a construction solicitor rather than settled.",
+  }),
+  // The monthly control report. Its parts print separately for a different
+  // reason from the other two: the client's commercial team reads the
+  // valuation and the payment recommendations, and their board reads the
+  // position and the forecast. Sending eight parts to both is how neither
+  // reads any of it.
+  PIPELINE_TEMPLATE({
+    id: "control", prefix: "MCR", name: "Monthly control report",
+    documentTitle: "Monthly control report",
+    description: "Agent 5's eight parts: the position at period end, earned value by control account, change control, the valuation, the payment recommendations with their statutory dates, the cost forecast, cash and exposure, and the certificate with the decisions required. Produced every month for the life of a Model 02 or Model 03 appointment. Draft it from an approved Agent 5 run.",
+    sections: CR_SECTIONS,
+    summaryLabel: "The month in one paragraph",
+    appendixLabel: "Appendix A — traceability and open items",
+    parts: true,
+    legal: "This report is decision support and a recommendation. Under the Management Integrator model the client contracts directly with every supplier and pays them directly — ETABLIX never holds supply-chain money — so ETABLIX RECOMMENDS AND THE CLIENT PAYS, by a named person with delegated authority. It is not a certificate under any contract unless the appointment expressly says it is, and it does not say so by default. Every sum recommended for payment is measured against a control account and does not exceed the value earned on it; that reconciliation is performed by the system on every run and printed in Part 8. Every figure resting on assertion rather than measurement says so on its own row. Nothing in it instructs change, settles a claim, agrees an extension of time or overwrites the baseline. Where a position is significant legal exposure — a withholding, a set-off, a claim or a termination — it is flagged for the client's construction solicitor rather than settled.",
   }),
   {
     id: "sitereq", prefix: "SMR", name: "Site Management Requirements Package",
@@ -658,6 +676,9 @@ router.get("/from-run/:id", requireAuth, deliveryFinance, (req, res) => {
       // left in the run notes — so it is on the record that the submission
       // was checked before it was sent, and by what.
       ...(run.bidCheck ? { packStatement: bidStatement(run.bidCheck) } : {}),
+      // The month's payment reconciliation, printed on the certificate so the
+      // client can see that the money was checked and against what.
+      ...(run.controlCheck ? { packStatement: controlStatement(run.controlCheck) } : {}),
       project: String(run.inputs?.project || run.title || "").slice(0, 300),
       client: String(run.inputs?.client || "").slice(0, 300),
       // The date the ten days run from, captured when the engagement
@@ -869,7 +890,9 @@ router.delete("/:id", requireAuth, admin, (req, res) => {
  * direction of travel to the person reading it.
  */
 function checkHeading(doc) {
-  return doc.template === "bidfile" ? "Completeness check" : "Issue check";
+  if (doc.template === "bidfile") return "Completeness check";
+  if (doc.template === "control") return "Payment check";
+  return "Issue check";
 }
 
 function headingFor(doc) {
@@ -908,6 +931,7 @@ export const splitVillage = (output) => splitPipelineOutput(output, VILLAGE_SECT
 export const splitTenderEval = (output) => splitPipelineOutput(output, PROCUREMENT_SECTIONS);
 export const splitTenderPack = (output) => splitPipelineOutput(output, TENDERPACK_SECTIONS);
 export const splitBidResponse = (output) => splitPipelineOutput(output, BIDRESPONSE_SECTIONS);
+export const splitControlReport = (output) => splitPipelineOutput(output, CONTROLREPORT_SECTIONS);
 export { splitPipelineOutput };
 
 /**
@@ -926,6 +950,7 @@ export const PIPELINE_DOCUMENTS = {
   procurement: { template: "tendereval", prefix: "TEV", label: "TEV report", split: splitTenderEval },
   "tender-pack": { template: "ittpack", prefix: "ITT", label: "ITT pack", split: splitTenderPack },
   bid: { template: "bidfile", prefix: "BID", label: "bid file", split: splitBidResponse },
+  controls: { template: "control", prefix: "MCR", label: "monthly control report", split: splitControlReport },
 };
 
 /** The same map without the parser, for anything that only needs to say so. */
