@@ -120,30 +120,57 @@ the meeting was.
 
 ## The reply
 
-Short, no pitch, no ask for an introduction. The introduction was declined by
-not being answered, and asking twice would confirm the reading that this is a
-sales approach dressed as a question.
+Short, no pitch, no second ask for an introduction. The introduction was
+declined by not being answered, and asking twice would confirm the reading
+that this is a sales approach dressed as a question.
+
+**The argument is the lifecycle, not the analogy.** An earlier draft led with
+the tower crane — nobody thinks a contractor who hires cranes cannot lift. It
+is a good line and it is second best, because it argues by analogy and an
+operations director can push back on it: a crane is plant, mobilisation is
+management.
+
+What cannot be pushed back on is what actually happens on the job. **The
+temporary establishment has its own complete lifecycle — diagnose, define,
+procure, mobilise, operate, remove — and on every turnkey job it is run by the
+people delivering the permanent works, in the hours left over.** That is not a
+competence claim. It is a question about whose attention six stages and
+fifteen to twenty-five orders consume, and it is the same argument the
+cold-introduction email already makes and wins with.
+
+It also lets his own sentence be turned round rather than contradicted. He
+wrote: *if we can't mobilise a site, what confidence are we giving to deliver
+the actual works.* The honest answer is that the risk to the actual works is
+not an inability to mobilise. It is that mobilising is quietly consuming the
+people who are delivering them.
 
 > Straightest answer I've had, and more useful than a polite one. Thank you.
 >
-> The admission reading is my framing's fault rather than your reaction. If I
-> pitch it as help mobilising, of course it lands that way.
+> The admission reading is my framing's fault rather than your reaction — I
+> said that scope gets built badly, which is very nearly saying you cannot do
+> the basics. That is not what I think and it is not the argument.
 >
-> The distinction I would make: nobody thinks a contractor who hires tower
-> cranes cannot lift. The site environment is already bought in pieces — cabins
-> from one supplier, generators from another, welfare from a third. What I am
-> describing is not doing the basics for you. It is owning the interfaces
-> between fifteen orders that at the moment belong to nobody in particular.
+> Here is the argument, from what I actually watched at GE Vernova. The
+> temporary establishment has its own full lifecycle: diagnose, define,
+> procure, mobilise, operate, remove. Six stages, fifteen to twenty-five
+> orders, and on every job I priced it was being run by the same people
+> delivering the permanent works, in the hours left over. Nobody was bad at
+> it. It just was not what they were there to do, and it never got the good
+> hour of the day.
+>
+> So I would turn your sentence round. The risk to delivering the actual works
+> is not that a contractor cannot mobilise a site. It is that mobilising it is
+> quietly consuming the attention of the people who are delivering it.
+>
 > Whether that is worth buying is a fair question. Whether buying it is an
-> admission, I think, depends on who is selling it and how.
+> admission — nobody thinks a contractor who hires tower cranes cannot lift.
 >
 > One read I would value and then I will leave it alone: does the same
 > objection hold on a workforce village, or on four sites mobilising in the
-> same quarter? Those feel different to me — one is a specialism nobody claims
-> as core, the other is a capacity problem rather than a competence one.
->
-> If it holds there too, then the answer to my original question is that main
-> contractors are not the buyer, and that is worth knowing now.
+> same quarter? One is a specialism nobody claims as core, the other is
+> capacity rather than competence. If it holds there too, then the answer to
+> my original question is that main contractors are not the buyer, and that is
+> worth knowing now.
 >
 > Either way, appreciated.
 
@@ -194,4 +221,4 @@ by describing the deliverable better.
 
 | Objection | What it really is | Answer |
 |---|---|---|
-| "It would be seen as us not being able to do the basics" | Reputation, not capability. Almost always raised by operations, rarely by commercial. | Do not argue that it would not be seen that way — you cannot know their client. Move to a case where the reading does not arise: the concurrent peak, the village, the recovery, or pre-award. And name the tower crane. |
+| "It would be seen as us not being able to do the basics" | Reputation, not capability. Almost always raised by operations, rarely by commercial. | Never argue that it would not be seen that way — you cannot know their client. Go to the lifecycle instead: the temporary establishment has six stages of its own and they are being run in the hours left over by the people delivering the permanent works. That is about whose attention it consumes, and it concedes nothing. Then move to a case where the reading does not arise at all — the concurrent peak, the village, the recovery, or pre-award. |
