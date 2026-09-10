@@ -20,11 +20,16 @@
 #     IT BEFORE ANYTHING IS SWITCHED, refusing to swap if it does not answer;
 #   · it records the previous image, so ./rollback.sh is one command.
 #
-# Install (as root) — three lines, and it is done:
+# Install (as root) — two lines, and it is done:
 #
-#   cp deploy/autodeploy.sh /opt/etablix-autodeploy.sh && chmod +x /opt/etablix-autodeploy.sh
-#   echo '*/5 * * * * root flock -n /run/etablix-deploy.lock /opt/etablix-autodeploy.sh' > /etc/cron.d/etablix-autodeploy
-#   /opt/etablix-autodeploy.sh --status
+#   echo '*/5 * * * * root flock -n /run/etablix-deploy.lock /opt/etablix/deploy/autodeploy.sh' > /etc/cron.d/etablix-autodeploy
+#   /opt/etablix/deploy/autodeploy.sh --status
+#
+# CRON POINTS AT THE SCRIPT INSIDE THE REPOSITORY, deliberately. The earlier
+# instruction copied it to /opt first, and that copy then went stale — cron
+# kept running yesterday's dispatcher while the repository moved on, so a
+# change to the defaults here reached nobody. Run it where it lives and every
+# deploy updates it.
 #
 # THE SCRIPT ALONE DOES NOTHING until that cron entry exists. Changing a
 # default in a file that nothing runs is the failure this note exists to stop.
@@ -36,8 +41,24 @@
 set -euo pipefail
 [ -f /etc/default/etablix ] && . /etc/default/etablix
 
-HERE=$(cd "$(dirname "$0")" && pwd)
+# WHERE THE OTHER SCRIPTS ARE.
+#
+# NOT "next to this file". A copy of this script placed at /opt looked for its
+# siblings at /opt/deploy.sh and /opt/staging.sh — paths nobody had ever
+# created — and failed with a message naming a location that appears nowhere in
+# the repository, which is about the least helpful way a script can break.
+#
+# So the repository is located explicitly, and only falls back to looking
+# beside this file when that fails.
 REPO=${ETABLIX_REPO:-/opt/etablix}
+BESIDE=$(cd "$(dirname "$0")" && pwd)
+if [ -x "$REPO/deploy/deploy.sh" ]; then
+  SCRIPTS="$REPO/deploy"
+elif [ -x "$BESIDE/deploy.sh" ]; then
+  SCRIPTS="$BESIDE"
+else
+  SCRIPTS=""
+fi
 PAUSE=${ETABLIX_PAUSE_FILE:-/var/lib/etablix/pause-deploy}
 LOG=${ETABLIX_LOG:-/var/log/etablix-deploy.log}
 TARGET=${ETABLIX_AUTODEPLOY_TARGET:-live}
@@ -49,6 +70,12 @@ if [ "${1:-}" = "--status" ]; then
   echo "auto-deploy:  $([ "$ENABLED" != "0" ] && echo ON || echo "OFF (ETABLIX_AUTODEPLOY=0)")"
   echo "target:       $TARGET"
   echo "repository:   $REPO"
+  if [ -n "$SCRIPTS" ]; then
+    echo "scripts:      $SCRIPTS"
+  else
+    echo "scripts:      NOT FOUND — no deploy.sh under $REPO/deploy or $BESIDE."
+    echo "              Set ETABLIX_REPO in /etc/default/etablix to the checkout."
+  fi
   if [ -f "$PAUSE" ]; then
     echo "paused:       YES — $PAUSE exists, nothing will deploy until it is removed"
   else
@@ -56,9 +83,13 @@ if [ "${1:-}" = "--status" ]; then
   fi
   if [ -f /etc/cron.d/etablix-autodeploy ]; then
     echo "cron:         installed — $(cat /etc/cron.d/etablix-autodeploy)"
+    if grep -q '/opt/etablix-autodeploy.sh' /etc/cron.d/etablix-autodeploy 2>/dev/null; then
+      echo "              WARNING: it runs a COPY at /opt, which goes stale. Point it at the"
+      echo "              repository instead: $REPO/deploy/autodeploy.sh"
+    fi
   else
     echo "cron:         NOT INSTALLED — nothing runs this script, so nothing deploys."
-    echo "              echo '*/5 * * * * root flock -n /run/etablix-deploy.lock /opt/etablix-autodeploy.sh' > /etc/cron.d/etablix-autodeploy"
+    echo "              echo '*/5 * * * * root flock -n /run/etablix-deploy.lock $REPO/deploy/autodeploy.sh' > /etc/cron.d/etablix-autodeploy"
   fi
   if [ -d "$REPO/.git" ]; then
     echo "live commit:  $(cd "$REPO" && git rev-parse --short=12 HEAD 2>/dev/null || echo unknown)"
@@ -74,7 +105,13 @@ fi
 # Off only if somebody deliberately turned it off.
 [ "$ENABLED" = "0" ] && exit 0
 
+if [ -z "$SCRIPTS" ]; then
+  echo "etablix autodeploy: no deploy.sh found under $REPO/deploy or $BESIDE — nothing deployed." >&2
+  echo "Set ETABLIX_REPO in /etc/default/etablix to the checkout directory." >&2
+  exit 1
+fi
+
 case "$TARGET" in
-  staging) exec "$HERE/staging.sh" ;;
-  *)       exec "$HERE/deploy.sh" ;;
+  staging) exec "$SCRIPTS/staging.sh" ;;
+  *)       exec "$SCRIPTS/deploy.sh" ;;
 esac

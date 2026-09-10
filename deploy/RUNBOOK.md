@@ -60,7 +60,7 @@ Automate it:
 
 To deploy immediately rather than waiting for the next tick:
 
-    cd /opt/etablix && ./deploy.sh
+    cd /opt/etablix && ./deploy/deploy.sh
 
 The same script runs either way. It defers while a run is in flight, builds the
 image, starts a candidate container, **health-checks the candidate before
@@ -82,7 +82,7 @@ To turn auto-deploy on for a staging box:
 
 ### It deployed and the site is wrong
 
-    cd /opt/etablix && ./rollback.sh
+    cd /opt/etablix && ./deploy/rollback.sh
 
 One command. It returns to the image that was running before the last deploy.
 
@@ -202,9 +202,15 @@ and their passwords are in the source. Reach it through a tunnel:
 A push reaches the live site by itself, within five minutes. Nothing needs
 switching on. Install it once, as root:
 
-    cp deploy/autodeploy.sh /opt/etablix-autodeploy.sh && chmod +x /opt/etablix-autodeploy.sh
-    echo '*/5 * * * * root flock -n /run/etablix-deploy.lock /opt/etablix-autodeploy.sh' > /etc/cron.d/etablix-autodeploy
-    /opt/etablix-autodeploy.sh --status
+    echo '*/5 * * * * root flock -n /run/etablix-deploy.lock /opt/etablix/deploy/autodeploy.sh' > /etc/cron.d/etablix-autodeploy
+    /opt/etablix/deploy/autodeploy.sh --status
+
+**Cron points at the script inside the repository, deliberately.** The earlier
+instruction copied it to `/opt` first. That copy then went stale — cron kept
+running yesterday's dispatcher while the repository moved on — and, worse, a
+copy at `/opt` looked for its siblings at `/opt/deploy.sh` and
+`/opt/staging.sh`, paths that exist nowhere, failing with a message naming a
+location that appears nowhere in this repository. Run it where it lives.
 
 **The script alone does nothing until that cron entry exists.** Changing a
 default in a file that nothing runs is the failure that note exists to stop.
@@ -225,7 +231,7 @@ Every protection lives in `deploy.sh` and runs on every tick:
   spare name and is health-checked; a build that does not answer is refused and
   the live container is never touched.
 - **The way back is one command.** The previous image is recorded, so
-  `./rollback.sh` restores it.
+  `./deploy/rollback.sh` restores it.
 
 ### Turning it off, or aiming it elsewhere
 

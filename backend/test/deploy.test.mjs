@@ -79,5 +79,57 @@ console.log("\n--- the runbook agrees with the script\n");
   ok(/etc\/cron\.d\/etablix-autodeploy/.test(runbook), "with the cron line to install, because that is the part that does the work");
 }
 
+// --- every command the runbook tells somebody to type must exist
+console.log("\n--- the runbook's commands actually exist\n");
+{
+  // The direct cause of a whole night with nothing live: the runbook said
+  // "cd /opt/etablix && ./deploy.sh" when the file is at deploy/deploy.sh.
+  // The first command anybody types failed, and the message — "No such file
+  // or directory" — told them nothing about where the file actually was.
+  const docs = ["deploy/RUNBOOK.md", "deploy/GO-LIVE-RUNBOOK.md", "deploy/README.md"]
+    .filter((f) => fs.existsSync(path.join(root, f)));
+  const missing = [];
+  for (const doc of docs) {
+    const text = read(doc);
+    for (const m of text.matchAll(/\.\/([\w./-]+\.sh)/g)) {
+      const rel = m[1];
+      if (!fs.existsSync(path.join(root, rel))) missing.push(`${doc}: ./${rel}`);
+    }
+  }
+  ok(missing.length === 0, `every ./script.sh named in the runbooks exists at that path`, missing.join(" | "));
+  ok(/cd \/opt\/etablix && \.\/deploy\/deploy\.sh/.test(read("deploy/RUNBOOK.md")),
+     "and the deploy command names the real path");
+}
+
+// --- the dispatcher must find its siblings wherever it is run from
+console.log("\n--- auto-deploy finds the other scripts\n");
+{
+  // A copy placed at /opt looked for /opt/deploy.sh and /opt/staging.sh —
+  // paths that exist nowhere — and failed naming a location that appears
+  // nowhere in this repository.
+  ok(!/\$HERE\/(deploy|staging)\.sh/.test(auto),
+     "it does not assume its siblings sit next to wherever it was copied");
+  ok(/REPO=\$\{ETABLIX_REPO:-\/opt\/etablix\}/.test(auto) && /\$REPO\/deploy\/deploy\.sh/.test(auto),
+     "it locates the repository explicitly");
+  ok(/BESIDE=/.test(auto) && /\$BESIDE\/deploy\.sh/.test(auto),
+     "and falls back to looking beside itself, for a checkout somewhere else");
+  ok(/no deploy\.sh found under/.test(auto),
+     "and when it finds neither it says so, naming both places it looked");
+  ok(/Set ETABLIX_REPO/.test(auto), "with the one setting that fixes it");
+}
+
+// --- cron must point at the repository, not at a copy
+console.log("\n--- cron points at the repository\n");
+{
+  const cronLine = /\/opt\/etablix\/deploy\/autodeploy\.sh' > \/etc\/cron\.d\/etablix-autodeploy/;
+  ok(cronLine.test(auto), "the install line in the script runs it where it lives");
+  ok(cronLine.test(runbook), "and so does the one in the runbook");
+  ok(!/cp deploy\/autodeploy\.sh \/opt\/etablix-autodeploy\.sh/.test(auto) &&
+     !/cp deploy\/autodeploy\.sh \/opt\/etablix-autodeploy\.sh/.test(runbook),
+     "neither still tells anybody to copy it to /opt, where it goes stale");
+  ok(/WARNING: it runs a COPY at \/opt/.test(auto),
+     "and --status warns when an existing cron entry is still running the stale copy");
+}
+
 console.log(`\n=== ${pass} passed, ${fail} failed ===\n`);
 process.exit(fail ? 1 : 0);
