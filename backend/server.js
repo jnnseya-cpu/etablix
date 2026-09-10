@@ -36,6 +36,7 @@ import adminRoutes from "./routes/admin.js";
 import automationRoutes from "./routes/automation.js";
 import commercialRoutes from "./routes/commercial.js";
 import orgRoutes from "./routes/org.js";
+import l7Routes from "./routes/l7.js";
 import docsRoutes from "./routes/docs.js";
 import agentRoutes, { failOrphanedRuns, sweepRunPacks } from "./routes/agents.js";
 import paymentRoutes from "./routes/payments.js";
@@ -145,6 +146,7 @@ app.use("/api/payments", paymentRoutes); // supplier payments: certify, verify b
 app.use("/api/engagements", engagementRoutes);
 app.use("/api/reach", reachRoutes); // what the site is scoring and how many people read it, employees only
 app.use("/api/clients", clientRoutes); // client engagements: portal, checklist, decisions, automatic invoicing // NDA-gated enquiries, quotes, PO award
+app.use("/api/l7", l7Routes); // Level 7 controls, probed on every request — internal only, never public
 
 app.use("/api", (req, res) => res.status(404).json({ error: "Unknown endpoint." }));
 
