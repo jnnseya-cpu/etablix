@@ -17,12 +17,10 @@ document.querySelectorAll(".main-nav a").forEach((a) => {
   if (href === here) a.classList.add("active");
 });
 
-// First-party page-view beacon — counts only (path + referrer host),
-// no cookies and no identifiers, so no consent banner is needed.
-try {
-  const hit = JSON.stringify({ p: location.pathname, r: document.referrer || "" });
-  navigator.sendBeacon?.("/api/stats/hit", new Blob([hit], { type: "application/json" }));
-} catch {}
+// No page-view beacon. Views are counted on the server, where a reader with
+// JavaScript off is still a reader and a crawler is still a visit worth
+// knowing about. Nothing about the reader is stored either way — see
+// backend/lib/reach.js — so there is still nothing here to consent to.
 
 // Reveal-on-scroll.
 const observer = new IntersectionObserver(

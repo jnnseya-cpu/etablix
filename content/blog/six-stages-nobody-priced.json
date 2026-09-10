@@ -1,0 +1,39 @@
+{
+  "written": "2026-09-09",
+  "title": "Diagnose, define, procure, mobilise, operate, remove: the six stages of a site establishment nobody priced",
+  "seoTitle": "The Six Stages of a Site Establishment",
+  "description": "Every mobilisation runs a second project: the temporary site establishment. Its six stages, the four gaps that recur, and what they cost you.",
+  "standfirst": "Nobody is bad at this. That is the point. It gets done every time by people who are good at something else, in the hours between the things they were hired to do.",
+  "body": "six-stages-nobody-priced.html",
+  "buyer": "Operations director at a main contractor",
+  "topics": [
+    "site establishment",
+    "construction mobilisation",
+    "temporary site services",
+    "CDM 2015",
+    "construction procurement automation"
+  ],
+  "faq": [
+    {
+      "q": "Who is responsible for setting up a construction site's temporary facilities?",
+      "a": "On most projects, the main contractor, and in practice one person inside it who already has another job. The work divides into six stages — diagnose, define, procure, mobilise, operate and remove — and they are usually held by the same individual across a whole project rather than being anybody's actual role. That is not a competence problem, it is a capacity one: the stages are early, sequential and unforgiving of a late start, and they compete for attention with the permanent works at exactly the moments the project can least afford it."
+    },
+    {
+      "q": "What does a temporary site establishment actually include?",
+      "a": "Welfare and sanitary facilities, offices, drying and changing, canteen and rest facilities, temporary power and lighting, water and wastewater, data and communications, security and access control, roads and hardstanding, waste and cleaning, consumables, and where the project needs it, workforce accommodation. The legal minimum for welfare is set out in Schedule 2 of the Construction (Design and Management) Regulations 2015. The rest is a design decision, which is why two projects with the same headcount can need very different establishments."
+    },
+    {
+      "q": "Why is site establishment usually underpriced at tender?",
+      "a": "Because two of the six stages are invisible at tender. Operating cost is a monthly figure multiplied by a duration that has not been fixed yet, and removal is a line that feels like a small job at the end. Both get carried as an allowance rather than a price. The allowance survives until the duration extends or the reinstatement standard turns out to be higher than assumed, and by then it is a negotiation rather than a rate."
+    },
+    {
+      "q": "Does outsourcing site services transfer our CDM duties?",
+      "a": "No, and any arrangement that implies it does should be read again. Duties under CDM 2015 follow conduct rather than contract wording: a business that manages or controls construction work holds contractor duties whatever the paperwork calls it, and the HSE names seven duty holders in total. Two of them, principal designer and principal contractor, are appointed roles held by one organisation at a time, so they change hands only by explicit written appointment. What outsourcing can transfer is the work and the accountability for delivering it, which is a commercial matter and is priced as one."
+    },
+    {
+      "q": "What is the difference between advisory, integrator and prime delivery models?",
+      "a": "Advisory buys the thinking: strategy, technical requirements, procurement documents and evaluation, for a fixed professional fee, with every supplier contract staying with the client. The management integrator model keeps the client's contracts in place but puts one party in control of the system across the whole supply chain, so the interfaces between packages have an owner. The prime service contractor model puts single-point responsibility for the site-services system with one contractor. Prime means prime for the site-services system only. It is never the main contract, and it is never a CDM principal contractor appointment unless a specific, priced and insured appointment says so."
+    }
+  ],
+  "sources": ["cdm2015", "cdmSchedule2", "hseCdmSummary", "workplaceAcop"]
+}

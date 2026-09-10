@@ -12,6 +12,7 @@ import { collection, flush, counts, trimCapped, close as closeStore, recordLedge
 import { auditSecretStorage } from "./lib/ai.js";
 import { packBytes } from "./lib/runstore.js";
 import { startHeartbeat, stopHeartbeat, heartbeatState } from "./lib/heartbeat.js";
+import { viewCounter, startViewFlush, stopViewFlush, importLegacyTraffic } from "./lib/reach.js";
 import { requireAuth, requireRole } from "./middleware/auth.js";
 import { ROLES } from "../shared/constants.js";
 import fs from "node:fs";
@@ -40,6 +41,7 @@ import agentRoutes, { failOrphanedRuns, sweepRunPacks } from "./routes/agents.js
 import paymentRoutes from "./routes/payments.js";
 import engagementRoutes from "./routes/engagements.js";
 import clientRoutes from "./routes/clients.js";
+import reachRoutes from "./routes/reach.js";
 import { startScheduler } from "./lib/automation.js";
 import { issueChallenge } from "./lib/humancheck.js";
 import { reportError } from "./lib/alerts.js";
@@ -141,6 +143,7 @@ app.use("/api/docs", docsRoutes); // document studio: invoices, applications, PO
 app.use("/api/agents", agentRoutes); // AI-agent workforce: provider connection, runs, approvals
 app.use("/api/payments", paymentRoutes); // supplier payments: certify, verify bank, remittance
 app.use("/api/engagements", engagementRoutes);
+app.use("/api/reach", reachRoutes); // what the site is scoring and how many people read it, employees only
 app.use("/api/clients", clientRoutes); // client engagements: portal, checklist, decisions, automatic invoicing // NDA-gated enquiries, quotes, PO award
 
 app.use("/api", (req, res) => res.status(404).json({ error: "Unknown endpoint." }));
@@ -231,6 +234,17 @@ if (VERIFY_TAGS.length) {
 }
 
 /**
+ * Count the page views, before anything serves a page.
+ *
+ * Here rather than at the top of the file so it never sees an API call, and
+ * before the static handler so it sees the request that matters rather than
+ * the stylesheet, the fonts and the two scripts that follow it. Nothing about
+ * the reader is stored — see backend/lib/reach.js for exactly what a row
+ * contains, which is a date, a path and a number.
+ */
+app.use(viewCounter({ publicDir: path.join(root, "frontend", "public") }));
+
+/**
  * The blog index, before the static handler gets to it.
  *
  * frontend/public holds BOTH blog.html and a blog/ directory of posts, and
@@ -270,6 +284,9 @@ if (trimmed) console.log(`Trimmed ${trimmed} row(s) from capped collections.`);
 const swept = sweepRunPacks();
 if (swept) console.log(`Removed ${swept} orphaned run pack(s) from the disk.`);
 auditSecretStorage();
+const imported = importLegacyTraffic(); // one counter, not two: bring the retired beacon's history across
+if (imported) console.log(`Imported ${imported} page view(s) from the retired browser beacon.`);
+startViewFlush(); // page-view counts accumulate in memory; write them out once a minute
 startScheduler(); // delivery automation: scheduled sweeps, guardrails and the daily digest
 // Reports "alive" to something that is NOT this box, so that silence is the
 // alarm. Nothing on this machine can tell you the machine has stopped.
@@ -323,6 +340,12 @@ function shutdown(signal, code = 0) {
       const n = failOrphanedRuns();
       if (n) console.log(`[shutdown] ${n} run(s) marked interrupted — their completed passes are saved and can be resumed.`);
     } catch (err) { console.error("[shutdown] could not mark runs interrupted:", err.message); }
+    // The counts in memory are worth one line: they are the only state in
+    // this process that is not already in the store.
+    try {
+      const v = stopViewFlush();
+      if (v?.written) console.log(`[shutdown] ${v.written} page view(s) written out.`);
+    } catch (err) { console.error("[shutdown] could not write page views:", err.message); }
     const f = flush();
     console.log(`[shutdown] ${why}; store ${f.ok ? "flushed and readable" : "FLUSH FAILED: " + f.error}`);
     // Checkpoint the write-ahead log and close the handle, so the files on

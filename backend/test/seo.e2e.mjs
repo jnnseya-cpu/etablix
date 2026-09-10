@@ -91,5 +91,35 @@ console.log("\n--- the blog itself\n");
   }
 }
 
+// --- the counter, and the two things it must not do
+//
+// By now this suite has fetched every page in the sitemap, so if the counter
+// is mounted at all it has seen real traffic. Two properties matter more than
+// the count itself: a draft must not be reachable, and the numbers must not be
+// readable by a stranger.
+console.log("\n--- the view counter\n");
+{
+  const r = await fetch(`${BASE}/api/reach`);
+  ok(r.status === 401, `/api/reach refuses an unauthenticated reader (${r.status})`);
+  const body = await r.text();
+  ok(!/"views"/.test(body), "and leaks no numbers in the refusal");
+}
+{
+  // A page that does not exist must not create a row, because that would be
+  // an unauthenticated write from anywhere on the internet.
+  const junk = await fetch(`${BASE}/not-a-page-${Date.now()}`, { redirect: "manual" });
+  ok(junk.status === 404, `a path that is not a page still answers 404 (${junk.status})`);
+}
+{
+  // Drafts: written, in the repository, and unreachable. This is the check
+  // that a buffer of finished posts is not quietly published early.
+  const { DRAFTS } = await import("../lib/blog.js");
+  if (!DRAFTS.length) ok(true, "no drafts to check (the buffer is empty)");
+  for (const d of DRAFTS) {
+    const r = await fetch(`${BASE}/blog/${d.slug}`, { redirect: "manual" });
+    ok(r.status === 404, `the draft /blog/${d.slug} is not served (${r.status})`);
+  }
+}
+
 console.log(`\n=== ${pass} passed, ${fail} failed ===\n`);
 process.exit(fail ? 1 : 0);

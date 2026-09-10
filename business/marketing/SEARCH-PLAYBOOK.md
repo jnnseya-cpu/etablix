@@ -253,3 +253,89 @@ URL stops answering. That last one is the check that found the 404.
 Do not edit anything under `frontend/public/blog/`, `blog.html`, `sitemap.xml`
 or `llms.txt` by hand. They are generated. Edit `content/blog/` and
 `backend/lib/blog.js`, then rebuild.
+
+---
+
+## 8 · One post a day, and how to survive it
+
+A daily cadence is not a scheduling problem. Publishing costs one command.
+What breaks a daily cadence is a Tuesday when three site problems arrive at
+once and there is nothing written.
+
+So the cadence runs off a **buffer**, and the buffer is the only number that
+predicts whether it survives.
+
+| | What it is | What it is not |
+|---|---|---|
+| **Published** | Live, dated in `content/blog/schedule.json` | — |
+| **Draft** | Written, finished, in the repository, appearing nowhere | A post |
+| **Brief** | A queued idea in `PLAN`, with a buyer and an objection | A draft |
+
+The three are never added together. A queue of seventeen briefs is not
+seventeen days of runway; it is seventeen days of work not yet done. The
+Reach page and `blog-publish.mjs --status` both report them separately for
+that reason.
+
+### The daily loop
+
+```
+node backend/tools/blog-publish.mjs --status         # where the cadence stands
+node backend/tools/blog-new.mjs <slug>               # start the next brief
+#   … write it: content/blog/<slug>.html and .json
+node backend/tools/blog-publish.mjs --push           # publish the oldest draft
+```
+
+`blog-publish.mjs` does the whole act: writes today's date into the schedule,
+regenerates the index, sitemap, feed, `llms.txt` and every related-post block,
+runs the audit, submits to the engines that accept a submission, and commits.
+**If the audit fails it takes the date back out and rebuilds without the
+post**, so a post is either published and passing or not published at all.
+
+It refuses before it changes anything if the draft is under 900 words, if the
+`<title>` would be truncated, if the description is outside 70–160 characters,
+if there are fewer than three questions, or if any placeholder is still marked
+`TODO`.
+
+Write two or three at a weekend and publish one a day. That is the mechanism.
+There is no version of this where a post a day is produced by a scheduler
+without somebody writing it, and any tool that claims otherwise is producing
+the commodity content that gets ignored — by readers first, and by Google
+second.
+
+### The register
+
+Punchy is not loud. Every brief in `PLAN` names four things, and a post that
+cannot fill all four is not written:
+
+- **buyer** — the person who has to act, by their job
+- **query** — what they would actually type
+- **objection** — the reason they have not bought, which the post must meet
+- **sell** — the one thing it asks them to do next
+
+The four content rules published on `/blog` still bind: no invented
+statistics, primary sources only, no identifiable client, and we publish what
+did not work. They are what make the commercial writing believable, so a
+punchier register buys nothing if it costs any of them.
+
+---
+
+## 9 · The numbers: `/internal/reach.html`
+
+One page in the employee portal, answering both questions.
+
+- **The SEO score**, per page, from the same rubric the suite gates on, with
+  every check that lost a mark and what it says.
+- **The views**, counted on our own server. A row is a date, a path and a
+  number, plus the hostname a reader arrived from. No IP address, no browser
+  or device information, no cookie, no identifier of any kind — so **page
+  views can be reported and unique visitors cannot**, and the page says so
+  rather than implying a number it does not have.
+- **Crawler visits**, counted separately and named. The first Googlebot hit on
+  a new post is our own answer to "is it indexed yet", without asking a tool.
+- **The cadence**, and the next command to type.
+
+The browser beacon that used to do this is retired. It counted nobody with
+JavaScript off, counted no crawler at all, and was rate-limited per address —
+which silently discarded traffic from behind one corporate network, which is
+exactly who we write for. Two counters that disagree are worse than one with a
+known limitation.

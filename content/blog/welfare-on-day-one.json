@@ -1,0 +1,39 @@
+{
+  "written": "2026-09-09",
+  "title": "Welfare on day one: what CDM 2015 actually requires before the first operative arrives",
+  "seoTitle": "Site Welfare Facilities Required From Day One",
+  "description": "The legal minimum welfare facilities for a UK construction site under CDM 2015 Schedule 2, and the five places mobilisations get caught.",
+  "standfirst": "It has to be there before the first operative starts work, not once the compound is finished. That single distinction is the most common mobilisation gap we find.",
+  "body": "welfare-on-day-one.html",
+  "buyer": "Project manager mobilising a site in the next eight weeks",
+  "topics": [
+    "construction site welfare",
+    "CDM 2015",
+    "site establishment",
+    "construction mobilisation",
+    "temporary site services"
+  ],
+  "faq": [
+    {
+      "q": "What welfare facilities are legally required on a UK construction site?",
+      "a": "Schedule 2 of the Construction (Design and Management) Regulations 2015 sets the minimum: suitable and sufficient sanitary conveniences, adequately ventilated and lit and kept clean; washing facilities at every convenience and changing room with clean hot and cold or warm running water, soap and a means of drying, plus showers where the work is dirty or carries health risks; an adequate supply of wholesome drinking water, marked where necessary; changing rooms and secure storage with the means to dry clothing where special clothing is worn; and facilities for rest including the means to boil water and prepare and eat a meal, with arrangements for pregnant women and nursing mothers where necessary."
+    },
+    {
+      "q": "When do welfare facilities have to be available on site?",
+      "a": "Before construction work starts, not when the compound is complete. The work of building the compound is itself construction work, so the operatives laying the hardstanding are entitled to the same minimum list as the people who will occupy the offices weeks later. This is the gap we see most often: a correct permanent arrangement that lands three weeks after the first boots, with the intervening period improvised on site. The fix is not more money, it is treating the enabling-works period as its own arrangement with its own dates and its own servicing."
+    },
+    {
+      "q": "How many toilets does a construction site need?",
+      "a": "The regulations require facilities that are suitable and sufficient rather than a fixed ratio, which means the number is a judgement against your actual conditions: total headcount at peak rather than at week one, shift pattern and overlap, how far people have to travel to reach them, and whether the site is split across working areas. A competent person on the project should make and record that judgement, and record it again when the headcount changes materially. A schedule tied to the headcount curve is what makes the judgement defensible later."
+    },
+    {
+      "q": "Who is responsible for providing welfare facilities on a construction site?",
+      "a": "Duties run to more than one party. Under CDM 2015 a client has to take reasonable steps to ensure suitable welfare facilities are provided, and the principal contractor has to ensure they are provided and maintained throughout the construction phase. Contractors carry duties for the work they control. The Health and Safety Executive names seven duty holders in total, and the duties follow conduct rather than contract wording: a business that manages or controls construction work carries contractor duties whatever the paperwork calls it. Procuring the facilities from a supplier does not move the duty."
+    },
+    {
+      "q": "Does welfare have to be provided on a remote or linear construction site?",
+      "a": "Yes, and the practical difficulty of a remote site does not reduce the requirement, though it does change what is reasonably practicable in the specific arrangements. On a linear scheme the harder question is usually travel time: facilities that meet the standard but sit fifteen minutes from the working face are a productivity cost twice a day for every operative, and that cost is almost never measured. Mobile and relocatable arrangements exist precisely for this, and the sequencing of their moves belongs on the programme rather than in somebody's head."
+    }
+  ],
+  "sources": ["cdm2015", "cdmSchedule2", "hseWelfare", "workplaceAcop", "hseCdmSummary"]
+}

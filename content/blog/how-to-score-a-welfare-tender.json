@@ -1,0 +1,39 @@
+{
+  "written": "2026-09-10",
+  "title": "How to score a welfare tender so the cheapest bid does not win by accident",
+  "seoTitle": "How to Score a Site Welfare Tender",
+  "description": "A whole-life scoring model for a site-services package, and the four questions that separate a real bid from an optimistic one.",
+  "standfirst": "A compliance gate plus a price score awards the contract to whichever tenderer read your specification least carefully. That is arithmetic, not cynicism.",
+  "body": "how-to-score-a-welfare-tender.html",
+  "buyer": "Procurement lead running a site-services package",
+  "topics": [
+    "construction procurement automation",
+    "tender document preparation",
+    "site establishment",
+    "temporary site services",
+    "construction site welfare"
+  ],
+  "faq": [
+    {
+      "q": "What evaluation criteria should you use for a site welfare and accommodation tender?",
+      "a": "Score whole-life cost rather than capital: capital or hire, plus operating across the programmed duration, plus exit and reinstatement, all on one arithmetic basis you publish so every bidder prices the same duration and the same headcount curve. Then score deliverability against the programme, operating discipline such as servicing frequencies and response times, compliance and competence as a score rather than a pass or fail gate, and social value only where it can actually be evidenced. The weightings are a client decision and must be set and published before the bids arrive."
+    },
+    {
+      "q": "Why does the cheapest welfare bid often end up the most expensive?",
+      "a": "Because site services are priced in three parts and only one is visible at tender. Capital or hire is easy to compare and is what everybody compares. Operating cost is a monthly figure multiplied by a duration that is not fixed yet, which is where an optimistic assumption hides best. Exit, meaning off-hire, removal and reinstatement, is often absent from the bid entirely and is the hardest to argue about later because the tender is a year old by then. A bid that is cheapest on the first part and silent on the other two is not a cheaper bid, it is a shorter one."
+    },
+    {
+      "q": "What should you ask bidders that most tenders leave out?",
+      "a": "Four things, as required responses rather than as clarifications afterwards. What is your price if the duration extends by eight weeks, because programmes move and you want a rate rather than a promise to be reasonable. What is your price if peak headcount is twenty per cent higher, because the whole establishment is sized off one estimate. What is excluded, as a listed schedule, which converts the thing a bidder hoped you would not notice into a document they signed. And what does removal and reinstatement cost and to what standard, because priced at tender it is a line and priced at closeout it is a negotiation you enter without leverage."
+    },
+    {
+      "q": "How do you stop a tender pack coming back with qualified prices?",
+      "a": "Make it reconcile before it is issued. Most qualifications are caused at the define stage, when the scope and the pricing schedule are written separately: a scope item with no priced line comes back as a query, and a priced line naming a scope item that does not exist comes back as an argument. The control is mechanical rather than instructional. Every scope item carries a reference, every priced line names one, and the two sets are compared by machine before issue, with the check refusing the issue rather than warning about it. It converts a month-three dispute into a five-minute fix."
+    },
+    {
+      "q": "Do payment terms belong in a site-services evaluation?",
+      "a": "Yes, and leaving them out quietly rewards a bidder who plans to fund themselves from your supply chain. Part II of the Housing Grants, Construction and Regeneration Act 1996 sets the payment mechanism for construction contracts, so the question is not whether terms exist but who applies them without being chased. It also runs in the other direction: a good supplier deciding whether to price your work is evaluating you on exactly this, and the ones with a choice of work price the client who pays predictably more keenly."
+    }
+  ],
+  "sources": ["procurementAct", "hgcra", "cdm2015", "cdmSchedule2"]
+}

@@ -1,71 +1,51 @@
 import { Router } from "express";
-import { collection, insert, update } from "../lib/store.js";
+import { collection } from "../lib/store.js";
 import { requireAuth } from "../middleware/auth.js";
-import { rateLimit } from "../lib/ratelimit.js";
+import { summary } from "../lib/reach.js";
 
 const router = Router();
 
-// ------------------------- first-party site analytics (privacy-light)
-// One row per day: total views, views per path, views per referrer
-// host. No cookies, no IP addresses, no user identifiers stored —
-// nothing here needs a consent banner.
-
-const PATH_RE = /^\/[a-zA-Z0-9\-_/.]{0,80}$/;
-const BOT_RE = /bot|crawl|spider|slurp|preview|headless|monitor|curl|python|wget/i;
+// ------------------------- first-party site analytics
+//
+// The counting itself moved to backend/lib/reach.js, on the server. What is
+// left here is the retired beacon endpoint and the Control Desk's 30-day
+// strip, both pointed at that one counter. Still no cookies, no addresses and
+// no identifiers of any kind, so there is still nothing to consent to.
 
 /**
- * POST /api/stats/hit — public page-view beacon from the site.
+ * POST /api/stats/hit — the retired beacon.
  *
- * Public, unauthenticated, and it WRITES: each call updates the day's
- * traffic row, which rewrites the whole database file. A loop against
- * this one endpoint was therefore a way to make the server spend all its
- * time serialising JSON, from anywhere, with no account. A page view a
- * second from one address is already far more than a person browsing.
+ * It still answers, and it deliberately records NOTHING.
+ *
+ * Page views are counted on the server now, in backend/lib/reach.js, where a
+ * request is counted whether or not the reader runs JavaScript and where a
+ * crawler is counted as a crawler instead of being thrown away. Two counters
+ * disagreeing is worse than one counter with a known limitation.
+ *
+ * The endpoint is kept rather than deleted because a page cached in somebody's
+ * browser will keep calling it for weeks, and a 404 from a beacon puts a red
+ * line in a visitor's console on a marketing site. It is unauthenticated and
+ * writes nothing, so it needs no rate limit: there is nothing behind it to
+ * exhaust.
  */
-router.post("/hit", rateLimit({ name: "beacon", windowMs: 60_000, max: 60, message: "Too many beacons." }), (req, res) => {
-  res.status(204).end(); // answer immediately; never block a page on analytics
-  try {
-    if (BOT_RE.test(req.get("user-agent") || "")) return;
-    let path = String(req.body?.p || "").split("?")[0];
-    if (!PATH_RE.test(path)) return;
-    path = path.replace(/\/$/, "") || "/";
-    let referrer = "";
-    try {
-      const host = new URL(req.body?.r || "").hostname.replace(/^www\./, "");
-      if (host && !host.includes("etablix.com")) referrer = host.slice(0, 60);
-    } catch {}
-    const date = new Date().toISOString().slice(0, 10);
-    const day = collection("traffic").find((t) => t.date === date);
-    if (!day) {
-      insert("traffic", { date, total: 1, paths: { [path]: 1 }, referrers: referrer ? { [referrer]: 1 } : {} });
-    } else {
-      const paths = { ...day.paths, [path]: (day.paths[path] || 0) + 1 };
-      const referrers = referrer
-        ? { ...day.referrers, [referrer]: (day.referrers[referrer] || 0) + 1 }
-        : day.referrers;
-      update("traffic", day.id, { total: day.total + 1, paths, referrers });
-    }
-  } catch {}
-});
+router.post("/hit", (req, res) => res.status(204).end());
 
-/** GET /api/stats/traffic — last 30 days for the Control Desk. */
+/**
+ * GET /api/stats/traffic — the last 30 days, for the Control Desk strip.
+ *
+ * Served from the server-side counter so the strip and the Reach page can
+ * never show two different numbers. The response shape is unchanged, so the
+ * dashboard that reads it did not have to be rewritten to follow the counter
+ * that replaced its data source.
+ */
 router.get("/traffic", requireAuth, (req, res) => {
-  const cutoff = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
-  const days = collection("traffic")
-    .filter((t) => t.date >= cutoff)
-    .sort((a, b) => a.date.localeCompare(b.date));
-  const paths = {};
-  const referrers = {};
-  for (const d of days) {
-    for (const [p, n] of Object.entries(d.paths || {})) paths[p] = (paths[p] || 0) + n;
-    for (const [r, n] of Object.entries(d.referrers || {})) referrers[r] = (referrers[r] || 0) + n;
-  }
-  const top = (obj) => Object.entries(obj).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const s = summary({ days: 30, top: 8 });
   res.json({
-    days: days.map((d) => ({ date: d.date, total: d.total })),
-    total: days.reduce((s, d) => s + d.total, 0),
-    topPaths: top(paths),
-    topReferrers: top(referrers),
+    days: s.daily.map((d) => ({ date: d.day, total: d.views })),
+    total: s.views,
+    bots: s.bots,
+    topPaths: s.pages.map((p) => [p.page, p.views]),
+    topReferrers: s.referrers.map((r) => [r.name, r.n]),
   });
 });
 

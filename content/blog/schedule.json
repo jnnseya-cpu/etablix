@@ -1,0 +1,4 @@
+{
+  "_note": "WHEN each post went live. Data, not code, because a tool edits it every publishing day and a tool must never rewrite a source file. A post with no entry here is a DRAFT: written, in the repository, excluded from the index, the sitemap, the feed, llms.txt and every related-post block. Nothing here is a promise about a future date — an entry appears on the day the post is published, added by backend/tools/blog-publish.mjs.",
+  "ai-agents-in-construction": { "published": "2026-09-10", "updated": "2026-09-10" }
+}
