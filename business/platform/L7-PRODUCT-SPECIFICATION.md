@@ -976,3 +976,191 @@ shall quarantine that instruction and create a security finding.
 | Economics | Tokens, ACUs, processing time and external service cost |
 | Time | Trusted timestamps and sequence |
 
+---
+
+## 24. Model routing and cost control
+
+### 24.1 Routing policy
+
+| Task class | Preferred capability | Additional control |
+|---|---|---|
+| OCR and layout | Specialised document model | Page-level confidence |
+| Classification | Fast structured-output model | Schema and sample audit |
+| Contract interpretation | High-reasoning model | Clause retrieval and expert review |
+| Arithmetic | **Deterministic service** | **No LLM arithmetic as authority** |
+| Response drafting | Long-context generation model | Grounding and claim validator |
+| Red-team review | Independent high-reasoning route | Separate prompt and context |
+| Image or drawing analysis | Vision model | Competent validation |
+| Sensitive client data | Approved private route | Residency and retention policy |
+
+### 24.2 ACU controls
+
+- Estimate cost before a run and require approval above tenant thresholds.
+- Set per-run, tender, team and tenant budgets.
+- Cache only results whose source versions **and permissions** match.
+- Use smaller models for extraction and classification after benchmark qualification.
+- Stop recursive planning at a configured depth and task count.
+- Show cost by tender phase, agent, model and successful output.
+- **Do not allow budget exhaustion to produce an apparently complete but partial submission.**
+
+---
+
+## 25. Reliability and non-functional requirements
+
+| ID | Category | Requirement |
+|---|---|---|
+| NFR-001 | Availability | Core tender workspace 99.9% monthly, excluding agreed maintenance |
+| NFR-002 | Durability | No acknowledged content or approval loss; multi-zone storage where the deployment supports it |
+| NFR-003 | Recovery | Configurable RPO up to 15 minutes and RTO up to 4 hours for the enterprise tier |
+| NFR-004 | Performance | Interactive filtered views p95 below 2 seconds at normal tenant volumes |
+| NFR-005 | Ingestion | A 1,000-page mixed tender pack begins visible processing within 60 seconds |
+| NFR-006 | Scalability | Process independent documents and agent tasks horizontally with tenant fairness |
+| NFR-007 | Idempotency | A repeated event or command does not create duplicate controlled objects |
+| NFR-008 | Accessibility | Meet WCAG 2.2 AA for core workflows |
+| NFR-009 | Localisation | Unicode, locale dates, currencies, units and multilingual content |
+| NFR-010 | Observability | End-to-end trace across request, run, tool, validator, object and event |
+| NFR-011 | Portability | Deploy through documented containers and replace provider adapters |
+| NFR-012 | Data export | Tenant-controlled export of documents, metadata, events and decisions |
+| NFR-013 | Explainability | Material outputs expose evidence, assumptions, uncertainty and approval need |
+| NFR-014 | Concurrency | Optimistic locking and visible conflict resolution for controlled objects |
+| NFR-015 | Degradation | Read-only access and queued processing during a non-critical model outage |
+
+---
+
+## 26. Functional requirements
+
+### ITT ingestion
+
+| ID | Title | Requirement | Acceptance |
+|---|---|---|---|
+| ITT-001 | Multi-channel capture | Accept uploads, connected storage, authorised email and API input | Each source creates the same canonical ContentObject with channel metadata |
+| ITT-002 | Immutable originals | Retain original bytes and cryptographic hash | Exported audit proves no mutation of received content |
+| ITT-003 | Recursive archives | Expand nested archives within security limits | All safe children appear with the preserved parent path |
+| ITT-004 | Issue register | Group documents into tender issues and addenda | User can identify the current and superseded issue |
+| ITT-005 | Deadline extraction | Identify deadlines and time zones | Low-confidence or conflicting deadlines create a blocking review |
+| ITT-006 | Layout extraction | Retain paragraphs, tables, coordinates and reading order | Source viewer highlights the exact extracted span |
+| ITT-007 | Spreadsheet integrity | Preserve formulas, values, sheets and merged structures | Commercial import reports unsupported or hidden content |
+| ITT-008 | Change detection | Compare new issues to prior issues | Material dependent outputs become stale automatically |
+| ITT-009 | Malware and active content | Scan and isolate unsafe content | Unsafe content cannot reach parsers or agent tools |
+| ITT-010 | Language handling | Detect and process supported languages without losing the original text | Translation stored as derived evidence, not as a replacement |
+
+### Requirement control
+
+| ID | Title | Requirement | Acceptance |
+|---|---|---|---|
+| REQ-001 | Atomic requirements | Decompose compound requirements when independently verifiable | Each atom has one completion rule and source span |
+| REQ-002 | Mandatory classification | Identify mandatory and pass-fail requirements | Reviewer can approve or correct classification with audit |
+| REQ-003 | Scoring model | Capture evaluation weights and criteria | Response studio shows mapped criteria and available score |
+| REQ-004 | Assignment | Each active requirement has an owner before the strategy gate | Unowned mandatory requirements block the gate |
+| REQ-005 | Evidence rule | Requirements may define required evidence types and validity | Completion fails when evidence is absent or expired |
+| REQ-006 | Dependency | Link to prerequisite requirements and outputs | A blocked dependency prevents false completion |
+| REQ-007 | Status control | Transitions follow the configured state machine | Invalid direct transitions are rejected |
+| REQ-008 | Contradiction | Detect cross-response and cross-domain contradictions | Material contradiction blocks the relevant approval |
+| REQ-009 | Waiver | Only authorised roles may waive configured requirements | Waiver stores authority, reason, scope and expiry |
+| REQ-010 | Coverage export | Prove where each requirement is satisfied | Submission manifest maps each mandatory requirement to its export location |
+
+### Agent control
+
+| ID | Title | Requirement | Acceptance |
+|---|---|---|---|
+| AGT-001 | Typed run | Every agent task uses a versioned input and output schema | Malformed results fail without changing controlled state |
+| AGT-002 | Authority envelope | Every run defines allowed tools and actions | An attempt outside the envelope is denied and logged |
+| AGT-003 | Source restriction | Agents retrieve only authorised tender and corporate sources | Cross-tenant retrieval penetration test returns no data |
+| AGT-004 | Abstention | Return blocked or abstained when evidence is insufficient | Test suite confirms no fabricated completion |
+| AGT-005 | Checkpoint | Long runs persist resumable checkpoints | Worker restart resumes without duplicate actions |
+| AGT-006 | Budget | Respect ACU, token, tool and elapsed-time budgets | Budget breach stops safely and reports partial state |
+| AGT-007 | Approval pause | A run requiring a controlled action pauses for approval | No action occurs before decision for classes E and F |
+| AGT-008 | Independent assurance | Author and assurance run definitions are separable | Release records show an independent review route |
+| AGT-009 | Trace | Expose sources, actions, validators, costs and result | Auditor reconstructs the run without hidden mutable state |
+| AGT-010 | Version pinning | A controlled output identifies agent, prompt policy, model and tool versions | Regression and audit can reproduce the configuration |
+
+### Estimating
+
+| ID | Title | Requirement | Acceptance |
+|---|---|---|---|
+| EST-001 | Estimate hierarchy | Support WBS to item-level cost breakdown | Totals roll up deterministically |
+| EST-002 | Quantity lineage | Every quantity links to source or an approved manual basis | Click-through reveals source and transformation |
+| EST-003 | Rate lineage | Every rate includes effective date, location, currency and source | Stale-rate warning triggers by policy |
+| EST-004 | Quote normalisation | Compare supplier scope, exclusions and terms | Comparison retains the original quote wording |
+| EST-005 | Unit engine | Validate dimensions and conversions | Incompatible units cannot calculate silently |
+| EST-006 | Mark-up control | Apply approved mark-up order and bases | Test estimate shows no duplication |
+| EST-007 | Risk allowance | Risk value links to identified risks or approved allowance policy | Unlinked contingency is separately visible |
+| EST-008 | Cash flow | Model receipts, payments, retention and securities | Peak funding and timing are reproducible |
+| EST-009 | Scenario | Create immutable commercial scenarios | Baseline remains unchanged |
+| EST-010 | Reconciliation | Client price schedules reconcile to the approved tender total | Unexplained variance blocks G4 and G6 |
+
+### Planning
+
+| ID | Title | Requirement | Acceptance |
+|---|---|---|---|
+| PLN-001 | WBS mapping | Activities map to scope and control accounts | Unmapped material scope is reported |
+| PLN-002 | Logic validation | Detect open ends and invalid logic | Schedule quality report identifies the exact activities |
+| PLN-003 | Duration basis | Material durations reference quantity and productivity, or an assumption | Unsupported duration is visible |
+| PLN-004 | Procurement chain | Long-lead installation links to procurement and design | A missing chain creates a high finding |
+| PLN-005 | Calendars | Calendar differences are explicit | Calculated dates reproduce the source schedule |
+| PLN-006 | Resources | Test resource demand and availability | Overloads appear by period and resource |
+| PLN-007 | Commissioning | Completion includes testing and handover logic | Missing logic blocks technical approval where mandatory |
+| PLN-008 | Scenario | Recovery options preserve the approved baseline | Scenario delta shows time, cost and risk |
+| PLN-009 | Milestones | Contract milestones map to clauses or requirements | Milestone source visible |
+| PLN-010 | Export adapter | Map to supported scheduling systems | Round-trip test preserves IDs, dates and logic within declared limits |
+
+### Contract
+
+| ID | Title | Requirement | Acceptance |
+|---|---|---|---|
+| CON-001 | Clause graph | Clauses retain definitions, references and amendment chain | Viewer shows operative and superseded text |
+| CON-002 | Obligation | Structure actor, trigger, action, deadline and consequence | Sample obligations calculate dates correctly |
+| CON-003 | Departure | Proposed departures require owner, rationale, risk and approval | Unapproved departure cannot enter the final schedule |
+| CON-004 | Time bar | Identify tender and delivery notice deadlines | Calculation exposes the rule and the source |
+| CON-005 | Liability | Identify caps, exclusions and uncapped categories | Executive review lists unresolved exposure |
+| CON-006 | Payment | Model payment dates, retention and set-off | Cash model uses the approved terms |
+| CON-007 | Security | Capture bonds and guarantees with amount and expiry | Estimate includes the approved cost treatment |
+| CON-008 | Conflict | A bespoke amendment takes precedence only through the approved order rule | Operative clause selected reproducibly |
+| CON-009 | Disclaimer | Automated analysis labelled decision support | UI and exports do not claim legal approval |
+| CON-010 | Approval | Legal or commercial gate required by configured risk | High-risk contract cannot progress without a decision |
+
+### Response
+
+| ID | Title | Requirement | Acceptance |
+|---|---|---|---|
+| RSP-001 | Grounded claims | Material factual claims reference approved evidence | Claim validator rejects an unsupported test sentence |
+| RSP-002 | Word limit | Calculate limits according to the portal rule | Export stays within configured tolerance |
+| RSP-003 | Evaluator mapping | Each response maps to criteria and requirement | Reviewer can navigate both directions |
+| RSP-004 | Controlled values | Price, duration and performance values come from approved objects | Draft cannot override through free text unnoticed |
+| RSP-005 | Corporate content | Only current approved knowledge may be reused | Expired case study is blocked or warned |
+| RSP-006 | Collaborative versioning | Edits retain version and author history | Concurrent edits resolve without silent loss |
+| RSP-007 | Approval | Approved response locked to source versions | Source change marks the response stale |
+| RSP-008 | Translation | Translated response retains source and reviewer status | Both language versions linked |
+| RSP-009 | Export slot | Each response maps to a template or portal position | Packaging locates it deterministically |
+| RSP-010 | Tone and clarity | Quality checks may propose edits without changing facts | Accepted edit preserves evidence links |
+
+### Submission
+
+| ID | Title | Requirement | Acceptance |
+|---|---|---|---|
+| SUB-001 | Snapshot | Generated from an immutable snapshot | Hash remains stable through approval and execution |
+| SUB-002 | Manifest | Package includes a machine-readable manifest internally | All files and coverage enumerated |
+| SUB-003 | Format | Validate permitted types, size, name, page and word limits | An invalid test file blocks submission |
+| SUB-004 | Signature | Required signatures present and authorised | An unsigned declaration blocks G6 |
+| SUB-005 | Final price | All presented totals match the approved price | A one-unit mismatch blocks validation |
+| SUB-006 | Issue status | Latest acknowledged issue assessed | An unassessed addendum blocks validation |
+| SUB-007 | Exact approval | Signatory approves the exact snapshot hash | Modification after approval requires new approval |
+| SUB-008 | Execution | A binding submit action requires delegated authority | An unauthorised API call returns denial |
+| SUB-009 | Receipt | Retain confirmation and trusted timestamp | Submission history shows the receipt |
+| SUB-010 | Retention | Snapshot immutable under retention policy | Deletion attempt follows hold and authority rules |
+
+### Award conversion
+
+| ID | Title | Requirement | Acceptance |
+|---|---|---|---|
+| AWD-001 | Document reconciliation | Executed contract compared to the final bid and negotiations | Differences produce classified exceptions |
+| AWD-002 | Qualification acceptance | **No qualification treated as accepted without evidence** | Ambiguous item remains unresolved |
+| AWD-003 | Commitment mapping | Each bid commitment maps to an owner or superseded status | No-loss test reports zero unexplained items |
+| AWD-004 | Budget conversion | Price, cost, risk and margin remain distinct | Delivery budget reconciles to the approved estimate |
+| AWD-005 | Programme conversion | Contract baseline candidate retains tender logic and accepted changes | Milestone variance explained |
+| AWD-006 | Risk conversion | Tender risks transfer with updated owner and status | Material risk not dropped |
+| AWD-007 | Assumption validation | Assumptions create dated validation actions | Overdue material assumption escalates |
+| AWD-008 | Procurement conversion | Quoted packages create sourcing records **without appointment** | No supplier commitment is generated |
+| AWD-009 | Project creation | Host adapter creates the project only after approval | Failure rolls back or resumes idempotently |
+| AWD-010 | Knowledge isolation | **Tender content does not enter corporate knowledge automatically** | Promotion requires steward approval |
+
