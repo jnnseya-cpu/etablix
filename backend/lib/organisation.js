@@ -747,6 +747,20 @@ export const AUTONOMY = [
   { action: "Approve a design or temporary works", autonomy: "competent", authority: "Competent authorised person only" },
   { action: "Close a safety-critical defect", autonomy: "competent", authority: "Competent authorised person only" },
   { action: "Stop work", autonomy: "competent", authority: "An agent may urgently recommend and escalate; formal authority follows the site's own arrangements" },
+  // The six rows below arrived with the Level 7 specification. They are added
+  // rather than folded into the rows above because each is a DIFFERENT
+  // authority, and the policy engine resolves an action to exactly one row.
+  // Before they existed, submitting a tender resolved to "issue a contractual
+  // notice" and drew that row's approvers — a bid director rather than the
+  // delegated signatory. The submission went out under the wrong authority
+  // and nothing in the system could see it. That is what a missing register
+  // row costs once something actually reads the register.
+  { action: "Change controlled internal state", autonomy: "approval", authority: "Rule validation plus role permission — an owner, a completion flag, a status" },
+  { action: "Promote a lesson into institutional knowledge", autonomy: "approval", authority: "Knowledge steward approval; unverified output never becomes institutional truth" },
+  { action: "Ask a supplier for a price", autonomy: "policy", authority: "Autonomous within policy — a request for a price commits nothing" },
+  { action: "Approve a tender price", autonomy: "human", authority: "Human only — the commercial authority, named" },
+  { action: "Submit a tender", autonomy: "human", authority: "Human only — the delegated signatory, with explicit authority for the value and risk class" },
+  { action: "Withdraw a qualification", autonomy: "human", authority: "Human only — it changes the contractual position of the bid" },
 ];
 
 /**
