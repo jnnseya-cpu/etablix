@@ -14,16 +14,30 @@
     <guid isPermaLink="true">https://etablix.com/blog/ai-agents-in-construction</guid>
     <pubDate>Thu, 10 Sep 2026 09:00:00 GMT</pubDate>
     <dc:creator><![CDATA[Justin Ngolu Nseya]]></dc:creator>
-    <description><![CDATA[We run thirteen AI agents across a live construction site-services business. This is what they produce, where they are refused, and the difference between a control and a promise.]]></description>
+    <description><![CDATA[We run thirteen AI agents inside a live construction site-services business. What they are refused matters more than what they do — and what a client pays for is neither.]]></description>
     <category><![CDATA[AI agents in construction]]></category>
     <category><![CDATA[construction procurement automation]]></category>
     <category><![CDATA[tender document preparation]]></category>
     <category><![CDATA[CDM 2015]]></category>
     <category><![CDATA[site establishment]]></category>
     <category><![CDATA[human approval boundaries]]></category>
-    <content:encoded><![CDATA[<p class="lede">Most writing about AI in construction is written by people who have not shipped anything. This is not that. We run thirteen agents inside a live site-services business — they produce documents a client pays for and a contractor prices against — and the useful thing to report is not what they can do. It is where they are stopped, and who stops them.</p>
+    <content:encoded><![CDATA[<p class="lede">Most writing about AI in construction is written by people who have not shipped anything. This is not that. We run thirteen agents inside a live site-services business, on documents a contractor prices against and a client relies on. The useful thing to report is not what they can do. It is where they are stopped, who stops them, and why none of it changes what the work is worth.</p>
 
 <p>The interesting question in 2026 is no longer <em>can a model write a specification</em>. It can. The question is what has to be true around the model before the specification is safe to issue with your name on it, and that turns out to be an engineering problem rather than a prompting one.</p>
+
+<h2 id="what-the-fee-is-for">What the fee is actually for</h2>
+
+<p>Worth answering before anything else, because it is the first thing a client thinks once they know we use these at all. If a machine drafted it, what exactly is being charged for?</p>
+
+<p><strong>You are not buying a document. You are buying a judgement, and somebody accountable for it.</strong></p>
+
+<p>The fee buys a named competent person who has read the output and put their name on it, an opinion you can rely on and challenge, a date we are held to, professional indemnity standing behind it, and an organisation that carries the consequence when it is wrong. None of that is affected by how the first draft came to exist, and none of it is something a model can hold.</p>
+
+<p>What the agents change is <em>how much of the work gets the same attention</em>. A person writing a twelve-package requirements set has eleven other things to get out this week. The first four packages get scrutiny and the last eight get pattern-matching. That is not a criticism of anybody; it is what a deadline does to a human being. An agent does not arrive at the twelfth package tired. So the fee does not buy the hours we saved. It buys a document where the twelfth row was treated like the first, and a person who checked that it was.</p>
+
+<p>And the hours saved are real but narrow. They come out of first-draft production and out of reading six documents against each other — never out of the review, which is where the liability sits and which does not compress at all. <strong>If we priced this as machine output we would be selling you the one part of it that carries no responsibility.</strong> The market rate for that is nothing, correctly.</p>
+
+<p>Which is also why the rest of this piece is mostly about refusals. What a system will not do, and what enforces that, is the part you are actually buying.</p>
 
 <h2 id="what-an-agent-is">An agent is a boundary, not a model</h2>
 
@@ -114,7 +128,7 @@
 
 <p>Then the two sets of references are compared <strong>by a function, on every run, before anybody can approve it.</strong> If they do not reconcile, the pack does not issue, and the exceptions are named with the reference and the consequence. When it does reconcile, the count is printed on the issue certificate the client receives, so the check is visible rather than claimed.</p>
 
-<p>That is a control. It took an afternoon to build and it is worth more than any amount of prompt engineering, because it holds when the model has a bad day, when the pack is unusually large, and when whoever is reviewing it is tired.</p>
+<p>That is a control. It is unglamorous and entirely deterministic, and it is worth more than any amount of prompt engineering, because it holds when the model has a bad day, when the pack is unusually large, and when whoever is reviewing it is tired.</p>
 
 <p>If you take one thing from this piece: <strong>ask any supplier what their system refuses, and ask what performs the refusing.</strong> If the answer is a sentence in a prompt, it is a promise.</p>
 
@@ -155,7 +169,7 @@
 
 <p>Second, peak headcount is usually the wrong basis. What sizes the facilities is the headcount at shift overlap, and what sizes the dining provision is sittings within the shift pattern rather than the total on site. A compound sized on the annual peak is expensive and still queues at seven in the morning.</p>
 
-<p>Neither point is clever. Both are the sort of thing that is obvious once written down and routinely wrong in issued documents, because the person writing them had eleven other packages to get out. That is the actual shape of the opportunity: not replacing judgement, but making sure judgement is applied to every row rather than the first four.</p>
+<p>Neither point is clever. Both are the sort of thing that is obvious once written down and routinely wrong in issued documents, because the person writing them had eleven other packages to get out. That is the actual shape of the opportunity, and it is what the fee is for: not replacing judgement, but making sure judgement reaches every row rather than the first four — and having somebody put their name to the result.</p>
 
 <h2 id="where-this-goes">Where we think this goes</h2>
 

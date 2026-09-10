@@ -150,10 +150,10 @@ export const POSTS = [
     seoTitle: "AI Agents in Construction: What They Can and Cannot Do",
     // Under 160 characters, and it answers the query rather than advertising.
     description:
-      "A working account of AI agents in UK construction: the eight jobs they genuinely do, the four they must never hold, and the controls that decide which is which.",
+      "A working account of AI agents in UK construction: the eight jobs they do, the four they must never hold, and what a client is actually paying for.",
     // Shown on the card and used as the opening standfirst.
     standfirst:
-      "We run thirteen AI agents across a live construction site-services business. This is what they produce, where they are refused, and the difference between a control and a promise.",
+      "We run thirteen AI agents inside a live construction site-services business. What they are refused matters more than what they do — and what a client pays for is neither.",
     published: "2026-09-10",
     updated: "2026-09-10",
     author: "Justin Ngolu Nseya",
@@ -176,6 +176,10 @@ export const POSTS = [
     // Questions this post answers in full, in its own words, in one place
     // each — which is what an answer engine can lift and a reader can scan.
     faq: [
+      {
+        q: "If AI drafts the document, what am I paying a consultant for?",
+        a: "For a judgement and somebody accountable for it, which is the part no model can hold. The fee buys a named competent person who has read the output and put their name on it, an opinion you can rely on and challenge, a date we are held to, professional indemnity behind it, and an organisation that carries the consequence when it is wrong. What the agents change is how much of the work gets the same attention: the twelfth package is treated like the first rather than pattern-matched at the end of a long week. The hours saved come out of first-draft production and cross-reading, never out of the review, because the review is where the liability sits and it does not compress.",
+      },
       {
         q: "Can an AI agent write a tender pack for a construction project?",
         a: "It can assemble one from an approved requirements package, and that distinction carries the whole risk. An agent that assembles takes obligations a competent person has already signed off and turns them into the separate files a tenderer receives. An agent that authors invents requirements nobody approved, which then sit in a contract. The control is that the assembler cannot start until a human has approved the document it works from, and that any gap it meets becomes an open item rather than an answer.",
