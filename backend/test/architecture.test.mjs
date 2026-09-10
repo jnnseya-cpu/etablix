@@ -28,7 +28,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   AI_AGENTS, ENGINES, ORCHESTRATOR, DEPTH_LEVELS, LEVEL_7,
-  AUTONOMY, FOUNDATIONS, QUALITY_TARGETS, FAILURE_MODES, organisation,
+  AUTONOMY, FOUNDATIONS, QUALITY_TARGETS, FAILURE_MODES, LADDER_MAPPING, RISK_CLASSES, organisation,
 } from "../lib/organisation.js";
 import { AGENT_BRIEFS, PIPELINE_AGENTS } from "../lib/ai.js";
 
@@ -142,11 +142,37 @@ console.log("\n--- the supporting structure\n");
   ok(ORCHESTRATOR.state === "planned", "and is honestly marked planned rather than described as running", ORCHESTRATOR.state);
 }
 
+// -------------------------------- the two ladders disagree, and it is recorded
+console.log("\n--- the contradiction between the documents is recorded, not resolved\n");
+{
+  ok(Boolean(LADDER_MAPPING.conflict), "the conflict between the two autonomy ladders is stated");
+  ok(Boolean(LADDER_MAPPING.decisionNeeded), "and the decision it needs is named");
+  const disagreeing = LADDER_MAPPING.rows.filter((r) => !r.agree);
+  ok(disagreeing.length >= 2, `${disagreeing.length} rows where the ladders differ`);
+  ok(disagreeing.every((r) => Boolean(r.note)), "each saying what the difference is");
+  ok(LADDER_MAPPING.rows.some((r) => /THE SAME BEHAVIOUR CARRIES A DIFFERENT NUMBER/.test(r.note || "")),
+     "including the one that will actually be misread — governed operational autonomy is 6 in one and 7 in the other");
+
+  // The coarse view and the fine view must not drift into meaning different
+  // things, which is how a policy engine permits what the register forbids.
+  ok(RISK_CLASSES.length === 6, `six risk classes (${RISK_CLASSES.length})`);
+  const autonomies = new Set(AUTONOMY.map((a) => a.autonomy));
+  for (const rc of RISK_CLASSES) {
+    ok(rc.maps.length > 0, `class ${rc.class} maps onto the autonomy table`);
+    for (const m of rc.maps) ok(autonomies.has(m), `class ${rc.class} maps to "${m}", which exists in AUTONOMY`);
+  }
+  const mapped = new Set(RISK_CLASSES.flatMap((r) => r.maps));
+  const unmapped = [...autonomies].filter((a) => !mapped.has(a));
+  ok(unmapped.length === 0, "and every autonomy value is covered by a class", unmapped.join(", "));
+  ok(RISK_CLASSES.find((r) => r.class === "E").maps.includes("human"), "commercial commitment maps to human only");
+  ok(RISK_CLASSES.find((r) => r.class === "F").maps.includes("competent"), "and safety acceptance to a competent person only");
+}
+
 // -------------------------------------------------- it reaches the portal
 console.log("\n--- and it reaches the portal as one structure\n");
 {
   const o = organisation();
-  for (const key of ["engines", "depthLevels", "levelSeven", "autonomy", "foundations", "qualityTargets", "failureModes", "orchestrator"]) {
+  for (const key of ["engines", "depthLevels", "levelSeven", "ladderMapping", "riskClasses", "autonomy", "foundations", "qualityTargets", "failureModes", "orchestrator"]) {
     ok(key in o, `organisation() carries ${key}`);
   }
   // NOTHING WAS REMOVED. The merge was additive, and this is the check that

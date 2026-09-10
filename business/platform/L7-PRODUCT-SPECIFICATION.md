@@ -450,3 +450,233 @@ client condition.**
 | G7 Award | Contract reconciliation complete | Executive and commercial authority | Accept, negotiate or decline |
 | G8 Learn | Outcome and review captured | Knowledge steward | Approved lessons |
 
+---
+
+## 10. Compliance and requirements engine
+
+### 10.1 Compliance matrix fields
+
+| Field group | Fields |
+|---|---|
+| Identity | `requirement_id`, `tender_id`, `issue_id`, `source_ref`, `source_span` |
+| Meaning | `exact_text`, `normalised_text`, `defined_terms`, `interpretation` |
+| Control | `type`, `mandatory`, `score_weight`, `pass_fail`, `priority`, `sensitivity` |
+| Delivery | `owner`, `contributors`, `due_at`, `dependencies`, `status`, `blockers` |
+| Response | `response_section_id`, `answer`, `attachment_refs`, `portal_field` |
+| Evidence | `required_evidence_types`, `evidence_refs`, validity and verification |
+| Quality | `confidence`, contradiction state, `reviewer`, approval and comments |
+| Change | `superseded_by`, `impacted_by_issue`, `stale_since` and revalidation state |
+
+### 10.2 Deterministic completeness algorithm
+
+```
+complete(requirement) =
+  current_source_version(requirement.source_ref)
+  AND response.status == APPROVED
+  AND all(required_evidence).verified_and_valid
+  AND formatting_constraints.pass
+  AND dependencies.all_resolved
+  AND contradictions.material_open == 0
+  AND waivers.have_required_authority
+  AND export_manifest.includes(required_outputs)
+```
+
+### 10.3 Contradiction classes
+
+| Class | Example | System response |
+|---|---|---|
+| Source conflict | Specification and drawing state different material | Create conflict and clarification |
+| Response conflict | Programme says 20 weeks; narrative says 18 | **Block approval** |
+| Commercial conflict | Price schedule differs from estimate total | **Block price gate** |
+| Evidence conflict | Case study claim exceeds evidence | Remove claim or obtain evidence |
+| Temporal conflict | Response uses a superseded drawing | Mark stale and re-review |
+| Unit conflict | m² quantity priced as linear metre | **Block calculation** |
+| Responsibility conflict | Two parties both exclude the same interface | Escalate as a scope gap |
+
+---
+
+## 11. Scope and technical solution engine
+
+### 11.1 Scope graph
+
+The scope graph shall connect requirement, system, asset, location, work
+package, design deliverable, quantity, activity, estimate item, supplier
+package, inspection, test and handover record. **This connection is what
+identifies an unpriced drawing item, an unscheduled commissioning requirement
+or an obligation without an accountable owner.**
+
+### 11.2 Technical development workflow
+
+1. Decompose the client outcome into systems, deliverables and acceptance criteria.
+2. Identify design responsibility and the information required from each party.
+3. Map interfaces between permanent works, temporary works, enabling works, utilities, logistics and operations.
+4. Select only approved corporate methods, or create a clearly labelled project-specific draft.
+5. Test the method against access, sequence, resources, safety constraints, permits, weather and working hours.
+6. Create assumptions and clarifications where information is insufficient.
+7. Link each method statement claim to the governing requirement and supporting evidence.
+8. Route discipline-specific parts to competent reviewers.
+
+### 11.3 Drawing and model controls
+
+- Support PDF and raster drawings at minimum; support IFC and common model metadata through an adapter.
+- Extract title block, revision, status, scale where reliable, discipline and drawing references.
+- **Do not derive quantities from a raster drawing unless scale and measurement calibration pass configured checks.**
+- Preserve model element identifiers and property sets used in quantity or compliance results.
+- Flag coordination findings as candidate issues until validated by a competent user.
+- **Track design maturity and prevent a concept quantity from appearing as a definitive construction quantity.**
+
+---
+
+## 12. Estimating and commercial engine
+
+### 12.1 Estimate hierarchy
+
+```
+Tender Estimate
+  Work Breakdown Structure
+    Control Account
+      Work Package
+        Cost Item
+          Quantity × Resource Rate
+          Quote Line
+          Allowance
+          Risk Event
+  Preliminaries
+  Escalation
+  Contingency or Risk Allowance
+  Overhead
+  Profit
+  Tax and Duties
+  Client Price Schedule Mapping
+```
+
+### 12.2 Rate build-up
+
+| Component | Mandatory controls |
+|---|---|
+| Labour | Trade, grade, base rate, burden, overtime, shift, travel, lodging, productivity |
+| Plant | Type, capacity, hire basis, mobilisation, fuel, operator, utilisation and standby |
+| Material | Specification, quantity, waste, supplier, delivery, currency, duty and escalation |
+| Subcontract | Scope coverage, quotation version, exclusions, qualifications and payment terms |
+| Preliminaries | Time-related, fixed, activity-related and demobilisation |
+| Risk | Identified event, probability, impact distribution, owner and treatment |
+| Mark-up | Approved sequence, compounding rule, inclusion base and authority |
+
+### 12.3 Commercial controls
+
+- Every value shall carry currency, unit, price base date and tax treatment.
+- **The engine shall prevent mark-up being applied twice through different estimate layers.**
+- Supplier quotes shall be normalised **without deleting original exclusions or qualifications**.
+- The final client price schedule shall reconcile exactly to the approved estimate, subject only to recorded rounding rules.
+- Manual overrides require reason, role, old value, new value and timestamp.
+- Cash flow shall model client payment, supplier payment, retention, bonds, advance payment, mobilisation, tax and working capital.
+- Sensitivity runs shall include productivity, programme duration, inflation, exchange rate, late payment and key supplier failure.
+- **Risk allowance release shall follow policy and must not be used to conceal known base cost.**
+
+### 12.4 Estimate assurance tests
+
+| Test | Failure condition |
+|---|---|
+| Quantity coverage | A scope item has no estimate item and no approved exclusion |
+| Rate freshness | A rate or quote exceeds its validity threshold |
+| Arithmetic | A calculated total differs from the stored total beyond tolerance |
+| Unit consistency | Incompatible dimensions or conversions |
+| Programme consistency | Time-related cost duration differs from the approved programme |
+| Resource consistency | Planned crew differs materially from the rate build-up |
+| Quote coverage | Supplier exclusions create an unpriced scope item |
+| Price reconciliation | Submission price differs from the approved tender price |
+| Cash exposure | Peak funding exceeds the approved threshold |
+
+---
+
+## 13. Planning and delivery method engine
+
+### 13.1 Programme generation inputs
+
+Deliverables and contractual milestones; WBS and scope quantities; production
+rates and crew calendars; design, review and approval periods; procurement,
+manufacture, inspection, shipping and customs durations; access, possession,
+outages, permits and environmental windows; temporary works, enabling works
+and logistics; testing, commissioning, training and handover; client,
+statutory and third-party dependencies.
+
+### 13.2 Schedule quality rules
+
+| Rule | Required response |
+|---|---|
+| Open ends | Flag all non-authorised activities without a predecessor or successor |
+| Hard constraints | Require reason and approval for constraints that override logic |
+| Negative float | Identify the driving path and the contractual cause |
+| Excessive duration | Decompose or justify above a configured threshold |
+| Missing procurement | **Block installation readiness where the long-lead chain is absent** |
+| Resource overload | Propose levelling choices and their impact |
+| Calendar mismatch | Explain inconsistent work patterns across linked activities |
+| Commissioning gap | Require the inspection and test sequence before the completion milestone |
+| Unsupported productivity | Link duration to quantity and an approved output, or classify it as an assumption |
+
+### 13.3 Scenario engine
+
+The planner shall preserve the approved scenario and create immutable
+alternatives. Each scenario shall state changed assumptions, schedule effect,
+cost effect, resource effect, risk movement, contractual implications and
+confidence. **It shall never overwrite the baseline to demonstrate a preferred
+result.**
+
+---
+
+## 14. Contract intelligence engine
+
+### 14.1 Contract model
+
+| Object | Required attributes |
+|---|---|
+| Clause | Identifier, heading, text, source, amendment chain and defined terms |
+| Obligation | Actor, trigger, action, deadline, form, recipient and consequence |
+| Right | Beneficiary, condition, notice, limitation and evidence |
+| Liability | Type, cap, exclusions, duration and insurance relationship |
+| Payment term | Valuation, due date, notice, final date, retention, set-off and currency |
+| Change mechanism | Instruction, quotation, assessment, time effect and approval |
+| Time rule | Completion, access, programme, delay damages, extension and prevention |
+| Security | Bond, guarantee, parent support, amount, expiry and form |
+| Departure | Client term, proposed position, rationale, risk and approval status |
+
+### 14.2 Contract review priorities
+
+Order of precedence and the complete amendment chain; fitness for purpose and
+design responsibility; uncapped, indirect or consequential liability; delay
+damages, caps and concurrent delay treatment; indemnities and third-party
+exposure; ground, utilities, contamination and information reliance; change,
+notice and **time-bar** mechanisms; payment, retention, set-off and
+pay-when-paid exposure where applicable; termination, suspension, step-in and
+intellectual property; insurance requirements and gaps; data, cybersecurity,
+model reliance and AI restrictions.
+
+**Contract output must be labelled as decision support unless approved by
+qualified legal or commercial authority. The engine shall not describe its
+analysis as legal advice.**
+
+---
+
+## 15. Response composition engine
+
+### 15.1 Grounded drafting contract
+
+The composer may use only approved facts, tender-specific decisions and
+evidence the requesting user may access. **It must not invent project results,
+staff experience, accreditations, dates, commitments, equipment ownership or
+supplier capacity.** A sentence containing a material factual claim shall
+retain one or more evidence references.
+
+### 15.2 Section object
+
+```
+ResponseSection {
+  id, requirement_ids[], title, response_limit,
+  evaluation_criteria[], win_theme_ids[],
+  approved_fact_ids[], evidence_ids[],
+  draft_versions[], current_version_id,
+  author, reviewers[], approval_status,
+  contradiction_status, export_template_slot
+}
+```
+

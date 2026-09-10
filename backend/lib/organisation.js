@@ -478,6 +478,71 @@ export const DEPTH_LEVELS = [
 ];
 
 /**
+ * THE TWO LADDERS DO NOT AGREE, AND THAT IS RECORDED RATHER THAN RESOLVED.
+ *
+ * Two of the three governing documents define the autonomy levels, and they
+ * define them differently:
+ *
+ *   AGENT-ARCHITECTURE.md         six levels, 1 to 6.
+ *                                 Level 6 IS governed operational autonomy.
+ *
+ *   L7-PRODUCT-SPECIFICATION.md   eight levels, L0 to L7.
+ *                                 Level 6 is multi-agent COORDINATION and
+ *                                 level 7 is governed operational autonomy.
+ *
+ * So "level 6" means two different things depending on which document is
+ * open, and the difference is not cosmetic: under the first, level 6 is the
+ * top and executing approved low-risk actions is the ceiling. Under the
+ * second, level 6 is a middle rung and the ceiling is a different property
+ * entirely.
+ *
+ * Merging them by picking one would make the other document wrong without
+ * saying so. That is exactly the failure every reconciliation in this system
+ * refuses: a contradiction resolved quietly is a position nobody can defend.
+ * So both are held, DEPTH_LEVELS carries the first because the agents are
+ * already described against it, and the mapping below says what each level
+ * means under the other. Somebody has to choose one before either is used
+ * outside this repository.
+ */
+export const LADDER_MAPPING = {
+  conflict: "The two documents number the autonomy levels differently. Level 6 means governed operational autonomy in one and multi-agent coordination in the other.",
+  decisionNeeded: "Adopt one ladder for both documents and the register before either is used with a client. Until then, any statement about a level must name which ladder it is using.",
+  rows: [
+    { architecture: "1 Retrieval", specification: "L1 Retrieval", agree: true },
+    { architecture: "2 Production", specification: "L2 Generation", agree: true },
+    { architecture: "3 Analysis", specification: "L3 Analysis", agree: true },
+    { architecture: "4 Workflow execution", specification: "L4 Workflow execution", agree: true },
+    { architecture: "5 Autonomous coordination", specification: "L5 Goal pursuit + L6 Multi-agent coordination", agree: false,
+      note: "The specification splits what the architecture calls one level into two." },
+    { architecture: "6 Governed operational autonomy", specification: "L7 Governed operational autonomy", agree: false,
+      note: "THE SAME BEHAVIOUR CARRIES A DIFFERENT NUMBER. This is the one that will be misread." },
+    { architecture: "(none)", specification: "L0 No AI execution", agree: false,
+      note: "The specification adds a zero level for a manual workspace. Harmless, and worth adopting." },
+  ],
+};
+
+/**
+ * The specification's action risk classes, mapped onto the autonomy table.
+ *
+ * These do NOT replace AUTONOMY — they are a coarser view of the same rule,
+ * and both are kept because they are read by different people: a developer
+ * building a policy engine wants six classes, and somebody deciding whether
+ * an agent may send an email wants the fifteen specific actions.
+ *
+ * The mapping is stated so the two cannot drift into meaning different
+ * things, which is how a policy engine ends up permitting something the
+ * register forbids.
+ */
+export const RISK_CLASSES = [
+  { class: "A", description: "Read only", examples: "Search, extract, compare, calculate a draft", handling: "Autonomous", maps: ["autonomous"] },
+  { class: "B", description: "Reversible internal write", examples: "Create a task, tag evidence, update a working forecast", handling: "Autonomous with a full event log", maps: ["logged", "labelled"] },
+  { class: "C", description: "Controlled internal state", examples: "Change an owner, mark a requirement complete, promote knowledge", handling: "Rule validation plus role permission", maps: ["approval"] },
+  { class: "D", description: "External non-binding communication", examples: "A reminder, an information request, a meeting proposal", handling: "Template and recipient policy; approval configurable", maps: ["policy", "drafting"] },
+  { class: "E", description: "Commercial or contractual commitment", examples: "Final price, tender submission, withdrawing a qualification", handling: "Named human approval required", maps: ["human"] },
+  { class: "F", description: "Technical, regulatory or safety acceptance", examples: "Design acceptance, safety closure, a statutory statement", handling: "Competent authorised person only", maps: ["competent"] },
+];
+
+/**
  * THE SEVEN HARD PROPERTIES OF LEVEL 7 — and where this system stands.
  *
  * A build that fails any one of them is not level 7, and saying so in the
@@ -789,6 +854,8 @@ export function organisation() {
     // nothing here claims an agent that cannot actually be run.
     depthLevels: DEPTH_LEVELS,
     levelSeven: LEVEL_7,
+    ladderMapping: LADDER_MAPPING,
+    riskClasses: RISK_CLASSES,
     engines: ENGINES,
     orchestrator: ORCHESTRATOR,
     autonomy: AUTONOMY,
