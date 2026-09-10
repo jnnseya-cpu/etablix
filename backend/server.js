@@ -182,6 +182,24 @@ const staticOpts = {
     );
   },
 };
+/**
+ * The blog index, before the static handler gets to it.
+ *
+ * frontend/public holds BOTH blog.html and a blog/ directory of posts, and
+ * express.static resolves the directory first: a request for /blog was
+ * redirected to /blog/, which has no index.html, so the blog index — the page
+ * every internal link, the sitemap and the canonical all point at — answered
+ * 404 while every individual post answered 200. Nothing in the markup could
+ * have shown that; only asking the running server does.
+ *
+ * Serving it here keeps the clean /blog URL rather than conceding a trailing
+ * slash or renaming the directory.
+ */
+app.get(["/blog", "/blog/"], (req, res) => {
+  res.setHeader("Cache-Control", "no-cache");
+  res.sendFile(path.join(root, "frontend", "public", "blog.html"));
+});
+
 app.use("/shared", express.static(path.join(root, "shared"), staticOpts));
 app.use("/internal", express.static(path.join(root, "frontend", "internal"), staticOpts));
 app.use(express.static(path.join(root, "frontend", "public"), { extensions: ["html"], ...staticOpts }));

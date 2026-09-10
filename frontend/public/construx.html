@@ -20,10 +20,12 @@
 <meta name="twitter:image" content="https://etablix.com/img/og-image.png">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
+ {"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://etablix.com/"},{"@type":"ListItem","position":2,"name":"Technology products","item":"https://etablix.com/what-we-offer"},{"@type":"ListItem","position":3,"name":"CONSTRUX","item":"https://etablix.com/construx"}]},
  {"@type":"Organization","@id":"https://etablix.com/#org","name":"ETABLIX","legalName":"JNN GLOBAL LTD","identifier":{"@type":"PropertyValue","propertyID":"UK Companies House","value":"15405437"},"url":"https://etablix.com/","logo":"https://etablix.com/img/logo-mark.svg","description":"Integrated site-services and workforce-accommodation contractor for the temporary site environment around the permanent works. Not a main contractor. Part of Groupe Nseya.","parentOrganization":{"@type":"Organization","name":"Groupe Nseya"},"sameAs":["https://www.linkedin.com/company/etablix"],"founder":{"@type":"Person","name":"Justin Ngolu Nseya","jobTitle":"Founder & Managing Director","honorificSuffix":"MCIOB","sameAs":"https://www.linkedin.com/in/justin-nseya-mciob-9a46b291/"},"contactPoint":{"@type":"ContactPoint","contactType":"sales","telephone":"+44 7493 216101","email":"contact@etablix.com","areaServed":"GB"}},
  {"@type":"ProfessionalService","@id":"https://etablix.com/#business","name":"ETABLIX — Integrated Site Services","url":"https://etablix.com/","image":"https://etablix.com/img/og-image.png","telephone":"+44 7493 216101","email":"contact@etablix.com","parentOrganization":{"@id":"https://etablix.com/#org"},"address":{"@type":"PostalAddress","streetAddress":"Groupe Nseya House","addressLocality":"Kingstanding, Birmingham","postalCode":"B44 8DJ","addressCountry":"GB"},"openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday"],"opens":"08:00","closes":"18:00"},"areaServed":"United Kingdom","knowsAbout":["Integrated site services","Workforce accommodation","Site establishment","Managed procurement"]}
 ]}
 </script>
+<link rel="alternate" type="application/rss+xml" title="ETABLIX field notes" href="https://etablix.com/blog/feed.xml">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -58,6 +60,7 @@
       <a href="/about">About</a>
       <a href="/what-we-offer">What we offer</a>
       <a href="/how-it-works">How it works</a>
+      <a href="/blog">Field notes</a>
       <a href="/construx">Construx</a>
       <a href="/veryx">Veryx</a>
       <a href="/subcontractors">Supply chain</a>
@@ -83,7 +86,7 @@
 
 <section class="section">
   <div class="container">
-    <div class="sec-label reveal"><span class="num">01</span><span class="lbl">One project intelligence layer</span></div>
+    <h2 class="sec-label reveal"><span class="num">01</span><span class="lbl">One project intelligence layer</span></h2>
     <div class="section-head reveal">
       <h2>Six control domains. One system of record.</h2>
     </div>
@@ -126,7 +129,7 @@
   <div class="container">
     <div class="split">
       <div class="reveal">
-        <div class="sec-label"><span class="num">02</span><span class="lbl">Why CONSTRUX</span></div>
+        <h2 class="sec-label"><span class="num">02</span><span class="lbl">Why CONSTRUX</span></h2>
         <h2>Technology that supports judgement — not technology for its own sake.</h2>
         <p>CONSTRUX exists to serve the ETABLIX operating discipline: ownership defined, interfaces controlled, evidence kept. On integrated site-services appointments it is the project control layer; as a product, clients license the same system for their own delivery organisations.</p>
         <ul class="checklist">
@@ -154,7 +157,7 @@
 
 <section class="section">
   <div class="container">
-    <div class="sec-label reveal"><span class="num">—</span><span class="lbl">Earned Value &amp; control architecture</span></div>
+    <h2 class="sec-label reveal"><span class="num">—</span><span class="lbl">Earned Value &amp; control architecture</span></h2>
     <div class="section-head reveal">
       <h2>Payment follows verified delivery — never invoice submission alone.</h2>
       <p>CONSTRUX runs Earned Value Management on a disciplined coding structure, so every pound and every day is traceable from requirement to closeout record. This single rule eliminates the most common site-services leak — paying for mobilised resources rather than delivered service.</p>
@@ -192,7 +195,7 @@
 
 <section class="section dark" id="api" style="border-top:1px solid var(--line-dark);">
   <div class="container">
-    <div class="sec-label reveal"><span class="num">03</span><span class="lbl">Construx API</span></div>
+    <h2 class="sec-label reveal"><span class="num">03</span><span class="lbl">Construx API</span></h2>
     <div class="section-head reveal">
       <h2>The API is the product.</h2>
       <p>The CONSTRUX console talks to exactly the same public API as any other consumer. It holds no privileged path into the platform and is subject to the same roles, scopes and attribute rules as your own integrations.</p>
@@ -275,6 +278,7 @@ POST  /v1/projects/:projectId/cdm/documents
           <li><a href="/about">About us</a></li>
           <li><a href="/what-we-offer">What we offer</a></li>
           <li><a href="/how-it-works">How it works</a></li>
+          <li><a href="/blog">Field notes</a></li>
           <li><a href="/contact">Contact</a></li>
           <li><a href="https://www.linkedin.com/company/etablix" target="_blank" rel="noopener">Follow on LinkedIn</a></li>
         </ul>
