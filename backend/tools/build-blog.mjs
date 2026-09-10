@@ -106,7 +106,6 @@ const HEADER = `
       <a href="/about">About</a>
       <a href="/what-we-offer">What we offer</a>
       <a href="/how-it-works">How it works</a>
-      <a href="/blog">Field notes</a>
       <a href="/construx">Construx</a>
       <a href="/veryx">Veryx</a>
       <a class="nav-cta" href="/contact">Book services</a>
