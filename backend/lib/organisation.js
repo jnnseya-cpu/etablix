@@ -422,6 +422,353 @@ export const POSITIONS = [
   ...MATURE_ORG.flatMap((d) => d.positions.map((p) => ({ title: p.split(" (")[0].split(" — ")[0], group: d.directorate, accessRole: null }))),
 ].filter((p, i, arr) => arr.findIndex((q) => q.title === p.title) === i);
 
+
+// ===================================================================
+// THE AGENTIC PROJECT OPERATING SYSTEM
+// ===================================================================
+//
+// What follows merges the CONSTRUX agent architecture into the register that
+// already exists, rather than sitting beside it as a strategy document.
+//
+// THE ARGUMENT IT ENCODES. Specialist agents on a shared, auditable project
+// state are worth more than one general assistant, because the value is not
+// in answering questions — it is in the CONTINUITY between what was promised
+// at tender, what is happening on site, and what the asset does for thirty
+// years afterwards. Every tender requirement becomes a controlled obligation;
+// every bid assumption becomes a monitored delivery condition; every price
+// becomes a live cost-control basis; every site event connects to time, cost,
+// risk and contract.
+//
+// THE LINE THAT DOES NOT MOVE. AI may perform most of the information work.
+// Accountable people retain control of irreversible decisions. Under CDM 2015
+// a principal contractor must have the skills, knowledge, experience and
+// organisational capability to plan, manage, monitor and coordinate the
+// construction phase; a system can support those duties and cannot inherit
+// the appointment or the accountability.
+// https://www.hse.gov.uk/construction/cdm/2015/principal-contractors.htm
+//
+// AND THE RULE THIS FILE ENFORCES ON ITSELF. An architecture document can
+// describe agents that do not exist. A register cannot, because the portal
+// reads it and a client may be shown it. So every agent below carries a
+// `state`, backend/test/architecture.test.mjs cross-checks the built ones
+// against the engines that actually run them, and a planned agent has no
+// brief and therefore cannot be started.
+
+/**
+ * The six depths of construction AI, and where each agent actually operates.
+ *
+ * Most construction software sits at levels 1 and 2 and is sold as though it
+ * were at 5. The honest position for this system is stated per agent below:
+ * routinely 3 and 4, nothing at 5 or 6 yet.
+ */
+export const DEPTH_LEVELS = [
+  { level: 1, name: "Retrieval", behaviour: "Finds and explains information", example: "Show every clause governing delay notices" },
+  { level: 2, name: "Production", behaviour: "Creates a requested output", example: "Draft a method statement or a tender response" },
+  { level: 3, name: "Analysis", behaviour: "Compares evidence and identifies issues", example: "Detect a discrepancy between the bill, the drawings and the specification" },
+  { level: 4, name: "Workflow execution", behaviour: "Performs several controlled actions", example: "Raise an RFI, assign an owner, set a deadline, monitor the response" },
+  { level: 5, name: "Autonomous coordination", behaviour: "Pursues an objective across systems", example: "Investigate programme slippage, gather the evidence, propose recovery" },
+  { level: 6, name: "Governed operational autonomy", behaviour: "Executes approved low-risk decisions", example: "Issue reminders, update a forecast, release approved information" },
+  // Level 7 is not "more autonomous" than 6. It is a different axis: an
+  // organisation of agents that reasons inside THIS tender's actual contract,
+  // can assert nothing that is not bound to approved evidence, attacks its
+  // own output before a person sees it, and learns from the outcome through a
+  // gate. Autonomy at level 6 without those properties is worse than level 4,
+  // not better — it is a system acting confidently on unverified ground.
+  { level: 7, name: "Contract-native, evidence-bound bid organisation", behaviour: "Reasons inside the actual contract, asserts only what evidence supports, challenges itself, and learns through a governed loop", example: "The same site event produces different rights under NEC4 Option A and JCT Design and Build, because the tender's own clause graph is loaded rather than general knowledge" },
+];
+
+/**
+ * THE SEVEN HARD PROPERTIES OF LEVEL 7 — and where this system stands.
+ *
+ * A build that fails any one of them is not level 7, and saying so in the
+ * register is the only thing that stops the phrase becoming marketing. The
+ * `state` column is the build order and it is deliberately unflattering.
+ *
+ * The specification these come from targets a different platform from the one
+ * running today: an event-sourced, bitemporal, multi-tenant service estate
+ * with an adapter behind every external dependency. What exists is a single
+ * Node process with an embedded database, and the honest reading is that
+ * level 7 is a BUILD rather than an evolution of it. The properties are still
+ * the right target, and three of them can be advanced inside what exists.
+ */
+export const LEVEL_7 = [
+  { id: "L7.1", name: "Contract-native reasoning", state: "partial",
+    test: "The same site event produces different outputs under NEC4 Option A, JCT Design and Build 2016, FIDIC Yellow and a bespoke amendment. Agents load the tender's actual clause graph, never generic knowledge.",
+    where: "Payment law is modelled properly — the due date, notice deadline, final date and pay-less deadline are computed from the day an application was received, under Part II of the Housing Grants, Construction and Regeneration Act 1996. Nothing else is. There is no clause graph, so every other contractual position is general knowledge wearing a specific tone." },
+  { id: "L7.2", name: "Evidence-bound assertion", state: "partial",
+    test: "No sentence enters a submission unless it resolves to an evidence object approved and unexpired at the submission deadline. Enforced by a gate, not a prompt.",
+    where: "Agent 2 refuses to claim an accreditation, certificate or reference that is not in its inputs, and marks what it needs as EVIDENCE REQUIRED with who holds it. That is a brief and a habit, not a registry: nothing yet holds evidence objects with an expiry date, so nothing can check that a certificate is still valid on the day the bid is submitted." },
+  { id: "L7.3", name: "Adversarial self-challenge", state: "absent",
+    test: "Every material output — a price, a programme, a response, an assumption — is attacked by an independent agent with a different model and prompt lineage before human review.",
+    where: "Nothing does this. It is the cheapest of the seven to add inside the current system and probably the most valuable per hour spent, because the four reconciliations already prove that a mechanical second opinion catches what a first pass will not." },
+  { id: "L7.4", name: "Time-travel state", state: "absent",
+    test: "Any artefact can be reconstructed as it was known at a moment in time, on both axes: when the fact was true, and when the system learned it.",
+    where: "Not addressed anywhere. This is the same gap the temporal foundation names, and it is the one most likely to cost real money: a claim is defended on what was known on a date, and a system that always reads the latest file destroys exactly that." },
+  { id: "L7.5", name: "Full lineage", state: "partial",
+    test: "Every number in a price traces back to source, date, currency, quantity basis, productivity assumption, quote validity and approver.",
+    where: "A document now records the run that produced it, and Agent 5 classes every figure as measured, evidenced, asserted or unknown. Neither is a lineage chain: there is no estimating agent, and there must not be one until lineage exists — an automated price nobody can defend is worse than a slow one." },
+  { id: "L7.6", name: "Governed learning", state: "absent",
+    test: "Wins, losses, feedback and post-award variance update calibrated priors through a promotion pipeline with human approval. No agent output becomes institutional truth automatically.",
+    where: "There is no memory of any kind, so nothing learns and nothing has learned anything wrong. That is the safe half of absent, and it stays the right answer until the promotion gate exists to make the other half safe." },
+  { id: "L7.7", name: "Platform-agnostic core", state: "absent",
+    test: "No business logic in an adapter. Swapping the common data environment, the ERP, the estimating tool, the model provider or the database is a configuration change plus an adapter, never a core change.",
+    where: "The model provider is swappable and the store's read and write paths are behind one small API, which is why moving off the embedded database was described as a hosting decision rather than a correctness one. Everything else — documents, uploads, mail, the platform connections — is called directly. There is no port and adapter layer and adding one to a single process is work with no user-visible result, which is exactly the kind of work that only gets done deliberately." },
+];
+
+/**
+ * The seven domain engines, and the agents inside each.
+ *
+ * NOT DOZENS OF INDEPENDENT AGENTS COMPETING WITH ONE ANOTHER. Domain engines
+ * with controlled sub-agents, above them one orchestrator that consolidates
+ * the project position and presents the decisions requiring human authority —
+ * and does not replace the project director.
+ *
+ * `state` is the honest part and it is checked by a test:
+ *   built   — a pipeline or single-pass engine exists and can be run today
+ *   planned — described here, not implemented, and deliberately unrunnable
+ */
+export const ENGINES = [
+  {
+    id: "tender",
+    name: "Tender and Commercial Engine",
+    purpose: "From an opportunity arriving to a submission uploaded, with every requirement a controlled obligation before anybody writes a word.",
+    agents: [
+      { id: "opportunity", name: "Opportunity Agent", state: "built", depth: 3 },
+      // The paid advisory entry, and the product everything else was built
+      // around. It sits here because scope intelligence happens BEFORE a bid
+      // exists: it is what turns an invitation or an intention into a
+      // structured requirement somebody can price.
+      { id: "diagnostic", name: "Site Systems Diagnostic", state: "built", depth: 4 },
+      { id: "bid", name: "Compliance and Bid Agent", state: "built", depth: 4 },
+      { id: "tender-pack", name: "Tender pack assembler", state: "built", depth: 4 },
+      { id: "procurement", name: "Tender evaluation", state: "built", depth: 4 },
+      { id: "estimating", name: "Estimating Agent", state: "planned", depth: 3,
+        why: "Quantities and rates with lineage on every number: source, date, currency, quantity basis, productivity assumption, quotation validity, exclusions, escalation, confidence and who approved it. Without lineage a price cannot be defended and must not be automated." },
+      { id: "submission", name: "Submission Controller", state: "planned", depth: 4,
+        why: "The last check before upload: mandatory fields, filename conventions, page and word limits, formats, signatures, pricing reconciliation, contradictory answers, expired certificates, portal completeness. This is where AI prevents an administrative disqualification, which is the cheapest loss there is." },
+    ],
+  },
+  {
+    id: "planning",
+    name: "Planning and Delivery Engine",
+    purpose: "The programme, and the harder half — interrogating it rather than generating it.",
+    agents: [
+      { id: "mobilisation-review", name: "Mobilisation-readiness review", state: "built", depth: 3 },
+      { id: "controls", name: "Progress and Programme Agent", state: "built", depth: 4 },
+      { id: "programme", name: "Programme Generation Agent", state: "planned", depth: 3,
+        why: "Generating a programme is the easy part. What earns its place is interrogation: open-ended activities, missing predecessors, procurement disconnected from installation, hidden negative float, unsupported productivity, excessive critical-path sensitivity." },
+      { id: "recovery", name: "Recovery Agent", state: "planned", depth: 4,
+        why: "Recovery options with their cost and programme trade-offs, and time-impact analysis against a baseline that has not been quietly rewritten." },
+    ],
+  },
+  {
+    id: "resource",
+    name: "Resource and Cost Engine",
+    purpose: "What it costs, what it earns and when the cash arrives.",
+    // The cost and cash-flow work is delivered inside Agent 5's monthly
+    // control report — the valuation, the payment recommendations, the
+    // forecast and the exposure test against the reserve. It is named here
+    // rather than given a slot of its own, because an agent listed twice is
+    // an agent counted twice.
+    delegatedTo: { engine: "planning", agent: "controls" },
+    agents: [
+      { id: "commercial", name: "Commercial and Procurement Agent", state: "built", depth: 3 },
+      { id: "productivity", name: "Productivity Agent", state: "planned", depth: 3,
+        why: "Labour and plant output measured against what was priced, per control account, which is the only honest early warning on a cost overrun." },
+    ],
+  },
+  {
+    id: "risk",
+    name: "Risk, Safety and Compliance Engine",
+    purpose: "What could go wrong, and the administration around what must not.",
+    agents: [
+      { id: "assurance", name: "Assurance and Evidence Agent", state: "built", depth: 3 },
+      { id: "siteops", name: "Site Operations Agent", state: "built", depth: 3 },
+      { id: "safety", name: "Safety Assurance Agent", state: "planned", depth: 3,
+        why: "RAMS completeness, permit expiry, training gaps, recurring observations, method statements cross-checked against planned activity. It administers; it never supervises. It must never be sold as replacing a competent safety professional or a person on site." },
+      { id: "audit", name: "Audit Agent", state: "planned", depth: 3 },
+    ],
+  },
+  {
+    id: "bim",
+    name: "BIM and Digital Twin Engine",
+    purpose: "The model as a source of quantities and coordination rather than a picture.",
+    agents: [
+      { id: "design", name: "Spatial Coordination and Interface Agent", state: "built", depth: 4 },
+      { id: "model", name: "Model Validation Agent", state: "planned", depth: 3 },
+      { id: "quantity", name: "Quantity Agent", state: "planned", depth: 3,
+        why: "Quantities taken from the model and reconciled against the bill and the drawings. The valuable output is the disagreement between the three, not the number." },
+      { id: "asset", name: "Asset Agent", state: "planned", depth: 3 },
+    ],
+  },
+  {
+    id: "contracts",
+    name: "Contracts and Claims Engine",
+    purpose: "The contract as an executable obligation model rather than a document nobody opens until it is too late.",
+    agents: [
+      { id: "site-requirements", name: "Obligation and Requirements Agent", state: "built", depth: 4 },
+      { id: "village-requirements", name: "Accommodation Requirements Agent", state: "built", depth: 4 },
+      { id: "obligation", name: "Obligation Monitor", state: "planned", depth: 5,
+        why: "Every obligation as a controlled object: responsible party, trigger event, required action, notice period, TIME BAR, communication method, evidence, and the consequence of non-compliance. The time bar is the reason this is worth building — a right lost to a deadline is lost completely, and nothing in the current system watches one." },
+      { id: "notice", name: "Notice Agent", state: "planned", depth: 4,
+        why: "Drafts a notice when an event occurs and the clock starts. It drafts only: a binding contractual communication passes an authorised commercial gate, always." },
+      { id: "change", name: "Change and Entitlement Agent", state: "planned", depth: 4 },
+    ],
+  },
+  {
+    id: "handover",
+    name: "Handover and O&M Engine",
+    purpose: "Started at mobilisation, not at practical completion — which is the only way a handover date is ever met.",
+    agents: [
+      { id: "commissioning", name: "Commissioning Agent", state: "planned", depth: 4 },
+      { id: "handover-file", name: "Handover Agent", state: "planned", depth: 4,
+        why: "A live completeness score per asset — submittals, approval, installation evidence, inspection, testing, commissioning, defect closure, training, certification, warranty, spares, operating procedure — that forecasts a failed handover before the contractual date rather than reporting one after it." },
+      { id: "lifecycle", name: "Lifecycle and Asset Information Agent", state: "planned", depth: 3 },
+    ],
+  },
+];
+
+/**
+ * The orchestrator above the engines.
+ *
+ * It consolidates the project position and puts the decisions that need human
+ * authority in front of the person who holds it. It does not replace the
+ * project director, and the day it is described as doing so is the day the
+ * whole architecture becomes indefensible.
+ */
+export const ORCHESTRATOR = {
+  name: "Project Executive Orchestrator",
+  state: "planned",
+  does: [
+    "Consolidates one project position across every engine",
+    "Resolves routine cross-engine coordination",
+    "Presents the decisions that require human authority, with the evidence each rests on",
+  ],
+  neverDoes: [
+    "Replaces the project director",
+    "Makes a decision reserved to a named person",
+    "Reconciles two engines' contradictory findings by choosing one",
+  ],
+};
+
+/**
+ * WHAT AN AGENT MAY DO ON ITS OWN, BY ACTION CLASS.
+ *
+ * The authority attaches to the ACTION, not to the agent — because the same
+ * agent reads a document (autonomous) and drafts a contractual notice (an
+ * authorised human sends it), and an authority granted to an agent as a whole
+ * is an authority granted to its worst action.
+ *
+ * `autonomy` is one of: autonomous, logged, drafting, policy, labelled,
+ * approval, human, competent.
+ *
+ * Autonomy increases through demonstrated reliability, never because the
+ * model became more verbally confident. backend/test/architecture.test.mjs
+ * asserts that nothing marked human or competent is claimed by any agent.
+ */
+export const AUTONOMY = [
+  { action: "Read, extract and organise", autonomy: "autonomous", authority: "Autonomous" },
+  { action: "Calculate using approved rules", autonomy: "logged", authority: "Autonomous, with an audit log" },
+  { action: "Draft a document", autonomy: "drafting", authority: "Autonomous drafting; a person issues" },
+  { action: "Send a routine reminder", autonomy: "policy", authority: "Autonomous within policy" },
+  { action: "Create an internal workflow record", autonomy: "autonomous", authority: "Autonomous" },
+  { action: "Update an unapproved forecast", autonomy: "labelled", authority: "Permitted, and clearly labelled as unapproved" },
+  { action: "Issue an RFI", autonomy: "approval", authority: "Human approval; conditional autonomy only once reliability is demonstrated" },
+  { action: "Issue a contractual notice", autonomy: "approval", authority: "Authorised human approval, always" },
+  { action: "Approve a variation", autonomy: "human", authority: "Human only" },
+  { action: "Commit supplier expenditure", autonomy: "human", authority: "Human only" },
+  { action: "Certify a payment", autonomy: "human", authority: "Human only" },
+  { action: "Change an approved baseline", autonomy: "human", authority: "Human only" },
+  { action: "Approve a design or temporary works", autonomy: "competent", authority: "Competent authorised person only" },
+  { action: "Close a safety-critical defect", autonomy: "competent", authority: "Competent authorised person only" },
+  { action: "Stop work", autonomy: "competent", authority: "An agent may urgently recommend and escalate; formal authority follows the site's own arrangements" },
+];
+
+/**
+ * What makes an agent deep rather than superficial — and where this system
+ * actually stands on each.
+ *
+ * `state` is built, partial or absent, and it is the most useful column in
+ * this file: it is the build order. An architecture is a list of foundations;
+ * a plan is that list with the truth written next to it.
+ */
+export const FOUNDATIONS = [
+  { id: "state", name: "Structured project state", state: "partial",
+    what: "A live model of organisations, people, contracts, clauses, projects, locations, assets, packages, activities, costs, risks, documents, communications, decisions and approvals.",
+    where: "Engagements, documents, runs, suppliers, payments and valuations are structured. Contracts and their clauses are not: an obligation is prose inside a document rather than an object with a trigger and a time bar. Without that, an agent is searching documents." },
+  { id: "events", name: "Event spine", state: "partial",
+    what: "Every significant action an immutable event — drawing issued, instruction received, inspection failed, activity delayed, notice issued, change approved, asset commissioned — giving causation, chronology and auditability.",
+    where: "The append-only ledger records money events and, since it was found missing, deletions. Site and document events are not on it." },
+  { id: "temporal", name: "Temporal reasoning", state: "absent",
+    what: "What was known, when it became known, which revision was current, what decision was made on that information, and what changed afterwards.",
+    where: "Nothing here reconstructs a historic position. An agent that always reads the latest file destroys the very position a claim depends on, and that is the gap most likely to cost real money." },
+  { id: "provenance", name: "Provenance", state: "built",
+    what: "Every conclusion links to its source, and verified fact, extracted fact, calculation, assumption, prediction, recommendation and human decision are distinguished from one another.",
+    where: "Every pipeline agent traces its output to the input that produced it, marks evidence class, and refuses to invent what it was not given. Agent 5 values what the evidence supports and says so on the row." },
+  { id: "contract", name: "Contract awareness", state: "partial",
+    what: "Reasoning inside the project's actual contract and its bespoke amendments, not generic construction knowledge — the same site event produces different rights, processes and time bars under different forms.",
+    where: "Payment law is modelled: the due date, notice deadline, final date and pay-less deadline are computed from the day an application was received. Nothing else is." },
+  { id: "tools", name: "Tool execution", state: "partial",
+    what: "Controlled access to document management, the common data environment, BIM, estimating, scheduling, ERP, accounting, procurement, email, workflow, field applications and sensors.",
+    where: "Documents, uploads, the store, email and the platform connections are reachable. BIM, the CDE, scheduling and field applications are not. Reading documents alone is not end-to-end management." },
+  { id: "memory", name: "Memory", state: "absent",
+    what: "Separate memories for project facts, organisational policy, approved lessons learned, user preference and an agent's temporary working context.",
+    where: "There is none, and the absence is safer than a careless version: unverified output must never become institutional truth automatically." },
+  { id: "evaluation", name: "Evaluation", state: "partial",
+    what: "Every important agent tested against a specialist benchmark — a missed tender requirement, a misread clause, a pricing error, a false progress reading, a missed notice deadline, an unsupported claim, a revision-control failure.",
+    where: "Four machine reconciliations gate four agents and are tested end to end. There is no benchmark set of real packs with known defects, which is what would actually measure recall." },
+  { id: "permission", name: "Permission and approval control", state: "built",
+    what: "Authority that depends on the action, its value, its contractual and safety consequence, its reversibility, the confidence behind it, the user's role and the project stage.",
+    where: "Every agent runs inside a stated boundary, every pipeline output requires human approval before it becomes a document, and roles gate the desk. The AUTONOMY table above is the rule it answers to." },
+];
+
+/**
+ * What "good" means, measured on operational results rather than on how the
+ * output reads.
+ *
+ * A lower-confidence agent must abstain and escalate rather than invent
+ * certainty. That is a target too, and the hardest one.
+ */
+export const QUALITY_TARGETS = [
+  { stage: "Bidding", target: "Mandatory-requirement recall", value: "above 99%" },
+  { stage: "Bidding", target: "Unapproved commercial figures in a submission", value: "zero" },
+  { stage: "Bidding", target: "Unsupported corporate claims in a submission", value: "zero" },
+  { stage: "Bidding", target: "Traceability for material pricing assumptions", value: "100%" },
+  { stage: "Bidding", target: "Complete submission validation before upload", value: "every time" },
+  { stage: "Delivery", target: "Notice-deadline recall", value: "above 99%" },
+  { stage: "Delivery", target: "Progress forecast calibration, by package", value: "measured and published" },
+  { stage: "Delivery", target: "Early-warning precision", value: "high enough that warnings are read" },
+  { stage: "Delivery", target: "Aged RFIs", value: "falling" },
+  { stage: "Delivery", target: "Unrecorded change", value: "falling" },
+  { stage: "Delivery", target: "Payment-assessment cycle time", value: "falling" },
+  { stage: "Delivery", target: "Handover completeness trajectory", value: "improving against the date" },
+  { stage: "Delivery", target: "Manual reporting hours", value: "measurably reduced" },
+];
+
+/**
+ * How this fails, and whether it currently does.
+ *
+ * The most dangerous error is not hallucinated prose. It is a plausible but
+ * incorrect ACTION entering the live contractual, commercial or safety
+ * process — which is why every reconciliation in this system refuses rather
+ * than warns. NIST's AI Risk Management Framework makes the same point about
+ * building trustworthiness into design, development, use and evaluation
+ * rather than inspecting for it afterwards.
+ * https://www.nist.gov/itl/ai-risk-management-framework
+ */
+export const FAILURE_MODES = [
+  { mode: "One general-purpose agent", avoided: true, how: "Thirteen agents inside stated boundaries; nine with their own pipeline." },
+  { mode: "Document chat with no structured data", avoided: true, how: "Every deliverable is split into numbered sections and reconciled by machine." },
+  { mode: "Uncontrolled access to email and contractual communication", avoided: true, how: "No agent sends anything. Every communication is drafted and a person issues it." },
+  { mode: "Progress percentages with no evidence", avoided: true, how: "Agent 5 classes every figure as measured, evidenced, asserted or unknown, and values what the evidence supports." },
+  { mode: "Current documents with no historic revision context", avoided: false, how: "Not addressed. See the temporal foundation above — this is the largest open gap." },
+  { mode: "AI-generated estimates with no source lineage", avoided: false, how: "No estimating agent exists yet, and it must not be built before lineage is." },
+  { mode: "Automatic learning from unverified project records", avoided: true, how: "There is no memory at all, which on this point is the safe answer." },
+  { mode: "Many agents with no common project state", avoided: false, how: "Partly. Runs, documents and engagements are shared; contracts and site events are not." },
+  { mode: "Confidence scores produced only by the model itself", avoided: true, how: "Every gate is arithmetic performed outside the model: references compared, figures added, dates ordered." },
+  { mode: "Promising to replace project managers", avoided: true, how: "The register, every agent boundary and the website all say the opposite, and the AUTONOMY table above is what it means in practice." },
+];
+
 export function organisation() {
   return {
     principle: PRINCIPLE,
@@ -437,5 +784,16 @@ export function organisation() {
     operatingPrinciple: OPERATING_PRINCIPLE,
     matureOrg: MATURE_ORG,
     positions: POSITIONS,
+    // The agent architecture, merged into the register rather than filed
+    // beside it — so the portal shows one structure and a test can check that
+    // nothing here claims an agent that cannot actually be run.
+    depthLevels: DEPTH_LEVELS,
+    levelSeven: LEVEL_7,
+    engines: ENGINES,
+    orchestrator: ORCHESTRATOR,
+    autonomy: AUTONOMY,
+    foundations: FOUNDATIONS,
+    qualityTargets: QUALITY_TARGETS,
+    failureModes: FAILURE_MODES,
   };
 }
