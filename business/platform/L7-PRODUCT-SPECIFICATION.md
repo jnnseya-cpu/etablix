@@ -835,3 +835,144 @@ presents concise decision evidence and reproducible calculations.
 - **Approval shall require an explicit decision, not mere navigation or opening a notification.**
 - Rejected agent actions shall preserve the proposed action and the reason, for audit and learning.
 
+---
+
+## 20. Roles, permissions and delegated authority
+
+| Role | Default scope |
+|---|---|
+| Platform Administrator | Tenant provisioning and platform policy; **no implicit access to client tender content** |
+| Enterprise Administrator | Identity, integrations, retention, policies and entitlements |
+| Executive Sponsor | Pursuit, risk appetite, award and high-value approval |
+| Bid Director | Tender plan, team, strategy, readiness and submission recommendation |
+| Commercial Authority | Estimate, price, cash, qualifications and commercial risk |
+| Technical Authority | Technical solution and engineering review |
+| Planner | Programme, logic, resources and scenario review |
+| Estimator | Quantities, rates, quotes and estimate preparation |
+| Legal Reviewer | Contract departures and legal risk review |
+| Contributor | Assigned requirements and response sections only |
+| External Partner | Explicitly shared work packages and documents only |
+| Auditor | Read-only evidence, decision and event access |
+| Submission Signatory | Final approval and the authorised submission action |
+
+### 20.1 Permission model
+
+RBAC for normal role bundles; ABAC for tenant, legal entity, tender, client,
+work package, content classification, geographic region, action risk, value
+threshold and time-limited delegation.
+
+**A user who can edit a response does not automatically gain access to the
+price or the contract departures. Agent identity must be distinct from the
+user identity that authorised the run.**
+
+---
+
+## 21. API and event specification
+
+### 21.1 Minimum API surface
+
+| Method and path | Purpose |
+|---|---|
+| `POST /v1/tenders` | Create tender |
+| `POST /v1/tenders/{id}/issues` | Register an ITT issue or addendum |
+| `POST /v1/content/ingestions` | Ingest one or more content objects |
+| `GET /v1/tenders/{id}/requirements` | Query compliance requirements |
+| `PATCH /v1/requirements/{id}` | Update controlled fields with an optimistic lock |
+| `POST /v1/agent-runs` | Start a bounded agent run |
+| `GET /v1/agent-runs/{id}` | Retrieve run state and trace summary |
+| `POST /v1/agent-runs/{id}/cancel` | Cancel safely |
+| `POST /v1/approvals` | Request approval |
+| `POST /v1/approvals/{id}/decisions` | Record decision |
+| `POST /v1/estimates/{id}/reconcile` | Execute deterministic reconciliation |
+| `POST /v1/submissions/validate` | Validate a submission snapshot |
+| `POST /v1/submissions/{id}/approve` | Approve the exact submission snapshot |
+| `POST /v1/submissions/{id}/execute` | Execute the authorised submission action |
+| `POST /v1/tenders/{id}/award-conversion` | Create the controlled delivery baseline |
+
+### 21.2 API rules
+
+- Use tenant-scoped opaque identifiers.
+- All mutating requests shall accept idempotency keys.
+- Controlled objects shall use version numbers or ETags for optimistic concurrency.
+- Errors shall return a machine-readable code, the affected object and remediation where safe.
+- Large jobs shall be asynchronous and expose status plus webhooks.
+- Pagination shall use stable cursors.
+- **Exports shall be generated from immutable snapshots.**
+- API and event schemas shall be versioned with a backward-compatibility policy.
+
+### 21.3 Core events
+
+| Family | Events |
+|---|---|
+| Lifecycle | `OpportunityRegistered`, `PursuitApproved`, `TenderCreated`, `TenderIssueReceived`, `ContentIngested`, `ExtractionCompleted`, `RequirementDetected`, `RequirementChanged`, `RequirementBlocked`, `EvidenceVerified`, `ClarificationIssued`, `ClarificationAnswered`, `EstimateChanged` |
+| Controls | `PriceApproved`, `ProgrammeApproved`, `DepartureApproved`, `ResponseApproved`, `FindingRaised`, `FindingClosed`, `SubmissionSnapshotCreated`, `SubmissionApproved`, `SubmissionExecuted` |
+| Learning and agents | `AwardRecorded`, `BaselineConverted`, `LessonProposed`, `KnowledgePromoted`, `AgentRunStarted`, `AgentRunBlocked`, `AgentRunCompleted`, `PolicyViolationDetected` |
+
+---
+
+## 22. Integration framework
+
+| Integration | Minimum operations |
+|---|---|
+| Identity | OIDC or SAML, SCIM, MFA context, groups and user lifecycle |
+| Email | Authorised ingest, draft, **send gate**, thread and attachment preservation |
+| Storage and CDE | Read, version, metadata, permission mapping, link and controlled write |
+| CRM | Opportunity, client, contacts, value, stage and outcome |
+| ERP and finance | Cost codes, rates, suppliers, currency, tax and project creation |
+| Estimating | Import and export estimate hierarchy, rates, quantities and versions |
+| Scheduling | Import and export activities, logic, calendars, resources and baselines |
+| BIM and CAD | Model metadata, elements, quantities, revisions and issue links |
+| E-signature | Signature request and completed evidence; **never fabricate a signature** |
+| Procurement portals | Authorised field mapping, staging, validation and receipt |
+| Collaboration | Tasks, notifications, comments, mentions and decision capture |
+
+### 22.1 Connector contract
+
+```
+ConnectorOperation {
+  connector_id, tenant_id, acting_identity,
+  operation_type, input_schema_version,
+  requested_scope, data_classification,
+  idempotency_key, timeout, retry_policy,
+  result_ref, audit_event_id
+}
+```
+
+---
+
+## 23. Security, privacy and AI safety
+
+### 23.1 Mandatory controls
+
+- Encrypt data in transit and at rest using enterprise-approved cryptography.
+- Use tenant-specific access boundaries in primary data, object storage, retrieval indexes, caches **and logs**.
+- Store secrets in a dedicated secrets service; issue short-lived credentials where supported.
+- Scan attachments before parsing and isolate active content.
+- **Treat all ingested content as untrusted; detect and neutralise prompt-injection instructions contained in tender documents.**
+- Apply data-loss prevention before model calls, tool actions and exports.
+- Support configurable data residency, retention, legal hold and deletion.
+- **Prohibit model-provider training on tenant data unless the tenant explicitly enables it under contract.**
+- Record privileged access and require just-in-time elevation for support access.
+- Run threat modelling for agent tool abuse, confused deputy, cross-tenant retrieval, data exfiltration and approval spoofing.
+
+### 23.2 Prompt-injection policy
+
+**Document text may describe contractual instructions but cannot change system
+policy, agent permissions, tool access or approval rules.** The parser shall
+label source content as data. If content attempts to direct the model to
+ignore rules, reveal secrets, contact third parties or execute tools, the run
+shall quarantine that instruction and create a security finding.
+
+### 23.3 Audit record
+
+| Field | Requirement |
+|---|---|
+| Identity | User, agent, service and delegated authority |
+| Action | Requested, attempted, permitted, denied and completed operations |
+| Object | Tenant, tender, object ID and object version |
+| Evidence | Input references and output hash |
+| Decision | Policy evaluated, result, approver and conditions |
+| Technology | Agent definition, model route, tool version and validator version |
+| Economics | Tokens, ACUs, processing time and external service cost |
+| Time | Trusted timestamps and sequence |
+
