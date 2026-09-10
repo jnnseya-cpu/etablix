@@ -62,6 +62,14 @@ ok(/--status/.test(auto), "autodeploy.sh --status exists");
 ok(/cron:\s+NOT INSTALLED/.test(auto),
    "and it says plainly when cron is missing — the script alone deploys nothing");
 ok(/paused:\s+YES/.test(auto), "and when a pause file is holding everything");
+// The one line of output that would have shown the last live-deploy failure
+// and did not: it printed "target: staging" as though that were unremarkable.
+ok(/the live site will NEVER be deployed by cron/.test(auto),
+   "and it shouts when the target is staging, because that means the live site never moves");
+ok(/ETABLIX_AUTODEPLOY_TARGET in \/etc\/default\/etablix/.test(auto),
+   "naming the file that almost always caused it");
+ok(/sed -i '\/\^ETABLIX_AUTODEPLOY_TARGET=\/d' \/etc\/default\/etablix/.test(auto),
+   "and the one command that fixes it");
 
 // --- the documentation must not say the opposite of the code
 console.log("\n--- the runbook agrees with the script\n");

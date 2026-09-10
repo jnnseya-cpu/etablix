@@ -69,6 +69,12 @@ ENABLED=${ETABLIX_AUTODEPLOY:-1}
 if [ "${1:-}" = "--status" ]; then
   echo "auto-deploy:  $([ "$ENABLED" != "0" ] && echo ON || echo "OFF (ETABLIX_AUTODEPLOY=0)")"
   echo "target:       $TARGET"
+  if [ "$TARGET" = "staging" ]; then
+    echo "              WARNING: the live site will NEVER be deployed by cron."
+    echo "              The script's default is live, so something has overridden it —"
+    echo "              almost always ETABLIX_AUTODEPLOY_TARGET in /etc/default/etablix."
+    echo "              To send it to live:  sed -i '/^ETABLIX_AUTODEPLOY_TARGET=/d' /etc/default/etablix"
+  fi
   echo "repository:   $REPO"
   if [ -n "$SCRIPTS" ]; then
     echo "scripts:      $SCRIPTS"
