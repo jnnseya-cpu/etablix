@@ -1164,3 +1164,140 @@ shall quarantine that instruction and create a security finding.
 | AWD-009 | Project creation | Host adapter creates the project only after approval | Failure rolls back or resumes idempotently |
 | AWD-010 | Knowledge isolation | **Tender content does not enter corporate knowledge automatically** | Promotion requires steward approval |
 
+---
+
+## 27. Data contracts and example payloads
+
+### 27.1 Requirement payload
+
+```json
+{
+  "id": "req_01J...",
+  "tender_id": "tdr_01J...",
+  "source": {"document_version_id":"dv_...","page":42,"span":"3.2.1"},
+  "exact_text": "Provide a fully resource-loaded programme...",
+  "classification": {"type":"programme","mandatory":true,"pass_fail":true},
+  "completion_rule_id": "rule_programme_01",
+  "owner_role": "planner",
+  "status": "READY_FOR_REVIEW",
+  "response_refs": ["rsp_..."],
+  "evidence_refs": ["ev_..."],
+  "confidence": {"score":0.96,"band":"high"},
+  "version": 7
+}
+```
+
+### 27.2 Approval payload
+
+```json
+{
+  "action": "APPROVE_SUBMISSION_SNAPSHOT",
+  "object_ref": {"type":"submission","id":"sub_...","version":4},
+  "snapshot_hash": "sha256:...",
+  "risk_class": "E",
+  "required_authority": {"role":"submission_signatory","value_limit":25000000},
+  "decision": "APPROVED",
+  "conditions": [],
+  "decided_by": "usr_...",
+  "decided_at": "2026-09-10T16:30:00Z"
+}
+```
+
+### 27.3 Event envelope
+
+```json
+{
+  "event_id":"evt_...", "event_type":"TenderIssueReceived", "schema_version":"1.0",
+  "tenant_id":"ten_...", "aggregate_type":"Tender", "aggregate_id":"tdr_...",
+  "aggregate_version":18, "occurred_at":"2026-09-10T10:00:00Z",
+  "actor":{"type":"integration","id":"con_..."},
+  "correlation_id":"cor_...", "causation_id":"cmd_...",
+  "data":{}, "classification":"client_confidential"
+}
+```
+
+---
+
+## 28. Agent evaluation framework
+
+### 28.1 Benchmark suites
+
+| Suite | Core measures | Release threshold principle |
+|---|---|---|
+| Requirement extraction | Recall, precision, atomicity, source accuracy | Mandatory recall prioritised; **critical misses prohibited** |
+| Contract | Clause retrieval, obligation accuracy, deadline logic, abstention | No high-risk unsupported conclusion |
+| Estimate | Quantity lineage, unit accuracy, arithmetic and reconciliation | Deterministic totals exact within the rounding rule |
+| Planning | Logic defect detection, duration basis and scenario fidelity | Known critical defects found |
+| Drafting | Requirement coverage, grounded claim rate and value consistency | **No unsupported material claim** |
+| Submission | Format, coverage, price, issue and signature checks | All seeded disqualifiers detected |
+| Security | Prompt injection, exfiltration, cross-tenant and tool abuse | **Zero successful critical attack in the release suite** |
+| Calibration | Confidence against observed correctness | Published bands meet the error tolerance |
+
+### 28.2 Production monitoring
+
+- Sample high-risk agent outputs for expert review.
+- Monitor acceptance, rejection, correction and override rates by agent version.
+- Track false-negative rates for mandatory requirements and critical findings.
+- Detect performance drift by client type, document type, language and contract family.
+- **Stop or roll back an agent release when guardrail or quality thresholds fail.**
+- Separate model quality from retrieval, parser, tool and user-data failures.
+
+### 28.3 Golden tender corpus
+
+Maintain a permission-cleared corpus containing scanned documents, complex
+tables, addenda, bespoke contracts, conflicting drawings, pricing schedules,
+portal instructions, multilingual text **and seeded adversarial instructions.**
+Expected requirements, risks, calculations and submission defects shall be
+annotated by qualified construction and commercial reviewers.
+
+---
+
+## 29. Observability, operations and support
+
+| Metric group | Measures |
+|---|---|
+| Tender readiness | Mandatory completion, weighted completion, blockers, stale outputs and forecast finish |
+| Agent reliability | Success, partial, blocked, abstained, retry, validator failure and correction rate |
+| Quality | Requirement recall, grounded claims, reconciliation errors and escaped defects |
+| Performance | Queue time, run time, tool latency, retrieval latency and export time |
+| Cost | ACU by tender, agent, phase, output and model route |
+| Security | Policy denial, injection detection, anomalous retrieval and privileged access |
+| Integrations | Availability, authentication failure, throttling, schema error and replay backlog |
+
+### 29.1 Operational runbooks
+
+Model provider outage and routing failover; parser failure on a critical
+tender file; tender addendum received close to the deadline; submission portal
+unavailable; **an incorrect approved price discovered before and after
+submission**; cross-tenant access alert; compromised connector credential;
+agent release regression; event backlog and duplicate delivery; library or
+object-store recovery.
+
+---
+
+## 30. Implementation architecture decisions
+
+| Decision | Required direction | Reason |
+|---|---|---|
+| System of record | Relational domain store plus immutable object storage and event log | Transactions, audit and version control |
+| Knowledge relationships | Graph projection over canonical IDs | Cross-domain impact analysis |
+| Semantic retrieval | Tenant-partitioned vector index with metadata enforcement | Evidence discovery without losing access control |
+| Workflow | Durable workflow engine | Long-running, resumable human and agent processes |
+| Agent execution | Stateless workers with checkpointed run state | Scale and safe recovery |
+| Calculations | Versioned deterministic calculation services | Reproducibility and approval integrity |
+| Model access | Central model gateway | Provider portability, policy, cost and audit |
+| Tools | Typed narrow capabilities through a gateway | Least privilege and validation |
+| Exports | Snapshot-based document generation service | Exact approval and reproducible submission |
+
+---
+
+## 31. Delivery roadmap
+
+| Release | Scope | Exit criteria |
+|---|---|---|
+| R1 Controlled ITT foundation | Tender workspace, ingestion, issue register, requirement matrix, evidence and basic drafting | Traceable current-state ITT with human-controlled workflow |
+| R2 Bid production | Solution, estimate, programme, contract, response and review integrations | Cross-domain controlled bid with reconciliations |
+| R3 Multi-agent coordination | Orchestrator, typed tools, budgets, checkpoints, independent assurance and agent operations | Level 5 and 6 operation passes benchmarks |
+| R4 Level 7 governance | Risk-class actions, delegated authority, exact snapshot approval, continuous monitoring and recovery | Governed reversible autonomy with no critical guardrail failures |
+| R5 Award and learning | Contract reconciliation, delivery baseline, actuals and controlled knowledge promotion | End-to-end continuity proven on pilot tenders |
+
