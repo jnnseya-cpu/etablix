@@ -310,38 +310,37 @@ router.post("/:id/run", acceptDocuments, async (req, res) => {
       runBy: req.user.name,
     };
 
-    // A pipeline agent makes six calls and takes several minutes. Holding
-    // the request open for that is a timeout waiting to happen, so the run
-    // is recorded first, answered immediately, and worked in the
-    // background with each pass saved as it lands.
-    if (PIPELINE_AGENTS.has(agent.id)) {
-      assertInputs(agent.id, inputs, documents);
-      const run = insert("agentTasks", {
-        ...common,
-        output: "",
-        status: "running",
-        startedAt: Date.now(),
-        stages: stagesFor(agent.id).map((st) => ({ ...st, state: "pending" })),
-      });
-      savePack(run.id, { documents, passes: {} });
-      trimLog();
-      res.status(202).json({ run: publicRun(run, true) });
-      workPipeline(run.id, agent, inputs, req.user.name, visualFiles);
-      return;
-    }
-
-    const { output, model, usage, truncated } = await runAgent(agent.id, inputs, req.user.name, { documents });
+    // EVERY AGENT IS WORKED IN THE BACKGROUND. The run is recorded first,
+    // answered immediately, and worked with each pass saved as it lands.
+    //
+    // The pipeline agents always were, because six calls over a document set
+    // is several minutes and holding the request open for it is a timeout
+    // waiting to happen. The single-pass agents ran in the foreground, which
+    // was defensible while they were one 16,000-token call.
+    //
+    // They are not any more. A single-pass agent now continues its own output
+    // until the answer is finished, so Agent 2 reading a full ITT can take
+    // many calls and a long time — comfortably past the two-minute request
+    // timeout on this server. The client would have seen a failed request
+    // against a run that completed perfectly, and the output would have been
+    // written to a row nobody was still listening for.
+    //
+    // So the two paths become one. It also means the notes a single-pass run
+    // produces — including "this output is INCOMPLETE" — are persisted, which
+    // the foreground path silently dropped by destructuring around them.
+    assertInputs(agent.id, inputs, documents);
     const run = insert("agentTasks", {
       ...common,
-      output,
-      model,
-      usage,
-      truncated: Boolean(truncated),
-      status: "awaiting_approval",
+      output: "",
+      status: "running",
+      startedAt: Date.now(),
+      stages: stagesFor(agent.id).map((st) => ({ ...st, state: "pending" })),
     });
     savePack(run.id, { documents, passes: {} });
     trimLog();
-    res.status(201).json({ run: publicRun(run, true) });
+    res.status(202).json({ run: publicRun(run, true) });
+    workPipeline(run.id, agent, inputs, req.user.name, visualFiles);
+    return;
   } catch (err) {
     res.status(err.message.includes("required") ? 400 : 502).json({ error: err.message });
   }
@@ -364,8 +363,16 @@ router.post("/runs/:id/resume", async (req, res) => {
   if (run.status === "running") return res.status(409).json({ error: "That run is already going." });
   if (run.status === "awaiting_approval") return res.status(409).json({ error: "That run already finished." });
   const agent = AI_AGENTS.find((a) => a.id === run.agent);
-  if (!agent || !PIPELINE_AGENTS.has(agent.id)) {
-    return res.status(400).json({ error: "Only a pipeline run can be resumed." });
+  if (!agent) return res.status(400).json({ error: "That run's agent no longer exists." });
+  // A single-pass agent has one pass. If it completed, the run finished; if
+  // it did not, nothing was saved and there is nothing to resume from — so
+  // the answer is to run it again, and the message says that rather than
+  // "only a pipeline run can be resumed", which sounded like a restriction
+  // somebody could ask to have lifted.
+  if (!PIPELINE_AGENTS.has(agent.id)) {
+    return res.status(400).json({
+      error: `${agent.name} does its work in one pass, so there is no completed part to carry forward. Start it again.`,
+    });
   }
   const passes = readPack(run.id).passes || {};
   if (!Object.keys(passes).length) {

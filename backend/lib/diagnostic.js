@@ -392,7 +392,12 @@ const BUDGET = {
   // rather than holding the whole thing in one pass.
   reconcile: { effort: "max", max: 64000 },
   section: { effort: "xhigh", max: 32000 },
-  final: { effort: "high", max: 16000 },
+  // Was 16,000, on the reasoning that the final pass only summarises. It also
+  // writes the traceability table — a row per requirement across the whole
+  // deliverable set — which on a real pack is the longest table in the
+  // document. Halving its room against the section passes for no reason meant
+  // it was continued more often than any of them.
+  final: { effort: "high", max: 32000 },
 };
 
 /**
@@ -689,7 +694,78 @@ async function call(anthropic, { model, system, inputsBlock, visualBlocks, visua
  * by a fourth, and at that point the report has to SAY it is incomplete
  * rather than quietly hand the desk a document that stops mid-row.
  */
-const MAX_CONTINUATIONS = 3;
+/**
+ * HOW MANY TIMES A PASS MAY BE CONTINUED: until it is finished.
+ *
+ * This was three. Three is a number somebody chose, and on a long pass it
+ * was the difference between a deliverable and a deliverable that stops
+ * mid-table — the run said "INCOMPLETE, do not issue" and the client's
+ * report was unusable, having cost four calls of model time to produce.
+ *
+ * A count is the wrong control anyway. The right question is not "how many
+ * continuations have we had" but "is it still making progress", and that has
+ * an exact answer: a continuation either adds text or it does not. So the
+ * loop now runs until the model stops truncating, and stops early only when
+ * a continuation adds effectively nothing — which is a stalled model, and
+ * one more call will not fix it.
+ *
+ * The ceiling below is not a budget. It is the guard against a pathological
+ * loop — a model that truncates for ever while producing a trickle of new
+ * characters each time — and it is set far above any honest pass so that it
+ * is never the thing that ends a run. If a pass ever reaches it, that is a
+ * fault to investigate, not a limit to raise.
+ */
+export const CONTINUATION_GUARD = Number(process.env.ETABLIX_AI_MAX_CONTINUATIONS || 60);
+
+/** Below this many new characters, a continuation has stalled rather than progressed. */
+export const STALL_CHARS = 24;
+
+/**
+ * THE REAL CONTROL: how much one pass may write, in characters.
+ *
+ * A call count is the wrong ceiling and it took a test to show why. Sixty
+ * continuations of a pass that reports itself truncated every time is sixty
+ * paid calls producing no deliverable — the loop is the fault, and counting
+ * to sixty before admitting it is expensive.
+ *
+ * Volume is the honest measure, because a deliverable has a size. This
+ * ceiling is roughly 300,000 tokens of output IN ONE PASS: several times the
+ * longest section any of these agents has ever produced on a real client
+ * pack, so it never ends an honest pass. Past it, the model is not writing a
+ * long document, it is looping — and the run says so and keeps what was
+ * written, rather than spending more to reach the same conclusion.
+ *
+ * Lowered by the truncation suite so the loop can be driven to its end in a
+ * test without a thousand calls.
+ */
+export const PASS_CHAR_CEILING = Number(process.env.ETABLIX_AI_MAX_PASS_CHARS || 1_200_000);
+
+/**
+ * What a model is told when its own output was cut off.
+ *
+ * ONE WORDING, SHARED. The pipeline passes and the single-pass agents both
+ * continue now, and two versions of this instruction would drift — with the
+ * failure showing up as a duplicated heading or a repeated table row in
+ * whichever one was not updated.
+ *
+ * The explicit "even if that is the middle of a word" is the part that
+ * matters. The two replies are joined with NOTHING between them, because a
+ * blank line inserted at the join breaks whatever table row the cut fell
+ * inside, and a broken row in a pricing schedule is a line nobody prices.
+ */
+export function continuationInstruction(tail) {
+  return (
+    `YOU HAVE ALREADY WRITTEN PART OF THIS. It stopped because it reached the length limit. ` +
+    `Continue it. Do not restart it, do not repeat a heading, a row or a sentence that is already written, ` +
+    `and do not summarise what came before.\n\n` +
+    `Your reply will be appended directly to what you wrote, with nothing at all in between — ` +
+    `no newline, no separator. So begin at the exact character where it stopped, even if that is ` +
+    `the middle of a word, the middle of a table row or the middle of a sentence. ` +
+    `Finish whatever was in progress, then write everything that had not been reached, ` +
+    `using the same headings, the same table columns and the same ID series.\n\n` +
+    `WHAT YOU WROTE ENDS LIKE THIS:\n\n${tail}`
+  );
+}
 
 /**
  * One pass, written to the end.
@@ -715,7 +791,11 @@ async function complete(anthropic, args, key, record, notes, inReport = IN_REPOR
   let text = r.text;
 
   let rounds = 0;
-  while (r.truncated && rounds < MAX_CONTINUATIONS) {
+  let stalled = false;
+  let overflowed = false;
+  while (r.truncated) {
+    if (text.length >= PASS_CHAR_CEILING) { overflowed = true; break; }
+    if (rounds >= CONTINUATION_GUARD) break;
     rounds += 1;
     // The tail is what makes the join seamless. The whole partial is not
     // resent: the working paper and the earlier sections are already in
@@ -724,34 +804,42 @@ async function complete(anthropic, args, key, record, notes, inReport = IN_REPOR
     const tail = text.slice(-4000);
     r = await call(anthropic, {
       ...args,
-      task:
-        `${args.task}\n\n---\n\n` +
-        `YOU HAVE ALREADY WRITTEN PART OF THIS. It stopped because it reached the length limit. ` +
-        `Continue it. Do not restart it, do not repeat a heading, a row or a sentence that is already written, ` +
-        `and do not summarise what came before.\n\n` +
-        `Your reply will be appended directly to what you wrote, with nothing at all in between — ` +
-        `no newline, no separator. So begin at the exact character where it stopped, even if that is ` +
-        `the middle of a word, the middle of a table row or the middle of a sentence. ` +
-        `Finish whatever was in progress, then write everything that had not been reached, ` +
-        `using the same headings, the same table columns and the same ID series.\n\n` +
-        `WHAT YOU WROTE ENDS LIKE THIS:\n\n${tail}`,
+      task: `${args.task}\n\n---\n\n${continuationInstruction(tail)}`,
     });
     record(r, `${key}-continued-${rounds}`);
+    // A continuation that adds nothing is a stalled model, not a long pass.
+    // Calling it again produces the same nothing at the same price.
+    if (r.text.trim().length < STALL_CHARS) {
+      stalled = true;
+      text += r.text;
+      break;
+    }
     text += r.text;
   }
 
   if (r.truncated && inReport.has(key)) {
-    // Loud, and phrased so the desk cannot mistake it for a caveat.
+    // Loud, and phrased so the desk cannot mistake it for a caveat. Reaching
+    // here now means something is actually wrong: the pass either stalled —
+    // the model stopped adding text while still reporting itself cut off — or
+    // it passed a guard set far above any honest length.
     notes.push(
-      `The "${key}" pass is INCOMPLETE. It reached the length limit ${rounds + 1} times and is still cut off, ` +
-      `so this part of the report stops before its end. Do not issue it as it stands — re-run with a narrower scope.`
+      `The "${key}" pass is INCOMPLETE. It was continued ${rounds} time${rounds === 1 ? "" : "s"}, wrote ` +
+      `${text.length.toLocaleString("en-GB")} characters, and is still cut off` +
+      (stalled
+        ? " — and the last continuation added almost nothing, so the model stalled rather than ran out of room. "
+        : overflowed
+          ? `, passing the ${PASS_CHAR_CEILING.toLocaleString("en-GB")}-character ceiling for a single pass. ` +
+            "A pass that long is looping rather than writing, so it was stopped. "
+          : `, having reached the continuation backstop of ${CONTINUATION_GUARD} calls. `) +
+      `This part of the report stops before its end. Do not issue it as it stands.`
     );
   } else if (r.truncated) {
     // The working paper, and only the working paper. Say what it actually
     // costs — depth, not completeness — and say plainly that the report is
     // unaffected, because the desk's next question is whether to send it.
     notes.push(
-      `The working paper reached the length limit ${rounds + 1} times and stops before its end, so the twelve ` +
+      `The working paper was continued ${rounds} time${rounds === 1 ? "" : "s"}, wrote ${text.length.toLocaleString("en-GB")} characters, ` +
+      `and still stops before its end, so the twelve ` +
       `deliverables were written from a partial reconciliation ledger and may be less complete than they could be. ` +
       `THE REPORT ITSELF IS NOT CUT OFF — the working paper is internal and never forms part of it.`
     );
@@ -843,10 +931,17 @@ export async function runPipeline({ spec = DIAGNOSTIC_SPEC, anthropic, model, sy
   // clock because the sixth met one busy minute is the wrong trade on a
   // report somebody is waiting to send a client.
   //
-  // Nothing runs away as a result: every individual call is still bounded
-  // at five attempts with exponential backoff, and every pass at three
-  // continuations. Set ETABLIX_AI_RUN_MINUTES to put a wall back if a
-  // deployment needs one.
+  // NO WALL CLOCK BY DEFAULT, and that is deliberate. A run is six or seven
+  // passes of reasoning over a whole document set, each continued until it is
+  // finished, and a report somebody is waiting to send a client must not be
+  // abandoned because it was honestly long.
+  //
+  // Nothing runs away as a result. Every individual call is bounded at five
+  // attempts with exponential backoff; every pass stops continuing the moment
+  // the model stops adding text; and the continuation guard sits far above any
+  // real pass. Set ETABLIX_AI_RUN_MINUTES if a deployment genuinely needs a
+  // wall — but understand that it kills finished passes to save an unfinished
+  // one, so the default is 0 and should stay 0.
   const minutes = Number(process.env.ETABLIX_AI_RUN_MINUTES || 0);
   const deadline = minutes > 0 ? Date.now() + minutes * 60 * 1000 : null;
   // Drawings and printed programmes lead, because they are the only part

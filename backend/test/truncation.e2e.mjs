@@ -61,7 +61,13 @@ const stopMock = () => new Promise((r) => { if (!mock) return r(); mock.on("exit
 
 await startMock("1");
 
+// The volume ceiling is lowered for this run. In production it is roughly
+// 300,000 tokens of output in ONE pass — several times the longest section
+// any of these agents has produced on a real pack — so driving a pathological
+// pass to its end at the real ceiling would take a thousand mock calls. The
+// BEHAVIOUR under test is identical; only the number is smaller.
 const srv = spawn("node", ["backend/server.js"], { env: { ...process.env, PORT: String(PORT), SITE_URL: B,
+  ETABLIX_AI_MAX_PASS_CHARS: "12000",
   ANTHROPIC_BASE_URL: MOCK }, stdio: "ignore" });
 for (let i = 0; i < 40; i++) { await wait(250); try { if ((await fetch(B + "/api/health")).ok) break; } catch {} }
 
@@ -116,9 +122,17 @@ ok(run?.truncated !== true,
    { truncated: run?.truncated, notes });
 
 // --- the ceiling: a pass that will never finish must SAY so
-// Continuing for ever is not an option — every round spends money — so the
-// loop stops after MAX_CONTINUATIONS and the report has to declare itself
-// incomplete rather than quietly stop early and look finished.
+//
+// Continuing for ever is not an option — every round spends money — but the
+// ceiling is VOLUME, not a call count, and that distinction was worth getting
+// right. The count used to be three, which cut off honest passes on a real
+// client pack; raising it to a bigger count only moved the arbitrary number
+// and made a looping pass more expensive to discover.
+//
+// A deliverable has a size. So a pass continues while it is making progress
+// and stops when the amount it has written says it is looping rather than
+// writing — and then declares itself incomplete rather than quietly stopping
+// early and looking finished.
 await startMock("always");
 {
   const fd2 = new FormData();
@@ -138,8 +152,12 @@ await startMock("always");
   ok(n2.some((n) => /pass is INCOMPLETE/.test(n)),
      "a pass that never finishes says INCOMPLETE, loudly, rather than stopping quietly", n2.slice(0, 2));
   ok(n2.some((n) => /Do not issue it as it stands/.test(n)), "and tells the desk not to issue it");
-  ok(n2.some((n) => /reached the length limit 4 times/.test(n)),
-     "it stopped after four attempts rather than spending for ever", n2.slice(0, 1));
+  ok(n2.some((n) => /ceiling for a single pass/.test(n) || /added almost nothing/.test(n) || /continuation backstop/.test(n)),
+     "and says WHY it stopped — the volume ceiling, a stall, or the call backstop", n2.slice(0, 1));
+  ok(n2.some((n) => /wrote [\d,]+ characters/.test(n)),
+     "naming what it actually wrote, so the cost of the loop is visible", n2.slice(0, 1));
+  ok(!n2.some((n) => /reached the length limit 4 times/.test(n)),
+     "and no longer stops at an arbitrary count of four");
   ok(run2?.truncated === true, "the run reports itself cut off", { truncated: run2?.truncated });
   ok((String(run2?.output || "").match(/SPLIT-HEAD/g) || []).length > 0,
      "the partial work is kept rather than thrown away — there is something to read and re-scope from");

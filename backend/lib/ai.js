@@ -15,7 +15,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { getSettings, saveSettings } from "./store.js";
-import { runPipeline, pipelineSpec, DIAGNOSTIC_SPEC, STANDARD, DIAGNOSTIC_STAGES } from "./diagnostic.js";
+import { runPipeline, pipelineSpec, DIAGNOSTIC_SPEC, STANDARD, DIAGNOSTIC_STAGES, CONTINUATION_GUARD, STALL_CHARS, PASS_CHAR_CEILING, continuationInstruction } from "./diagnostic.js";
 import * as SR from "./pipelines/site-requirements.js";
 import * as MR from "./pipelines/mobilisation-review.js";
 import * as VR from "./pipelines/village-requirements.js";
@@ -106,7 +106,35 @@ export function publicProvider() {
  * mechanisms stacked on top of each other multiply, and a 5-minute
  * outage became half an hour of invisible waiting.
  */
-export const CALL_TIMEOUT_MS = Number(process.env.ETABLIX_AI_TIMEOUT_MS || 15 * 60 * 1000);
+/**
+ * ONE CALL's ceiling, not a run's. Sixty minutes.
+ *
+ * It was fifteen. A single pass now asks for up to 64,000 tokens of output at
+ * maximum reasoning effort over a whole document set, and fifteen minutes is
+ * not obviously enough for that — a pass killed by this clock is model time
+ * paid for and thrown away, and it looks to the desk exactly like a provider
+ * fault.
+ *
+ * It stays a ceiling rather than becoming infinite for one reason: a socket
+ * that has silently died must eventually be given up on, or a run waits for
+ * ever on a connection that is never going to answer. Sixty minutes is far
+ * past any real call and well short of for ever.
+ */
+export const CALL_TIMEOUT_MS = Number(process.env.ETABLIX_AI_TIMEOUT_MS || 60 * 60 * 1000);
+
+/**
+ * The per-call output ceiling for the single-pass agents.
+ *
+ * This is the PROVIDER's limit, not ours, and it is the reason the
+ * continuation loop below exists. Raising this number does not remove a
+ * limit — it moves one, and it costs input room, because the context a
+ * request may carry is what is left after the output reservation.
+ *
+ * What removes the limit is finishing the answer across as many calls as it
+ * takes, which is what runAgent now does. So this stays at a value the
+ * models comfortably accept and the loop does the rest.
+ */
+export const SINGLE_PASS_MAX_TOKENS = Number(process.env.ETABLIX_AI_SINGLE_PASS_TOKENS || 32000);
 
 const client = () => {
   const { apiKey } = getProvider();
@@ -539,7 +567,21 @@ export const PIPELINE_SPECS = {
   }),
 };
 export const PIPELINE_AGENTS = new Set(Object.keys(PIPELINE_SPECS));
-export const stagesFor = (agentId) => (PIPELINE_SPECS[agentId] || DIAGNOSTIC_SPEC).stages;
+/**
+ * The stages a run reports as it works.
+ *
+ * A single-pass agent gets ONE stage, not the diagnostic's six. It used to
+ * fall through to DIAGNOSTIC_SPEC, so asking for the stages of Agent 2 came
+ * back with "Reading the documents against each other", "The demand model"
+ * and four other things it never does. That was harmless while single-pass
+ * agents ran in the foreground and nothing read their stages. It stops being
+ * harmless the moment they are worked in the background and the desk watches
+ * a progress list, because the list would describe another agent's work.
+ */
+export const stagesFor = (agentId) =>
+  PIPELINE_SPECS[agentId]
+    ? PIPELINE_SPECS[agentId].stages
+    : [{ key: "single", label: AGENT_BRIEFS[agentId]?.stageLabel || "Working" }];
 export { DIAGNOSTIC_STAGES };
 
 /**
@@ -633,32 +675,96 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
     .map((d) => `===== DOCUMENT: ${d.name}${d.pages ? ` (${d.pages} pages)` : ""} =====\n${d.text}`)
     .join("\n\n");
 
-  const response = await client().messages.create({
-    model,
-    max_tokens: 16000,
-    system: brief.system,
-    messages: [
-      {
-        role: "user",
-        content:
-          `Run your task on the following inputs. Prepared by ${runBy} — address the output to them for review.\n\n${parts.join("\n\n")}` +
-          (documentBlock ? `\n\n## The documents supplied with this run\n\n${documentBlock}` : ""),
-      },
-    ],
-  });
+  const prompt =
+    `Run your task on the following inputs. Prepared by ${runBy} — address the output to them for review.\n\n${parts.join("\n\n")}` +
+    (documentBlock ? `\n\n## The documents supplied with this run\n\n${documentBlock}` : "");
 
-  const output = response.content
-    .filter((b) => b.type === "text")
-    .map((b) => b.text)
-    .join("\n");
-  if (response.stop_reason === "refusal") {
-    throw new Error("The provider declined this request" + (response.stop_details?.explanation ? `: ${response.stop_details.explanation}` : "."));
-  }
-  if (!output.trim()) throw new Error("The agent returned no output — try again with more specific inputs.");
-  return {
-    output,
-    model: response.model,
-    truncated: response.stop_reason === "max_tokens",
-    usage: { input: response.usage.input_tokens, output: response.usage.output_tokens },
+  /**
+   * THE SINGLE-PASS AGENTS ARE WRITTEN TO THE END TOO.
+   *
+   * They were not. One call, 16,000 tokens, and a `truncated: true` flag on
+   * the way out. The pipeline agents have been continuing their passes for
+   * weeks; agents 1 to 7 — including Agent 2, which reads a received tender
+   * and is the one most likely to meet the ceiling, because an ITT's
+   * requirements register is one row per requirement — simply stopped.
+   *
+   * A requirements register that stops at requirement 60 of 140 is not a
+   * shorter register. It is a compliance matrix with eighty holes in it, and
+   * nothing on the page says which eighty.
+   *
+   * So the same continuation the pipeline uses runs here: continue from the
+   * exact character it stopped at, append with nothing in between, and keep
+   * going until the model stops truncating or stops adding text. The output
+   * ceiling per call is the provider's; the ceiling on the ANSWER is now gone.
+   */
+  const one = async (task) => {
+    const response = await client().messages.create({
+      model,
+      max_tokens: SINGLE_PASS_MAX_TOKENS,
+      system: brief.system,
+      messages: [{ role: "user", content: task }],
+    });
+    if (response.stop_reason === "refusal") {
+      throw new Error("The provider declined this request" + (response.stop_details?.explanation ? `: ${response.stop_details.explanation}` : "."));
+    }
+    return {
+      text: response.content.filter((b) => b.type === "text").map((b) => b.text).join("\n"),
+      model: response.model,
+      truncated: response.stop_reason === "max_tokens",
+      usage: { input: response.usage.input_tokens, output: response.usage.output_tokens },
+    };
   };
+
+  // The single stage is reported, so a background run shows as working and
+  // then as done rather than sitting at "pending" for ever once it has
+  // finished. Same contract the pipeline passes use.
+  onStage?.({ key: "single", state: "running", index: 0 });
+
+  let r = await one(prompt);
+  let output = r.text;
+  const usage = { input: r.usage.input, output: r.usage.output };
+  let rounds = 0;
+  let stalled = false;
+
+  let overflowed = false;
+  while (r.truncated) {
+    // Same two controls as a pipeline pass: stop when it stops making
+    // progress, and stop when the volume says this is a loop rather than a
+    // long answer. Neither is a budget — an honest answer never meets them.
+    if (output.length >= PASS_CHAR_CEILING) { overflowed = true; break; }
+    if (rounds >= CONTINUATION_GUARD) break;
+    rounds += 1;
+    // Only the tail is resent. The inputs and the documents are already in
+    // the request above; the model needs to see where its own pen stopped.
+    r = await one(`${prompt}\n\n---\n\n${continuationInstruction(output.slice(-4000))}`);
+    usage.input += r.usage.input;
+    usage.output += r.usage.output;
+    if (r.text.trim().length < STALL_CHARS) { stalled = true; output += r.text; break; }
+    output += r.text;
+  }
+
+  if (!output.trim()) throw new Error("The agent returned no output — try again with more specific inputs.");
+
+  // Written down as it lands, like a pipeline pass. A single-pass run that
+  // took twenty minutes and many continuations is as expensive to lose to a
+  // container being recreated as a six-pass one.
+  onStage?.({ key: "single", state: "done", index: 0, text: output });
+
+  const notes = [];
+  if (r.truncated) {
+    notes.push(
+      `This output is INCOMPLETE. It was continued ${rounds} time${rounds === 1 ? "" : "s"}, wrote ` +
+      `${output.length.toLocaleString("en-GB")} characters, and is still cut off` +
+      (stalled
+        ? " — the last continuation added almost nothing, so the model stalled rather than ran out of room."
+        : overflowed
+          ? `, passing the ${PASS_CHAR_CEILING.toLocaleString("en-GB")}-character ceiling for one answer. An answer that long is looping rather than writing.`
+          : `, having reached the continuation backstop of ${CONTINUATION_GUARD} calls.`) +
+      " Do not rely on it as a complete answer: what is missing is whatever came after the last line."
+    );
+  } else if (rounds) {
+    notes.push(`The output reached the per-call length limit and was continued in ${rounds} further call${rounds === 1 ? "" : "s"} — it is complete.`);
+  }
+
+  return { output, model: r.model, truncated: r.truncated, usage, notes };
 }
