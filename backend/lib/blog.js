@@ -148,11 +148,11 @@ export const PAGES = [
 export const POSTS = [
   {
     slug: "ai-agents-in-construction",
-    title: "AI agents in construction: what they can actually do, and what they must never be allowed to do",
+    title: "AI agents in construction: what they do, what they must never do, and who is accountable",
     // The <title> tag is a different job from the headline. It has to survive
     // truncation in a result list at about 60 characters, so it carries the
     // query rather than the rhetoric. The <h1> keeps the full headline.
-    seoTitle: "AI Agents in Construction: What They Can and Cannot Do",
+    seoTitle: "AI Agents in Construction: What They Must Never Do",
     // Under 160 characters, and it answers the query rather than advertising.
     description:
       "A working account of AI agents in UK construction: the eight jobs they do, the four they must never hold, and what a client is actually paying for.",

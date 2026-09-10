@@ -120,6 +120,10 @@ the meeting was.
 
 ## The reply
 
+**Sent 10 September 2026.** Do not chase it. If there is no answer
+within a week, that silence is the answer, and it is the segment answer rather
+than a personal one — see below.
+
 Short, no pitch, no second ask for an introduction. The introduction was
 declined by not being answered, and asking twice would confirm the reading
 that this is a sales approach dressed as a question.
