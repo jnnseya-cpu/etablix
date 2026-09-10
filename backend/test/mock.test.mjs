@@ -141,6 +141,18 @@ console.log("\n--- the mock's own output passes the machine checks\n");
      `and recommends no more than it measured (${r.totalRecommended} against ${r.totalEarned})`);
 }
 
+{
+  const { reconcileRegisterToMovements } = await import("../lib/interfacecheck.js");
+  const ir = PIPELINE_SPECS.design;
+  const reg = answer(ir.sectionPasses.find((x) => x.key === "d1_2").task);
+  const mov = answer(ir.sectionPasses.find((x) => x.key === "d3").task);
+  const r = reconcileRegisterToMovements(reg, mov);
+  ok(r.ok, `the mock's interface register reconciles with its movement log (${r.interfaces} interfaces, ${r.movements} movements)`, r);
+  ok(r.unowned.length === 0, "with an owner on every open interface", r.unowned);
+  ok(r.closedThisPeriod === 1,
+     "and one closure logged for an interface correctly absent from the register — the case the whole check exists for");
+}
+
 void splitPipelineOutput;
 console.log(`\n=== ${pass} passed, ${fail} failed ===\n`);
 process.exit(fail ? 1 : 0);

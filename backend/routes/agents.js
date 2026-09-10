@@ -157,6 +157,7 @@ async function workPipeline(runId, agent, inputs, runBy, visualFiles = [], resum
       // Agent 5's payment reconciliation, for the same reason again: the
       // certificate prints the result the desk approved against.
       ...(r.controlCheck ? { controlCheck: r.controlCheck } : {}),
+      ...(r.interfaceCheck ? { interfaceCheck: r.interfaceCheck } : {}),
       status: "awaiting_approval",
       finishedAt: Date.now(),
       passesHeld: [],

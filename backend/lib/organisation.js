@@ -192,11 +192,23 @@ export const AI_AGENTS = [
   {
     id: "design",
     name: "Agent 3 — Site-System Design Coordinator",
-    inputs: ["Workforce curve, site constraints, layouts", "Shift patterns and project programme", "Environmental constraints and supplier solutions"],
-    outputs: ["Demand and preliminary space schedules", "Utilities-demand model", "Package boundary matrix and interface register", "Redundancy requirements and mobilisation sequence", "Design-risk prompts"],
-    boundary: "Decision support only — a competent human validates every design position.",
+    inputs: [
+      "The packages in the site-services system, with their codes and what each delivers",
+      "THE PREVIOUS INTERFACE REGISTER in full — every reference in it is carried forward or logged as closed, and none is renumbered",
+      "Workforce curve and peak numbers, site constraints and the drawings by number and revision, programme and required-on-site dates per package",
+      "What establishes ownership — contracts, instructions, meeting notes, said apart — and any interface two parties disagree about",
+    ],
+    outputs: [
+      "Package boundary matrix, every scope boundary stated as a physical point",
+      "The interface register: every interface, the two packages, the witnessable point, ONE named owner, its state and its date",
+      "The movement log — opened, carried forward, closed, owner changed, date changed, point changed — which is what makes it a living register",
+      "Interfaces at risk, ordered by the date the consequence bites, with the ones that have no float named first",
+      "The demand and utilities model behind the interfaces, with the factors stated, and which boundaries move if demand changes",
+      "Handover sequence, the change that created or moved an interface, and the certificate with the ownership decisions required",
+    ],
+    boundary: "It RECORDS ownership as the project has agreed it and does not assign it — an owner written in by this agent and accepted by nobody is not an owner, and a row that looks settled is more dangerous than one that looks open. Decision support only: every load, ratio, diversity factor and duration is a first-pass planning figure for validation by a competent person, and anything touching life safety is flagged for a competent person and, where relevant, the fire and rescue authority. It appoints nobody, instructs no change, accepts no work and closes no interface.",
     backing: ["llm"],
-    desk: "Interface registers flow into the diagnostic deliverable and CONSTRUX.",
+    desk: "The register behind Model 02's central promise, reissued every month for the life of the appointment. It is the only document in the system that is carried forward, which gives it a failure the one-off matrices do not have: a row can quietly disappear, and an interface open last month and absent this month has either been closed or been lost with nothing on the page telling them apart. So the register is written in one pass and its movement log in the next, and the system reconciles the two — a carried-forward interface missing from the register, or an interface with no single named owner, stops the register being issued. \"Both\", \"shared\" and \"the team\" are refused by a function rather than by a house style. An approved run becomes a numbered IFR register.",
   },
   {
     id: "commercial",

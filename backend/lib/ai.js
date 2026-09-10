@@ -23,10 +23,12 @@ import * as PR from "./pipelines/procurement.js";
 import * as TP from "./pipelines/tender-pack.js";
 import * as BR from "./pipelines/bid-response.js";
 import * as CR from "./pipelines/control-report.js";
+import * as IR from "./pipelines/interface-register.js";
 import { splitPipelineOutput } from "./sections.js";
 import { reconcileScopeToPrice, packNotes } from "./tenderpack.js";
 import { reconcileChecklistToResponse, bidNotes } from "./bidcheck.js";
 import { reconcilePaymentsToEarned, controlNotes } from "./controlcheck.js";
+import { reconcileRegisterToMovements, interfaceNotes } from "./interfacecheck.js";
 
 const DEFAULT_MODEL = "claude-opus-5";
 
@@ -211,22 +213,18 @@ Boundary: you cannot contact anyone; every outreach list requires Managing Direc
     system: `${COMPANY_BRIEF}\n\n${BR.BRIEF_SYSTEM}`,
     fields: BR.FIELDS,
   },
+  // Agent 3 is a PIPELINE now, and its job changed shape.
+  //
+  // It drafted an interface register in a single pass, alongside a demand
+  // schedule and a mobilisation sequence. Three agents already drafted an
+  // interface matrix ONCE, at the start of an engagement. Model 02 sells "one
+  // management team owns every supplier interface" across a sixty-week
+  // appointment, which is a register that changes every month — so the
+  // promise with the most machinery behind it in the marketing had the least
+  // behind it in the system.
   design: {
-    system: `${COMPANY_BRIEF}
-
-You are Agent 3 — Site-System Design Coordinator. From the workforce, site and programme information, produce, under these exact headings:
-1. DEMAND SCHEDULE — workforce-driven demand: accommodation beds, welfare (toilets/showers/dining seats per HSE welfare ratios), office desks, parking; show your calculation basis.
-2. UTILITIES-DEMAND MODEL — indicative power (kVA), water, foul drainage loads with assumptions stated.
-3. PACKAGE BOUNDARY MATRIX — the packages this site needs, each with scope one-liner.
-4. INTERFACE REGISTER (draft) — numbered IF-xx rows: the two packages, the interface, the risk if unowned, proposed owner.
-5. MOBILISATION SEQUENCE — ordered, with dependencies and long-lead flags.
-6. DESIGN-RISK PROMPTS — capacity, redundancy and resilience assumptions a competent human must challenge.
-Boundary: decision support only — a competent human validates every design position; flag anything safety-critical explicitly.`,
-    fields: [
-      { name: "workforce", label: "Workforce curve / peak numbers, shift pattern, occupancy needs", type: "textarea", required: true },
-      { name: "site", label: "Site constraints — location, area, access, environment, existing services", type: "textarea" },
-      { name: "programme", label: "Programme — key dates, phases, duration", type: "textarea" },
-    ],
+    system: `${COMPANY_BRIEF}\n\n${IR.BRIEF_SYSTEM}`,
+    fields: IR.FIELDS,
   },
   diagnostic: {
     system: `${COMPANY_BRIEF}
@@ -588,6 +586,18 @@ export const PIPELINE_SPECS = {
     finalTask: CR.FINAL_TASK,
     finalLabel: "The month in one paragraph, traceability and open items",
   }),
+  // The only register in the system that is CARRIED FORWARD, which gives it a
+  // failure mode the one-off documents do not have: a row can quietly
+  // disappear. So the register is written in one pass and its movement log in
+  // the next, and the two are reconciled — neither can lose an interface
+  // without the other contradicting it.
+  design: pipelineSpec({
+    id: "design",
+    reconcileTask: IR.RECONCILE_TASK,
+    sectionPasses: IR.SECTION_PASSES,
+    finalTask: IR.FINAL_TASK,
+    finalLabel: "The register in one paragraph, traceability and open items",
+  }),
 };
 export const PIPELINE_AGENTS = new Set(Object.keys(PIPELINE_SPECS));
 /**
@@ -699,6 +709,25 @@ function withControlCheck(result) {
 }
 
 /**
+ * The interface continuity check, on every register issue.
+ *
+ * The fourth reconciliation and the only one that compares a document with
+ * ITSELF rather than with the document before it in the pack. An interface
+ * open last month and absent this month has either been closed, which is a
+ * fact somebody must be told, or been lost — and only the movement log can
+ * tell the two apart.
+ */
+function withInterfaceCheck(result) {
+  const { data } = splitPipelineOutput(result.output, IR.SECTIONS);
+  const check = reconcileRegisterToMovements(data[IR.REGISTER_SECTION] || "", data[IR.MOVEMENT_SECTION] || "");
+  return {
+    ...result,
+    interfaceCheck: check,
+    notes: [...interfaceNotes(check), ...(result.notes || [])],
+  };
+}
+
+/**
  * Run one agent for real. Returns { output, model, usage }.
  *
  * A pipeline agent takes several minutes and reports progress through
@@ -729,6 +758,7 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
     if (agentId === "tender-pack") return withPackCheck(result);
     if (agentId === "bid") return withBidCheck(result);
     if (agentId === "controls") return withControlCheck(result);
+    if (agentId === "design") return withInterfaceCheck(result);
     return result;
   }
 

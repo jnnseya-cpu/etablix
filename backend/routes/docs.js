@@ -27,10 +27,12 @@ import { SECTIONS as PR_SECTIONS } from "../lib/pipelines/procurement.js";
 import { SECTIONS as TP_SECTIONS } from "../lib/pipelines/tender-pack.js";
 import { SECTIONS as BR_SECTIONS } from "../lib/pipelines/bid-response.js";
 import { SECTIONS as CR_SECTIONS } from "../lib/pipelines/control-report.js";
+import { SECTIONS as IR_SECTIONS } from "../lib/pipelines/interface-register.js";
 import { splitPipelineOutput } from "../lib/sections.js";
 import { packStatement } from "../lib/tenderpack.js";
 import { bidStatement } from "../lib/bidcheck.js";
 import { controlStatement } from "../lib/controlcheck.js";
+import { interfaceStatement } from "../lib/interfacecheck.js";
 
 const router = Router();
 
@@ -134,6 +136,7 @@ export const PROCUREMENT_SECTIONS = PR_SECTIONS;
 export const TENDERPACK_SECTIONS = TP_SECTIONS;
 export const BIDRESPONSE_SECTIONS = BR_SECTIONS;
 export const CONTROLREPORT_SECTIONS = CR_SECTIONS;
+export const INTERFACEREGISTER_SECTIONS = IR_SECTIONS;
 
 export const TEMPLATES = [
   {
@@ -229,6 +232,19 @@ export const TEMPLATES = [
     appendixLabel: "Appendix A — traceability and open items",
     parts: true,
     legal: "This report is decision support and a recommendation. Under the Management Integrator model the client contracts directly with every supplier and pays them directly — ETABLIX never holds supply-chain money — so ETABLIX RECOMMENDS AND THE CLIENT PAYS, by a named person with delegated authority. It is not a certificate under any contract unless the appointment expressly says it is, and it does not say so by default. Every sum recommended for payment is measured against a control account and does not exceed the value earned on it; that reconciliation is performed by the system on every run and printed in Part 8. Every figure resting on assertion rather than measurement says so on its own row. Nothing in it instructs change, settles a claim, agrees an extension of time or overwrites the baseline. Where a position is significant legal exposure — a withholding, a set-off, a claim or a termination — it is flagged for the client's construction solicitor rather than settled.",
+  }),
+  // The interface register. Its parts print separately because the register
+  // itself is circulated to every package while the demand model and the
+  // change table are read by the design coordinator alone.
+  PIPELINE_TEMPLATE({
+    id: "interfaces", prefix: "IFR", name: "Interface register — issued monthly and carried forward",
+    documentTitle: "Interface register",
+    description: "Agent 3's eight parts: the package boundary matrix, the interface register itself, the movement log that makes it a living document, the interfaces at risk, the demand and capacity model behind them, the handover sequence, the change that moved them, and the certificate. Reissued every month with every reference carried forward. Draft it from an approved Agent 3 run.",
+    sections: IR_SECTIONS,
+    summaryLabel: "The register in one paragraph",
+    appendixLabel: "Appendix A — traceability and open items",
+    parts: true,
+    legal: "This register RECORDS ownership as the project has agreed it; it does not assign it. An owner written into this register and accepted by nobody is not an owner. It is decision support: every design position, load, ratio, diversity factor and duration in it is a first-pass planning figure requiring validation by a competent person before use. Anything touching life safety — a fire strategy, means of escape, a structural load or an electrical protection scheme — is flagged for a competent person and, where relevant, the fire and rescue authority, and is never resolved here. Nothing in it appoints anybody, instructs change, accepts work or closes an interface: it records that somebody else has. Every interface carried forward from the previous issue is either in this register or logged as closed in Part 3, and that reconciliation is performed by the system on every issue and printed in Part 8.",
   }),
   {
     id: "sitereq", prefix: "SMR", name: "Site Management Requirements Package",
@@ -679,6 +695,9 @@ router.get("/from-run/:id", requireAuth, deliveryFinance, (req, res) => {
       // The month's payment reconciliation, printed on the certificate so the
       // client can see that the money was checked and against what.
       ...(run.controlCheck ? { packStatement: controlStatement(run.controlCheck) } : {}),
+      // The register's continuity result, printed on the certificate so a
+      // reader can see that nothing was lost since the last issue.
+      ...(run.interfaceCheck ? { packStatement: interfaceStatement(run.interfaceCheck) } : {}),
       project: String(run.inputs?.project || run.title || "").slice(0, 300),
       client: String(run.inputs?.client || "").slice(0, 300),
       // The date the ten days run from, captured when the engagement
@@ -892,6 +911,7 @@ router.delete("/:id", requireAuth, admin, (req, res) => {
 function checkHeading(doc) {
   if (doc.template === "bidfile") return "Completeness check";
   if (doc.template === "control") return "Payment check";
+  if (doc.template === "interfaces") return "Continuity check";
   return "Issue check";
 }
 
@@ -932,6 +952,7 @@ export const splitTenderEval = (output) => splitPipelineOutput(output, PROCUREME
 export const splitTenderPack = (output) => splitPipelineOutput(output, TENDERPACK_SECTIONS);
 export const splitBidResponse = (output) => splitPipelineOutput(output, BIDRESPONSE_SECTIONS);
 export const splitControlReport = (output) => splitPipelineOutput(output, CONTROLREPORT_SECTIONS);
+export const splitInterfaceRegister = (output) => splitPipelineOutput(output, INTERFACEREGISTER_SECTIONS);
 export { splitPipelineOutput };
 
 /**
@@ -951,6 +972,7 @@ export const PIPELINE_DOCUMENTS = {
   "tender-pack": { template: "ittpack", prefix: "ITT", label: "ITT pack", split: splitTenderPack },
   bid: { template: "bidfile", prefix: "BID", label: "bid file", split: splitBidResponse },
   controls: { template: "control", prefix: "MCR", label: "monthly control report", split: splitControlReport },
+  design: { template: "interfaces", prefix: "IFR", label: "interface register", split: splitInterfaceRegister },
 };
 
 /** The same map without the parser, for anything that only needs to say so. */
