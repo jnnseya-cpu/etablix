@@ -82,6 +82,11 @@ export const SOURCES = {
     title: "Housing Grants, Construction and Regeneration Act 1996, Part II",
     publisher: "legislation.gov.uk",
   },
+  hseCdmSummary: {
+    url: "https://www.hse.gov.uk/construction/cdm/2015/summary.htm",
+    title: "Summary of duties under the Construction (Design and Management) Regulations 2015",
+    publisher: "Health and Safety Executive",
+  },
   workplaceAcop: {
     url: "https://www.hse.gov.uk/pubns/books/l24.htm",
     title: "L24 — Workplace health, safety and welfare: Approved Code of Practice",
@@ -201,7 +206,7 @@ export const POSTS = [
         a: "Not for being AI-generated. Google's own guidance on generative AI features says its AI answers are drawn from the same index and the same ranking systems as ordinary search, and rewards content that is helpful, reliable and carries a point of view the reader cannot get elsewhere. What gets penalised is commodity content, whoever or whatever wrote it.",
       },
     ],
-    sources: ["cdm2015", "cdmSchedule2", "hgcra", "workplaceAcop", "googleGenAi"],
+    sources: ["cdm2015", "hseCdmSummary", "cdmSchedule2", "hgcra", "workplaceAcop", "googleGenAi"],
   },
 ];
 

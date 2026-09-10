@@ -101,7 +101,19 @@
 
 <h3 id="they-never-hold-a-statutory-duty">They never hold a statutory duty</h3>
 
-<p><a href="https://www.legislation.gov.uk/uksi/2015/51/contents/made" target="_blank" rel="noopener" title="The Construction (Design and Management) Regulations 2015 — legislation.gov.uk">CDM 2015</a> allocates duties to people and organisations — client, principal designer, principal contractor, contractor. Software is none of those things. Nothing we issue may imply that ETABLIX holds Principal Contractor status, because that is a defined legal role carrying specific health-and-safety duties, and taking it must be an explicit, priced and insured decision rather than an accident of how a document was worded. We block the phrasing at the point of document generation, not in a style guide.</p>
+<p><a href="https://www.legislation.gov.uk/uksi/2015/51/contents/made" target="_blank" rel="noopener" title="The Construction (Design and Management) Regulations 2015 — legislation.gov.uk">CDM 2015</a> allocates duties to people and organisations. <a href="https://www.hse.gov.uk/construction/cdm/2015/summary.htm" target="_blank" rel="noopener" title="Summary of duties under the Construction (Design and Management) Regulations 2015 — Health and Safety Executive">The HSE&#39;s own summary</a> names seven: commercial clients, domestic clients, designers, principal designers, principal contractors, contractors and workers. Software is not on that list and cannot be added to it.</p>
+
+<p>But "software is not a duty holder" is not the interesting part, because nobody thinks it is. <strong>Two things about that list matter far more, and most writing on this misses both.</strong></p>
+
+<p>First, only two of those roles are <em>appointed</em> — principal designer and principal contractor, one organisation at a time. The rest attach to <em>what you actually do</em>. Carry out, manage or control construction work and you are a contractor under the regulations whether anybody appointed you or not. Prepare or modify a design, or instruct somebody who does, and you are a designer. Nobody has to hand you a letter.</p>
+
+<p>Second, and this is the real exposure: <strong>a document written in the voice of a duty holder is a representation about who is discharging that duty.</strong> It does not matter who or what typed it. A fluent model asked to produce a fire strategy will produce something that reads exactly like a competent person's determination, and a reader is entitled to treat it as one. That is the risk, and it is not solved by anybody understanding that a model is not a legal person.</p>
+
+<p>So the agents write in the voice of the party who will actually hold it. They state the requirement and name who determines it. They do not determine it.</p>
+
+<p>Separately, and about us rather than the software: <strong>ETABLIX is not automatically the Principal Contractor, and nothing we issue may imply that it is.</strong> That is an appointment, it carries specific health-and-safety duties, and where a client wants us to hold it that is an explicit, priced and insured decision written into the appointment — never an inference somebody draws from how a document was worded. Under Model 03 we are a "Prime Service Contractor", where prime means prime for the site-services system and nothing more. Which duty-holder roles any given appointment does put us in is stated in that appointment, because the regulations attach some of them to conduct rather than to paperwork, and pretending otherwise would be the same mistake in the other direction.</p>
+
+<p>The two phrasings that would cause this are blocked at the point a document is generated, not written down in a style guide, and a test checks what is actually published rather than what we intended to publish.</p>
 
 <h3 id="they-never-resolve-a-life-safety-question">They never resolve a life-safety question</h3>
 
