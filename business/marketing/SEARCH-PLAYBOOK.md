@@ -19,7 +19,10 @@ So the work splits in two.
 | | Who owns it | Status |
 |---|---|---|
 | Everything on the site | Us | **Done, and gated in the test suite** |
-| Everything off the site | You | **Listed in section 5. Nothing here starts until you do it.** |
+| Submitting to Bing, Yandex, Seznam, Naver | Us | **Automatic on every deploy** (IndexNow needs no account) |
+| Verifying with Google and Bing | You | **One pasted value** — the rest is wired |
+| Claiming the business listing | You | The data is now correct and gated; only you can prove you are the business |
+| Getting the first real links | You | **Nothing else matters until this happens.** Six asks written and ready to send |
 
 ---
 
@@ -29,7 +32,7 @@ So the work splits in two.
 rubric nobody can read, from a vendor with an interest in the answer.
 
 So the rubric is in the repository at `backend/lib/seo.js`. It totals exactly
-100 points across seven categories, every check says in plain words what it
+100 points across eight categories, every check says in plain words what it
 inspects, and anyone can run it and get the same number.
 
 ```
@@ -42,11 +45,12 @@ The article scores 100.**
 | Category | Points | What it checks |
 |---|---|---|
 | Crawlability and identity | 20 | Title and description length, self-referencing canonical, language, viewport, charset, no accidental noindex |
-| Content structure | 20 | One h1, no skipped heading levels, enough body text, alt on every image, anchor text that says where it goes |
-| Structured data | 15 | JSON-LD that parses, an Organization, a BreadcrumbList, a node saying what the page is |
-| How it looks when shared | 10 | The five Open Graph tags, an absolute image with dimensions, a large Twitter card |
-| Internal linking | 15 | Enough internal links, **every one resolving to something real**, safe outbound links, a visible breadcrumb |
-| Discovery | 10 | In the sitemap, a feed to subscribe to, linked to from elsewhere on the site |
+| Content structure | 19 | One h1, no skipped heading levels, enough body text, alt on every image, anchor text that says where it goes |
+| Structured data | 14 | JSON-LD that parses, an Organization, a BreadcrumbList, a node saying what the page is |
+| How it looks when shared | 9 | The five Open Graph tags, an absolute image with dimensions, a large Twitter card |
+| Internal linking | 14 | Enough internal links, **every one resolving to something real**, safe outbound links, a visible breadcrumb |
+| Discovery | 9 | In the sitemap, a feed to subscribe to, linked to from elsewhere on the site |
+| The business listing | 5 | **One name, one address, one phone**, and a place of business a listing can be matched to |
 | Answer-engine readiness | 10 | Questions answered in full in visible text, a named author with a verifiable profile |
 
 The test refuses to pass if any page drops below 90, or any article below 95.
@@ -109,55 +113,104 @@ before was **80**. It is now **99**.
 
 ---
 
-## 5 · The half only you can do
+## 5 · The half that needed a person — and what is left of it
 
-**Nothing in section 3 produces a ranking on its own.** These are in order of
-what actually moves position, and every one needs you.
+Three things were on this list. **Two of them are now automatic.** What remains
+genuinely cannot be done by anybody but you, and this section says exactly why.
 
-### This week
+### Now automatic: telling search engines the site changed
 
-1. **Verify the site in [Google Search Console](https://search.google.com/search-console)
-   and [Bing Webmaster Tools](https://www.bing.com/webmasters).** Submit
-   `https://etablix.com/sitemap.xml` in both. Until you do this, Google may not
-   know the blog exists for weeks, and you have no data at all. Bing matters
-   more than its share suggests: it feeds several AI answer engines.
-2. **Claim the Google Business Profile** for JNN GLOBAL LTD at the Birmingham
-   address. Local signals carry weight on any query with a place in it, and a
-   competitor claiming a profile at your address is a problem that takes months
-   to unwind.
-3. **Post the article on LinkedIn** — not a link with "check out our new blog",
-   but the argument itself, in the post, with the link at the end. LinkedIn
-   suppresses posts that send people away; it does not suppress posts that are
-   worth reading and happen to carry a link.
+`node backend/tools/publish.mjs` rebuilds the blog, runs the audit, and submits
+every changed URL to **IndexNow** — which reaches Bing, Yandex, Seznam and
+Naver. It needs no account and no login: the protocol authenticates by domain
+ownership, and the proof is a key file published at
+`https://etablix.com/0eaad2d90de77da0af6c541bdf2d3af7.txt`. Bing usually crawls
+a submitted URL within hours.
 
-### This month
+**It runs itself on every deploy.** `deploy.sh` calls it after the health check
+passes, best effort — it can report a problem but it can never fail a deploy.
 
-4. **Get the first three real links.** One link from a trade body, a client, a
-   supplier or a publication is worth more than everything in section 3. Ask:
-   the CIOB, a supplier whose page you appear on, any framework you are on, and
-   the trade press if the eight-questions section is useful to them.
-5. **Write the second and third articles.** One article is not a blog. The
-   generator makes the second one cheap; what it costs is your thinking. Two
-   candidates the first one sets up:
-   - *Welfare sizing on a construction site: why CDM 2015 sets no ratios, and
-     what actually decides the number.* The specific, checkable point in
-     section 8 of the first article, expanded — and a query people genuinely
-     search.
-   - *What a tender pack is missing when returns cannot be compared.* The
-     scope-to-price reconciliation, written for a buyer rather than for an
-     engineer.
-6. **Add your LinkedIn profile to the site's Organization schema as `sameAs`.**
-   It is already on the article. Entity association across profiles is how a
-   search engine learns that the person and the business are the same thing.
+**It refuses to submit a broken site.** If any internal link is broken, or any
+page has fallen below 90, it stops and says which. Inviting four search engines
+to crawl a broken page is worse than not inviting them.
 
-### Ongoing
+That matters beyond Bing's own share: Bing's index feeds several of the answer
+engines, so this is the one lever on AI-answer discovery that needs no human.
 
-7. **Answer the eight questions publicly** whenever someone asks them. A reply
-   under a post is a citable, indexable answer with your name on it.
-8. **Never buy links.** Construction has an active market in them, they are
-   detectable, and the penalty outlasts the benefit by years.
+### Now one paste: verification
 
----
+Google is the exception and there is no way round it. Google **retired its
+sitemap ping endpoint in 2023** — it answers 404 now — because unauthenticated
+submissions were mostly spam. The only route in is Search Console, and the only
+route into Search Console is proving you own the site.
+
+That proof is now an environment variable rather than a file to commit:
+
+| Variable | What to put in it |
+|---|---|
+| `GOOGLE_SITE_VERIFICATION` | the `content` value from Search Console's HTML tag method |
+| `GOOGLE_VERIFICATION_FILE` | or the filename from its HTML file method, e.g. `google1a2b3c.html` |
+| `BING_SITE_VERIFICATION` | the token from Bing Webmaster Tools (also serves `/BingSiteAuth.xml`) |
+| `YANDEX_VERIFICATION` | the token from Yandex Webmaster, if you bother |
+
+Either method works for either engine; use whichever the console leads with.
+When none is set, none of it is mounted and the site behaves exactly as before.
+
+**The whole job, once:**
+
+1. https://search.google.com/search-console → add `https://etablix.com`
+2. Copy the value it gives you
+3. Add it to `/opt/etablix/etablix.env` and redeploy
+4. Press **Verify**, then submit `https://etablix.com/sitemap.xml`
+5. Repeat at https://www.bing.com/webmasters
+
+Five minutes. After that Google reads the sitemap from `robots.txt` on its own
+and never needs telling again.
+
+### Now correct, and waiting to be claimed: the business listing
+
+A Google Business Profile is matched against **citations** of the name, address
+and phone across the web, and the site is the first citation. Two spellings of
+one address do not reinforce each other, they compete.
+
+The site had two in circulation, differing by a comma before the postcode. They
+are now one, on all 19 pages, and **the audit fails if a second form appears**.
+The structured address was also wrong — it crammed a neighbourhood and a city
+into the field a mapping service matches on — and is now correct on every page.
+
+Use this, character for character, everywhere you are ever listed:
+
+```
+ETABLIX — Integrated Site Services
+Groupe Nseya House, Kingstanding, Birmingham B44 8DJ
++44 7493 216101
+contact@etablix.com
+```
+
+**What only you can do:** claim it. Google requires whoever claims a profile to
+prove they are the business, by post, phone or video. No script can be you.
+
+Go to https://business.google.com, search for the address first in case a
+profile already exists, and claim rather than create if it does — a duplicate
+profile splits the signal and takes months to merge. Once it is live, the
+coordinates it gives you can be added to the site's schema; they are
+deliberately absent now rather than guessed, because a pin in the wrong place
+is worse than no pin.
+
+### Still entirely yours: the first three links
+
+**This is the one that decides whether any of the rest matters**, and it cannot
+be automated because it is other people agreeing to do something.
+
+`business/marketing/LINK-OUTREACH.md` has six asks written to be sent, in order
+of how likely they are to land: the CIOB and *Construction Manager* first,
+because Justin is a member and that is standing rather than a cold approach;
+then the trade press; then suppliers already in the supply chain, which is the
+easiest link in the list and the one nobody asks for.
+
+Three standing rules in there, and they matter more than the asks: never buy a
+link, never pay a directory for inclusion, and never describe a relationship
+that is not real.
 
 ## 6 · What to expect, and when
 
@@ -184,8 +237,14 @@ the difference between a control and a promise — that nobody else is making.
 
 ```
 node backend/tools/build-blog.mjs      # after any content change
+node backend/tools/publish.mjs         # rebuild, audit, tell the engines
 bash backend/test/run-all.sh           # the gate, with everything else
 ```
+
+`publish.mjs` takes `--dry-run` to show what it would send, `--all` to submit
+the whole sitemap rather than what changed, and `--since 2026-09-01` to pick
+the window. Submitting everything on every deploy is how a domain gets
+rate-limited, so the default is what moved.
 
 The suite fails if a page drops below the floor, if any internal link breaks, if
 a generated page is hand-edited out of sync with its manifest, or if a published

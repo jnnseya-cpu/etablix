@@ -141,10 +141,10 @@ export const RUBRIC = [
     }
     return [4, `${p.contentHeadings.length} headings in order`];
   }),
-  C("h1-length", 2, "An <h1> that is a headline rather than a paragraph", (p) => {
+  C("h1-length", 1, "An <h1> that is a headline rather than a paragraph", (p) => {
     const h1 = p.headings.find((h) => h.level === 1);
     if (!h1 || !h1.text) return [0, "no h1 text"];
-    return h1.text.length <= 110 ? [2, ""] : [1, `${h1.text.length} characters`];
+    return h1.text.length <= 110 ? [1, ""] : [0, `${h1.text.length} characters`];
   }),
   C("depth", 4, "Enough body text to be worth indexing", (p) => {
     if (p.words >= 900) return [4, `${p.words} words`];
@@ -169,8 +169,8 @@ export const RUBRIC = [
   }),
   C("ld-org", 3, "An Organization node identifying the publisher", (p) =>
     p.ldTypes.includes("Organization") ? [3, ""] : [0, "no Organization node"]),
-  C("ld-breadcrumb", 3, "A BreadcrumbList", (p) =>
-    p.isHome || p.ldTypes.includes("BreadcrumbList") ? [3, p.isHome ? "home page — none required" : ""] : [0, "no BreadcrumbList"]),
+  C("ld-breadcrumb", 2, "A BreadcrumbList", (p) =>
+    p.isHome || p.ldTypes.includes("BreadcrumbList") ? [2, p.isHome ? "home page — none required" : ""] : [0, "no BreadcrumbList"]),
   C("ld-page", 4, "A node saying what this page is", (p) => {
     const wanted = ["BlogPosting", "Article", "Blog", "WebSite", "WebPage", "ProfessionalService", "FAQPage"];
     const hit = wanted.filter((t) => p.ldTypes.includes(t));
@@ -182,10 +182,10 @@ export const RUBRIC = [
     const missing = ["og:title", "og:description", "og:url", "og:image", "og:type"].filter((k) => !p.og[k]);
     return missing.length ? [Math.max(0, 5 - missing.length * 2), `missing ${missing.join(", ")}`] : [5, ""];
   }),
-  C("og-image", 2, "An absolute share image with its dimensions", (p) => {
+  C("og-image", 1, "An absolute share image with its dimensions", (p) => {
     if (!p.og["og:image"]) return [0, "no og:image"];
     if (!/^https:\/\//.test(p.og["og:image"])) return [1, "og:image is not an absolute URL — most scrapers will not fetch it"];
-    return p.og["og:image:width"] ? [2, ""] : [1, "no og:image:width"];
+    return p.og["og:image:width"] ? [1, ""] : [0, "no og:image:width"];
   }),
   C("twitter", 3, "A large summary card", (p) => {
     if (p.twitter["twitter:card"] !== "summary_large_image") return [0, "no summary_large_image card"];
@@ -211,20 +211,45 @@ export const RUBRIC = [
   }),
   // The home page is the root of the trail and has nothing to sit above it,
   // so a breadcrumb there would be an invention.
-  C("breadcrumb", 3, "A breadcrumb a reader can see", (p) =>
-    p.isHome || /class="breadcrumb"/.test(p.html) ? [3, p.isHome ? "home page — none required" : ""] : [0, "no visible breadcrumb"]),
+  C("breadcrumb", 2, "A breadcrumb a reader can see", (p) =>
+    p.isHome || /class="breadcrumb"/.test(p.html) ? [2, p.isHome ? "home page — none required" : ""] : [0, "no visible breadcrumb"]),
 
   // --- F · Discovery (10)
   C("in-sitemap", 3, "Listed in sitemap.xml", (p) => (p.inSitemap ? [3, ""] : [0, "not in sitemap.xml"])),
-  C("feed-link", 2, "A feed a reader or a crawler can subscribe to", (p) =>
-    /rel="alternate"[^>]+application\/rss\+xml/.test(p.html) ? [2, ""] : [0, "no RSS alternate link"]),
+  C("feed-link", 1, "A feed a reader or a crawler can subscribe to", (p) =>
+    /rel="alternate"[^>]+application\/rss\+xml/.test(p.html) ? [1, ""] : [0, "no RSS alternate link"]),
   C("inbound", 5, "Reachable from somewhere else on the site", (p) => {
     if (p.inbound >= 3) return [5, `${p.inbound} pages link here`];
     if (p.inbound >= 1) return [3, `${p.inbound} page links here`];
     return [0, "orphan — no other page links to it"];
   }),
 
-  // --- G · Answer-engine readiness (10) — posts only
+  // --- G · The business listing (5)
+  //
+  // A Google Business Profile is matched against citations of the name,
+  // address and phone across the web, and the site is the first citation.
+  // Two spellings of one address do not reinforce each other, they compete —
+  // which is why this is checked rather than trusted, and why it is checked
+  // BEFORE the profile is claimed rather than after.
+  C("nap", 3, "One name, one address, one phone", (p) => {
+    const wrong = [];
+    // The postcode never carries a comma in front of it in UK convention, and
+    // the site had both forms in circulation.
+    if (/Birmingham,\s*B44/.test(p.html)) wrong.push("an address with a comma before the postcode");
+    // A displayed phone number is a citation; a tel: URI is not, and is
+    // correctly written without spaces.
+    const displayed = [...p.html.matchAll(/(?<!tel:)\+44\s?7493\s?216101/g)].map((m) => m[0]);
+    const odd = displayed.filter((d) => d !== "+44 7493 216101" && d !== "+447493216101");
+    if (odd.length) wrong.push(`${odd.length} phone number(s) written another way`);
+    return wrong.length ? [0, wrong.join("; ")] : [3, ""];
+  }),
+  C("ld-business", 2, "A place of business a listing can be matched to", (p) => {
+    if (!p.ldTypes.includes("ProfessionalService") && !p.ldTypes.includes("LocalBusiness")) return [0, "no business node"];
+    const hasAddress = p.ld.some((b) => /"addressLocality":"Birmingham"/.test(b) && /"postalCode":"B44 8DJ"/.test(b));
+    return hasAddress ? [2, ""] : [1, "the business node carries no structured postal address"];
+  }),
+
+  // --- H · Answer-engine readiness (10) — posts only
   C("faq-schema", 4, "Three or more questions answered in full", (p) => {
     const qs = p.questions;
     if (qs.length < 3) return [qs.length ? 1 : 0, `${qs.length} question(s)`];

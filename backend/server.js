@@ -183,6 +183,54 @@ const staticOpts = {
   },
 };
 /**
+ * Proving to a search engine that this site is ours.
+ *
+ * Google retired its sitemap ping in 2023, so the only way to tell Google
+ * anything is Search Console, and the only way into Search Console is to prove
+ * ownership. That proof is a token the engine gives you and you publish back.
+ *
+ * IT COMES FROM THE ENVIRONMENT rather than from a committed file, so
+ * verifying is: paste one value, redeploy, press Verify. Nothing to add to the
+ * repository, nothing to remember to remove, and a token rotated by the engine
+ * does not need a code change. When nothing is set, none of this is mounted
+ * and the site behaves exactly as before.
+ *
+ * Both methods each engine offers are supported, because Search Console leads
+ * with the HTML tag and the file method is the one that survives a redesign.
+ */
+const VERIFY_TAGS = [
+  ["google-site-verification", process.env.GOOGLE_SITE_VERIFICATION],
+  ["msvalidate.01", process.env.BING_SITE_VERIFICATION],
+  ["yandex-verification", process.env.YANDEX_VERIFICATION],
+].filter(([, value]) => String(value || "").trim());
+
+// The file method. Google hands you a filename; Bing wants a fixed XML file.
+if (process.env.GOOGLE_VERIFICATION_FILE) {
+  const name = path.basename(String(process.env.GOOGLE_VERIFICATION_FILE).trim());
+  app.get(`/${name}`, (req, res) => res.type("html").send(`google-site-verification: ${name}`));
+}
+if (process.env.BING_SITE_VERIFICATION) {
+  const token = String(process.env.BING_SITE_VERIFICATION).trim();
+  app.get("/BingSiteAuth.xml", (req, res) =>
+    res.type("application/xml").send(`<?xml version="1.0"?>\n<users>\n  <user>${token.replace(/[<>&"]/g, "")}</user>\n</users>\n`));
+}
+
+// The tag method. Only mounted when there is something to inject, so the
+// normal case pays nothing for it and the static handler stays in charge.
+if (VERIFY_TAGS.length) {
+  const tags = VERIFY_TAGS.map(([name, value]) =>
+    `<meta name="${name}" content="${String(value).trim().replace(/[<>&"]/g, "")}">`).join("\n");
+  app.get(/^\/[^.]*(\.html)?$/, (req, res, next) => {
+    const rel = req.path === "/" ? "index.html" : `${req.path.replace(/^\//, "").replace(/\/$/, "")}${req.path.endsWith(".html") ? "" : ".html"}`;
+    const file = path.join(root, "frontend", "public", rel);
+    if (!file.startsWith(path.join(root, "frontend", "public")) || !fs.existsSync(file)) return next();
+    const html = fs.readFileSync(file, "utf8").replace(/<head>/i, `<head>\n${tags}`);
+    res.setHeader("Cache-Control", "no-cache");
+    res.type("html").send(html);
+  });
+}
+
+/**
  * The blog index, before the static handler gets to it.
  *
  * frontend/public holds BOTH blog.html and a blog/ directory of posts, and

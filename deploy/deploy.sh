@@ -97,10 +97,29 @@ docker run -d --name "$NAME" --restart unless-stopped --network "$NET" \
   -e BUILD_COMMIT="$SHORT" --env-file "$ENVFILE" \
   -v "$VOLUME:/app/backend/data" "etablix:$SHORT" >>"$LOG" 2>&1
 
+# ---- 5. tell the search engines that will listen ---------------------------
+#
+# Best effort, and it can never fail a deploy. Google retired its sitemap ping
+# in 2023 and only accepts an authenticated submission through Search Console,
+# so this reaches Bing, Yandex, Seznam and Naver — which is the half that needs
+# no human, and Bing's index feeds several of the AI answer engines.
+#
+# --no-build because the deployed artifact is what was committed: a deploy
+# script that rewrites files in the checkout it just pulled is one that will
+# eventually deploy something nobody wrote. The audit still runs and still
+# refuses to submit a site with a broken link in it.
+announce() {
+  if command -v node >/dev/null 2>&1; then
+    (cd "$REPO" && node backend/tools/publish.mjs --no-build >>"$LOG" 2>&1) \
+      && say "search engines notified" \
+      || say "search engines NOT notified — see $LOG (the deploy itself is fine)"
+  fi
+}
+
 for i in $(seq 1 30); do
   sleep 2
   BODY=$(docker exec "$NAME" wget -qO- http://localhost:3000/api/health 2>/dev/null || true)
-  case "$BODY" in *'"ok":true'*) say "deployed $SHORT"; exit 0;; esac
+  case "$BODY" in *'"ok":true'*) say "deployed $SHORT"; announce; exit 0;; esac
 done
 say "DEPLOYED BUT NOT ANSWERING — run ./rollback.sh"
 exit 1

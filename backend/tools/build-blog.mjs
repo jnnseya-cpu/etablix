@@ -121,7 +121,7 @@ const FOOTER = `
       <div class="footer-about">
         <a class="logo" href="/"><img class="logo-mark" src="/img/logo-mark-reverse.svg" alt="ETABLIX"><span class="logo-text">ETABLIX<small>Integrated Site Services</small></span></a>
         <p>ETABLIX — Integrated Site Services, part of Groupe Nseya. We plan, procure, integrate and control every critical temporary-site and workforce-accommodation service — from first mobilisation to final reinstatement.</p>
-        <p style="font-size:0.88rem;">Groupe Nseya House, Kingstanding, Birmingham, B44 8DJ<br>
+        <p style="font-size:0.88rem;">Groupe Nseya House, Kingstanding, Birmingham B44 8DJ<br>
         <a href="mailto:contact@etablix.com">contact@etablix.com</a> · <a href="tel:+447493216101">+44 7493 216101</a></p>
       </div>
       <div>
@@ -164,6 +164,16 @@ const FOOTER = `
 <script src="/js/main.js" type="module"></script>
 </body>
 </html>`;
+
+/**
+ * The trading entity as a place of business, with the address exactly as it
+ * will be claimed on the business listing.
+ *
+ * The same node on every page, byte for byte. A local listing is matched
+ * against citations of the name, address and phone, and two spellings of one
+ * address compete with each other rather than reinforcing.
+ */
+const BUSINESS = `{"@type":"ProfessionalService","@id":"https://etablix.com/#business","name":"ETABLIX — Integrated Site Services","url":"https://etablix.com/","image":"https://etablix.com/img/og-image.png","telephone":"+44 7493 216101","email":"contact@etablix.com","parentOrganization":{"@id":"https://etablix.com/#org"},"address":{"@type":"PostalAddress","streetAddress":"Groupe Nseya House, Kingstanding","addressLocality":"Birmingham","addressRegion":"West Midlands","postalCode":"B44 8DJ","addressCountry":"GB"},"openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday"],"opens":"08:00","closes":"18:00"},"areaServed":{"@type":"Country","name":"United Kingdom"},"knowsAbout":["Integrated site services","Workforce accommodation","Site establishment","Managed procurement","Temporary site utilities","Tender document preparation","CDM 2015"],"sameAs":["https://www.linkedin.com/company/etablix"]}`;
 
 const ORG = `{"@type":"Organization","@id":"${SITE}/#org","name":"ETABLIX","legalName":"JNN GLOBAL LTD","identifier":{"@type":"PropertyValue","propertyID":"UK Companies House","value":"15405437"},"url":"${SITE}/","logo":"${SITE}/img/logo-mark.svg","description":"Integrated site-services and workforce-accommodation contractor for the temporary site environment around the permanent works. Not a main contractor. Part of Groupe Nseya.","parentOrganization":{"@type":"Organization","name":"Groupe Nseya"},"sameAs":["https://www.linkedin.com/company/etablix"]}`;
 
@@ -284,6 +294,7 @@ function renderPost(post) {
 
   const jsonld = `{"@context":"https://schema.org","@graph":[
  ${ORG},
+ ${BUSINESS},
  {"@type":"WebSite","@id":"${SITE}/#website","url":"${SITE}/","name":"ETABLIX","publisher":{"@id":"${SITE}/#org"},"inLanguage":"en-GB"},
  {"@type":"Blog","@id":"${SITE}${BLOG_BASE}#blog","url":"${SITE}${BLOG_BASE}","name":"ETABLIX field notes","publisher":{"@id":"${SITE}/#org"}},
  {"@type":"BreadcrumbList","itemListElement":[
@@ -364,6 +375,7 @@ function renderIndex(built) {
     "Field notes from a working construction site-services business: what we build, what it refuses to do, and what we got wrong. Written by the people doing it.";
   const jsonld = `{"@context":"https://schema.org","@graph":[
  ${ORG},
+ ${BUSINESS},
  {"@type":"Blog","@id":"${SITE}${BLOG_BASE}#blog","url":"${url}","name":"ETABLIX field notes","description":${JSON.stringify(description)},"inLanguage":"en-GB","publisher":{"@id":"${SITE}/#org"},"blogPost":[${POSTS.map((p) => `{"@type":"BlogPosting","headline":${JSON.stringify(p.title)},"url":"${abs(postUrl(p))}","datePublished":"${p.published}","author":{"@type":"Person","name":${JSON.stringify(p.author)}}}`).join(",")}]},
  {"@type":"BreadcrumbList","itemListElement":[
   {"@type":"ListItem","position":1,"name":"Home","item":"${SITE}/"},

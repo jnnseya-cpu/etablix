@@ -52,6 +52,20 @@ for (const [path, type, must] of [
   ok(body.includes(must), `${path} carries what it is for`);
 }
 
+console.log("\n--- the IndexNow key\n");
+{
+  // The key file IS the proof of domain ownership: an engine fetches it before
+  // it believes a submission. If it stops being served, every submission is
+  // silently rejected and nothing looks wrong from this side.
+  const { readKey } = await import("../lib/indexnow.js");
+  const { key, file, error } = readKey();
+  ok(!error, error || `key file is ${file}`);
+  const k = await fetch(`${BASE}/${file}`, { redirect: "manual" });
+  ok(k.status === 200, `/${file} → ${k.status}`);
+  const body = (await k.text()).trim();
+  ok(body === key, "and it serves exactly the key, which is what the engine checks", body.slice(0, 40));
+}
+
 console.log("\n--- what must stay out of the index\n");
 for (const path of ["/internal/login.html", "/api/health"]) {
   const r = await fetch(BASE + path, { redirect: "manual" });
