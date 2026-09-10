@@ -55,15 +55,22 @@ Automate it:
 
 ## Deploying
 
-Auto-deploy is **off by default**, deliberately: deploying to a box someone is
-testing on destroys their work. Deploy when you mean to.
+**A push deploys itself to live within five minutes**, once the cron entry in
+"Auto-deploy" below is installed. Nothing needs switching on.
+
+To deploy immediately rather than waiting for the next tick:
 
     cd /opt/etablix && ./deploy.sh
 
-It refuses to deploy while a run is in flight, builds the image, starts a
-candidate container, **health-checks the candidate before touching the live
-one**, and only then switches. If the candidate does not answer, nothing
-changes and it tells you so.
+The same script runs either way. It defers while a run is in flight, builds the
+image, starts a candidate container, **health-checks the candidate before
+touching the live one**, and only then switches. If the candidate does not
+answer, nothing changes and it tells you so.
+
+If nothing is reaching the live site, the first thing to check is whether cron
+is actually installed:
+
+    /opt/etablix-autodeploy.sh --status
 
 Check what landed:
 
@@ -190,18 +197,40 @@ and their passwords are in the source. Reach it through a tunnel:
 
     ssh -L 3001:localhost:3001 <you>@<server>     # then http://localhost:3001
 
-## Auto-deploy — on, and pointed at staging
+## Auto-deploy — ON, and pointed at LIVE
 
-    printf 'ETABLIX_AUTODEPLOY=1\nETABLIX_AUTODEPLOY_TARGET=staging\n' >> /etc/default/etablix
+A push reaches the live site by itself, within five minutes. Nothing needs
+switching on. Install it once, as root:
+
     cp deploy/autodeploy.sh /opt/etablix-autodeploy.sh && chmod +x /opt/etablix-autodeploy.sh
     echo '*/5 * * * * root flock -n /run/etablix-deploy.lock /opt/etablix-autodeploy.sh' > /etc/cron.d/etablix-autodeploy
+    /opt/etablix-autodeploy.sh --status
 
-Every push then reaches staging by itself within five minutes. A tick with
-nothing new costs nothing: if the running container is already on that commit
-and answering, the script exits without rebuilding, so cron cannot recreate the
-container under somebody who is mid-test. **Live is never auto-deployed**
-unless you set `ETABLIX_AUTODEPLOY_TARGET=live`, which you should not:
-production deploys are a decision, taken with `./deploy.sh`.
+**The script alone does nothing until that cron entry exists.** Changing a
+default in a file that nothing runs is the failure that note exists to stop.
+`--status` says in four lines whether it is on, where it points, whether it is
+paused, whether cron is actually installed, and which commit is live.
+
+### Why pointing it at live is safe
+
+Every protection lives in `deploy.sh` and runs on every tick:
+
+- **Nothing new costs nothing.** If the container is already on that commit it
+  exits without rebuilding, so cron cannot recreate the container under
+  somebody mid-test.
+- **It defers during an agent run.** It polls `/api/health` for `busy` every
+  minute and waits. That is what used to destroy runs, and it is handled where
+  it belongs rather than by refusing to deploy at all.
+- **It proves the build answers before switching.** The new image starts on a
+  spare name and is health-checked; a build that does not answer is refused and
+  the live container is never touched.
+- **The way back is one command.** The previous image is recorded, so
+  `./rollback.sh` restores it.
+
+### Turning it off, or aiming it elsewhere
+
+    printf 'ETABLIX_AUTODEPLOY=0\n' >> /etc/default/etablix                  # off entirely
+    printf 'ETABLIX_AUTODEPLOY_TARGET=staging\n' >> /etc/default/etablix     # staging instead of live
 
 To rebuild staging even though the commit has not moved: `FORCE=1 ./deploy/staging.sh`.
 
