@@ -150,6 +150,10 @@ async function workPipeline(runId, agent, inputs, runBy, visualFiles = [], resum
       // the issue certificate prints the same result the desk approved
       // against rather than a second one worked out later.
       ...(r.packCheck ? { packCheck: r.packCheck } : {}),
+      // Agent 2's submission-completeness check, kept on the run for the same
+      // reason: the bid file prints the result the desk approved against
+      // rather than a second one worked out later from the same text.
+      ...(r.bidCheck ? { bidCheck: r.bidCheck } : {}),
       status: "awaiting_approval",
       finishedAt: Date.now(),
       passesHeld: [],

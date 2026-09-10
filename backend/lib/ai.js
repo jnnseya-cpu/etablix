@@ -21,8 +21,10 @@ import * as MR from "./pipelines/mobilisation-review.js";
 import * as VR from "./pipelines/village-requirements.js";
 import * as PR from "./pipelines/procurement.js";
 import * as TP from "./pipelines/tender-pack.js";
+import * as BR from "./pipelines/bid-response.js";
 import { splitPipelineOutput } from "./sections.js";
 import { reconcileScopeToPrice, packNotes } from "./tenderpack.js";
+import { reconcileChecklistToResponse, bidNotes } from "./bidcheck.js";
 
 const DEFAULT_MODEL = "claude-opus-5";
 
@@ -196,21 +198,16 @@ Boundary: you cannot contact anyone; every outreach list requires Managing Direc
       { name: "focus", label: "Specific question (optional)", type: "text" },
     ],
   },
+  // Agent 2 is a PIPELINE now. It was a single call with a 16,000-token
+  // ceiling producing six headings, and the ceiling was not a theoretical
+  // problem: a requirements register is one row per requirement with a
+  // verbatim quote of its source line, and a real ITT has well over a
+  // hundred. The pass ended mid-register and the compliance matrix was built
+  // on whatever had fitted — a matrix with eighty holes and nothing on the
+  // page saying which eighty.
   bid: {
-    system: `${COMPANY_BRIEF}
-
-You are Agent 2 — Bid & Requirements. From the pasted tender / PQQ / employer's-requirements material, produce, under these exact headings:
-1. REQUIREMENTS REGISTER — numbered; each requirement with a VERBATIM quote of its source line and the document/section it came from. Mark anything ambiguous.
-2. COMPLIANCE MATRIX — requirement → how ETABLIX complies / partial / gap.
-3. SUBMISSION CHECKLIST — every deliverable, format and deadline stated in the documents.
-4. RESPONSIBILITY MATRIX (draft) — who must own each requirement (MD / Delivery Lead / Commercial Lead / supplier).
-5. CLARIFICATION SCHEDULE — numbered questions to put to the client, each tied to the requirement it clarifies.
-6. MISSING-INFORMATION ALERTS — what the documents do not say that pricing or delivery needs.
-Boundary: the bid owner validates everything before anything is submitted; you draft, you never submit.`,
-    fields: [
-      { name: "documents", label: "Paste the tender / PQQ / employer's requirements text (or the relevant extracts)", type: "textarea", required: true },
-      { name: "context", label: "Engagement context — client, project, which delivery model we intend to bid", type: "textarea" },
-    ],
+    system: `${COMPANY_BRIEF}\n\n${BR.BRIEF_SYSTEM}`,
+    fields: BR.FIELDS,
   },
   design: {
     system: `${COMPANY_BRIEF}
@@ -565,6 +562,21 @@ export const PIPELINE_SPECS = {
     finalTask: TP.FINAL_TASK,
     finalLabel: "Issue summary, traceability and open items",
   }),
+  // The mirror of the tender pack, pointed the other way: that one issues an
+  // invitation to the market, this one answers one that has arrived. The same
+  // two-pass ordering for the same reason — the submission checklist is
+  // written BEFORE the responses, so the responses are written against the
+  // list of what must be returned rather than the list being reconstructed
+  // afterwards from whatever happened to get written — and the same machine
+  // reconciliation, because a required deliverable with no response is, on
+  // most public procurements, a rejected tender rather than a lost mark.
+  bid: pipelineSpec({
+    id: "bid",
+    reconcileTask: BR.RECONCILE_TASK,
+    sectionPasses: BR.SECTION_PASSES,
+    finalTask: BR.FINAL_TASK,
+    finalLabel: "Bid summary, traceability and open items",
+  }),
 };
 export const PIPELINE_AGENTS = new Set(Object.keys(PIPELINE_SPECS));
 /**
@@ -634,6 +646,28 @@ function withPackCheck(result) {
 }
 
 /**
+ * The submission-completeness check, on every bid run.
+ *
+ * The mirror of withPackCheck. A required deliverable with no drafted
+ * response is not a lost mark on most public and framework procurements, it
+ * is a non-compliant tender — the whole submission rejected whatever is in
+ * the rest of it. A deadline that is not a date is a timetable nobody can
+ * work backwards from.
+ *
+ * Neither is something to leave to somebody's eye at eleven o'clock the night
+ * before the deadline, which is exactly when a bid file is read.
+ */
+function withBidCheck(result) {
+  const { data } = splitPipelineOutput(result.output, BR.SECTIONS);
+  const check = reconcileChecklistToResponse(data[BR.CHECKLIST_SECTION] || "", data[BR.RESPONSE_SECTION] || "");
+  return {
+    ...result,
+    bidCheck: check,
+    notes: [...bidNotes(check), ...(result.notes || [])],
+  };
+}
+
+/**
  * Run one agent for real. Returns { output, model, usage }.
  *
  * A pipeline agent takes several minutes and reports progress through
@@ -661,7 +695,9 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
       onStage,
       resume,
     });
-    return agentId === "tender-pack" ? withPackCheck(result) : result;
+    if (agentId === "tender-pack") return withPackCheck(result);
+    if (agentId === "bid") return withBidCheck(result);
+    return result;
   }
 
   const parts = brief.fields

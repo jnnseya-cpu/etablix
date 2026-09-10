@@ -25,8 +25,10 @@ import { SECTIONS as MR_SECTIONS } from "../lib/pipelines/mobilisation-review.js
 import { SECTIONS as VR_SECTIONS } from "../lib/pipelines/village-requirements.js";
 import { SECTIONS as PR_SECTIONS } from "../lib/pipelines/procurement.js";
 import { SECTIONS as TP_SECTIONS } from "../lib/pipelines/tender-pack.js";
+import { SECTIONS as BR_SECTIONS } from "../lib/pipelines/bid-response.js";
 import { splitPipelineOutput } from "../lib/sections.js";
 import { packStatement } from "../lib/tenderpack.js";
+import { bidStatement } from "../lib/bidcheck.js";
 
 const router = Router();
 
@@ -128,6 +130,7 @@ export const MOBREVIEW_SECTIONS = MR_SECTIONS;
 export const VILLAGE_SECTIONS = VR_SECTIONS;
 export const PROCUREMENT_SECTIONS = PR_SECTIONS;
 export const TENDERPACK_SECTIONS = TP_SECTIONS;
+export const BIDRESPONSE_SECTIONS = BR_SECTIONS;
 
 export const TEMPLATES = [
   {
@@ -191,6 +194,23 @@ export const TEMPLATES = [
     appendixLabel: "Appendix A — traceability and open items",
     parts: true,
     legal: "This pack is prepared and administered by ETABLIX for the client. THE CLIENT ISSUES IT AND THE CLIENT AWARDS: ETABLIX does not award, does not place orders and does not commit the client to any tenderer. It is assembled from the approved Site Management Requirements Package and adds no requirement to it; anything that package left unsettled is carried as an open item in Part 8 and must be closed before issue. It is a drafting service and not legal advice — a payment mechanism mixing construction operations with pure services, a liability cap or an indemnity is flagged for the client's construction solicitor rather than settled. Nothing in it appoints ETABLIX as Principal Contractor under CDM 2015.",
+  }),
+  // The bid file. Like the ITT pack its parts are separate documents rather
+  // than chapters — the drafted responses go into a portal one at a time, and
+  // the submission register is read by whoever uploads them — so every part
+  // prints on its own at /render?part=N.
+  //
+  // Registered and numbered ONCE, because it is submitted once.
+  PIPELINE_TEMPLATE({
+    id: "bidfile", prefix: "BID", name: "Bid file — the response to an invitation we have received",
+    documentTitle: "Bid file",
+    description: "Agent 2's eight parts as the bid file: the requirements register with a verbatim quote against every row, the compliance matrix, the submission checklist and timetable, the drafted responses, the clarification schedule, the bid position and risk, the responsibility matrix and programme, and the submission register. Each part prints on its own. Draft it from an approved Agent 2 run.",
+    sections: BR_SECTIONS,
+    summaryLabel: "Bid summary in one paragraph",
+    appendixLabel: "Appendix A — traceability and open items",
+    parts: true,
+    partNoun: "Part",
+    legal: "This bid file is drafted by ETABLIX against an invitation received from the client or contracting authority named in it, and adds no requirement to that invitation. THE BID OWNER APPROVES AND SUBMITS IT: nothing in it is an offer, a price or a commitment until a person with delegated authority has reviewed and signed it. No accreditation, certification, membership or project reference is claimed in it that is not evidenced in the inputs to the run it was drafted from; anything an answer needs and does not have is marked EVIDENCE REQUIRED and carried as an open item in Part 8. ETABLIX is not a main contractor and does not tender for the design, construction or commissioning of the permanent asset. Where an invitation would place a CDM 2015 duty holder role on ETABLIX the role is named rather than accepted: those duties are taken only by explicit, priced and insured appointment. It is a drafting service and not legal advice — a liability cap, an indemnity or a payment mechanism is flagged for a construction solicitor rather than settled.",
   }),
   {
     id: "sitereq", prefix: "SMR", name: "Site Management Requirements Package",
@@ -634,6 +654,10 @@ router.get("/from-run/:id", requireAuth, deliveryFinance, (req, res) => {
       // model's claim about it. A pack whose issue certificate says it was
       // checked, checked by nobody, is worse than one that says nothing.
       ...(run.packCheck ? { packStatement: packStatement(run.packCheck) } : {}),
+      // The bid's own completeness check, printed in the bid file rather than
+      // left in the run notes — so it is on the record that the submission
+      // was checked before it was sent, and by what.
+      ...(run.bidCheck ? { packStatement: bidStatement(run.bidCheck) } : {}),
       project: String(run.inputs?.project || run.title || "").slice(0, 300),
       client: String(run.inputs?.client || "").slice(0, 300),
       // The date the ten days run from, captured when the engagement
@@ -836,6 +860,18 @@ router.delete("/:id", requireAuth, admin, (req, res) => {
  * wrong register for the top of an issued document, so a template may
  * carry its own reader-facing title.
  */
+/**
+ * What the machine check is called on the page it prints on.
+ *
+ * A tender pack's check says whether it may be ISSUED; a bid file's says
+ * whether it is COMPLETE enough to be submitted. Printing "Issue check" at
+ * the top of a bid file's completeness table would describe the opposite
+ * direction of travel to the person reading it.
+ */
+function checkHeading(doc) {
+  return doc.template === "bidfile" ? "Completeness check" : "Issue check";
+}
+
 function headingFor(doc) {
   const tpl = TEMPLATES.find((t) => t.id === doc.template);
   return tpl?.documentTitle || doc.templateName;
@@ -871,6 +907,7 @@ export const splitMobReview = (output) => splitPipelineOutput(output, MOBREVIEW_
 export const splitVillage = (output) => splitPipelineOutput(output, VILLAGE_SECTIONS);
 export const splitTenderEval = (output) => splitPipelineOutput(output, PROCUREMENT_SECTIONS);
 export const splitTenderPack = (output) => splitPipelineOutput(output, TENDERPACK_SECTIONS);
+export const splitBidResponse = (output) => splitPipelineOutput(output, BIDRESPONSE_SECTIONS);
 export { splitPipelineOutput };
 
 /**
@@ -888,6 +925,7 @@ export const PIPELINE_DOCUMENTS = {
   "village-requirements": { template: "village", prefix: "WVR", label: "WVR package", split: splitVillage },
   procurement: { template: "tendereval", prefix: "TEV", label: "TEV report", split: splitTenderEval },
   "tender-pack": { template: "ittpack", prefix: "ITT", label: "ITT pack", split: splitTenderPack },
+  bid: { template: "bidfile", prefix: "BID", label: "bid file", split: splitBidResponse },
 };
 
 /** The same map without the parser, for anything that only needs to say so. */
@@ -1266,7 +1304,7 @@ function renderBody(doc, part = null) {
           `${part} of ${pipelineTpl.sections.length} — ${label}`
         )}${t("Issued with", `${doc.number}, ${pipelineTpl.documentTitle}`)}${t("Prepared by", doc.issuedBy)}</table>
         ${body ? richText(body) : '<p><b>This part is empty.</b> It was not produced by the run this pack was drafted from, and an empty part must not be issued — a tenderer reads an omission as a decision.</p>'}
-        ${part === pipelineTpl.sections.length && d.packStatement ? `<div class="blk"><h3>Issue check</h3><p class="rt-lede">Performed by the system on the run this pack was drafted from, not by eye.</p>${richText(d.packStatement)}</div>` : ""}
+        ${part === pipelineTpl.sections.length && d.packStatement ? `<div class="blk"><h3>${checkHeading(doc)}</h3><p class="rt-lede">Performed by the system on the run this was drafted from, not by eye.</p>${richText(d.packStatement)}</div>` : ""}
         <div class="blk"><h3>Where this part sits</h3><table class="lines contents"><thead><tr><th>Part</th><th>Document</th><th>Status</th></tr></thead><tbody>${pipelineTpl.sections
           .map(([oid, olabel], i) => `<tr><td class="num">${i + 1}</td><td>${esc(olabel)}</td><td class="st">${i === idx ? "This document" : d[oid] ? "Issued with this pack" : "NOT ISSUED"}</td></tr>`)
           .join("")}</tbody></table></div>
@@ -1280,7 +1318,7 @@ function renderBody(doc, part = null) {
       }${d.dueDate ? t("Issue date", `${humanDate(d.dueDate)} — ${d.promisedDays || DIAGNOSTIC_WORKING_DAYS} working days from handover`) : ""}${t("Prepared by", doc.issuedBy)}</table>
       ${d.findings ? `<div class="blk"><h3>${esc(pipelineTpl.summaryLabel)}</h3>${richText(d.findings)}</div>` : ""}
       ${pipelineTpl.sections.map(([sid, label], i) => section(i + 1, label, d[sid])).join("")}
-      ${d.packStatement ? `<div class="blk"><h3>Issue check</h3><p class="rt-lede">Performed by the system on the run this pack was drafted from, not by eye.</p>${richText(d.packStatement)}</div>` : ""}
+      ${d.packStatement ? `<div class="blk"><h3>${checkHeading(doc)}</h3><p class="rt-lede">Performed by the system on the run this was drafted from, not by eye.</p>${richText(d.packStatement)}</div>` : ""}
       ${d.appendix ? `<div class="blk"><h3>${esc(pipelineTpl.appendixLabel.replace(/^Appendix A — /, "Appendix A · "))}</h3>${richText(d.appendix)}</div>` : ""}
       ${d.basis ? `<div class="blk"><h3>Basis of preparation</h3>${richText(d.basis)}</div>` : ""}
       <p class="legalnote">${esc(pipelineTpl.legal)}</p>`;

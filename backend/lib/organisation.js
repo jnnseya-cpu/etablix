@@ -171,11 +171,23 @@ export const AI_AGENTS = [
   {
     id: "bid",
     name: "Agent 2 — Bid & Requirements",
-    inputs: ["PQQ / ITT", "Employer's requirements, drawings, contract documents", "Site information and clarification responses"],
-    outputs: ["Requirements register and compliance matrix", "Submission checklist and responsibility matrix", "Clarification schedule", "First-draft method statements and bid programme", "Missing-information alerts"],
-    boundary: "Quotes the exact document source and revision for every critical requirement. The Bid owner validates before anything is submitted.",
+    inputs: [
+      "The invitation itself — ITT, PQQ, framework further competition or employer's requirements, uploaded in full",
+      "The submission deadline, the return route and the client's own forms and templates",
+      "What we can actually evidence: accreditations held and in progress, insurance limits, comparable references, key people",
+      "What we will not accept — liability, indemnity, payment terms, scope we do not deliver — and any clarification already answered",
+    ],
+    outputs: [
+      "Requirements register — one row per requirement with a VERBATIM quote of its source line and the section it came from",
+      "Compliance matrix — comply, comply with comment, partial or gap, with the evidence named",
+      "Submission checklist and timetable worked backwards from the deadline, every deliverable referenced SUB-n",
+      "The drafted responses, one per required deliverable, against the criterion and the limit each is scored under",
+      "Clarification schedule, bid position and risk with a bid / no-bid recommendation, responsibility matrix and bid programme",
+      "Submission register and completeness certificate — the machine check printed in the bid file",
+    ],
+    boundary: "Drafts only. It does not submit, does not price and does not decide whether to bid — it recommends, with the facts the recommendation rests on. It claims no accreditation, certification or project reference that is not evidenced in the inputs: anything an answer needs and does not have is marked EVIDENCE REQUIRED and carried as an open item. Where an invitation would place a CDM 2015 duty holder role on ETABLIX it names the role rather than accepting it.",
     backing: ["llm"],
-    desk: "Outputs land against the opportunity record in the bid screen.",
+    desk: "A seven-pass pipeline with the submission-completeness check built in. The checklist of what must be returned is written BEFORE the responses, so the answers are written against it — and the system then reconciles the two by reference on every run. A required deliverable with no drafted response, or a deadline that is not a date, stops the bid file being approved: on most public and framework procurements a missing deliverable is not a lost mark, it is a rejected tender. An approved run becomes a numbered BID bid file, each part printing on its own.",
   },
   {
     id: "design",
