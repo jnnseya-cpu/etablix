@@ -109,17 +109,29 @@
 
 <p>Second, and this is the real exposure: <strong>a document written in the voice of a duty holder is a representation about who is discharging that duty.</strong> It does not matter who or what typed it. A fluent model asked to produce a fire strategy will produce something that reads exactly like a competent person's determination, and a reader is entitled to treat it as one. That is the risk, and it is not solved by anybody understanding that a model is not a legal person.</p>
 
-<p>So the agents write in the voice of the party who will actually hold it. They state the requirement and name who determines it. They do not determine it.</p>
+<p>So the agents write in the voice of the party who will actually hold it. They state the requirement and name who determines it. They do not determine it. The phrasings that would breach that are blocked at the point a document is generated, not written down in a style guide, and a test checks what is actually published rather than what we intended to publish.</p>
 
-<p>Separately, and about us rather than the software: <strong>ETABLIX is not automatically the Principal Contractor, and nothing we issue may imply that it is.</strong> That is an appointment, it carries specific health-and-safety duties, and where a client wants us to hold it that is an explicit, priced and insured decision written into the appointment — never an inference somebody draws from how a document was worded. Under Model 03 we are a "Prime Service Contractor", where prime means prime for the site-services system and nothing more. Which duty-holder roles any given appointment does put us in is stated in that appointment, because the regulations attach some of them to conduct rather than to paperwork, and pretending otherwise would be the same mistake in the other direction.</p>
-
-<p>The two phrasings that would cause this are blocked at the point a document is generated, not written down in a style guide, and a test checks what is actually published rather than what we intended to publish.</p>
+<p>What none of that tells you is which duties <em>we</em> hold. That is a separate question, it is not answered by anything about the software, and it has its own section below.</p>
 
 <h3 id="they-never-resolve-a-life-safety-question">They never resolve a life-safety question</h3>
 
 <p>Fire strategy, means of escape, compartmentation, alarm category, escape widths, structural loads. Our workforce village agent is required to <em>state the requirement and refer it</em> — every such row carries a marker naming a competent fire engineer and the fire and rescue authority as the people who determine it. It is not permitted to propose a travel distance. People sleep in these buildings.</p>
 
 <p>There is a version of this refusal that is just a disclaimer at the bottom of page forty. Ours is a marker on the row itself, printed in the client's document, next to the thing it applies to. A boundary a reader has to go looking for is decoration.</p>
+
+<h2 id="which-duties-we-hold">Which duties we do hold</h2>
+
+<p>The four refusals above are about the software. None of them says anything about ETABLIX's own position, and a company that answered the duty-holder question by talking about its tooling would be dodging it. So, plainly.</p>
+
+<p><strong>It depends on the appointment, and the appointment says.</strong> That is not evasion — it is what the regulations do. Principal designer and principal contractor are appointed roles, one organisation at a time, so nobody holds either by accident. The others attach to conduct: manage or control construction work and you are a contractor whether anybody appointed you or not.</p>
+
+<p>Which means <strong>claiming to hold no statutory duties would be the more dangerous overclaim</strong>, and it is the one a supplier is tempted into. A business that manages construction work on a site holds contractor duties by operation of the regulations, whatever its marketing says. We would rather write that down than have a client discover we thought otherwise.</p>
+
+<p>Two positions follow from it, and both are commercial rather than technical.</p>
+
+<p><strong>ETABLIX is not automatically the Principal Contractor.</strong> It is an appointment carrying specific health-and-safety duties, and where a client wants us to hold it, that is an explicit, priced and insured decision written into the appointment. It is available. What it is not is an inference somebody draws from how a document was worded, which is why the phrasing is blocked at generation. Under Model 03 the term is "Prime Service Contractor", where prime means prime for the site-services system and nothing else.</p>
+
+<p><strong>Where a role is genuinely arguable, we would rather establish it before the engagement than after an incident.</strong> Advisory work writes output specifications, and a designer under CDM 2015 is anyone who prepares or modifies a design in the course of business — so whether specifying brings designer duties is a real question with real insurance consequences. It belongs to a construction solicitor and an underwriter, not to a website, and we would put it to them on a given engagement rather than assert an answer here. A supplier who has never considered the question is the one to worry about.</p>
 
 <h2 id="control-vs-promise">The difference between a control and a promise</h2>
 

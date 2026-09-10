@@ -191,7 +191,11 @@ export const POSTS = [
       },
       {
         q: "What should an AI agent never be allowed to do on a construction project?",
-        a: "Four things, on our reading. It must never award a contract, place an order or commit money. It must never accept work or close a defect. It must never hold a statutory duty — CDM 2015 duty holders are people and organisations, not software. And it must never resolve a life-safety question such as a fire strategy, means of escape or a load; those are referred to a competent person and, where relevant, to the fire and rescue authority.",
+        a: "Four things, on our reading. It must never award a contract, place an order or commit money. It must never accept work or close a defect. It must never hold a statutory duty, because the HSE names seven CDM 2015 duty holders and all of them are people or organisations. And it must never resolve a life-safety question such as a fire strategy, means of escape or a load; those are referred to a competent person and, where relevant, to the fire and rescue authority. None of that says anything about which duties the supplier itself holds, which is a separate question you should ask separately.",
+      },
+      {
+        q: "Does ETABLIX hold CDM 2015 duties, and is it the Principal Contractor?",
+        a: "It depends on the appointment, and the appointment says so in writing. Principal designer and principal contractor are appointed roles under CDM 2015, one organisation at a time, so nobody holds either by accident and ETABLIX is not automatically either of them. Where a client wants us to hold Principal Contractor that is an explicit, priced and insured decision written into the appointment, and it is available. The other duty-holder roles attach to conduct rather than paperwork: a business that manages or controls construction work holds contractor duties whatever its marketing says, so claiming to hold none at all would be the more dangerous answer. Under Model 03 the term is Prime Service Contractor, where prime means prime for the site-services system and nothing else.",
       },
       {
         q: "How do you stop an AI agent inventing requirements?",
