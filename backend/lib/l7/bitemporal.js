@@ -138,6 +138,54 @@ export function correct({ entity, field, value, validFrom = null, validTo = null
   return { ok: true, faults: [], fact: written.fact, closed };
 }
 
+/**
+ * Succeed a fact: the old value was RIGHT, and a new one takes over from a
+ * date.
+ *
+ * THIS IS NOT A CORRECTION AND CONFLATING THE TWO LOSES REAL HISTORY.
+ *
+ * A correction says the old value was wrong for the period it claimed. A
+ * succession says it was right and then stopped: a certificate expiring on 31
+ * August, renewed by a new one issued on 20 August, is not a correction of the
+ * first certificate. The first was genuinely in force for three years and the
+ * second takes over.
+ *
+ * The first version of this module only had correct(), so a renewal closed the
+ * old row in transaction time for ALL time — and the question "what was the
+ * expiry that applied on 15 August" then had no answer at all, because the row
+ * that answered it had been retired and the new one did not reach back. A hole
+ * in the middle of a history is worse than a wrong value in it: a wrong value
+ * can be argued with.
+ *
+ * So a succession TRIMS the previous version's valid period to the day the
+ * new one starts, and leaves it otherwise untouched. Both remain readable and
+ * each covers exactly the period it was true for.
+ */
+export function supersede({ entity, field, value, validFrom, validTo = null, at = null, by = null, source = null, reason = null } = {}) {
+  const from = stampOf(validFrom, null);
+  if (from === null) return { ok: false, faults: [`the valid-from "${validFrom}" is not a date, and a succession has to start on a day`], fact: null, trimmed: [] };
+  if (!reason) return { ok: false, faults: ["a succession with no reason cannot be told from an overwrite"], fact: null, trimmed: [] };
+
+  const recordedAt = stampOf(at, Date.now());
+  const written = record({ entity, field, value, validFrom: from, validTo, at: recordedAt, by, source, note: reason });
+  if (!written.ok) return { ...written, trimmed: [] };
+
+  const trimmed = [];
+  for (const row of collection(COLLECTION)) {
+    if (row.id === written.fact.id) continue;
+    if (row.entity !== String(entity) || row.field !== String(field)) continue;
+    if (row.supersededAt !== null) continue;
+    // Only a version still running when the new one starts.
+    if (row.validTo <= from || row.validFrom >= from) continue;
+    // Trimmed, not retired. It stays the answer for its own period.
+    update(COLLECTION, row.id, { validTo: from, trimmedAt: recordedAt, trimmedBy: written.fact.id });
+    trimmed.push(row.id);
+  }
+  recordLedger("fact.superseded", `${entity}.${field}`, by || "unattributed",
+    `${trimmed.length} version(s) trimmed to ${new Date(from).toISOString().slice(0, 10)}, none retired — ${reason}`);
+  return { ok: true, faults: [], fact: written.fact, trimmed };
+}
+
 /** Every version of a fact, both axes, oldest recording first. */
 export function history(entity, field = null) {
   return collection(COLLECTION)
@@ -303,6 +351,9 @@ export function integrity() {
       faults.push(`${r.id} was superseded before it was recorded`);
     }
     if (r.validTo <= r.validFrom) faults.push(`${r.id} has a valid period that ends before it starts`);
+    if (r.trimmedBy && !rows.some((x) => x.id === r.trimmedBy)) {
+      faults.push(`${r.id} was trimmed by ${r.trimmedBy} and that fact does not exist`);
+    }
     if (!r.source) faults.push(`${r.id} has no source`);
   }
   return {
@@ -310,6 +361,9 @@ export function integrity() {
     facts: rows.length,
     open: rows.filter((r) => r.supersededAt === null).length,
     superseded: rows.filter((r) => r.supersededAt !== null).length,
+    // Trimmed is not superseded. A trimmed row is still the answer for its
+    // own period, and counting it as retired would hide that.
+    trimmed: rows.filter((r) => r.trimmedBy).length,
     faults,
     say: faults.length === 0
       ? `${rows.length} fact(s), ${rows.filter((r) => r.supersededAt !== null).length} superseded and none altered.`

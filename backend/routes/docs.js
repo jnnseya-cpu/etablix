@@ -30,6 +30,7 @@ import { SECTIONS as CR_SECTIONS } from "../lib/pipelines/control-report.js";
 import { SECTIONS as IR_SECTIONS } from "../lib/pipelines/interface-register.js";
 import { SECTIONS as CH_SECTIONS } from "../lib/pipelines/challenge.js";
 import { challengeStatement } from "../lib/challengecheck.js";
+import { mayIssue, issueState, CHALLENGE_REQUIRED } from "../lib/l7/issue.js";
 import { splitPipelineOutput } from "../lib/sections.js";
 import { packStatement } from "../lib/tenderpack.js";
 import { bidStatement } from "../lib/bidcheck.js";
@@ -649,6 +650,18 @@ router.get("/from-run/:id", requireAuth, deliveryFinance, (req, res) => {
 
   const { data, missing, matched } = draft.split(run.output);
 
+  /**
+   * What would block issuing this, said at DRAFT time.
+   *
+   * The gate itself refuses at the mint, which is the right place for a
+   * refusal. It is the wrong place for the first mention: somebody who learns
+   * at four o'clock that a challenge is needed has lost the afternoon they
+   * needed to run it. So the draft carries the same verdict, and a screen can
+   * say "this needs a challenge before it can be issued" while there is still
+   * time to do something about it.
+   */
+  const issue = issueState(draft.template, req.query.challengeRunId || null, run.id);
+
   // ?template=specimen — the same run, cut down to the client-safe extract
   // that goes on the website and into a pitch: the findings paragraph, the
   // supplier-interface matrix and the mobilisation constraints in full, and
@@ -685,6 +698,8 @@ router.get("/from-run/:id", requireAuth, deliveryFinance, (req, res) => {
   }
 
   res.json({
+    // What blocks issuing this, said at DRAFT time rather than at the mint.
+    issue,
     template: draft.template,
     // THE RUN ID TRAVELS WITH THE DRAFT.
     //
@@ -795,6 +810,16 @@ router.post("/generate", requireAuth, deliveryFinance, (req, res) => {
     runId = run.id;
   }
 
+  // THE ISSUE GATE. A bid file is not numbered until an independent
+  // challenge has run, been approved, passed its own check and left no
+  // critical finding open. Refused here rather than warned about on the
+  // screen: a control that can be walked past at four o'clock on the day of
+  // the deadline is not a control.
+  const gate = mayIssue({ template: tpl.id, challengeRunId: req.body?.challengeRunId, sourceRunId: runId });
+  if (!gate.ok) {
+    return res.status(409).json({ error: gate.say, gate: { reason: gate.reason, detail: gate.detail || null } });
+  }
+
   const number = nextNumber(tpl.prefix);
   const doc = insert("documents", {
     template: tpl.id,
@@ -805,9 +830,15 @@ router.post("/generate", requireAuth, deliveryFinance, (req, res) => {
     party: data.client || data.supplier || data.party || "—",
     total: (data.lines || []).reduce((s, l) => s + l.qty * l.rate, 0),
     issuedBy: req.user.name,
+    // The challenge that released it, kept on the document so the question
+    // "was this reviewed" is answered by the record rather than by memory.
+    challengeRunId: gate.required ? gate.challengeRunId : null,
     data,
   });
-  res.status(201).json({ document: { id: doc.id, number: doc.number, template: doc.template, runId: doc.runId } });
+  res.status(201).json({
+    document: { id: doc.id, number: doc.number, template: doc.template, runId: doc.runId, challengeRunId: doc.challengeRunId },
+    challenge: gate.required ? { say: gate.say, findings: gate.findings, high: gate.high, stale: gate.stale } : null,
+  });
 });
 
 /**

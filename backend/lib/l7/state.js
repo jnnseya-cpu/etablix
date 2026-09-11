@@ -49,6 +49,8 @@ import { memoryFiles } from "./adapters/files.js";
 import { setContract, recordEvent, live as contractLive, state as watchState, contractFor } from "./watch.js";
 import { RULES } from "../automation.js";
 import { withPriors } from "./bidscore.js";
+import { mayIssue, CHALLENGE_REQUIRED } from "./issue.js";
+import { MEASUREMENTS, measurements } from "./quality.js";
 import { PIPELINE_AGENTS } from "../ai.js";
 import { reconcileChallenge, challengeNotes } from "../challengecheck.js";
 
@@ -180,17 +182,21 @@ export function levelSeven() {
       // registry rather than hard-coded — if the agent is ever removed, this
       // goes back to partial on the next page load without anybody
       // remembering to change a register.
-      const challengerAgentExists = PIPELINE_AGENTS.has("challenge") && typeof reconcileChallenge === "function";
+      // And it must be OBLIGATORY. A challenger that runs when somebody
+      // remembers is a challenger that does not run on the day of a deadline,
+      // which is the only day it matters.
+      const obliged = CHALLENGE_REQUIRED.has("bidfile") && mayIssue({ template: "bidfile" }).ok === false;
+      const challengerAgentExists = PIPELINE_AGENTS.has("challenge") && typeof reconcileChallenge === "function" && obliged;
       const holds = checksWork && challengerAgentExists;
       return {
         holds,
         partial: checksWork,
         evidence: checksWork && challengerAgentExists
-          ? `Agent 14 attacks another agent's finished output through the nine lenses, each written on its own pass, and lib/challengecheck.js refuses the report unless every lens carries a section and every finding names a lens, a severity, a location and a remedy. It is deliberately not given the author's reasoning. A critical finding cannot be disposed of, and a report with nine lenses and no findings at all is refused — a submission with nothing wrong with it has not been challenged, it has been read.`
+          ? `A bid file is NOT NUMBERED without an independent challenge that ran, was approved, passed its own check and left no critical finding open — refused at the mint, with no override. Agent 14 attacks another agent's finished output through the nine lenses, each written on its own pass, and lib/challengecheck.js refuses the report unless every lens carries a section and every finding names a lens, a severity, a location and a remedy. It is deliberately not given the author's reasoning. A critical finding cannot be disposed of, and a report with nine lenses and no findings at all is refused — a submission with nothing wrong with it has not been challenged, it has been read.`
           : checksWork
           ? `The independence check refuses a review by its own run, refuses a high-risk lens on the author's model, and the red team is routed to ${routed.model}. A lens nobody ran counts as unrun rather than clean. What does NOT yet exist is an agent that runs the nine lenses: the check is built and the challenger is not.`
           : "The independence check did not refuse a review it should have refused.",
-        detail: { refusesSameRun: !sameRun.ok, refusesSameModel: !sameModel.ok, acceptsValidator: proper.ok, countsUnrun: !unrun.ok, redTeamRoute: routed.model, lenses: LENSES.length, challengerAgentExists },
+        detail: { refusesSameRun: !sameRun.ok, refusesSameModel: !sameModel.ok, acceptsValidator: proper.ok, countsUnrun: !unrun.ok, redTeamRoute: routed.model, lenses: LENSES.length, challengerAgentExists, obligatoryBeforeIssue: obliged },
       };
     },
 
@@ -462,20 +468,31 @@ export function qualityTargets() {
     },
     "Complete submission validation before upload": () => ({ enforced: !hardGates({}).ok, by: "manifest.hardGates", measured: "eight hard gates, and an empty submission fails seven of them" }),
     "Notice-deadline recall": () => ({ enforced: true, by: "paymentdates + controlcheck", measured: "statutory payment dates are computed and their order checked; other notice regimes are not modelled" }),
-    "Progress forecast calibration, by package": () => ({ enforced: false, by: null, measured: "nothing measures this. There is no forecast history to calibrate against." }),
-    "Early-warning precision": () => ({ enforced: false, by: null, measured: "nothing measures this." }),
-    "Aged RFIs": () => ({ enforced: false, by: null, measured: "nothing measures this." }),
-    "Unrecorded change": () => ({ enforced: false, by: null, measured: "nothing measures this." }),
-    "Payment-assessment cycle time": () => ({ enforced: false, by: null, measured: "nothing measures this." }),
-    "Handover completeness trajectory": () => ({ enforced: false, by: null, measured: "nothing measures this." }),
-    "Manual reporting hours": () => ({ enforced: false, by: null, measured: "nothing measures this, and it is the number a client would ask for first." }),
+    // THE SEVEN THAT SAID "NOTHING MEASURES THIS".
+    //
+    // Each now runs a real measurement and returns one of three answers.
+    // "No data yet" is reported as such and is NEVER shown as a pass: zero
+    // aged RFIs because none is old is a result, and zero because nobody
+    // entered one is an empty database, and a dashboard rendering both as a
+    // green zero tells somebody their site is under control on the evidence
+    // that nothing has been recorded.
+    ...Object.fromEntries(Object.keys(MEASUREMENTS).map((target) => [target, () => {
+      const r = MEASUREMENTS[target]();
+      return {
+        enforced: r.outcome === "MEASURED",
+        by: r.outcome === "NOT_MEASURABLE" ? null : "quality.js",
+        measured: r.say,
+        outcome: r.outcome,
+        value: r.value,
+      };
+    }])),
   };
 
   return QUALITY_TARGETS.map((row) => {
     let m;
     try { m = mechanisms[row.target] ? mechanisms[row.target]() : { enforced: false, by: null, measured: "no mechanism is recorded for this target" }; }
     catch (err) { m = { enforced: false, by: null, measured: `the mechanism could not be run: ${err.message}` }; }
-    return { ...row, enforced: m.enforced === true, mechanism: m.by, note: m.measured };
+    return { ...row, enforced: m.enforced === true, mechanism: m.by, note: m.measured, outcome: m.outcome || (m.enforced ? "MEASURED" : "NOT_MEASURABLE"), value: m.value === undefined ? null : m.value };
   });
 }
 
@@ -523,6 +540,12 @@ export function measured() {
       foundationsBuilt: f.filter((x) => x.state === "built").length,
       targetsEnforced: q.filter((x) => x.enforced).length,
       targetsTotal: q.length,
+      // Three answers, not two. A target with a mechanism and no data is a
+      // different thing from a target with no mechanism, and collapsing them
+      // is how "nothing measures this" becomes invisible.
+      targetsMeasured: q.filter((x) => x.outcome === "MEASURED").length,
+      targetsNoData: q.filter((x) => x.outcome === "NO_DATA_YET").length,
+      targetsNotMeasurable: q.filter((x) => x.outcome === "NOT_MEASURABLE").length,
       modesDisagreeing: modes.filter((m) => m.agrees === false).length,
     },
     drift: {

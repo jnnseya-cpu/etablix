@@ -100,21 +100,22 @@
     fetch("/api/l7/contract", { headers: { Authorization: `Bearer ${token}` } }),
     fetch("/api/l7/memory", { headers: { Authorization: `Bearer ${token}` } }),
     fetch("/api/l7/ports", { headers: { Authorization: `Bearer ${token}` } }),
+    fetch("/api/l7/quality", { headers: { Authorization: `Bearer ${token}` } }),
   ])
-    .then(async ([a, b, c, d, e, f, g]) => {
-      for (const res of [a, b, c, d, e, f, g]) {
+    .then(async ([a, b, c, d, e, f, g, h]) => {
+      for (const res of [a, b, c, d, e, f, g, h]) {
         if (res.status === 401) { sessionStorage.clear(); location.replace("/internal/login.html"); throw new Error("unauthorised"); }
         if (!res.ok) throw new Error(`${res.status} from ${res.url}`);
       }
-      return [await a.json(), await b.json(), await c.json(), await d.json(), await e.json(), await f.json(), await g.json()];
+      return [await a.json(), await b.json(), await c.json(), await d.json(), await e.json(), await f.json(), await g.json(), await h.json()];
     })
-    .then(([state, perms, model, spend, contract, memory, ports]) => render(state, perms, model, spend, contract, memory, ports))
+    .then(([state, perms, model, spend, contract, memory, ports, quality]) => render(state, perms, model, spend, contract, memory, ports, quality))
     .catch((err) => {
       if (err.message === "unauthorised") return;
       out.innerHTML = `<p class="err">The controls could not be run: ${esc(err.message)}. That is itself the answer to whether they work.</p>`;
     });
 
-  function render(state, perms, model, spend, contract, memory, ports) {
+  function render(state, perms, model, spend, contract, memory, ports, quality) {
     const m = state.measured;
     const h = state.health;
     const c = m.counts;
@@ -174,13 +175,24 @@
           A target with no mechanism is a hope. The point of the third column is that it is impossible
           to write "measured" next to one.
         </p>
-        <table><thead><tr><th style="width:90px;">Stage</th><th style="width:260px;">Target</th><th style="width:110px;">Enforced by</th><th>How</th></tr></thead>
+        <div class="num-row" style="margin-bottom:14px;">
+          <div class="num good"><div class="v">${c.targetsMeasured}</div><div class="l">Measured from real data</div></div>
+          <div class="num ${c.targetsNoData ? "warn" : ""}"><div class="v">${c.targetsNoData}</div><div class="l">Mechanism, no data yet</div></div>
+          <div class="num ${c.targetsNotMeasurable ? "warn" : ""}"><div class="v">${c.targetsNotMeasurable}</div><div class="l">Software cannot see it</div></div>
+        </div>
+        <table><thead><tr><th style="width:90px;">Stage</th><th style="width:250px;">Target</th><th style="width:120px;">Outcome</th><th>What was found</th></tr></thead>
         <tbody>${m.qualityTargets.map((r) => `<tr>
           <td>${esc(r.stage)}</td>
           <td><b>${esc(r.target)}</b><div class="ev">Target: ${esc(r.value)}</div></td>
-          <td>${r.enforced ? `<span class="yes">${esc(r.mechanism)}</span>` : `<span class="no">nothing</span>`}</td>
+          <td><span class="state ${r.outcome === "MEASURED" ? "built" : r.outcome === "NO_DATA_YET" ? "partial" : "absent"}">${esc(String(r.outcome).replace(/_/g, " ").toLowerCase())}</span>${r.mechanism ? `<div class="ev">${esc(r.mechanism)}</div>` : ""}</td>
           <td>${esc(r.note)}</td>
         </tr>`).join("")}</tbody></table>
+        <p class="note">
+          Three answers, not two. A target with a mechanism and no data is a different thing from a
+          target with no mechanism, and "no data yet" is never shown as a pass: zero aged RFIs
+          because none is old is a result, and zero because nobody entered one is an empty database.
+          ${quality && quality.say ? esc(quality.say) : ""}
+        </p>
       </div>
 
       <div class="grid2">

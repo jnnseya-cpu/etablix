@@ -378,3 +378,52 @@ export function state() {
       : `${b.filter((x) => !x.bound).length} port(s) have no adapter bound.`,
   };
 }
+
+/**
+ * The accounting port, added after the first six.
+ *
+ * It is here because the boundary is REAL: this system keeps its own
+ * append-only money ledger and every call site reaches into it directly. That
+ * makes it exactly the case a port is for — the day money moves to an ERP,
+ * nothing in the domain should have to change — and it distinguishes it from
+ * the common data environment, BIM and field applications, which have nothing
+ * behind them at all and so keep no port.
+ *
+ * A port for a boundary with an implementation is a seam. A port for a
+ * boundary with nothing behind it is a claim.
+ */
+PORTS.accounting = {
+  id: "accounting",
+  name: "Accounting ledger",
+  why: "Money is recorded append-only in this system's own ledger and every call site reaches into it directly. The day it moves to an ERP, that should be an adapter rather than a change to anything that decides an amount.",
+  methods: {
+    post: { args: ["entry"], returns: "object", say: "{ ok, id } — append only, never an update" },
+    entries: { args: ["filter"], returns: "array" },
+    total: { args: ["kind"], returns: "number" },
+  },
+};
+
+SCRIPTS.accounting = [
+  ["an entry with no kind is refused", async (a) => (await a.post({ amount: 1, ref: "r", detail: "d" })).ok === false],
+  ["an entry with no detail is refused", async (a) => (await a.post({ kind: "k", amount: 1, ref: "r" })).ok === false],
+  ["a negative amount is refused", async (a) => (await a.post({ kind: "k", amount: -1, ref: "r", detail: "d" })).ok === false],
+  ["a valid entry posts", async (a) => (await a.post({ kind: "conformance", amount: 10, ref: "PORT-1", detail: "conformance" })).ok === true],
+  ["it reads back by kind", async (a) => (await a.entries({ kind: "conformance" })).length >= 1],
+  ["the total by kind is a number", async (a) => typeof (await a.total("conformance")) === "number"],
+  ["an unknown kind totals nought rather than throwing", async (a) => (await a.total("nothing-of-this-kind")) === 0],
+  ["and reads back as an empty list", async (a) => (await a.entries({ kind: "nothing-of-this-kind" })).length === 0],
+];
+
+// The accounting boundary is no longer unported, so it stops being listed as
+// one. Leaving it in both places would be the register contradicting itself.
+{
+  const i = UNPORTED.findIndex((u) => u.id === "erp");
+  if (i >= 0) {
+    UNPORTED[i] = {
+      id: "erp",
+      name: "ERP (an external one)",
+      state: "absent",
+      say: "This system's own money ledger now sits behind the accounting port. No EXTERNAL ERP is connected, and that is what remains absent — the seam exists and there is nothing on the far side of it yet.",
+    };
+  }
+}

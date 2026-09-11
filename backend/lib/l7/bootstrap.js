@@ -19,6 +19,7 @@ import { sqliteStore } from "./adapters/store.js";
 import { diskFiles } from "./adapters/files.js";
 import { memoryMail, transportMail } from "./adapters/mail.js";
 import { localBilling } from "./adapters/billing.js";
+import { ledgerAccounting } from "./adapters/accounting.js";
 import { scriptedLlm, providerLlm } from "./adapters/llm.js";
 import { dataDir } from "../store.js";
 
@@ -37,6 +38,7 @@ export function bindPorts({ mailSend = null, mailVerify = null, llmClient = null
   bind("store", sqliteStore, "sqlite");
   bind("files", diskFiles(path.join(dataDir(), "port-files")), "disk");
   bind("billing", localBilling(), "local");
+  bind("accounting", ledgerAccounting, "ledger");
 
   // Mail and the model are bound to the real thing when the application has
   // one and to an honest stand-in when it does not — a stand-in that refuses

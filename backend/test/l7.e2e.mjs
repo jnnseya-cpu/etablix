@@ -73,6 +73,9 @@ const GUARDED = [
   ["POST", "/api/l7/memory/remember"],
   ["POST", "/api/l7/memory/retire"],
   ["GET", "/api/l7/ports"],
+  ["GET", "/api/l7/quality"],
+  ["GET", "/api/l7/evidence/x/valid-on"],
+  ["POST", "/api/l7/evidence/log"],
 ];
 for (const [method, path] of GUARDED) {
   const r = await fetch(`${BASE}${path}`, { method, headers: { "content-type": "application/json" }, body: method === "POST" ? "{}" : undefined });
@@ -259,13 +262,13 @@ console.log("\n--- the last four properties, over the wire\n");
 }
 {
   const j = await (await get("/api/l7/contract")).json();
-  ok(j.forms.length === 3, "three standard forms are served", j.forms.map((f) => f.id));
+  ok(j.forms.length === 6, "six standard forms are served", j.forms.map((f) => f.id));
   ok(j.events.length === 5, "and five canonical site events");
 }
 {
   const j = await (await post("/api/l7/contract/compare", { event: "unforeseen_ground", awareAt: "2026-06-01", now: "2026-09-11" })).json();
   ok(j.differ, "THE SAME SITE EVENT RETURNS DIFFERENT ANSWERS FROM DIFFERENT CONTRACTS, over the wire", j.verdicts);
-  ok(j.answers.length === 3, "one answer per contract");
+  ok(j.answers.length === 6, "one answer per contract");
   ok(j.answers.some((a) => a.barred && a.barred.length) && j.answers.some((a) => a.barred && a.barred.length === 0),
      "one form bars the entitlement outright and another does not");
 }
@@ -330,6 +333,57 @@ console.log("\n--- the last four properties, over the wire\n");
   ok(j.conformance.length === 3 && j.conformance.every((c) => c.ok),
      "THE CONFORMANCE RUN IS EXECUTED ON THE REQUEST and every pair is interchangeable", j.conformance.filter((c) => !c.ok));
   ok(j.unported.length === 6, "and the boundaries with no port are named rather than omitted", j.unported.map((u) => u.id));
+}
+
+console.log("\n--- everything cleared, over the wire\n");
+{
+  const j = await (await get("/api/l7/contract")).json();
+  ok(j.forms.length === 6, "six standard forms now", j.forms.map((f) => f.id));
+}
+{
+  const j = await (await post("/api/l7/contract/compare", { event: "unforeseen_ground", awareAt: "2026-06-01", now: "2026-09-11" })).json();
+  ok(j.answers.length === 6, "the same event goes to all six");
+  ok(j.differ, "and they do not all agree", j.verdicts.length);
+}
+{
+  const j = await (await get("/api/l7/quality")).json();
+  ok(j.counts.total === 7, "all seven previously unmeasured targets have a mechanism", j.counts);
+  ok(j.counts.notMeasurable >= 1, "at least one honestly cannot be seen by software");
+  ok(/is not a pass and is never shown as one/.test(j.say), "and no-data is stated as not a pass");
+  ok(j.targets["Manual reporting hours"].value === null,
+     "manual reporting hours returns no value rather than a document count dressed as a saving");
+}
+{
+  const j = await (await get("/api/l7/ports")).json();
+  ok(j.bound.length === 7, "seven ports bound, with accounting added", j.bound.map((b) => b.port));
+  ok(j.noBusinessLogic.adapters === 7, "seven adapters, none carrying domain logic");
+}
+{
+  const id = `e2e-ev-${Date.now().toString(36)}`;
+  const cert = (exp, issued) => ({ id, kind: "CERTIFICATE", claim: "ISO 9001", source: { uri: "u", hash: "h", issuedAt: issued, expiresAt: exp }, status: "APPROVED", verifiedBy: "J", scope: { global: true } });
+  let r = await post("/api/l7/evidence/log", { evidence: [cert("2026-08-31", "2023-11-30")], by: "e2e", at: "2023-12-01" });
+  ok(r.status === 201, "an expiry logs");
+  r = await get(`/api/l7/evidence/${id}/valid-on?deadline=2026-08-15`);
+  const first = await r.json();
+  ok(first.onTheDay.valid === true, "in date on the submission day");
+  await post("/api/l7/evidence/log", { evidence: [cert("2029-08-31", "2026-08-20")], by: "e2e", at: "2026-09-05" });
+  const after = await (await get(`/api/l7/evidence/${id}/valid-on?deadline=2026-08-15`)).json();
+  ok(after.onTheDay.expiresAt === "2026-08-31",
+     "AFTER THE RENEWAL THE SUBMISSION DAY STILL READS THE CERTIFICATE THAT WAS IN FORCE", after.onTheDay.expiresAt);
+  ok(after.succeeded === true && after.corrected === false,
+     "reported as succeeded rather than corrected, because the record about that day did not change");
+  ok(after.history.length === 2, "and both versions are on the record");
+  const r2 = await get(`/api/l7/evidence/${id}/valid-on`);
+  ok(r2.status === 400, "and validity without a deadline is refused — it is a question about a specific day");
+}
+{
+  // The claims check writes the validity log as a by-product.
+  const id = `e2e-log-${Date.now().toString(36)}`;
+  const cert = { id, kind: "CERTIFICATE", claim: "c", source: { uri: "u", hash: "h", issuedAt: "2025-01-01", expiresAt: "2027-01-01" }, status: "APPROVED", verifiedBy: "J", scope: { global: true } };
+  const j = await (await post("/api/l7/claims", { claims: [{ id: "C1", evidenceId: id }], evidence: [cert], bidId: "B", deadline: "2026-10-01" })).json();
+  ok(j.gate.ok, "the claim passes the evidence gate");
+  ok(j.logged && j.logged.logged.includes(id),
+     "AND THE VALIDITY LOG IS WRITTEN AS A BY-PRODUCT of the check rather than as a discipline somebody has to remember", j.logged);
 }
 
 console.log(`\n=== ${pass} passed, ${fail} failed ===\n`);

@@ -35,6 +35,7 @@ import { ACTIONS, AUTONOMY_LEVELS, decide, coverage as policyCoverage, riskClass
 import { BID_ROLES, CONTENT_CLASSES, GRANTS, ROLE_MAPPING, accessTo, priceExposure } from "../lib/l7/permissions.js";
 import { TASK_CLASSES, ROUTES, route as modelRoute } from "../lib/l7/routing.js";
 import { checkClaims, lapsingBy, validate as validateEvidence, KINDS } from "../lib/l7/evidence.js";
+import { logRegistry, validOn, validityHistory, positionAt } from "../lib/l7/evidencelog.js";
 import { hardGates, build as buildManifest, MANIFEST_FIELDS } from "../lib/l7/manifest.js";
 import { assure, detectDoubleMarkup, checkRiskRelease, RATE_COMPONENTS } from "../lib/l7/estimating.js";
 import { matrix, CONTRADICTION_CLASSES, blockedBy } from "../lib/l7/compliance.js";
@@ -49,6 +50,7 @@ import { setContract, recordEvent, live as contractLive, eventsFor, contractFor,
 import { record as recordFact, correct as correctFact, asOf, history, reconstruct, snapshot, lateInformation, integrity as factIntegrity } from "../lib/l7/bitemporal.js";
 import { PARTITIONS, remember, propose, promote, recall, pending, prior, retire, state as memoryStateOf } from "../lib/l7/memory.js";
 import { PORTS, UNPORTED, bound as portsBound, compareSync as portCompareSync, noBusinessLogic, state as portStateOf } from "../lib/l7/ports.js";
+import { measurements as qualityMeasurements } from "../lib/l7/quality.js";
 import { systemClock, fixedClock } from "../lib/l7/adapters/clock.js";
 import { memoryStore } from "../lib/l7/adapters/store.js";
 import { memoryFiles } from "../lib/l7/adapters/files.js";
@@ -195,6 +197,14 @@ router.get("/gate/remaining", (req, res) => {
 /** POST /api/l7/claims — gate GE-EV-01 against posted claims and evidence. */
 router.post("/claims", (req, res) => {
   const b = body(req);
+  // THE VALIDITY LOG IS WRITTEN AS A BY-PRODUCT OF THE CHECK, not as a
+  // separate discipline somebody has to remember. An accreditation claim in a
+  // public procurement is a statement whose truth is fixed at the deadline,
+  // and evidence is renewed as a matter of routine — so the expiry that was
+  // on record on the day has to survive the renewal that replaced it.
+  const logged = b.log === false
+    ? null
+    : logRegistry(b.evidence || [], { by: req.user?.name || "unattributed" });
   res.json({
     gate: checkClaims({
       claims: b.claims || [], evidence: b.evidence || [],
@@ -202,7 +212,29 @@ router.post("/claims", (req, res) => {
     }),
     lapsing: b.horizon ? lapsingBy(b.evidence || [], b.horizon) : null,
     invalid: (b.evidence || []).map(validateEvidence).filter((v) => !v.ok).map((v) => ({ id: v.record.id, faults: v.faults })),
+    logged,
   });
+});
+
+/**
+ * GET /api/l7/evidence/:id/valid-on — was it valid on the day we submitted?
+ *
+ * Two readings, and the second is the one a client asks for: what the record
+ * said on the day, and what is believed now. They differ exactly when the
+ * item has been renewed, and the submission was made against the first.
+ */
+router.get("/evidence/:id/valid-on", (req, res) => {
+  if (!req.query.deadline) return res.status(400).json({ error: "A deadline is required — validity is a question about a specific day." });
+  const r = validOn(req.params.id, { deadline: String(req.query.deadline), knownAt: req.query.knownAt || null });
+  if (!r.ok) return res.status(400).json(r);
+  res.json({ ...r, history: validityHistory(req.params.id) });
+});
+
+/** POST /api/l7/evidence/log — record or renew an item's validity. */
+router.post("/evidence/log", (req, res) => {
+  const b = body(req);
+  const r = logRegistry(b.evidence || [], { by: b.by || req.user?.name || null, at: b.at || null });
+  res.status(r.ok ? 201 : 400).json(r);
 });
 
 /** POST /api/l7/submission — the eight pre-submission hard gates. */
@@ -443,6 +475,11 @@ router.post("/memory/retire", (req, res) => {
 });
 
 /* ---------------------------------------------------------------- L7.7 */
+
+/** GET /api/l7/quality — every target, and the mechanism it now has. */
+router.get("/quality", (req, res) => {
+  res.json(qualityMeasurements());
+});
 
 /** GET /api/l7/ports — what is bound, what is not ported, and what conforms. */
 router.get("/ports", (req, res) => {

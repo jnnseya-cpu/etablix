@@ -756,11 +756,38 @@ export function append(name, rowId, field, item, { cap = 0 } = {}) {
 // and the deletions are written here as they happen, and nothing in the
 // routes can rewrite them.
 
+/**
+ * Append one entry to the money ledger.
+ *
+ * TWO DEFECTS FIXED HERE, BOTH FOUND BY A PORT CONFORMANCE RUN.
+ *
+ * The first: this used `sql` without calling load(), so any caller that wrote
+ * to the ledger before the store had been opened wrote nothing. Every other
+ * reader and writer in this file calls load() first; this one did not, and it
+ * is the one that records money.
+ *
+ * The second is worse: `catch {}`. A failure to append to an append-only money
+ * ledger was discarded in silence — no return value to check, no log, no
+ * alert. The entry simply did not exist, and the first anybody would know is
+ * a reconciliation that does not balance months later.
+ *
+ * It now returns whether it wrote, and a failure is printed. It still does not
+ * throw, deliberately: this is called from inside deletion and payment paths
+ * where an exception would abandon the operation half-done and lose more than
+ * the ledger line. A caller who needs certainty checks the return value.
+ */
 export function recordLedger(kind, ref, actor, detail) {
   try {
+    load();
     sql.prepare("INSERT INTO ledger (at, kind, ref, actor, detail) VALUES (?, ?, ?, ?, ?)")
        .run(Date.now(), String(kind), ref ? String(ref) : null, actor ? String(actor) : null, String(detail).slice(0, 2000));
-  } catch {}
+    return { ok: true };
+  } catch (err) {
+    // Printed rather than swallowed. An append-only ledger that loses an
+    // entry quietly is not append-only, it is unreliable.
+    console.error(`[store] LEDGER WRITE FAILED (${kind}/${ref}): ${err.message}`);
+    return { ok: false, reason: String(err.message) };
+  }
 }
 
 export function ledger({ kind = null, since = 0, limit = 500 } = {}) {

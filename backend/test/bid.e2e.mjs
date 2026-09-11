@@ -122,18 +122,118 @@ ok(r.body.runId === id, "carrying the run it came from, so it can be traced and 
 ok(r.body.missing?.length === 0, "with every one of the eight parts found", r.body.missing);
 ok(/complete against the invitation's own checklist/.test(r.body.data?.packStatement || ""),
    "and the completeness result travels onto the document", (r.body.data?.packStatement || "").slice(0, 120));
+ok(r.body.issue?.required === true && r.body.issue?.ok === false,
+   "THE DRAFT ALREADY SAYS IT CANNOT BE ISSUED — said here rather than at the mint, because somebody who learns at four o'clock that a challenge is needed has lost the afternoon they needed to run it",
+   r.body.issue);
+ok(/without an independent challenge/.test(r.body.issue?.say || ""), "naming what is missing", r.body.issue?.say);
 
 const draft = r.body;
-// The same shape the portal posts: the drafted data, plus the client and
-// project the template requires, plus the run it came from.
+
+// --- the issue gate --------------------------------------------------------
+//
+// A bid file is not numbered without an independent challenge. This is the
+// obligation that stops Agent 14 being a challenger nobody invokes, and it
+// is checked HERE, at the mint, because a control that can be walked past at
+// four o'clock on the day of the deadline is not a control.
+console.log("\n--- the issue gate\n");
 r = await api("/api/docs/generate", {
-  json: {
-    template: "bidfile",
-    data: { ...draft.data, handover: "2026-09-01" },
-    runId: id,
-  },
+  json: { template: "bidfile", data: { ...draft.data, handover: "2026-09-01" }, runId: id },
 }, T);
-ok(r.status === 201, `the document is created (${r.status})`, r.body);
+ok(r.status === 409, `AN UNCHALLENGED BID FILE IS NOT ISSUED (${r.status})`, r.body);
+ok(/may not be issued without an independent challenge/.test(r.body?.error || ""), "and it says what to do about it", r.body?.error);
+ok(r.body?.gate?.reason === "no_challenge", "naming the reason so a screen can act on it", r.body?.gate);
+
+r = await api("/api/docs/generate", {
+  json: { template: "bidfile", data: { ...draft.data, handover: "2026-09-01" }, runId: id, challengeRunId: id },
+}, T);
+ok(r.status === 409 && r.body?.gate?.reason === "wrong_agent",
+   "and nor does naming the bid's OWN run as its challenge — another agent's output is not an independent review of this one", r.body?.gate);
+
+// The real sequence: run the challenger, approve it, then issue.
+const cfd = new FormData();
+cfd.append("title", "Challenge of the bid file");
+cfd.append("inputs", JSON.stringify({
+  client: "A client", project: "Site establishment",
+  under_review: "The drafted bid file", requirement: "The invitation",
+  evaluation: "SUB-1 30%", commitments: "the price", evidence: "the schedule",
+  programme: "three weeks", authority: "no limit recorded", authorRun: `Run ${id}`,
+}));
+const cStarted = await fetch(`${B}/api/agents/challenge/run`, { method: "POST", headers: { Authorization: "Bearer " + T }, body: cfd });
+const cBody = await J(cStarted);
+const challengeId = cBody.run?.id;
+ok(cStarted.status === 202 && Boolean(challengeId), "the challenger runs against the bid");
+
+let cRun = null;
+for (let i = 0; i < 300; i += 1) {
+  const g = await api(`/api/agents/runs/${challengeId}`, {}, T);
+  cRun = g.body.run || g.body;
+  if (cRun?.status && cRun.status !== "running") break;
+  await wait(1000);
+}
+ok(cRun?.status === "awaiting_approval", `it finishes (${cRun?.status})`);
+
+r = await api("/api/docs/generate", {
+  json: { template: "bidfile", data: { ...draft.data, handover: "2026-09-01" }, runId: id, challengeRunId: challengeId },
+}, T);
+ok(r.status === 409 && r.body?.gate?.reason === "unapproved",
+   "an unapproved challenge does not release the bid either — an unreviewed challenge is an opinion", r.body?.gate);
+
+await api(`/api/agents/runs/${challengeId}/decision`, { json: { decision: "approve", note: "Reviewed for the e2e" } }, T);
+
+r = await api("/api/docs/generate", {
+  json: { template: "bidfile", data: { ...draft.data, handover: "2026-09-01" }, runId: id, challengeRunId: challengeId },
+}, T);
+ok(r.status === 409 && r.body?.gate?.reason === "critical_open",
+   "AND A CRITICAL FINDING STILL BLOCKS IT — critical is corrected or the bid does not go, and it cannot be disposed of", r.body?.gate);
+ok(/likely disqualification/.test(r.body?.error || ""), "in the words of the specification", r.body?.error);
+
+r = await api("/api/docs/generate", {
+  json: { template: "bidfile", data: { ...draft.data, handover: "2026-09-01" }, runId: id, challengeRunId: challengeId, acceptCritical: true, force: true, override: true },
+}, T);
+ok(r.status === 409, "and there is no override that gets past it — a gate with a bypass is a suggestion", r.body?.gate?.reason);
+
+// --- what a desk actually does ---------------------------------------------
+//
+// The two critical findings are correct for that bid, so the way through the
+// gate is to fix the bid, not to argue with the gate. The bid is corrected
+// and challenged again — which is the sequence this whole control exists to
+// produce, and the reason the mock can tell a corrected submission from the
+// one it first saw.
+console.log("\n--- fix the bid, challenge it again\n");
+const c2 = new FormData();
+c2.append("title", "Challenge of the corrected bid file");
+c2.append("inputs", JSON.stringify({
+  client: "A client", project: "Site establishment",
+  under_review: "THE BID HAS BEEN CORRECTED: SUB-4 is now answered in full and the fitness-for-purpose sentence in section 4 has been replaced with reasonable skill and care.",
+  requirement: "The invitation", evaluation: "SUB-1 30%", commitments: "the price",
+  evidence: "the schedule", programme: "three weeks", authority: "signing limit recorded",
+  authorRun: `Run ${id}`,
+}));
+const c2Started = await fetch(`${B}/api/agents/challenge/run`, { method: "POST", headers: { Authorization: "Bearer " + T }, body: c2 });
+const c2Id = (await J(c2Started)).run?.id;
+let c2Run = null;
+for (let i = 0; i < 300; i += 1) {
+  const g = await api(`/api/agents/runs/${c2Id}`, {}, T);
+  c2Run = g.body.run || g.body;
+  if (c2Run?.status && c2Run.status !== "running") break;
+  await wait(1000);
+}
+ok(c2Run?.status === "awaiting_approval", "the second challenge finishes");
+ok(c2Run?.challengeCheck?.ok === true, "and passes its own check", c2Run?.challengeCheck?.lensesMissing);
+ok((c2Run?.challengeCheck?.critical || []).length === 0, "with no critical finding left open");
+ok((c2Run?.challengeCheck?.high || []).length >= 1,
+   "though a high finding remains, carrying an authorised disposition — cleared is not the same as clean", c2Run?.challengeCheck?.high);
+await api(`/api/agents/runs/${c2Id}/decision`, { json: { decision: "approve", note: "Reviewed for the e2e" } }, T);
+
+console.log("\n--- the numbered bid file\n");
+r = await api("/api/docs/generate", {
+  json: { template: "bidfile", data: { ...draft.data, handover: "2026-09-01" }, runId: id, challengeRunId: c2Id },
+}, T);
+ok(r.status === 201, `THE CORRECTED BID ISSUES (${r.status})`, r.body);
+ok(r.body.challenge && /no critical open/.test(r.body.challenge.say), "and the release says what challenged it", r.body?.challenge?.say);
+ok(r.body.document?.challengeRunId === c2Id,
+   "with the challenge recorded on the document itself, so \"was this reviewed\" is answered by the record rather than by memory");
+
 const doc = r.body.document;
 ok(/^BID-/.test(doc?.number || ""), `numbered in its own series (${doc?.number})`);
 ok(doc?.runId === id, "and records the run on the row itself");
