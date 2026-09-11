@@ -296,26 +296,38 @@ errors, tables in scroll wrappers, the tab bar scrolls, every API endpoint
 works from a mobile browser, and no cookies — so nothing depends on
 third-party cookie behaviour in a WebView.
 
-Blockers, named rather than glossed:
+**Item 2 below was the only one that was work rather than a decision, and it
+is now done.** A web app manifest is in place across all 25 pages, with a
+192px and a 512px icon rendered from the existing favicon, a maskable variant
+so Android does not crop the logo into a circle, an Apple touch icon because
+iOS ignores the manifest's icons, a theme colour, a background colour so the
+splash screen is not white, and three long-press shortcuts. Verified in a
+phone browser: the manifest parses, the icons load at their declared sizes,
+and there are no policy violations. The blog generator's template carries it
+too, so regenerating those pages does not silently drop it.
+
+Blockers that remain, named rather than glossed. Both are decisions, not
+files:
 
 1. **The session lives in `sessionStorage`.** It survives a reload and does
    not survive the tab closing. In a browser that is a sensible security
    choice; in a home-screen PWA or a WebView it means signing in every time
-   the app is reopened, which will be reported as a bug. The fix is a
-   deliberate decision about session lifetime, not a code tweak — it trades
-   convenience against the blast radius of a stolen device.
-2. **No manifest, no `theme-color`, no `apple-touch-icon`, no service
-   worker.** Without a manifest it cannot be installed to a home screen at
-   all. These are small and additive; they are simply not there yet.
-3. **No offline story.** Every screen is server-rendered data. A wrapper with
-   no network shows empty states. For a site-based user that is the difference
-   between useful and not, and it needs deciding before packaging rather than
-   after.
+   the app is reopened, which will be reported as a bug. This is not a code
+   tweak — it trades convenience against the blast radius of a stolen device,
+   and it is the platform owner's call rather than an implementation detail
+   to change quietly. Moving to `localStorage` is one line; deciding to is
+   the work, and a second factor should land in the same conversation.
+2. **No offline story, and therefore no service worker.** Every screen is
+   server-rendered data. A wrapper with no network shows empty states. The
+   cheap version of "add a service worker" — caching pages — is exactly what
+   the application's own `no-cache` headers exist to prevent: a browser
+   running a stale page against a new API after a deploy. So nothing was
+   added. What to serve offline needs deciding first, and for a site-based
+   user it is the difference between useful and not.
 
-Recommendation: the web platform is stable enough to package **as a PWA**
-once item 2 is added and item 1 is decided. A native wrapper should wait for
-both, because shipping one that signs people out on every launch spends
-goodwill that is hard to get back.
+Recommendation: **package as a PWA now** — it is installable as it stands.
+Hold a native wrapper until item 1 is decided, because shipping one that
+signs people out on every launch spends goodwill that is hard to get back.
 
 ---
 
@@ -329,7 +341,7 @@ goodwill that is hard to get back.
 | A live production URL | **Not done** | Deploying is an outward-facing action and needs hosting credentials this session does not have. `deploy/GO-LIVE-RUNBOOK.md` is the ordered path; the blockers to a green deploy that were in the code are fixed |
 | End-to-end encryption | **Cannot be delivered** | Section 6 |
 | Hacker-impenetrable | **Cannot be claimed** | Section 6 |
-| Mobile packaging | **Held** | Section 7. The web platform has to be stable first, and now is — but the three named items come before packaging |
+| Mobile packaging | **PWA ready; native held** | Section 7. The web platform is stable and the manifest is in. A native wrapper waits on the session-lifetime decision |
 
 ---
 

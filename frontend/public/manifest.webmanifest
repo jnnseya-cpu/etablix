@@ -1,0 +1,26 @@
+{
+  "name": "ETABLIX — Integrated Site Services",
+  "short_name": "ETABLIX",
+  "description": "Site infrastructure, welfare, workforce accommodation and the management integration that holds them together.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f4f1ea",
+  "theme_color": "#191a1c",
+  "lang": "en-GB",
+  "dir": "ltr",
+  "categories": ["business", "productivity"],
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/img/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Contact ETABLIX", "url": "/contact.html" },
+    { "name": "Register as a supplier", "url": "/subcontractors.html" },
+    { "name": "Control Desk", "url": "/internal/login.html" }
+  ]
+}

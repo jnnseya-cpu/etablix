@@ -211,6 +211,10 @@ ${extra}<meta property="og:site_name" content="ETABLIX">
 ${jsonld}
 </script>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/img/icon-180.png">
+<meta name="theme-color" content="#191a1c">
+<meta name="apple-mobile-web-app-title" content="ETABLIX">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
