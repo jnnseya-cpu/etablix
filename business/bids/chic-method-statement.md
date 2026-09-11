@@ -21,13 +21,20 @@ therefore covers three, and only three:
 | Project Manager | yes |
 | Employer's Agent | yes |
 | Clerk of Works | yes |
-| CDM Co-ordinator | **no — not selected** |
+| CDM Co-ordinator | yes — see section 7 before you tick it |
 | Purchaser's Agent | [decide — see the note below] |
 
-**CDM Co-ordinator is not selected.** The company's CDM 2015 competence file is
-not complete, and the company will not offer a duty-holder role it cannot
-evidence competence for at the pass/fail stage that follows. It can be added by
-a later amendment once that file is in place.
+**On CDM Co-ordinator.** It is included at the client's direction, and section
+7 sets out what is actually offered under that heading and on what conditions.
+Read section 7 before ticking the box on the form. Two things follow from
+including it, and neither is optional:
+
+1. The CDM 2015 competence file must be assembled before submission, because
+   the evidence behind it is requested at ITT on a pass/fail basis.
+2. CHIC requires contract examples to cover every workstream selected. Adding
+   this one means the curriculum vitae and the question 6.1 explanation must
+   evidence CDM experience specifically, not construction management
+   generally. If they cannot, this workstream should come back off.
 
 > Before you submit, decide on Purchaser's Agent and set the row. Every
 > workstream you tick widens what your contract examples have to cover, and
@@ -52,7 +59,7 @@ site reports behind it, and the management of the civils and site-services
 subcontractors delivering it.
 
 Where an engagement requires competence or capacity beyond one person, the
-company engages a named associate under section 7 and tells the client it has
+company engages a named associate under section 8 and tells the client it has
 done so. It does not accept an engagement it cannot staff.
 
 ## 3. Mobilisation — the first ten working days
@@ -156,7 +163,122 @@ independent of the party building it.
   obligation to build to the specification. That is stated to every client at
   appointment.
 
-## 7. Associates and subcontracting
+## 7. CDM Co-ordinator
+
+### 7.1 What the title means now, and what is offered under it
+
+The CDM Co-ordinator was a duty holder under the Construction (Design and
+Management) Regulations 2007. **That role was abolished on 6 April 2015**, when
+CDM 2015 replaced it with the Principal Designer. The category heading retains
+the older title, so this statement says plainly what is offered under it rather
+than leaving the client to assume.
+
+Three distinct things sit under that heading, and they are not
+interchangeable:
+
+**(a) Principal Designer.** A duty holder role under regulations 11 and 12 of
+CDM 2015, accepted only by express written appointment, only where the company
+passes the competence test at 7.2 for that particular scheme, and only where it
+is priced for the design co-ordination the role actually requires.
+
+**(b) CDM adviser to the client.** Supporting the client in discharging its own
+duties under regulation 4 — making suitable arrangements, allowing adequate
+time and resource, and providing pre-construction information. This is advice,
+not a duty-holder role, and it does not move the client's duties to us.
+
+**(c) CDM administration within a project management or employer's agent
+appointment.** Assembling pre-construction information, confirming the
+construction phase plan exists and is suitable before work starts, and
+confirming the health and safety file is prepared and handed over.
+
+Every appointment states which of the three it is. **The company does not
+accept Principal Designer duties by implication, by conduct or by silence**,
+and it does not accept Principal Contractor duties under any of the three.
+
+### 7.2 Competence — the test that governs whether we accept
+
+Regulation 8(1) of CDM 2015 provides that a designer, including a principal
+designer, must not accept an appointment unless they have the skills, knowledge
+and experience to fulfil it, and where an organisation, the organisational
+capability. That is a legal bar on acceptance, not a matter of preference, and
+this company applies it scheme by scheme.
+
+Before accepting any appointment under 7.1(a), the company tests: whether the
+design is within the types of construction work it understands; whether the
+scheme's complexity and its interfaces are within what it has co-ordinated
+before; and whether it has the capacity to run design risk management for the
+whole pre-construction phase rather than attend it. Where any answer is no, the
+appointment is declined or accepted only in the (b) or (c) form, and the client
+is told why.
+
+**The competence file.** The company's CDM competence file records: the
+qualifications and CDM-specific training held, the CDM experience relied on
+with the projects it was gained on, the procedures at 7.3, and the continuing
+professional development undertaken.
+
+Current position — [complete this honestly before submission, and leave nothing
+aspirational in it]:
+
+- CDM 2015 training held: [course, provider, date]. If none has been completed,
+  say so and give the booked date.
+- Professional membership relevant to the role: [body, grade, membership
+  number, or state none held].
+- CDM experience: [the projects, the role held on each, the design
+  co-ordination actually performed].
+- Where competence is supplemented: [the named CDM specialist retained under
+  section 8, with their qualifications].
+
+> A competence file that overstates is the worst document in the pack. It is
+> the one an assessor can check against a professional register in ninety
+> seconds, and it is the one a claimant's solicitor reads first after an
+> incident.
+
+### 7.3 How the work is delivered
+
+1. **Client duties briefing at the outset.** The client is told, in writing and
+   before appointment, what regulation 4 requires of it and what this company
+   is and is not taking on. A client that does not understand it holds duties
+   is the single most common cause of CDM failing on a project.
+2. **Pre-construction information.** Assembled from what the client holds,
+   reviewed for what is missing — asbestos survey, ground conditions, existing
+   services, structural information, adjacent occupier constraints — and the
+   gaps reported to the client as findings with the surveys needed to close
+   them. It is issued to every designer and contractor who needs it, and a log
+   records what went to whom and on what date.
+3. **Design risk management.** Designers are co-ordinated through recorded
+   design risk reviews, not through a circulated spreadsheet. The general
+   principles of prevention are applied in order: eliminate the hazard, then
+   reduce it at source, then control it, and only then rely on information and
+   protective equipment. Significant residual risks that cannot be designed
+   out are recorded and communicated to those who need them, and no others —
+   a risk register that lists every hazard on a site buries the three that
+   matter.
+4. **Notification.** Where the thresholds in regulation 6 are met, the company
+   prepares the F10 and advises the client, who is the party that notifies the
+   Health and Safety Executive. The company confirms the notification was made
+   and records the reference.
+5. **Construction phase plan.** Before construction begins, the company
+   confirms a plan exists and reviews it for suitability against the work,
+   reporting to the client where it is generic, incomplete or does not address
+   the significant risks identified in the design.
+6. **Health and safety file.** Prepared and kept current through the
+   pre-construction phase, reviewed and updated as design changes, and handed
+   to the client at the end with confirmation of what it contains. Where the
+   company is appointed after work has started, the state of the file at
+   handover to us is recorded.
+7. **Records.** Every issue, every review and every gap reported is dated and
+   retained for twelve years under section 9.
+
+### 7.4 What this role does not do
+
+It does not manage or control the way construction work is carried out. It does
+not make the company the Principal Contractor or a contractor. It does not
+relieve the client, the designers or the contractors of their own duties under
+CDM 2015. And it does not make the company responsible for a design it did not
+prepare — the designer who prepares a design remains the duty holder for it
+under regulation 9.
+
+## 8. Associates and subcontracting
 
 CHIC accepts suppliers who subcontract, provided the submission describes how
 those relationships are managed. The company's arrangement:
@@ -172,7 +294,7 @@ those relationships are managed. The company's arrangement:
 - The company remains the contracting party and carries the liability. A client
   has one point of responsibility.
 
-## 8. Records, confidentiality and handover
+## 9. Records, confidentiality and handover
 
 All project records are held for twelve years, covering the limitation period
 for a contract executed as a deed, and are backed up rather than held on a
@@ -181,7 +303,7 @@ another engagement. On completion or termination, the complete record is handed
 over in a usable format at no additional charge — a client's own project
 information is theirs.
 
-## 9. Capacity, and when the company will decline
+## 10. Capacity, and when the company will decline
 
 The company will decline an engagement where it cannot staff it, where it is
 not competent to deliver it, or where accepting it would prevent it from

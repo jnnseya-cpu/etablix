@@ -78,6 +78,13 @@ one-person company is expected to hold.
   basis reads as invention, and assessors read a great many of them.
 - **Referees page.** Name, title, organisation, relationship to the work, and
   what they can speak to. **Ask each one before you write it down.**
+- **CDM 2015 competence file**, if the CDM Co-ordinator workstream is selected.
+  This one is assembled rather than authored: the qualifications and training
+  held, the CDM experience relied on and the projects it was gained on, the
+  procedures followed, and the continuing professional development. Section 7.2
+  of the method statement sets out what goes in it. It is the document an
+  assessor can check against a professional register in ninety seconds, so
+  nothing aspirational belongs in it.
 
 ## C. You cannot create these, and must not imply them
 
