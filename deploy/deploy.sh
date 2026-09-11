@@ -46,8 +46,43 @@ fi
 cd "$REPO"
 git fetch origin "$BRANCH" --quiet
 TARGET=$(git rev-parse "origin/${1:-$BRANCH}")
-LOCAL=$(git rev-parse HEAD)
-if [ "$LOCAL" = "$TARGET" ] && [ "${FORCE:-0}" != "1" ]; then exit 0; fi
+
+# ---- 0b. is the RUNNING CONTAINER already on that commit? -------------------
+#
+# THIS USED TO COMPARE THE WORKING COPY, AND THAT IS A TRAP THAT CLOSES.
+#
+#     LOCAL=$(git rev-parse HEAD)
+#     if [ "$LOCAL" = "$TARGET" ]; then exit 0; fi
+#
+# Step 1 below does `git reset --hard "$TARGET"` BEFORE the build. So any run
+# that got that far and then stopped — a failed build, a candidate that would
+# not answer, an interrupted deploy, or simply somebody running `git pull` in
+# this directory — left the working copy on the new commit while the live
+# container stayed on the old one.
+#
+# From that moment the check above is permanently true. Every tick exits 0
+# immediately, having done nothing, and the site never moves again. It does
+# not warn, because from its own point of view there is nothing to do.
+#
+# That is exactly what happened here: the container served a commit from
+# 10 September while this checkout sat 36 commits ahead of it, and the
+# five-minute cron dutifully did nothing, silently, for a day and a half.
+#
+# The right reference is what is ACTUALLY SERVING, which the application
+# reports at /api/health. That is also what autodeploy.sh has always claimed
+# this check does. It does it now.
+RUNNING=$(docker exec "$NAME" wget -qO- http://localhost:3000/api/health 2>/dev/null \
+  | grep -o '"build":"[^"]*"' | cut -d'"' -f4 || true)
+TARGET_SHORT=$(git rev-parse --short=12 "$TARGET")
+
+if [ -z "$RUNNING" ]; then
+  # Nothing is serving, or it cannot be reached. Deploy rather than assume.
+  say "no running container answered — deploying $TARGET_SHORT"
+elif [ "$RUNNING" = "$TARGET_SHORT" ] && [ "${FORCE:-0}" != "1" ]; then
+  exit 0
+else
+  say "live is on $RUNNING, target is $TARGET_SHORT — deploying"
+fi
 
 # ---- 1. never interrupt work in flight -------------------------------------
 WAITED=0
@@ -60,7 +95,7 @@ while true; do
   say "an agent run is in progress — deferring"; sleep 60; WAITED=$((WAITED + 60))
 done
 
-say "deploying $TARGET (from $LOCAL)"
+say "deploying $TARGET (live was ${RUNNING:-nothing})"
 git reset --hard "$TARGET"
 SHORT=$(git rev-parse --short=12 HEAD)
 echo "$SHORT" > BUILD_COMMIT

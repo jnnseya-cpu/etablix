@@ -6,76 +6,63 @@ and nothing below touches it.
 
 ---
 
-## First: is auto-deploy still running, and why did it stop?
+## The two reasons live never updated
 
-`deploy/autodeploy.sh` runs from cron every five minutes, pulls this branch,
-builds a Docker image, starts it on a spare name, health-checks it, and only
-swaps the live container if it answers. That last part is the important one.
+Both found on the box, both confirmed from a traced run of `deploy.sh`.
 
-**Between 10 September and 11 September, that health check could not pass.**
-The Dockerfile copied `backend`, `frontend` and `shared` but not `content/`,
-and `backend/lib/blog.js` reads `content/blog` as it loads. So every build
-since produced an image whose container died on startup before binding a
-port. `deploy.sh` did exactly what it was written to do:
+### 1. The deploy short-circuits on the wrong reference
 
-    REFUSING TO DEPLOY: the new build did not report healthy on <sha>.
-    The live container has not been touched.
+`deploy.sh` compared the git working copy against origin and exited when they
+matched. But step 1 does `git reset --hard` to the target **before** the
+build. So any run that got that far and then stopped, or anybody running
+`git pull` here by hand, leaves the checkout on the new commit and the
+container on the old one.
 
-It has been saying that every five minutes, and it has been right to. The
-live site stayed on the last image that worked. **The fix is commit
-`880ded7`, already pushed.**
+From that moment the check is permanently true. Every five-minute tick exits
+immediately having done nothing, and never warns, because from its own point
+of view there is nothing to do. Your checkout was on `454ea5a`; the container
+was serving `a863a720d69f` from 10 September, 36 commits behind.
+
+**Fixed in the repository.** The check now reads the running container's
+build from `/api/health` and compares that, which is what `autodeploy.sh` has
+always said it does.
+
+### 2. Auto-deploy is pointed at staging
+
+`/etc/default/etablix` contains:
+
+    ETABLIX_AUTODEPLOY_TARGET=staging
+
+So every tick that did run went to staging. Live was never a target. To send
+it to live:
+
+    sed -i '/^ETABLIX_AUTODEPLOY_TARGET=/d' /etc/default/etablix
+    /opt/etablix/deploy/autodeploy.sh --status
 
 ---
 
-## On the VPS, in order
-
-SSH in, then:
-
-### 1. Is the cron entry even there?
-
-    cat /etc/cron.d/etablix-autodeploy
-
-Expect a line calling `/opt/etablix/deploy/autodeploy.sh`. If the file does
-not exist, auto-deploy was never installed and nothing has ever deployed by
-itself. Install it:
-
-    echo '*/5 * * * * root flock -n /run/etablix-deploy.lock /opt/etablix/deploy/autodeploy.sh' > /etc/cron.d/etablix-autodeploy
-
-### 2. What does it say about itself?
-
-    /opt/etablix/deploy/autodeploy.sh --status
-
-### 3. Read the deploy log — the refusals will be in it
-
-    tail -50 /var/log/etablix-deploy.log
-    grep -c "REFUSING TO DEPLOY" /var/log/etablix-deploy.log
-
-A large count there confirms the diagnosis above.
-
-### 4. Is it paused?
-
-    ls -la /var/lib/etablix/pause-deploy
-
-If that file exists, every tick has exited immediately. Remove it:
-
-    rm /var/lib/etablix/pause-deploy
-
-### 5. Deploy the current commit by hand, now
-
-Do not wait for the next tick:
+## Get live now, in order
 
     cd /opt/etablix
-    git fetch origin claude/construction-marketing-website-ndn7cx
-    ./deploy/deploy.sh
+    git pull                                      # picks up the deploy.sh fix
+    FORCE=1 ./deploy/deploy.sh                    # bypasses the wedge once
 
-Watch it. You want `candidate <sha> healthy — switching`, not `REFUSING`.
-
-### 6. Confirm what is actually serving
+Watch for `candidate <sha> healthy — switching`. Then:
 
     curl -s https://etablix.com/api/health
 
-The `build` value should read `626096032c8d`. If it reads anything else, the
-swap did not happen and step 5's output says why.
+The `build` value should no longer be `a863a720d69f`.
+
+`FORCE=1` is only needed for this first run. Once the container is current,
+the fixed check keeps it that way on its own.
+
+If instead you see `REFUSING TO DEPLOY: the new build did not report healthy`,
+the image built but its container would not answer. That is the deploy safety
+working: your live site has not been touched. Skip to the section below.
+
+Then decide about staging:
+
+    sed -i '/^ETABLIX_AUTODEPLOY_TARGET=/d' /etc/default/etablix
 
 ---
 

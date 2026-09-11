@@ -241,5 +241,58 @@ console.log("\n--- the deploy instructions agree with what the server does\n");
   ok(/autodeploy\.sh/.test(golive), "it names the cron dispatcher, which is how a push reaches the site");
 }
 
+
+/* ------------------------------- the up-to-date check, against the right thing */
+//
+// THE TRAP THAT CLOSES. deploy.sh compared the git working copy against
+// origin and exited 0 when they matched. Step 1 does `git reset --hard` to
+// the target BEFORE the build, so any run that got that far and then stopped
+// — a failed build, a candidate that would not answer, an interrupted
+// deploy, or somebody running `git pull` by hand — left the checkout on the
+// new commit and the container on the old one.
+//
+// From then on the check is permanently true. Every five-minute tick exits
+// immediately having done nothing, and never warns, because from its own
+// point of view there is nothing to do. The live site served a commit from
+// 10 September while the checkout sat 36 commits ahead of it.
+
+console.log("\n--- the deploy compares what is SERVING, not what is checked out\n");
+{
+  const sh = fs.readFileSync(path.join(root, "deploy", "deploy.sh"), "utf8");
+
+  ok(!/^LOCAL=\$\(git rev-parse HEAD\)/m.test(sh),
+     "the working-copy comparison is gone — it is the one that gets stuck");
+  // Only the live code counts. The old comparison is quoted inside the
+  // explanatory comment on purpose, so the next person can see what was
+  // wrong rather than reading that something was.
+  const live = sh.split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
+  ok(!/if \[ "\$LOCAL" = "\$TARGET" \]/.test(live),
+     "and so is the branch that exited on it");
+  ok(/LOCAL=\$\(git rev-parse HEAD\)/.test(sh) && !/LOCAL=\$\(git rev-parse HEAD\)/.test(live),
+     "the old check survives only as a quoted comment, so the trap is documented rather than forgotten");
+
+  ok(/api\/health/.test(sh) && /"build":"/.test(sh),
+     "the check reads the running container's build from /api/health");
+  ok(/RUNNING=/.test(sh), "into a variable named for what it is");
+  ok(/\[ "\$RUNNING" = "\$TARGET_SHORT" \]/.test(sh),
+     "and compares that against the target commit");
+
+  // Nothing serving must mean deploy, not skip. The opposite default would
+  // leave a dead site dead.
+  ok(/if \[ -z "\$RUNNING" \]/.test(sh) && /no running container answered/.test(sh),
+     "a container that does not answer causes a deploy rather than an exit");
+
+  ok(/FORCE:-0/.test(sh), "FORCE=1 still overrides, which is the manual way out of any wedge");
+
+  // The claim autodeploy.sh has always made about this check.
+  const auto = fs.readFileSync(path.join(root, "deploy", "autodeploy.sh"), "utf8");
+  // The comment wraps across lines, so compare on collapsed whitespace.
+  const autoFlat = auto.replace(/\s*\n\s*#?\s*/g, " ");
+  ok(/running container is already on that commit/.test(autoFlat),
+     "autodeploy.sh describes this check as being about the running container");
+  ok(/RUNNING=/.test(sh),
+     "and deploy.sh now actually does that, rather than describing it");
+}
+
 console.log(`\n=== ${pass} passed, ${fail} failed ===\n`);
 process.exit(fail ? 1 : 0);
