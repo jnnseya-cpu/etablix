@@ -1579,6 +1579,32 @@ function packCheck(run) {
   </div>`;
 }
 
+/**
+ * What this run cost, per pass.
+ *
+ * The per-pass split is the useful part rather than the total: it is how
+ * somebody sees that the working paper — one pass, which reads everything —
+ * is usually the dearest part of a run, and it is what makes a decision about
+ * scope or about the route an informed one rather than a guess.
+ *
+ * A run with no cost record says so. It is not shown as nought, because a run
+ * that predates the meter cost something and nobody knows what.
+ */
+function runCost(run) {
+  const a = run.acu;
+  if (!a || typeof a.acu !== "number") return "";
+  const stages = (a.byStage || []).slice().sort((x, y) => y.acu - x.acu);
+  const capped = a.cap !== null && a.cap !== undefined;
+  const cached = typeof a.cachedShare === "number" ? Math.round(a.cachedShare * 100) : null;
+  return `<details style="margin-top:10px;"><summary class="muted" style="cursor:pointer;font-size:0.84rem;">Cost: ${a.acu} ACU across ${a.calls} call(s)${cached === null ? "" : `, ${cached}% of input served from cache`}${capped ? ` · budget ${a.cap} ACU` : " · uncapped"}</summary>
+    <table class="lines" style="margin-top:8px;font-size:0.82rem;"><thead><tr><th>Pass</th><th style="text-align:right;">Calls</th><th style="text-align:right;">ACU</th></tr></thead><tbody>
+      ${stages.map((s) => `<tr><td>${esc(s.key)}</td><td style="text-align:right;">${s.calls}</td><td style="text-align:right;">${s.acu}</td></tr>`).join("")}
+    </tbody></table>
+    ${(a.unpriced || []).length ? `<p class="muted" style="color:var(--danger,#c0392b);font-size:0.82rem;">Part of this run used ${esc((a.unpriced || []).join(", "))}, for which no rate is configured. That part is unpriced rather than free.</p>` : ""}
+    <p class="muted" style="font-size:0.8rem;">An ACU is an internal unit anchored on a thousand output tokens on the frontier route. It is deliberately not converted to money: a stale price list produces a confident number that is wrong.${capped ? "" : " Nothing capped this run — metering is not capping."}</p>
+  </details>`;
+}
+
 function renderRunView(run) {
   const decide =
     run.status === "awaiting_approval"
@@ -1603,7 +1629,17 @@ function renderRunView(run) {
             : "The sections are split out of the output and land in the document form for review, rather than being retyped from this box."}</span>
         </div>`
       : "";
-  const head = `<h3>${esc(run.title)} <span class="muted" style="font-weight:400;font-size:0.78rem;">· ${esc(run.agentName)}${run.model ? ` · ${esc(run.model)}` : ""}${run.usage ? ` · ${(run.usage.input + run.usage.output).toLocaleString()} tokens` : ""}</span></h3>`;
+  // THE COST GOES IN THE HEADER, NEXT TO THE TOKENS, BECAUSE TOKENS ARE NOT A
+  // COST. A hundred thousand tokens on the small route and a hundred thousand
+  // on the frontier route are two different invoices, and until the meter was
+  // wired in this line showed the number that cannot be acted on and not the
+  // one that can.
+  const cost = run.acu && typeof run.acu.acu === "number"
+    ? ` · <b>${run.acu.acu} ACU</b>`
+    : run.status === "awaiting_approval" || run.status === "approved"
+      ? ` · <span title="This run finished before the meter was wired in. Its cost is not known, which is not the same as nil.">cost not recorded</span>`
+      : "";
+  const head = `<h3>${esc(run.title)} <span class="muted" style="font-weight:400;font-size:0.78rem;">· ${esc(run.agentName)}${run.model ? ` · ${esc(run.model)}` : ""}${run.usage ? ` · ${(run.usage.input + run.usage.output).toLocaleString()} tokens` : ""}${cost}</span></h3>`;
   const wrap = (inner) =>
     `<div class="section-block" style="border:1.5px solid var(--amber,#9c7a3c);border-radius:10px;padding:16px 18px;margin-top:12px;">${head}${inner}</div>`;
 
@@ -1618,6 +1654,7 @@ function renderRunView(run) {
     ${renderStages(run)}
     ${run.truncated ? '<p class="muted" style="color:var(--danger,#c0392b);">Output hit the length limit — the end may be cut off; re-run with a narrower scope if needed.</p>' : ""}
     ${packCheck(run)}
+    ${runCost(run)}
     ${(run.notes || []).map((n) => `<p class="muted" style="color:var(--danger,#c0392b);font-size:0.84rem;">${esc(n)}</p>`).join("")}
     <pre style="white-space:pre-wrap;font-family:inherit;font-size:0.88rem;line-height:1.6;background:var(--paper,#f7f5f0);border:1px solid var(--line);border-radius:7px;padding:14px 16px;max-height:520px;overflow:auto;">${esc(run.output || "")}</pre>
     ${decide}

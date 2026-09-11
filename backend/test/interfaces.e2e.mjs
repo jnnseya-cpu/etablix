@@ -91,6 +91,34 @@ console.log("\n--- the continuity check\n");
      "and there is no continuity note — a register that reconciles produces none", run?.notes);
 }
 
+console.log("\n--- what the run cost\n");
+{
+  const a = run?.acu;
+  ok(Boolean(a), "the run carries its own cost, priced as it ran", Object.keys(run || {}));
+  ok(a?.acu > 0, `${a?.acu} ACU`, a);
+  ok(a?.calls === 7, `one priced call per pass (${a?.calls})`, a?.byStage?.map((x) => x.key));
+  ok((a?.byStage || []).length === 7, "with the spend split by pass, which is what says where the money goes");
+  ok((a?.byStage || []).some((x) => x.key === "reconcile"), "the working paper included — it reads everything and is usually the dearest");
+  ok(a?.cachedShare > 0,
+     "and the share of input served from cache, which is the number that explains a long run's bill", a?.cachedShare);
+  ok(a?.cap === null && /Metering is not capping/.test(a?.budget?.say || ""),
+     "NOTHING CAPPED IT — every arbitrary limit on an agent was removed on purpose, and metering did not put one back", a?.budget);
+  ok((a?.unpriced || []).length === 0,
+     "and the model was priced rather than reported unpriced — a provider returns a dated id, so the rate resolves by family", a?.unpriced);
+  ok(!(run?.notes || []).some((n) => /COST NOT KNOWN/.test(n)), "so there is no unpriced note", run?.notes);
+}
+{
+  const g = await api(`/api/l7/acu/run/${id}`, {}, T);
+  ok(g.body.metered === true, "and the cost reads back through the internal surface");
+  ok(g.body.acu === run?.acu?.acu, "as the same figure the run recorded", `${g.body.acu} vs ${run?.acu?.acu}`);
+}
+{
+  const g = await api("/api/l7/acu?days=1", {}, T);
+  ok(g.body.totals.metered >= 1, "the desk view counts this run", g.body.say);
+  ok((g.body.byAgent || []).some((x) => x.key === "design"), "against its own agent", g.body.byAgent);
+  ok(g.body.totals.perRun > 0, "and states the cost of one run, which nothing in this system could state before");
+}
+
 console.log("\n--- the numbered register\n");
 r = await api(`/api/agents/runs/${id}/decision`, { json: { decision: "approve", note: "Reviewed for the e2e" } }, T);
 ok(r.status === 200, `the run is approved (${r.status})`, r.body);

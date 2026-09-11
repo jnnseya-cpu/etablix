@@ -32,6 +32,8 @@
  * rather than nothing.
  */
 
+import { meter, callFromUsage, budgetFor, summarise } from "./l7/acu.js";
+
 /**
  * The standard, stated to every pass.
  *
@@ -956,11 +958,40 @@ export async function runPipeline({ spec = DIAGNOSTIC_SPEC, anthropic, model, sy
   // What this model turned out to accept, learned once and reused.
   const caps = { from: 0 };
 
+  /**
+   * THE METER RUNS ON EVERY PASS, AND IT CAPS NOTHING BY DEFAULT.
+   *
+   * Those are two separate decisions and conflating them is how an arbitrary
+   * limit gets put back into a system that deliberately removed every one of
+   * them. Metering costs nothing and answers "what did that tender cost us to
+   * price?" on the day rather than a month later. Capping stops a run, and
+   * nothing here stops one unless somebody set a budget on purpose.
+   *
+   * A pass whose model has no rate is recorded as UNPRICED rather than as
+   * free, because a run reporting a cost of zero because nobody knew the rate
+   * is the one that never gets questioned.
+   */
+  const cap = budgetFor(spec.id);
+  const acu = meter({ bidId: spec.id, cap });
+  const unpriced = new Set();
+
   const record = (r, key) => {
     usage.input += r.usage.input;
     usage.output += r.usage.output;
     usage.cacheRead += r.usage.cacheRead;
     usage.cacheWrite += r.usage.cacheWrite;
+    const priced = acu.consume(callFromUsage(r.usage, { model: r.model || modelUsed, agentId: spec.id, stage: key }));
+    if (!priced.ok) {
+      if (priced.wouldExceed) {
+        if (!notes.some((n) => n.startsWith("BUDGET"))) {
+          notes.push(`BUDGET: this run reached the ${cap} ACU budget set for it. ${priced.reason} Everything written up to that point stands; nothing after it was attempted.`);
+        }
+      } else {
+        unpriced.add(r.model || modelUsed || "(unnamed model)");
+      }
+    } else if (priced.act === "downgrade" && !notes.some((n) => n.startsWith("Past eighty per cent"))) {
+      notes.push(`Past eighty per cent of the ${cap} ACU budget set for this agent. The remaining passes should run on the cheaper route.`);
+    }
     modelUsed = r.model || modelUsed;
     if (r.degraded && !notes.some((n) => n.startsWith("Depth reduced"))) {
       notes.push(
@@ -1037,10 +1068,16 @@ export async function runPipeline({ spec = DIAGNOSTIC_SPEC, anthropic, model, sy
   const output = [findings, ...sections.map((s) => s.text), appendix].filter(Boolean).join("\n\n");
   if (!output.trim()) throw new Error("The agent returned no output — try again with more specific inputs.");
 
+  if (unpriced.size) {
+    notes.push(`COST NOT KNOWN: no ACU rate is configured for ${[...unpriced].join(", ")}, so part of this run is unpriced. It is reported as unpriced rather than as free.`);
+  }
+
   return {
     output,
     model: modelUsed,
     usage: { input: usage.input, output: usage.output, cacheRead: usage.cacheRead, cacheWrite: usage.cacheWrite },
+    // What it cost, per pass and per model, priced as it ran.
+    acu: { ...summarise(acu, { agentId: spec.id, cap }), unpriced: [...unpriced] },
     // A pass that was continued to the end also mentions the length limit
     // in its note, so this matches the INCOMPLETE note specifically. The
     // old test matched the word and flagged a finished report as cut off.

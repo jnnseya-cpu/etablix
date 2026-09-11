@@ -159,6 +159,12 @@ async function workPipeline(runId, agent, inputs, runBy, visualFiles = [], resum
       ...(r.controlCheck ? { controlCheck: r.controlCheck } : {}),
       ...(r.interfaceCheck ? { interfaceCheck: r.interfaceCheck } : {}),
       ...(r.challengeCheck ? { challengeCheck: r.challengeCheck } : {}),
+      // What the run cost, priced as it ran. The events are not kept on the
+      // row — one per pass across every run would grow the store without
+      // answering a question anybody asks — but the totals, the per-pass
+      // split and the per-model split are, because those are what the desk
+      // reads and what a client asks for when they query an invoice.
+      ...(r.acu ? { acu: { ...r.acu, events: undefined } } : {}),
       status: "awaiting_approval",
       finishedAt: Date.now(),
       passesHeld: [],

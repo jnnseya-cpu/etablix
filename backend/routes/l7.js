@@ -41,8 +41,13 @@ import { matrix, CONTRADICTION_CLASSES, blockedBy } from "../lib/l7/compliance.j
 import { score, sensitivity, economics, FACTORS } from "../lib/l7/bidscore.js";
 import { LENSES, SEVERITIES, review, checkIndependence } from "../lib/l7/assurance.js";
 import { graph, explain, invalidate, propagateConfidence, validate as validateLineage } from "../lib/l7/lineage.js";
-import { DEFAULT_RATES, estimate as estimateAcu, budgetState } from "../lib/l7/acu.js";
+import { DEFAULT_RATES, estimate as estimateAcu, budgetState, budgetFor, priceCall, downgradeFrom } from "../lib/l7/acu.js";
+import { summary as spendSummary, forRun as spendForRun } from "../lib/l7/spend.js";
 import { STOP_RULES, create as createRun, shouldStop } from "../lib/l7/agentrun.js";
+import { PIPELINE_AGENTS } from "../lib/ai.js";
+
+/** The agents a budget can be set against, from the registry rather than a list. */
+const PIPELINE_AGENT_IDS = [...PIPELINE_AGENTS].sort();
 
 const router = Router();
 
@@ -233,6 +238,56 @@ router.post("/lineage", (req, res) => {
     explain: b.nodeId ? explain(g, b.nodeId) : null,
     invalidated: b.changed ? invalidate(g, b.changed, b.at || null) : null,
     confidence: propagateConfidence(g),
+  });
+});
+
+/**
+ * GET /api/l7/acu — what the agents have actually cost.
+ *
+ * Read from the runs rather than estimated, and it will not convert an ACU
+ * into a pound: an internal unit nobody can misread beats a confident figure
+ * derived from a price list that changed last month.
+ */
+router.get("/acu", (req, res) => {
+  const days = Math.min(Math.max(Number(req.query.days) || 90, 1), 400);
+  const agentId = req.query.agent ? String(req.query.agent) : null;
+  try {
+    const spend = spendSummary({ days, agentId });
+    res.json({
+      ...spend,
+      // The caps in force right now, so a run that stops is explainable and
+      // so the far commoner case — no cap at all — is visible rather than
+      // assumed. Metering is not capping and the page says which is which.
+      budgets: PIPELINE_AGENT_IDS.map((id) => ({ agent: id, cap: budgetFor(id) })),
+      anyCap: PIPELINE_AGENT_IDS.some((id) => budgetFor(id) !== null),
+    });
+  } catch (err) {
+    res.status(500).json({ error: `The spend could not be read: ${err.message}` });
+  }
+});
+
+/** GET /api/l7/acu/:runId — one run's cost, per pass and per model. */
+router.get("/acu/run/:id", (req, res) => {
+  const r = spendForRun(req.params.id);
+  if (!r) return res.status(404).json({ error: "Run not found." });
+  res.json(r);
+});
+
+/** POST /api/l7/acu/price — what a call would cost, before making it. */
+router.post("/acu/price", (req, res) => {
+  const b = body(req);
+  const acu = priceCall(b.call || {}, DEFAULT_RATES);
+  if (acu === null) {
+    return res.status(400).json({
+      error: "That call cannot be priced. An unpriced model is a refusal rather than a zero — a call costing nothing because nobody knew the rate is the one that never gets questioned.",
+      rates: Object.keys(DEFAULT_RATES.models),
+    });
+  }
+  const cap = b.cap === undefined ? null : Number(b.cap);
+  res.json({
+    acu,
+    cheaperRoute: b.call && b.call.model ? downgradeFrom(b.call.model) : null,
+    budget: cap === null ? { state: "uncapped", say: "no cap was supplied" } : budgetState(Number(b.spent || 0) + acu, cap),
   });
 });
 

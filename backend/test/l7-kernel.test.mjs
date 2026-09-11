@@ -25,7 +25,8 @@ import {
 } from "../lib/l7/policy.js";
 import {
   DEFAULT_RATES, priceCall, estimate, budgetState, downgradeFrom, meter,
-  exhaustionVerdict, cacheKey, cacheHit,
+  exhaustionVerdict, cacheKey, cacheHit, rateFor, callFromUsage, budgetFor,
+  summarise,
 } from "../lib/l7/acu.js";
 import {
   STATES, TRANSITIONS, GATES, GOVERNANCE, evaluate, transition, route,
@@ -318,6 +319,71 @@ ok(downgradeFrom("claude-haiku-4-5-20251001") === null, "and there is nowhere be
   ok(cacheKey({ prompt: "p", sourceVersions: ["a", "b"] }) === cacheKey({ prompt: "p", sourceVersions: ["b", "a"] }), "source order does not change the key");
 }
 ok(DEFAULT_RATES.version.startsWith("acu-"), "the conversion table is versioned, because rates change");
+
+console.log("\n--- pricing a model the provider actually returned\n");
+
+ok(rateFor("claude-opus-5") !== null, "an exact id prices");
+ok(rateFor("claude-opus-5-20260401") !== null,
+   "AND SO DOES A DATED ONE — a provider returns the id it resolved to, not the id you asked for, so an exact-match table prices nothing in production while every unit test passes");
+ok(rateFor("claude-opus-5-20260401").tier === "frontier", "resolving to the family's own rate");
+ok(rateFor("claude-opus-55") === null,
+   "but the match is on a boundary: a longer name that merely starts the same way is not the same model");
+ok(rateFor("gpt-nope") === null && rateFor("") === null, "and an unknown id is still a refusal");
+{
+  const rates = { ...DEFAULT_RATES, models: { ...DEFAULT_RATES.models, "claude-opus-5-cheap": { input: 0.01, output: 0.02, cacheRead: 0.001, cacheWrite: 0.012, tier: "mid" } } };
+  ok(rateFor("claude-opus-5-cheap-20260401", rates).tier === "mid",
+     "the LONGEST matching prefix wins, so a specific variant rate overrides the family rate rather than being shadowed by it");
+}
+
+console.log("\n--- the four kinds of token, not two\n");
+{
+  const call = callFromUsage({ input: 20000, output: 4000, cacheRead: 180000, cacheWrite: 20000 }, { model: "claude-opus-5" });
+  const priced = priceCall(call);
+  ok(priced === 16.6, "a cached pass prices all four kinds of token", priced);
+  const asIfUncached = priceCall({ kind: "llm", model: "claude-opus-5", inputTokens: 200000, outputTokens: 4000 });
+  ok(asIfUncached === 44, "the same tokens at the full input rate cost nearly three times as much", asIfUncached);
+  ok(priceCall({ kind: "llm", model: "claude-opus-5", inputTokens: 20000, outputTokens: 4000 }) === 8,
+     "AND COUNTING CACHE READS AS FREE WOULD UNDERSTATE IT BY HALF — the cheapest reading of a long run is the one that hides its largest part");
+}
+ok(callFromUsage({ input: 1, output: 2, cacheRead: 3, cacheWrite: 4 }).cacheReadTokens === 3,
+   "the bridge translates the pipeline's own usage shape, which is where a field would otherwise be dropped silently");
+ok(callFromUsage({}).inputTokens === 0, "and a missing field is zero rather than undefined");
+
+console.log("\n--- metering is not capping\n");
+{
+  const before = process.env.ETABLIX_ACU_BUDGET;
+  delete process.env.ETABLIX_ACU_BUDGET;
+  ok(budgetFor("design") === null,
+     "NO AGENT IS CAPPED BY DEFAULT — every arbitrary limit was removed from this system on purpose, and a cap appearing because a module was added would put one back without anybody deciding to");
+  process.env.ETABLIX_ACU_BUDGET = "50";
+  ok(budgetFor("design") === 50, "a general budget applies to every agent");
+  process.env.ETABLIX_ACU_BUDGET_DESIGN = "10";
+  ok(budgetFor("design") === 10, "and an agent's own budget overrides it");
+  ok(budgetFor("bid") === 50, "while the others keep the general one");
+  process.env.ETABLIX_ACU_BUDGET = "nonsense";
+  ok(budgetFor("bid") === null, "a budget that is not a number is no budget, not a budget of nought");
+  delete process.env.ETABLIX_ACU_BUDGET;
+  delete process.env.ETABLIX_ACU_BUDGET_DESIGN;
+  if (before !== undefined) process.env.ETABLIX_ACU_BUDGET = before;
+  ok(budgetFor("design") === (before === undefined ? null : Number(before)), "and the environment is left as it was found");
+}
+{
+  const mt = meter({ bidId: "design", cap: null });
+  mt.consume(callFromUsage({ input: 84000, output: 21000, cacheRead: 63000, cacheWrite: 21000 }, { model: "claude-opus-5", stage: "reconcile" }));
+  mt.consume(callFromUsage({ input: 84000, output: 21000, cacheRead: 63000, cacheWrite: 21000 }, { model: "claude-opus-5", stage: "d1" }));
+  const sum = summarise(mt, { agentId: "design", cap: null });
+  ok(sum.calls === 2 && sum.acu > 0, "an uncapped run is still metered in full", `${sum.calls} calls, ${sum.acu} ACU`);
+  ok(sum.byStage.length === 2, "with the spend split by pass, which is what says where the money goes");
+  ok(sum.cachedShare === 0.429, "and the share of input served from cache, which is what explains a long run's bill", sum.cachedShare);
+  ok(sum.budget.state === "uncapped" && /Metering is not capping/.test(sum.budget.say),
+     "and it says plainly that nothing capped it", sum.budget.say);
+}
+{
+  const mt = meter({ bidId: "design", cap: 100 });
+  mt.consume(callFromUsage({ input: 84000, output: 21000, cacheRead: 63000, cacheWrite: 21000 }, { model: "claude-opus-5", stage: "reconcile" }));
+  const sum = summarise(mt, { agentId: "design", cap: 100 });
+  ok(sum.budget.state === "within" && sum.budget.used > 0, "a capped run reports where it stands", sum.budget);
+}
 
 /* ------------------------------------------------------------------ */
 console.log("\n--- gates: a guard, not a meeting\n");

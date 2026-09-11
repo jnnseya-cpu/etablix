@@ -47,6 +47,12 @@
   .loading { color: var(--slate); padding: 40px 0; }
   .err { color: #c0392b; }
   .note { font-size: 0.82rem; color: var(--slate); line-height: 1.6; margin-top: 10px; }
+  .bars { display: flex; align-items: flex-end; gap: 3px; height: 60px; margin: 12px 0 4px; }
+  .bars i { flex: 1 1 0; background: var(--orange); min-height: 1px; border-radius: 2px 2px 0 0; display: block; }
+  .bars i.zero { background: var(--line); }
+  .bar-ax { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--slate); font-family: var(--font-head); }
+  .unit { font-size: 0.8rem; color: var(--slate); line-height: 1.6; border-left: 3px solid var(--line); padding-left: 12px; margin-top: 14px; }
+  .cap-none { color: #9c7a3c; font-family: var(--font-head); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; }
 </style>
 </head>
 <body>
@@ -90,21 +96,22 @@
     fetch("/api/l7", { headers: { Authorization: `Bearer ${token}` } }),
     fetch("/api/l7/permissions", { headers: { Authorization: `Bearer ${token}` } }),
     fetch("/api/l7/model", { headers: { Authorization: `Bearer ${token}` } }),
+    fetch("/api/l7/acu?days=90", { headers: { Authorization: `Bearer ${token}` } }),
   ])
-    .then(async ([a, b, c]) => {
-      for (const res of [a, b, c]) {
+    .then(async ([a, b, c, d]) => {
+      for (const res of [a, b, c, d]) {
         if (res.status === 401) { sessionStorage.clear(); location.replace("/internal/login.html"); throw new Error("unauthorised"); }
         if (!res.ok) throw new Error(`${res.status} from ${res.url}`);
       }
-      return [await a.json(), await b.json(), await c.json()];
+      return [await a.json(), await b.json(), await c.json(), await d.json()];
     })
-    .then(([state, perms, model]) => render(state, perms, model))
+    .then(([state, perms, model, spend]) => render(state, perms, model, spend))
     .catch((err) => {
       if (err.message === "unauthorised") return;
       out.innerHTML = `<p class="err">The controls could not be run: ${esc(err.message)}. That is itself the answer to whether they work.</p>`;
     });
 
-  function render(state, perms, model) {
+  function render(state, perms, model, spend) {
     const m = state.measured;
     const h = state.health;
     const c = m.counts;
@@ -195,6 +202,75 @@
             ${perms.contentClasses.map((k) => `<td class="acc ${esc(r.access[k.id])}">${r.access[k.id] === "write" ? "W" : r.access[k.id] === "read" ? "R" : "—"}</td>`).join("")}
           </tr>`).join("")}</tbody></table>
         </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">What the agents have cost, over the last ${spend.days} days</div>
+        <p class="note" style="margin:0 0 14px;">${esc(spend.say)}</p>
+        <div class="num-row" style="margin-bottom:18px;">
+          <div class="num"><div class="v">${spend.totals.acu}</div><div class="l">ACU spent</div></div>
+          <div class="num"><div class="v">${spend.totals.perRun === null ? "—" : spend.totals.perRun}</div><div class="l">ACU per run</div></div>
+          <div class="num"><div class="v">${spend.totals.metered}</div><div class="l">Runs metered</div></div>
+          <div class="num ${spend.totals.unmetered ? "warn" : ""}"><div class="v">${spend.totals.unmetered}</div><div class="l">Unmetered, not free</div></div>
+          <div class="num ${spend.totals.unpriced ? "warn" : ""}"><div class="v">${spend.totals.unpriced}</div><div class="l">On an unpriced model</div></div>
+          <div class="num"><div class="v">${spend.totals.cachedShare === null ? "—" : Math.round(spend.totals.cachedShare * 100) + "%"}</div><div class="l">Input served from cache</div></div>
+        </div>
+        ${spend.byDay.length ? `
+          <div class="bars">${(() => {
+            const max = Math.max(...spend.byDay.map((d) => d.acu), 1);
+            return spend.byDay.map((d) => `<i class="${d.acu ? "" : "zero"}" style="height:${Math.max(1, Math.round((d.acu / max) * 60))}px" title="${esc(d.key)}: ${d.acu} ACU across ${d.runs} run(s)"></i>`).join("");
+          })()}</div>
+          <div class="bar-ax"><span>${esc(spend.byDay[0].key)}</span><span>${esc(spend.byDay[spend.byDay.length - 1].key)}</span></div>
+        ` : ""}
+        <div class="grid2" style="margin-top:20px;">
+          <div>
+            <div class="panel-title">By agent</div>
+            <table><thead><tr><th>Agent</th><th class="rw" style="text-align:right;">Runs</th><th class="rw" style="text-align:right;">ACU</th><th class="rw" style="text-align:right;">Per run</th></tr></thead>
+            <tbody>${spend.byAgent.map((a) => `<tr>
+              <td>${esc(a.key)}${a.unmetered ? `<div class="ev">${a.unmetered} unmetered</div>` : ""}</td>
+              <td class="rw" style="text-align:right;">${a.runs}</td>
+              <td class="rw" style="text-align:right;">${a.acu}</td>
+              <td class="rw" style="text-align:right;">${a.metered ? Math.round((a.acu / a.metered) * 100) / 100 : "—"}</td>
+            </tr>`).join("") || `<tr><td colspan="4" class="ev">Nothing has run yet.</td></tr>`}</tbody></table>
+          </div>
+          <div>
+            <div class="panel-title">By pass</div>
+            <p class="note" style="margin:0 0 10px;">Which part of a run costs the money. The working paper is one pass and it is usually the dearest, because it reads everything.</p>
+            <table><thead><tr><th>Pass</th><th class="rw" style="text-align:right;">Calls</th><th class="rw" style="text-align:right;">ACU</th></tr></thead>
+            <tbody>${spend.byStage.map((st) => `<tr><td>${esc(st.key)}</td><td class="rw" style="text-align:right;">${st.calls}</td><td class="rw" style="text-align:right;">${st.acu}</td></tr>`).join("") || `<tr><td colspan="3" class="ev">No metered pass yet.</td></tr>`}</tbody></table>
+          </div>
+        </div>
+        <div class="grid2" style="margin-top:20px;">
+          <div>
+            <div class="panel-title">The dearest runs</div>
+            <table><thead><tr><th>Run</th><th class="rw" style="text-align:right;">ACU</th></tr></thead>
+            <tbody>${spend.dearest.map((r) => `<tr>
+              <td>${esc(r.title || r.id)}<div class="ev">${esc(r.agentName || r.agent)} · ${esc(r.day || "")} · ${esc(r.model || "model not recorded")}</div></td>
+              <td class="rw" style="text-align:right;">${r.acu}</td>
+            </tr>`).join("") || `<tr><td colspan="2" class="ev">Nothing metered yet.</td></tr>`}</tbody></table>
+          </div>
+          <div>
+            <div class="panel-title">Budgets in force</div>
+            <p class="note" style="margin:0 0 10px;">
+              Metering is not capping. Every call is priced and recorded whatever happens; a cap stops
+              a run, and nothing stops one unless somebody set a budget on purpose. Every arbitrary
+              limit on an agent was removed from this system deliberately, and a cap that appeared
+              because a module was added would put one back without anybody deciding to.
+            </p>
+            <table><thead><tr><th>Agent</th><th>Cap</th></tr></thead>
+            <tbody>${spend.budgets.map((b) => `<tr><td>${esc(b.agent)}</td><td>${b.cap === null ? `<span class="cap-none">uncapped</span>` : `${b.cap} ACU`}</td></tr>`).join("")}</tbody></table>
+            <div class="panel-title" style="margin-top:18px;">The conversion table (${esc(spend.rates.version)})</div>
+            <table><thead><tr><th>Model</th><th class="rw" style="text-align:right;">In</th><th class="rw" style="text-align:right;">Out</th><th class="rw" style="text-align:right;">Cache read</th></tr></thead>
+            <tbody>${Object.entries(spend.rates.models).map(([id, r]) => `<tr>
+              <td>${esc(id)}<div class="ev">${esc(r.tier)}</div></td>
+              <td class="rw" style="text-align:right;">${r.input}</td>
+              <td class="rw" style="text-align:right;">${r.output}</td>
+              <td class="rw" style="text-align:right;">${r.cacheRead}</td>
+            </tr>`).join("")}</tbody></table>
+            <p class="note">ACU per thousand tokens. A cache read is neither free nor full price: treating it as ordinary input makes a six-pass run look five times dearer than it is, and treating it as free hides the most expensive part of a long one.</p>
+          </div>
+        </div>
+        <p class="unit">${esc(spend.unit)}</p>
       </div>
 
       <div class="panel">

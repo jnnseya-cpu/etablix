@@ -54,6 +54,9 @@ const GUARDED = [
   ["POST", "/api/l7/lineage"],
   ["POST", "/api/l7/route"],
   ["POST", "/api/l7/run"],
+  ["GET", "/api/l7/acu"],
+  ["GET", "/api/l7/acu/run/anything"],
+  ["POST", "/api/l7/acu/price"],
 ];
 for (const [method, path] of GUARDED) {
   const r = await fetch(`${BASE}${path}`, { method, headers: { "content-type": "application/json" }, body: method === "POST" ? "{}" : undefined });
@@ -180,6 +183,47 @@ console.log("\n--- the calculators, over the wire\n");
   ok(j.actions.every((a) => a.authority), "every action carries the authority its register row states");
   ok(j.actions.find((a) => a.id === "submit.tender").registerAction === "Submit a tender", "and a tender submission has its own row");
   ok(j.stopRules.length === 8 && j.gates.length === 8 && j.lenses.length === 9, "the definitions are served whole");
+}
+
+console.log("\n--- what the agents have cost\n");
+{
+  const j = await (await get("/api/l7/acu?days=90")).json();
+  ok(typeof j.totals.acu === "number", "the desk view answers", j.say);
+  ok(Array.isArray(j.budgets) && j.budgets.length > 0, "naming every agent a budget could be set against");
+  ok(j.anyCap === false,
+     "AND NONE OF THEM IS CAPPED — metering is not capping, and a cap that appeared because a module was added would be an arbitrary limit nobody chose", j.budgets);
+  ok(j.budgets.every((b) => b.cap === null), "every agent is uncapped", j.budgets.filter((b) => b.cap !== null));
+  ok(/anchored on a thousand output tokens/.test(j.unit),
+     "and the unit is explained, so nobody reads an ACU as a pound");
+  ok(!/£|\$|€/.test(JSON.stringify(j.totals)),
+     "no money figure is invented from a price list that changes without notice");
+  ok(j.rates.version.startsWith("acu-"), "the conversion table travels with its version", j.rates.version);
+  ok(j.rates.models["claude-opus-5"].cacheRead < j.rates.models["claude-opus-5"].input,
+     "a cache read is cheaper than input, and priced rather than free");
+}
+{
+  const r = await post("/api/l7/acu/price", { call: { model: "claude-opus-5", inputTokens: 20000, outputTokens: 4000, cacheReadTokens: 180000, cacheWriteTokens: 20000 } });
+  const j = await r.json();
+  ok(j.acu === 16.6, "a call can be priced before it is made", j.acu);
+  ok(j.cheaperRoute === "claude-sonnet-5", "naming the cheaper route", j.cheaperRoute);
+  ok(j.budget.state === "uncapped", "and saying no cap was supplied rather than assuming one");
+}
+{
+  const r = await post("/api/l7/acu/price", { call: { model: "gpt-nope", inputTokens: 1, outputTokens: 1 } });
+  ok(r.status === 400, "an unpriced model is a refusal over the wire too");
+  const j = await r.json();
+  ok(/never gets questioned/.test(j.error),
+     "AND NOT A ZERO — a call costing nothing because nobody knew the rate is the one nobody queries", j.error);
+}
+{
+  const r = await get("/api/l7/acu/run/not-a-run");
+  ok(r.status === 404, "an unknown run is a 404 rather than an empty cost");
+}
+{
+  const html = await (await fetch(`${BASE}/internal/l7.html`)).text();
+  ok(/api\/l7\/acu/.test(html), "the internal page reads the spend");
+  ok(/Metering is not capping/.test(html), "and states on the page itself that nothing is capped by default");
+  ok(/ACU per run|ACU spent/.test(html), "showing the cost per run, which nothing could state before");
 }
 
 console.log(`\n=== ${pass} passed, ${fail} failed ===\n`);

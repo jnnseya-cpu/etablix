@@ -42,10 +42,20 @@ export const DEFAULT_RATES = {
   version: "acu-2026-09",
   anchor: "1 ACU = 1,000 output tokens on the frontier route",
   models: {
-    // input and output are ACU per 1,000 tokens
-    "claude-opus-5": { input: 0.2, output: 1.0, tier: "frontier" },
-    "claude-sonnet-5": { input: 0.04, output: 0.2, tier: "mid" },
-    "claude-haiku-4-5-20251001": { input: 0.011, output: 0.055, tier: "small" },
+    // ACU per 1,000 tokens. Four rates, not two, because a pipeline pass
+    // reports four kinds of token and pricing only two of them understates
+    // a cached run by most of its input.
+    //
+    // A CACHE READ IS NOT FREE AND IT IS NOT FULL PRICE. Every pass after the
+    // first re-sends the same system prompt, the same inputs and the same
+    // drawings; those tokens are read from cache at about a tenth of the
+    // input rate, and the write that put them there costs about a quarter
+    // more than input. Treating cache reads as ordinary input makes a
+    // six-pass run look five times more expensive than it is, and treating
+    // them as free makes the most expensive part of a long run invisible.
+    "claude-opus-5": { input: 0.2, output: 1.0, cacheRead: 0.02, cacheWrite: 0.25, tier: "frontier" },
+    "claude-sonnet-5": { input: 0.04, output: 0.2, cacheRead: 0.004, cacheWrite: 0.05, tier: "mid" },
+    "claude-haiku-4-5-20251001": { input: 0.011, output: 0.055, cacheRead: 0.0011, cacheWrite: 0.01375, tier: "small" },
   },
   kinds: {
     // non-token spend, ACU per unit
@@ -57,17 +67,58 @@ export const DEFAULT_RATES = {
   downgrade: { frontier: "claude-sonnet-5", mid: "claude-haiku-4-5-20251001", small: null },
 };
 
+/**
+ * The rate for a model id, or null.
+ *
+ * EXACT MATCH FIRST, THEN THE LONGEST CONFIGURED PREFIX ON A BOUNDARY.
+ *
+ * A provider does not return the id you asked for. It returns the id it
+ * resolved to, which carries a date or a build suffix — ask for
+ * "claude-opus-5" and get back "claude-opus-5-20260401". A table keyed on
+ * exact ids prices nothing in production: every real run comes back unpriced
+ * while every unit test passes, because the tests use the id from the table.
+ *
+ * The boundary matters. "claude-opus-5" must match "claude-opus-5-20260401"
+ * and must NOT match a hypothetical "claude-opus-55" at a different price, so
+ * the character after the prefix has to be a separator. And the LONGEST
+ * matching prefix wins, so adding a specific rate for a variant overrides the
+ * family rate rather than being shadowed by it.
+ */
+export function rateFor(model, rates = DEFAULT_RATES) {
+  const id = String(model || "");
+  if (!id) return null;
+  if (rates.models[id]) return rates.models[id];
+  let best = null;
+  let bestLen = 0;
+  for (const [key, row] of Object.entries(rates.models)) {
+    if (!id.startsWith(key)) continue;
+    const next = id.charAt(key.length);
+    if (next !== "-" && next !== "." && next !== "@") continue;
+    if (key.length > bestLen) { best = row; bestLen = key.length; }
+  }
+  return best;
+}
+
 /** ACU for one call. Returns null when the call cannot be priced. */
 export function priceCall(call = {}, rates = DEFAULT_RATES) {
   const kind = String(call.kind || "llm");
   if (kind === "llm") {
     const model = String(call.model || "");
-    const row = rates.models[model];
+    const row = rateFor(model, rates);
     if (!row) return null; // an unpriced model is a refusal, not a zero
-    const inTok = Number(call.inputTokens || 0);
-    const outTok = Number(call.outputTokens || 0);
-    if (!Number.isFinite(inTok) || !Number.isFinite(outTok) || inTok < 0 || outTok < 0) return null;
-    return round6((inTok / 1000) * row.input + (outTok / 1000) * row.output);
+    const parts = [
+      [call.inputTokens, row.input],
+      [call.outputTokens, row.output],
+      [call.cacheReadTokens, row.cacheRead === undefined ? row.input : row.cacheRead],
+      [call.cacheWriteTokens, row.cacheWrite === undefined ? row.input : row.cacheWrite],
+    ];
+    let acu = 0;
+    for (const [raw, rate] of parts) {
+      const n = Number(raw || 0);
+      if (!Number.isFinite(n) || n < 0) return null;
+      acu += (n / 1000) * rate;
+    }
+    return round6(acu);
   }
   const row = rates.kinds[kind];
   if (!row) return null;
@@ -111,7 +162,7 @@ export function budgetState(spent, cap) {
 
 /** The cheaper route for a model, or null when there is nowhere cheaper to go. */
 export function downgradeFrom(model, rates = DEFAULT_RATES) {
-  const row = rates.models[String(model)];
+  const row = rateFor(model, rates);
   if (!row) return null;
   const next = rates.downgrade[row.tier];
   return next && rates.models[next] ? next : null;
@@ -169,6 +220,8 @@ export function meter({ bidId = null, cap = null, rates = DEFAULT_RATES } = {}) 
         kind: call.kind || "llm",
         inputTokens: Number(call.inputTokens || 0),
         outputTokens: Number(call.outputTokens || 0),
+        cacheReadTokens: Number(call.cacheReadTokens || 0),
+        cacheWriteTokens: Number(call.cacheWriteTokens || 0),
         units: Number(call.units || 0),
         acu,
         at: call.at || new Date().toISOString(),
@@ -182,11 +235,13 @@ export function meter({ bidId = null, cap = null, rates = DEFAULT_RATES } = {}) 
       const out = new Map();
       for (const e of events) {
         const key = e[by] == null ? "(unattributed)" : String(e[by]);
-        const row = out.get(key) || { key, acu: 0, calls: 0, inputTokens: 0, outputTokens: 0 };
+        const row = out.get(key) || { key, acu: 0, calls: 0, inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 };
         row.acu = round6(row.acu + e.acu);
         row.calls += 1;
         row.inputTokens += e.inputTokens;
         row.outputTokens += e.outputTokens;
+        row.cacheReadTokens += e.cacheReadTokens || 0;
+        row.cacheWriteTokens += e.cacheWriteTokens || 0;
         out.set(key, row);
       }
       return [...out.values()].sort((a, b) => b.acu - a.acu);
@@ -254,4 +309,84 @@ export function cacheHit(entry, want) {
   const vb = [...(want.sourceVersions || [])].map(String).sort().join("|");
   if (va !== vb) return { hit: false, reason: "a source has changed version since the result was cached" };
   return { hit: true, reason: "content, source versions and permission all match" };
+}
+
+/**
+ * The bridge between what a pass actually reports and what the meter needs.
+ *
+ * The pipeline's usage object is `{ input, output, cacheRead, cacheWrite }`
+ * and the meter takes `inputTokens`, `outputTokens`, `cacheReadTokens`,
+ * `cacheWriteTokens`. Two shapes for the same four numbers is exactly how a
+ * field gets dropped silently on the way across, so the translation lives
+ * here in one place and every call site uses it.
+ */
+export function callFromUsage(usage = {}, { model = null, agentId = null, runId = null, stage = null, at = null } = {}) {
+  return {
+    kind: "llm",
+    model,
+    agentId,
+    runId,
+    stage,
+    at,
+    inputTokens: Number(usage.input || 0),
+    outputTokens: Number(usage.output || 0),
+    cacheReadTokens: Number(usage.cacheRead || 0),
+    cacheWriteTokens: Number(usage.cacheWrite || 0),
+  };
+}
+
+/**
+ * The budget for a run, from configuration. UNCAPPED BY DEFAULT, and that is
+ * deliberate: every arbitrary limit on an agent was removed from this system
+ * on purpose, and a cap that appears because a module was added would put one
+ * back without anybody deciding to.
+ *
+ * So metering and capping are separate things here. Every call is priced and
+ * recorded whatever happens. A cap applies only when somebody sets one —
+ * ETABLIX_ACU_BUDGET for every run, or ETABLIX_ACU_BUDGET_<AGENT> for one.
+ */
+export function budgetFor(agentId) {
+  const key = `ETABLIX_ACU_BUDGET_${String(agentId || "").toUpperCase().replace(/[^A-Z0-9]+/g, "_")}`;
+  const specific = process.env[key];
+  const general = process.env.ETABLIX_ACU_BUDGET;
+  const raw = specific !== undefined && specific !== "" ? specific : general;
+  if (raw === undefined || raw === "") return null;
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+/**
+ * A run's whole spend, shaped for the desk. Everything the internal page
+ * shows comes from here rather than being assembled in the route.
+ */
+export function summarise(mt, { agentId = null, cap = null } = {}) {
+  const events = mt.events;
+  const tokens = events.reduce(
+    (t, e) => ({
+      input: t.input + (e.inputTokens || 0),
+      output: t.output + (e.outputTokens || 0),
+      cacheRead: t.cacheRead + (e.cacheReadTokens || 0),
+      cacheWrite: t.cacheWrite + (e.cacheWriteTokens || 0),
+    }),
+    { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+  );
+  const state = budgetState(mt.spent, cap);
+  return {
+    agentId,
+    acu: mt.spent,
+    cap,
+    calls: events.length,
+    tokens,
+    // The number that explains a long run's bill: how much of the input was
+    // served from cache rather than paid for at full rate.
+    cachedShare: tokens.input + tokens.cacheRead > 0
+      ? Math.round((tokens.cacheRead / (tokens.input + tokens.cacheRead)) * 1000) / 1000
+      : null,
+    byStage: mt.projection("stage"),
+    byModel: mt.projection("model"),
+    budget: cap === null
+      ? { state: "uncapped", act: "proceed", say: "no budget is set for this agent, so nothing capped it. Metering is not capping, and this run was metered." }
+      : { state: state.state, act: state.act, used: state.used, say: state.say },
+    events,
+  };
 }

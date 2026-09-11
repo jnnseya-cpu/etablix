@@ -31,6 +31,7 @@ import { reconcileChecklistToResponse, bidNotes } from "./bidcheck.js";
 import { reconcilePaymentsToEarned, controlNotes } from "./controlcheck.js";
 import { reconcileRegisterToMovements, interfaceNotes } from "./interfacecheck.js";
 import { reconcileChallenge, challengeNotes } from "./challengecheck.js";
+import { meter, callFromUsage, budgetFor, summarise } from "./l7/acu.js";
 
 const DEFAULT_MODEL = "claude-opus-5";
 
@@ -858,7 +859,12 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
       text: response.content.filter((b) => b.type === "text").map((b) => b.text).join("\n"),
       model: response.model,
       truncated: response.stop_reason === "max_tokens",
-      usage: { input: response.usage.input_tokens, output: response.usage.output_tokens },
+      usage: {
+        input: response.usage.input_tokens,
+        output: response.usage.output_tokens,
+        cacheRead: response.usage.cache_read_input_tokens || 0,
+        cacheWrite: response.usage.cache_creation_input_tokens || 0,
+      },
     };
   };
 
@@ -869,7 +875,24 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
 
   let r = await one(prompt);
   let output = r.text;
-  const usage = { input: r.usage.input, output: r.usage.output };
+  // The single-pass agents are metered on the same terms as the pipeline
+  // ones. They were not: their usage carried input and output only, so a
+  // single-pass run's cache tokens were invisible and its cost understated.
+  const cap = budgetFor(agentId);
+  const acuMeter = meter({ bidId: agentId, cap });
+  const unpriced = new Set();
+  const meterCall = (x) => {
+    const priced = acuMeter.consume(callFromUsage(x.usage, { model: x.model || model, agentId, stage: "single" }));
+    if (!priced.ok && !priced.wouldExceed) unpriced.add(x.model || model || "(unnamed model)");
+    return priced;
+  };
+  meterCall(r);
+  const usage = {
+    input: r.usage.input,
+    output: r.usage.output,
+    cacheRead: r.usage.cacheRead || 0,
+    cacheWrite: r.usage.cacheWrite || 0,
+  };
   let rounds = 0;
   let stalled = false;
 
@@ -886,6 +909,9 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
     r = await one(`${prompt}\n\n---\n\n${continuationInstruction(output.slice(-4000))}`);
     usage.input += r.usage.input;
     usage.output += r.usage.output;
+    usage.cacheRead += r.usage.cacheRead || 0;
+    usage.cacheWrite += r.usage.cacheWrite || 0;
+    meterCall(r);
     if (r.text.trim().length < STALL_CHARS) { stalled = true; output += r.text; break; }
     output += r.text;
   }
@@ -913,5 +939,11 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
     notes.push(`The output reached the per-call length limit and was continued in ${rounds} further call${rounds === 1 ? "" : "s"} — it is complete.`);
   }
 
-  return { output, model: r.model, truncated: r.truncated, usage, notes };
+  if (unpriced.size) {
+    notes.push(`COST NOT KNOWN: no ACU rate is configured for ${[...unpriced].join(", ")}, so this run is unpriced. It is reported as unpriced rather than as free.`);
+  }
+  return {
+    output, model: r.model, truncated: r.truncated, usage, notes,
+    acu: { ...summarise(acuMeter, { agentId, cap }), unpriced: [...unpriced] },
+  };
 }
