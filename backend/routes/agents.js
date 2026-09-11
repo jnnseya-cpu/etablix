@@ -158,6 +158,7 @@ async function workPipeline(runId, agent, inputs, runBy, visualFiles = [], resum
       // certificate prints the result the desk approved against.
       ...(r.controlCheck ? { controlCheck: r.controlCheck } : {}),
       ...(r.interfaceCheck ? { interfaceCheck: r.interfaceCheck } : {}),
+      ...(r.challengeCheck ? { challengeCheck: r.challengeCheck } : {}),
       status: "awaiting_approval",
       finishedAt: Date.now(),
       passesHeld: [],

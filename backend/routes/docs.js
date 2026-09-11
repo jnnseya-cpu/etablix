@@ -28,6 +28,8 @@ import { SECTIONS as TP_SECTIONS } from "../lib/pipelines/tender-pack.js";
 import { SECTIONS as BR_SECTIONS } from "../lib/pipelines/bid-response.js";
 import { SECTIONS as CR_SECTIONS } from "../lib/pipelines/control-report.js";
 import { SECTIONS as IR_SECTIONS } from "../lib/pipelines/interface-register.js";
+import { SECTIONS as CH_SECTIONS } from "../lib/pipelines/challenge.js";
+import { challengeStatement } from "../lib/challengecheck.js";
 import { splitPipelineOutput } from "../lib/sections.js";
 import { packStatement } from "../lib/tenderpack.js";
 import { bidStatement } from "../lib/bidcheck.js";
@@ -137,6 +139,7 @@ export const TENDERPACK_SECTIONS = TP_SECTIONS;
 export const BIDRESPONSE_SECTIONS = BR_SECTIONS;
 export const CONTROLREPORT_SECTIONS = CR_SECTIONS;
 export const INTERFACEREGISTER_SECTIONS = IR_SECTIONS;
+export const CHALLENGE_SECTIONS = CH_SECTIONS;
 
 export const TEMPLATES = [
   {
@@ -245,6 +248,19 @@ export const TEMPLATES = [
     appendixLabel: "Appendix A — traceability and open items",
     parts: true,
     legal: "This register RECORDS ownership as the project has agreed it; it does not assign it. An owner written into this register and accepted by nobody is not an owner. It is decision support: every design position, load, ratio, diversity factor and duration in it is a first-pass planning figure requiring validation by a competent person before use. Anything touching life safety — a fire strategy, means of escape, a structural load or an electrical protection scheme — is flagged for a competent person and, where relevant, the fire and rescue authority, and is never resolved here. Nothing in it appoints anybody, instructs change, accepts work or closes an interface: it records that somebody else has. Every interface carried forward from the previous issue is either in this register or logged as closed in Part 3, and that reconciliation is performed by the system on every issue and printed in Part 8.",
+  }),
+  // The challenge report. Its parts print separately because the findings
+  // register is circulated to the author to work through while the certificate
+  // goes to whoever decides whether the submission goes at all.
+  PIPELINE_TEMPLATE({
+    id: "challenge", prefix: "CHR", name: "Challenge report — the adversarial review before a submission goes",
+    documentTitle: "Challenge report",
+    description: "Agent 14's eleven parts: the nine review lenses, each written on its own pass, then the findings register and the certificate. It is issued against another agent's finished output and it is deliberately not given that agent's reasoning — a challenger who reads why something was done is persuaded by it, and the evaluator will not have that document either. Draft it from an approved Agent 14 run.",
+    sections: CH_SECTIONS,
+    summaryLabel: "The challenge in one paragraph",
+    appendixLabel: "Appendix A — every finding traced to where it was found",
+    parts: true,
+    legal: "This report is an ADVERSARIAL REVIEW and not an approval. It records what was found wrong; it does not certify that anything is right, and an absence of findings under a lens means only that this review did not find one. It is issued by a run independent of the one that produced the document reviewed — a different prompt lineage and, where one is available, a different model route — and Part 11 states that independence so a reader can test it rather than assume it. A CRITICAL finding is a hard block and cannot be disposed of: it is corrected or the submission does not go. A HIGH finding blocks unless somebody with authority records a disposition, with a date, in their own name. Nothing in this report approves a price, accepts a design, closes a safety matter or authorises a submission: those remain with the people who hold that authority. Every finding names one lens, one severity, a location in the document and the change required, and that is checked by the system on every issue and printed in Part 10.",
   }),
   {
     id: "sitereq", prefix: "SMR", name: "Site Management Requirements Package",
@@ -698,6 +714,7 @@ router.get("/from-run/:id", requireAuth, deliveryFinance, (req, res) => {
       // The register's continuity result, printed on the certificate so a
       // reader can see that nothing was lost since the last issue.
       ...(run.interfaceCheck ? { packStatement: interfaceStatement(run.interfaceCheck) } : {}),
+      ...(run.challengeCheck ? { packStatement: challengeStatement(run.challengeCheck) } : {}),
       project: String(run.inputs?.project || run.title || "").slice(0, 300),
       client: String(run.inputs?.client || "").slice(0, 300),
       // The date the ten days run from, captured when the engagement
@@ -912,6 +929,7 @@ function checkHeading(doc) {
   if (doc.template === "bidfile") return "Completeness check";
   if (doc.template === "control") return "Payment check";
   if (doc.template === "interfaces") return "Continuity check";
+  if (doc.template === "challenge") return "Challenge check";
   return "Issue check";
 }
 
@@ -953,6 +971,7 @@ export const splitTenderPack = (output) => splitPipelineOutput(output, TENDERPAC
 export const splitBidResponse = (output) => splitPipelineOutput(output, BIDRESPONSE_SECTIONS);
 export const splitControlReport = (output) => splitPipelineOutput(output, CONTROLREPORT_SECTIONS);
 export const splitInterfaceRegister = (output) => splitPipelineOutput(output, INTERFACEREGISTER_SECTIONS);
+export const splitChallenge = (output) => splitPipelineOutput(output, CHALLENGE_SECTIONS);
 export { splitPipelineOutput };
 
 /**
@@ -973,6 +992,7 @@ export const PIPELINE_DOCUMENTS = {
   bid: { template: "bidfile", prefix: "BID", label: "bid file", split: splitBidResponse },
   controls: { template: "control", prefix: "MCR", label: "monthly control report", split: splitControlReport },
   design: { template: "interfaces", prefix: "IFR", label: "interface register", split: splitInterfaceRegister },
+  challenge: { template: "challenge", prefix: "CHR", label: "challenge report", split: splitChallenge },
 };
 
 /** The same map without the parser, for anything that only needs to say so. */

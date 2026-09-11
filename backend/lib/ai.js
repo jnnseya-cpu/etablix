@@ -24,11 +24,13 @@ import * as TP from "./pipelines/tender-pack.js";
 import * as BR from "./pipelines/bid-response.js";
 import * as CR from "./pipelines/control-report.js";
 import * as IR from "./pipelines/interface-register.js";
+import * as CH from "./pipelines/challenge.js";
 import { splitPipelineOutput } from "./sections.js";
 import { reconcileScopeToPrice, packNotes } from "./tenderpack.js";
 import { reconcileChecklistToResponse, bidNotes } from "./bidcheck.js";
 import { reconcilePaymentsToEarned, controlNotes } from "./controlcheck.js";
 import { reconcileRegisterToMovements, interfaceNotes } from "./interfacecheck.js";
+import { reconcileChallenge, challengeNotes } from "./challengecheck.js";
 
 const DEFAULT_MODEL = "claude-opus-5";
 
@@ -225,6 +227,14 @@ Boundary: you cannot contact anyone; every outreach list requires Managing Direc
   design: {
     system: `${COMPANY_BRIEF}\n\n${IR.BRIEF_SYSTEM}`,
     fields: IR.FIELDS,
+  },
+  // Agent 14. The only agent given another agent's finished work and told to
+  // attack it. Its brief deliberately withholds the author's reasoning: a
+  // challenger who reads why something was done is persuaded by it, and the
+  // evaluator scoring the bid will not have that document either.
+  challenge: {
+    system: `${COMPANY_BRIEF}\n\n${CH.BRIEF_SYSTEM}`,
+    fields: CH.FIELDS,
   },
   diagnostic: {
     system: `${COMPANY_BRIEF}
@@ -598,6 +608,17 @@ export const PIPELINE_SPECS = {
     finalTask: IR.FINAL_TASK,
     finalLabel: "The register in one paragraph, traceability and open items",
   }),
+  // Nine lenses, written in five passes, because a lens written alongside
+  // eight others is a paragraph and a lens written on its own pass is a
+  // review. The findings register is written last, from all nine, so a
+  // finding raised in a lens cannot be lost on the way to the table.
+  challenge: pipelineSpec({
+    id: "challenge",
+    reconcileTask: CH.RECONCILE_TASK,
+    sectionPasses: CH.SECTION_PASSES,
+    finalTask: CH.FINAL_TASK,
+    finalLabel: "The challenge in one paragraph, the findings register and the certificate",
+  }),
 };
 export const PIPELINE_AGENTS = new Set(Object.keys(PIPELINE_SPECS));
 /**
@@ -728,6 +749,33 @@ function withInterfaceCheck(result) {
 }
 
 /**
+ * The challenge check, on every challenge report — the fifth reconciliation.
+ *
+ * The other four compare two things that must agree. This one compares a
+ * review against what a review has to be, because an adversarial review has a
+ * failure mode the other agents do not: producing something that reads as
+ * thorough and contains nothing anybody can act on. Nine headings, forty
+ * paragraphs, no finding with a location, and it is filed as assurance.
+ *
+ * And an absence of findings under a lens is indistinguishable from the lens
+ * never having been applied. Only the machine can tell the two apart, by
+ * looking for the heading and for something underneath it.
+ */
+function withChallengeCheck(result) {
+  const { data } = splitPipelineOutput(result.output, CH.SECTIONS);
+  // The whole report is read, not only the findings table: the lenses are
+  // proved by their own sections, and a table with no lenses above it is a
+  // list somebody wrote rather than a review somebody performed.
+  const check = reconcileChallenge(result.output);
+  return {
+    ...result,
+    challengeCheck: check,
+    findingsSection: data[CH.FINDINGS_SECTION] || "",
+    notes: [...challengeNotes(check), ...(result.notes || [])],
+  };
+}
+
+/**
  * Run one agent for real. Returns { output, model, usage }.
  *
  * A pipeline agent takes several minutes and reports progress through
@@ -759,6 +807,7 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
     if (agentId === "bid") return withBidCheck(result);
     if (agentId === "controls") return withControlCheck(result);
     if (agentId === "design") return withInterfaceCheck(result);
+    if (agentId === "challenge") return withChallengeCheck(result);
     return result;
   }
 

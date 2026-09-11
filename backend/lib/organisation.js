@@ -312,6 +312,25 @@ export const AI_AGENTS = [
     backing: ["llm", "engine"],
     desk: "The part of Advisory that makes \"ready to issue\" literally true. Its scope sheets and pricing schedule share one reference set, and the engine reconciles them by machine on every run: a scope item with no priced line, or a priced line with no scope item, stops the pack being issued — because that is the failure nobody sees until the returns are in and the cheapest tender is whoever guessed lowest.",
   },
+  {
+    id: "challenge",
+    name: "Agent 14 — Adversarial Challenger",
+    inputs: [
+      "THE DOCUMENT UNDER REVIEW in full — another agent's finished output, exactly as it would be issued",
+      "The invitation, brief, specification or contract it answers, and the evaluation methodology if it was published",
+      "The price, the qualifications and the exclusions that go with it, and the evidence held with its expiry dates",
+      "The authority position — who may sign, to what value, for what risk class — and the run that produced the document, so independence can be shown rather than claimed",
+    ],
+    outputs: [
+      "Nine review lenses, each written on its own pass: compliance, evaluator, commercial, technical, programme, contract, evidence, adversarial and executive",
+      "A findings register — one row per finding, naming one lens, one severity, the sentence or number it is in, and the change somebody could make this afternoon",
+      "The challenge certificate: the independence position, the most consequential finding, whether the submission is BLOCKED, CONDITIONAL or CLEAR, and what must happen before it goes",
+      "What the challenge could not test — the lenses limited by what was supplied",
+    ],
+    boundary: "It attacks; it does not approve. An absence of findings under a lens means only that this review did not find one. It is deliberately NOT given the author's working paper or reasoning — a challenger who reads why something was done is persuaded by it, and the evaluator will not have that document either. It never approves a price, accepts a design, closes a safety matter or authorises a submission.",
+    backing: ["llm"],
+    desk: "A seven-pass pipeline with the challenge check built in. The report is refused unless every one of the nine lenses carries a section with something under it and every finding names a lens, a severity, a location and a remedy — and a report with nine lenses and no findings at all is refused outright, because a submission with nothing wrong with it has not been challenged, it has been read. A critical finding cannot be disposed of. An approved run becomes a numbered CHR challenge report, each part printing on its own.",
+  },
 ];
 
 /** Function → how much AI genuinely replaces → the human control that remains. */
@@ -564,10 +583,11 @@ export const LEVEL_7 = [
     test: "No sentence enters a submission unless it resolves to an evidence object approved and unexpired at the submission deadline. Enforced by a gate, not a prompt.",
     where: "The evidence registry holds objects with an expiry, and gate GE-EV-01 compares that expiry to the SUBMISSION DEADLINE rather than to today — a certificate valid this morning and lapsed the day before the deadline is refused. An unreadable expiry counts as lapsed; an insurance or accreditation with no expiry at all is refused at the door. The registry does not fill itself: somebody still has to put the certificates in it.",
     was: "Agent 2 refuses to claim an accreditation, certificate or reference that is not in its inputs, and marks what it needs as EVIDENCE REQUIRED with who holds it. That is a brief and a habit, not a registry: nothing yet holds evidence objects with an expiry date, so nothing can check that a certificate is still valid on the day the bid is submitted." },
-  { id: "L7.3", name: "Adversarial self-challenge", state: "partial",
+  { id: "L7.3", name: "Adversarial self-challenge", state: "built",
     test: "Every material output — a price, a programme, a response, an assumption — is attacked by an independent agent with a different model and prompt lineage before human review.",
-    where: "THE CHECK IS BUILT AND THE CHALLENGER IS NOT. A review by its own run, or on the author's prompt lineage, is refused as an assurance result; a high-risk lens demands a different model route or a deterministic validator; the red team is routed off the author's model automatically; and a lens nobody ran counts as unrun rather than clean. What does not exist is an agent that actually runs the nine lenses — so the rules that would govern the challenge are in place and nothing yet performs it.",
-    was: "Nothing does this. It is the cheapest of the seven to add inside the current system and probably the most valuable per hour spent, because the four reconciliations already prove that a mechanical second opinion catches what a first pass will not." },
+    where: "Agent 14 is the challenger. It is given another agent's finished output and the invitation it answers, and NOT the author's working paper or reasoning — a challenger who reads why something was done is persuaded by it, and the evaluator scoring the bid will not have that document either. Nine lenses, each written on its own pass, then a findings register. The fifth reconciliation refuses the report unless every lens carries a section with something under it, every finding names one of the nine lenses, one of the four severities, a location and a remedy, and no critical finding carries a disposition. A report with nine lenses and no findings at all is refused: a submission with nothing wrong with it has not been challenged, it has been read. WHAT REMAINS is that it must be RUN — nothing yet obliges a bid to pass through it before issue, and a challenger nobody invokes is a challenger that does not exist.",
+    was: "THE CHECK IS BUILT AND THE CHALLENGER IS NOT. A review by its own run, or on the author's prompt lineage, is refused as an assurance result; a high-risk lens demands a different model route or a deterministic validator; the red team is routed off the author's model automatically; and a lens nobody ran counts as unrun rather than clean. What does not exist is an agent that actually runs the nine lenses — so the rules that would govern the challenge are in place and nothing yet performs it.",
+    wasBefore: "Nothing does this. It is the cheapest of the seven to add inside the current system and probably the most valuable per hour spent, because the four reconciliations already prove that a mechanical second opinion catches what a first pass will not." },
   { id: "L7.4", name: "Time-travel state", state: "absent",
     test: "Any artefact can be reconstructed as it was known at a moment in time, on both axes: when the fact was true, and when the system learned it.",
     where: "Not addressed anywhere. This is the same gap the temporal foundation names, and it is the one most likely to cost real money: a claim is defended on what was known on a date, and a system that always reads the latest file destroys exactly that." },
@@ -651,6 +671,7 @@ export const ENGINES = [
     purpose: "What could go wrong, and the administration around what must not.",
     agents: [
       { id: "assurance", name: "Assurance and Evidence Agent", state: "built", depth: 3 },
+      { id: "challenge", name: "Adversarial Challenger", state: "built", depth: 4 },
       { id: "siteops", name: "Site Operations Agent", state: "built", depth: 3 },
       { id: "safety", name: "Safety Assurance Agent", state: "planned", depth: 3,
         why: "RAMS completeness, permit expiry, training gaps, recurring observations, method statements cross-checked against planned activity. It administers; it never supervises. It must never be sold as replacing a competent safety professional or a person on site." },
@@ -852,6 +873,8 @@ export const FAILURE_MODES = [
   { mode: "Automatic learning from unverified project records", avoided: true, how: "There is no memory at all, which on this point is the safe answer." },
   { mode: "Many agents with no common project state", avoided: false, how: "Partly. Runs, documents and engagements are shared; contracts and site events are not." },
   { mode: "Confidence scores produced only by the model itself", avoided: true, how: "Every gate is arithmetic performed outside the model: references compared, figures added, dates ordered." },
+  { mode: "A review that reads as thorough and contains nothing anybody can act on", avoided: true, how: "Agent 14's report is refused unless every finding names a lens, a severity, a location and a remedy — and a report with nine lenses and no findings at all is refused outright. An absence of findings under a lens is indistinguishable from the lens never having been applied, so the machine looks for the heading and for something underneath it." },
+  { mode: "Work marked by the run that produced it", avoided: true, how: "The independence check refuses a review whose run or prompt lineage is the author's, and the challenger runs as its own agent on its own run rather than as a final pass." },
   { mode: "Promising to replace project managers", avoided: true, how: "The register, every agent boundary and the website all say the opposite, and the AUTONOMY table above is what it means in practice." },
 ];
 

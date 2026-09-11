@@ -131,7 +131,7 @@ console.log("\n--- the supporting structure\n");
   ok(FOUNDATIONS.some((f) => f.state === "absent"),
      "and at least one is honestly marked absent — a register where everything is built is a register nobody checked");
   ok(QUALITY_TARGETS.length >= 10, `${QUALITY_TARGETS.length} quality targets`);
-  ok(FAILURE_MODES.length === 10, `ten failure modes (${FAILURE_MODES.length})`);
+  ok(FAILURE_MODES.length === 12, `twelve failure modes (${FAILURE_MODES.length})`);
   ok(FAILURE_MODES.some((f) => !f.avoided), "with the ones not yet avoided marked as such",
      FAILURE_MODES.filter((f) => !f.avoided).length);
   // Checked against the neverDoes list rather than the prose, because the

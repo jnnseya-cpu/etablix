@@ -38,6 +38,8 @@ import { accessTo, agentIdentityFrom, identity, coverage as permCoverage, priceE
 import { route, compareReplay, fingerprint } from "./routing.js";
 import { record, journal } from "./audit.js";
 import { create, shouldStop, close } from "./agentrun.js";
+import { PIPELINE_AGENTS } from "../ai.js";
+import { reconcileChallenge, challengeNotes } from "../challengecheck.js";
 
 /**
  * Run a probe. Anything it throws becomes a failed property with the reason.
@@ -119,18 +121,23 @@ export function levelSeven() {
       const unrun = review({ findings: [], lensesRun: ["compliance"], independence: { compliance: { ok: true } } });
       const routed = route("redteam", { authorModel: "claude-opus-5", authorPromptLineage: "p1", promptLineage: "p2" });
       const checksWork = !sameRun.ok && !sameModel.ok && proper.ok && !unrun.ok && routed.ok && routed.model !== "claude-opus-5";
-      // THE PROBE TESTS THE CHECK, NOT THE CHALLENGE, and those are not the
-      // same property. The rules governing an adversarial review all work;
-      // no agent runs the nine lenses. Reporting this as built because the
-      // referee is ready would be exactly the flattery this file exists to
-      // stop, so the property holds only when something actually attacks the
-      // output. Set challengerAgentExists when that agent is built.
-      const challengerAgentExists = false;
+      // THE PROBE TESTS THE CHALLENGE, NOT THE REFEREE. The rules governing
+      // an adversarial review working is not the same property as something
+      // actually attacking the output, and while this was false the register
+      // read "partial: the check is built and the challenger is not".
+      //
+      // Agent 14 is that challenger, so this is now read from the pipeline
+      // registry rather than hard-coded — if the agent is ever removed, this
+      // goes back to partial on the next page load without anybody
+      // remembering to change a register.
+      const challengerAgentExists = PIPELINE_AGENTS.has("challenge") && typeof reconcileChallenge === "function";
       const holds = checksWork && challengerAgentExists;
       return {
         holds,
         partial: checksWork,
-        evidence: checksWork
+        evidence: checksWork && challengerAgentExists
+          ? `Agent 14 attacks another agent's finished output through the nine lenses, each written on its own pass, and lib/challengecheck.js refuses the report unless every lens carries a section and every finding names a lens, a severity, a location and a remedy. It is deliberately not given the author's reasoning. A critical finding cannot be disposed of, and a report with nine lenses and no findings at all is refused — a submission with nothing wrong with it has not been challenged, it has been read.`
+          : checksWork
           ? `The independence check refuses a review by its own run, refuses a high-risk lens on the author's model, and the red team is routed to ${routed.model}. A lens nobody ran counts as unrun rather than clean. What does NOT yet exist is an agent that runs the nine lenses: the check is built and the challenger is not.`
           : "The independence check did not refuse a review it should have refused.",
         detail: { refusesSameRun: !sameRun.ok, refusesSameModel: !sameModel.ok, acceptsValidator: proper.ok, countsUnrun: !unrun.ok, redTeamRoute: routed.model, lenses: LENSES.length, challengerAgentExists },
@@ -272,6 +279,7 @@ export function foundations() {
         ["gate", !transition({ state: "PRICED", to: "PRICE_RELEASED", facts: {}, approvals: [], author: "u" }).ok],
         ["independence", !checkIndependence({ author: { runId: "r", promptLineage: "p" }, review: { runId: "r", promptLineage: "p" }, lens: "contract" }).ok],
         ["policy", !decide({ actionId: "issue.po", actor: { kind: "agent" }, autonomy: "L7" }).allowed],
+        ["challenge", !reconcileChallenge("nine lenses of prose and no register").ok],
       ];
       const failing = gates.filter(([, held]) => !held).map(([id]) => id);
       return {
