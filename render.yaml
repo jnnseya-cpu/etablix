@@ -1,8 +1,26 @@
 # Render blueprint for ETABLIX — one web service with a persistent disk.
-# In the Render dashboard: New → Blueprint → point at this repository.
-# After the first deploy, fill in the sync:false env vars (admin login,
-# SMTP) under the service's Environment tab, then add etablix.com under
-# Settings → Custom Domains and follow the DNS instructions shown there.
+#
+# THE ORDER MATTERS, AND IT IS NOT THE OBVIOUS ONE.
+#
+#   1. New → Blueprint, point at this repository, pick the branch.
+#   2. Render prompts for the sync:false values BEFORE it builds. Fill in
+#      ETABLIX_ADMIN_EMAIL and ETABLIX_ADMIN_PASSWORD there. They are not
+#      optional and they are not "do it afterwards".
+#   3. Deploy. Then add the domain under Settings → Custom Domains.
+#
+# Why: the server REFUSES to start with NODE_ENV=production and no admin
+# credentials, because without them the store seeds three demo employee
+# accounts whose passwords are in this repository — a public URL that looks
+# finished and lets anybody who has read the source sign in as an
+# administrator. So a deploy with those two blank does not come up degraded.
+# It does not come up at all, and the log says exactly why. That is the
+# intended behaviour; it is not a broken build.
+#
+# The password must be at least 12 characters. It is the only account on a
+# new instance.
+#
+# SMTP is genuinely optional. Without it, enquiries are written to
+# outbox.log and nobody is emailed; the site works.
 
 services:
   - type: web

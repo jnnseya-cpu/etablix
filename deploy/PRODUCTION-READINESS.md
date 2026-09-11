@@ -338,10 +338,45 @@ signs people out on every launch spends goodwill that is hard to get back.
 | Stabilise Firebase App Hosting + Next.js | **Not done** | Neither exists in this repository. It is a migration with its own decisions — starting with moving off a local SQLite file — and should be scoped as such |
 | Fix TypeScript / bundler errors | **Not applicable** | There is no TypeScript and no bundler |
 | `next build` passes | **Not applicable** | The equivalent for this stack was run instead, in section 3 |
-| A live production URL | **Not done** | Deploying is an outward-facing action and needs hosting credentials this session does not have. `deploy/GO-LIVE-RUNBOOK.md` is the ordered path; the blockers to a green deploy that were in the code are fixed |
+| A live production URL | **Unblocked, not pressed** | See below. The reason the site stopped updating is found and fixed; the deploy itself runs on the VPS and cannot be triggered from here |
 | End-to-end encryption | **Cannot be delivered** | Section 6 |
 | Hacker-impenetrable | **Cannot be claimed** | Section 6 |
 | Mobile packaging | **PWA ready; native held** | Section 7. The web platform is stable and the manifest is in. A native wrapper waits on the session-lifetime decision |
+
+---
+
+## 8a. Why the live site stopped updating
+
+Found after this audit was first written, and it is the answer to "nothing I
+push seems to reach the site".
+
+This repository does not deploy to a platform host. `deploy/autodeploy.sh`
+runs from cron on the VPS every five minutes: it pulls this branch, builds a
+Docker image, starts it on a spare name, health-checks it, and swaps the live
+container **only if it answers**.
+
+That last clause is the whole story. The missing `COPY content ./content` in
+section 2.2 means every image built after 10 September died on startup before
+binding a port. So every tick since has printed:
+
+    REFUSING TO DEPLOY: the new build did not report healthy on <sha>.
+    The live container has not been touched.
+
+and left the working container alone. The deploy safety did its job perfectly
+and silently, every five minutes, for a day and a half.
+
+| | |
+|---|---|
+| 8 Sep 18:10 | `459be29` — last build stamp committed |
+| 10 Sep 06:00 | `ba3d51e` — `content/blog/` first committed |
+| 10 Sep 10:08 | `839571b` — `blog.js` begins reading it at module scope |
+| | *every build from here cannot start* |
+| 11 Sep 11:17 | `880ded7` — `COPY content` added; the fix |
+
+**What to do:** on the VPS, `grep -c "REFUSING TO DEPLOY"
+/var/log/etablix-deploy.log` confirms it, then `cd /opt/etablix &&
+./deploy/deploy.sh` deploys the current head by hand rather than waiting for
+the next tick. `deploy/GO-LIVE.md` is the ordered version of that.
 
 ---
 

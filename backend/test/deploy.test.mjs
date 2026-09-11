@@ -200,5 +200,46 @@ console.log("\n--- and a missing content directory no longer kills the server\n"
      "and the message says what the consequence is");
 }
 
+
+/* ------------------------------------- the blueprint agrees with the code */
+//
+// The blueprint told you to fill in the admin credentials AFTER the first
+// deploy. The preflight added later refuses to start without them. So the
+// documented order produced a boot loop that looks like a broken build —
+// two correct things that contradict each other, which is the failure this
+// repository keeps finding in its own runbooks.
+
+console.log("\n--- the deploy instructions agree with what the server does\n");
+{
+  const render = fs.readFileSync(path.join(root, "render.yaml"), "utf8");
+  const preflight = fs.readFileSync(path.join(root, "backend", "lib", "preflight.js"), "utf8");
+
+  ok(/NODE_ENV[\s\S]{0,40}production/.test(render), "the blueprint sets NODE_ENV=production");
+  ok(/ETABLIX_ADMIN_EMAIL/.test(render) && /ETABLIX_ADMIN_PASSWORD/.test(render),
+     "and declares the admin credentials");
+  ok(/NODE_ENV === "production"|production &&/.test(preflight) && /ETABLIX_ADMIN_EMAIL/.test(preflight),
+     "the preflight refuses production without them");
+  ok(!/After the first deploy, fill in/.test(render),
+     "so the blueprint no longer says to fill them in AFTER deploying — that order is a boot loop");
+  ok(/BEFORE it builds|not "do it afterwards"/.test(render),
+     "it says to set them before the build instead", render.split("\n").slice(0, 12).join(" ").slice(0, 160));
+  ok(/does not come up at all/.test(render),
+     "and warns that a blank deploy fails to start rather than starting degraded");
+
+  // The go-live card is the VPS route, because that is what this deploys to.
+  // render.yaml is a documented alternative that is not in use, and the card
+  // says so — a card describing the wrong host is worse than no card.
+  const golive = fs.readFileSync(path.join(root, "deploy", "GO-LIVE.md"), "utf8");
+  ok(/Hostinger|VPS/.test(golive), "the go-live card is written for the host this actually deploys to");
+  ok(/it is not what you use/.test(golive), "and says plainly that render.yaml is not the route in use");
+  ok(/12 characters/.test(golive) && /12/.test(preflight),
+     "the card and the preflight name the same minimum password length");
+  ok(/REFUSING TO START/.test(golive) && /REFUSING TO START/.test(preflight),
+     "and the card quotes the exact string the log will show, so it can be searched for");
+  ok(/REFUSING TO DEPLOY/.test(golive) && /REFUSING TO DEPLOY/.test(fs.readFileSync(path.join(root, "deploy", "deploy.sh"), "utf8")),
+     "and the string the deploy script prints when it refuses to swap");
+  ok(/autodeploy\.sh/.test(golive), "it names the cron dispatcher, which is how a push reaches the site");
+}
+
 console.log(`\n=== ${pass} passed, ${fail} failed ===\n`);
 process.exit(fail ? 1 : 0);

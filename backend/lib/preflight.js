@@ -87,7 +87,7 @@ export function check({
     failures.push(
       "NODE_ENV is production and ETABLIX_ADMIN_EMAIL / ETABLIX_ADMIN_PASSWORD are not set. " +
       "Without them the store seeds three demo employee accounts whose passwords are written in this repository, and the site would come up looking finished with anybody who has read the source able to sign in as an administrator. " +
-      "Set both, or do not set NODE_ENV=production."
+      "Set both, or do not set NODE_ENV=production. On Render: the service's Environment tab, then Manual Deploy → Deploy latest commit."
     );
   }
   if (production && env.ETABLIX_ADMIN_PASSWORD && String(env.ETABLIX_ADMIN_PASSWORD).length < 12) {
