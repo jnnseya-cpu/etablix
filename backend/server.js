@@ -37,6 +37,7 @@ import automationRoutes from "./routes/automation.js";
 import commercialRoutes from "./routes/commercial.js";
 import orgRoutes from "./routes/org.js";
 import l7Routes from "./routes/l7.js";
+import webhookRoutes from "./routes/webhooks.js";
 import { bindPorts } from "./lib/l7/bootstrap.js";
 import docsRoutes from "./routes/docs.js";
 import agentRoutes, { failOrphanedRuns, sweepRunPacks } from "./routes/agents.js";
@@ -65,6 +66,12 @@ app.set("trust proxy", 1); // correct client IPs behind Caddy/nginx/platform pro
 // one, because a public endpoint accepting megabytes of JSON is a denial
 // of service waiting to be found.
 app.use("/api/docs", express.json({ limit: "12mb" }));
+// The inbound webhook endpoint is verified against a signature over the RAW
+// bytes, so it must not be parsed into an object first: JSON.stringify is not
+// required to reproduce key order or whitespace, and a signature recomputed
+// over a re-serialised body would pass while proving nothing about what was
+// actually sent. Mounted before the JSON parser so this path keeps its bytes.
+app.use("/api/webhooks/inbound", express.raw({ type: "*/*", limit: "200kb" }));
 app.use(express.json({ limit: "200kb" }));
 
 // --- API ---
@@ -159,6 +166,7 @@ app.use("/api/payments", paymentRoutes); // supplier payments: certify, verify b
 app.use("/api/engagements", engagementRoutes);
 app.use("/api/reach", reachRoutes); // what the site is scoring and how many people read it, employees only
 app.use("/api/clients", clientRoutes); // client engagements: portal, checklist, decisions, automatic invoicing // NDA-gated enquiries, quotes, PO award
+app.use("/api/webhooks", webhookRoutes); // outbound subscriptions and the one signed inbound endpoint
 app.use("/api/l7", l7Routes); // Level 7 controls, probed on every request — internal only, never public
 
 app.use("/api", (req, res) => res.status(404).json({ error: "Unknown endpoint." }));

@@ -224,6 +224,48 @@
       <p class="panel-sub" style="margin-bottom:14px;">Paste each platform's API credentials to link the real products into this Control Desk. Keys are stored server-side only and never shown again in full. VERYX keys come from the veryxjnn.com workspace (Settings → API keys, <code>vx_…</code>); CONSTRUX tokens from your construxvg.com account.</p>
       <div id="integrations-body"><p class="empty-note">Loading…</p></div>
     </div>
+
+    <div class="section-block">
+      <h3>Platform API keys</h3>
+      <p class="panel-sub" style="margin-bottom:14px;">Keys for the VERYX Platform API (<code>/api/public/v1</code>), so a client's own systems can read the portfolio and write to it. A key is shown <b>once</b> when it is minted and never again. Scopes marked <b>write</b> change records in this system; <code>write:webhooks</code> sends project data to an endpoint of the holder's choosing, so give it deliberately.</p>
+      <form class="team-form" id="key-form" style="flex-wrap:wrap;gap:8px;">
+        <input name="workspace" placeholder="Workspace this key belongs to" required style="flex:2;min-width:200px;">
+        <select name="env" style="flex:1;min-width:120px;">
+          <option value="production">production</option>
+          <option value="sandbox">sandbox</option>
+        </select>
+        <input name="monthlyQuota" type="number" min="1" max="1000000" value="10000" placeholder="Monthly calls" style="flex:1;min-width:110px;">
+        <input name="acuBalance" type="number" min="0" value="0" placeholder="Prepaid ACU" style="flex:1;min-width:110px;">
+        <div id="key-scopes" class="pick-list" style="flex-basis:100%;"></div>
+        <input name="reason" placeholder="What is this key for? (required if it can write)" style="flex-basis:100%;">
+        <button class="btn-block" type="submit" style="width:auto;padding:11px 18px;">Mint key</button>
+      </form>
+      <div id="key-result"></div>
+      <div id="keys-body"><p class="empty-note">Loading…</p></div>
+    </div>
+
+    <div class="section-block">
+      <h3>Webhooks — out</h3>
+      <p class="panel-sub" style="margin-bottom:14px;">Push events to a subscriber instead of making them poll. A subscription must be <code>https</code>: an outbound webhook carries project data, and over <code>http</code> it carries it in the clear. Each delivery is signed <code>HMAC-SHA256</code> over <code>timestamp.body</code> in <code>x-etablix-signature</code>; the signing secret is shown once. A subscription that fails ten times running is paused rather than retried for ever.</p>
+      <form class="team-form" id="hook-form" style="flex-wrap:wrap;gap:8px;">
+        <input name="url" type="url" placeholder="https://…" required style="flex:2;min-width:240px;">
+        <input name="description" placeholder="Whose system is this?" style="flex:1;min-width:160px;">
+        <div id="hook-events" class="pick-list" style="flex-basis:100%;"></div>
+        <button class="btn-block" type="submit" style="width:auto;padding:11px 18px;">Subscribe</button>
+      </form>
+      <div id="hook-result"></div>
+      <div id="hooks-body"><p class="empty-note">Loading…</p></div>
+    </div>
+
+    <div class="section-block">
+      <h3>Webhooks — in</h3>
+      <p class="panel-sub" style="margin-bottom:14px;">One endpoint, <code>POST /api/webhooks/inbound</code>, verified against a shared secret over the raw body and a timestamp. A delivery older than five minutes is refused even when its signature is valid, because a signature proves who sent it and not when. A verified delivery is <b>recorded</b> and may raise a notification: none of the accepted events writes a delivery record, closes a defect, certifies a payment or runs an agent, because a leaked secret would then be able to do all four.</p>
+      <div id="inbound-body"><p class="empty-note">Loading…</p></div>
+      <button class="btn-run" id="inbound-secret-btn" style="margin-top:10px;">Mint / rotate inbound secret</button>
+      <span class="muted" id="inbound-secret-result" style="margin-left:10px;"></span>
+      <h4 style="margin:18px 0 8px;">Delivery log</h4>
+      <div id="deliveries-body"><p class="empty-note">Loading…</p></div>
+    </div>
   </section>
 
 </main>

@@ -14,12 +14,16 @@
  */
 
 import { Router } from "express";
-import { collection, insert, update, remove } from "../lib/store.js";
+import { collection, insert, update, remove, recordLedger, id as newId } from "../lib/store.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 import { isConnected, platformFetch, publicIntegration } from "../lib/platforms.js";
 import { portfolio } from "../lib/portfolio.js";
 import { workload, allocationRows, people, DEPARTMENTS } from "../lib/resources.js";
 import { ACCESS } from "../../shared/constants.js";
+import { validateRisk, RISK_CATEGORIES, RISK_STATUS, API_SCOPES, SCOPE_NAMES, writeScopes } from "../lib/veryx.js";
+import { nextRef } from "../lib/construx.js";
+import { emitWebhook } from "../lib/webhooks.js";
+import crypto from "node:crypto";
 
 const router = Router();
 router.use(requireAuth);
@@ -226,6 +230,14 @@ router.get("/usage", safe(async (req, res) => {
     monthlyQuota: k.monthlyQuota,
     used: k.used,
     acuBalance: k.acuBalance,
+    // A revoked key stays in the list with its usage: the calls it made are
+    // the only record it existed, and a key that vanishes takes its own
+    // audit trail with it.
+    revoked: k.revoked === true,
+    revokedAt: k.revokedAt || null,
+    revokedBy: k.revokedBy || null,
+    createdBy: k.createdBy || null,
+    reason: k.reason || null,
   }));
   res.json({ source: WORKSPACE, keys });
 }));
@@ -307,6 +319,139 @@ router.delete("/resources/allocations/:id", requireRole(...ACCESS.DELIVERY_FINAN
   const row = remove("allocations", req.params.id);
   if (!row) return res.status(404).json({ error: "Allocation not found." });
   res.json({ deleted: true });
+});
+
+/* ------------------------------------------------- the risk write path */
+//
+// The register was read-only, so every risk on it came from the seed. Writing
+// to it goes through validateRisk, which computes the score from probability
+// and impact rather than accepting one: the register is sorted on score and
+// every review works down that order, so a hand-typed score that drifts from
+// its own assessment puts the row in the wrong place in the only ordering
+// anybody uses.
+
+/** GET /risks/vocabulary — the categories and statuses a risk may carry. */
+router.get("/risks/vocabulary", (req, res) => {
+  res.json({
+    categories: RISK_CATEGORIES,
+    statuses: RISK_STATUS,
+    scale: { min: 1, max: 5, note: "score is probability × impact, computed rather than entered" },
+  });
+});
+
+/** POST /risks — raise one. */
+router.post("/risks", requireRole(...ACCESS.DELIVERY_FINANCE), safe(async (req, res) => {
+  const check = validateRisk(req.body || {}, { projects: collection("projects") });
+  if (!check.ok) return res.status(400).json({ error: check.faults[0], faults: check.faults });
+  const record = { ...check.record };
+  if (!record.ref) record.ref = nextRef(collection("risks"), "ref", "RSK");
+  const row = insert("risks", { id: newId(), ...record, createdAt: Date.now(), createdBy: req.user.name });
+  recordLedger("veryx.risk.created", row.ref, req.user.name, `${row.title} (score ${row.score})`);
+  await emitWebhook("veryx.risk.created", { id: row.id, ...record });
+  res.status(201).json({ risk: row });
+}));
+
+/** PATCH /risks/:id — revise one. Validated on the merged result. */
+router.patch("/risks/:id", requireRole(...ACCESS.DELIVERY_FINANCE), safe(async (req, res) => {
+  const existing = collection("risks").find((r) => r.id === req.params.id || r.ref === req.params.id);
+  if (!existing) return res.status(404).json({ error: "Risk not found." });
+  // The submitted score is dropped before merging rather than compared: on a
+  // patch that changes probability or impact, the stored score is the OLD
+  // product, and comparing against it would refuse every legitimate
+  // re-assessment. What is refused is a score sent IN the patch that
+  // disagrees with the numbers sent with it.
+  const patch = { ...(req.body || {}) };
+  const merged = { ...existing, ...patch };
+  if (patch.score === undefined) delete merged.score;
+  const check = validateRisk(merged, { projects: collection("projects") });
+  if (!check.ok) return res.status(400).json({ error: check.faults[0], faults: check.faults });
+  const row = update("risks", existing.id, {
+    ...check.record,
+    ref: existing.ref,
+    updatedAt: Date.now(),
+    updatedBy: req.user.name,
+  });
+  recordLedger("veryx.risk.updated", row.ref, req.user.name, Object.keys(patch).join(", ") || "no fields");
+  await emitWebhook("veryx.risk.updated", { id: row.id, ...check.record });
+  res.json({ risk: row });
+}));
+
+/* ------------------------------------------------------- key minting */
+//
+// The Platform API grew write scopes, and until now a key could only arrive
+// in the seed — so the write scopes would have been documented, validated,
+// tested and unreachable. Minting is admin-only, the key is shown once, and
+// the scopes are the catalogue rather than free text: a key carrying a scope
+// string no endpoint checks is a permission nobody can audit.
+
+/** GET /keys/scopes — the catalogue, so a person minting can see the writes. */
+router.get("/keys/scopes", requireRole("admin"), (req, res) => {
+  res.json({ scopes: API_SCOPES });
+});
+
+/** POST /keys — mint a Platform API key. Shown once. */
+router.post("/keys", requireRole("admin"), (req, res) => {
+  const workspace = String(req.body?.workspace || "").trim();
+  const env = String(req.body?.env || "").trim() || "production";
+  const wanted = Array.isArray(req.body?.scopes) ? req.body.scopes.map(String) : [];
+  const quota = Number(req.body?.monthlyQuota);
+  const acu = Number(req.body?.acuBalance ?? 0);
+
+  const faults = [];
+  if (workspace.length < 3) faults.push("Name the workspace this key belongs to.");
+  if (!["production", "sandbox"].includes(env)) faults.push("env must be production or sandbox.");
+  if (wanted.length === 0) faults.push("A key with no scopes can do nothing. Choose at least one.");
+  const unknown = wanted.filter((sc) => !SCOPE_NAMES.includes(sc));
+  if (unknown.length) faults.push(`Unknown scope(s): ${unknown.join(", ")}.`);
+  if (!Number.isFinite(quota) || quota < 1 || quota > 1000000) faults.push("Set a monthly call quota between 1 and 1,000,000.");
+  if (!Number.isFinite(acu) || acu < 0) faults.push("ACU balance cannot be negative.");
+  // A production key that can write and has never been reviewed is the one
+  // that ends up in somebody's script, so the reason is required rather than
+  // optional, exactly as it is for a RAG override.
+  const reason = String(req.body?.reason || "").trim().slice(0, 400);
+  const writes = writeScopes(wanted);
+  if (writes.length && reason.length < 5) {
+    faults.push(`This key can write (${writes.join(", ")}). Say what it is for.`);
+  }
+  if (faults.length) return res.status(400).json({ error: faults[0], faults });
+
+  const key = `vx_${env === "sandbox" ? "test" : "live"}_${crypto.randomBytes(20).toString("hex")}`;
+  const row = insert("apiKeys", {
+    id: newId(), key, workspace, env, scopes: wanted,
+    monthlyQuota: Math.round(quota), used: 0, acuBalance: Math.round(acu),
+    createdAt: Date.now(), createdBy: req.user.name, reason: reason || null, revoked: false,
+  });
+  recordLedger("veryx.key.minted", row.id, req.user.name,
+    `${workspace} (${env}) · ${wanted.join(", ")}${writes.length ? ` · WRITES: ${writes.join(", ")}` : ""}`);
+  res.status(201).json({
+    key,
+    keyWarning: "Shown once. It is stored for matching and never returned again.",
+    apiKey: { ...row, key: `${key.slice(0, 11)}…` },
+    writeScopes: writes,
+  });
+});
+
+/**
+ * DELETE /keys/:id — revoke.
+ *
+ * The row is emptied of its scopes and marked revoked rather than removed:
+ * the usage it accrued and the reason it was minted are the only record that
+ * it existed, and a key that vanishes takes its own audit trail with it. The
+ * key string is overwritten so it can never match again.
+ */
+router.delete("/keys/:id", requireRole("admin"), (req, res) => {
+  const row = collection("apiKeys").find((k) => k.id === req.params.id);
+  if (!row) return res.status(404).json({ error: "Key not found." });
+  if (row.revoked) return res.json({ revoked: true, alreadyRevoked: true });
+  update("apiKeys", row.id, {
+    key: `revoked_${row.id}`,
+    scopes: [],
+    revoked: true,
+    revokedAt: Date.now(),
+    revokedBy: req.user.name,
+  });
+  recordLedger("veryx.key.revoked", row.id, req.user.name, `${row.workspace} (${row.env})`);
+  res.json({ revoked: true });
 });
 
 export default router;

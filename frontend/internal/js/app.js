@@ -1351,9 +1351,197 @@ document.getElementById("purge-btn")?.addEventListener("click", async () => {
   }
 });
 
+/* ---------- Platform API keys, and webhooks both ways (admin only) ----------
+ *
+ * These three panels exist because the routes behind them were otherwise
+ * unreachable from the product. A write scope nobody can mint a key for is a
+ * permission that does not exist; an inbound secret nobody can rotate is a
+ * secret that never changes; and a delivery log nobody can read turns a
+ * failed push into a silence.
+ */
+
+const fmtWhen = (t) => (t ? new Date(t).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" }) : "—");
+
+/** A secret is shown once. It is rendered to be copied, and never re-fetched. */
+function showOnce(el, label, secret, warning) {
+  el.innerHTML = `<div class="section-block" style="border:1.5px solid var(--accent);border-radius:10px;padding:14px 16px;margin:12px 0;">
+    <b>${esc(label)}</b>
+    <p style="font-family:var(--font-mono,monospace);word-break:break-all;margin:8px 0;user-select:all;">${esc(secret)}</p>
+    <p class="muted" style="margin:0;">${esc(warning)}</p>
+  </div>`;
+}
+
+async function loadKeys() {
+  const [{ scopes }, usage] = await Promise.all([
+    api("/api/veryx/keys/scopes"),
+    api("/api/veryx/usage"),
+  ]);
+  document.getElementById("key-scopes").innerHTML = scopes
+    .map((s) => `<label class="muted" title="${esc(s.does)}">
+      <input type="checkbox" name="scopes" value="${esc(s.scope)}">
+      <code>${esc(s.scope)}</code>${s.writes ? ' <span class="pill declined" style="padding:1px 6px;">write</span>' : ""}
+    </label>`)
+    .join("");
+
+  const keys = usage.keys || [];
+  document.getElementById("keys-body").innerHTML = keys.length
+    ? `<div class="table-wrap"><table><thead><tr><th>Key</th><th>Workspace</th><th>Env</th><th>Scopes</th><th>Calls</th><th>ACU</th><th></th></tr></thead><tbody>${keys
+        .map((k) => `<tr${k.revoked ? ' class="muted"' : ""}>
+          <td><code>${esc(k.keyPreview || "—")}</code></td>
+          <td>${esc(k.workspace || "—")}</td>
+          <td>${esc(k.env || "—")}</td>
+          <td>${(k.scopes || []).length ? (k.scopes || []).map((sc) => `<code>${esc(sc)}</code>`).join(" ") : "<i>none</i>"}</td>
+          <td>${k.used ?? 0} / ${k.monthlyQuota ?? "—"}</td>
+          <td>${k.acuBalance ?? 0}</td>
+          <td>${k.revoked ? '<span class="pill declined">Revoked</span>'
+            : k.id && k.id !== "live" ? `<button class="btn-run" data-revoke-key="${esc(k.id)}" style="padding:4px 10px;">Revoke</button>` : ""}</td>
+        </tr>`)
+        .join("")}</tbody></table></div>`
+    : `<p class="empty-note">No keys minted. The Platform API is unreachable until one is.</p>`;
+}
+
+document.getElementById("key-form")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const f = e.target;
+  const btn = f.querySelector("button");
+  btn.disabled = true;
+  try {
+    const scopes = [...f.querySelectorAll('input[name="scopes"]:checked')].map((i) => i.value);
+    const out = await api("/api/veryx/keys", {
+      method: "POST",
+      body: JSON.stringify({
+        workspace: f.workspace.value, env: f.env.value,
+        monthlyQuota: Number(f.monthlyQuota.value), acuBalance: Number(f.acuBalance.value),
+        scopes, reason: f.reason.value,
+      }),
+    });
+    showOnce(document.getElementById("key-result"), `Key for ${f.workspace.value}`, out.key, out.keyWarning);
+    f.reset();
+    await loadKeys();
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+document.addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-revoke-key]");
+  if (!b) return;
+  if (!confirm("Revoke this key? Any system using it stops working immediately. The row is kept so the usage it accrued stays readable.")) return;
+  b.disabled = true;
+  try {
+    await api(`/api/veryx/keys/${b.dataset.revokeKey}`, { method: "DELETE" });
+    await loadKeys();
+  } catch (err) {
+    alert(err.message);
+    b.disabled = false;
+  }
+});
+
+async function loadWebhooks() {
+  const w = await api("/api/webhooks");
+
+  document.getElementById("hook-events").innerHTML = w.events
+    .map((ev) => `<label class="muted">
+      <input type="checkbox" name="events" value="${esc(ev)}"> <code>${esc(ev)}</code>
+    </label>`)
+    .join("");
+
+  const subs = w.subscriptions || [];
+  document.getElementById("hooks-body").innerHTML = subs.length
+    ? `<div class="table-wrap"><table><thead><tr><th>Endpoint</th><th>Events</th><th>Added by</th><th>Last delivery</th><th>Failures</th><th>State</th><th></th></tr></thead><tbody>${subs
+        .map((s) => `<tr${s.active ? "" : ' class="muted"'}>
+          <td style="word-break:break-all;">${esc(s.url)}${s.description ? `<br><span class="muted">${esc(s.description)}</span>` : ""}</td>
+          <td>${(s.events || []).map((ev) => `<code>${esc(ev)}</code>`).join(" ")}</td>
+          <td>${esc(s.createdBy || "—")}</td>
+          <td>${fmtWhen(s.lastDeliveryAt)}${s.lastStatus ? `<br><span class="muted">${esc(String(s.lastStatus))}</span>` : ""}</td>
+          <td>${s.failures || 0} / ${w.failureLimit}</td>
+          <td>${s.active ? '<span class="pill approved">Active</span>' : '<span class="pill declined">Stopped</span>'}</td>
+          <td>${s.active ? `<button class="btn-run" data-unhook="${esc(s.id)}" style="padding:4px 10px;">Stop</button>` : ""}</td>
+        </tr>`)
+        .join("")}</tbody></table></div>`
+    : `<p class="empty-note">Nobody is subscribed. Every event this system emits is going nowhere, which is the correct state until somebody asks for one.</p>`;
+
+  document.getElementById("inbound-body").innerHTML = `
+    <p><b>Endpoint</b> <code>POST ${esc(location.origin)}/api/webhooks/inbound</code></p>
+    <p><b>Secret</b> ${w.inboundSecretConfigured
+      ? '<span class="pill approved">Configured</span> <span class="muted">— shown once when minted; rotate below to replace it.</span>'
+      : '<span class="pill">Not configured</span> <span class="muted">— until one exists, every inbound delivery is refused, because nothing can be verified.</span>'}</p>
+    <p><b>Replay window</b> ${w.replayWindowSeconds} seconds</p>
+    <div class="table-wrap"><table><thead><tr><th>Accepted event</th><th>What it does</th><th>Writes?</th></tr></thead><tbody>${(w.inbound || [])
+      .map((r) => `<tr><td><code>${esc(r.event)}</code></td><td>${esc(r.does)}</td><td>${r.writes ? '<span class="pill declined">yes</span>' : "no"}</td></tr>`)
+      .join("")}</tbody></table></div>`;
+
+  const { deliveries } = await api("/api/webhooks/deliveries?limit=40");
+  document.getElementById("deliveries-body").innerHTML = deliveries.length
+    ? `<div class="table-wrap"><table><thead><tr><th>When</th><th>Direction</th><th>Event</th><th>Target</th><th>Result</th></tr></thead><tbody>${deliveries
+        .map((d) => `<tr><td>${fmtWhen(d.at)}</td><td>${d.direction === "inbound" ? "in" : "out"}</td>
+          <td><code>${esc(d.event)}</code></td>
+          <td style="word-break:break-all;">${esc(d.url || "—")}</td>
+          <td>${d.ok ? `<span class="pill approved">${esc(String(d.status || "ok"))}</span>` : `<span class="pill declined">${esc(String(d.error || d.status || "failed"))}</span>`}</td>
+        </tr>`)
+        .join("")}</tbody></table></div>`
+    : `<p class="empty-note">No deliveries yet, in either direction.</p>`;
+}
+
+document.getElementById("hook-form")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const f = e.target;
+  const btn = f.querySelector("button");
+  btn.disabled = true;
+  try {
+    const events = [...f.querySelectorAll('input[name="events"]:checked')].map((i) => i.value);
+    const out = await api("/api/webhooks/subscriptions", {
+      method: "POST",
+      body: JSON.stringify({ url: f.url.value, description: f.description.value, events }),
+    });
+    showOnce(document.getElementById("hook-result"), `Signing secret for ${f.url.value}`, out.secret, out.secretWarning);
+    f.reset();
+    await loadWebhooks();
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+document.addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-unhook]");
+  if (!b) return;
+  b.disabled = true;
+  try {
+    await api(`/api/webhooks/subscriptions/${b.dataset.unhook}`, { method: "DELETE" });
+    await loadWebhooks();
+  } catch (err) {
+    alert(err.message);
+    b.disabled = false;
+  }
+});
+
+document.getElementById("inbound-secret-btn")?.addEventListener("click", async (e) => {
+  if (!confirm("Mint or rotate the inbound webhook secret?\n\nRotating stops the previous secret working immediately, so any sender still using it will be rejected until it is given the new one.")) return;
+  e.target.disabled = true;
+  try {
+    const out = await api("/api/webhooks/inbound/secret", { method: "POST", body: JSON.stringify({}) });
+    showOnce(document.getElementById("deliveries-body"), out.rotated ? "Rotated inbound secret" : "Inbound secret", out.secret, out.secretWarning);
+    document.getElementById("inbound-secret-result").textContent = out.rotated ? "Rotated." : "Minted.";
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    e.target.disabled = false;
+  }
+});
+
 async function loadTeam() {
   loadIntegrations().catch((err) => {
     document.getElementById("integrations-body").innerHTML = `<p class="error-note">${esc(err.message)}</p>`;
+  });
+  loadKeys().catch((err) => {
+    document.getElementById("keys-body").innerHTML = `<p class="error-note">${esc(err.message)}</p>`;
+  });
+  loadWebhooks().catch((err) => {
+    document.getElementById("hooks-body").innerHTML = `<p class="error-note">${esc(err.message)}</p>`;
   });
   const { users, roles, positions = [], departments = [] } = await api("/api/users");
 
