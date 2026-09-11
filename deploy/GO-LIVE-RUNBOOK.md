@@ -50,8 +50,9 @@ Keep the email-forwarding/MX records from Step 0 — don't delete those.
 SSH in as root and run:
 
 ```bash
-# Node 20 + Caddy + git
-curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs caddy git
+# Node 22 + Caddy + git — 22, not 20: the store uses node:sqlite from the
+# standard library, which does not exist before 22.5. Confirm with `node -v`.
+curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && apt-get install -y nodejs caddy git
 
 # App user + code
 useradd -r -m -d /opt/etablix etablix

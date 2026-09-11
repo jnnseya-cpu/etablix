@@ -239,10 +239,23 @@ console.log("\n--- what the agents have cost\n");
   ok(r.status === 404, "an unknown run is a 404 rather than an empty cost");
 }
 {
+  // The page AND the scripts it loads. This read only the HTML, which broke
+  // the moment the inline script moved into a file so the Content-Security
+  // Policy could be script-src 'self' with no 'unsafe-inline'. The assertion
+  // is about what the page DOES, not about which file the code sits in, so it
+  // follows the <script src> references rather than assuming.
   const html = await (await fetch(`${BASE}/internal/l7.html`)).text();
-  ok(/api\/l7\/acu/.test(html), "the internal page reads the spend");
-  ok(/Metering is not capping/.test(html), "and states on the page itself that nothing is capped by default");
-  ok(/ACU per run|ACU spent/.test(html), "showing the cost per run, which nothing could state before");
+  const srcs = [...html.matchAll(/<script[^>]+src="([^"]+)"/g)].map((m) => m[1]);
+  ok(srcs.length > 0, `the page loads its behaviour from ${srcs.length} script file(s)`, srcs.join(", "));
+  const scripts = await Promise.all(srcs.map((s) => fetch(`${BASE}${s.startsWith("/") ? s : "/internal/" + s}`).then((r) => r.text()).catch(() => "")));
+  const page = html + "\n" + scripts.join("\n");
+
+  ok(/api\/l7\/acu/.test(page), "the internal page reads the spend");
+  ok(/Metering is not capping/.test(page), "and states on the page itself that nothing is capped by default");
+  ok(/ACU per run|ACU spent/.test(page), "showing the cost per run, which nothing could state before");
+  // And the reason the script moved, asserted here so the two cannot drift.
+  ok(!/<script(?![^>]*\bsrc=)[^>]*>[^<]*[a-zA-Z][^<]*<\/script>/.test(html.replace(/<script[^>]*type="application\/ld\+json"[^>]*>[\s\S]*?<\/script>/g, "")),
+     "and the page carries no executable inline script, which is what lets the policy refuse injected markup");
 }
 
 console.log("\n--- the last four properties, over the wire\n");

@@ -408,17 +408,6 @@
   </div>
 </footer>
 
-<script type="module">
-  import { submitForm, renderCapabilityGrid } from "/js/main.js";
-
-  renderCapabilityGrid(document.getElementById("s-capability"), document.getElementById("s-capability-count"));
-
-  const form = document.getElementById("sub-form");
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    submitForm(form, "/api/subcontractors",
-      "✓ Registration received. Suppliers are assessed against project-specific capacity, competence, safety, quality, insurance and commercial requirements.");
-  });
-</script>
+<script type="module" src="/js/subcontractors.js"></script>
 </body>
 </html>

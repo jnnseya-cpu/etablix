@@ -93,7 +93,10 @@ console.log("\n--- the submission\n");
 // --- verification, which is the part only a person can finish
 console.log("\n--- verification\n");
 {
-  const server = fs.readFileSync(path.join(root, "backend", "server.js"), "utf8");
+  // app.js, not server.js: server.js is now a twenty-line entry point that
+  // runs the boot checks and then loads this. The verification tags live
+  // with the routes, which is where this assertion has always meant to look.
+  const server = fs.readFileSync(path.join(root, "backend", "app.js"), "utf8");
   for (const v of ["GOOGLE_SITE_VERIFICATION", "BING_SITE_VERIFICATION", "GOOGLE_VERIFICATION_FILE"]) {
     ok(server.includes(v), `${v} is read from the environment, so verifying is paste-and-redeploy`);
   }

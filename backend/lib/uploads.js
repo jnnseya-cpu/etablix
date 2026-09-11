@@ -57,9 +57,13 @@ const storage = multer.diskStorage({
 
 // A diagnostic pack is a dozen documents plus a drawing set, and an A1
 // PDF is not a small file. Five at 10 MB was sized for a tender pack.
+/** Named once, because the limit and the message that quotes it must agree. */
+export const MAX_FILE_BYTES = 25 * 1024 * 1024;
+export const MAX_FILES = 20;
+
 export const uploadDocuments = multer({
   storage,
-  limits: { fileSize: 25 * 1024 * 1024, files: 20 },
+  limits: { fileSize: MAX_FILE_BYTES, files: MAX_FILES },
   fileFilter: (req, file, cb) => {
     const ext = path.extname(file.originalname || "").toLowerCase();
     if (ALLOWED.has(file.mimetype) || ALLOWED_EXT.has(ext)) return cb(null, true);
@@ -68,7 +72,7 @@ export const uploadDocuments = multer({
       "A drawing exported to PDF at scale, and a programme as a PDF print plus a CSV task list."
     ));
   },
-}).array("documents", 20);
+}).array("documents", MAX_FILES);
 
 /**
  * Delete what was uploaded for a request that then failed.
@@ -95,7 +99,12 @@ export function acceptDocuments(req, res, next) {
     if (err) {
       const message =
         err.code === "LIMIT_FILE_SIZE"
-          ? "Each supporting document must be 10 MB or smaller."
+          // The number in this sentence has to be the number in `limits`
+          // above. It said 10 MB while the limit was 25, so somebody with a
+          // 14 MB drawing was told to shrink a file that would have been
+          // accepted, and somebody with a 30 MB one was told a figure that
+          // would still have been refused.
+          ? `Each supporting document must be ${Math.round(MAX_FILE_BYTES / (1024 * 1024))} MB or smaller.`
           : err.message || "Upload failed.";
       for (const f of req.files || []) if (f?.path) fs.unlink(f.path, () => {});
       return res.status(400).json({ error: message });

@@ -1484,3 +1484,64 @@ html { scrollbar-color: #3b3e42 #191a1c; }
 h2.sec-label { margin-top: 0; font-size: 1rem; font-weight: 400; }
 /* A heading that is a level in the outline but reads at the size below it. */
 h2.as-h3 { font-size: 1.08rem; margin: 26px 0 10px; }
+
+/* ============================================================
+   PHONE LAYOUT — the pages that panned sideways
+   ============================================================
+
+   Eight of the fifteen public pages overflowed the viewport on a 390px
+   phone, by up to 170px, and the internal portal by 574px. A page that
+   pans sideways is not a cosmetic problem: the reader loses the right-hand
+   edge of every line, and Google indexes the mobile rendering rather than
+   the desktop one, so it is also the version that gets ranked.
+
+   THE CAUSE WAS ONE RULE OF CSS, NOT EIGHT DESIGN MISTAKES. A grid or flex
+   child has `min-width: auto`, which means a track cannot shrink below the
+   widest unbreakable thing inside it. `.compare` carries `min-width: 720px`
+   and sits inside `.compare-wrap`, which has `overflow-x: auto` and should
+   have absorbed it — but the wrapper is itself a grid child, so instead of
+   scrolling, the 720px propagated up through `.reveal`, `.split` and
+   `.container` and pushed the whole page out. The scroll wrappers were
+   correct all along; they were never allowed to do their job.
+
+   So the fix is `min-width: 0` on the children that hold them, and the
+   wrappers start scrolling. Nothing here hides an overflow with
+   `overflow-x: hidden` on the body — that removes the scrollbar and keeps
+   the broken layout, which is the version of this fix that looks like it
+   worked. */
+
+.split > *,
+.grid-2 > *, .grid-3 > *, .grid-4 > *,
+.steps > *, .hero-actions > *,
+.form-grid > *, .offer-row > *, .gallery > *,
+.footer-grid > *, .hero-strip .container > * {
+  min-width: 0;
+}
+
+/* The scroll wrappers, now that they are allowed to scroll. */
+.compare-wrap, .spec-table-wrap, .table-wrap {
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* Anything preformatted scrolls rather than stretching the page. */
+pre, .code-block {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* A URL or a reference with no spaces in it is the other way a line pushes
+   a column wider than the screen. */
+p, li, td, th, dd, .card, .reveal,
+h1, h2, h3, h4, h5, blockquote, figcaption { overflow-wrap: break-word; }
+
+@media (max-width: 640px) {
+  /* A button label that cannot wrap is a button wider than the phone. */
+  .btn { white-space: normal; text-align: center; }
+  /* The first column of every comparison table was nowrap, which set the
+     table's minimum width on its longest row label. */
+  .compare td:first-child { white-space: normal; }
+  /* 24px each side of a 390px screen leaves 342px of line. 18px is enough
+     of a gutter and gives the text back 12px. */
+  .container { padding: 0 18px; }
+}

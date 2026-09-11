@@ -270,9 +270,14 @@ try {
 
   console.log("\n--- the Commercial Playbook\n");
   await goto(`${BASE}/internal/playbook.html`);
-  await wait(1500);
-  const play = await evaluate("document.body.textContent");
-  ok(play.length > 800, `it painted ${play.length} characters`);
+  // Wait for the content, not for a stopwatch. This was a flat 1500ms, which
+  // was enough while the page's script was inline and not enough once it
+  // moved into a file for the Content-Security Policy: an external module is
+  // one more round trip before it even starts fetching the playbook. A fixed
+  // sleep that is "usually enough" is a test that fails on a busy machine and
+  // blames the application.
+  const play = await settled("#pb", /Loading playbook/);
+  ok(play.length > 800, `it painted ${play.length} characters`, play.slice(0, 120));
 
   console.log("\n--- what the browser complained about\n");
   const real = consoleErrors.filter((e) => !/favicon|Failed to load resource: the server responded with a status of 404/.test(e));

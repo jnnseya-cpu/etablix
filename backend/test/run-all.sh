@@ -28,7 +28,7 @@ cleanup() {
 trap cleanup EXIT
 
 echo "=== unit ==="
-for t in clientflow.test workingdays.test pricing.test tenderpack.test seo.test editorial.test reach.test deletion.test bidcheck.test controlcheck.test interfacecheck.test challengecheck.test platformwrite.test engines.test l7-properties.test l7-kernel.test l7-engines.test l7-runtime.test architecture.test mock.test indexnow.test deploy.test mail.test pipeline.test concurrent.test store-kill.test; do
+for t in clientflow.test workingdays.test pricing.test tenderpack.test seo.test editorial.test reach.test deletion.test bidcheck.test controlcheck.test interfacecheck.test challengecheck.test platformwrite.test engines.test preflight.test mobile.test l7-properties.test l7-kernel.test l7-engines.test l7-runtime.test architecture.test mock.test indexnow.test deploy.test mail.test pipeline.test concurrent.test store-kill.test; do
   printf '  %-22s ' "$t"
   if node "backend/test/$t.mjs" > "$LOGS/$t.log" 2>&1; then echo "ok"; else echo "FAILED  → $LOGS/$t.log"; fail=1; fi
 done

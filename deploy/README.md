@@ -32,8 +32,12 @@ job that copies `backend/data` to object storage.
 On a fresh Ubuntu 22.04/24.04 box:
 
 ```bash
-# 1. Node 20 + Caddy
-curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs caddy
+# 1. Node 22 + Caddy
+#
+# NODE 22 IS THE FLOOR. The store uses node:sqlite from the standard library,
+# which does not exist before 22.5: on any earlier release the server dies on its first
+# import and no configuration fixes it. Check with `node -v` before going on.
+curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && apt-get install -y nodejs caddy
 
 # 2. App user + code
 useradd -r -m -d /opt/etablix etablix

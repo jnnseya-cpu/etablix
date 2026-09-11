@@ -343,8 +343,43 @@ td select {
 .btn-run:disabled { opacity: 0.55; cursor: wait; }
 
 @media (max-width: 700px) {
-  .topbar { padding: 0 16px; }
+  /* THE CONTROL DESK ON A PHONE.
+     The top bar was a single fixed-height flex row with
+     `justify-content: space-between` and no wrapping, holding a logo, a
+     pill, a strap, four quick-action buttons and the signed-in box. On a
+     390px screen the signed-in box started at x=385 and ran to x=963, so
+     the whole portal panned 574px sideways on every tab — and because the
+     bar is sticky, it panned there permanently.
+     It wraps onto as many rows as it needs now, and the pieces are allowed
+     to shrink. `height: auto` is the important half: a sticky element with
+     a fixed height cannot wrap, it can only overflow. */
+  .topbar {
+    padding: 9px 14px;
+    height: auto;
+    min-height: 62px;
+    flex-wrap: wrap;
+    row-gap: 8px;
+    gap: 10px;
+  }
   .topbar .env-tag { display: none; }
+  .topbar .brand-block, .topbar .user-box { min-width: 0; }
+  /* The user box holds six things — four quick actions, the name and sign
+     out — in one nowrap flex row. Letting the bar wrap moved it onto its
+     own line and it still ran 202px past the screen, because the row
+     itself does not wrap. It does now, and it takes the full width so the
+     actions sit under the brand rather than beside it. */
+  .topbar .user-box {
+    flex-wrap: wrap;
+    flex-basis: 100%;
+    gap: 8px;
+    justify-content: flex-start;
+    font-size: 0.82rem;
+  }
+  .topbar .user-box .btn-ghost { padding: 6px 10px; }
+  .topbar .desk-label { display: none; }
+  /* "Signed in as" is a label for a name that is already obviously a name. */
+  .topbar .user-box .who .signed-label { display: none; }
+  .topbar .user-box .who { text-align: left; }
   .main { padding: 20px 14px 50px; }
   .tabs { padding: 0 10px; }
 }

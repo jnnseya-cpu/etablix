@@ -242,26 +242,6 @@
   </div>
 </footer>
 
-<script type="module">
-  import { submitForm } from "/js/main.js";
-  import { SERVICES, SECTORS } from "/shared/constants.js";
-
-  function fill(select, options) {
-    for (const value of options) {
-      const opt = document.createElement("option");
-      opt.textContent = value;
-      select.appendChild(opt);
-    }
-  }
-  fill(document.getElementById("l-service"), SERVICES);
-  fill(document.getElementById("l-sector"), SECTORS);
-
-  const form = document.getElementById("lead-form");
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    submitForm(form, "/api/leads",
-      "✓ Enquiry received. We review your brief, confirm fit and confidentiality requirements, then schedule a discovery call.");
-  });
-</script>
+<script type="module" src="/js/contact.js"></script>
 </body>
 </html>

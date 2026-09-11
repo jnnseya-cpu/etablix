@@ -214,7 +214,9 @@ real database means replacing one module.
 The whole product is one Node.js server — public site, Control Desk, APIs
 and storage — so deployment is a single service:
 
-1. **Host**: any Node 18+ host works. Simplest routes: a VPS
+1. **Host**: Node **22 or later** — the store uses `node:sqlite` from the
+   standard library, which does not exist before 22.5, so an older runtime
+   dies on its first import. Simplest routes: a VPS
    (`git clone` → `npm install` → run under systemd/pm2 behind Caddy or
    nginx for HTTPS), or a platform service (Render / Railway / Fly.io)
    pointed at this repo with `npm start` as the start command.

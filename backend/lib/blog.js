@@ -218,8 +218,31 @@ function readPostFile(file) {
   return post;
 }
 
-const CATALOGUE = fs
-  .readdirSync(POST_DIR)
+/**
+ * The post directory, or nothing.
+ *
+ * This was a bare readdirSync at module scope, which means a missing
+ * content/blog directory did not degrade the blog — it stopped the server
+ * booting, with ENOENT on scandir, before a port was bound. The container
+ * image did not copy content/, so `docker build` produced an image that
+ * could not start; the Render route never showed it, because that build runs
+ * against the whole repository checkout and the directory was always there.
+ *
+ * The Dockerfile copies it now. This stays because a server that will not
+ * start is a worse failure than a site with no blog on it, and the next
+ * person to add a COPY line should not be able to cause the first one.
+ */
+function postFiles() {
+  try {
+    return fs.readdirSync(POST_DIR);
+  } catch (err) {
+    if (err.code !== "ENOENT") throw err;
+    console.error(`[blog] ${POST_DIR} is missing, so no posts are published. The site runs; the blog is empty. If this is a container, its build is not copying content/.`);
+    return [];
+  }
+}
+
+const CATALOGUE = postFiles()
   .filter((f) => f.endsWith(".json") && f !== "schedule.json")
   .sort()
   .map(readPostFile)

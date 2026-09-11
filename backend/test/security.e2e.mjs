@@ -101,5 +101,51 @@ fd.append("documents", new Blob(["x".repeat(50000)], { type: "text/plain" }), "n
 const bad = await fetch(`${B}/api/clients/portal/${"0".repeat(48)}/checklist/f-programme`, { method: "POST", body: fd });
 ok(bad.status === 404, "an upload to a portal link that does not exist is refused", await J(bad));
 
+
+/* ------------------------------------------------- the headers on every route */
+//
+// They existed only in deploy/Caddyfile, so two of the three supported
+// deployment routes — the Render blueprint and the nginx vhost — shipped with
+// none of them. A header set by the proxy is a header you have to remember to
+// set again every time you change how you host.
+
+console.log("\n--- the security headers, on every response\n");
+{
+  const head = async (p) => {
+    const r = await fetch(B + p);
+    const h = {};
+    for (const [k, v] of r.headers) h[k.toLowerCase()] = v;
+    return h;
+  };
+  for (const path of ["/", "/api/health", "/internal/login.html", "/js/home.js"]) {
+    const h = await head(path);
+    ok(Boolean(h["content-security-policy"]), `${path} carries a Content-Security Policy`);
+    ok(h["x-content-type-options"] === "nosniff", `${path} carries nosniff — this is why an uploaded .txt cannot become a page`);
+    ok(h["x-frame-options"] === "DENY", `${path} refuses to be framed`);
+    ok(Boolean(h["referrer-policy"]), `${path} carries a referrer policy`);
+  }
+
+  const csp = (await head("/")) ["content-security-policy"];
+  // THE LINE THAT MATTERS. With 'unsafe-inline' in script-src, any text that
+  // reaches a page as markup executes — which is the attack the policy exists
+  // to stop, so the policy would be decoration. Every inline script in this
+  // repository was moved into a file to make this assertion true.
+  ok(/script-src 'self'(;|$)/.test(csp), "script-src is 'self' with NO 'unsafe-inline'", csp);
+  ok(!/script-src[^;]*unsafe-eval/.test(csp), "and no 'unsafe-eval'");
+  ok(/object-src 'none'/.test(csp), "plugins are refused");
+  ok(/frame-ancestors 'none'/.test(csp), "framing is refused in the policy as well as the header");
+  ok(/form-action 'self'/.test(csp), "a form that posts anywhere but here is refused");
+  ok(/base-uri 'self'/.test(csp), "and <base> cannot be rewritten to redirect every relative URL");
+  // style-src keeps 'unsafe-inline' and that is deliberate: injected CSS
+  // cannot execute, and removing a hundred inline style attributes and every
+  // generated document's <style> block buys nothing for the risk.
+  ok(/style-src[^;]*unsafe-inline/.test(csp), "style-src keeps 'unsafe-inline' — a documented compromise, not an oversight");
+
+  // HSTS must NOT be sent over plain http: it would pin localhost to https
+  // in the developer's browser for a year.
+  const h = await head("/");
+  ok(!h["strict-transport-security"], "HSTS is not sent over plain http, which would pin a development machine to https for a year");
+}
+
 console.log(`\n=== ${pass} passed, ${fail} failed ===\n`);
 process.exit(fail ? 1 : 0);

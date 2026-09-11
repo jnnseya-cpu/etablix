@@ -18,6 +18,14 @@ services:
       mountPath: /opt/render/project/src/backend/data
       sizeGB: 1
     envVars:
+      # Node 22, not "whatever the platform defaults to". The store uses
+      # node:sqlite from the standard library, which does not exist before
+      # 22.5 — on Node 20 the process dies on its first import with
+      # ERR_UNKNOWN_BUILTIN_MODULE and no amount of environment variables
+      # fixes it. The Dockerfile has always pinned 22; this file did not,
+      # and a blueprint deploy took the platform default.
+      - key: NODE_VERSION
+        value: "22"
       - key: NODE_ENV
         value: production
       - key: ETABLIX_TOKEN_SECRET

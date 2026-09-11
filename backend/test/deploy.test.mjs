@@ -139,5 +139,66 @@ console.log("\n--- cron points at the repository\n");
      "and --status warns when an existing cron entry is still running the stale copy");
 }
 
+
+/* ----------------------------------------- the image copies what the app reads */
+//
+// THIS CHECK EXISTS BECAUSE THE CONTAINER COULD NOT BOOT.
+//
+// The Dockerfile copied backend, frontend and shared. backend/lib/blog.js
+// reads content/blog at module scope, so `docker run` died with ENOENT on
+// scandir before it bound a port — an image that builds cleanly and cannot
+// start. Nothing caught it: the Render route runs npm ci against the whole
+// repository checkout, so content/ was always present there, and the
+// container route is the one nobody had tried since the blog was added.
+//
+// So the rule is checked rather than remembered: every directory the
+// application reads from the repository root has to be in the image.
+
+console.log("\n--- the container image copies every directory the application reads\n");
+{
+  const docker = fs.readFileSync(path.join(root, "Dockerfile"), "utf8");
+  const copied = new Set(
+    [...docker.matchAll(/^COPY\s+([^\s]+)\s/gm)].map((m) => m[1].replace(/^\.\//, "").split("/")[0])
+  );
+
+  // What the application actually reads, found by reading it rather than by
+  // keeping a list in step with it.
+  const sources = [];
+  const walk = (dir) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) { if (e.name !== "test" && e.name !== "data") walk(full); continue; }
+      if (/\.(js|mjs)$/.test(e.name)) sources.push(full);
+    }
+  };
+  walk(path.join(root, "backend"));
+  ok(sources.length > 50, `${sources.length} application source files scanned`);
+
+  const needed = new Set();
+  for (const f of sources) {
+    const text = fs.readFileSync(f, "utf8");
+    for (const m of text.matchAll(/path\.join\(\s*root\s*,\s*"([^"]+)"/g)) needed.add(m[1]);
+  }
+  ok(needed.size > 0, `the application reads ${needed.size} path(s) from the repository root`, [...needed].join(", "));
+
+  const missing = [...needed].filter((d) => !copied.has(d));
+  ok(missing.length === 0,
+     `every root path the application reads is COPYed into the image (${[...needed].sort().join(", ")})`,
+     `NOT COPIED: ${missing.join(", ")} — the image would build and then fail to start`);
+
+  ok(copied.has("content"),
+     "content/ specifically, because the blog reads it at startup and a missing directory stopped the server rather than emptying the blog");
+}
+
+console.log("\n--- and a missing content directory no longer kills the server\n");
+{
+  const blog = fs.readFileSync(path.join(root, "backend", "lib", "blog.js"), "utf8");
+  ok(!/^const CATALOGUE = fs\s*\n\s*\.readdirSync/m.test(blog),
+     "the post directory is not read by a bare readdirSync at module scope");
+  ok(/ENOENT/.test(blog), "a missing directory is handled by code rather than by hoping");
+  ok(/the site runs; the blog is empty/i.test(blog) || /The site runs; the blog is empty/.test(blog),
+     "and the message says what the consequence is");
+}
+
 console.log(`\n=== ${pass} passed, ${fail} failed ===\n`);
 process.exit(fail ? 1 : 0);
