@@ -44,10 +44,31 @@ import { graph, explain, invalidate, propagateConfidence, validate as validateLi
 import { DEFAULT_RATES, estimate as estimateAcu, budgetState, budgetFor, priceCall, downgradeFrom } from "../lib/l7/acu.js";
 import { summary as spendSummary, forRun as spendForRun } from "../lib/l7/spend.js";
 import { STOP_RULES, create as createRun, shouldStop } from "../lib/l7/agentrun.js";
+import { FORMS, EVENTS, graph as clauseGraph, resolve as clauseResolve, compare as clauseCompare, validate as validateClauses } from "../lib/l7/clauses.js";
+import { setContract, recordEvent, live as contractLive, eventsFor, contractFor, awarenessOn, state as watchState } from "../lib/l7/watch.js";
+import { record as recordFact, correct as correctFact, asOf, history, reconstruct, snapshot, lateInformation, integrity as factIntegrity } from "../lib/l7/bitemporal.js";
+import { PARTITIONS, remember, propose, promote, recall, pending, prior, retire, state as memoryStateOf } from "../lib/l7/memory.js";
+import { PORTS, UNPORTED, bound as portsBound, compareSync as portCompareSync, noBusinessLogic, state as portStateOf } from "../lib/l7/ports.js";
+import { systemClock, fixedClock } from "../lib/l7/adapters/clock.js";
+import { memoryStore } from "../lib/l7/adapters/store.js";
+import { memoryFiles } from "../lib/l7/adapters/files.js";
 import { PIPELINE_AGENTS } from "../lib/ai.js";
 
 /** The agents a budget can be set against, from the registry rather than a list. */
 const PIPELINE_AGENT_IDS = [...PIPELINE_AGENTS].sort();
+
+/**
+ * The two adapters each port is compared across on the Controls page.
+ *
+ * Deliberately built fresh per request rather than held: a comparison run
+ * against a pair that accumulated state from the last run would pass for the
+ * wrong reason, and this page exists to be believed.
+ */
+function adaptersFor(id) {
+  if (id === "clock") return [systemClock, fixedClock("2026-09-11")];
+  if (id === "store") return [memoryStore(), memoryStore()];
+  return [memoryFiles(), memoryFiles()];
+}
 
 const router = Router();
 
@@ -288,6 +309,150 @@ router.post("/acu/price", (req, res) => {
     acu,
     cheaperRoute: b.call && b.call.model ? downgradeFrom(b.call.model) : null,
     budget: cap === null ? { state: "uncapped", say: "no cap was supplied" } : budgetState(Number(b.spent || 0) + acu, cap),
+  });
+});
+
+/* ---------------------------------------------------------------- L7.1 */
+
+/** GET /api/l7/contract — the forms, the events, and what is being watched. */
+router.get("/contract", (req, res) => {
+  res.json({
+    forms: Object.values(FORMS).map((f) => ({ id: f.id, name: f.name, note: f.note, clauses: f.clauses.length })),
+    events: EVENTS,
+    watch: watchState(),
+  });
+});
+
+/** GET /api/l7/contract/:project — one project's contract and its deadlines. */
+router.get("/contract/:project", (req, res) => {
+  const held = contractFor(req.params.project);
+  if (!held) return res.status(404).json({ error: "No contract is recorded for that project. That is a gap in the record, not an absence of obligation." });
+  res.json({
+    contract: held.row,
+    clauses: held.graph.live,
+    validation: validateClauses(held.graph),
+    events: eventsFor(req.params.project),
+    live: contractLive(req.params.project),
+  });
+});
+
+/** POST /api/l7/contract — record the contract a project is under. */
+router.post("/contract", (req, res) => {
+  const b = body(req);
+  const r = setContract({ project: b.project, form: b.form, amendments: b.amendments || [], by: b.by, note: b.note });
+  res.status(r.ok ? 201 : 400).json(r);
+});
+
+/** POST /api/l7/contract/event — record a site event and when awareness arose. */
+router.post("/contract/event", (req, res) => {
+  const b = body(req);
+  const r = recordEvent({ project: b.project, event: b.event, awareAt: b.awareAt, by: b.by, detail: b.detail, notifiedAt: b.notifiedAt });
+  res.status(r.ok ? 201 : 400).json(r);
+});
+
+/** POST /api/l7/contract/compare — the same event, put to several contracts. */
+router.post("/contract/compare", (req, res) => {
+  const b = body(req);
+  const forms = Array.isArray(b.forms) && b.forms.length ? b.forms : Object.keys(FORMS);
+  res.json(clauseCompare(forms, { event: b.event, trigger: b.trigger, awareAt: b.awareAt, now: b.now || null }));
+});
+
+/* ---------------------------------------------------------------- L7.4 */
+
+/** GET /api/l7/facts — the bitemporal store's own integrity and late list. */
+router.get("/facts", (req, res) => {
+  res.json({
+    integrity: factIntegrity(),
+    late: lateInformation({ entity: req.query.entity || null, thresholdDays: Number(req.query.thresholdDays) || 14 }),
+  });
+});
+
+/** GET /api/l7/facts/:entity — every version, both axes. */
+router.get("/facts/:entity", (req, res) => {
+  res.json({
+    entity: req.params.entity,
+    history: history(req.params.entity, req.query.field || null),
+    snapshot: snapshot({ entity: req.params.entity, validAt: req.query.validAt || null, knownAt: req.query.knownAt || null }),
+  });
+});
+
+/** POST /api/l7/facts — record one. Always an insert. */
+router.post("/facts", (req, res) => {
+  const b = body(req);
+  const r = b.correction
+    ? correctFact({ entity: b.entity, field: b.field, value: b.value, validFrom: b.validFrom, validTo: b.validTo, at: b.at, by: b.by, source: b.source, reason: b.reason })
+    : recordFact({ entity: b.entity, field: b.field, value: b.value, validFrom: b.validFrom, validTo: b.validTo, at: b.at, by: b.by, source: b.source, note: b.note });
+  res.status(r.ok ? 201 : 400).json(r);
+});
+
+/** POST /api/l7/facts/reconstruct — what was known when the decision was taken. */
+router.post("/facts/reconstruct", (req, res) => {
+  const b = body(req);
+  if (b.project && b.eventId) return res.json(awarenessOn({ project: b.project, eventId: b.eventId, decisionAt: b.decisionAt }));
+  res.json(reconstruct({ entity: b.entity, field: b.field, decisionAt: b.decisionAt }));
+});
+
+/** GET /api/l7/facts/as-of/:entity — one field, at a moment, as known at a moment. */
+router.get("/facts/as-of/:entity", (req, res) => {
+  res.json(asOf({ entity: req.params.entity, field: req.query.field, validAt: req.query.validAt || null, knownAt: req.query.knownAt || null }));
+});
+
+/* ---------------------------------------------------------------- L7.6 */
+
+/** GET /api/l7/memory — the partitions, what is in them, what is waiting. */
+router.get("/memory", (req, res) => {
+  res.json({
+    ...memoryStateOf(),
+    pending: pending(),
+    lessons: recall({ partition: "lessons" }).entries,
+    policy: recall({ partition: "policy" }).entries,
+  });
+});
+
+/** GET /api/l7/memory/prior/:key — a calibrated prior and what stands behind it. */
+router.get("/memory/prior/:key", (req, res) => {
+  res.json(prior(req.params.key, { minObservations: Number(req.query.min) || 5 }));
+});
+
+/** POST /api/l7/memory/propose — the only route into institutional memory. */
+router.post("/memory/propose", (req, res) => {
+  const b = body(req);
+  const r = propose({ key: b.key, value: b.value, evidence: b.evidence || [], by: b.by, kind: b.kind || "human", source: b.source, scope: b.scope, rationale: b.rationale });
+  res.status(r.ok ? 201 : 400).json(r);
+});
+
+/** POST /api/l7/memory/promote — a decision, by a named person with the role. */
+router.post("/memory/promote", (req, res) => {
+  const b = body(req);
+  const r = promote({ entryId: b.entryId, decision: b.decision || "APPROVED", by: b.by, role: b.role, reason: b.reason });
+  res.status(r.ok ? 200 : 400).json(r);
+});
+
+/** POST /api/l7/memory/remember — write to a non-institutional partition. */
+router.post("/memory/remember", (req, res) => {
+  const b = body(req);
+  const r = remember({ partition: b.partition, key: b.key, value: b.value, scope: b.scope, by: b.by, kind: b.kind || "human", source: b.source });
+  res.status(r.ok ? 201 : 400).json(r);
+});
+
+/** POST /api/l7/memory/retire — withdraw a lesson that has stopped being true. */
+router.post("/memory/retire", (req, res) => {
+  const b = body(req);
+  const r = retire({ entryId: b.entryId, by: b.by, role: b.role, reason: b.reason });
+  res.status(r.ok ? 200 : 400).json(r);
+});
+
+/* ---------------------------------------------------------------- L7.7 */
+
+/** GET /api/l7/ports — what is bound, what is not ported, and what conforms. */
+router.get("/ports", (req, res) => {
+  res.json({
+    ...portStateOf(),
+    // The conformance run, executed on this request rather than remembered.
+    conformance: ["clock", "store", "files"].map((id) => {
+      const r = portCompareSync(id, ...adaptersFor(id));
+      return { port: id, ok: r.ok, steps: r.steps, say: r.say, faults: r.faults };
+    }),
   });
 });
 

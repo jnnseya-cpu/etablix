@@ -246,6 +246,47 @@ export function sensitivity(input, step = 15) {
   };
 }
 
+/**
+ * Score a bid against what the business has actually learned.
+ *
+ * THIS IS WHAT MAKES A MEMORY WORTH HAVING, and it is deliberately narrow. A
+ * factor may cite an APPROVED lesson — never a proposal, never an agent's
+ * conclusion — and the citation changes nothing on its own: it supplies
+ * evidence to a factor somebody still has to score, and it says how many
+ * observations stand behind it.
+ *
+ * The refusal matters more than the use. A prior resting on two observations
+ * is an anecdote, and an anecdote quietly becoming a planning assumption is
+ * precisely how an ungoverned memory compounds an error across every future
+ * bid. So a thin prior is attached as context and explicitly NOT counted as
+ * evidence, and the factor reports it as unevidenced exactly as before.
+ */
+export function withPriors(input, priorFor, { minObservations = 5 } = {}) {
+  if (typeof priorFor !== "function") return { ...input, priorsUsed: [], priorsThin: [] };
+  const used = [];
+  const thin = [];
+  const factors = (input.factors || []).map((f) => {
+    const def = BY_ID.get(String(f.id || ""));
+    if (!def) return f;
+    let p = null;
+    try { p = priorFor(`bid.${def.id}`, { minObservations }); } catch { p = null; }
+    if (!p || !p.known) return f;
+    if (!p.enough) {
+      thin.push({ factor: def.id, observations: p.observations, say: p.say });
+      // Attached so a person can see it, and NOT added to the evidence list,
+      // so the score still reports the factor as resting on nothing.
+      return { ...f, priorContext: p.say };
+    }
+    used.push({ factor: def.id, value: p.value, observations: p.observations, approvedBy: p.approvedBy });
+    return {
+      ...f,
+      evidence: [...(f.evidence || []), `approved lesson bid.${def.id} (${p.observations} observations, promoted by ${p.approvedBy})`],
+      priorValue: p.value,
+    };
+  });
+  return { ...input, factors, priorsUsed: used, priorsThin: thin };
+}
+
 /** The facts the G0 gate reads. */
 export function gateFacts(result) {
   return { bidScore: { decided: result.decided === true, hardStops: result.hardStops.length } };

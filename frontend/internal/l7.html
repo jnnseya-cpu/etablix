@@ -97,21 +97,24 @@
     fetch("/api/l7/permissions", { headers: { Authorization: `Bearer ${token}` } }),
     fetch("/api/l7/model", { headers: { Authorization: `Bearer ${token}` } }),
     fetch("/api/l7/acu?days=90", { headers: { Authorization: `Bearer ${token}` } }),
+    fetch("/api/l7/contract", { headers: { Authorization: `Bearer ${token}` } }),
+    fetch("/api/l7/memory", { headers: { Authorization: `Bearer ${token}` } }),
+    fetch("/api/l7/ports", { headers: { Authorization: `Bearer ${token}` } }),
   ])
-    .then(async ([a, b, c, d]) => {
-      for (const res of [a, b, c, d]) {
+    .then(async ([a, b, c, d, e, f, g]) => {
+      for (const res of [a, b, c, d, e, f, g]) {
         if (res.status === 401) { sessionStorage.clear(); location.replace("/internal/login.html"); throw new Error("unauthorised"); }
         if (!res.ok) throw new Error(`${res.status} from ${res.url}`);
       }
-      return [await a.json(), await b.json(), await c.json(), await d.json()];
+      return [await a.json(), await b.json(), await c.json(), await d.json(), await e.json(), await f.json(), await g.json()];
     })
-    .then(([state, perms, model, spend]) => render(state, perms, model, spend))
+    .then(([state, perms, model, spend, contract, memory, ports]) => render(state, perms, model, spend, contract, memory, ports))
     .catch((err) => {
       if (err.message === "unauthorised") return;
       out.innerHTML = `<p class="err">The controls could not be run: ${esc(err.message)}. That is itself the answer to whether they work.</p>`;
     });
 
-  function render(state, perms, model, spend) {
+  function render(state, perms, model, spend, contract, memory, ports) {
     const m = state.measured;
     const h = state.health;
     const c = m.counts;
@@ -314,6 +317,81 @@
             service, because a tender price that is a language model's best recollection of
             multiplication is the most expensive thing this codebase could contain.
           </p>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-title">The contract each project is actually under</div>
+          <p class="note" style="margin:0 0 12px;">
+            ${esc(contract.watch.say)} The daily sweep resolves every recorded site event against that
+            project's own contract, so a Z-clause shortening eight weeks to fourteen days changes the
+            answer on identical facts. The graph holds structure and periods and never clause text:
+            a skeleton is unconfirmed until somebody loads the executed contract.
+          </p>
+          <table><thead><tr><th>Form</th><th class="rw" style="text-align:right;">Clauses</th></tr></thead>
+          <tbody>${contract.forms.map((f) => `<tr><td><b>${esc(f.name)}</b><div class="ev">${esc(f.note)}</div></td><td class="rw" style="text-align:right;">${f.clauses}</td></tr>`).join("")}</tbody></table>
+          ${contract.watch.projects.length ? `
+            <div class="panel-title" style="margin-top:16px;">Watched</div>
+            <table><thead><tr><th>Project</th><th>Form</th><th class="rw" style="text-align:right;">Running</th><th class="rw" style="text-align:right;">Lost</th></tr></thead>
+            <tbody>${contract.watch.projects.map((p) => `<tr>
+              <td>${esc(p.project)}</td><td>${esc(p.form || "—")}</td>
+              <td class="rw" style="text-align:right;">${p.deadlines}</td>
+              <td class="rw" style="text-align:right;" class="${p.barred ? "no" : ""}">${p.barred}</td>
+            </tr>`).join("")}</tbody></table>
+          ` : `<p class="note"><b>No project has a contract recorded.</b> A graph nobody loads is a data structure, and this page says so rather than showing an empty table as a clean result.</p>`}
+        </div>
+        <div class="panel">
+          <div class="panel-title">Memory, and the gate in front of it</div>
+          <p class="note" style="margin:0 0 12px;">${esc(memory.say)}</p>
+          <table><thead><tr><th>Partition</th><th>An agent may</th><th class="rw" style="text-align:right;">Entries</th></tr></thead>
+          <tbody>${memory.partitions.map((p) => `<tr>
+            <td><b>${esc(p.name)}</b><div class="ev">${esc(p.say)}</div></td>
+            <td>${p.agentMayWrite ? `<span class="yes">write</span>` : p.institutional ? `<span class="no">propose only</span>` : "—"}</td>
+            <td class="rw" style="text-align:right;">${p.entries}${p.proposed ? ` <span class="cap-none">+${p.proposed}</span>` : ""}</td>
+          </tr>`).join("")}</tbody></table>
+          <div class="num-row" style="margin-top:14px;">
+            <div class="num ${memory.pending ? "warn" : ""}"><div class="v">${memory.pending}</div><div class="l">Waiting on a person</div></div>
+            <div class="num ${memory.ungated ? "warn" : "good"}"><div class="v">${memory.ungated}</div><div class="l">Ungated, must be zero</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Ports, and whether the core could tell the adapters apart</div>
+        <p class="note" style="margin:0 0 12px;">
+          The usual form of "platform-agnostic core" is a description nothing tests. This is the only
+          form that can be checked: two genuinely different adapters per port, the same operations
+          run through both, and the differences reported. The run below happened on this request.
+        </p>
+        <div class="grid2">
+          <div>
+            <table><thead><tr><th>Port</th><th>Adapter</th><th>Conformance</th></tr></thead>
+            <tbody>${ports.bound.map((b) => {
+              const c = ports.conformance.find((x) => x.port === b.port);
+              return `<tr>
+                <td><b>${esc(b.name)}</b></td>
+                <td>${b.bound ? esc(b.adapter) : `<span class="no">UNBOUND</span>`}</td>
+                <td>${c ? (c.ok ? `<span class="yes">${c.steps} operations identical</span>` : `<span class="no">${esc(c.say)}</span>`) : `<span class="ev">not compared on this page</span>`}</td>
+              </tr>`;
+            }).join("")}</tbody></table>
+            <p class="note">${ports.noBusinessLogic.ok
+              ? `None of the ${ports.noBusinessLogic.adapters} adapters imports a domain module, and that is enforced by reading them rather than asked for in a comment.`
+              : `<span class="no">${esc(ports.noBusinessLogic.faults[0] || "an adapter carries domain logic")}</span>`}</p>
+          </div>
+          <div>
+            <div class="panel-title">Boundaries with no port</div>
+            <p class="note" style="margin:0 0 10px;">
+              Named rather than omitted. A port with no adapter behind it is a claim rather than a
+              capability, and declaring six of those would be the inert list this whole exercise
+              exists to remove.
+            </p>
+            <table><thead><tr><th>Boundary</th><th>State</th></tr></thead>
+            <tbody>${ports.unported.map((u) => `<tr>
+              <td><b>${esc(u.name)}</b><div class="ev">${esc(u.say)}</div></td>
+              <td><span class="state ${u.state === "absent" ? "absent" : "partial"}">${esc(u.state)}</span></td>
+            </tr>`).join("")}</tbody></table>
+          </div>
         </div>
       </div>
 

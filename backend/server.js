@@ -37,6 +37,7 @@ import automationRoutes from "./routes/automation.js";
 import commercialRoutes from "./routes/commercial.js";
 import orgRoutes from "./routes/org.js";
 import l7Routes from "./routes/l7.js";
+import { bindPorts } from "./lib/l7/bootstrap.js";
 import docsRoutes from "./routes/docs.js";
 import agentRoutes, { failOrphanedRuns, sweepRunPacks } from "./routes/agents.js";
 import paymentRoutes from "./routes/payments.js";
@@ -124,6 +125,18 @@ app.get("/api/health/detail", requireAuth, requireRole(ROLES.ADMIN), (req, res) 
   });
 });
 app.get("/api/human-check", (req, res) => res.json(issueChallenge())); // anti-bot challenge for the public forms
+// Every external dependency is bound to its port here, once, before a route
+// can ask for one. A port with nothing bound to it throws rather than falling
+// back, so a missing adapter is found at startup instead of on the first
+// request that needed it.
+{
+  const ports = bindPorts();
+  if (!ports.ok) {
+    console.error("[ports] " + ports.faults.join("; "));
+    throw new Error("An adapter does not satisfy its port. The application will not start with a port unbound.");
+  }
+}
+
 app.use("/api/auth", authRoutes);
 app.use("/api/leads", leadRoutes);
 app.use("/api/subcontractors", subcontractorRoutes);

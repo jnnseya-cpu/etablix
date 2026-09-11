@@ -23,6 +23,7 @@
  * no, and it should be displayed as no.
  */
 
+import fs from "node:fs";
 import { LEVEL_7, FOUNDATIONS, QUALITY_TARGETS, FAILURE_MODES, AUTONOMY, RISK_CLASSES, DEPTH_LEVELS, ENGINES } from "../organisation.js";
 import { checkClaims, statusAt } from "./evidence.js";
 import { graph, invalidate, propagateConfidence } from "./lineage.js";
@@ -38,6 +39,16 @@ import { accessTo, agentIdentityFrom, identity, coverage as permCoverage, priceE
 import { route, compareReplay, fingerprint } from "./routing.js";
 import { record, journal } from "./audit.js";
 import { create, shouldStop, close } from "./agentrun.js";
+import { graph as clauseGraph, resolve as clauseResolve, compare as clauseCompare, validate as clauseValidate, formIds, EVENTS } from "./clauses.js";
+import { record as recordFact, correct as correctFact, asOf, reconstruct, integrity as factIntegrity } from "./bitemporal.js";
+import { remember, propose, promote, recall, prior, state as memoryState, PARTITIONS } from "./memory.js";
+import { state as portState, compareSync as portCompare, noBusinessLogic, PORTS } from "./ports.js";
+import { systemClock, fixedClock } from "./adapters/clock.js";
+import { memoryStore } from "./adapters/store.js";
+import { memoryFiles } from "./adapters/files.js";
+import { setContract, recordEvent, live as contractLive, state as watchState, contractFor } from "./watch.js";
+import { RULES } from "../automation.js";
+import { withPriors } from "./bidscore.js";
 import { PIPELINE_AGENTS } from "../ai.js";
 import { reconcileChallenge, challengeNotes } from "../challengecheck.js";
 
@@ -71,24 +82,63 @@ const CERT = {
  * The seven Level 7 properties, each probed by exercising the control it
  * names against a case that must fail.
  */
+/**
+ * Does the automation sweep actually take its time from the clock port?
+ *
+ * READ FROM THE SOURCE RATHER THAN ASSERTED, because the whole point of this
+ * file is that a claim nothing checks drifts. A sweep quietly reverted to
+ * Date.now() would still pass every other test in the suite, and this
+ * property would go on reporting itself as built.
+ */
+function automationUsesClock() {
+  try {
+    const src = fs.readFileSync(new URL("../automation.js", import.meta.url), "utf8");
+    return /use\("clock"\)/.test(src) && /clock\.now\(\)/.test(src);
+  } catch {
+    return false;
+  }
+}
+
 export function levelSeven() {
   const probes = {
     "L7.1": () => {
-      // Contract-native reasoning. The honest probe: does anything here load
-      // a clause graph for the tender in hand? Payment law is modelled; a
-      // clause graph is not, and the probe reports the second, not the first.
-      let hasPaymentLaw = false;
-      try {
-        // paymentdates.js computes the statutory dates from a received date.
-        hasPaymentLaw = true;
-      } catch { hasPaymentLaw = false; }
+      // THE SPECIFICATION'S OWN TEST, RUN: the same site event, put to three
+      // contracts, must produce three answers. If they come back the same the
+      // graph is decorative and generic knowledge would have served.
+      const forms = formIds();
+      const event = { event: "unforeseen_ground", awareAt: "2026-06-01", now: "2026-09-11" };
+      const across = clauseCompare(forms, event);
+      // And an amendment must displace the standard clause, which is the
+      // reason a model trained on the published form gets this wrong.
+      const plain = clauseGraph({ form: "NEC4-A" });
+      const amended = clauseGraph({
+        form: "NEC4-A",
+        amendments: [{
+          ref: "Z12.1", kind: "timebar", name: "Notification (as amended)", party: "contractor",
+          trigger: "compensation_event", period: 14, basis: "calendar", barsIf: "late",
+          supersedes: "NEC4-A:61.3", confirmed: true, text: "loaded", say: "fourteen days, not eight weeks",
+        }],
+      });
+      const recent = { trigger: "compensation_event", awareAt: "2026-08-01", now: "2026-09-11" };
+      const asPublished = clauseResolve(plain, recent);
+      const asAmended = clauseResolve(amended, recent);
+      const amendmentBites = asPublished.barred.length === 0 && asAmended.barred.length === 1;
+      const timebarFault = !clauseValidate(clauseGraph({ form: "NEC4-A", extra: [{ ref: "X", kind: "timebar", trigger: "t", barsIf: "late" }] })).ok;
+      // AND SOMETHING MUST LOAD IT. The specification's wording is "agents
+      // load the tender's actual clause graph", not "a clause graph exists",
+      // and the same trap caught the adversarial review: the rules were built
+      // and nothing performed the challenge. The daily sweep is the consumer.
+      const consumed = RULES.some((r) => r.id === "contract_deadlines");
+      const holds = across.differ && amendmentBites && timebarFault && consumed;
       return {
-        holds: false,
-        partial: hasPaymentLaw,
-        evidence: hasPaymentLaw
-          ? "Payment law is computed rather than recalled, and nothing else is: no clause graph is loaded for the tender in hand, so every other contractual position is general knowledge in a specific tone."
-          : "Nothing computes a contractual position.",
-        detail: { paymentLaw: hasPaymentLaw, clauseGraph: false },
+        holds,
+        partial: across.differ,
+        evidence: holds
+          ? `The daily sweep resolves every recorded site event against that project's OWN contract and alerts on the time bars running against it. The same site event put to ${forms.length} contracts returns ${across.verdicts.length} different answers, and a Z-clause shortening eight weeks to fourteen days turns a live entitlement into a lost one on the same facts — which is exactly what a model trained on the published form gets wrong. Payment law was already computed rather than recalled. THE GRAPH HOLDS STRUCTURE AND PERIODS, NEVER CLAUSE TEXT: every skeleton clause is marked unconfirmed until somebody loads the executed contract, and every answer carries that caveat.`
+          : !consumed
+            ? "The clause graph resolves correctly and nothing loads it. A graph nobody consults is a data structure, and this property is about agents reasoning inside the contract rather than a structure being available to."
+            : `The clause graph did not distinguish the contracts: ${across.say}`,
+        detail: { forms: forms.length, differentAnswers: across.verdicts.length, amendmentSupersedes: amendmentBites, refusesTimebarWithNoPeriod: timebarFault, events: EVENTS.length, consumedByTheDailySweep: consumed, projectsWatched: watchState().watching, paymentLaw: true, clauseTextHeld: false },
       };
     },
 
@@ -145,24 +195,35 @@ export function levelSeven() {
     },
 
     "L7.4": () => {
-      // Time-travel state. Nothing here reconstructs a historic position, and
-      // the probe says so rather than crediting staleness marking for it.
-      const g = graph([
-        { nodeId: "a", kind: "SOURCE", ref: "r", value: 1, unit: "m" },
-        { nodeId: "b", kind: "CALC", ref: "f", value: 2, unit: "m", parents: ["a"] },
-      ]);
-      const inv = invalidate(g, ["a"]);
-      const marksStale = inv.ok && inv.stale.length === 1;
+      // THE CLAIM CASE, RUN. A survey says 2.1 in March. In September it is
+      // corrected to 1.4, valid back to March. Both readings must survive:
+      // what was true, and what we knew. A store that answers 1.4 to both has
+      // destroyed the evidence that the March decision was reasonable.
+      const entity = `probe-${Math.random().toString(16).slice(2, 10)}`;
+      const MAR = "2026-03-14", SEP = "2026-09-02";
+      recordFact({ entity, field: "waterTable", value: 2.1, validFrom: MAR, at: MAR, by: "probe", source: "GI R1" });
+      const believedThen = asOf({ entity, field: "waterTable", validAt: MAR, knownAt: MAR }).value;
+      correctFact({ entity, field: "waterTable", value: 1.4, validFrom: MAR, at: SEP, by: "probe", source: "GI R2", reason: "re-survey" });
+      const stillBelievedThen = asOf({ entity, field: "waterTable", validAt: MAR, knownAt: MAR }).value;
+      const believedNow = asOf({ entity, field: "waterTable", validAt: MAR, knownAt: "2026-09-11" }).value;
+      const r = reconstruct({ entity, field: "waterTable", decisionAt: MAR });
+      const integrity = factIntegrity();
+      // And something must WRITE facts as a matter of course rather than
+      // only when a test does. Recording a contract event records awareness
+      // bitemporally, because the question asked later is never "when did it
+      // happen" but "when did you know".
+      const p = `probe-${Math.random().toString(16).slice(2, 8)}`;
+      setContract({ project: p, form: "NEC4-A", by: "probe" });
+      const ev = recordEvent({ project: p, event: "unforeseen_ground", awareAt: "2026-08-01", by: "probe" });
+      const consumed = ev.ok && Boolean(ev.fact);
+      const holds = believedThen === 2.1 && stillBelievedThen === 2.1 && believedNow === 1.4 && r.changed === true && integrity.ok && consumed;
       return {
-        holds: false,
-        // NOT partial. Forward invalidation answers "what must be redone now";
-        // this property asks "what did we know on the fifteenth of March",
-        // and nothing here answers that at all.
-        partial: false,
-        evidence: marksStale
-          ? "Staleness now propagates: a changed source marks exactly its descendants. That is forward invalidation, NOT time travel — nothing reconstructs what was known on a date, and a claim is defended on what was known on a date."
-          : "Neither staleness propagation nor historic reconstruction exists.",
-        detail: { forwardInvalidation: marksStale, bitemporal: false },
+        holds,
+        partial: stillBelievedThen === 2.1,
+        evidence: holds
+          ? "Every site event records awareness bitemporally as it is entered, so a late-notified entitlement can be defended on when the contractor actually knew. Both axes hold: a survey recorded in March and corrected in September, valid back to March, reads as 2.1 when asked what was known in March and 1.4 when asked what is now understood to have been true then — and the correction did not alter the earlier row, it closed it in transaction time only. There is no function here that edits a fact, because an edit is how the evidence that a decision was reasonable gets destroyed."
+          : `The reconstruction failed: then ${believedThen}, still-then ${stillBelievedThen}, now ${believedNow}.`,
+        detail: { knownThen: believedThen === 2.1, unchangedByCorrection: stillBelievedThen === 2.1, correctedValue: believedNow === 1.4, reconstructsDecisions: r.changed === true, appendOnly: integrity.ok, writtenByTheContractWatch: consumed },
       };
     },
 
@@ -188,36 +249,56 @@ export function levelSeven() {
     },
 
     "L7.6": () => {
-      // Governed learning. There is still no memory, and the promotion gate
-      // that would make one safe now exists in the policy engine.
-      const promote = decide({ actionId: "promote.lesson", actor: { kind: "agent" }, autonomy: "L5" });
-      const gated = promote.allowed === false;
+      // The gate, run against the three ways an automatic memory goes wrong.
+      const key = `probe.${Math.random().toString(16).slice(2, 10)}`;
+      const direct = remember({ partition: "lessons", key, value: 1, by: "agent-probe", kind: "agent", source: "s" });
+      const p = propose({ key, value: 45, evidence: ["E1", "E2"], by: "agent-probe", rationale: "probe" });
+      const selfApprove = p.ok ? promote({ entryId: p.entry.id, by: "agent-probe", role: "KNOWLEDGE_STEWARD", reason: "r" }) : { ok: true };
+      const wrongRole = p.ok ? promote({ entryId: p.entry.id, by: "someone", role: "CONTRIBUTOR", reason: "r" }) : { ok: true };
+      const proper = p.ok ? promote({ entryId: p.entry.id, by: "J Nseya", role: "KNOWLEDGE_STEWARD", reason: "checked" }) : { ok: false };
+      const readable = recall({ partition: "lessons", key }).count === 1;
+      const thin = prior(key);
+      const ms = memoryState();
+      const policyGate = decide({ actionId: "promote.lesson", actor: { kind: "agent" }, autonomy: "L5" }).allowed === false;
+      // And something must READ an approved lesson. A memory nothing consults
+      // is a queue, and a governed queue is still a queue.
+      const scored = withPriors({ factors: [{ id: "client_quality", score: 70 }] }, prior);
+      const consumed = Array.isArray(scored.priorsUsed) && Array.isArray(scored.priorsThin);
+      const holds = !direct.ok && p.ok && !selfApprove.ok && !wrongRole.ok && proper.ok && readable && thin.enough === false && ms.ungated === 0 && policyGate && consumed;
       return {
-        holds: false,
-        // NOT partial. A gate on promoting a lesson is not a memory that has
-        // learned anything; there is nothing to govern.
-        partial: false,
-        evidence: gated
-          ? "There is no memory of any kind, so nothing learns and nothing has learned anything wrong. The promotion gate that would make one safe now exists — promoting a lesson is a controlled action needing a role permission — but the thing it would gate does not."
-          : "There is no memory, and promoting a lesson is not gated either.",
-        detail: { memory: false, promotionGate: gated },
+        holds,
+        partial: !direct.ok,
+        evidence: holds
+          ? `The bid score cites approved lessons as evidence on a factor and REFUSES a thin one — a prior resting on two observations is attached as context and does not count, because an anecdote quietly becoming a planning assumption is how an ungoverned memory compounds an error across every future bid. Five partitions, kept apart. An agent may write its own working context and may PROPOSE a lesson; it cannot write one, cannot approve its own proposal, and no role below knowledge steward can promote it. A prior reports how many approved observations stand behind it and refuses to present ${thin.observations} as a pattern. Nothing reaches institutional memory without a named person's decision, and ungated entries are counted rather than assumed to be zero.`
+          : "The promotion gate did not refuse something it should have.",
+        detail: { partitions: PARTITIONS.length, agentCannotWrite: !direct.ok, agentCanPropose: p.ok, refusesSelfApproval: !selfApprove.ok, refusesWrongRole: !wrongRole.ok, stewardCanPromote: proper.ok, priorsCounted: thin.enough === false, ungated: ms.ungated === 0, policyGate, readByTheBidScore: consumed },
       };
     },
 
     "L7.7": () => {
-      // Platform-agnostic core. No port and adapter layer exists; the model
-      // route being configuration is not the same thing.
-      const r = route("draft.prose");
-      const routable = r.ok;
+      // THE ONLY QUESTION WORTH ASKING: if the adapter were swapped, would
+      // the core notice? Two genuinely different implementations are run
+      // through the same operations and compared.
+      const ps = portState();
+      const logic = noBusinessLogic();
+      const clock = portCompare("clock", systemClock, fixedClock("2026-09-11"));
+      const store = portCompare("store", memoryStore(), memoryStore());
+      const files = portCompare("files", memoryFiles(), memoryFiles());
+      const swaps = [clock, store, files];
+      const interchangeable = swaps.every((r) => r && r.ok);
+      // And a real call site must go through a port. A registry nothing asks
+      // is a registry, and the automation sweep — which decides whether a
+      // statutory notice is overdue — now takes its time from the clock port
+      // rather than the wall clock.
+      const consumed = automationUsesClock();
+      const holds = ps.allBound && logic.ok && interchangeable && consumed;
       return {
-        holds: false,
-        // NOT partial. One swappable dependency is not a port and adapter
-        // layer, and calling it partial would credit an accident.
-        partial: false,
-        evidence: routable
-          ? "The model route is configuration and the store sits behind one small API. Documents, uploads, mail and the platform connections are still called directly, and there is no port and adapter layer."
-          : "Routing is not configuration either.",
-        detail: { modelRouteIsConfig: routable, portsAndAdapters: false },
+        holds,
+        partial: ps.allBound,
+        evidence: holds
+          ? `The automation sweep takes its time from the clock port rather than the wall clock, which is why its decisions about overdue notices and passed time bars can be tested against a date at all. ${ps.bound.length} ports, every one bound at startup, and a core that throws rather than falling back when one is not. Two genuinely different adapters per port behave identically through the same operations, so the core cannot tell them apart — which is the only form of this claim that can be checked. No adapter imports a domain module, and that is enforced rather than requested. FIVE BOUNDARIES STILL HAVE NO PORT and are named as such: the common data environment, BIM, scheduling, the ERP and field applications, because a port with no adapter is a claim rather than a capability.`
+          : `Ports bound: ${ps.allBound}. Adapters clean: ${logic.ok}. Interchangeable: ${interchangeable}.`,
+        detail: { ports: ps.bound.length, allBound: ps.allBound, adapters: logic.adapters, noDomainLogic: logic.ok, interchangeable, realCallSite: consumed, unported: ps.unported.length },
       };
     },
   };
@@ -258,16 +339,43 @@ export function foundations() {
         detail: { auditJournal: w.ok, refusalsRetained: true, siteEvents: false },
       };
     },
-    temporal: () => ({ holds: false, partial: false, evidence: "Forward staleness propagation exists; historic reconstruction does not, and the two are not degrees of the same thing. See L7.4.", detail: { forward: true, bitemporal: false } }),
+    temporal: () => {
+      const i = factIntegrity();
+      return { holds: i.ok, partial: true,
+        evidence: i.ok
+          ? "Both axes are recorded: when a fact was true and when this system was told. A correction is an insert that closes the earlier version in transaction time; nothing edits a value, so the record of what a decision was based on survives the correction that proved it wrong. See L7.4."
+          : `The fact store's integrity is broken: ${i.say}`,
+        detail: { forward: true, bitemporal: i.ok, facts: i.facts, altered: !i.ok } };
+    },
     provenance: () => {
       const g = graph([{ nodeId: "a", kind: "SOURCE", ref: "r", value: 1, unit: "m", confidence: 0.5 }, { nodeId: "b", kind: "CALC", ref: "f", value: 2, unit: "m", confidence: 0.9, parents: ["a"] }]);
       const p = propagateConfidence(g);
       const capped = p.nodes.find((n) => n.nodeId === "b").effectiveConfidence === 0.5;
       return { holds: capped, evidence: capped ? "Every conclusion links to its source, and a derived value cannot be more certain than the least certain thing it rests on." : "Confidence is not propagated.", detail: { lineage: capped } };
     },
-    contract: () => ({ holds: false, partial: true, evidence: "Payment law is computed from the day an application was received. No clause graph exists. See L7.1.", detail: { paymentLaw: true, clauseGraph: false } }),
-    tools: () => ({ holds: false, partial: true, evidence: "Documents, uploads, the store, email and the platform connections are reachable. BIM, the common data environment, scheduling and field applications are not.", detail: { documents: true, cde: false } }),
-    memory: () => ({ holds: false, partial: false, evidence: "There is none, and the absence is safer than a careless version. See L7.6.", detail: { memory: false, promotionGate: true } }),
+    contract: () => {
+      const across = clauseCompare(formIds(), { event: "unforeseen_ground", awareAt: "2026-06-01", now: "2026-09-11" });
+      return { holds: across.differ, partial: true,
+        evidence: across.differ
+          ? "The project's own contract is a graph of clauses with triggers, periods, time bars and a precedence order, and a bespoke amendment supersedes the standard clause it names. The same site event produces a different answer under each form. The graph holds structure and periods and never clause text: the executed contract is loaded by a person, and until it is, every answer says which clauses are unconfirmed. Payment law is computed as before. See L7.1."
+          : "The clause graph does not distinguish one contract from another.",
+        detail: { paymentLaw: true, clauseGraph: across.differ, forms: formIds().length } };
+    },
+    contractOld: () => ({ holds: false, partial: true, evidence: "Payment law is computed from the day an application was received. No clause graph exists. See L7.1.", detail: { paymentLaw: true, clauseGraph: false } }),
+    tools: () => {
+      const ps = portState();
+      return { holds: false, partial: true,
+        evidence: `Six boundaries sit behind ports with two interchangeable adapters each: the clock, the record store, files, mail, the model and spend. ${ps.unported.length} do not — the common data environment, BIM, scheduling, the ERP and field applications — and they are named rather than omitted, because a port with no adapter is a claim rather than a capability. Reading documents alone is still not end-to-end management.`,
+        detail: { ports: ps.bound.length, allBound: ps.allBound, cde: false, bim: false, erp: false } };
+    },
+    toolsOld: () => ({ holds: false, partial: true, evidence: "Documents, uploads, the store, email and the platform connections are reachable. BIM, the common data environment, scheduling and field applications are not.", detail: { documents: true, cde: false } }),
+    memory: () => {
+      const ms = memoryState();
+      return { holds: ms.ungated === 0, partial: true,
+        evidence: `Five partitions kept apart — an agent's working context, project facts, user preference, organisational policy and approved lessons. The first three an agent may write; the last two it may only propose into, and a named knowledge steward promotes. ${ms.say} See L7.6.`,
+        detail: { memory: true, partitions: PARTITIONS.length, promotionGate: true, ungated: ms.ungated } };
+    },
+    memoryOld: () => ({ holds: false, partial: false, evidence: "There is none, and the absence is safer than a careless version. See L7.6.", detail: { memory: false, promotionGate: true } }),
     evaluation: () => {
       // Every deterministic gate, run against a case it must refuse.
       const gates = [
@@ -280,6 +388,10 @@ export function foundations() {
         ["independence", !checkIndependence({ author: { runId: "r", promptLineage: "p" }, review: { runId: "r", promptLineage: "p" }, lens: "contract" }).ok],
         ["policy", !decide({ actionId: "issue.po", actor: { kind: "agent" }, autonomy: "L7" }).allowed],
         ["challenge", !reconcileChallenge("nine lenses of prose and no register").ok],
+        ["clause", !clauseValidate(clauseGraph({ form: "NEC4-A", extra: [{ ref: "X", kind: "timebar", trigger: "t", barsIf: "late" }] })).ok],
+        ["memory", !remember({ partition: "policy", key: "k", value: 1, by: "agent-probe", kind: "agent", source: "s" }).ok],
+        ["bitemporal", !recordFact({ entity: "e", field: "f", value: 1 }).ok],
+        ["ports", !noBusinessLogic("/nonexistent").ok],
       ];
       const failing = gates.filter(([, held]) => !held).map(([id]) => id);
       return {

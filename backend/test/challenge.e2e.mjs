@@ -150,7 +150,14 @@ console.log("\n--- what the register now says about it\n");
   ok(l73?.state === "built", `the adversarial self-challenge property is now built (${l73?.state})`);
   ok(l73?.detail?.challengerAgentExists === true, "because the challenger exists, read from the pipeline registry rather than typed");
   ok(g.body.measured?.drift?.levelSeven?.length === 0, "and the register agrees with the measurement", g.body.measured?.drift);
-  ok(g.body.measured?.counts?.l7Built === 3, `three of seven Level 7 properties built (${g.body.measured?.counts?.l7Built})`);
+  // NOT A COUNT. This used to assert "three of seven built", which was true
+  // the day it was written and broke the moment another property landed —
+  // a test that fails when unrelated work succeeds teaches people to edit
+  // tests rather than read them. What this suite actually cares about is
+  // that the challenger closed L7.3 and the register did not drift.
+  ok(l73?.measured === true, "measured by running the control rather than read from a column");
+  ok(g.body.measured?.counts?.l7Built >= 3,
+     `at least the three properties this agent depends on are built (${g.body.measured?.counts?.l7Built} of 7)`);
 }
 
 console.log(`\n=== ${pass} passed, ${fail} failed ===\n`);

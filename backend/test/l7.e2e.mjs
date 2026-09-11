@@ -57,6 +57,22 @@ const GUARDED = [
   ["GET", "/api/l7/acu"],
   ["GET", "/api/l7/acu/run/anything"],
   ["POST", "/api/l7/acu/price"],
+  ["GET", "/api/l7/contract"],
+  ["GET", "/api/l7/contract/anything"],
+  ["POST", "/api/l7/contract"],
+  ["POST", "/api/l7/contract/event"],
+  ["POST", "/api/l7/contract/compare"],
+  ["GET", "/api/l7/facts"],
+  ["GET", "/api/l7/facts/anything"],
+  ["POST", "/api/l7/facts"],
+  ["POST", "/api/l7/facts/reconstruct"],
+  ["GET", "/api/l7/memory"],
+  ["GET", "/api/l7/memory/prior/anything"],
+  ["POST", "/api/l7/memory/propose"],
+  ["POST", "/api/l7/memory/promote"],
+  ["POST", "/api/l7/memory/remember"],
+  ["POST", "/api/l7/memory/retire"],
+  ["GET", "/api/l7/ports"],
 ];
 for (const [method, path] of GUARDED) {
   const r = await fetch(`${BASE}${path}`, { method, headers: { "content-type": "application/json" }, body: method === "POST" ? "{}" : undefined });
@@ -224,6 +240,96 @@ console.log("\n--- what the agents have cost\n");
   ok(/api\/l7\/acu/.test(html), "the internal page reads the spend");
   ok(/Metering is not capping/.test(html), "and states on the page itself that nothing is capped by default");
   ok(/ACU per run|ACU spent/.test(html), "showing the cost per run, which nothing could state before");
+}
+
+console.log("\n--- the last four properties, over the wire\n");
+{
+  const j = await (await get("/api/l7")).json();
+  ok(j.measured.counts.l7Built === 7, `all seven Level 7 properties measure as built (${j.measured.counts.l7Built})`, j.measured.say);
+  ok(j.measured.drift.levelSeven.length === 0, "and the register agrees with the measurement", j.measured.drift);
+  const l71 = j.measured.levelSeven.find((p) => p.id === "L7.1");
+  ok(l71.detail.consumedByTheDailySweep === true,
+     "the clause graph is CONSUMED by the daily sweep, not merely available — a graph nobody loads is a data structure");
+  const l74 = j.measured.levelSeven.find((p) => p.id === "L7.4");
+  ok(l74.detail.writtenByTheContractWatch === true, "and site events write awareness bitemporally as they are entered");
+  const l76 = j.measured.levelSeven.find((p) => p.id === "L7.6");
+  ok(l76.detail.readByTheBidScore === true, "the bid score reads approved lessons");
+  const l77 = j.measured.levelSeven.find((p) => p.id === "L7.7");
+  ok(l77.detail.realCallSite === true, "and a real call site goes through a port");
+}
+{
+  const j = await (await get("/api/l7/contract")).json();
+  ok(j.forms.length === 3, "three standard forms are served", j.forms.map((f) => f.id));
+  ok(j.events.length === 5, "and five canonical site events");
+}
+{
+  const j = await (await post("/api/l7/contract/compare", { event: "unforeseen_ground", awareAt: "2026-06-01", now: "2026-09-11" })).json();
+  ok(j.differ, "THE SAME SITE EVENT RETURNS DIFFERENT ANSWERS FROM DIFFERENT CONTRACTS, over the wire", j.verdicts);
+  ok(j.answers.length === 3, "one answer per contract");
+  ok(j.answers.some((a) => a.barred && a.barred.length) && j.answers.some((a) => a.barred && a.barred.length === 0),
+     "one form bars the entitlement outright and another does not");
+}
+{
+  const project = `e2e-${Date.now().toString(36)}`;
+  let r = await post("/api/l7/contract", { project, form: "NEC4-A", by: "e2e" });
+  ok(r.status === 201, `a contract records (${r.status})`);
+  r = await post("/api/l7/contract", { project, form: "INVENTED", by: "e2e" });
+  ok(r.status === 400, "a form with no skeleton is refused");
+  r = await post("/api/l7/contract/event", { project, event: "unforeseen_ground", awareAt: "2026-07-20", by: "Site manager" });
+  ok(r.status === 201, `a site event records (${r.status})`);
+  const ev = await r.json();
+  ok(Boolean(ev.fact), "and writes awareness as a bitemporal fact");
+  r = await post("/api/l7/contract/event", { project, event: "unforeseen_ground", awareAt: "soon", by: "x" });
+  ok(r.status === 400, "an awareness date that is not a date is refused");
+  const held = await (await get(`/api/l7/contract/${project}`)).json();
+  ok(held.live.ok && held.live.deadlines.length >= 1, "the project's deadlines read back", held.live.say);
+  ok(held.validation.ok, "and its clause graph validates");
+  const j = await (await post("/api/l7/facts/reconstruct", { project, eventId: ev.event.id, decisionAt: "2026-07-01" })).json();
+  ok(j.knownThen === null, "before the event was recorded, we did not know — and the record says so rather than showing today's value");
+}
+{
+  const entity = `e2e-${Date.now().toString(36)}`;
+  let r = await post("/api/l7/facts", { entity, field: "waterTable", value: 2.1, validFrom: "2026-03-14", at: "2026-03-14", by: "e2e", source: "R1" });
+  ok(r.status === 201, "a fact records");
+  r = await post("/api/l7/facts", { entity, field: "x", value: 1, source: "s", validFrom: "whenever" });
+  ok(r.status === 400, "AN UNREADABLE valid-from IS REFUSED rather than quietly becoming the recording time");
+  r = await post("/api/l7/facts", { entity, field: "waterTable", value: 1.4, validFrom: "2026-03-14", at: "2026-09-02", by: "e2e", source: "R2", correction: true, reason: "re-survey" });
+  ok(r.status === 201, "and a correction records");
+  const then = await (await get(`/api/l7/facts/as-of/${entity}?field=waterTable&validAt=2026-03-14&knownAt=2026-03-14`)).json();
+  const now = await (await get(`/api/l7/facts/as-of/${entity}?field=waterTable&validAt=2026-03-14&knownAt=2026-09-11`)).json();
+  ok(then.value === 2.1 && now.value === 1.4,
+     "what we knew in March and what we now say was true in March are both readable, and both true", `${then.value} / ${now.value}`);
+  const h = await (await get(`/api/l7/facts/${entity}?field=waterTable`)).json();
+  ok(h.history.length === 2, "both versions survive — the wrong one is the evidence");
+  const f = await (await get("/api/l7/facts")).json();
+  ok(f.integrity.ok, "and the store's integrity holds", f.integrity.say);
+}
+{
+  const key = `e2e.${Date.now().toString(36)}`;
+  let r = await post("/api/l7/memory/remember", { partition: "lessons", key, value: 1, by: "agent-9", kind: "agent", source: "s" });
+  ok(r.status === 400, "AN AGENT CANNOT WRITE A LESSON, over the wire as anywhere else");
+  r = await post("/api/l7/memory/propose", { key, value: 45, evidence: ["A", "B"], by: "agent-9", kind: "agent", rationale: "two engagements" });
+  ok(r.status === 201, "it may propose one");
+  const proposal = (await r.json()).entry;
+  ok((await (await get("/api/l7/memory")).json()).pending.some((p) => p.key === key), "which waits on a person");
+  r = await post("/api/l7/memory/promote", { entryId: proposal.id, by: "agent-9", role: "KNOWLEDGE_STEWARD", reason: "r" });
+  ok(r.status === 400, "and cannot approve its own proposal");
+  r = await post("/api/l7/memory/promote", { entryId: proposal.id, by: "J Nseya", role: "CONTRIBUTOR", reason: "r" });
+  ok(r.status === 400, "nor may a contributor");
+  r = await post("/api/l7/memory/promote", { entryId: proposal.id, by: "J Nseya", role: "KNOWLEDGE_STEWARD", reason: "checked both remittances" });
+  ok(r.status === 200, "a knowledge steward may");
+  const p = await (await get(`/api/l7/memory/prior/${key}`)).json();
+  ok(p.known && p.enough === false, "and the prior reports two observations as an anecdote rather than a pattern", p.say);
+  const m = await (await get("/api/l7/memory")).json();
+  ok(m.ungated === 0, "no institutional entry carries no approver", m.say);
+}
+{
+  const j = await (await get("/api/l7/ports")).json();
+  ok(j.allBound, "every port is bound", j.bound.filter((b) => !b.bound));
+  ok(j.noBusinessLogic.ok, "and no adapter imports a domain module");
+  ok(j.conformance.length === 3 && j.conformance.every((c) => c.ok),
+     "THE CONFORMANCE RUN IS EXECUTED ON THE REQUEST and every pair is interchangeable", j.conformance.filter((c) => !c.ok));
+  ok(j.unported.length === 6, "and the boundaries with no port are named rather than omitted", j.unported.map((u) => u.id));
 }
 
 console.log(`\n=== ${pass} passed, ${fail} failed ===\n`);

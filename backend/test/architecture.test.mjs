@@ -31,6 +31,11 @@ import {
   AUTONOMY, FOUNDATIONS, QUALITY_TARGETS, FAILURE_MODES, LADDER_MAPPING, RISK_CLASSES, organisation,
 } from "../lib/organisation.js";
 import { AGENT_BRIEFS, PIPELINE_AGENTS } from "../lib/ai.js";
+import { measured as measuredState } from "../lib/l7/state.js";
+import { bindPorts } from "../lib/l7/bootstrap.js";
+
+// The probe layer needs its ports bound, exactly as the server binds them.
+bindPorts();
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 let pass = 0, fail = 0;
@@ -96,10 +101,32 @@ console.log("\n--- level 7 is not claimed\n");
     ok(["built", "partial", "absent"].includes(p.state), `${p.id} declares a real state`, p.state);
     ok(Boolean(p.test) && Boolean(p.where), `${p.id} states both its test and where we stand`);
   }
-  // The definition of done says a build failing any one property is not
-  // level 7. Nothing may describe this system as level 7 while any is unmet.
+  // THE GUARD THAT REPLACED "SOMETHING MUST BE ABSENT".
+  //
+  // This assertion used to be `met < 7`, on the reasoning that a register
+  // where everything is built is a register nobody checked. That was the
+  // right instinct and the wrong mechanism: it meant the test would fail the
+  // day the work was actually finished, and the only way to pass it would be
+  // to under-claim something true.
+  //
+  // The real guard is not that something is unmet. It is that the register
+  // cannot claim anything the code does not do. So every declared state must
+  // equal the state the probe layer MEASURES by running the control, and a
+  // property claiming to be built must have a probe that actually exercised
+  // something rather than throwing or returning nothing.
+  const measured = measuredState();
   const met = LEVEL_7.filter((p) => p.state === "built").length;
-  ok(met < 7, `not all seven are met (${met} of 7), so nothing may call this level 7`);
+  ok(measured.drift.levelSeven.length === 0,
+     `every declared state matches what running the control measures (${met} of 7 built)`,
+     measured.drift.levelSeven);
+  for (const row of measured.levelSeven) {
+    ok(!row.threw, `${row.id}: its probe ran rather than throwing`, row.evidence);
+    if (row.state !== "built") continue;
+    ok(row.detail && Object.values(row.detail).some((v) => v === true),
+       `${row.id} claims to be built and its probe returned something true`, row.detail);
+    ok(typeof row.evidence === "string" && row.evidence.length > 80,
+       `${row.id} says what was found rather than asserting a word`, row.evidence);
+  }
 }
 
 // ----------------------------------------- 4. reserved authority is reserved
@@ -128,12 +155,22 @@ console.log("\n--- the supporting structure\n");
     ok(["built", "partial", "absent"].includes(f.state), `${f.id} declares a real state`, f.state);
     ok(Boolean(f.where), `${f.id} says where we actually stand, not only what it is`);
   }
-  ok(FOUNDATIONS.some((f) => f.state === "absent"),
-     "and at least one is honestly marked absent — a register where everything is built is a register nobody checked");
+  // Same substitution as above: not "something must be absent", but "nothing
+  // may be declared that the probe layer does not measure".
+  ok(measuredState().drift.foundations.length === 0,
+     "and every foundation's declared state matches what running its probe measures",
+     measuredState().drift.foundations);
   ok(QUALITY_TARGETS.length >= 10, `${QUALITY_TARGETS.length} quality targets`);
   ok(FAILURE_MODES.length === 12, `twelve failure modes (${FAILURE_MODES.length})`);
-  ok(FAILURE_MODES.some((f) => !f.avoided), "with the ones not yet avoided marked as such",
-     FAILURE_MODES.filter((f) => !f.avoided).length);
+  // And the same again for the failure modes. Twelve `avoided: true` claims
+  // are only worth having if the ones that can be re-checked against the code
+  // agree with it; a mode nobody can re-check is named as such.
+  {
+    const rechecked = measuredState().failureModes.filter((m) => m.rechecked !== null);
+    ok(rechecked.length >= 4, `${rechecked.length} failure mode(s) are re-checked against the code rather than asserted`);
+    ok(rechecked.every((m) => m.agrees), "and every one of them agrees with what the code does",
+       rechecked.filter((m) => !m.agrees).map((m) => m.mode));
+  }
   // Checked against the neverDoes list rather than the prose, because the
   // list is the part a reader acts on and the prose is the part that gets
   // rewritten.

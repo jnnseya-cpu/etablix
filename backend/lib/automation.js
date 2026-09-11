@@ -26,6 +26,8 @@ import { noticeStatus } from "./paymentdates.js";
 import { releaseStatus, human as humanDate } from "./workingdays.js";
 import { checkMailAuth } from "./mailauth.js";
 import { reportError } from "./alerts.js";
+import { watched, live as contractDeadlines } from "./l7/watch.js";
+import { use } from "./l7/ports.js";
 import { sweepRetention } from "./retention.js";
 import fs from "node:fs";
 import path from "node:path";
@@ -64,6 +66,7 @@ export const RULES = [
   { id: "run_failures", name: "Failed agent run watch", description: "Alerts when an agent run fails, naming the run and the error. A failed run used to be a red line on a screen nobody was looking at.", cooldownMs: 0 },
   { id: "mail_delivery", name: "Outbound mail watch", description: "Alerts when messages are failing to send. Mail is the channel every other alert depends on, so its failure has to be reported through the ones that do not.", cooldownMs: 6 * HOUR },
   { id: "backup_watch", name: "Backup watch", description: "Alerts when no backup has been recorded for 36 hours. An untested backup is not a backup, and an unrecorded one is not even that.", cooldownMs: 12 * HOUR },
+  { id: "contract_deadlines", name: "Contract time bars", description: "Resolves every recorded site event against the project's OWN contract — the standard form plus its bespoke amendments — and alerts on the time bars running against it. A time bar is not a task: miss an NEC4 clause 61.3 notification and the entitlement is gone, not weakened, and a Z-clause that shortens eight weeks to fourteen days makes the published form's answer wrong. The watch never notifies anything; issuing a notice stays with a person.", cooldownMs: 0 },
   { id: "retention_sweep", name: "Retention sweep", description: "Erases client information packs whose retention period has passed, and records each erasure. A retention policy that depends on somebody remembering is a retention policy in name only.", cooldownMs: 0 },
 ];
 
@@ -174,6 +177,13 @@ async function gatherUsage() {
 let running = false;
 
 export async function runAutomation(trigger = "schedule") {
+  // TIME COMES FROM THE CLOCK PORT, NOT FROM Date.now(). This sweep decides
+  // whether a statutory notice is overdue and whether a time bar has passed;
+  // a function that reads the wall clock directly cannot be asked what it
+  // would do tomorrow, so those decisions could never be tested against a
+  // deadline. It is also the first real call site to go through a port,
+  // which is what makes the port more than a diagram.
+  const clock = use("clock");
   if (running) return { skipped: true, reason: "A run is already in progress." };
   running = true;
   const started = Date.now();
@@ -390,6 +400,47 @@ export async function runAutomation(trigger = "schedule") {
         findings.push("Backups are not running");
       }
       checks.push(`Backups: ${last ? `last ${Math.round(age / HOUR)}h ago` : "NONE RECORDED"}`);
+    }
+
+    // --- Contract time bars ----------------------------------------------
+    // The clause graph, consulted. A graph nobody loads is a data structure,
+    // and this is the thing that loads it: every project with a contract
+    // recorded, every event resolved against THAT contract rather than
+    // against general knowledge of the form it started from.
+    if (ruleEnabled(config, "contract_deadlines")) {
+      let running = 0, lost = 0, soon = 0;
+      for (const project of watched()) {
+        const l = contractDeadlines(project, clock.now());
+        if (!l.ok) continue;
+        running += l.deadlines.length;
+        lost += l.barred.length;
+        soon += l.urgent.length;
+        for (const d of l.barred) {
+          const key = `bar:lost:${project}:${d.event}:${d.clause}`;
+          if (!shouldAlert(state, key, 7 * DAY)) continue;
+          await fire(
+            "platform.error",
+            {
+              vars: { context: `Time bar passed — ${project}` },
+              detailsText: `${d.clause} (${d.name}) on ${project}.\n\n${d.consequence}\n\nThis is a lost entitlement rather than an overdue task, and it is reported once rather than daily because nothing anybody does now changes it.${d.unconfirmed ? "\n\nThis clause comes from a standard-form skeleton and has not been confirmed against the executed contract." : ""}`,
+            },
+            `Time bar passed — ${d.clause} on ${project}`
+          );
+        }
+        for (const d of l.urgent) {
+          const key = `bar:urgent:${project}:${d.event}:${d.clause}:${d.daysRemaining}`;
+          if (!shouldAlert(state, key, DAY)) continue;
+          await fire(
+            "platform.error",
+            {
+              vars: { context: `Time bar in ${d.daysRemaining} day(s) — ${project}` },
+              detailsText: `${d.clause} (${d.name}) expires in ${d.daysRemaining} day(s) on ${project}.\n\n${d.consequence}${d.unconfirmed ? "\n\nThis clause comes from a standard-form skeleton and has not been confirmed against the executed contract." : ""}`,
+            },
+            `${d.clause} expires in ${d.daysRemaining} day(s) — ${project}`
+          );
+        }
+      }
+      checks.push(`Contract time bars: ${watched().length} project(s), ${running} deadline(s) running, ${soon} inside a fortnight, ${lost} already lost`);
     }
 
     // --- Retention ----------------------------------------------------------

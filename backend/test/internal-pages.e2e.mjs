@@ -235,6 +235,12 @@ try {
     ok(api.measured.drift.levelSeven.length === 0 && api.measured.drift.foundations.length === 0,
        "and the register does not disagree with the measurement", api.measured.drift);
   }
+  ok(/contract each project is actually under/i.test(out), "the clause graph is on the page");
+  ok(/Memory, and the gate in front of it/i.test(out), "so is the memory and its gate");
+  ok(/could tell the adapters apart/i.test(out), "and the ports with their conformance run");
+  ok(/Boundaries with no port/i.test(out), "including the boundaries that have none, named rather than omitted");
+  ok(/operations identical/.test(out), "the conformance result is a real count rather than a tick", (out.match(/\d+ operations identical/g) || []).slice(0, 3));
+  ok(/Ungated, must be zero/.test(out), "and the memory's ungated count is shown, because zero is the only acceptable answer");
   {
     const undef = await evaluate(`(document.querySelector("#out").textContent.match(/undefined|NaN|\\[object Object\\]/g) || []).length`);
     ok(undef === 0, "NOTHING ON THE PAGE READS undefined, NaN OR [object Object] — the sign of a field renamed under a template", undef);
