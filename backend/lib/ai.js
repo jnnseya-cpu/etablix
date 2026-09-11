@@ -14,6 +14,7 @@
  */
 
 import Anthropic from "@anthropic-ai/sdk";
+import { ENGINES as DETERMINISTIC } from "./engines/index.js";
 import { getSettings, saveSettings } from "./store.js";
 import { runPipeline, pipelineSpec, DIAGNOSTIC_SPEC, STANDARD, DIAGNOSTIC_STAGES, CONTINUATION_GUARD, STALL_CHARS, PASS_CHAR_CEILING, continuationInstruction } from "./diagnostic.js";
 import * as SR from "./pipelines/site-requirements.js";
@@ -187,6 +188,58 @@ House rules that bind every output:
 - You produce DRAFTS and RECOMMENDATIONS for a named human to approve. You have no authority to approve, appoint, pay, contact anyone, accept work, close defects or make commitments — and you never write as if you did.
 - Never invent facts, figures, companies, certificates or evidence. Where an input is missing, say exactly what is missing instead of assuming it. Quote source text verbatim where the brief asks for citations.
 - Be specific and structured. Use the exact section headings the brief demands. British English.`;
+
+/**
+ * THE SIXTEEN DETERMINISTIC ENGINES, TURNED INTO BRIEFS.
+ *
+ * Generated from the engine registry rather than written out here, so a brief
+ * and the engine behind it cannot drift: an agent whose brief describes a
+ * check its engine does not run is exactly the kind of claim the register
+ * exists to prevent.
+ */
+function engineBrief(e) {
+  return {
+    system: `${COMPANY_BRIEF}
+
+You are the ${e.agent}. ${e.purpose}
+
+A MACHINE HAS ALREADY DONE THE WORK. Its findings are given to you under
+"THE MACHINE FINDINGS". They are the facts of this run: every date, every
+count, every variance and every refusal in them was computed from the
+records supplied, and they are correct.
+
+YOUR JOB IS THE REPORT, NOT THE ANSWER. Write, under these exact headings:
+
+1. THE FINDING IN ONE PARAGRAPH — the single most consequential thing the
+   machine found, stated first, in the words somebody would use to raise it.
+2. WHAT WAS CHECKED — the records that went in and what the engine tested
+   them for. Say plainly what was NOT checked, because a reader assumes a
+   report covers everything it does not exclude.
+3. THE FINDINGS — every row the machine returned, in full, ordered by
+   consequence rather than by reference. Nothing is summarised away: a
+   finding that does not appear here is a finding nobody will action.
+4. WHAT IT MEANS — the consequence of each finding in days, money, a lost
+   right or a failed inspection. Not adjectives.
+5. WHAT TO DO, AND WHO DOES IT — one named action per finding, with the date
+   it has to happen by where the machine gave one.
+6. WHAT THIS REPORT DOES NOT SAY — the limits of the check, including
+   anything the engine refused to compute and why.
+
+RULES THAT DO NOT MOVE:
+- DO NOT RECOMPUTE ANYTHING. Do not recalculate a date, a total, a variance
+  or a percentage. Quote the machine's figure. If you believe a figure is
+  wrong, say so in section 6 and still quote it.
+- DO NOT ADD A FINDING the machine did not report, and do not drop one it did.
+- DO NOT SOFTEN A REFUSAL. Where the engine refused a record, report the
+  refusal and its reason in the engine's own terms.
+- INVENT NOTHING: no reference, no name, no date, no quantity that is not in
+  the findings or the inputs.
+${e.boundary ? `- ${e.boundary}` : ""}`,
+    fields: e.fields,
+    machine: (inputs) => e.run(inputs),
+    stageLabel: "Writing the report from the machine findings",
+  };
+}
 
 export const AGENT_BRIEFS = {
   opportunity: {
@@ -411,6 +464,12 @@ Boundary: you cannot close defects or accept work — authorised human acceptanc
     ],
   },
 };
+
+// Sixteen more, generated. Object.assign rather than a spread inside the
+// literal above so the hand-written briefs stay readable as a block and the
+// generated ones are visibly generated.
+Object.assign(AGENT_BRIEFS, Object.fromEntries(DETERMINISTIC.map((e) => [e.id, engineBrief(e)])));
+
 
 /**
  * Agent 7 pre-assessment: draft prequalification scores from a
@@ -823,8 +882,43 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
     .map((d) => `===== DOCUMENT: ${d.name}${d.pages ? ` (${d.pages} pages)` : ""} =====\n${d.text}`)
     .join("\n\n");
 
+  /**
+   * THE MACHINE FINDINGS COME FIRST, AND THEY BIND.
+   *
+   * Five agents already reconciled their own output by machine after the
+   * model had written it — the tender pack's price against its scope, the
+   * bid's checklist against its responses, the valuation against what was
+   * measured. That ordering is right when the model is producing the
+   * document and the machine is checking it.
+   *
+   * The engines added after them work the other way round. The arithmetic IS
+   * the deliverable: whether a time bar has expired, whether a claim was
+   * notified inside it, whether an obligation has an owner. A model asked to
+   * work that out will write a better sentence and will eventually write a
+   * date that was not in its inputs. So the engine runs FIRST, its findings
+   * are handed to the model as the facts to write from, and the model's job
+   * is the report rather than the answer.
+   *
+   * And a machine check may STOP a run. An agent that has been told the
+   * facts are missing and writes anyway produces the most dangerous thing in
+   * this system: a confident document resting on nothing.
+   */
+  let machine = null;
+  if (typeof brief.machine === "function") {
+    machine = brief.machine(inputs, { runBy });
+    if (machine?.stop) {
+      const err = new Error(machine.say || machine.faults?.[0] || "The machine check refused this run before it started.");
+      err.machine = machine;
+      throw err;
+    }
+  }
+  const machineBlock = machine?.text
+    ? `\n\n## THE MACHINE FINDINGS — these are the facts. Write from them and do not recompute them.\n\n${machine.text}`
+    : "";
+
   const prompt =
     `Run your task on the following inputs. Prepared by ${runBy} — address the output to them for review.\n\n${parts.join("\n\n")}` +
+    machineBlock +
     (documentBlock ? `\n\n## The documents supplied with this run\n\n${documentBlock}` : "");
 
   /**
@@ -944,6 +1038,11 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
   }
   return {
     output, model: r.model, truncated: r.truncated, usage, notes,
+    // Kept on the run, not just used in the prompt. The deliverable cites
+    // these findings, so the run has to hold what they were on the day —
+    // exactly as the valuation holds the reconciliation the desk approved
+    // against, rather than recomputing it when somebody opens the page.
+    ...(machine ? { machine } : {}),
     acu: { ...summarise(acuMeter, { agentId, cap }), unpriced: [...unpriced] },
   };
 }

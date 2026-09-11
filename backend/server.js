@@ -38,6 +38,7 @@ import commercialRoutes from "./routes/commercial.js";
 import orgRoutes from "./routes/org.js";
 import l7Routes from "./routes/l7.js";
 import webhookRoutes from "./routes/webhooks.js";
+import engineRoutes from "./routes/engines.js";
 import { bindPorts } from "./lib/l7/bootstrap.js";
 import docsRoutes from "./routes/docs.js";
 import agentRoutes, { failOrphanedRuns, sweepRunPacks } from "./routes/agents.js";
@@ -166,6 +167,7 @@ app.use("/api/payments", paymentRoutes); // supplier payments: certify, verify b
 app.use("/api/engagements", engagementRoutes);
 app.use("/api/reach", reachRoutes); // what the site is scoring and how many people read it, employees only
 app.use("/api/clients", clientRoutes); // client engagements: portal, checklist, decisions, automatic invoicing // NDA-gated enquiries, quotes, PO award
+app.use("/api/engines", engineRoutes); // the sixteen deterministic engines, without the model — internal only
 app.use("/api/webhooks", webhookRoutes); // outbound subscriptions and the one signed inbound endpoint
 app.use("/api/l7", l7Routes); // Level 7 controls, probed on every request — internal only, never public
 

@@ -347,15 +347,40 @@ operation rather than adding an O&M chatbot.
 Not dozens of independent agents competing. Seven domain engines with
 controlled sub-agents, held in code as `ENGINES`:
 
-1. **Tender and Commercial** — Opportunity, Diagnostic, Compliance and Bid, Tender pack, Evaluation, Estimating*, Submission Controller*
-2. **Planning and Delivery** — Mobilisation-readiness, Progress and Programme, Programme Generation*, Recovery*
-3. **Resource and Cost** — Commercial and Procurement, Productivity* (cost and cash-flow delivered inside Agent 5)
-4. **Risk, Safety and Compliance** — Assurance and Evidence, Site Operations, Safety Assurance*, Audit*
-5. **BIM and Digital Twin** — Spatial Coordination and Interface, Model Validation*, Quantity*, Asset*
-6. **Contracts and Claims** — Obligation and Requirements, Accommodation Requirements, Obligation Monitor*, Notice*, Change and Entitlement*
-7. **Handover and O&M** — Commissioning*, Handover*, Lifecycle and Asset Information*
+1. **Tender and Commercial** — Opportunity, Diagnostic, Compliance and Bid, Tender pack, Evaluation, Estimating, Submission Controller
+2. **Planning and Delivery** — Mobilisation-readiness, Progress and Programme, Programme Generation, Recovery
+3. **Resource and Cost** — Commercial and Procurement, Productivity (cost and cash-flow delivered inside Agent 5)
+4. **Risk, Safety and Compliance** — Assurance and Evidence, Site Operations, Safety Assurance, Audit
+5. **BIM and Digital Twin** — Spatial Coordination and Interface, Model Validation, Quantity, Asset
+6. **Contracts and Claims** — Obligation and Requirements, Accommodation Requirements, Obligation Monitor, Notice, Change and Entitlement
+7. **Handover and O&M** — Commissioning, Handover, Lifecycle and Asset Information
 
-*\* planned: described, not implemented, and deliberately unrunnable.*
+Every slot is built. Sixteen of them carried an asterisk in earlier revisions
+of this document — *planned: described, not implemented, and deliberately
+unrunnable* — and the asterisks are gone because the engines behind them
+exist, not because the claim was relaxed. `backend/test/architecture.test.mjs`
+refuses a slot marked built with no brief behind it, and each slot in
+`ENGINES` still carries the text it claimed while it was planned.
+
+**The sixteen are a different shape from the first fourteen, and it is worth
+saying why.** In the first fourteen, a model reads documents and writes a
+deliverable; five of those then reconcile their own output by machine. In the
+sixteen, **the arithmetic is the deliverable** — whether a time bar has
+expired, whether a claim was notified inside it, whether a system was balanced
+before it was set to work, whether a lifecycle line can be escalated at all.
+So the engine runs first and the model writes the report from its findings,
+which is the reverse ordering. Their briefs are generated from the engine
+registry rather than written by hand, so an agent cannot describe a check its
+engine does not run. Each is also reachable without the model at all, because
+a time bar needs an answer rather than a report.
+
+**One correction went with the build.** The Obligation Monitor slot claimed
+depth 5 — autonomous coordination — while it was planned. What was built
+reads the clause graph, builds a register, compares it against the recorded
+events and reports what nothing is watching: analysis and controlled
+workflow, which is depth 4. It is recorded at 4. Promoting the code while
+leaving the depth at 5 would have been exactly the claim the depth ladder
+exists to prevent.
 
 Above them one **Project Executive Orchestrator**, which consolidates the
 project position, resolves routine cross-engine coordination, and presents

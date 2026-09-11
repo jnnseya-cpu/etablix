@@ -331,6 +331,306 @@ export const AI_AGENTS = [
     backing: ["llm"],
     desk: "A seven-pass pipeline with the challenge check built in. The report is refused unless every one of the nine lenses carries a section with something under it and every finding names a lens, a severity, a location and a remedy — and a report with nine lenses and no findings at all is refused outright, because a submission with nothing wrong with it has not been challenged, it has been read. A critical finding cannot be disposed of. An approved run becomes a numbered CHR challenge report, each part printing on its own.",
   },
+
+  /* ----------------------------------------------------------------------
+   * AGENTS 15 TO 30 — THE DETERMINISTIC ENGINES.
+   *
+   * The first fourteen agents read documents and write a deliverable; five of
+   * them reconcile their own output by machine afterwards. These sixteen are
+   * the other shape, and the difference is not a detail of implementation.
+   *
+   * For these, THE ARITHMETIC IS THE DELIVERABLE. Whether a time bar has
+   * expired, whether a claim was notified inside it, whether a system was
+   * balanced before it was set to work, whether a lifecycle line can be
+   * escalated at all — none of those is a matter of expression. A model asked
+   * to work one out writes a better sentence than the code does and
+   * eventually writes a different date.
+   *
+   * So the engine runs FIRST and the model writes the report from its
+   * findings, which is the reverse of the ordering the other five use. The
+   * brief for each is generated from the engine registry rather than written
+   * by hand, so an agent cannot describe a check its engine does not run.
+   *
+   * Every one of them is INTERNAL. None is exposed on the public API, none
+   * runs on a schedule, and none of them writes to a delivery record.
+   * ------------------------------------------------------------------- */
+  {
+    id: "obligation",
+    name: "Agent 15 — Obligation Monitor",
+    inputs: [
+      "The project, whose contract form and any bespoke amendments are already recorded in the clause graph",
+      "Project-specific obligations that are not in the standard form, each with its party, trigger, action, period, method, evidence and consequence",
+      "The site events recorded against the project, which is what the contract watch already holds",
+    ],
+    outputs: [
+      "The controlled register: one row per obligation, whether or not anything has happened yet",
+      "The DORMANT rows — obligations with no event recorded against their trigger, which nothing is watching",
+      "The live deadlines, the bars already lost, and the bars inside a fortnight",
+      "Completeness: the share of rows carrying all eight controlled attributes",
+    ],
+    boundary: "It watches and it reports. It serves no notice, starts no clock and closes no obligation — issuing a contractual communication is reserved to an authorised person under the authority register, whatever an agent's level. A row it refuses to admit is named rather than dropped, because an unwatchable obligation on a register is worse than an absent one: it reads as covered.",
+    backing: ["engine", "llm"],
+    desk: "The half the contract watch could not do. The watch resolves recorded EVENTS against the contract, so an obligation nobody has raised an event against is invisible to it — and a programme submission due at contract start is exactly that kind of obligation. A project can therefore be fully watched and fully in breach. This builds the register from the CONTRACT instead, and names the time bars nothing is counting.",
+  },
+  {
+    id: "notice",
+    name: "Agent 16 — Notice Agent",
+    inputs: [
+      "The project and the recorded contract event the notice is about",
+      "The effect on the works in facts rather than adjectives, and the cause or the relief sought where the notice kind needs one",
+      "Who is giving it and their authority, and the recipient named in the contract particulars",
+    ],
+    outputs: [
+      "The assembled draft: the clause relied on, the event, the date of awareness, the effect, the period and the date it expires",
+      "The gaps a person must fill, printed in the draft as [TO BE COMPLETED] so an incomplete notice cannot be mistaken for a finished one",
+      "The warnings: a clause not yet checked against the executed contract, and a period that has already expired",
+    ],
+    boundary: "IT DRAFTS ONLY. There is no code path in it that transmits anything. Recording a notice as GIVEN is a separate act that requires a named person, their authority, the method and a transmission reference — and it refuses to record an agent as the giver, because that record would then be the evidence relied on. Where the period has expired the draft is still produced, headed with the expiry, because a late notice is sometimes still worth giving and that decision belongs to a person who has been told what it is.",
+    backing: ["engine", "llm"],
+    desk: "Deterministic on purpose. A contractual notice is a fixed set of facts assembled so the recipient cannot misread them, not prose — and every figure in the draft comes from the clause graph and the event record rather than from a model's recollection of them.",
+  },
+  {
+    id: "change",
+    name: "Agent 17 — Change and Entitlement Agent",
+    inputs: [
+      "The change register: reference, title, state, relief sought, the instruction and its date",
+      "For each priced change, its elements with a basis on every one, its total, the days claimed and the programme impact behind them",
+      "The notice relied on and its date, and the site event the change arises from",
+    ],
+    outputs: [
+      "The register, reconciled: what is instructed, quoted, agreed, claimed and settled, with the totals for each",
+      "The changes claimed on a barring contract with no notice behind them, or with a notice dated after the bar expired",
+      "Instructed change left unvalued beyond the working period, and agreed change left unsettled",
+      "Priced change sitting against no control account, which nothing can measure",
+    ],
+    boundary: "It reconciles; it agrees nothing and settles nothing. It does not take a notice reference as proof the notice was in time — it checks the date against the bar, because a claim file containing a late notice is a record of having been late.",
+    backing: ["engine", "llm"],
+    desk: "The expensive refusal is the first one: a claim prepared, priced, submitted and defeated on a single sentence, that it was never notified. The engine will not accept a claimed change on a barring contract without the notice, and it checks the date rather than the reference.",
+  },
+  {
+    id: "estimating",
+    name: "Agent 18 — Estimating Agent",
+    inputs: [
+      "The priced lines: quantity, unit, rate and total, each with its own lineage",
+      "The scope items the estimate must cover, and any approved exclusions",
+      "Supplier quotations with their validity, exclusions and qualifications",
+    ],
+    outputs: [
+      "The priced schedule with ten lineage fields on every line: source, date, currency, quantity basis, productivity assumption, quotation validity, exclusions, escalation, confidence and who approved it",
+      "The nine assurance tests over the schedule — coverage, rate freshness, arithmetic, units, markup, programme, reconciliation, rounding and cash",
+      "The shape of the price: how much of it rests on firm quotations rather than on allowances",
+      "The lines refused, and the total stated as understated by however much they were worth",
+    ],
+    boundary: "A line missing any of the ten is not priced low or priced high — it is unpriced, and it is refused rather than included at a discount. Confidence may not exceed the firmness of its own source: a line built from a budget allowance cannot be called firm. It prices; it does not submit, and it does not decide what margin to carry.",
+    backing: ["engine", "llm"],
+    desk: "The register's condition for building this was that without lineage a price cannot be defended and must not be automated. The rate build-up and the nine assurance tests already existed; what was missing was lineage attached to each line and a refusal when it is absent.",
+  },
+  {
+    id: "submission",
+    name: "Agent 19 — Submission Controller",
+    inputs: [
+      "The portal's upload slots and its mandatory form fields, and the return deadline",
+      "The artefacts as they will be uploaded: filename, slot, pages, words, signature and any expiry",
+      "The filename convention the invitation specifies, the formats it accepts, and the facts that must agree across documents",
+    ],
+    outputs: [
+      "Nine administrative checks: mandatory fields, filenames, page and word limits, formats, signatures, the price in two places, contradictions, expiring certificates and empty slots",
+      "A blunt verdict — READY TO UPLOAD, or DO NOT UPLOAD with what fails",
+    ],
+    boundary: "It checks the ARTEFACTS, not the content: whether every required deliverable was written is Agent 2's question and it is already answered by that agent's own reconciliation. It uploads nothing — the last act before a submission is a person deciding to submit. A certificate is tested against the DEADLINE rather than against today, because a policy that lapses two days before the return date is evidence of nothing on the day it is assessed.",
+    backing: ["engine", "llm"],
+    desk: "Every one of the nine is a rejection that has happened to somebody, and none of them is about the quality of the bid. It runs at the point where somebody is about to press upload, which is why its verdict is deliberately blunt: a nuanced summary at that moment is a summary nobody reads.",
+  },
+  {
+    id: "programme",
+    name: "Agent 20 — Programme Generation Agent",
+    inputs: [
+      "The activities with their logic: predecessors, successors, dates, durations, float and constraints",
+      "The quantity and output rate behind each duration, or the source of each procurement lead time",
+      "The data date and the completion date being tested",
+    ],
+    outputs: [
+      "Ten interrogations: open ends, dangling links, typed dates, disconnected procurement, negative float, unsupported durations, unsourced lead times, critical-path sensitivity, masking constraints and logic loops",
+      "Whether the declared completion date is later than the programme's own last activity",
+    ],
+    boundary: "It interrogates; it does not rewrite the programme and it does not produce one. A clean result says the logic holds — which is not the same as saying the durations are achievable on this site, and the report says so.",
+    backing: ["engine", "llm"],
+    desk: "Generating a programme is the easy part, and the register said so before this was built. Every one of the ten is invisible on a bar chart: a disconnected procurement chain means a late order does not move the date on the programme and does move it on site.",
+  },
+  {
+    id: "recovery",
+    name: "Agent 21 — Recovery Agent",
+    inputs: [
+      "The baseline fingerprint recorded at award, and the fingerprint of the programme being analysed",
+      "The planned and forecast completion dates, and the working days remaining",
+      "The recovery options, each with its lever, days recovered, cost, resource change and risk",
+    ],
+    outputs: [
+      "The options ranked by cost per day recovered, with the cheapest single option that covers the delay",
+      "The options refused, and why each is not usable as written",
+      "Whether the delay is linked to a recorded event, because recovering time at your own cost and recovering it as a compensation event are different plans",
+    ],
+    boundary: "IT REFUSES TO ANALYSE AGAINST A MOVED BASELINE, names both fingerprints and chooses between them. It does not add options together: recovery levers interact — overtime and extra crews on the same working face do not sum — and a combined figure no planner would sign is worse than no figure.",
+    backing: ["engine", "llm"],
+    desk: "Re-baselining makes a delay disappear by absorbing it rather than recovering it. It is rarely dishonest and it is almost always fatal to the entitlement: a contractor who cannot produce the baseline the delay is measured from has no claim to measure.",
+  },
+  {
+    id: "productivity",
+    name: "Agent 22 — Productivity Agent",
+    inputs: [
+      "The control accounts as budgeted: quantity, hours, unit and labour rate",
+      "The measured periods: units placed and hours booked, per account, with the period each covers",
+      "The cumulative quantity complete per account",
+    ],
+    outputs: [
+      "The productivity factor per control account — achieved output over priced output",
+      "The forecast hours and the variance in hours and money if the measured output is representative",
+      "The accounts with budgeted hours and NO measurement at all, named rather than omitted",
+    ],
+    boundary: "Units with no hours or hours with no units are refused rather than averaged: either alone makes a factor of infinity or zero. The forecast is an assumption and is labelled as one — a learning curve, a change of working face or winter all make it wrong, and this engine cannot tell which applies.",
+    backing: ["engine", "llm"],
+    desk: "A cost overrun shows in the cost report when the invoices land, four to eight weeks after the work went slowly — by which time the remaining work is still priced on the assumption that has already failed. Output per hour is measurable the week it happens.",
+  },
+  {
+    id: "safety",
+    name: "Agent 23 — Safety Assurance Agent",
+    inputs: [
+      "The planned activities and their dates, and the risk assessments and method statements with the activities each covers",
+      "The permits with their validity and the work each covers, and who issued them",
+      "The tickets each task requires and the training records held, and the site observations with their status and action",
+    ],
+    outputs: [
+      "Planned work with no RAMS covering it, or covered by one reviewed only to an earlier date, or approved by nobody",
+      "Permits expired, permits covering work that runs past their own expiry, and permits open before they are valid",
+      "Required tickets not recorded or out of date on the day of the work, and tickets recorded with no expiry at all",
+      "Observations closed with no action, and the same condition raised three times in ninety days",
+    ],
+    boundary: "IT ADMINISTERS; IT NEVER SUPERVISES. It never says work is safe, never approves a method, never closes an observation and never assesses competence — comparing a required ticket against a held ticket is a database question, not a competence one. It must never be described as replacing a competent safety professional or a person on site, and its clean result explicitly says it is an administrative state rather than a statement about the site.",
+    backing: ["engine", "llm"],
+    desk: "The accident report that says the RAMS was for a different sequence, or that the permit expired on Friday, is describing a filing failure. Administration is where the gaps are, and administration is all this touches.",
+  },
+  {
+    id: "audit",
+    name: "Agent 24 — Audit Agent",
+    inputs: [
+      "The audit programme: area, auditor, the auditor's own area, the planned and actual dates, and the clauses covered",
+      "The findings: grade, owner, date raised, and for a closure its evidence, closer, verifier and root cause",
+      "The clauses of the standard the cycle has to cover, and the cycle dates",
+    ],
+    outputs: [
+      "Audits where the auditor belongs to the area being audited",
+      "Findings closed by their own owner with nobody verifying, closed with no evidence, or majors closed with no root cause",
+      "Findings open past the closure period for their grade, and audits past their planned date and still planned",
+      "Coverage of the standard within the cycle, and the clauses not audited",
+    ],
+    boundary: "It reports the programme; it closes nothing and it audits nothing itself. Independence here is a rule about records, not a judgement about anybody's honesty.",
+    backing: ["engine", "llm"],
+    desk: "An audit programme fails in a way that looks like success: every audit scheduled, every audit done, every finding closed — by the people who were audited. The register then shows a green year, and what it measured was a team marking its own homework.",
+  },
+  {
+    id: "model",
+    name: "Agent 25 — Model Validation Agent",
+    inputs: [
+      "The federated models with their declared units and base points, and the project's own",
+      "The elements with their names, classification codes, level of information, host level, system, type and coordinates",
+      "The stage the model is being issued at, and the naming convention the information protocol specifies",
+    ],
+    outputs: [
+      "Seven checks: units, shared coordinates, naming, classification, level of information against the stage, duplicates and orphans",
+      "The share of elements carrying a classification code at all",
+    ],
+    boundary: "It validates the DATA, not the design. Whether the design is any good is a question for the people who did it. Two of the seven — units and shared coordinates — make everything downstream wrong rather than incomplete, and the verdict says nothing should be taken off the model until they are fixed.",
+    backing: ["engine", "llm"],
+    desk: "A model can be visually perfect and useless for coordination, quantities and asset information. A model authored in metres and received as millimetres looks identical on screen and produces a take-off out by a thousand; disciplines modelled to their own origins federate into a model where nothing clashes because nothing touches, and the clash report comes back clean.",
+  },
+  {
+    id: "quantity",
+    name: "Agent 26 — Quantity Agent",
+    inputs: [
+      "The quantities taken from the model, item by item, with their units",
+      "The bill of quantities for the same items, with the rates",
+      "The quantities measured from the drawings",
+    ],
+    outputs: [
+      "The items where the three disagree beyond tolerance, ranked by what the disagreement is worth rather than by percentage",
+      "The items measured in different units in different sources, which are NOT compared",
+      "The items present in one source and absent from another — work in the model and not in the bill is work being built and not paid for",
+    ],
+    boundary: "THE BILL GOVERNS: on a measured contract it is a contract document, and a take-off that disagrees with it is a reason to remeasure or to raise a query, not a reason to change the price. It will not produce a single blended figure across disagreeing sources — that is the one output this engine refuses, because it would hide exactly what it is for.",
+    backing: ["engine", "llm"],
+    desk: "The valuable output is the disagreement, not the number. Any two sources will differ; the useful product is the list of items where the difference is worth somebody's afternoon.",
+  },
+  {
+    id: "asset",
+    name: "Agent 27 — Asset Agent",
+    inputs: [
+      "The asset register as it stands, with tags, types, systems, locations and parents",
+      "The tagging convention, and the attributes each asset type requires under the employer's information requirements",
+      "Manufacturer, model, serial, installation date, warranty expiry and expected life per asset",
+    ],
+    outputs: [
+      "Duplicate tags, tags that do not match the convention, and assets in no system and no location",
+      "Children whose parent is not in the register, which is a machine nobody isolates when a shutdown is planned",
+      "Attribute completeness across the ten core attributes, and the assets already out of warranty",
+    ],
+    boundary: "It reports the register; it does not populate it and it does not decide what a maintenance system needs — the type-specific attributes come from the employer's information requirements rather than from here.",
+    backing: ["engine", "llm"],
+    desk: "An asset register is judged at handover by whether the facilities team can use it, and the answer is usually no: the tags do not match the labels on the plant, the same asset is in it twice, or the attributes are blank. All three are visible the day the register is created and invisible at handover, because by then it is four thousand rows in a spreadsheet.",
+  },
+  {
+    id: "commissioning",
+    name: "Agent 28 — Commissioning Agent",
+    inputs: [
+      "Each system with its installing contractor and the commissioning stages it has reached, with the date and the witness for each",
+      "The performance tests with their criterion, target, tolerance, result and recorded pass or fail",
+      "The handover date and the working allowance per stage",
+    ],
+    outputs: [
+      "Stages complete while a stage before them is not, by tick and by date",
+      "Witnessed stages with no witness, or witnessed by the contractor who installed it",
+      "Test results outside their own criterion and recorded as a pass",
+      "How far each system has got WITHOUT a gap, and which systems cannot reach documented by the handover date",
+    ],
+    boundary: "It reports the record; it witnesses nothing and it accepts nothing. A system whose record is not admissible is not forecast at all, and the summary says so rather than reporting that every system can still make the date.",
+    backing: ["engine", "llm"],
+    desk: "Commissioning is a sequence and the sequence is the safety: you cannot balance a system that has not been set to work. On a register the stages are eight columns of ticks, and ticking them out of order looks exactly like ticking them in order.",
+  },
+  {
+    id: "handover-file",
+    name: "Agent 29 — Handover Agent",
+    inputs: [
+      "Each asset with its twelve evidence types, each carrying a document reference and any expiry",
+      "The contractual handover date",
+      "The defects open against each asset",
+    ],
+    outputs: [
+      "Completeness per ASSET across all twelve types, alongside the share of documents held",
+      "The assets that CANNOT be complete by the date, from the lead time of the slowest thing still missing",
+      "What is waiting on somebody else — training, certification, warranties and spares — which chasing harder does not make arrive sooner",
+      "Ticks with no document behind them, defect closures ticked with defects open, and certificates expiring before handover",
+    ],
+    boundary: "It forecasts from lead times, not from effort. It closes nothing, accepts nothing and issues nothing.",
+    backing: ["engine", "llm"],
+    desk: "Almost every project tracks handover as a percentage of documents received. That number reaches ninety per cent about four weeks out and then stops, because the last ten per cent is evidence that does not exist yet and cannot be chased into existence. Forty assets complete out of three hundred says something the first number cannot.",
+  },
+  {
+    id: "lifecycle",
+    name: "Agent 30 — Lifecycle and Asset Information Agent",
+    inputs: [
+      "Each asset's expected life, replacement cycle and year of first replacement",
+      "The replacement cost with its basis, price base date, currency and source",
+      "The warranty expiry and any spares held, and the model period",
+    ],
+    outputs: [
+      "The replacement profile year by year over the model period, and the peak year",
+      "Assets whose expected life does not reach their own first replacement",
+      "Lines replaced a different number of times from what dividing the period by the cycle suggests",
+      "Warranties and spares running past the replacement of the asset they belong to",
+    ],
+    boundary: "A replacement cost with no price base date, currency, basis and source cannot be escalated and is refused: a lifecycle model that does not escalate is a model of a building in a world with no inflation. It will not total lines priced in two currencies or at two price base dates, because that total is the number that goes into a sinking fund.",
+    backing: ["engine", "llm"],
+    desk: "The last engine in the sequence, and the one whose output outlives the project by twenty-five years. Its errors compound annually for the life of the building, and all three of its failure modes look like a finished spreadsheet.",
+  },
 ];
 
 /** Function → how much AI genuinely replaces → the human control that remains. */
@@ -618,6 +918,25 @@ export const LEVEL_7 = [
  * `state` is the honest part and it is checked by a test:
  *   built   — a pipeline or single-pass engine exists and can be run today
  *   planned — described here, not implemented, and deliberately unrunnable
+ *
+ * EVERY SLOT IS NOW BUILT, and that sentence is the one to be suspicious of.
+ *
+ * Sixteen of these were planned, which was the honest failure mode: the
+ * register described capabilities that did not exist and said so. Marking
+ * them built without the code behind them would have been the dishonest one,
+ * so each carries a `was:` with exactly what it claimed while it was planned,
+ * and the architecture test refuses a built slot with no brief behind it.
+ *
+ * The sixteen are a different shape from the first fourteen. For those, a
+ * model reads documents and writes a deliverable, and five of them reconcile
+ * their own output by machine afterwards. For these, THE ARITHMETIC IS THE
+ * DELIVERABLE — whether a time bar has expired, whether a system was balanced
+ * before it was set to work — so the engine runs first and the model writes
+ * the report from its findings. Their briefs are GENERATED from the engine
+ * registry rather than written by hand, so an agent cannot describe a check
+ * its engine does not run.
+ *
+ * One thing is still planned and stays planned: the orchestrator below.
  */
 export const ENGINES = [
   {
@@ -634,10 +953,10 @@ export const ENGINES = [
       { id: "bid", name: "Compliance and Bid Agent", state: "built", depth: 4 },
       { id: "tender-pack", name: "Tender pack assembler", state: "built", depth: 4 },
       { id: "procurement", name: "Tender evaluation", state: "built", depth: 4 },
-      { id: "estimating", name: "Estimating Agent", state: "planned", depth: 3,
-        why: "Quantities and rates with lineage on every number: source, date, currency, quantity basis, productivity assumption, quotation validity, exclusions, escalation, confidence and who approved it. Without lineage a price cannot be defended and must not be automated." },
-      { id: "submission", name: "Submission Controller", state: "planned", depth: 4,
-        why: "The last check before upload: mandatory fields, filename conventions, page and word limits, formats, signatures, pricing reconciliation, contradictory answers, expired certificates, portal completeness. This is where AI prevents an administrative disqualification, which is the cheapest loss there is." },
+      { id: "estimating", name: "Estimating Agent", state: "built", depth: 3,
+        was: "planned: Quantities and rates with lineage on every number: source, date, currency, quantity basis, productivity assumption, quotation validity, exclusions, escalation, confidence and who approved it. Without lineage a price cannot be defended and must not be automated." },
+      { id: "submission", name: "Submission Controller", state: "built", depth: 4,
+        was: "planned: The last check before upload: mandatory fields, filename conventions, page and word limits, formats, signatures, pricing reconciliation, contradictory answers, expired certificates, portal completeness. This is where AI prevents an administrative disqualification, which is the cheapest loss there is." },
     ],
   },
   {
@@ -647,10 +966,10 @@ export const ENGINES = [
     agents: [
       { id: "mobilisation-review", name: "Mobilisation-readiness review", state: "built", depth: 3 },
       { id: "controls", name: "Progress and Programme Agent", state: "built", depth: 4 },
-      { id: "programme", name: "Programme Generation Agent", state: "planned", depth: 3,
-        why: "Generating a programme is the easy part. What earns its place is interrogation: open-ended activities, missing predecessors, procurement disconnected from installation, hidden negative float, unsupported productivity, excessive critical-path sensitivity." },
-      { id: "recovery", name: "Recovery Agent", state: "planned", depth: 4,
-        why: "Recovery options with their cost and programme trade-offs, and time-impact analysis against a baseline that has not been quietly rewritten." },
+      { id: "programme", name: "Programme Generation Agent", state: "built", depth: 3,
+        was: "planned: Generating a programme is the easy part. What earns its place is interrogation: open-ended activities, missing predecessors, procurement disconnected from installation, hidden negative float, unsupported productivity, excessive critical-path sensitivity." },
+      { id: "recovery", name: "Recovery Agent", state: "built", depth: 4,
+        was: "planned: Recovery options with their cost and programme trade-offs, and time-impact analysis against a baseline that has not been quietly rewritten." },
     ],
   },
   {
@@ -665,8 +984,8 @@ export const ENGINES = [
     delegatedTo: { engine: "planning", agent: "controls" },
     agents: [
       { id: "commercial", name: "Commercial and Procurement Agent", state: "built", depth: 3 },
-      { id: "productivity", name: "Productivity Agent", state: "planned", depth: 3,
-        why: "Labour and plant output measured against what was priced, per control account, which is the only honest early warning on a cost overrun." },
+      { id: "productivity", name: "Productivity Agent", state: "built", depth: 3,
+        was: "planned: Labour and plant output measured against what was priced, per control account, which is the only honest early warning on a cost overrun." },
     ],
   },
   {
@@ -677,9 +996,9 @@ export const ENGINES = [
       { id: "assurance", name: "Assurance and Evidence Agent", state: "built", depth: 3 },
       { id: "challenge", name: "Adversarial Challenger", state: "built", depth: 4 },
       { id: "siteops", name: "Site Operations Agent", state: "built", depth: 3 },
-      { id: "safety", name: "Safety Assurance Agent", state: "planned", depth: 3,
-        why: "RAMS completeness, permit expiry, training gaps, recurring observations, method statements cross-checked against planned activity. It administers; it never supervises. It must never be sold as replacing a competent safety professional or a person on site." },
-      { id: "audit", name: "Audit Agent", state: "planned", depth: 3 },
+      { id: "safety", name: "Safety Assurance Agent", state: "built", depth: 3,
+        was: "planned: RAMS completeness, permit expiry, training gaps, recurring observations, method statements cross-checked against planned activity. It administers; it never supervises. It must never be sold as replacing a competent safety professional or a person on site." },
+      { id: "audit", name: "Audit Agent", state: "built", depth: 3 },
     ],
   },
   {
@@ -688,10 +1007,10 @@ export const ENGINES = [
     purpose: "The model as a source of quantities and coordination rather than a picture.",
     agents: [
       { id: "design", name: "Spatial Coordination and Interface Agent", state: "built", depth: 4 },
-      { id: "model", name: "Model Validation Agent", state: "planned", depth: 3 },
-      { id: "quantity", name: "Quantity Agent", state: "planned", depth: 3,
-        why: "Quantities taken from the model and reconciled against the bill and the drawings. The valuable output is the disagreement between the three, not the number." },
-      { id: "asset", name: "Asset Agent", state: "planned", depth: 3 },
+      { id: "model", name: "Model Validation Agent", state: "built", depth: 3 },
+      { id: "quantity", name: "Quantity Agent", state: "built", depth: 3,
+        was: "planned: Quantities taken from the model and reconciled against the bill and the drawings. The valuable output is the disagreement between the three, not the number." },
+      { id: "asset", name: "Asset Agent", state: "built", depth: 3 },
     ],
   },
   {
@@ -701,11 +1020,21 @@ export const ENGINES = [
     agents: [
       { id: "site-requirements", name: "Obligation and Requirements Agent", state: "built", depth: 4 },
       { id: "village-requirements", name: "Accommodation Requirements Agent", state: "built", depth: 4 },
-      { id: "obligation", name: "Obligation Monitor", state: "planned", depth: 5,
-        why: "Every obligation as a controlled object: responsible party, trigger event, required action, notice period, TIME BAR, communication method, evidence, and the consequence of non-compliance. The time bar is the reason this is worth building — a right lost to a deadline is lost completely, and nothing in the current system watches one." },
-      { id: "notice", name: "Notice Agent", state: "planned", depth: 4,
-        why: "Drafts a notice when an event occurs and the clock starts. It drafts only: a binding contractual communication passes an authorised commercial gate, always." },
-      { id: "change", name: "Change and Entitlement Agent", state: "planned", depth: 4 },
+      // DEPTH 4, NOT 5, AND THE CHANGE IS THE HONEST PART.
+      //
+      // This slot claimed level 5 — autonomous coordination, pursuing an
+      // objective across systems — while it was planned. What was actually
+      // built reads the clause graph, builds a register, compares it against
+      // the recorded events and reports what nothing is watching. That is
+      // analysis and controlled workflow, which is level 4. Promoting the
+      // code to "built" while leaving the depth at 5 would have been the
+      // exact claim the depth ladder exists to prevent, and the architecture
+      // test refuses it.
+      { id: "obligation", name: "Obligation Monitor", state: "built", depth: 4,
+        was: "planned at depth 5: every obligation as a controlled object: responsible party, trigger event, required action, notice period, TIME BAR, communication method, evidence, and the consequence of non-compliance. The time bar is the reason this is worth building — a right lost to a deadline is lost completely, and nothing in the current system watches one." },
+      { id: "notice", name: "Notice Agent", state: "built", depth: 4,
+        was: "planned: Drafts a notice when an event occurs and the clock starts. It drafts only: a binding contractual communication passes an authorised commercial gate, always." },
+      { id: "change", name: "Change and Entitlement Agent", state: "built", depth: 4 },
     ],
   },
   {
@@ -713,10 +1042,10 @@ export const ENGINES = [
     name: "Handover and O&M Engine",
     purpose: "Started at mobilisation, not at practical completion — which is the only way a handover date is ever met.",
     agents: [
-      { id: "commissioning", name: "Commissioning Agent", state: "planned", depth: 4 },
-      { id: "handover-file", name: "Handover Agent", state: "planned", depth: 4,
-        why: "A live completeness score per asset — submittals, approval, installation evidence, inspection, testing, commissioning, defect closure, training, certification, warranty, spares, operating procedure — that forecasts a failed handover before the contractual date rather than reporting one after it." },
-      { id: "lifecycle", name: "Lifecycle and Asset Information Agent", state: "planned", depth: 3 },
+      { id: "commissioning", name: "Commissioning Agent", state: "built", depth: 4 },
+      { id: "handover-file", name: "Handover Agent", state: "built", depth: 4,
+        was: "planned: A live completeness score per asset — submittals, approval, installation evidence, inspection, testing, commissioning, defect closure, training, certification, warranty, spares, operating procedure — that forecasts a failed handover before the contractual date rather than reporting one after it." },
+      { id: "lifecycle", name: "Lifecycle and Asset Information Agent", state: "built", depth: 3 },
     ],
   },
 ];

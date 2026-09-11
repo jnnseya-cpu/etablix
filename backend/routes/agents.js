@@ -159,6 +159,12 @@ async function workPipeline(runId, agent, inputs, runBy, visualFiles = [], resum
       ...(r.controlCheck ? { controlCheck: r.controlCheck } : {}),
       ...(r.interfaceCheck ? { interfaceCheck: r.interfaceCheck } : {}),
       ...(r.challengeCheck ? { challengeCheck: r.challengeCheck } : {}),
+      // The deterministic engines added after those five work the other way
+      // round: the arithmetic is the deliverable and the model writes the
+      // report from it. Kept on the run for the same reason as the others —
+      // the document cites these findings, so the run holds what they were
+      // on the day rather than recomputing them when somebody opens it.
+      ...(r.machine ? { machine: r.machine } : {}),
       // What the run cost, priced as it ran. The events are not kept on the
       // row — one per pass across every run would grow the store without
       // answering a question anybody asks — but the totals, the per-pass
