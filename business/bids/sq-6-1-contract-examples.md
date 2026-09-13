@@ -61,12 +61,17 @@ cannot.
 > visits and site reports behind it, and the management of the civils and
 > site-services subcontractors who delivered it.
 >
-> [One named project, in four or five sentences: the client, the dates, the
-> value band, the scope that sat inside the contract, the interfaces you
-> personally managed, and what the outcome was. Detail only somebody who was
-> there could write is the entire point of this paragraph — it is what
-> separates a capable applicant from a hopeful one. Then, in two sentences
-> each, a second and a third.]
+> [The Skye project goes here, in four or five sentences. You have the figures
+> that make it land: a 36-month programme with a 309-bed workforce village
+> inside the turnkey scope. Give the dates, the scope that sat inside the
+> contract, the interfaces you personally managed, and how it ended. Detail
+> only somebody who was there could write is the entire point of this
+> paragraph — it is what separates a capable applicant from a hopeful one.
+> Then, in two sentences each, a second and a third.]
+>
+> [Scale and role are yours to describe. The client's commercial terms,
+> contract values, rates and supplier names are not. A duration and a bed
+> count are ordinary CV facts; a contract sum is not.]
 >
 > That is the same work ETABLIX is formed to do, delivered by the same person.
 >

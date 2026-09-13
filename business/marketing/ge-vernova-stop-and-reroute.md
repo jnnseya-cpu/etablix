@@ -100,13 +100,64 @@ relationship being cold.
 Two standing rules apply: never pay to register, and list only accreditations
 genuinely held.
 
-## One thing to check before it is offered anywhere
+## The 225-bed set is clean — checked
 
-The optional postscript in the Marc email offers an Employer's Requirements set
-for a 225-bed workforce village, and the gap register run against it. **Confirm
-that document is ETABLIX's own and not derived from work done at GE Vernova
-before it is offered to anyone, and least of all back to GE Vernova sourcing.**
-If its lineage is not certain, it does not get offered.
+The postscript in the Marc email offers an Employer's Requirements set for a
+225-bed workforce village. That is ETABLIX's own specimen, built in this
+repository from its own generator scripts, on a fictional project. Its room
+schedule is 225 = 199 + 12 + 14, asserted by the audit script that builds it.
+
+Skye was **309 beds over 36 months**. Different project, different figures,
+nothing carried across. The document is his to show, and there is no
+confidentiality question in it.
+
+## The timing is the missing piece, and it changes the reading
+
+He left GE Vernova in **February 2026**, with a six-month period during which he
+could not contact them. That period ran to roughly **August 2026**. Today is
+mid-September, so it expired about a month ago.
+
+**Which branch applies decides what happened.**
+
+**If the first email went out before August**, it landed inside the restricted
+period. The silence is then fully explained and is not a judgement: a message
+from a former employee inside that window puts the recipient in a position
+where replying could implicate them, and the safe action is to do nothing and
+mention it to nobody.
+
+**If he waited and only made contact after August**, nothing was breached. But
+the recipients do not diary the expiry of somebody else's restriction. They
+remember there was one. A message from a former colleague they last knew was
+restricted still produces "check before answering" rather than "reply", and
+checking is how a message dies.
+
+Either branch gives the same instruction: stop, and let time do the work.
+
+**And February is only seven months ago.** That is very recent. Those three are
+still working alongside whoever absorbed his work. In their minds the departure
+is current, not historic. The same approach a year from now, carrying a
+delivery record, is a completely different object — and the restriction being
+so recent is itself the reason none of them can respond naturally yet.
+
+Read the actual clause rather than relying on the six-month figure from memory.
+These clauses often cover more than contact, they can run from a date other than
+the last working day, and what they restrict is usually solicitation rather than
+conversation. This is not legal advice and the contract is the authority.
+
+## The fact worth more than any of this
+
+**309 beds. 36 months.**
+
+That is a materially stronger credential than anything in the outreach drafts,
+and it is going in the wrong place. A 36-month EPC project carrying a 309-bed
+workforce village inside its scope is exactly the substantial, specific,
+checkable reference the DPS applications need and do not currently have.
+
+It belongs in the curriculum vitae and in the question 6.1 explanation, written
+as scale and role — the duration, the bed count, the scope that sat inside the
+contract, the interfaces personally managed — and not as the client's
+commercial terms. That distinction is ordinary CV practice and it keeps the
+line between what is his to describe and what is not.
 
 ## Where the hours are worth more
 
