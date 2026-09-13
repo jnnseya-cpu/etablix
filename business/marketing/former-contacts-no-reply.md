@@ -1,164 +1,126 @@
-# Nobody replied. What that does and does not mean, and what to do.
+# Nobody replied — email and LinkedIn both. What that means and what to do.
 
-## The logic first
+LinkedIn changes the picture. An earlier version of this note put email
+deliverability first. If the same people also had LinkedIn messages, that
+explanation is mostly gone: LinkedIn messages are delivered, and the recipient
+gets a notification. So the cause sits somewhere else, and the candidates are
+narrower and more useful.
 
-Every one of them went quiet. That uniformity is the most useful fact here,
-and it points away from the explanation you have reached for.
+## First: get the fact you can have for free, today
 
-Personal feeling is not a common cause. Eight or ten people, at different
-companies, in different roles, who do not talk to each other about you, do not
-independently arrive at the same silence because of how you left one job. A
-uniform outcome across independent people almost always has a mechanical cause
-sitting underneath it.
+**LinkedIn shows read receipts.** Open each conversation. If a small circular
+avatar sits under your last message, that person opened it. If there is
+nothing, they did not.
 
-So before concluding anything about what people think of you, rule out the
-mechanisms. They are duller and far more likely.
+That single check splits the problem in two and costs you nothing:
 
-## Four mechanical explanations, all more probable than a grievance
+- **Read, no reply.** They saw it and chose not to answer. Now the question is
+  what the message asked of them, and that is fixable.
+- **Unread.** Nothing was ever refused. If you are not a first-degree
+  connection, your message sits in "Other" or in message requests, which a
+  great many people never open. That is not a judgement about you; it is a
+  folder.
 
-**1. The email never arrived.** A domain sending its first messages, to
-corporate Microsoft 365 and Google Workspace tenants, with no sending history
-and links in the body, is a textbook quarantine candidate. Nothing bounces.
-Nobody refuses. It simply lands in a junk folder nobody opens, or in a
-tenant-level quarantine the recipient never sees. This is invisible from your
-side and it is extremely common. **Check it before you conclude anything
-else** — see the test below.
+Check whether you are actually connected to each of them, too. A message
+request from a non-connection and a message from a connection are two
+completely different objects on that platform.
 
-**2. The recipient has no way to say yes.** A former colleague is a peer.
-Peers do not award work. To engage ETABLIX, somebody has to raise a supplier
-request, get you through onboarding, and place you on an approved vendor list.
-A manager who cannot start that process, and who does not want to write "no",
-writes nothing. That is the single most common reason a warm contact goes cold
-on a business approach.
+Do this before concluding anything. You are currently reasoning from an
+absence, and the platform will simply tell you.
 
-**3. A former employee approaching an ex-employer for work is a compliance
-question, not a social one.** Conflict-of-interest rules, and non-solicitation
-covenants that commonly run six to twelve months after leaving, mean the safest
-action available to the person who received your email is to do nothing. They
-may not even be permitted to reply without routing it somewhere. Silence there
-is self-protection, not judgement.
+## Second: the most likely reason, and it is not grievance
 
-**4. They are buried, or they have moved.** Turnover on EPC projects is high
-and inboxes on live projects are brutal. An email that needs thought rather
-than a one-word answer gets postponed, then buried, then forgotten. That is not
-a decision about you; it is an inbox.
+Uniform silence across independent people, at different companies, who do not
+discuss you with each other, does not come from how you left one job. Personal
+feeling is not a common cause. Something they all received in common is.
 
-## The test to run first, today
+Here is the most probable version of that, and it is uncomfortable but it is
+fixable.
 
-It takes ten minutes and it converts a story into a fact.
+**They cannot place what you are now.** They knew you as a construction
+subcontract manager. What arrives is a company with a platform, two product
+names, sixteen agents and a diagnostic. The person and the proposition do not
+obviously connect, and the recipient cannot tell in five seconds whether this
+is an old colleague saying hello, a consultancy pitch, or software being sold
+to them. When someone cannot categorise a message, they do not reply — not out
+of hostility, but because replying requires them to first work out what it is,
+and that is work they did not ask for.
 
-1. Check the domain's email authentication. Put `etablix.com` into any public
-   SPF, DKIM and DMARC checker. If SPF is missing, or DMARC is absent, or the
-   sending service is not aligned, your mail is being filtered and you have
-   your answer. Fix that before sending anything else to anybody.
-2. Send a test to a corporate Outlook address and a Gmail address that you
-   control or that a friend will check honestly — and ask them to look in junk,
-   not just the inbox.
-3. If you have any bounce or delivery log from the sending account, read it.
+That explains uniformity perfectly. Every one of them received the same
+unplaceable thing.
 
-Until this is done, everything else is guesswork. It is also the one
-explanation you can fix outright.
+**And there is a second reason specific to who you chose.** You approached
+people you used to do this work for, internally. From their seat, an approach
+from you carries an implication nobody wants to be the one to act on: that the
+arrangement which replaced you is not as good. Whoever took over your work is
+still there. Engaging you externally is a political act inside their
+organisation, and the cheapest response to a political act you did not ask for
+is no response at all.
 
-> I could not run this check from here — the environment has no DNS lookup
-> tools installed, so I can confirm the domain resolves and nothing more. Do
-> not take silence on this point from me as a clean bill of health.
+Neither of those is about you personally. Both are about position.
 
-## Do not send the project sample
+## Third: the specimen report
 
-Two reasons, and the first is the serious one.
+**The confidentiality objection does not apply.** Agent 8's Site Systems
+Diagnostic is ETABLIX's own output on a specimen project. It is yours to send.
+An earlier version of this note warned against sending work from a former
+employer's projects; that warning still stands for anything produced at GE
+Vernova, but it does not apply to this.
 
-**Confidentiality.** If the sample is work you produced on GE Vernova
-projects, it is most likely GE Vernova's confidential information or their
-client's. Confidentiality obligations survive the end of employment. Sending it
-to GE Vernova achieves nothing — they already have it. Sending it to anyone
-else is a real professional risk, and it is a far worse outcome than being
-ignored. A company that would not reply to an email will certainly respond to
-their own material appearing in someone else's marketing.
+**Send it anyway? No — and the reason matters more than the verdict.**
 
-**It is the wrong move even if it were clean.** Sending unsolicited material
-after silence changes what you are. You stop being a professional who got in
-touch and become a person who will not take silence for an answer. That is the
-one impression that closes a door properly.
+It answers a question nobody asked. The question in their mind is not "what
+does your report look like." It is "who is this now, and is there anything here
+for me." A specimen deliverable answers neither, and it makes the positioning
+problem worse rather than better: it is more product, sent to people who could
+not place the product the first time.
 
-What you can send is your own work. The specimen diagnostic on the website is
-ETABLIX's own, built for this purpose, and it lives at a link rather than in an
-attachment. A link is an invitation. An attachment is a demand.
+There is also the timing. Unsolicited material after silence changes what you
+are. Before it, you are a professional who got in touch. After it, you are
+someone who would not take silence for an answer. That is the one move that
+closes a door properly rather than leaving it ajar.
 
-## What to do instead
+**The report is a good asset in the wrong place.** It belongs where people meet
+it by choice: on the website, in a LinkedIn post about the method rather than
+the product, or sent to someone who has asked what the deliverable looks like.
+A link is an invitation; an attachment after silence is a demand.
 
-### Change the channel
+## Fourth: what the message should have been
 
-Send it on LinkedIn, not email. It bypasses every corporate mail filter,
-the person can see it is genuinely you, and a connection note carries no
-attachment to be scanned. You are already active there.
-
-### Change the ask
-
-Your current ask is almost certainly unanswerable. Replace it with one that
-costs the recipient nothing and needs no permission from anybody.
-
-The strongest version has no ask in it at all:
+Lead with the person and the work they watched you do. Mention the platform
+never, on this first contact. Ask for nothing.
 
 > Hi [name] — I wanted you to hear it from me rather than see it on LinkedIn.
-> I've left [employer] and set up on my own, doing the site services and
-> commercial management side of what we were doing on [project]. Not asking you
-> for anything. I enjoyed working with you, and I hope [the job] landed well.
-> Justin
+> I've left [employer] and set up on my own doing the site services and
+> commercial side of what we were doing on [project]. Not after anything from
+> you. I enjoyed working with you and I hope [the job] came off. Justin
 
-No request means no compliance question, nothing to escalate, and nothing to
-decline. It is the version most likely to get a reply, precisely because it
-does not need one.
+No ask means nothing to escalate, nothing to check with anyone, and nothing to
+decline. It is the version most likely to get a reply precisely because it does
+not need one. If someone wants to know more, they will ask, and then the
+platform, the diagnostic and everything else has somewhere to land.
 
-### Separate the two things you actually want
+## Fifth: ask one person for the truth
 
-You are treating references and work as one problem. They are different asks
-with very different odds.
+Pick whoever you were closest to. Phone them, or send something that gives
+them permission to be blunt:
 
-**References.** Ask individuals, personally, never the company. Companies give
-dates of employment and nothing else; individuals will speak warmly about
-someone they rated, if you take the employer out of it:
+> Can I ask you something straight, and be blunt with me. I've had no reply
+> from anyone since I left. If there's something I should know about how that
+> landed, I'd rather hear it from you than keep guessing. And if there's
+> nothing, that's useful too.
 
-> Hi [name] — a small favour. I'm registering my company on a public sector
-> framework and they ask for someone who can speak to how I work. Would you be
-> willing to be named personally, rather than on behalf of [employer], so that
-> if anyone rings it's a five-minute call about what I was like to work with?
-> Completely understand if not — I don't want to put you in an awkward position
-> with [employer] either way.
-
-That phrasing removes the only real objection. Expect a much higher hit rate
-than anything you have sent so far.
-
-**Work.** A former employer is one of the hardest first customers you can
-choose, not the easiest. Conflict rules, procurement, and the awkwardness of
-the situation all work against it. You are spending your effort on the hardest
-available market. The DPS applications are a better use of the same hours,
-because they have a defined process with a defined answer at the end of it.
-
-### If you want the truth, ask one person for it
-
-Pick the one person you were closest to. Not an email — a phone call, or a
-message that invites bluntness:
-
-> Can I ask you something straight, and you can be blunt. I've had no reply
-> from anyone I've contacted since I left. If there's something I should know
-> about how that was received, I'd rather hear it from you than guess. And if
-> there isn't, that's useful too.
-
-Most people will answer that honestly when asked one to one and given
-permission. It is the only route that turns your speculation into fact, and it
-costs you nothing you have not already lost.
+Most people answer that honestly one to one. It is the only route that turns
+speculation into fact, and it costs nothing you have not already lost.
 
 ## On forgetting about them
 
-Do not. Not out of sentiment — out of arithmetic.
+Do not, and not out of sentiment. These relationships are a twenty-year asset
+in an industry that runs on recall. The person with no capacity to answer in
+September rings in March when a job goes wrong and they need somebody who
+understands site services at short notice. Writing them off is the only
+genuinely expensive move available here, and it would be made on a story that
+the LinkedIn read receipts can settle this afternoon.
 
-These relationships are a twenty-year asset in an industry where work moves by
-reputation and recall. Somebody who has no capacity to respond in September
-rings in March because a job went wrong and they need somebody who understands
-site services at short notice. Writing them off now is the only genuinely
-expensive move available to you, and it would be made on the basis of a story
-you have not yet tested.
-
-Send one clean message with no ask in it. Then leave it alone and put the
-energy into the applications. Silence is not a door closing. It is usually just
-silence.
+Meanwhile the applications have a defined process and a defined answer at the
+end of it. That is where the hours are worth more.
