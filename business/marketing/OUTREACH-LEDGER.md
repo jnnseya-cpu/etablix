@@ -32,11 +32,15 @@ is not maintained is worse than none, because it will be believed.
 outreach that is a strong rate, not a failed campaign. Most runs of this kind
 return one in ten.
 
-**No GE Vernova approach is recorded anywhere in this repository.** The only GE
-Vernova file is a comment drafted for a public LS ELECTRIC joint-venture post,
-which is a comment and not a message. If messages went to GE Vernova or to
-former colleagues there, they were not written from these files and cannot be
-reviewed from here.
+### GE Vernova — Martin Shaw, Mark Stone, Marc Townsend, and others
+
+Two rounds sent, no reply recorded from any of them. The first email read as a
+supplier introduction; the follow-up sequence written to correct it is in
+`followup-week-two.html`.
+
+Status: **stop**, per that sequence's own instruction that a fourth contact
+costs the relationship. The reasoning, and the route that does not need anyone
+to reply, are in `ge-vernova-stop-and-reroute.md`.
 
 ---
 
