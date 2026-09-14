@@ -38,9 +38,16 @@ Two rounds sent, no reply recorded from any of them. The first email read as a
 supplier introduction; the follow-up sequence written to correct it is in
 `followup-week-two.html`.
 
-Status: **stop**, per that sequence's own instruction that a fourth contact
-costs the relationship. The reasoning, and the route that does not need anyone
-to reply, are in `ge-vernova-stop-and-reroute.md`.
+Status: **closed by decision, September 2026.** One closing line sent to each,
+varied by person and spread across different days, then left alone. Not
+revisited before **2027**; if any of them makes contact first, that is welcome
+and the door was left open for exactly that.
+
+By 2027 two things will have changed that cannot be changed now: the
+six-month restriction from the February leaving date is long expired, and
+there is a delivery record to approach them with. The same message then is a
+different object. The reasoning, and the supplier-registration route that
+needs nobody to reply, are in `ge-vernova-stop-and-reroute.md`.
 
 ---
 

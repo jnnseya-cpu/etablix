@@ -67,7 +67,12 @@ forwarded to somebody whose job is to log it. That would create the record he
 is afraid already exists — and persistence, not the original approach, is what
 creates it.
 
-If the closing line has not gone, send it once and mean it:
+**Decision taken, September 2026.** One closing line to each, varied by person
+and sent on different days, then nothing until 2027. If one of them makes
+contact in the meantime, that is welcome — the line is written to leave the
+door open for precisely that and to ask nothing in return.
+
+Send it once and mean it:
 
 > No reply needed — I know what your inboxes look like. If the site
 > infrastructure scope ever becomes somebody's problem again, you know where I
