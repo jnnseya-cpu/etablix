@@ -1,7 +1,13 @@
 # Connected Places Catapult — Infrastructure Productivity Scale-Up Programme
 
-**Assessed 14 September 2026.** Verdict: **no. The deadline has passed, and the
-company would not have met three of the five criteria.**
+**Assessed 14 September 2026.** Verdict: **no — on eligibility, not on
+timing.** The company would not meet three of the five criteria.
+
+**Deadline corrected.** An earlier version of this note said applications had
+closed at midday on 14 September, taken from the search index. The live page
+says the open call closes **Monday 28 September 2026 at 12:00pm**. The page is
+the authority and the index was stale or reading a different call. The window
+is open; the eligibility answer is what decides this, and it is unchanged.
 
 ## Source caution, first
 
@@ -13,11 +19,15 @@ be treated as the programme's own wording.
 
 ## The deadline
 
-**Applications closed at midday on 14 September 2026.** It is now the afternoon
-of 14 September. The window shut roughly an hour before this was asked.
+**The open call closes Monday 28 September 2026 at 12:00pm**, per the
+programme's own page. There is a fortnight left, so nothing here is decided by
+timing.
 
-That settles the immediate question. What follows is worth reading anyway,
-because it decides the answer for the next one.
+One small thing worth noting rather than acting on: a ten-place pilot whose
+window runs later than the date carried in the search index suggests either an
+extension or a second call. Pilots extend when applications are thin. That is
+worth nothing to an applicant who fails three of the criteria, and it would be
+worth a great deal to one who meets them.
 
 ## What it is
 
