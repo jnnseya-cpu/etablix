@@ -11,19 +11,18 @@ is both honest and the strongest available answer.
 
 ---
 
-## The answer — 108 words
+## The answer — 101 words
 
-> Yes on entrepreneurial. Limited on scale-up, and it is worth being exact
-> about which.
+> Yes on entrepreneurial. Limited on scale-up — worth being exact about which.
 >
 > **Entrepreneurial:** founded the company and took it from nothing to an
-> operating platform, two products, a published policy suite and live
-> public-sector framework applications — alone.
+> operating platform, two products, a policy suite and live public-sector
+> applications — alone.
 >
-> **Scale-up, in delivery rather than company-building:** ran pre-construction
-> across a 628MW programme of more than thirty sites built in sequence, which is
-> a repeatability problem at volume, and established a new subcontract
-> capability inside a large EPC business.
+> **Scale-up, in delivery not company-building:** ran pre-construction across a
+> 628MW programme of thirty-plus sites built in sequence — a repeatability
+> problem at volume — and established a new subcontract capability inside a
+> large EPC business.
 >
 > **Absent:** no prior venture through a funding round, and no experience of
 > hiring and managing a growing team. That is a reason we are applying, not
