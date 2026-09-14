@@ -16,22 +16,25 @@ branded. Line breaks work; nothing else does.
 >
 > After [n] years running construction subcontracts at GE Vernova — the
 > turnkey jobs where the civils, site management and site infrastructure sat
-> inside our own contract — I set up ETABLIX to do that one piece properly.
+> inside our own contract — I've built three things. They stand on their own
+> and they compound if you use more than one.
 >
-> ETABLIX (etablix.com) takes site establishment as one accountable package:
-> compound, temporary power and water, welfare, waste, logistics and
-> accommodation. One owner, instead of six orders with the gaps between them
-> belonging to nobody.
+> ETABLIX (etablix.com) — site establishment as one accountable package.
+> Compound, temporary power and water, welfare, waste, logistics and
+> accommodation, with one owner instead of six separate orders and the gaps
+> between them belonging to nobody.
 >
-> CONSTRUX (construxvg.com) is the operating system we run it on — commercial,
+> CONSTRUX (construxvg.com) — the construction operating system. Commercial,
 > programme, site, safety, supplier and information control in one system of
-> record.
+> record, so the project position is a fact you can read rather than something
+> reassembled every month.
 >
-> VERYX (veryxjnn.com) is the executive lens across a portfolio — delivery
-> risk, performance and decisions in one governed picture.
+> VERYX (veryxjnn.com) — the executive lens across a portfolio. Delivery risk,
+> performance and decisions in one governed picture, so the board sees the
+> same thing the projects do.
 >
-> If that's a problem your business is living with, or somebody in your network
-> is, I'd welcome the introduction.
+> If any of that is a problem your business is living with, or somebody in
+> your network is, I'd welcome the introduction.
 >
 > Justin
 
@@ -44,17 +47,22 @@ before it is scrolled past rather than read.
 
 For anyone you do not know well, or where the longer one feels heavy:
 
-> Hi [first name] — I've set up ETABLIX (etablix.com), taking site
-> establishment as one accountable package: compound, temporary power and
-> water, welfare, waste, logistics and accommodation, with one owner instead of
-> six orders and gaps between them. It runs on our own platforms, CONSTRUX
-> (construxvg.com) for project control and VERYX (veryxjnn.com) for the
-> portfolio view.
+> Hi [first name] — I've built three things in construction, and they work
+> separately or together.
 >
-> If that's something your business or anyone in your network is wrestling
-> with, I'd welcome an introduction. No reply needed otherwise.
+> ETABLIX (etablix.com) takes site establishment as one accountable package —
+> compound, temporary power and water, welfare, waste, logistics and
+> accommodation, one owner instead of six orders with gaps between them.
+> CONSTRUX (construxvg.com) is the operating system that holds a project's
+> commercial, programme, site and supplier position in one place. VERYX
+> (veryxjnn.com) is the portfolio view for the people who have to make the
+> decisions.
+>
+> If any of it is useful to your business or to somebody in your network, I'd
+> welcome an introduction. No reply needed otherwise.
 >
 > Justin
+
 
 ---
 
@@ -70,6 +78,21 @@ three product names. Lead with the platform and the reader cannot tell in five
 seconds whether this is an old colleague, a consultancy or software — and when
 somebody cannot categorise a message, they do not answer it. That is the single
 most expensive mistake available here, and this line is the guard against it.
+
+**Each of the three stands alone.** "They stand on their own and they compound
+if you use more than one" is the whole of the cross-sell, and it is one
+sentence. A reader who needs only the platform is not told they must take the
+service, and a reader who needs only the service is not told they must take the
+platform. Defining one product by reference to another — "the system we run it
+on" — quietly removes it from consideration for anybody who does not want the
+other, which is most readers.
+
+**The pitch is silent because every line ends on a consequence.** One owner
+instead of gaps belonging to nobody. A position you can read rather than
+reassemble every month. The board seeing what the projects see. Nobody is asked
+to buy anything, and each line still argues. That is the difference between a
+description and a feature list, and it is why the message needs no closing
+pitch.
 
 **Three names is already the limit.** Each gets one sentence and no more. A
 fourth would turn the message into a brochure.
