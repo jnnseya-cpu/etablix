@@ -3,15 +3,24 @@
 Branded ETABLIX policy documents, each built as Word and PDF from one content
 list so the two files cannot disagree.
 
-| Script | Document |
-|---|---|
-| `build-occupational-health.cjs` | Management of Occupational Health, including mental health and fatigue |
-| `build-edi.cjs` | Equality, Diversity and Inclusion |
+| Script | Document | Pages |
+|---|---|---|
+| `build-occupational-health.cjs` | Management of Occupational Health, including mental health and fatigue | 12 |
+| `build-edi.cjs` | Equality, Diversity and Inclusion | 10 |
+| `build-health-safety.cjs` | Health and Safety Policy and Arrangements | 9 |
+| `build-environmental.cjs` | Environmental Policy | 7 |
+| `build-quality.cjs` | Quality Management Arrangements | 5 |
 
 ```
-node business/policies/build-occupational-health.cjs
-node business/policies/build-edi.cjs
+for f in business/policies/build-*.cjs; do node "$f"; done
 ```
+
+Every one of them ends with a section headed **what is not yet in place**.
+That is the section to leave in. Each item is the correct answer for a company
+of this size today and carries the trigger that changes it, and an assessor who
+sees the gaps stated will believe the rest. Each can be checked in minutes —
+an SSIP registration, an ISO certificate, a retained adviser — so a document
+that claims one it does not hold fails at the first search.
 
 `brand.cjs` holds the house style and both renderers. A new policy is a
 content file and nothing else — no layout, no fonts, no cover, no footer:
@@ -129,3 +138,62 @@ test.
   document can wait; this cannot.
 - Record the training actually completed at section 8, or the booked date.
 - Set the review interval and sign the cover.
+
+
+---
+
+## Health and Safety
+
+Nine pages. Section 5 tabulates every CDM 2015 duty holder role against this
+company's position on it, because "we do not accept Principal Contractor
+duties" is worth more as a table a client cannot misread than as a sentence in
+a paragraph.
+
+Section 6 is the part that is ours. The company specifies compounds, temporary
+power, welfare siting, lighting and logistics, and those decisions are made
+months before the first operative arrives. A hazard designed into a compound
+layout is one everybody on that site lives with for the duration, and no amount
+of supervision afterwards removes it — pedestrian and vehicle segregation,
+distribution sized for the actual load, lighting on the routes people walk at
+shift change rather than only at the work faces, and an interface register that
+names an owner for every boundary.
+
+Two brackets must be filled before issue: the competent adviser at section 3,
+because regulation 7 is not satisfied by an intention to appoint one, and the
+insurance position at 4.12.
+
+## Environmental
+
+Seven pages. Section 4 says the company does not measure its carbon footprint
+and does not report one, then says what will be measured and from when. A
+figure produced for a policy rather than from data invites a question the
+company cannot answer.
+
+Section 5 is where the influence is. The largest environmental saving on any
+project is the material never ordered, so the commitment is to challenge
+quantity allowances and over-ordering and to record the challenge whether or
+not it is accepted — a challenge made and refused is a different record from
+one never made. It also specifies sub-metering in welfare and accommodation,
+which is the cheapest decision in the section and the one most often left out,
+and it treats silt entering a watercourse as what it is: an offence under
+section 85 of the Water Resources Act 1991, not untidiness.
+
+## Quality Management Arrangements
+
+Five pages, and short on purpose. It is not laid out as an ISO 9001 manual and
+does not use clause numbering that mirrors the standard, because the company
+does not hold the certificate and a document that merely looks certified costs
+more than it earns.
+
+Two things in it are worth the read. It defines a defect as this work actually
+produces one — a wrong number, a missed obligation, a notice issued after its
+deadline — and it says plainly that with one director the check is the author's
+own recorded second pass, which is not independent review and is not called
+that.
+
+The retention table is the part to act on. Section 135 of the Building Safety
+Act 2022 extended the limitation period for claims under section 1 of the
+Defective Premises Act 1972 to fifteen years prospectively and thirty
+retrospectively. For anything touching dwellings a twelve-year retention is no
+longer sufficient, and a firm that destroyed records on the old assumption will
+defend a claim without the evidence that would have answered it.
