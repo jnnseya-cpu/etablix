@@ -5,32 +5,27 @@ A short factual field. Give a number with a breakdown rather than
 
 ---
 
-## If the field is 98 characters, not 100 words
+## The answer — 98 words
 
-**Check which limit actually applies before cutting.** The field says 100 words
-and the counter apparently allows 98 characters. Those are wildly different
-answers, and throwing away 90% of a response to a limit that does not exist
-would be the wrong error. If the counter is genuinely characters, use one of
-these. If it is words, use the full answer below.
+> Three days per month for scale-up support — coaching, customer days, investor
+> readiness — plus four days of demonstration delivery already costed as match
+> funding. Seven a month, forty-two across the programme.
+>
+> The time is the Managing Director's. As sole director he is the decision
+> maker: no approval to seek, no board diary to reconcile, and sessions taken at
+> short notice — including a customer day set around a client's availability
+> rather than ours.
+>
+> The commitment is protected, not best endeavours. If a paying engagement ever
+> conflicts, we would say so and reschedule rather than quietly miss it.
 
-| Chars | Version |
-|---|---|
-| 98 | `7 days/month, protected: 3 scale-up support, 4 demonstration delivery. Rescheduled, never dropped.` |
-| 97 | `7 days/month: 3 coaching, customer days, investor readiness; 4 demonstration delivery. Protected.` |
-| 91 | `7 days/month: 3 scale-up support, 4 demonstration delivery. Protected, not best endeavours.` |
-| 80 | `Seven days per month: three on scale-up support, four on demonstration delivery.` |
-
-**Use the 98.** It carries everything that matters: the number, the split, and
-one word — protected — that says the commitment is real. "Rescheduled, never
-dropped" is the credibility clause from the long version, compressed to three
-words.
-
-**Do not cut to the 80.** It saves eighteen characters and loses the only
-qualitative claim in the answer.
+Exactly 98. The limit is words, not characters — an earlier reading of the
+counter suggested 98 characters, and shorter one-line versions are kept at the
+bottom in case a form elsewhere imposes one.
 
 ---
 
-## The full answer, if the limit is 100 words
+## The longer version, if a field elsewhere allows it
 
 > **Three days per month for scale-up support** — coaching sessions, customer
 > days and investor readiness work — in addition to the four days per month of
@@ -95,3 +90,14 @@ month rather than once at the end.
 **If the programme publishes a required minimum**, make sure your figure clears
 it. If it asks for more than seven, say what you can do rather than agreeing to
 a number you cannot meet.
+
+
+---
+
+## One-line fallbacks, if a character limit ever applies
+
+| Chars | Version |
+|---|---|
+| 98 | `7 days/month, protected: 3 scale-up support, 4 demonstration delivery. Rescheduled, never dropped.` |
+| 91 | `7 days/month: 3 scale-up support, 4 demonstration delivery. Protected, not best endeavours.` |
+| 80 | `Seven days per month: three on scale-up support, four on demonstration delivery.` |
