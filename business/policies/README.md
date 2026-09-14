@@ -1,15 +1,31 @@
 # Policies
 
-`build-occupational-health.cjs` — **Management of Occupational Health,
-including mental health and fatigue.** One script, two outputs, one content
-list, so the Word file and the PDF cannot disagree.
+Branded ETABLIX policy documents, each built as Word and PDF from one content
+list so the two files cannot disagree.
+
+| Script | Document |
+|---|---|
+| `build-occupational-health.cjs` | Management of Occupational Health, including mental health and fatigue |
+| `build-edi.cjs` | Equality, Diversity and Inclusion |
 
 ```
 node business/policies/build-occupational-health.cjs
+node business/policies/build-edi.cjs
 ```
 
-Produces `ETABLIX-Occupational-Health-Policy.docx` and
-`ETABLIX-Occupational-Health-Policy.pdf`.
+`brand.cjs` holds the house style and both renderers. A new policy is a
+content file and nothing else — no layout, no fonts, no cover, no footer:
+
+```js
+const B = require("./brand.cjs");
+const d = B.doc({ slug, running, kicker, title, sub, rev, control });
+const { p, rich, h1, h2, bullet, richBullet, note, fillIn, table,
+        pageBreak, approval } = d;
+h1("1. Statement of intent");
+p("...");
+approval();
+d.build().catch((err) => { console.error(err); process.exit(1); });
+```
 
 ## Why the PDF is not converted from the Word file
 
@@ -23,8 +39,9 @@ print exposes one, and a twelve-page policy with no page numbers is a document
 nobody can reference in a meeting.
 
 `docx` is not a project dependency and is not in `package.json`. It is
-installed in the session scratchpad and the path is at the top of the script.
-Reinstall with `npm install docx` in that directory if the path has gone.
+installed in the session scratchpad, and `brand.cjs` holds the path.
+Reinstall with `npm install docx` in that directory if it has gone, or set
+`ETABLIX_DOCX` to point elsewhere.
 
 ## Before this document is issued
 
@@ -65,3 +82,50 @@ manages worker accommodation, so the duty starts at the specification: a room
 without blackout fails a night shift worker months before anyone arrives on
 site. That section is the part of the document that is ours rather than
 generic, and it is the part a construction client will recognise.
+
+
+---
+
+## Equality, Diversity and Inclusion
+
+Ten pages. The structure follows the occupational health policy: the law as a
+table, then what the company does in its own work, then what it specifies for
+others, then what is not in place.
+
+### What is deliberate
+
+**It publishes no workforce figures.** With one working director there are
+none, and a table of percentages derived from one person is a fiction. Section
+9 says so and lists what will be recorded from the first engagement instead.
+This is the single most damaging thing an EDI policy could get wrong, and an
+assessor reading a start-up's diversity statistics knows exactly what they are
+looking at.
+
+**Protective equipment is in it.** Most standard equipment is made to fit an
+average adult male body, and equipment that does not fit does not protect. That
+falls disproportionately on women, on smaller and larger workers, and on anyone
+whose observance affects what can be worn — which makes it a safety defect and
+a discrimination issue in the same breath. It is usually missing from both
+policies that should carry it.
+
+**Section 5 is the part that is ours.** The company specifies welfare, site
+services and worker accommodation, so most of its real influence is exercised
+in a specification written months before anybody arrives: separate secure
+facilities, a mixed workforce assumed from the outset rather than retrofitted,
+somewhere to pray and wash, catering that feeds everybody, and a proportion of
+accessible rooms so a worker who becomes disabled mid-project does not have to
+leave it. Each is cheaper on paper than on site.
+
+**It names the gap it cannot close alone.** A company with one director has no
+credible grievance route, because a procedure whose only destination is the
+person complained about is not a procedure. Section 7 says so and section 11
+repeats it as the first thing to fix. An external HR or employment law adviser
+on a call-off basis closes it cheaply, and it is the section an assessor will
+test.
+
+### Before it is issued
+
+- Name the independent grievance route at section 7. Everything else in the
+  document can wait; this cannot.
+- Record the training actually completed at section 8, or the booked date.
+- Set the review interval and sign the cover.
