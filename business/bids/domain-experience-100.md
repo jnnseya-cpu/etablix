@@ -10,18 +10,17 @@ the same contract.
 
 ---
 
-## The answer — 110 words
+## The answer — 99 words
 
-> Yes — though "team" is one person today, which is stated rather than implied.
+> Yes — though "team" is one person today, stated rather than implied.
 >
-> [Name] MCIOB has spent his career on exactly the scope this solution
-> addresses, from three sides of the same contract. Consultancy at Turner &
-> Townsend. Client side at UK Power Reserve, running risk and change and then
-> pre-construction across a 628MW programme of more than thirty new-build
-> generation and storage sites. Contractor side at GE Vernova as construction
-> subcontract manager on EPC and full turnkey projects across the UK, Ireland
-> and Europe, including a 36-month project carrying a 309-bed workforce village
-> inside the turnkey scope.
+> [Name] MCIOB has spent his career on this exact scope, from three sides of
+> the same contract. Consultancy at Turner & Townsend. Client side at UK Power
+> Reserve, running risk and change then pre-construction across a 628MW
+> programme of thirty-plus new-build generation and storage sites. Contractor
+> side at GE Vernova as construction subcontract manager on EPC and turnkey
+> projects across the UK, Ireland and Europe, including a 36-month project
+> carrying a 309-bed workforce village inside scope.
 >
 > Interfaces are arbitrated by people who have sat on every side.
 
@@ -58,7 +57,7 @@ unverifiable employer is worse than a shorter list.
 
 **Add your role at Turner & Townsend if there is room.** "Consultancy at Turner
 & Townsend" is thin next to the other two. Two or three words naming what you
-did there would strengthen it, and you have one word of headroom.
+did there would strengthen it, and you have a few words of headroom.
 
 **Do not add the planned hires here.** An assessor asking about domain
 experience wants who is there now. Hiring plans answered in this field read as
