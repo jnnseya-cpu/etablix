@@ -18,7 +18,7 @@ looked at this market two years ago.
 
 ---
 
-## The answer — 200 words
+## The answer — 199 words
 
 > **Market.** NISTA's UK infrastructure pipeline lists 734 projects worth £718
 > billion over ten years and now publishes workforce demand alongside it. That
@@ -28,26 +28,25 @@ looked at this market two years ago.
 > not a share of that headline. We size bottom-up per engagement.
 >
 > **Competition.** Common data environments hold documents. Consultancies sell
-> people. Neither owns the interfaces between packages. We do not attempt to
-> displace an incumbent platform; the architecture is ports and adapters with a
-> public API, so we interoperate.
+> people. Neither owns the interfaces between packages. CONSTRUX does not try to
+> displace an incumbent platform — ports and adapters with a public API mean it
+> interoperates — and VERYX sits above whatever is already there.
 >
 > **Risks and mitigation.**
 >
 > No corporate delivery record — the largest barrier. Mitigated by routes where
-> selection weighs named individual competence rather than company history,
-> principally public sector dynamic purchasing systems, and by leading with a
-> fixed-fee advisory engagement small enough to buy without a governance
-> argument.
+> selection weighs individual competence rather than company history, principally
+> public sector dynamic purchasing systems, and by leading with a fixed-fee
+> advisory engagement small enough to buy without a governance argument.
 >
-> Key-person concentration, one director. Mitigated by method documented in the
-> platform and staged hiring against revenue.
+> Key-person concentration, one director. Mitigated by method documented in
+> CONSTRUX and staged hiring against revenue.
 >
-> Procurement inertia. Mitigated through formal supplier registration and DPS
+> Procurement inertia. Mitigated through supplier registration and DPS
 > admission, which require nobody's goodwill.
 >
-> Cash exposure. Under our management model contracts are placed in the
-> client's name; we never hold supply-chain money.
+> Cash exposure. Under our management model contracts sit in the client's name;
+> we never hold supply-chain money.
 
 ---
 

@@ -17,7 +17,7 @@ They stay out, and the insight stands unattributed as our own framing.
 
 ---
 
-## The answer — 300 words
+## The answer — 298 words
 
 > ETABLIX has no customer track record, and this answer will not invent one.
 > Quantitative outcome data for the company does not exist, because no
@@ -37,10 +37,10 @@ They stay out, and the insight stands unattributed as our own framing.
 > compound, temporary power, welfare and logistics before anything of value
 > happened.
 >
-> **The solution is built, not planned.** Sixteen deterministic engines, the
-> clause graph, bitemporal state and the adversarial challenger are implemented
-> and under automated test. What has not happened is a client running it on
-> their own project. That is the gap, and we state it rather than dress it.
+> **CONSTRUX and VERYX are built, not planned.** Sixteen deterministic engines,
+> the clause graph, bitemporal state and the adversarial challenger are
+> implemented and under automated test. What has not happened is a client
+> running them on their own project. That is the gap, stated not dressed.
 >
 > We will not convert the founder's record into productivity percentages for
 > this application. Those outcomes were never measured at the time, and a

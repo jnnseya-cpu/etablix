@@ -16,10 +16,10 @@ that quietly fund development under another name.
 
 ---
 
-## The answer — 294 words
+## The answer — 296 words
 
-> **The demonstration.** A retrospective engine run on an infrastructure
-> client's own pre-construction or tender pack, for a project they have already
+> **The demonstration.** A retrospective CONSTRUX engine run on an
+> infrastructure client's own pre-construction or tender pack, for a project they have already
 > let. The engines interrogate the pack and return the package boundaries with
 > no named owner, the obligations and time bars it creates, and the interface
 > gaps between temporary power, water, welfare, accommodation and logistics.
@@ -38,17 +38,16 @@ that quietly fund development under another name.
 >
 > Information security and data handling, £1,200. Non-disclosure and data
 > processing agreements, a segregated secure workspace, and external review of
-> how we handle client pre-construction information. This is the first
-> objection every infrastructure client raises, and it should be answered
-> before it is asked.
+> how we handle client pre-construction information — the first objection every
+> infrastructure client raises, answered before it is asked.
 >
 > Buyer demonstration sessions, £1,500. Travel and attendance to run the
-> comparison live with organisations introduced through the programme and
-> others we approach directly.
+> comparison live with organisations introduced through the programme and others
+> we approach.
 >
-> Demonstration pack and recorded walkthrough, £1,800. The person in the room
-> is rarely the decision maker, so the artefact has to travel inside their
-> organisation without us.
+> Demonstration pack and recorded walkthrough, £1,800. Covers the CONSTRUX
+> findings and the VERYX portfolio view. The person in the room is rarely the
+> decision maker, so the artefact must travel without us.
 >
 > Contingency and cohort demonstration day, £1,000.
 >

@@ -17,34 +17,34 @@ sixteen engines exist and the registry reports sixteen.
 ## The answer — 200 words
 
 > No patents are held or applied for. The differentiation is architectural and
-> built rather than planned.
+> built.
 >
 > Most construction platforms are systems of record. AI entrants wrap a language
-> model over project documents. Both produce findings nobody can audit, because
-> the model generates them.
+> model over documents. Both produce findings nobody can audit, because the model
+> generates them.
 >
-> We invert it. Sixteen deterministic engines run first and produce the
-> findings — obligations, notices, time bars, change validity, programme logic
-> and quantity reconciliation. The model
+> CONSTRUX inverts it. Sixteen deterministic engines run first and produce the
+> findings — obligations, notices, time bars, change validity and programme
+> logic. The model
 > writes the report from them and cannot recompute them. Each agent's brief is
-> generated from the engine registry, so an agent cannot describe a check its
-> engine does not perform.
+> generated from that registry, so no agent can describe a check its engine does
+> not perform.
 >
 > Three further elements we believe uncommon:
 >
-> Engines refuse rather than warn. A claimed change on a barring contract with
-> no notice is rejected, not flagged.
+> Engines refuse rather than warn. A claimed change on a barring contract with no
+> notice is rejected, not flagged.
 >
 > Bitemporal state records what was known and when, not only what is true — the
-> question that decides construction disputes.
+> question that decides disputes.
 >
-> A clause graph holds the contract as obligations, notices and time bars rather
-> than searchable text, and every issued output passes an adversarial challenger
-> before release.
+> A clause graph holds the contract as obligations and time bars rather than
+> searchable text; every output passes an adversarial challenger; and VERYX rolls
+> the same records to portfolio level.
 >
 > Protectable assets: the engine rule base and clause-graph schema, held as
-> copyright and trade secret, plus trade marks. The rule base is the durable
-> asset and deepens with every contract it reads.
+> copyright and trade secret, plus the ETABLIX, CONSTRUX and VERYX marks. The
+> rule base is the durable asset, deepening with every contract read.
 
 ---
 

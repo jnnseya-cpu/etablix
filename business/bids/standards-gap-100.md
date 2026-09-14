@@ -12,14 +12,13 @@ the deployment.
 
 ---
 
-## The answer — 98 words
+## The answer — 97 words
 
 > Yes — none are currently held.
 >
-> Information security binds first. A large client will not release
-> pre-construction information without Cyber Essentials, and at tier one
-> without Cyber Essentials Plus and ISO/IEC 27001, supported by an independent
-> penetration test. ISO/IEC 42001 for AI management systems is emerging and we
+> Information security binds first. No large client releases pre-construction
+> information into CONSTRUX without Cyber Essentials, and at tier one without
+> Cyber Essentials Plus and ISO/IEC 27001 with an independent penetration test. ISO/IEC 42001 for AI management systems is emerging and we
 > expect it to be asked for.
 >
 > On the service side: SSIP accreditation, ISO 9001, 14001 and 45001,
