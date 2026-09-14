@@ -43,17 +43,20 @@ information, six months, £450 plus VAT.
 Travel and subsistence for six buyer demonstration sessions, £1,320.
 Contingency, £620.
 
-## Match funding — £14,800
+## Match funding — £24,700
 
 | Category | Amount | Basis |
 |---|---|---|
-| Labour | £13,200 | Managing Director, 24 days at £550/day, in kind |
+| Labour | £23,100 | Managing Director, 42 days at £550/day, in kind — 24 days demonstration delivery plus 18 days programme participation at 3 per month |
 | Equipment made available | £1,200 | Platform hosting, compute and secure storage, six months |
 | Knowledge | £0 | Engine rule base and clause-graph schema, provided free and deliberately not valued |
 | Travel and subsistence | £400 | Travel beyond the six funded sessions |
+| **Total** | **£24,700** | |
 
-Roughly 1.85 of match for every £1 requested, on a programme that requires no
-match at all.
+Roughly £3 of match for every £1 requested, on a programme that requires no
+match at all. The programme asks that extra time given to it be tracked for its
+records, which is why the 18 participation days sit here rather than nowhere —
+and it keeps this table consistent with the leadership-time answer.
 
 ---
 

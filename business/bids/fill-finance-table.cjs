@@ -55,7 +55,7 @@ const OTHER = [
 
 const LABOUR = [
   ["[Your name] — Managing Director, ETABLIX", 550, 0,
-   "24 days at £550/day, contributed as match funding and NOT charged to this grant. Days: pack ingestion and engine configuration (8), running three demonstrations and preparing the comparisons (9), buyer sessions and travel (4), write-up and liaison with the independent verifier (3)."],
+   "42 days at £550/day, contributed as match funding and NOT charged to this grant. Demonstration delivery, 24 days: pack ingestion and engine configuration (8), running three demonstrations and preparing the comparisons (9), buyer sessions and travel (4), write-up and liaison with the independent verifier (3). Programme participation, 18 days at 3 per month: coaching, customer days and investor readiness work."],
 ];
 
 const sum = (rows, i) => rows.reduce((a, r) => a + r[i], 0);
@@ -71,7 +71,7 @@ if (GRAND !== 8000) {
 }
 
 const MATCH = [
-  [25, 13200, "Managing Director, 24 days at £550/day across October 2026 to March 2027 — pack ingestion, engine configuration, running three demonstrations, buyer sessions and write-up. Source: ETABLIX, in kind, not charged to the grant."],
+  [25, 23100, "Managing Director, 42 days at £550/day across October 2026 to March 2027, in two parts. Demonstration delivery, 24 days: pack ingestion, engine configuration, running three demonstrations, buyer sessions and write-up. Programme participation, 18 days: coaching sessions, customer days and investor readiness work. Source: ETABLIX, in kind, not charged to the grant and tracked for the programme's records."],
   [26, 0, "None."],
   [27, 1200, "CONSTRUX platform hosting, compute and secure storage for the demonstration runs, six months. Source: ETABLIX, in kind."],
   [28, 0, "The sixteen-engine rule base and clause-graph schema are made available to the programme at no charge. Deliberately valued at nil rather than estimated: no licence benchmark exists for it, and an unevidenced figure would be worth less than none. Source: ETABLIX."],
