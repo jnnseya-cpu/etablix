@@ -20,7 +20,7 @@ is not maintained is worse than none, because it will be believed.
 | Contact | Organisation | Relationship | Reply recorded | Status |
 |---|---|---|---|---|
 | Jason Jackson | Siemens Energy | cold, 2nd degree | **Yes — twice, substantive** | **LIVE — see below** |
-| Gary Coleman | Hitachi Energy | cold | **Yes — within the hour** | **LIVE — referral offered** |
+| Gary Coleman | Hitachi Energy | cold | **Yes — within the hour** | **LIVE — referral MADE, internal** |
 | Aaron Hall | Morgan Sindall Infrastructure | ongoing contact | **Yes** | open |
 | Neil Brooks | Root-Power | former line manager, UK Power Reserve | none recorded | no reply |
 | Vincent Clancy | Turner & Townsend | former CEO, not connected | none recorded | no reply |
@@ -55,9 +55,15 @@ needs nobody to reply, are in `ge-vernova-stop-and-reroute.md`.
 
 ### Gary Coleman → Hitachi Energy HVDC supply chain
 
-He replied within the hour, said plainly he is not the buyer, described how
-Hitachi Energy buys the scope today, and **offered to forward your details to
-the UK SCM managers in HVDC.**
+He replied within the hour, said plainly he is not the buyer, and **offered to
+forward your details to the UK SCM managers in HVDC.**
+
+**September 2026 — the referral has been made.** Gary emailed a colleague,
+Jaime, internally, asking them to advise on registering for the Hitachi UK
+supply chain, and framed the proposition in his own words: site services as a
+single point of contact rather than multiple subcontracts, for HVDC and GPQS
+projects. Status: **live, awaiting Jaime.** The reply to send is in
+`business/bids/hitachi-jaime-registration-reply.md`.
 
 That is an internal referral at a tier-one original equipment manufacturer,
 from a person whose job is finding and qualifying subcontractors. It could not
