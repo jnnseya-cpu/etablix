@@ -27,10 +27,25 @@ is not maintained is worse than none, because it will be believed.
 | Neil Sheridan | Balfour Beatty | cold, procurement | none recorded | no reply |
 | James Maguire | Laing O'Rourke | cold | none recorded | no reply |
 | Jonathan Berry | HS2 Ltd | cold, client side | none recorded | no reply |
+| Pauline Steggall | Sweco UK (Ipswich) | cold, enquiries inbox | **Yes — declined** | **closed — wrong target, see below** |
 
-**Three replies from eight named approaches.** For cold business-to-business
-outreach that is a strong rate, not a failed campaign. Most runs of this kind
-return one in ten.
+### Sweco — declined, and correctly
+
+A Senior Administrator replied that site establishment "is not a service we
+require". That is true rather than dismissive: Sweco is a design and
+engineering consultancy and holds no compounds. The error was the list, not
+the offer, and nothing about the proposition changes on the strength of it.
+
+Sweco is a **channel** rather than a buyer — when they act as Employer's Agent
+their client carries the establishment cost — but that is a different message
+to a different person, after the first delivered engagement. The targeting
+filter that stops this recurring, and the reply to send, are in
+`sweco-the-list-error.md`.
+
+**Four replies from nine named approaches.** Three of them substantive, one a
+decline from an organisation that should never have been on the list. For cold
+business-to-business outreach that is a strong rate, not a failed campaign.
+Most runs of this kind return one in ten.
 
 ### GE Vernova — Martin Shaw, Mark Stone, Marc Townsend, and others
 
