@@ -53,6 +53,14 @@ needs nobody to reply, are in `ge-vernova-stop-and-reroute.md`.
 
 ## The two that are live, and what they are owed
 
+> **September 2026 — a second internal referral.** Matthew Knight at Siemens
+> Energy has forwarded ETABLIX internally to a colleague, Andrew, asking whether
+> site establishment is of interest to him. Two live internal referrals at two
+> tier-one original equipment manufacturers, from cold approaches that asked for
+> neither. The reply is in `business/bids/siemens-matthew-andrew-reply.md`, and
+> it carries one absolute constraint: nothing from the private exchange with a
+> programme director at that same company goes anywhere near it.
+
 ### Gary Coleman → Hitachi Energy HVDC supply chain
 
 He replied within the hour, said plainly he is not the buyer, and **offered to
