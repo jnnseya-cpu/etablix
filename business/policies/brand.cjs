@@ -48,7 +48,7 @@ const FOOTER_ID = "JNN GLOBAL LTD · 15405437";
 
 function doc(meta) {
   const { slug, kicker, title, sub, rev = "1", running, control = [],
-          outDir = __dirname } = meta;
+          outDir = __dirname, kind = "policy" } = meta;
   const outBase = path.join(outDir, "ETABLIX-" + slug);
   const blocks = [];
   const body = [];
@@ -146,7 +146,7 @@ function doc(meta) {
   if (control.length) table([2300, 6000], ["", ""], control);
   p("", { after: 300 });
   note("This document is issued in draft until every bracketed field is completed and it is "
-     + "signed and dated. An unsigned, undated policy is treated at a selection stage as a "
+     + `signed and dated. An unsigned, undated ${kind} is treated at a selection stage as a `
      + "draft, and a draft evidences nothing.");
   pageBreak();
 
