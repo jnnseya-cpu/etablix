@@ -51,6 +51,12 @@ needs nobody to reply, are in `ge-vernova-stop-and-reroute.md`.
 
 ---
 
+> **CHIC has returned the DPS application for more detail** — technical and
+> professional ability, and one financial document of five. Not a rejection:
+> "upon receipt we can progress the application." Referees invited and will be
+> called. See `business/bids/chic-resubmission.md`. This is the shortest route
+> to a first reference the company can cite as its own.
+
 ## The two that are live, and what they are owed
 
 > **September 2026 — a second internal referral.** Matthew Knight at Siemens
