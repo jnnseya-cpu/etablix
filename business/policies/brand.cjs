@@ -48,7 +48,7 @@ const FOOTER_ID = "JNN GLOBAL LTD · 15405437";
 
 function doc(meta) {
   const { slug, kicker, title, sub, rev = "1", running, control = [],
-          outDir = __dirname, kind = "policy" } = meta;
+          outDir = __dirname, kind = "policy", draftNote = true } = meta;
   const outBase = path.join(outDir, "ETABLIX-" + slug);
   const blocks = [];
   const body = [];
@@ -120,14 +120,14 @@ function doc(meta) {
     })],
   });
 
-  const table = (widths, head, rows) => push("table", { head, rows }, new Table({
+  const table = (widths, head, rows, o = {}) => push("table", { head, rows, size: o.size }, new Table({
     width: { size: widths.reduce((a, b) => a + b, 0), type: WidthType.DXA },
     columnWidths: widths,
     rows: [
       new TableRow({ tableHeader: true,
-        children: head.map((t, i) => cell(t, { w: widths[i], bold: true, fill: INK, color: "FFFFFF", size: 17 })) }),
+        children: head.map((t, i) => cell(t, { w: widths[i], bold: true, fill: INK, color: "FFFFFF", size: o.size ? o.size - 1 : 17 })) }),
       ...rows.map((r, ri) => new TableRow({
-        children: r.map((t, i) => cell(t, { w: widths[i], fill: ri % 2 ? PAPER : undefined })) })),
+        children: r.map((t, i) => cell(t, { w: widths[i], fill: ri % 2 ? PAPER : undefined, size: o.size })) })),
     ],
   }));
 
@@ -145,9 +145,11 @@ function doc(meta) {
     children: [new TextRun({ text: sub, font: F, size: 26, color: SLATE })] }));
   if (control.length) table([2300, 6000], ["", ""], control);
   p("", { after: 300 });
-  note("This document is issued in draft until every bracketed field is completed and it is "
-     + `signed and dated. An unsigned, undated ${kind} is treated at a selection stage as a `
-     + "draft, and a draft evidences nothing.");
+  if (draftNote) {
+    note("This document is issued in draft until every bracketed field is completed and it is "
+       + `signed and dated. An unsigned, undated ${kind} is treated at a selection stage as a `
+       + "draft, and a draft evidences nothing.");
+  }
   pageBreak();
 
   /* ---------- signature ---------- */
@@ -201,7 +203,8 @@ function doc(meta) {
             `<tr>${r.map((c, i) => `<td${blank && i === 0 ? ' class="k"' : ""}>${esc(c)}</td>`).join("")}</tr>`).join("");
           const head = blank ? ""
             : `<thead><tr>${b.head.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead>`;
-          out.push(`<table${blank ? ' class="plain"' : ""}>${head}<tbody>${rows}</tbody></table>`);
+          const sz = b.size ? ` style="font-size:${(b.size / 2).toFixed(1)}pt"` : "";
+          out.push(`<table${blank ? ' class="plain"' : ""}${sz}>${head}<tbody>${rows}</tbody></table>`);
           break;
         }
         default: break;
@@ -238,6 +241,7 @@ function doc(meta) {
           font-size: 8.8pt; page-break-inside: avoid; }
   th { background: #${INK}; color: #fff; text-align: left; padding: 5pt 7pt;
        font-size: 8.4pt; font-weight: 700; }
+  table[style] th, table[style] td { font-size: inherit; padding: 4pt 5pt; }
   td { padding: 5pt 7pt; vertical-align: top; border-bottom: 0.5pt solid #d8d3c6; }
   tbody tr:nth-child(even) td { background: #${PAPER}; }
   table.plain th { display: none; }
