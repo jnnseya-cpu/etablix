@@ -44,44 +44,93 @@ line as informational. After this change there is no public link left for
 Google to follow, and the item should clear on its own over the following
 crawl cycles. **It does not need a validation request** — nothing is broken.
 
-## "Page with redirect" — not visible from the application
+## "Page with redirect" — cause found in the repository, and fixed
 
-No application route redirects. Every sitemap URL is served directly, and
-`/blog` is handled explicitly in `app.js` before `express.static` can turn it
-into `/blog/` — a defect that was found and fixed earlier by asking the
-running server, because the markup could not have shown it.
+No application route redirected. But the repository held **two reverse proxy
+configurations that disagreed about exactly this**:
 
-That leaves the layers in front of the process, which is where this report
-almost certainly comes from and which cannot be inspected from the development
-environment — the network policy here blocks `etablix.com`. The three
-candidates, in order of likelihood:
+- `deploy/Caddyfile` — `www.etablix.com` 301s to the apex. Correct.
+- `deploy/nginx-etablix.conf` — answered on `etablix.com` **and**
+  `www.etablix.com`, proxied both to the application, and redirected neither.
 
-1. **`www.etablix.com` → `etablix.com`** (or the reverse). Correct and
-   expected. Google reports the redirecting host's URLs as "Page with
-   redirect" and indexes the target. Nothing to fix.
-2. **`http://` → `https://`**. Same: correct, expected, nothing to fix.
-3. **A host or CDN trailing-slash rule** rewriting `/about` to `/about/` or the
-   reverse. This one *would* matter, because it would mean every sitemap URL
-   redirects and the canonical points at the redirecting form.
+So the canonical host of the site was a property of whichever proxy the
+operator happened to install, and nothing tested it. That is the defect, and
+it explains why the report could not be diagnosed from the markup.
 
-Run these three against the live site to tell them apart:
+Both have been fixed, in two places.
+
+### The rule now lives in the application
+
+`backend/lib/canonical-url.js`, mounted ahead of the view counter and the
+verification handlers so a 301 is never counted as a page view. Four
+normalisations, each a single 301:
+
+| From | To |
+|---|---|
+| `www.<host>` | `<host>` |
+| `http://` | `https://` — only when the canonical site is https |
+| `/path/` | `/path` |
+| `/path.html` | `/path` |
+
+The fourth was a live duplicate-content problem, not a tidy-up.
+`express.static` is mounted with `extensions:["html"]`, so `/about` and
+`/about.html` both answered 200 with byte-identical content and neither
+pointed at the other. Two URLs, one page, held together by a canonical tag
+alone — which works until something links the `.html` form.
+
+What it deliberately does not do: it redirects **one** alternate host, `www`,
+and no others, because guessing a canonical host from an arbitrary `Host`
+header is how a health check or a container probe gets sent nowhere. It never
+touches `/api`, `/internal` or `/shared`. It keeps the port in development. It
+is inert when `SITE_URL` is unset.
+
+**One pairing is load-bearing.** The public static handler is now mounted with
+`redirect: false`. Left at its default, `express.static` answers a directory
+request by *adding* a trailing slash — so `/policies` would 301 to
+`/policies/`, which rule 3 would strip straight back off. That is an infinite
+redirect, and `redirect: false` is the only thing preventing it. The suite
+tests for the loop directly.
+
+### The nginx vhost now agrees with the Caddyfile
+
+Split into two server blocks: `www.etablix.com` returns 301 to
+`https://etablix.com$request_uri`, and the apex is the only host that proxies
+to the application. Keep `www` in the certbot `-d` list so the redirect itself
+is served over TLS.
+
+### It is tested
+
+`backend/test/canonical.e2e.mjs` — 128 assertions, registered in
+`run-all.sh`. Every one made with redirects switched off, because a test that
+follows redirects cannot tell a 200 from a 301 to a 200, which is the entire
+distinction Search Console was reporting. It covers: all 17 sitemap URLs at
+200; both alternate forms of every one of them 301ing to it; one hop and never
+two; the directory loop; `www` to apex; an unknown `Host` left alone; `/api`,
+`/internal`, `robots.txt` and `sitemap.xml` untouched; POST not redirected;
+and the query string surviving.
+
+One thing worth recording about writing that suite: **`fetch` silently drops a
+`Host` header** — it is a forbidden header name in undici. The www assertion
+passed against a request that never carried the header it was testing. It now
+uses `node:http`, which sends what it is given and is closer to what a crawler
+does anyway.
+
+### What is left for the live site
+
+The application and both proxy configs are now consistent, so the remaining
+possibility is a rule at the host that is in neither file. Worth one check:
 
 ```
-curl -sSI https://www.etablix.com/ | head -5
-curl -sSI http://etablix.com/      | head -5
 curl -sS -o /dev/null -w '%{http_code} %{url_effective}\n' -L https://etablix.com/about
 ```
 
-- If the first two show `301` to `https://etablix.com/` and the third shows
-  `200 https://etablix.com/about`, everything is correct and the report is
-  cosmetic. Close it and do nothing.
-- If the third shows `200 https://etablix.com/about/` — a trailing slash that
-  was not asked for — that is a real defect at the host, and the fix is at the
-  host rather than in this repository.
+`200 https://etablix.com/about` is correct. A trailing slash that was not
+asked for means a rewrite at Hostinger, above both configs.
 
-Also worth checking in Search Console itself: the report lists the affected
-URLs. If they are all `www.` or `http://`, case 1 or 2 is confirmed without
-running anything.
+The `www` and `http` URLs in the Search Console report are expected to keep
+appearing as "Page with redirect" — that is what a correct 301 looks like from
+Google's side, and it means the apex is being indexed instead. Nothing to fix
+and no validation to request.
 
 ## One thing worth knowing about duplicate URLs
 
@@ -105,3 +154,43 @@ Exits non-zero if any sitemap URL redirects, is disallowed by `robots.txt`,
 disagrees with its canonical, or carries `noindex`. Run it after any change to
 the sitemap, to `robots.txt`, or to the static routing — those three are where
 this class of defect comes from, and none of them announces itself.
+
+---
+
+## One found on the way: the portal threw instead of redirecting
+
+Running the full suite to check this work surfaced a failure that was already
+there — `internal-pages.e2e`, 4 failing assertions on unmodified HEAD, proved
+by stashing the change and re-running before touching anything.
+
+Four portal modules did this:
+
+```js
+if (!token) location.replace("/internal/login.html");
+```
+
+`location.replace()` does not stop the script. Navigation is queued; the module
+carries straight on. In `app.js` the next line to touch the session was
+
+```js
+document.getElementById("user-name").textContent = user.name;
+```
+
+which throws `TypeError: Cannot read properties of null` before the browser has
+gone anywhere. So a direct visit to the Control Desk with no session painted a
+broken shell and logged an error, rather than going quietly to the login page.
+The same pattern was in `l7-page.js`, `playbook.js` and `reach-page.js`.
+
+Fixed in all four by halting module evaluation after the redirect:
+
+```js
+if (!token) {
+  location.replace("/internal/login.html");
+  await new Promise(() => {});
+}
+```
+
+Top-level await is the halt. All four are loaded with `<script type="module">`,
+so it is available; evaluation stops, the navigation completes, and nothing
+below runs. `internal-pages.e2e` now passes 38 of 38, and the full run is
+green.

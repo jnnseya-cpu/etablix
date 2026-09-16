@@ -7,7 +7,17 @@ import { loadClients } from "/internal/js/clients.js";
 
 const token = sessionStorage.getItem("etablix.token");
 const user = JSON.parse(sessionStorage.getItem("etablix.user") || "null");
-if (!token || !user) location.replace("/internal/login.html");
+if (!token || !user) {
+  location.replace("/internal/login.html");
+  /* location.replace() does NOT stop the script. Without halting here the
+     module carried on to the first line that touches the session or the DOM and
+     threw a TypeError before the browser had navigated — which is why a direct
+     visit to this page with no session painted a broken shell and logged an
+     error instead of going quietly to the login page. Top-level await in a
+     module is the halt: evaluation stops, the navigation completes, and nothing
+     below runs. */
+  await new Promise(() => {});
+}
 
 // ---------- Helpers ----------
 

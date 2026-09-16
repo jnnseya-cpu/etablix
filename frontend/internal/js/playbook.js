@@ -6,7 +6,17 @@
  * text that reaches the page as markup executes. The code is unchanged.
  */
 const token = sessionStorage.getItem("etablix.token");
-  if (!token) location.replace("/internal/login.html");
+  if (!token) {
+    location.replace("/internal/login.html");
+    /* location.replace() does NOT stop the script. Without halting here the
+       module carried on to the first line that touches the session or the DOM and
+       threw a TypeError before the browser had navigated — which is why a direct
+       visit to this page with no session painted a broken shell and logged an
+       error instead of going quietly to the login page. Top-level await in a
+       module is the halt: evaluation stops, the navigation completes, and nothing
+       below runs. */
+    await new Promise(() => {});
+  }
 
   document.getElementById("logout").addEventListener("click", () => {
     sessionStorage.clear();

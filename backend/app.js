@@ -14,6 +14,7 @@ import { auditSecretStorage } from "./lib/ai.js";
 import { packBytes } from "./lib/runstore.js";
 import { startHeartbeat, stopHeartbeat, heartbeatState } from "./lib/heartbeat.js";
 import { viewCounter, startViewFlush, stopViewFlush, importLegacyTraffic } from "./lib/reach.js";
+import { canonicalUrl } from "./lib/canonical-url.js";
 import { requireAuth, requireRole } from "./middleware/auth.js";
 import { ROLES } from "../shared/constants.js";
 import fs from "node:fs";
@@ -215,6 +216,17 @@ const staticOpts = {
   },
 };
 /**
+ * One address per page, before anything answers.
+ *
+ * www to apex, http to https, no trailing slash, and the extensionless form
+ * rather than the .html one. Mounted ahead of the verification handlers and
+ * the view counter so a 301 is never counted as a page view and never has a
+ * tag injected into it. See backend/lib/canonical-url.js for why this is in
+ * the application rather than left to whichever proxy the operator installed.
+ */
+app.use(canonicalUrl());
+
+/**
  * Proving to a search engine that this site is ours.
  *
  * Google retired its sitemap ping in 2023, so the only way to tell Google
@@ -293,7 +305,8 @@ app.get(["/blog", "/blog/"], (req, res) => {
 
 app.use("/shared", express.static(path.join(root, "shared"), staticOpts));
 app.use("/internal", express.static(path.join(root, "frontend", "internal"), staticOpts));
-app.use(express.static(path.join(root, "frontend", "public"), { extensions: ["html"], ...staticOpts }));
+// redirect:false is load bearing — see the loop warning in lib/canonical-url.js
+app.use(express.static(path.join(root, "frontend", "public"), { extensions: ["html"], redirect: false, ...staticOpts }));
 
 // JSON errors for the API, plain 500 elsewhere.
 app.use((err, req, res, next) => {
