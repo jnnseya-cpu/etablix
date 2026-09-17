@@ -58,7 +58,18 @@ export function canonicalUrl({ siteUrl = process.env.SITE_URL } = {}) {
     host = u.hostname.toLowerCase();
     wantHttps = u.protocol === "https:";
   } catch {
-    return (req, res, next) => next();          // nothing configured: do nothing
+    /* Nothing configured, so nothing to normalise — but SAY SO. A canonical
+       rule that silently does not apply is worse than no rule: the redirects
+       look implemented, the tests pass against a server that has SITE_URL,
+       and production quietly serves two addresses for every page. The one
+       thing that must not happen here is silence. */
+    console.warn(
+      "WARNING: SITE_URL is not set, so URL canonicalisation is OFF. " +
+      "www is not redirected to the apex, /path/ and /path.html are not " +
+      "normalised, and every page is reachable at more than one address. " +
+      "Set SITE_URL=https://etablix.com in the environment file and restart."
+    );
+    return (req, res, next) => next();
   }
 
   return function canonical(req, res, next) {
