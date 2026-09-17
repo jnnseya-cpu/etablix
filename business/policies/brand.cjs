@@ -37,7 +37,10 @@ const PLAYWRIGHT = process.env.ETABLIX_PLAYWRIGHT
 const D = require(DOCX);
 const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
         WidthType, ShadingType, BorderStyle, PageBreak, Header, Footer,
-        PageNumber, AlignmentType, LevelFormat, HeadingLevel } = D;
+        PageNumber, AlignmentType, LevelFormat, HeadingLevel,
+        ImageRun, HorizontalPositionAlign, VerticalPositionAlign,
+        HorizontalPositionRelativeFrom, VerticalPositionRelativeFrom,
+        TextWrappingType } = D;
 
 const INK = "14181D", GOLD = "9C7A3C", SLATE = "5B6672", PAPER = "F2EFE7", TINT = "EFE6D2";
 const F = "Arial";
@@ -48,7 +51,8 @@ const FOOTER_ID = "JNN GLOBAL LTD · 15405437";
 
 function doc(meta) {
   const { slug, kicker, title, sub, rev = "1", running, control = [],
-          outDir = __dirname, kind = "policy", draftNote = true } = meta;
+          outDir = __dirname, kind = "policy", draftNote = true,
+          watermark = null } = meta;
   const outBase = path.join(outDir, "ETABLIX-" + slug);
   const blocks = [];
   const body = [];
@@ -247,14 +251,75 @@ function doc(meta) {
   table.plain th { display: none; }
   td.k { font-weight: 700; width: 28%; }
   .pb { page-break-after: always; }
+
+  /* The watermark. position:fixed is what makes it repeat on every printed
+     page in Chromium, and the content sits in its own stacking context above
+     it so the words stay readable through it. */
+  .wm { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 0;
+        display: flex; align-items: center; justify-content: center; }
+  .wm span { transform: rotate(-34deg); font-size: 66pt; font-weight: 700;
+             letter-spacing: 5pt; color: rgba(156, 122, 60, 0.26);
+             white-space: nowrap; text-transform: uppercase; }
+  .content { position: relative; z-index: 1; }
 </style></head><body>
+${watermark ? `<div class="wm"><span>${esc(watermark)}</span></div>` : ""}
+<div class="content">
 ${out.join("\n")}
+</div>
 </body></html>`;
   }
 
   /* ---------- build ---------- */
   async function build() {
-    const head = (running || title) + " · Rev " + rev;
+    const head = (watermark ? watermark.toUpperCase() + " · " : "")
+      + (running || title) + (rev ? " · Rev " + rev : "");
+
+    const { chromium } = require(PLAYWRIGHT);
+    const browser = await chromium.launch({ args: ["--no-sandbox"] });
+
+    /* Word has no CSS, so the watermark has to be an image — and there is a
+       headless browser open anyway. Rendered once, dropped into the section
+       header (which repeats on every page) as a floating image behind the
+       text. The PDF gets the same mark from CSS, so the two files carry the
+       same watermark rather than one carrying it and the other not. */
+    let mark = null;
+    if (watermark) {
+      const shot = await browser.newPage({ viewport: { width: 1200, height: 1700 } });
+      await shot.setContent(`<body style="margin:0;background:transparent">
+        <div id="m" style="width:1200px;height:1700px;display:flex;align-items:center;
+             justify-content:center;font-family:Arial,Helvetica,sans-serif">
+          <span style="transform:rotate(-34deg);font-size:132px;font-weight:700;
+                letter-spacing:10px;color:rgba(156,122,60,0.26);white-space:nowrap;
+                text-transform:uppercase">${esc(watermark)}</span>
+        </div></body>`);
+      mark = await shot.locator("#m").screenshot({ omitBackground: true });
+      await shot.close();
+    }
+
+    const headerChildren = [];
+    if (mark) {
+      headerChildren.push(new Paragraph({ children: [new ImageRun({
+        // `type` is not optional. Without it the part is written as
+        // word/media/<hash>.undefined with no matching Default in
+        // [Content_Types].xml, and Word opens the file as corrupt.
+        type: "png",
+        data: mark,
+        transformation: { width: 600, height: 850 },
+        floating: {
+          horizontalPosition: { relative: HorizontalPositionRelativeFrom.PAGE,
+                                align: HorizontalPositionAlign.CENTER },
+          verticalPosition: { relative: VerticalPositionRelativeFrom.PAGE,
+                              align: VerticalPositionAlign.CENTER },
+          behindDocument: true,
+          wrap: { type: TextWrappingType.NONE },
+        },
+      })] }));
+    }
+    headerChildren.push(new Paragraph({
+      alignment: AlignmentType.RIGHT,
+      border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: TINT, space: 4 } },
+      children: [new TextRun({ text: "ETABLIX · " + head, font: F, size: 14, color: SLATE })] }));
+
     const document = new Document({
       creator: "ETABLIX — Integrated Site Services",
       title, description: "ETABLIX " + title,
@@ -265,10 +330,7 @@ ${out.join("\n")}
       styles: { default: { document: { run: { font: F, size: 20, color: INK } } } },
       sections: [{
         properties: { page: { margin: { top: 1100, right: 1100, bottom: 1100, left: 1100 } } },
-        headers: { default: new Header({ children: [new Paragraph({
-          alignment: AlignmentType.RIGHT,
-          border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: TINT, space: 4 } },
-          children: [new TextRun({ text: "ETABLIX · " + head, font: F, size: 14, color: SLATE })] })] }) },
+        headers: { default: new Header({ children: headerChildren }) },
         footers: { default: new Footer({ children: [new Paragraph({
           alignment: AlignmentType.RIGHT,
           children: [
@@ -286,9 +348,7 @@ ${out.join("\n")}
 
     const htmlPath = path.join(outDir, "." + slug + ".html");
     fs.writeFileSync(htmlPath, html());
-    const { chromium } = require(PLAYWRIGHT);
     const rule = `color:#${SLATE};font-family:Arial,Helvetica,sans-serif;font-size:7pt;width:100%;padding:0 19mm;`;
-    const browser = await chromium.launch({ args: ["--no-sandbox"] });
     const page = await browser.newPage();
     await page.goto("file://" + htmlPath, { waitUntil: "load" });
     await page.pdf({

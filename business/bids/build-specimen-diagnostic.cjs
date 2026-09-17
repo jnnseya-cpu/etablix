@@ -41,23 +41,44 @@ const d = B.doc({
   kicker: "SITE SYSTEMS DIAGNOSTIC",
   title: "SPECIMEN REPORT",
   sub: "Ridgeway Grid Connection — a synthetic project",
-  rev: "1",
+  rev: null,                 // undated on purpose — see the note below
   kind: "report",
   draftNote: false,          // nothing here is bracketed; it is a finished report
+  watermark: "Sample",       // on every page, in both the Word file and the PDF
   outDir: __dirname,
   control: [
-    ["Report reference", "SSD-2026-001"],
+    ["Report reference", "SSD-SPECIMEN-01"],
     ["Scheme", "Ridgeway Grid Connection — 400 kV substation and converter station"],
-    ["Status", "SYNTHETIC. Not a real project, client or contract."],
+    ["Status", "SAMPLE. Synthetic project — not a real client, contract or scheme."],
     ["Purpose", "To show what a client receives, without showing another client's pack"],
     ["Prepared by", "Justin Nseya MCIOB, Director"],
-    ["Produced", "7 September 2026"],
     ["Basis", "First-pass planning figures requiring validation by a competent person"],
   ],
 });
+
+/*
+ * NO DATE, NO REVISION NUMBER, AND THAT IS DELIBERATE.
+ *
+ * This document is sent to prospective clients, and it will go on being sent
+ * for months. A production date on it does one thing only: it tells a reader
+ * in February how long ago the company last produced anything. The reference
+ * is SSD-SPECIMEN-01 rather than SSD-2026-001 for the same reason.
+ *
+ * The dates INSIDE the report stay exactly as they are. 1 March 2027 access,
+ * the twenty-week Section 278, the January 2028 shift pattern — those are the
+ * synthetic project's own programme and they are the substance of the
+ * findings. Strip them and there is no report. They also cannot be mistaken
+ * for a claim about when the work was done.
+ *
+ * What does NOT come off, at any point, for any reason: the statement that
+ * Ridgeway Grid Connection is not a real project. The watermark reinforces it
+ * on every page; it does not replace it. A document that reads as a real
+ * client engagement, sent to a prospect, is a fabricated case study — and
+ * that is the one thing this company will not put its name to.
+ */
 const { p, rich, h1, h2, bullet, note, table } = d;
 
-note("Ridgeway Grid Connection is not a real project, client or contract. No figure, name or date "
+note("SAMPLE DOCUMENT. Ridgeway Grid Connection is not a real project, client or contract. No figure, name or date "
    + "in this report describes anything that exists. It was produced by running the diagnostic "
    + "against the eight inputs a client is asked to supply, to establish whether the twelve "
    + "advertised deliverables can in fact be generated from them. It is provided so that a reader "
