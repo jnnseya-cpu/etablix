@@ -573,13 +573,31 @@ async function cosDocs() {
    * promised date, so everything else is simply blank rather than
    * pretending to a discipline it does not have.
    */
-  const releaseCell = (r) => {
+  /**
+   * The release state, and the one way to change it.
+   *
+   * The pill said the report was held and stopped there, so the only route to
+   * an early release was the API — which meant in practice there was no
+   * route, and "how do I get the banner off" had no answer a person could
+   * click. The button is here rather than on the rendered document because
+   * this is the register: the decision belongs next to the record of it.
+   */
+  const releaseCell = (d) => {
+    const r = d.release;
+    if (d.earlyRelease) {
+      return `${pill("Released early", "approved")}<div class="muted" style="font-size:0.7rem;">by ${esc(d.earlyRelease.by)}${
+        d.earlyRelease.workingDaysEarly ? ` · ${d.earlyRelease.workingDaysEarly} working day(s) early` : ""
+      }</div>`;
+    }
     if (!r) return '<span class="muted">—</span>';
     const cls = r.severity === "alert" ? "alert" : r.severity === "ok" ? "approved" : "warning";
     const warn = r.assured === false
       ? '<div class="muted" style="font-size:0.7rem;color:var(--danger,#c0392b);">bank holidays unknown for this year — check by hand</div>'
       : "";
-    return `${pill(r.label, cls)}${warn}`;
+    const release = r.state === "held" && d.template === "diagnostic"
+      ? `<div style="margin-top:5px;"><button class="btn-run" data-doc-release="${d.id}" data-doc-number="${esc(d.number)}" data-doc-days="${r.days}" data-doc-due="${esc(r.dueDate || "")}" title="Issue before the promised date. A reason is required and is recorded in the ledger.">Release early</button></div>`
+      : "";
+    return `${pill(r.label, cls)}${warn}${release}`;
   };
 
   /**
@@ -602,7 +620,7 @@ async function cosDocs() {
   const registry = documents.length
     ? wrapT(`<table><thead><tr><th>Number</th><th>Type</th><th>Party</th><th>Title</th><th>Value</th><th>Release</th><th>Issued</th><th></th></tr></thead><tbody>${documents
         .map(
-          (d) => `<tr><td><b>${esc(d.number)}</b></td><td>${esc(d.templateName)}</td><td>${esc(d.party)}</td><td class="muted">${esc(d.title)}</td><td>${d.total ? money(d.total) : "—"}</td><td>${releaseCell(d.release)}</td><td class="muted">${new Date(d.createdAt).toLocaleDateString("en-GB")} · ${esc(d.issuedBy)}</td>
+          (d) => `<tr><td><b>${esc(d.number)}</b></td><td>${esc(d.templateName)}</td><td>${esc(d.party)}</td><td class="muted">${esc(d.title)}</td><td>${d.total ? money(d.total) : "—"}</td><td>${releaseCell(d)}</td><td class="muted">${new Date(d.createdAt).toLocaleDateString("en-GB")} · ${esc(d.issuedBy)}</td>
           <td style="white-space:nowrap;"><a class="btn-run" style="text-decoration:none;display:inline-block;" href="/api/docs/${d.id}/render?token=${encodeURIComponent(token)}" target="_blank" rel="noopener">${d.parts ? "Open whole" : "Open"}</a> <a class="btn-run" style="text-decoration:none;display:inline-block;" href="/api/docs/${d.id}/render?sample=1&token=${encodeURIComponent(token)}" target="_blank" rel="noopener" title="Watermarked SAMPLE, no issue date and no delivery dates — for showing a prospect the shape of the deliverable. It does NOT anonymise the content.">Sample</a>${isAdmin ? ` <button class="btn-run" data-doc-del="${d.id}" data-doc-number="${esc(d.number)}" data-doc-run="${d.runId ? 1 : 0}" title="${d.runId ? "Recoverable: an agent run backs this document" : "NOT recoverable: no agent run behind this document"}">Delete</button>` : ""}${partLinks(d)}</td></tr>`
         )
         .join("")}</tbody></table>`)
@@ -713,6 +731,33 @@ document.addEventListener("submit", async (e) => {
 });
 
 document.addEventListener("click", async (e) => {
+  const rel = e.target.closest("button[data-doc-release]");
+  if (rel) {
+    // The reason is the whole point. It goes on the document row and into the
+    // append-only ledger, so the decision is defensible later — which is
+    // exactly what a client asking "why did this arrive early" needs.
+    const reason = prompt(
+      `Issue ${rel.dataset.docNumber} ${rel.dataset.docDays} working day(s) before the promised date` +
+      `${rel.dataset.docDue ? ` of ${rel.dataset.docDue}` : ""}?\n\n` +
+      `Give the reason — at least a sentence. It is recorded against your name in the ledger ` +
+      `and kept on the document, and the client sees none of it.\n\n` +
+      `Issuing early without a reason tells a client the days they bought were padding.`,
+      ""
+    );
+    if (reason === null) return;
+    if (reason.trim().length < 15) {
+      alert("A sentence, please. The reason is the record — 15 characters is the minimum.");
+      return;
+    }
+    try {
+      await api(`/api/docs/${rel.dataset.docRelease}/release`, { method: "POST", json: { reason: reason.trim() } });
+      renderCosSection();
+    } catch (err) {
+      alert(err.message);
+    }
+    return;
+  }
+
   const del = e.target.closest("button[data-doc-del]");
   if (!del) return;
   // The old wording said only that the number is not reused, which reads as

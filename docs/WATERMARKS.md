@@ -29,6 +29,10 @@ Then **Print / save as PDF**.
 
 ## Doing it from a link
 
+These are **query strings appended to a document's URL in the browser**, not
+shell commands. `<id>` is the document's id and `<t>` the session token, both
+already in the link the Open button gives you.
+
 ```
 /api/docs/<id>/render?token=<t>                              the document as issued
 /api/docs/<id>/render?token=<t>&mark=DRAFT                   marked, otherwise unchanged
@@ -126,14 +130,14 @@ Three ways it comes off, and only three:
 **1. The date arrives.** Nothing to do. `releaseStatus` recomputes on every
 render, and the day the promised date is reached the banner is gone.
 
-**2. A recorded early release** — the governed route, for when the client
-genuinely needs it sooner:
+**2. A recorded early release** — for when the client genuinely needs it
+sooner. **Commercial tab → documents table → the Release early button**, in
+the same cell as the hold pill. It asks for the reason and that is the whole
+mechanism; there is nothing to type at a terminal.
 
-```
-POST /api/docs/<id>/release      { "reason": "..." }
-```
-
-Delivery or finance role. The reason must be at least a sentence, and it is
+(Under it: `POST /api/docs/<id>/release` with a JSON body of
+`{"reason": "..."}`. That is an HTTP request the page makes for you, not a
+shell command.) Delivery or finance role. The reason must be at least a sentence, and it is
 written onto the document row **and** into the append-only ledger as
 `document.released-early`, with who, when, and how many working days early. A
 released report then shows the client nothing about the hold — the record
