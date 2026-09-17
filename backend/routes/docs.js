@@ -1525,7 +1525,22 @@ function renderBody(doc, part = null, { sample = false } = {}) {
  * renders. Two renderers would be two documents with one number on them,
  * which is the sort of thing that is discovered in a dispute.
  */
-export function renderDocument(doc, part = null, { sample = false, mark = null } = {}) {
+export function renderDocument(doc, part = null, opts = {}) {
+  const { sample = false, mark = null } = opts;
+  let { synthetic = false } = opts;
+  /* `synthetic` only means anything on a sample, and it changes who the
+     notice is written for.
+       sample           → a caution to the SENDER: this is not anonymised.
+       sample+synthetic → a statement to the READER: none of this is real.
+     The first belongs on a copy of a live engagement. The second is what goes
+     to a prospect, and the difference matters: a document you have just
+     emailed somebody that tells them "do not send this outside this company"
+     reads as a mistake, and a procurement manager notices it.
+
+     Clamped to sample here as well as refused at the route, so the function
+     cannot be asked for a state that has no meaning: on the controlled copy,
+     `synthetic` changes nothing at all, down to the picker highlight. */
+  synthetic = synthetic && sample;
   /* An explicit ?mark wins. Otherwise a sample is stamped SAMPLE and the
      specimen template is stamped SPECIMEN, so the defaults are the same as
      before this option existed. */
@@ -1622,6 +1637,7 @@ export function renderDocument(doc, part = null, { sample = false, mark = null }
     <a href="?${new URLSearchParams({ ...(part ? { part: String(part) } : {}), ...(sample ? { sample: "1" } : {}) }).toString()}" class="off">No watermark<small>The document as issued.</small></a>
     <hr>
     <a href="?${new URLSearchParams({ ...(part ? { part: String(part) } : {}), ...(sample ? {} : { sample: "1" }) }).toString()}" class="gold">${sample ? "Back to the issued copy" : "Sample copy"}<small>${sample ? "Restores the hold banner and the dates." : "Drops the hold banner, the delivery dates and the issue date."}</small></a>
+    <a href="?${new URLSearchParams({ ...(part ? { part: String(part) } : {}), sample: "1", synthetic: "1" }).toString()}" class="gold"${synthetic ? " aria-current=\"true\"" : ""}>Sample — synthetic project<small>For sending out: says on its face that the project is invented.</small></a>
   </div></details>
   <button onclick="print()">Print / save as PDF</button>
 </div>
@@ -1631,11 +1647,17 @@ export function renderDocument(doc, part = null, { sample = false, mark = null }
     <div class="docid"><b>${esc(doc.number)}${esc(partLabel)}</b><span>${esc(doc.templateName)}${dateStr ? "<br>" + dateStr : ""}<br>${sample ? "Sample copy" : "Issued by " + esc(doc.issuedBy)}</span></div>
   </div>
   <h2 class="doctitle">${esc(partTitle || headingFor(doc))}${partTitle ? "" : headingSuffix(doc)}</h2>
-  ${sample ? `<div class="specimen-notice"><b>SAMPLE COPY — not an issued document.</b> It is provided to show the
+  ${sample ? (synthetic ? `<div class="specimen-notice"><b>SAMPLE — a worked example on a synthetic project.</b>
+    ${esc(doc.data?.project || "The project")}${doc.data?.client ? ` and ${esc(doc.data.client)}` : ""} do not exist. No figure, name or
+    date in this report describes anything real. It is provided to show the form and depth of the
+    deliverable, not to evidence delivered work, and it is not the controlled copy of ${esc(doc.number)}.
+    A real client's report is never shown to a third party, anonymised or otherwise.</div>`
+  : `<div class="specimen-notice"><b>SAMPLE COPY — not an issued document.</b> It is provided to show the
     form and depth of the deliverable. It carries no issue date, is not the controlled copy of
     ${esc(doc.number)}, and must not be relied on. <b>It is not anonymised:</b> whatever client, project and figures
     were entered are still in it, so do not send it outside this company unless every party named has agreed
-    to that, or unless the content is synthetic.</div>` : ""}
+    to that, or unless the content is synthetic — in which case take the link marked "synthetic" so the
+    document says so on its face.</div>`) : ""}
   ${renderBody(doc, part, { sample })}
   <div class="foot">
     ETABLIX is a trading name of JNN GLOBAL LTD · Registered in England &amp; Wales · Company No. 15405437<br>
@@ -1700,13 +1722,20 @@ router.get("/:id/render", tokenAuth, (req, res) => {
   }
   const mark = markRaw || null;
 
-  if (!raw) return res.send(renderDocument(doc, null, { sample, mark }));
+  // ?synthetic=1 says the CONTENT is invented, so the notice addresses the
+  // reader rather than cautioning the sender. Only meaningful with sample.
+  const synthetic = /^(1|true|yes)$/i.test(String(req.query.synthetic || "").trim());
+  if (synthetic && !sample) {
+    return res.status(400).send("synthetic=1 only applies to a sample copy. Add sample=1.");
+  }
+
+  if (!raw) return res.send(renderDocument(doc, null, { sample, mark, synthetic }));
   if (!tpl?.parts) return res.status(400).send("This document is not issued in parts.");
   const part = Number(raw);
   if (!Number.isInteger(part) || part < 1 || part > tpl.sections.length) {
     return res.status(404).send(`This pack has parts 1 to ${tpl.sections.length}.`);
   }
-  res.send(renderDocument(doc, part, { sample, mark }));
+  res.send(renderDocument(doc, part, { sample, mark, synthetic }));
 });
 
 /**

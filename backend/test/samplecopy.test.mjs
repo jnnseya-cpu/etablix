@@ -101,6 +101,23 @@ ok("a released document shows no banner", !/Do not issue before/.test(renderDocu
 ok("and its sample is still watermarked",
    /<span>SAMPLE<\/span>/.test(renderDocument(released, null, { sample: true })));
 
+/* ---- synthetic: the notice changes audience -------------------------- */
+const syn = renderDocument(doc, null, { sample: true, synthetic: true });
+ok("synthetic sample says the project is synthetic", /worked example on a synthetic project/.test(syn));
+ok("synthetic sample names what does not exist", /Marrow Lane 132kV connection/.test(syn)
+   && /Northgate Energy Ltd/.test(syn) && /do not exist/.test(syn));
+ok("synthetic sample drops the sender caution", !/do not send it outside this company/.test(syn),
+   "a document you have just emailed somebody must not tell them not to send it outside");
+ok("synthetic sample keeps the never-show-a-real-client line",
+   /never shown to a third party/.test(syn));
+ok("synthetic sample is still watermarked", /<span>SAMPLE<\/span>/.test(syn));
+ok("synthetic sample still has no hold banner", !/Do not issue before/.test(syn));
+ok("the plain sample keeps the sender caution", /do not send it outside this company/.test(samp));
+ok("the plain sample points at the synthetic link", /take the link marked/.test(samp));
+ok("synthetic without sample changes nothing",
+   renderDocument(doc, null, { synthetic: true }) === real,
+   "synthetic is meaningless on the controlled copy");
+
 /* ---- the mark mechanism: a word, without touching the document -------- */
 const mark = (w, o = {}) => renderDocument(doc, null, { mark: w, ...o });
 
