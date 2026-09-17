@@ -39,6 +39,49 @@ import { interfaceStatement } from "../lib/interfacecheck.js";
 
 const router = Router();
 
+/**
+ * Watermarks.
+ *
+ * Two different questions hide behind "put a watermark on it", and conflating
+ * them is how a release control gets quietly defeated:
+ *
+ *   WHAT WORD is stamped across the page        → `mark`
+ *   IS THIS THE CONTROLLED COPY                 → `sample`
+ *
+ * They are independent. DRAFT and CONFIDENTIAL go on the REAL document and
+ * must not change a thing about it — the hold banner, the delivery dates and
+ * the issue date all stay, because the document is still that document.
+ * `sample` is the one that says "this is not the controlled copy of
+ * SSD-2026-014", and only that suppresses the banner and the dates.
+ *
+ * So `?mark=CONFIDENTIAL` cannot be used to get a report out before its
+ * promised date, and nobody has to remember the difference.
+ *
+ * The word comes from this list rather than from the query string. An
+ * arbitrary string would be escaped anyway, but a document is not a place for
+ * a free-text stamp: "DARFT" across eleven pages is worse than no mark, and
+ * an allowlist is also the documentation of what marks exist.
+ *
+ * `tone: "red"` is for marks that restrict what the reader may do with the
+ * page. Gold is for marks that describe its status.
+ */
+const MARKS = [
+  { word: "DRAFT",                    tone: "gold", note: "Not final. Content may change." },
+  { word: "SAMPLE",                   tone: "gold", note: "Shows the shape of the deliverable." },
+  { word: "SPECIMEN",                 tone: "gold", note: "Synthetic content." },
+  { word: "FOR REVIEW",               tone: "gold", note: "Issued for comment, not for use." },
+  { word: "COPY",                     tone: "gold", note: "Not the controlled original." },
+  { word: "CONFIDENTIAL",             tone: "red",  note: "Restricted circulation." },
+  { word: "COMMERCIAL IN CONFIDENCE", tone: "red",  note: "Commercially sensitive." },
+  { word: "NOT FOR ISSUE",            tone: "red",  note: "Must not leave the company." },
+  { word: "SUPERSEDED",               tone: "red",  note: "A later revision exists." },
+  { word: "VOID",                     tone: "red",  note: "Withdrawn. Do not rely on it." },
+];
+const markFor = (raw) => {
+  const want = String(raw || "").trim().toUpperCase();
+  return want ? MARKS.find((m) => m.word === want) || null : null;
+};
+
 const deliveryFinance = requireRole(...ACCESS.DELIVERY_FINANCE);
 const admin = requireRole(ROLES.ADMIN);
 
@@ -1171,7 +1214,7 @@ function richText(text) {
 const section = (n, label, text) =>
   text ? `<div class="blk"><h3>${n} · ${label}</h3>${richText(text)}</div>` : "";
 
-function renderBody(doc, part = null) {
+function renderBody(doc, part = null, { sample = false } = {}) {
   const d = doc.data;
   const b = billing();
   const t = (label, value) => (value ? `<tr><th>${label}</th><td>${esc(value)}</td></tr>` : "");
@@ -1243,7 +1286,7 @@ function renderBody(doc, part = null) {
   }
 
   if (doc.template === "diagnostic") {
-    const rel = d.dueDate ? releaseStatus(d.dueDate) : null;
+    const rel = (d.dueDate && !sample) ? releaseStatus(d.dueDate) : null;
     // The banner is on the document itself, not only in the console,
     // because the way a report goes out early is that someone forwards
     // the PDF without looking at the console.
@@ -1258,8 +1301,8 @@ function renderBody(doc, part = null) {
     return `
       ${hold}
       <table class="meta">${t("Client", d.client)}${t("Project / site", d.project)}${t("Site reference", d.siteRef)}${
-        d.handover ? t("Information handover", humanDate(d.handover)) : ""
-      }${d.dueDate ? t("Issue date", `${humanDate(d.dueDate)} — ${d.promisedDays || DIAGNOSTIC_WORKING_DAYS} working days from handover`) : ""}${t("Prepared by", doc.issuedBy)}</table>
+        d.handover && !sample ? t("Information handover", humanDate(d.handover)) : ""
+      }${d.dueDate && !sample ? t("Issue date", `${humanDate(d.dueDate)} — ${d.promisedDays || DIAGNOSTIC_WORKING_DAYS} working days from handover`) : ""}${t("Prepared by", doc.issuedBy)}</table>
       ${d.findings ? `<div class="blk"><h3>Findings in one paragraph</h3>${richText(d.findings)}</div>` : ""}
       ${DIAGNOSTIC_SECTIONS.map(([id, label], i) => section(i + 1, label, d[id])).join("")}
       ${d.appendix ? `<div class="blk"><h3>Appendix A · Document reconciliation ledger</h3><p class="rt-lede">Which of your own documents disagree with which. Set out as the documents state it.</p>${richText(d.appendix)}</div>` : ""}
@@ -1377,7 +1420,7 @@ function renderBody(doc, part = null) {
   // section list — so a fifth one needs a spec and not a renderer.
   const pipelineTpl = TEMPLATES.find((x) => x.id === doc.template && x.pipeline);
   if (pipelineTpl) {
-    const rel = d.dueDate ? releaseStatus(d.dueDate) : null;
+    const rel = (d.dueDate && !sample) ? releaseStatus(d.dueDate) : null;
     const hold =
       rel?.state === "held" && !doc.earlyRelease
         ? `<div class="holdnote"><b>Do not issue before ${esc(humanDate(d.dueDate))}.</b> This engagement was sold as ${d.promisedDays || DIAGNOSTIC_WORKING_DAYS} working days from information handover on ${esc(humanDate(d.handover))}. ${rel.days} working day${rel.days === 1 ? "" : "s"} remain. Internal review copy.</div>`
@@ -1412,8 +1455,8 @@ function renderBody(doc, part = null) {
     return `
       ${hold}
       <table class="meta">${t("Client", d.client)}${t("Project / site", d.project)}${
-        d.handover ? t("Information handover", humanDate(d.handover)) : ""
-      }${d.dueDate ? t("Issue date", `${humanDate(d.dueDate)} — ${d.promisedDays || DIAGNOSTIC_WORKING_DAYS} working days from handover`) : ""}${t("Prepared by", doc.issuedBy)}</table>
+        d.handover && !sample ? t("Information handover", humanDate(d.handover)) : ""
+      }${d.dueDate && !sample ? t("Issue date", `${humanDate(d.dueDate)} — ${d.promisedDays || DIAGNOSTIC_WORKING_DAYS} working days from handover`) : ""}${t("Prepared by", doc.issuedBy)}</table>
       ${d.findings ? `<div class="blk"><h3>${esc(pipelineTpl.summaryLabel)}</h3>${richText(d.findings)}</div>` : ""}
       ${pipelineTpl.sections.map(([sid, label], i) => section(i + 1, label, d[sid])).join("")}
       ${d.packStatement ? `<div class="blk"><h3>${checkHeading(doc)}</h3><p class="rt-lede">Performed by the system on the run this was drafted from, not by eye.</p>${richText(d.packStatement)}</div>` : ""}
@@ -1423,7 +1466,7 @@ function renderBody(doc, part = null) {
   }
 
   if (doc.template === "sitereq") {
-    const rel = d.dueDate ? releaseStatus(d.dueDate) : null;
+    const rel = (d.dueDate && !sample) ? releaseStatus(d.dueDate) : null;
     const hold =
       rel?.state === "held" && !doc.earlyRelease
         ? `<div class="holdnote"><b>Do not issue before ${esc(humanDate(d.dueDate))}.</b> This engagement was sold as ${d.promisedDays || DIAGNOSTIC_WORKING_DAYS} working days from information handover on ${esc(humanDate(d.handover))}. ${rel.days} working day${rel.days === 1 ? "" : "s"} remain. Internal review copy.</div>`
@@ -1431,8 +1474,8 @@ function renderBody(doc, part = null) {
     return `
       ${hold}
       <table class="meta">${t("Client", d.client)}${t("Project / site", d.project)}${
-        d.handover ? t("Information handover", humanDate(d.handover)) : ""
-      }${d.dueDate ? t("Issue date", `${humanDate(d.dueDate)} — ${d.promisedDays || DIAGNOSTIC_WORKING_DAYS} working days from handover`) : ""}${t("Prepared by", doc.issuedBy)}</table>
+        d.handover && !sample ? t("Information handover", humanDate(d.handover)) : ""
+      }${d.dueDate && !sample ? t("Issue date", `${humanDate(d.dueDate)} — ${d.promisedDays || DIAGNOSTIC_WORKING_DAYS} working days from handover`) : ""}${t("Prepared by", doc.issuedBy)}</table>
       ${d.findings ? `<div class="blk"><h3>Requirements summary in one paragraph</h3>${richText(d.findings)}</div>` : ""}
       ${SITEREQ_SECTIONS.map(([id, label], i) => section(i + 1, label, d[id])).join("")}
       ${d.appendix ? `<div class="blk"><h3>Appendix A · Requirement traceability and open items</h3><p class="rt-lede">Every requirement traced to the document, duty or condition that mandates it — and everything that must close before this package is issued.</p>${richText(d.appendix)}</div>` : ""}
@@ -1482,11 +1525,20 @@ function renderBody(doc, part = null) {
  * renders. Two renderers would be two documents with one number on them,
  * which is the sort of thing that is discovered in a dispute.
  */
-export function renderDocument(doc, part = null) {
+export function renderDocument(doc, part = null, { sample = false, mark = null } = {}) {
+  /* An explicit ?mark wins. Otherwise a sample is stamped SAMPLE and the
+     specimen template is stamped SPECIMEN, so the defaults are the same as
+     before this option existed. */
+  const wm = markFor(mark)
+    || (sample ? markFor("SAMPLE") : doc.template === "specimen" ? markFor("SPECIMEN") : null);
   const tpl = TEMPLATES.find((x) => x.id === doc.template);
   const partLabel = part && tpl?.parts ? ` / ${tpl.partNoun} ${part}` : "";
   const partTitle = part && tpl?.parts ? tpl.sections[part - 1]?.[1] : null;
-  const dateStr = new Date(doc.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  /* A sample is sent to prospects for months. A creation date on it tells a
+     reader in February only how long ago anything was last produced here. */
+  const dateStr = sample
+    ? ""
+    : new Date(doc.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>${esc(doc.number)}${esc(partLabel)} — ${esc(partTitle || doc.templateName)}</title>
 <style>
   body { font-family: Georgia, "Times New Roman", serif; color: #1d232a; margin: 0; background: #fff; }
@@ -1529,25 +1581,62 @@ export function renderDocument(doc, part = null) {
   .wm { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
   .wm span { position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%) rotate(-32deg);
     font-family: Arial Black, Arial, sans-serif; font-size: 118px; letter-spacing: 14px;
-    color: rgba(192, 57, 43, 0.10); white-space: nowrap; }
+    color: rgba(156, 122, 60, 0.11); white-space: nowrap; }
+  /* A long mark has to shrink or it runs off the page and reads as a smudge. */
+  .wm.len2 span { font-size: 82px; letter-spacing: 8px; }
+  .wm.len3 span { font-size: 58px; letter-spacing: 5px; }
+  .wm.red span { color: rgba(192, 57, 43, 0.10); }
   .page { position: relative; z-index: 1; }
-  @media print { .wm span { color: rgba(192, 57, 43, 0.13); } }
+  /* Screen renders lighter than print does, so print gets a touch more. */
+  @media print {
+    .wm span { color: rgba(156, 122, 60, 0.15); }
+    .wm.red span { color: rgba(192, 57, 43, 0.13); }
+  }
   .blk h3 { font-family: Arial, sans-serif; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: #9c7a3c; margin: 0 0 6px; }
   .blk p { margin: 0; font-size: 13.5px; line-height: 1.6; }
   .legalnote { font-size: 12px; color: #5b6672; line-height: 1.55; border-left: 3px solid #9c7a3c; padding-left: 12px; margin: 18px 0 0; }
   .foot { margin-top: 46px; border-top: 1px solid #dcd7cc; padding-top: 14px; font-family: Arial, sans-serif; font-size: 10.5px; color: #5b6672; line-height: 1.6; }
   .toolbar { position: fixed; top: 14px; right: 16px; }
+  .toolbar { display: flex; gap: 8px; align-items: flex-start; }
+  .markpick { font-family: Arial, sans-serif; font-size: 13px; position: relative; }
+  .markpick summary { padding: 9px 18px; background: #fff; color: #14181d; border: 1px solid #9c7a3c;
+    border-radius: 4px; cursor: pointer; list-style: none; white-space: nowrap; }
+  .markpick summary::-webkit-details-marker { display: none; }
+  .markpick > div { position: absolute; right: 0; top: 40px; width: 268px; background: #fff;
+    border: 1px solid #dcd7cc; border-radius: 5px; box-shadow: 0 8px 26px rgba(20,24,29,0.16); padding: 6px; }
+  .markpick a { display: block; padding: 7px 10px; border-radius: 4px; text-decoration: none;
+    color: #14181d; font-weight: bold; font-size: 12.5px; letter-spacing: 0.3px; }
+  .markpick a small { display: block; font-weight: normal; letter-spacing: 0; color: #5b6672; font-size: 11.5px; }
+  .markpick a:hover { background: #f4f1ea; }
+  .markpick a.red { color: #a8332a; }
+  .markpick a.off { color: #5b6672; }
+  .markpick a[aria-current] { background: #f0ece2; box-shadow: inset 2px 0 0 #9c7a3c; }
+  .markpick hr { border: 0; border-top: 1px solid #ece7dc; margin: 5px 2px; }
+  @media print { .markpick { display: none; } }
   .toolbar button { font-family: Arial, sans-serif; font-size: 13px; padding: 9px 20px; background: #14181d; color: #fff; border: 0; border-radius: 4px; cursor: pointer; }
   @media print { .toolbar { display: none; } .page { padding: 0; } }
-</style></head><body>${doc.template === "specimen" ? '<div class="wm"><span>SPECIMEN</span></div>' : ""}
-<div class="toolbar"><button onclick="print()">Print / save as PDF</button></div>
+</style></head><body>${wm ? `<div class="wm ${wm.tone === "red" ? "red " : ""}len${Math.min(3, wm.word.split(" ").length)}"><span>${esc(wm.word)}</span></div>` : ""}
+<div class="toolbar">
+  <details class="markpick"><summary>Watermark</summary><div>
+    ${MARKS.map((m) => `<a href="?${new URLSearchParams({ ...(part ? { part: String(part) } : {}), ...(sample ? { sample: "1" } : {}), mark: m.word }).toString()}" class="${m.tone}"${wm && wm.word === m.word ? " aria-current=\"true\"" : ""}>${esc(m.word)}<small>${esc(m.note)}</small></a>`).join("")}
+    <a href="?${new URLSearchParams({ ...(part ? { part: String(part) } : {}), ...(sample ? { sample: "1" } : {}) }).toString()}" class="off">No watermark<small>The document as issued.</small></a>
+    <hr>
+    <a href="?${new URLSearchParams({ ...(part ? { part: String(part) } : {}), ...(sample ? {} : { sample: "1" }) }).toString()}" class="gold">${sample ? "Back to the issued copy" : "Sample copy"}<small>${sample ? "Restores the hold banner and the dates." : "Drops the hold banner, the delivery dates and the issue date."}</small></a>
+  </div></details>
+  <button onclick="print()">Print / save as PDF</button>
+</div>
 <div class="page">
   <div class="head">
     <div class="wordmark">ETABLIX<small>INTEGRATED SITE SERVICES · PART OF GROUPE NSEYA</small></div>
-    <div class="docid"><b>${esc(doc.number)}${esc(partLabel)}</b><span>${esc(doc.templateName)}<br>${dateStr}<br>Issued by ${esc(doc.issuedBy)}</span></div>
+    <div class="docid"><b>${esc(doc.number)}${esc(partLabel)}</b><span>${esc(doc.templateName)}${dateStr ? "<br>" + dateStr : ""}<br>${sample ? "Sample copy" : "Issued by " + esc(doc.issuedBy)}</span></div>
   </div>
   <h2 class="doctitle">${esc(partTitle || headingFor(doc))}${partTitle ? "" : headingSuffix(doc)}</h2>
-  ${renderBody(doc, part)}
+  ${sample ? `<div class="specimen-notice"><b>SAMPLE COPY — not an issued document.</b> It is provided to show the
+    form and depth of the deliverable. It carries no issue date, is not the controlled copy of
+    ${esc(doc.number)}, and must not be relied on. <b>It is not anonymised:</b> whatever client, project and figures
+    were entered are still in it, so do not send it outside this company unless every party named has agreed
+    to that, or unless the content is synthetic.</div>` : ""}
+  ${renderBody(doc, part, { sample })}
   <div class="foot">
     ETABLIX is a trading name of JNN GLOBAL LTD · Registered in England &amp; Wales · Company No. 15405437<br>
     Registered office: Groupe Nseya House, Kingstanding, Birmingham B44 8DJ, United Kingdom<br>
@@ -1589,13 +1678,35 @@ router.get("/:id/render", tokenAuth, (req, res) => {
   // pack is a wrong link, and silently serving part 8 hides that.
   const tpl = TEMPLATES.find((x) => x.id === doc.template);
   const raw = String(req.query.part || "").trim();
-  if (!raw) return res.send(renderDocument(doc));
+  // ?sample=1 renders the same document as a SAMPLE: watermarked on every
+  // page, without the hold banner, without the delivery dates and without an
+  // issue date. It is for showing a prospect the shape of the deliverable.
+  //
+  // It is a RENDER option and not a document state, on purpose. The stored
+  // document, its number and its hold status are untouched, so a sample can
+  // never be mistaken for the controlled copy or be used to get round the
+  // release date — the desk's own copy still carries the banner.
+  //
+  // It does NOT anonymise anything. Whatever client and figures were entered
+  // are still in it, and the notice on the page says so.
+  const sample = /^(1|true|yes)$/i.test(String(req.query.sample || "").trim());
+
+  // ?mark=DRAFT stamps a word on every page WITHOUT changing the document.
+  // Refused rather than ignored when it is not a mark we have: a link that
+  // silently produced an unmarked page would be read as a marked one.
+  const markRaw = String(req.query.mark || "").trim();
+  if (markRaw && !markFor(markRaw)) {
+    return res.status(400).send(`Not a watermark. Available: ${MARKS.map((m) => m.word).join(", ")}.`);
+  }
+  const mark = markRaw || null;
+
+  if (!raw) return res.send(renderDocument(doc, null, { sample, mark }));
   if (!tpl?.parts) return res.status(400).send("This document is not issued in parts.");
   const part = Number(raw);
   if (!Number.isInteger(part) || part < 1 || part > tpl.sections.length) {
     return res.status(404).send(`This pack has parts 1 to ${tpl.sections.length}.`);
   }
-  res.send(renderDocument(doc, part));
+  res.send(renderDocument(doc, part, { sample, mark }));
 });
 
 /**

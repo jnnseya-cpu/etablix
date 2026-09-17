@@ -7,6 +7,9 @@ from first mobilisation to final reinstatement — and builds two technology
 products: **CONSTRUX** (Construction AI Operating System) and **VERYX**
 (Enterprise Execution Intelligence).
 
+
+**Watermarks and the release hold** — how to stamp DRAFT, SAMPLE, CONFIDENTIAL and the rest on a document, and the only three ways the "Do not issue before" banner comes off: [`docs/WATERMARKS.md`](docs/WATERMARKS.md)
+
 ## Quick start
 
 ```bash

@@ -214,7 +214,11 @@ const docCount = async () => (await api("/api/docs", {}, T)).body.documents?.len
     } }, T);
     ok(g.status === 201, "   it generates a numbered SPEC document", g.body);
     const html = await (await fetch(`${B}/api/docs/${g.body.document.id}/render?token=${encodeURIComponent(T)}`)).text();
-    ok(/class="wm"/.test(html) && /SPECIMEN/.test(html), "   watermarked SPECIMEN on every printed page");
+    // the watermark element carries a tone and a size class now, so match the
+    // element and the word rather than an exact class attribute
+    ok(/class="wm[ "]/.test(html) && /<span>SPECIMEN<\/span>/.test(html),
+       "   watermarked SPECIMEN on every printed page");
+    ok(/\.wm \{[^}]*position: fixed/.test(html), "   and the mark is fixed, so it repeats on every page");
     ok(/not a project ETABLIX has delivered/.test(html),
        "   and it says on its face that it is a worked example, not delivered work");
     ok(/In the full report/.test(html), "   the other ten sections are listed, not printed");

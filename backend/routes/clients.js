@@ -1387,6 +1387,9 @@ router.get("/portal/:token/documents/:docId", (req, res) => {
   if (!ref && !linked) return res.status(404).send("That document is not on this engagement.");
   const doc = collection("documents").find((d) => d.id === req.params.docId);
   if (!doc) return res.status(404).send("Document not found.");
+  // Always the real document, never a sample. A client looking at their own
+  // invoice must see the controlled copy; the sample render exists for showing
+  // a PROSPECT the shape of a deliverable and has no business on this route.
   res.send(renderDocument(doc));
 });
 
