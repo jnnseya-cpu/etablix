@@ -158,6 +158,30 @@ async function goto(url) {
   throw new Error(`${url} never finished loading${last ? ` (${last})` : ""}`);
 }
 
+/**
+ * Poll until the page satisfies an expression, rather than sleeping and hoping.
+ *
+ * `goto` returns at readyState "interactive", which means the DOM exists and
+ * the module scripts have STARTED. The Control Desk paints after its own API
+ * calls resolve, so a fixed sleep afterwards is a bet on how fast the machine
+ * is that day — and this suite lost that bet twice in a row, at a different
+ * assertion each time, with nothing wrong in the application.
+ *
+ * Errors are swallowed on purpose. Immediately after Page.navigate the old
+ * execution context is being torn down, so an evaluate can come back with
+ * "Cannot read properties of null" against a document that is about to be
+ * replaced. That is a race, not a result, and the answer is to ask again.
+ */
+async function waitFor(expression, what, tries = 200) {
+  let last = null;
+  for (let i = 0; i < tries; i += 1) {
+    const v = await evaluate(expression).catch((e) => { last = e.message; return null; });
+    if (v) return v;
+    await wait(100);
+  }
+  throw new Error(`timed out after ${(tries * 100) / 1000}s waiting for ${what}${last ? ` — last error: ${last}` : ""}`);
+}
+
 /** Wait until the page paints something other than its loading state. */
 async function settled(selector, avoid) {
   for (let i = 0; i < 120; i += 1) {
@@ -259,7 +283,10 @@ try {
 
   console.log("\n--- the Control Desk\n");
   await goto(`${BASE}/internal/index.html`);
-  await wait(1500);
+  // Wait for the thing the assertions below depend on, not for a number of
+  // milliseconds somebody guessed.
+  await waitFor("document.querySelectorAll('#tabs a, #tabs button').length > 0",
+                "the desk tabs to render");
   const desk = await evaluate("document.body.textContent");
   ok(desk.length > 1500, `the desk painted ${desk.length} characters`);
   ok(/Controls/.test(desk), "and links to the Controls page");

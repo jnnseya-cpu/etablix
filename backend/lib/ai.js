@@ -127,10 +127,33 @@ export function publicProvider() {
  *
  * It stays a ceiling rather than becoming infinite for one reason: a socket
  * that has silently died must eventually be given up on, or a run waits for
- * ever on a connection that is never going to answer. Sixty minutes is far
- * past any real call and well short of for ever.
+ * ever on a connection that is never going to answer.
+ *
+ * Sixty minutes was that ceiling and it was too low. A dead socket is
+ * detected in seconds; an hour is not protecting against one, it is capping
+ * a long call. The ceiling now sits a day out — far past any call that will
+ * ever legitimately run, and still short of for ever. The long calls stream
+ * as well (see `one` below), which removes the whole class of problem: a
+ * streamed request is not waiting silently on a socket, so the timeout it
+ * would have hit never applies.
  */
-export const CALL_TIMEOUT_MS = Number(process.env.ETABLIX_AI_TIMEOUT_MS || 60 * 60 * 1000);
+export const CALL_TIMEOUT_MS = Number(process.env.ETABLIX_AI_TIMEOUT_MS || 24 * 60 * 60 * 1000);
+
+/**
+ * Retries, and why zero was the wrong number.
+ *
+ * `maxRetries: 0` is not a cost control — it is a way of losing a six-pass
+ * run to one HTTP 429. A rate limit, a 500 and a dropped connection are all
+ * transient and all recoverable by asking again, and a run that gives up on
+ * the first one has not produced the expected result; it has produced an
+ * error that a second attempt would not have.
+ *
+ * So the SDK retries with exponential backoff. It retries 408, 409, 429 and
+ * 5xx and connection errors, and it does NOT retry a 400 or a 401 — an
+ * invalid request and a bad key are permanent, and retrying either is a hang
+ * pretending to be resilience.
+ */
+export const CALL_RETRIES = Number(process.env.ETABLIX_AI_RETRIES || 12);
 
 /**
  * The per-call output ceiling for the single-pass agents.
@@ -149,8 +172,56 @@ export const SINGLE_PASS_MAX_TOKENS = Number(process.env.ETABLIX_AI_SINGLE_PASS_
 const client = () => {
   const { apiKey } = getProvider();
   if (!apiKey) throw new Error("The AI provider is not connected — an administrator adds the API key under Organisation → AI agents.");
-  return new Anthropic({ apiKey, timeout: CALL_TIMEOUT_MS, maxRetries: 0 });
+  return new Anthropic({ apiKey, timeout: CALL_TIMEOUT_MS, maxRetries: CALL_RETRIES });
 };
+
+/**
+ * One answer, however many calls it takes.
+ *
+ * `max_tokens` is the provider's per-CALL ceiling. It is not a limit on the
+ * answer unless the code treats it as one — and two calls here did: a
+ * prequalification draft and a scope of works, both capped at 4,000 tokens
+ * with no continuation behind them. A truncated scope of works is not a
+ * shorter scope; it is a requirement a subcontractor prices against with the
+ * end missing, and nothing on the page says where it stopped.
+ *
+ * So both go through here instead. It asks, and while the model says it
+ * stopped because it ran out of room, it asks again from the exact character
+ * it stopped at and appends with nothing in between.
+ *
+ * The two guards are the same ones the pipeline uses and neither is a budget:
+ * stop when a continuation adds essentially nothing (the model has finished
+ * and is repeating itself), and stop at the pass ceiling, which no honest
+ * answer reaches. Cost and elapsed time are not consulted.
+ */
+async function untilComplete({ model, max_tokens, system, prompt, label }) {
+  const call = async (content) => {
+    const res = await client().messages.stream({
+      model, max_tokens, system, messages: [{ role: "user", content }],
+    }).finalMessage();
+    if (res.stop_reason === "refusal") {
+      throw new Error(`The provider declined the ${label} request` +
+        (res.stop_details?.explanation ? `: ${res.stop_details.explanation}` : "."));
+    }
+    return {
+      text: res.content.filter((b) => b.type === "text").map((b) => b.text).join(""),
+      truncated: res.stop_reason === "max_tokens",
+      model: res.model,
+    };
+  };
+
+  let r = await call(prompt);
+  let out = r.text;
+  const ran = r.model;
+  let rounds = 0;
+  while (r.truncated && rounds < CONTINUATION_GUARD && out.length < PASS_CHAR_CEILING) {
+    rounds += 1;
+    r = await call(`${prompt}\n\n---\n\n${continuationInstruction(out.slice(-4000))}`);
+    if (r.text.trim().length < STALL_CHARS) { out += r.text; break; }
+    out += r.text;
+  }
+  return { text: out, model: ran };
+}
 
 export async function testProvider() {
   try {
@@ -505,9 +576,11 @@ export async function draftPrequal(application, criteria, { chSummary } = {}) {
     .map((c) => `- id "${c.id}" (weight ${c.weight}${c.critical ? ", CRITICAL" : ""}): ${c.label}. Evidence sought: ${c.evidence}`)
     .join("\n");
 
-  const response = await client().messages.create({
+  const { text } = await untilComplete({
     model,
-    max_tokens: 4000,
+    max_tokens: SINGLE_PASS_MAX_TOKENS,
+    label: "prequalification draft",
+    prompt: `Prequalification criteria:\n${criteriaText}\n\nSupplier registration:\n${registration}`,
     system: `${COMPANY_BRIEF}
 
 You are Agent 7 — Assurance & Evidence, drafting a supplier prequalification pre-assessment for a human assessor. Score each criterion 0–5 based ONLY on what the registration evidences. Rules:
@@ -515,10 +588,8 @@ You are Agent 7 — Assurance & Evidence, drafting a supplier prequalification p
 - Your draft is a starting point the human will adjust after reviewing the actual documents; say what they must check.
 - Respond with ONLY a JSON object, no prose before or after, in exactly this shape:
 {"scores": {"<criterion id>": <0-5 integer>, ...}, "rationale": {"<criterion id>": "<one short sentence>", ...}, "missingEvidence": ["<item>", ...], "note": "<2-3 sentence overall summary for the assessor>"}`,
-    messages: [{ role: "user", content: `Prequalification criteria:\n${criteriaText}\n\nSupplier registration:\n${registration}` }],
   });
 
-  const text = response.content.filter((b) => b.type === "text").map((b) => b.text).join("");
   const match = text.match(/\{[\s\S]*\}/);
   if (!match) throw new Error("Agent 7 returned no structured draft — try again.");
   let draft;
@@ -535,8 +606,14 @@ You are Agent 7 — Assurance & Evidence, drafting a supplier prequalification p
   return {
     scores,
     rationale: draft.rationale || {},
-    missingEvidence: Array.isArray(draft.missingEvidence) ? draft.missingEvidence.slice(0, 20) : [],
-    note: String(draft.note || "").slice(0, 1000),
+    // Neither of these is trimmed any more. The first was capped at twenty
+    // items: an assessor reading "20 things are missing" from a registration
+    // where thirty were missing has been given a number that is wrong, and
+    // nothing said so. The second was cut at 1,000 characters — the prompt
+    // asks for two or three sentences, so the cap only ever fired when the
+    // model had more to say than that, which is the moment to keep it.
+    missingEvidence: Array.isArray(draft.missingEvidence) ? draft.missingEvidence : [],
+    note: String(draft.note || ""),
     model: response.model,
   };
 }
@@ -548,9 +625,11 @@ You are Agent 7 — Assurance & Evidence, drafting a supplier prequalification p
  */
 export async function draftScope({ title, project, brief }) {
   const { model } = getProvider();
-  const response = await client().messages.create({
+  const { text, model: ran } = await untilComplete({
     model,
-    max_tokens: 4000,
+    max_tokens: SINGLE_PASS_MAX_TOKENS,
+    label: "scope of works",
+    prompt: `Package title: ${title}\nProject: ${project}\nBuyer's brief:\n${brief}`,
     system: `${COMPANY_BRIEF}
 
 You draft the SCOPE OF WORKS section of an ETABLIX supplier enquiry pack — the text a specialist subcontractor prices against. Write a complete, detailed, unambiguous requirement in plain text (no markdown), under these exact numbered headings:
@@ -563,11 +642,14 @@ You draft the SCOPE OF WORKS section of an ETABLIX supplier enquiry pack — the
 7. COMMERCIAL BASIS — fixed price against this scope; ETABLIX framework terms apply (certified payment with evidence, 30-day terms, 5% capped retention, documented change control); domestic reverse charge where CIS applies.
 8. EXCLUSIONS & CLARIFICATIONS REQUIRED — what is excluded, and numbered questions the supplier must answer with their price.
 Use ONLY facts given in the brief — never invent quantities, dates, locations or client identities; where the brief is silent, say "to be confirmed" or put it in section 8. Do not name the end client unless the brief does.`,
-    messages: [{ role: "user", content: `Package title: ${title}\nProject: ${project}\nBuyer's brief:\n${brief}` }],
   });
-  const text = response.content.filter((b) => b.type === "text").map((b) => b.text).join("").trim();
-  if (!text) throw new Error("The agent returned no draft — try again.");
-  return { scope: text.slice(0, 6000), model: response.model };
+  const scope = text.trim();
+  if (!scope) throw new Error("The agent returned no draft — try again.");
+  // NOT truncated on the way out. This used to end `.slice(0, 6000)`, which
+  // is a harder limit than max_tokens ever was: the model finished the scope
+  // and the code threw the end of it away, so a subcontractor priced against
+  // a requirement that stopped mid-section with nothing saying where.
+  return { scope, model: ran };
 }
 
 /** Which agents run as a multi-pass pipeline rather than a single call. */
@@ -940,12 +1022,19 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
    * ceiling per call is the provider's; the ceiling on the ANSWER is now gone.
    */
   const one = async (task) => {
-    const response = await client().messages.create({
+    // Streamed rather than awaited whole. At this max_tokens a single call
+    // can run for minutes, and a non-streamed request of that length is a
+    // socket held open with nothing on it — which is exactly what a request
+    // timeout is built to kill. Streaming keeps the connection demonstrably
+    // alive for as long as the answer takes, so length stops being a failure
+    // mode. `.finalMessage()` gives back the same object `.create()` did, so
+    // nothing below this line changes.
+    const response = await client().messages.stream({
       model,
       max_tokens: SINGLE_PASS_MAX_TOKENS,
       system: brief.system,
       messages: [{ role: "user", content: task }],
-    });
+    }).finalMessage();
     if (response.stop_reason === "refusal") {
       throw new Error("The provider declined this request" + (response.stop_details?.explanation ? `: ${response.stop_details.explanation}` : "."));
     }
