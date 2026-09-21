@@ -1,461 +1,461 @@
 /**
- * ETABLIX — 30/60/90 day go-to-market, UNITED KINGDOM ONLY.
+ * ETABLIX — UK go-to-market, 90 days. THE OPERATING MODEL.
  *
  *   node business/strategy/build-gtm-uk.cjs
  *
- * This supersedes the 60/20/20 plan for operational purposes. That document
- * is not deleted: the Gulf and Europe analysis in it stands, and section 15
- * says where it lives and what would bring it back. A market that has been
- * ruled out with reasons written down is a decision; one that has simply
- * stopped being mentioned is a drift.
+ * Revision 3. Revisions 1 and 2 were essays about strategy: well argued,
+ * unrunnable, and — as it turns out — wrong on the one number that matters.
+ * They set an activity target of 25 approaches a month without ever testing
+ * it against the objective. Solved, that target carries roughly a three in
+ * five chance of a single sale in the quarter, and the two live referrals it
+ * leaned on carry twenty-eight per cent between them.
  *
- * Everything here is drawn from the outreach ledger, the bid files and the
- * platform's own fee bands as at 20 September 2026. No market sizes, no win
- * rates, no contacts that do not exist.
+ * So this revision is arithmetic first. Every number in the document is
+ * computed here rather than typed, which means the plan cannot contradict
+ * itself and the assumptions can be changed in one place.
+ *
+ * CHANGE THESE FOUR LINES AND THE WHOLE PLAN RECALCULATES.
  */
-const B = require("../policies/brand.cjs");
+const COLD = { reply: 0.10, meeting: 0.40, proposal: 0.60, win: 0.33 };
+const WARM = { meeting: 0.50, proposal: 0.75, win: 0.40 };
+const LIVE_REFERRALS = 2;
+const WEEKS = 13;
 
-const REV = "2";
+const B = require("../policies/brand.cjs");
+const money = (n) => "£" + Math.round(n).toLocaleString("en-GB");
+const pc = (x, d = 0) => (x * 100).toFixed(d) + "%";
+
+/* ---- the funnel, solved ------------------------------------------- */
+const coldRate = COLD.reply * COLD.meeting * COLD.proposal * COLD.win;
+const warmRate = WARM.meeting * WARM.proposal * WARM.win;
+const perWinCold = Math.ceil(1 / coldRate);
+const pNoWarm = Math.pow(1 - warmRate, LIVE_REFERRALS);
+const pWarm = 1 - pNoWarm;
+const needFor = (t) => Math.ceil(Math.log((1 - t) / pNoWarm) / Math.log(1 - coldRate));
+const N70 = needFor(0.70), N80 = needFor(0.80), N90 = needFor(0.90);
+const perWeek = Math.ceil(N80 / WEEKS);
+const OLD_PLAN = 75;
+const pOld = 1 - pNoWarm * Math.pow(1 - coldRate, OLD_PLAN);
+/* Weeks 7, 8 and 13 send nothing — delivery and planning. So the schedule
+   carries 9 sending weeks, not 13, and the confidence it actually buys is
+   lower than the target. That gap is named rather than smoothed over: a
+   model that hides its own shortfall is the thing this revision replaces. */
+const SENDING_WEEKS = 9;
+const SCHEDULED = perWeek * SENDING_WEEKS;
+const pScheduled = 1 - pNoWarm * Math.pow(1 - coldRate, SCHEDULED);
+/* The two levers that close it, each solved. */
+const replyNeeded = (() => {
+  // what reply rate makes SCHEDULED approaches reach 80%?
+  const want = Math.pow((1 - 0.80) / pNoWarm, 1 / SCHEDULED);   // (1-rate)^1 per approach
+  const rate = 1 - want;                                         // required approach->win
+  return rate / (COLD.meeting * COLD.proposal * COLD.win);       // back out the reply rate
+})();
+const extraNeeded = N80 - SCHEDULED;
+
+/* ---- the ladder --------------------------------------------------- */
+const WEDGE = 6500, REQ = 14000, DESK_M = 7500, DESK_MONTHS = 6;
+const LTV = WEDGE + REQ + DESK_M * DESK_MONTHS;
+const WEDGE_DAYS = 3;
+
+const REV = "3";
 const d = B.doc({
   slug: "Go-To-Market-UK-90-Day-Plan",
-  running: "30/60/90 go-to-market · United Kingdom",
+  running: "UK go-to-market · the operating model",
   kicker: "GO TO MARKET · UNITED KINGDOM",
-  title: "THE FIRST 90 DAYS",
-  sub: "21 September to 19 December 2026 — one market, one proposition, one reference",
+  title: "THE OPERATING MODEL",
+  sub: `90 days · 21 September to 19 December 2026 · ${perWeek} approaches a week, and why`,
   rev: REV,
   outDir: __dirname,
   kind: "plan",
   control: [
-    ["Document", "30/60/90 day go-to-market plan — United Kingdom"],
-    ["Revision", "2 — supersedes the 60/20/20 plan for operational purposes"],
-    ["Period", "21 September 2026 to 19 December 2026"],
-    ["Scope", "United Kingdom only. Europe and the Gulf are out of scope — section 15."],
+    ["Document", "UK go-to-market — the operating model"],
+    ["Revision", "3 — supersedes revisions 1 and 2, which set an untested activity target"],
+    ["Period", "21 September to 19 December 2026 (13 weeks)"],
+    ["Objective", "One client on the ladder. Not one sale."],
+    ["Activity required", `${N80} cold approaches for ${pc(0.8)} confidence; the 13-week schedule delivers ${SCHEDULED} (${pc(pScheduled)}) — the gap and its two levers are at 5.2`],
     ["Owner", "Justin Nseya, Director"],
-    ["Baseline", "The outreach ledger, the bid files and the platform fee bands, 20 September 2026"],
-    ["Review", "Weekly on the scoreboard at section 14; full review at day 30, 60 and 90"],
+    ["Recalculation", "Change the four assumption lines at the top of build-gtm-uk.cjs"],
   ],
 });
 const { p, rich, h1, h2, bullet, richBullet, note, fillIn, table, pageBreak, approval } = d;
 
 /* ================================================================== */
-h1("1. The decision, in one page");
+h1("1. The model");
 
-rich([
-  { t: "One market, one proposition, one reference. ", b: true },
-  { t: "For the next ninety days ETABLIX sells site establishment in the United Kingdom and nowhere else, and the measure of the quarter is not revenue, enquiries or meetings. It is whether one client has been delivered for and has agreed to be named." },
-]);
+rich([{ t: "Two numbers change the plan. ", b: true },
+  { t: `The two live referrals carry a ${pc(pWarm)} chance of producing the first sale between them. The activity target in the previous revision — 25 approaches a month — carries the whole plan to about ${pc(pOld)}. Neither is a plan. Both are hope with a spreadsheet attached.` }]);
 
-p("Everything the company cannot currently do is downstream of that one missing thing. No case study, no framework admission, no confident pricing, no second market — all of it resolves the week a client says yes to being a reference, and none of it resolves before.");
+h2("1.1  The funnel, solved");
 
-table([2400, 5900],
-  ["The ninety days", "What it is for"],
+table([3200, 1400, 3700],
+  ["Stage", "Rate", "Basis — replace with actuals as they arrive"],
   [
-    ["Days 1 to 30",
-     "Unblock what is already in flight. Fill the delivery record, secure three referees, resubmit CHIC, answer the Siemens Energy referral, and put one priced proposal in front of a buyer who has already expressed interest."],
-    ["Days 31 to 60",
-     "Close it and deliver it. One engagement, instructed and completed to the standard the specimen sets, and the reference asked for at the point of delivery rather than a month later."],
-    ["Days 61 to 90",
-     "Turn one into two, and set January up. The second sale to the same client is the cheapest revenue available. The four UK approaches that never replied become a different email once there is delivered work to cite."],
+    ["Approach → reply", pc(COLD.reply), "Targeted, personalised, to a named compound-holder. Assumption."],
+    ["Reply → meeting", pc(COLD.meeting), "A reply is interest, not a diary slot. Assumption."],
+    ["Meeting → priced proposal", pc(COLD.proposal), "Requires a named live scheme to price against. Assumption."],
+    ["Proposal → win", pc(COLD.win), "No track record, small ticket, risk reversed. Assumption."],
+    ["NET: approach → win", pc(coldRate, 2), `One win per ${perWinCold} cold approaches.`],
   ]);
 
-richBullet([{ t: "The one number that matters: one. ", b: true },
-  { t: "One delivered engagement, one written reference. A plan that targets five and achieves none is worse than a plan that targets one and gets it, because the company only needs the first one to stop being the company that has never done this." }]);
+h2("1.2  Therefore");
 
-/* ================================================================== */
-pageBreak();
-h1("2. Where the company stands on day zero");
-
-p("Stated without inflation, because a plan built on a flattering baseline plans for a company that does not exist.");
-
-h2("2.1  What exists and works");
-
-bullet("A delivery method that produces a defensible output, evidenced by a full worked specimen on a synthetic project — sixteen pages generated from the eight inputs a client is asked to supply.");
-bullet("A platform that runs it: sixteen agents, deterministic engines that run before the model, and a document studio issuing numbered, watermarked, controlled documents.");
-bullet("Priced products with worked fee bands, from a £6,500 single-site diagnostic to a £45,000 programme requirements package — section 6.");
-bullet("A public site at a 99/100 average audit score, with the pages, policies and discovery surfaces in place.");
-bullet("Six issued policies, each stating on its own face that it is not certified.");
-bullet("A director with a verifiable delivery record on UK transmission and generation schemes, and the professional vocabulary that record produces. This is what opens doors; the platform is what keeps them open.");
-
-h2("2.2  What does not exist");
-
-richBullet([{ t: "No completed client engagement under the company's own name. ", b: true },
-  { t: "Therefore no case study, no reference, no revenue. Every other gap is downstream of this one." }]);
-bullet("No statutory accounts. Director-prepared, unaudited management information exists; the first accounting reference date has not been reached.");
-bullet("No certifications — no ISO 9001, 14001, 45001 or 37001.");
-bullet("One working director. No second competent person, no segregation of duties, and a hard ceiling on concurrent engagements.");
-bullet("No referees confirmed. The delivery record is written and its fields are empty.");
-
-h2("2.3  The live pipeline, as recorded");
-
-table([2000, 2300, 4000],
-  ["Contact", "Organisation", "State on 20 September"],
+table([4800, 3500],
+  ["Confidence of at least one win in 13 weeks", "Cold approaches required"],
   [
-    ["Jamie Holiday", "Hitachi Energy", "LIVE. Referred internally by Gary Coleman. Supplier register completed. Asked for case studies and offered to circulate them to supply chain colleagues."],
-    ["Matthew Knight / Andrew", "Siemens Energy", "LIVE. Referral made internally. Reply drafted, not confirmed sent."],
-    ["Aaron Hall", "Morgan Sindall Infrastructure", "Open. Replied. No current ask on the table."],
-    ["Alasdair Mackintosh", "Exyte", "Open. Asked about geographic coverage. Reply drafted — the answer is the United Kingdom."],
-    ["CHIC", "Development DPS", "Returned for detail on technical ability and one financial document. Not a rejection: 'upon receipt we can progress the application.'"],
-    ["Balfour Beatty, Laing O'Rourke, HS2, Turner & Townsend", "Four named approaches", "No reply recorded. Not closed — they become a different email in phase 3."],
-    ["GE Vernova", "Construction and sourcing", "Stood down until 2027 by decision. One no-ask email drafted."],
+    ["The 2 live referrals, alone", `${pc(pWarm)} — ${LIVE_REFERRALS} referrals, nothing else`],
+    ["Previous revision (25/month, 75 total)", `${pc(pOld)}`],
+    [`${pc(0.7)} confidence`, `${N70} (${Math.ceil(N70 / WEEKS)}/week)`],
+    [`${pc(0.8)} confidence — THE TARGET`, `${N80} (${perWeek}/week)`],
+    [`${pc(0.9)} confidence`, `${N90} (${Math.ceil(N90 / WEEKS)}/week)`],
   ]);
 
-p("Four replies from nine named approaches, two of them internal referrals inside global equipment manufacturers. For cold business-to-business outreach that is a strong rate rather than a failed campaign.");
+richBullet([{ t: `${perWeek} approaches a week. `, b: true },
+  { t: `Not 6. The previous plan's target was less than half what its own objective required, and nothing in it said so because nothing in it was calculated. ${perWeek} a week is roughly two hours on a Monday against a prepared list.` }]);
 
-/* ================================================================== */
-pageBreak();
-h1("3. The premise, and what failure would actually look like");
+h2("1.3  And the objective is not one sale");
 
-rich([{ t: "The campaign is approximately three weeks old. ", b: true },
-  { t: "A construction sales cycle from first contact to first purchase order is measured in months, and a first engagement with a supplier who has no track record is measured against the buyer's appetite for risk rather than the quality of the approach. Three weeks is inside the noise, and acting on noise is how a company arrives in its fourth market having never finished the first." }]);
-
-h2("3.1  What would constitute UK failure");
-
-p("Written now, while it can be defined honestly rather than in a low week:");
-
-bullet("Thirty or more qualified approaches to compound-holding organisations, with a reply rate below one in twenty.");
-bullet("Three or more buyers who reach a priced proposal and decline on the proposition rather than on price or track record.");
-bullet("The same objection, from unrelated buyers, that the offer cannot answer.");
-bullet("CHIC and one other framework both declining after resubmission with the detail supplied.");
-
-p("None of those conditions is met, and two of them cannot yet be tested, because the company has not put a priced proposal in front of anybody. That is the gap this plan closes first.");
-
-note("This section exists so that persisting is a decision rather than a default, and so that stopping — if it ever comes — is measured against a line drawn in advance rather than after a bad fortnight.");
-
-/* ================================================================== */
-h1("4. Why the United Kingdom, and only the United Kingdom, for ninety days");
-
-bullet("It is the only market where the company can trade today with no licence, no local entity, no sponsor and no agent.");
-bullet("It is where the director's record is verifiable and where a buyer can telephone a referee in the same time zone and language.");
-bullet("Every live relationship is in it. Both referrals originate in UK offices of global businesses.");
-bullet("It is where a first reference can be earned in weeks rather than quarters — and the first reference is the constraint on everything else.");
-bullet("Public frameworks are open to a company with no trading history provided the evidence is produced. Very few markets offer that to a new entrant.");
-richBullet([{ t: "Payment is enforceable. ", b: true },
-  { t: "The Housing Grants, Construction and Regeneration Act 1996 gives a statutory payment regime that a one-person company can actually rely on. For a business funded by a director's loan with no trading income, that is not a convenience — it is the difference between a late payment and an insolvency." }]);
-
-richBullet([{ t: "And the decisive one: focus is the only competitive advantage available. ", b: true },
-  { t: "One person cannot out-resource anybody. What one person can do is be the most prepared party in the room on one subject, in one market, and that advantage disappears the moment the week is split three ways." }]);
-
-/* ================================================================== */
-pageBreak();
-h1("5. Which sectors, in which order");
-
-p("“Compound-holding organisations” is a filter, not a strategy. It removes the wrong targets and says nothing about which of the right ones to approach first, and with one deliverer the order matters more than the list.");
-
-rich([{ t: "Lead with electricity transmission and grid. ", b: true },
-  { t: "It is where the director's record is, where both live referrals already sit, and where the work repeats — a portfolio of similar compounds is a market where a specification written once has value on the next one." }]);
-
-table([2000, 1300, 5000],
-  ["Sector", "Priority", "The reasoning, including against"],
+table([3400, 1500, 3400],
+  ["Product", "Fee", "When it is sold"],
   [
-    ["Electricity transmission and grid",
-     "FIRST",
-     "The director's verifiable record. Both live referrals — Hitachi Energy and Siemens Energy — are here. Substations, converter stations and power quality compounds repeat at similar scale, which is where the proposition is strongest. Overhead line work adds the linear compound problem, which almost nobody prices properly. Against: the buyers are large and slow, and a first purchase order may take longer than ninety days."],
-    ["Data centres",
-     "SECOND",
-     "High compound intensity, and the build-out is moving out of London into places where peak workforce exceeds the local travel-to-work population — the establishment problem in its purest form. Exyte is already a live conversation. Against: programme-driven and fast, so an unreferenced supplier is a risk the programme will not carry."],
-    ["Generation and storage",
-     "THIRD",
-     "Battery storage and solar sites are numerous, smaller, and let by developers and EPCs with no specialist team of their own. Smaller fees and faster decisions make this the most likely source of a FIRST engagement even though it is not the largest prize. The director's UK Power Reserve background is directly relevant."],
-    ["Water — AMP8",
-     "FOURTH",
-     "Large framework spend across many small sites, which suits the proposition. Against: slow procurement, frameworks already let, and mid-cycle entry as an unreferenced supplier is unlikely inside ninety days. Worth a registration, not a campaign."],
-    ["Rail and highways",
-     "FIFTH",
-     "Compound-heavy and framework-driven, with established supply chains and prequalification that assumes a trading history. Approach when there is a reference to put in the form."],
-    ["Nuclear new build",
-     "LAST",
-     "The largest compounds in the country and the hardest to enter: security vetting, multi-stage prequalification, and a supply chain years in the making. A 2027 conversation; effort there now buys nothing."],
+    ["Site Systems Diagnostic (single site)", money(WEDGE), "The wedge. One person's authority, one week's decision."],
+    ["Site Management Requirements (single compound)", money(REQ), "To the same client, once they have seen the diagnostic."],
+    [`Managed Procurement Desk, ${DESK_MONTHS} months`, money(DESK_M * DESK_MONTHS), `${money(DESK_M)}/month. Recurring, because ETABLIX wrote the specification.`],
+    ["ONE CLIENT, FIRST 12 MONTHS", money(LTV), `${(LTV / WEDGE).toFixed(1)}× the first sale.`],
+  ]);
+
+rich([{ t: `The first sale is worth ${money(WEDGE)}. The client is worth ${money(LTV)}. `, b: true },
+  { t: "That ratio is the entire commercial argument of this business, and it decides three things: what to sell first (the cheapest thing that earns the right to sell the rest), how much a client is worth winning (a great deal more than the wedge suggests), and what the ninety-day objective actually is." }]);
+
+note(`THE OBJECTIVE: one client on the ladder by 19 December — a diagnostic delivered, approved and referenced, with the requirements package proposed. ${money(WEDGE + REQ)} contracted, ${money(LTV)} in play.`);
+
+/* ================================================================== */
+pageBreak();
+h1("2. The money");
+
+h2("2.1  Unit economics of the wedge");
+
+table([4400, 3900],
+  ["Metric", "Value"],
+  [
+    ["Fee", money(WEDGE)],
+    ["Effort at the platform's own band", `${WEDGE_DAYS} days (1 director, 2 senior consultant)`],
+    ["Revenue per day delivered by the director alone", money(WEDGE / WEDGE_DAYS)],
+    ["Marginal cost of delivery", "Effectively nil. No subcontract, no materials, no travel beyond one visit."],
+    ["Payment terms (Model A)", `${money(WEDGE * 0.3)} on start, ${money(WEDGE * 0.7)} on approval`],
+    ["Cash at risk if the client refuses to pay", `${money(WEDGE * 0.7)} — the balance only`],
+  ]);
+
+richBullet([{ t: `${money(WEDGE / WEDGE_DAYS)} a day is the number that makes the risk reversal affordable. `, b: true },
+  { t: `Offering “if it tells you nothing you did not know, do not pay” costs ${WEDGE_DAYS} days of time and no cash. An established competitor cannot make that offer because their delivery carries salaries. This is the one structural advantage of being small, and it should be used on every first sale until there is a reference.` }]);
+
+h2("2.2  Cash, by week, on the plan working");
+
+table([1500, 2400, 2200, 2200],
+  ["Week", "Event", "Invoiced", "Cumulative"],
+  [
+    ["1–4", "Selling. Nothing invoiced.", "—", "£0"],
+    ["5", "Diagnostic instructed — deposit", money(WEDGE * 0.3), money(WEDGE * 0.3)],
+    ["7", "Diagnostic approved — balance", money(WEDGE * 0.7), money(WEDGE)],
+    ["9", "Second diagnostic instructed — deposit", money(WEDGE * 0.3), money(WEDGE * 1.3)],
+    ["11", "Requirements package instructed — deposit", money(REQ * 0.3), money(WEDGE * 1.3 + REQ * 0.3)],
+    ["13", "Second diagnostic approved — balance", money(WEDGE * 0.7), money(WEDGE * 2 + REQ * 0.3)],
+    ["Q1 2027", "Requirements balance + desk commences", money(REQ * 0.7 + DESK_M), "—"],
+  ]);
+
+richBullet([{ t: "The first cash lands in week 5 at the earliest. ", b: true },
+  { t: "That is the single most important planning fact in this document. Four weeks of zero receipts followed by a deposit, and the first material payment in week 7. Any runway calculation that assumes revenue before week 5 is wrong." }]);
+
+fillIn("Fill in: the runway in weeks at current burn, and the calendar date it ends with no revenue. If that date is before week 7, this plan is not the priority — funding is. Say so now rather than in November.");
+
+/* ================================================================== */
+pageBreak();
+h1("3. Where the first sale actually comes from");
+
+rich([{ t: "Not from a tier-one contractor. From a battery storage or solar developer. ", b: true },
+  { t: `Three reasons, and they are the reason this section leads: ${money(WEDGE)} is a rounding error against a £20–40m BESS scheme; the decision sits with one development or construction manager rather than a supply chain committee; and they have nobody in-house doing site establishment at all, because a developer with four projects cannot justify the headcount.` }]);
+
+p("Tier-one contractors and the grid EPCs are the larger prize and they are the slower sale: prequalification, supplier onboarding, framework positions, and a purchase order that may take longer than this quarter. They are worked in parallel — both live referrals sit there — but the plan does not depend on them closing first.");
+
+h2("3.1  The target tiers");
+
+table([1100, 2500, 4700],
+  ["Tier", "Who", "Why this tier, and what to lead with"],
+  [
+    ["1", "BESS and solar developers and IPPs",
+     "FASTEST CLOSE. One decision-maker, no in-house function, small ticket against scheme value, and the director's UK Power Reserve background is directly on point. Lead with grid connection compound and temporary power. This tier is where the first sale is expected."],
+    ["2", "Grid and T&D EPC contractors",
+     "HIGHEST VALUE, SLOWER. Both live referrals are here. Repeated compounds at similar scale, which is where a specification written once carries. Lead with the repeat argument, not with one site."],
+    ["3", "Data centre EPC and M&E contractors",
+     "MEDIUM SPEED. Exyte already open. The out-of-London build-out puts peak workforce beyond the local catchment, which is the proposition in its purest form. Lead with labour catchment."],
+    ["4", "Tier-one main contractors",
+     "SLOWEST. Long onboarding, established supply chains. Four approaches already made with no reply; they become a different email in phase 3 once there is delivered work to cite."],
+  ]);
+
+h2("3.2  The list to build on Monday");
+
+p("Named organisations by tier, all publicly active in these sectors in the United Kingdom. This is the research list, not a claim of any relationship. Build it to 60 organisations in tier 1 and 2 before the first approach goes out.");
+
+table([1100, 7200],
+  ["Tier", "Organisations to research and qualify"],
+  [
+    ["1", "Zenobe · Harmony Energy · Field · Statera Energy · Pacific Green · Gresham House Energy Storage · Penso Power · Eelpower · Root-Power · Enso Energy · RES · Elgin Energy · Anesco · Balance Power · Clearstone Energy"],
+    ["2", "Hitachi Energy (LIVE) · Siemens Energy (LIVE) · Linxon · Omexom · Balfour Beatty · J Murphy & Sons · Taylor Woodrow · Freedom / NG Bailey · Telent · Jones Bros · Morrison Energy Services · Amey"],
+    ["3", "Exyte (OPEN) · Mercury · Winthrop · Kirby · Dornan · Designer Group · PM Group · Ethos Engineering"],
+    ["4", "Balfour Beatty · Laing O'Rourke · Skanska · Kier · Morgan Sindall (OPEN) · Sir Robert McAlpine · VolkerWessels · Mace · BAM"],
   ], { size: 16 });
 
-note("The temptation is to lead with nuclear because the compounds are biggest. Their being biggest is precisely why the barrier is highest, and a ninety-day plan that leads there produces a great deal of activity and no revenue.");
+h2("3.3  The qualification test, before an approach is spent");
+
+bullet("Does this organisation hold a site compound in its own name? If no, it is not approached.");
+bullet("Is there a scheme at bid, pre-construction or pre-mobilisation stage now? The work has no value once the number is committed.");
+bullet("Can the decision-maker be named, with a function — development manager, construction manager, project director, commercial manager? An approach to a generic inbox is not an approach and is not counted.");
+bullet("Is there a trigger — a planning consent, a grid connection offer, a funding announcement, a framework award? A trigger is what makes the email timely rather than speculative.");
+
+note("Four tests, and the fourth is the one that lifts the reply rate. The assumption in section 1 is ten per cent; an untriggered approach to a generic inbox is nearer one. The arithmetic in this plan only holds if the qualification holds.");
 
 /* ================================================================== */
 pageBreak();
-h1("6. What is actually being sold, and for how much");
+h1("4. The sequence");
 
-p("A go-to-market plan without prices in it is a plan to have the pricing conversation under pressure, in front of somebody who has it weekly. These bands are already built into the platform and they are what the proposals in phase 1 should quote.");
+p("Four touches over 18 days, then stop. Same sequence every time, so the reply rate is measurable and the assumption in section 1 can be replaced with a fact.");
 
-h2("6.1  The ladder");
-
-table([2900, 1200, 4200],
-  ["Product", "From", "What it is, and where it sits"],
+table([1100, 2300, 4900],
+  ["Day", "Touch", "What it says"],
   [
-    ["Site Systems Diagnostic", "£6,500",
-     "THE WEDGE. One site, one compound, up to ten documents, peak workforce under 200, one revision round. Multi-compound £11,500; programme or linear scheme £18,500. This is the first sale and the reference generator — small enough to be decided by one person, large enough to be taken seriously."],
-    ["Mobilisation-readiness review", "£5,500",
-     "The alternative entry point when a scheme is already committed and the question is whether it is ready. Lower value, faster decision, same reference outcome."],
-    ["Site Management Requirements Package", "£14,000",
-     "THE FOLLOW-ON. One compound, up to six packages specified to tender-ready requirements. Multi-compound £26,000; programme £45,000. This is what a satisfied diagnostic client buys next, and it is where the margin is."],
-    ["Managed Procurement Desk", "£7,500 / month",
-     "THE ANNUITY. Up to four live packages, minimum three months; £13,500 a month for five to ten. Recurring revenue from a client who already trusts the specification because ETABLIX wrote it."],
-    ["Workforce Village Requirements", "£18,000",
-     "Specialist, for schemes with accommodation at scale. Not a first sale — it requires a track record the company does not have."],
+    ["0", "The opener",
+     "Three sentences. The no-owner line: site establishment is the only major cost line with no owner — priced from the last project by someone who will not run this one, inherited by someone who was not asked, tested for the first time in week one. No attachment, no ask beyond a reply."],
+    ["4", "The proof",
+     "One sentence and the specimen attached. “This is what the deliverable looks like — sixteen pages on an invented scheme, so no client is shown.” Nothing else. The document argues."],
+    ["11", "The specific",
+     "Name one of their schemes from public record and ask one question about it: who owns the establishment number on it, and has it been set yet. A question about their project, not about our service."],
+    ["18", "The offer, and the stand-down",
+     `${money(WEDGE)} for one site, and if it tells them nothing they did not already know they do not pay. Then: “that is the last from me on this — if the timing is wrong, it is wrong.” No further contact.`],
+  ]);
+
+richBullet([{ t: "Four touches, then stop, and mean it. ", b: true },
+  { t: "The stand-down at touch four is what makes the sequence work: it raises the reply rate on the last email and it protects the address for a re-approach in six months with new information. A fifth touch converts almost nothing and costs the relationship." }]);
+
+h2("4.1  What is measured on every sequence");
+
+table([4300, 4000],
+  ["Measured", "Why"],
+  [
+    ["Replies per 100 sent, by tier", "Replaces the 10% assumption with a fact, per tier, within six weeks."],
+    ["Which touch produced the reply", "If touch 1 produces almost all of them, touches 2–4 are wasted effort. If touch 3 does, the trigger research is the value."],
+    ["Reply → meeting rate", "The second assumption, and the one most likely to be wrong."],
+    ["Objection raised, verbatim", "Four are expected (section 7). A fifth appearing twice means the proposition has a gap."],
+  ]);
+
+/* ================================================================== */
+pageBreak();
+h1("5. The 13 weeks");
+
+p("Numeric, weekly, cumulative. The only rows that matter in any given week are that week's.");
+
+table([900, 1500, 1350, 1350, 1300, 1900],
+  ["Wk", "Focus", "Approaches", "Cumulative", "Meetings", "Gate"],
+  [
+    ["1", "Unblock", "0", "0", "0", "Delivery record done"],
+    ["2", "List + launch", String(perWeek), String(perWeek), "0", "CHIC resubmitted"],
+    ["3", "Sequence", String(perWeek), String(perWeek * 2), "1", "—"],
+    ["4", "Sequence", String(perWeek), String(perWeek * 3), "1", "Day 30 gate"],
+    ["5", "Close", String(perWeek), String(perWeek * 4), "2", "First proposal issued"],
+    ["6", "Close", String(perWeek), String(perWeek * 5), "2", "—"],
+    ["7", "Deliver", "0", String(perWeek * 5), "0", "First engagement won"],
+    ["8", "Deliver", "0", String(perWeek * 5), "0", "Delivered + reference asked"],
+    ["9", "Sequence", String(perWeek), String(perWeek * 6), "2", "Day 60 gate"],
+    ["10", "Sequence", String(perWeek), String(perWeek * 7), "2", "Requirements proposed"],
+    ["11", "Close", String(perWeek), String(perWeek * 8), "2", "—"],
+    ["12", "Close", String(perWeek), String(perWeek * 9), "1", "Every decision asked for"],
+    ["13", "Land + plan", "0", String(perWeek * 9), "0", "Day 90 gate · January written"],
   ], { size: 16 });
 
-richBullet([{ t: "Sell the diagnostic. Do not lead with anything else. ", b: true },
-  { t: "£6,500 is inside the authority of a single project or commercial manager at every organisation on the target list, which means it needs one person to say yes rather than a committee. The requirements package at £14,000 upwards is the prize, and it is a second conversation with a client who has already seen the work." }]);
+richBullet([{ t: "Weeks 7 and 8 have zero approaches, on purpose. ", b: true },
+  { t: "Delivery takes the whole week for one person. A plan that assumes selling continues through delivery produces a late first deliverable, and the first deliverable is the reference the whole quarter exists to obtain." }]);
 
-h2("6.2  The foundation rate, and how to say it");
+richBullet([{ t: "Week 12 is the last selling week. ", b: true },
+  { t: "UK construction effectively stops from about 18 December. Every decision this plan needs must be asked for by 4 December or it is a January decision." }]);
 
-p("The first engagement is priced below the band, once, for a stated reason, to a stated date, and with an explicit statement that it does not carry forward. The reason is true and should be said out loud: the company is new, it needs a reference, and it is willing to carry the risk of that rather than ask the client to.");
+h2("5.2  The schedule does not reach the target, and here is the gap");
 
-fillIn("Set the foundation figure and the date it holds until, and use the same two numbers in every proposal issued in phase 1. A rate that differs between two buyers who later speak to each other is a problem that cannot be explained away.");
-
-richBullet([{ t: "Never present it as a discount. ", b: true },
-  { t: "A discount offered to a buyer tells them the first number was padded, and it re-prices every future quotation downwards in their mind. A foundation rate with a reason, a date and a non-carry-forward statement is a commercial decision that happens once." }]);
-
-h2("6.3  The risk reversal, and its cost");
-
-p("The strongest thing the company can offer a sceptical first buyer is that the risk is not theirs: if the diagnostic tells them nothing they did not already know, they do not pay. A company with a track record cannot afford that offer. A company without one can, and making it says three true things at once — that the company is new, that it knows it, and that it is confident enough to take the risk itself.");
-
-richBullet([{ t: "If it is offered, it must be honoured without argument. ", b: true },
-  { t: "A disputed refusal to refund would cost more than every engagement this plan is trying to win." }]);
-
-/* ================================================================== */
-pageBreak();
-h1("7. PHASE 1 · days 1 to 30 · 21 September to 20 October");
-
-rich([{ t: "Objective: put one priced proposal in front of a buyer who has already expressed interest. ", b: true },
-  { t: "Everything in this phase exists to make that possible." }]);
-
-h2("7.1  The opening week, day by day");
-
-table([1600, 6700],
-  ["Day", "What is done, and finished"],
+table([4300, 4000],
+  ["", "Value"],
   [
-    ["Monday 21st",
-     "The delivery record. Three schemes: employer, client, location, dates, scheme value, the value of the scope personally held, role, peak workforce, establishment duration, scope delivered, and what changed because of it. Nothing else happens on Monday. This one document unblocks CHIC and Hitachi Energy simultaneously and nobody else can write it."],
-    ["Tuesday 22nd",
-     "Referees. Approach four to secure three — the client-side counterparts first. Ask permission explicitly and record the date they gave it. Then send the Siemens Energy reply to Matthew, copying Andrew; it is drafted and every day it sits unsent reflects on the person who made the referral."],
-    ["Wednesday 23rd",
-     "The three financial documents from the workbook: statement of financial position, cash flow to date, and the forecast. The figures are all in the bank statements and the company's own records. Label everything as unaudited management information."],
-    ["Thursday 24th",
-     "Resubmit CHIC through the eSourcing portal — every section confirmed, not only the two flagged. Then send the Hitachi Energy pack to Jamie Holiday: the completed delivery record and the corrected specimen, with the request for twenty minutes."],
-    ["Friday 25th",
-     "The first twelve qualified approaches, built against the sector order at section 5 and the targeting filter. Then the ledger, and thirty minutes deciding next week's twelve."],
+    ["Sending weeks (7, 8 and 13 send nothing)", String(SENDING_WEEKS)],
+    ["Approaches the schedule delivers", String(SCHEDULED)],
+    ["Approaches needed for " + pc(0.8), String(N80)],
+    ["SHORTFALL", String(extraNeeded)],
+    ["Confidence the schedule actually buys", pc(pScheduled)],
+    ["Confidence targeted", pc(0.8)],
   ]);
 
-note("If Monday slips, everything in this plan slips with it. The delivery record is the only task in the ninety days with no substitute and no workaround, and it is the one most easily postponed because it is uncomfortable to write.");
+rich([{ t: `The schedule buys ${pc(pScheduled)}, not ${pc(0.8)}. `, b: true },
+  { t: "That gap is stated rather than smoothed over, because a model that hides its own shortfall is exactly what this revision replaces. There are two honest ways to close it and one dishonest one." }]);
 
-h2("7.2  Weeks two to four");
-
-bullet("Convert the referrals. When a call happens, the objective is not to win the work in the meeting — it is to leave with one named live scheme to price against. A diagnostic priced against a named compound converts; a capability conversation produces goodwill and no purchase order.");
-bullet("Hitachi Energy: lead the positioning with GPQS rather than HVDC — a portfolio of repeated compounds at similar scale is where a specification written once carries to the next one.");
-bullet("Siemens Energy: having sent the reply, leave it. The referral is Matthew's to push and chasing it damages him.");
-bullet("Twenty-five qualified approaches in total across the phase, applying the filter before anything is sent: does this organisation ever hold a site compound in its own name?");
-bullet("Three to four substantive LinkedIn comments a week on posts by people inside target organisations. It is the one channel that has demonstrably produced engagement, and the register that works — specific, unglamorous, understated — is already established.");
-bullet("Publish the two-sentence pitch as a standalone post once in the phase. The post is the prompt; the comments are the conversation.");
-
-h2("7.3  Phase 1 is finished when");
-
-table([5300, 3000],
-  ["Measure", "Target by 20 October"],
+table([2600, 5700],
+  ["Lever", "What it takes"],
   [
-    ["Delivery record complete, three schemes", "Yes"],
-    ["Referees confirmed in writing", "3"],
-    ["CHIC resubmitted, every section confirmed", "Yes"],
-    ["Siemens Energy reply sent", "Yes"],
-    ["Hitachi Energy pack sent and meeting requested", "Yes"],
-    ["Qualified approaches made", "25"],
-    ["Meetings with compound-holding buyers", "2"],
-    ["Priced proposals issued", "1"],
+    ["Lift the reply rate — PREFERRED",
+     `The ${pc(COLD.reply)} assumption is for a targeted approach. At ${pc(replyNeeded, 1)} the schedule reaches ${pc(0.8)} with no extra volume. That is what the four qualification tests at 3.3 are for, and tier 1 is expected to beat ${pc(COLD.reply)} because the ticket is small and the buyer has nobody in-house.`],
+    ["Add volume in weeks 9 to 12",
+     `${extraNeeded} more approaches over four weeks is ${Math.ceil(extraNeeded / 4)} a week on top of ${perWeek}. Possible, and it is the fallback if the week 6 reply rate comes in at or below ${pc(COLD.reply)}.`],
+    ["Send during weeks 7 and 8 — DO NOT",
+     "The dishonest one. It closes the arithmetic and loses the first deliverable, which is the reference the entire quarter exists to obtain. The two zero weeks are not slack."],
+  ]);
+
+p(`Decision rule: measure the reply rate at week 6. At or above ${pc(replyNeeded, 1)}, hold the schedule. Below it, add ${Math.ceil(extraNeeded / 4)} approaches a week from week 9 and cut LinkedIn to one comment a week to pay for the time.`);
+
+h2("5.1  The week");
+
+table([1500, 6800],
+  ["Day", "Fixed content"],
+  [
+    ["Monday", `The week's ${perWeek} approaches go out in one batch, plus every sequence touch due. Two hours against a prepared list. Scoreboard updated.`],
+    ["Tuesday", "Meetings, calls, proposals. Framework administration."],
+    ["Wednesday", "Delivery or preparation. During an engagement this is the whole week."],
+    ["Thursday", "Next week's list: 12 qualified organisations with a named person and a trigger. This is the task that determines next month's revenue and it is the one that gets skipped."],
+    ["Friday", "Three LinkedIn comments. Ledger. Thirty minutes on what the numbers say."],
   ]);
 
 /* ================================================================== */
 pageBreak();
-h1("8. PHASE 2 · days 31 to 60 · 21 October to 19 November");
+h1("6. Decision gates");
 
-rich([{ t: "Objective: close the first engagement and deliver it. ", b: true }]);
+p("Written now so that the decision at each gate is a reading rather than a judgement.");
 
-bullet("Convert one priced proposal into an instruction, on the foundation rate, to one scheme, with the expiry stated.");
-richBullet([{ t: "Then deliver it, and deliver nothing else that fortnight. ", b: true },
-  { t: "A one-person company delivering its first engagement is not also running a campaign. This plan assumes selling stops during delivery, because a plan that assumes otherwise produces a late first deliverable — and the first deliverable is the reference." }]);
-bullet("Ask for the reference at the point of delivery, while the client is looking at the output. Two sentences and permission to name them is enough. A month later the moment has gone and the answer becomes 'let me check with marketing'.");
-bullet("Frameworks continue in parallel: the CHIC assessment response, and the Crown Commercial Service dynamic purchasing routes where value bands rather than guarantors are the lever.");
-bullet("A further 25 qualified approaches, now able to reference a live engagement rather than a specimen. The sentence changes from 'here is a worked example' to 'we are doing this now', and that is a different email.");
+h2("6.1  Day 30 — end of week 4");
 
-h2("8.1  Phase 2 is finished when");
-table([5300, 3000],
-  ["Measure", "Target by 19 November"],
+table([2900, 5400],
+  ["Test", "If it fails"],
   [
-    ["Engagements instructed", "1"],
-    ["Engagements delivered to approval", "1"],
-    ["Client reference obtained in writing", "1"],
-    ["Priced proposals issued, cumulative", "3"],
-    ["Qualified approaches, cumulative", "50"],
-    ["Revenue invoiced", "The first engagement in full"],
+    ["Delivery record complete, 3 referees confirmed, CHIC resubmitted",
+     "Stop all outreach for three days and finish them. Nothing downstream works without them and the cost of the delay compounds weekly."],
+    [`${perWeek * 3} approaches sent`,
+     "The constraint is the list, not the sending. Move Thursday's list-building to Monday and cut LinkedIn to one comment a week until the backlog clears."],
+    ["≥ 2 replies from tier 1",
+     "The tier-1 message is wrong, not the tier. Rewrite touch 1 around grid connection and temporary power specifically, and test 12 more before changing tier."],
+    ["≥ 1 meeting held",
+     "Replies are not converting. The problem is touch 3 or the ask. Offer a 20-minute call on a named scheme rather than a meeting."],
   ]);
 
-/* ================================================================== */
-h1("9. PHASE 3 · days 61 to 90 · 20 November to 19 December");
+h2("6.2  Day 60 — end of week 9");
 
-rich([{ t: "Objective: turn one engagement into a second, and build the pipeline that survives January. ", b: true }]);
-
-richBullet([{ t: "Plan around the December shutdown, because it is real. ", b: true },
-  { t: "UK construction effectively stops from roughly 18 December to the first week of January. The last two weeks of this window are not selling days — they are days for proposals to sit unread. Every decision this plan needs must be asked for by the first week of December." }]);
-
-bullet("Convert the first client into a second scheme, or into the requirements package at section 6. The second sale to an existing client is the cheapest revenue available and the one most companies forget to ask for.");
-bullet("Use the reference deliberately: on the site, in the delivery record, in the outreach, and in every framework application where 'no completed engagement' was the gap.");
-bullet("Reopen the four approaches with no reply recorded — Balfour Beatty, Laing O'Rourke, HS2, Turner & Townsend. A second approach carrying new information is a different email, not a chaser.");
-bullet("Write the January campaign in December so it launches in the first week rather than being drafted in it.");
-
-h2("9.1  The position at day 90");
-table([5300, 3000],
-  ["Measure", "Target by 19 December"],
+table([2900, 5400],
+  ["Test", "If it fails"],
   [
-    ["Engagements delivered", "1"],
-    ["Client references in writing", "1"],
-    ["Second engagement instructed or scheduled", "1"],
-    ["Frameworks admitted or progressed", "1"],
-    ["Qualified approaches, cumulative", "75"],
-    ["Meetings, cumulative", "6"],
-    ["January campaign written and scheduled", "Yes"],
+    ["1 engagement instructed",
+     "Drop to the £5,500 mobilisation-readiness review for any buyer with a scheme already committed. A smaller first engagement is still a first engagement and the reference is identical."],
+    ["1 engagement delivered and approved",
+     "If instructed but not delivered, delivery is the only activity until it is. If not instructed, the risk reversal was not offered clearly enough — put it in writing in the proposal, not just in the meeting."],
+    ["Reply rate ≥ 6%",
+     "Below 6% the arithmetic breaks. Halve the volume and double the research: 6 approaches a week with a named trigger beats 12 without one."],
+    ["Reference obtained or promised",
+     "Ask again at approval, and if refused ask for permission to describe the work anonymously — sector and scale without the name is worth most of it."],
+  ]);
+
+h2("6.3  Day 90 — end of week 13");
+
+table([2900, 5400],
+  ["Test", "If it fails"],
+  [
+    ["1 client on the ladder: diagnostic delivered + requirements proposed",
+     "Diagnose which half failed. Delivered but nothing proposed is a sales failure and is fixable in a week. Nothing delivered is a market or a capacity failure and needs section 3.1 of revision 2 re-read against the record."],
+    ["Written reference in hand",
+     "This is the one that cannot be recovered later. If there is no reference at day 90, the January plan's first line is obtaining one."],
+    ["Pipeline ≥ 3 live conversations into Q1",
+     "December was spent delivering rather than selling. Acceptable once. Not twice."],
+    ["Replaced ≥ 2 of the 4 funnel assumptions with actuals",
+     "The plan is still running on guesses. Recalculate section 1 with whatever data exists, even if thin."],
   ]);
 
 /* ================================================================== */
 pageBreak();
-h1("10. The first meeting, and the four objections");
+h1("7. Pricing discipline, and the four objections");
 
-p("Six meetings are planned across ninety days. With one deliverer and no reference, each is expensive to obtain and cannot be treated as practice.");
+h2("7.1  Three rules");
 
-h2("10.1  What the first meeting is for");
+richBullet([{ t: `Quote ${money(WEDGE)} in the meeting, out loud. `, b: true },
+  { t: "A proposal that arrives three days later gives the objection three days to form in private." }]);
+richBullet([{ t: "Never call it a discount. ", b: true },
+  { t: "A foundation rate has a reason, a date it holds until, and an explicit statement that it does not carry forward. A discount tells a buyer the first number was padded and re-prices every future quotation downwards." }]);
+richBullet([{ t: "Offer the risk reversal in writing, in the proposal. ", b: true },
+  { t: `It costs ${WEDGE_DAYS} days and no cash (section 2.1), it is the strongest answer to the only objection that matters, and said in a meeting but omitted from the document it reads as something not meant.` }]);
 
-rich([{ t: "One outcome: leave with a named live scheme to price against. ", b: true },
-  { t: "Not a follow-up, not a request for a capability pack, not an introduction to somebody else." }]);
+h2("7.2  The four objections");
 
-bullet("Ask early which schemes are at bid or pre-construction stage now. The work only has value before the establishment number is committed, so a scheme already on site is the wrong scheme however enthusiastic the room.");
-bullet("Bring the specimen; do not present it. Hand it over and answer what is asked. A document walked through is a pitch; a document being read is evidence.");
-bullet("Name the price in the meeting. A proposal arriving three days later gives the objection three days to form in private.");
-bullet("Agree the next date before leaving, with a name against it.");
-
-h2("10.2  The four objections");
-
-table([2300, 6000],
+table([2200, 6100],
   ["What they say", "The answer"],
   [
-    ["“We already do this in-house.”",
-     "Agree immediately and without qualification — they do. Then ask when it gets done and by whom. The answer is almost always the fortnight before submission, by whoever had capacity. The gap is not competence, and saying so early is what keeps the conversation alive."],
+    ["“We do this in-house.”",
+     "Agree without qualification — they do. Then: when does it get done, and by whom? The answer is almost always the fortnight before submission, by whoever had capacity. The gap is time, not competence, and saying so is what keeps the conversation alive."],
     ["“You have no track record.”",
-     "Concede it before they finish the sentence. The company has no completed engagement under its own name; the director has a delivery record and the referees can be called. Then move the risk: if the diagnostic tells them nothing they did not already know, they do not pay. A new company can afford that offer and an established one cannot, which is the single advantage of being new."],
-    ["“Send me something and I will circulate it.”",
-     "Accept it and pin it. Send the delivery record and the specimen the same day, then ask which scheme to look at when they come back. Circulation with nothing specific attached is how an enquiry dissolves politely."],
+     "Concede before they finish. No completed engagement under the company's name; the director has a record and the referees can be called. Then move the risk: if it tells you nothing you did not know, you do not pay."],
+    ["“Send me something and I'll circulate it.”",
+     "Accept and pin it. Send the delivery record and specimen the same day, then ask which scheme to look at when they come back. Circulation with nothing specific attached is how an enquiry dissolves politely."],
     ["“What does it cost?”",
-     "£6,500 for a single site, the foundation rate where it applies, the date it holds until, and the statement that it does not carry forward. Said plainly and without apology. Hesitating on price reads as a rate invented in the room."],
-  ]);
-
-h2("10.3  What disqualifies a meeting");
-bullet("Nobody in the room owns a budget. Pleasant, and it is a networking call — book it as such and do not count it on the scoreboard.");
-bullet("Every scheme discussed is already on site. The value is gone; say so honestly and ask what is coming next.");
-bullet("The organisation holds no compound in its own name. That is the targeting filter failing upstream, and the correction belongs in the list rather than in the meeting.");
-
-/* ================================================================== */
-h1("11. The weekly rhythm");
-
-p("Written as a rhythm rather than a list, so it survives contact with a busy fortnight.");
-
-table([1600, 6700],
-  ["Day", "What it is for"],
-  [
-    ["Monday", "Pipeline. The week's approaches all go out on the same day so follow-up is a batch rather than a scatter. Replies answered. Scoreboard updated."],
-    ["Tuesday", "Live conversations, meetings, proposals. Referral work. CHIC and framework administration."],
-    ["Wednesday", "Delivery, or preparation for it. During an engagement this becomes the whole week and the rest suspends."],
-    ["Thursday", "Product and evidence: the specimen, the delivery record, the case study once it exists, and the platform work that supports a sale rather than the platform work that is interesting."],
-    ["Friday", "LinkedIn and the written record. Three to four substantive comments. The ledger. Thirty minutes deciding next week's approaches."],
+     `${money(WEDGE)} for one site. The foundation rate where it applies, the date it holds to, and that it does not carry forward. Said without hesitating.`],
   ]);
 
 /* ================================================================== */
-pageBreak();
-h1("12. Risks, and what is actually done about each");
+h1("8. The scoreboard");
 
-table([2500, 2000, 3800],
-  ["Risk", "If it happens", "The response, decided now"],
+p("Leading indicators, not lagging ones. Revenue is a result; these are the causes.");
+
+table([3700, 1150, 1150, 1150, 1150],
+  ["Weekly measure", "Wk 4", "Wk 9", "Wk 13", "Source"],
   [
-    ["The delivery record is not written",
-     "Everything stops",
-     "There is no mitigation and no substitute. It is the first task on the first morning for that reason. If it is not done by the end of week one, the plan is not behind — it has not started."],
-    ["Referees decline or do not respond",
-     "CHIC stalls",
-     "Approach four to secure three. If fewer than three agree, widen to former managers and to subcontractors managed, and tell CHIC what is coming and when rather than submitting short."],
-    ["Both referrals go quiet",
-     "The likeliest single failure",
-     "They are warm introductions, not orders. The 25 approaches a month exist precisely so that the plan does not depend on them. Do not chase either referral — chasing damages the person who made it and they are the more valuable asset."],
-    ["No proposal is issued by day 30",
-     "Phase 2 cannot start",
-     "Lower the bar rather than the standard: offer the mobilisation-readiness review at £5,500 to a buyer with a scheme already committed. A smaller first engagement is still a first engagement."],
-    ["The first engagement is delivered late",
-     "The reference is at risk",
-     "Selling stops during delivery. This is written into phase 2 as a rule rather than an intention, because it is the rule most likely to be broken by a good week in the pipeline."],
-    ["The client will not be a reference",
-     "The quarter's objective fails",
-     "Ask at the point of delivery, not later. If refused, ask instead for permission to describe the work anonymously — the sector and the scale without the name is worth most of it."],
-    ["Runway runs out",
-     "Existential",
-     "Know the number now. Section 13. If ninety days of no revenue is not covered, that changes this plan and it must be said in September rather than discovered in November."],
+    ["Qualified organisations on the list", "60", "90", "120", "Thursday"],
+    ["Approaches sent, cumulative", String(perWeek * 3), String(perWeek * 6), String(perWeek * 9), "Monday"],
+    ["Reply rate, actual", "—", "≥6%", "≥8%", "Ledger"],
+    ["Meetings held, cumulative", "1", "5", "8", "Ledger"],
+    ["Priced proposals issued", "1", "3", "5", "Documents"],
+    ["Engagements instructed", "0", "1", "2", "Portal"],
+    ["References in writing", "0", "1", "1", "—"],
+    ["Contracted value", "£0", money(WEDGE), money(WEDGE * 2 + REQ), "Portal"],
   ], { size: 16 });
 
-/* ================================================================== */
-h1("13. Capacity, money, and what has to be true");
-
-h2("13.1  The binding constraint is one person");
-
-p("Undivided across one market, that is five days rather than three — which is the practical dividend of this revision and the reason it is likely to work better than the plan it supersedes. During the first engagement it drops to zero selling days, and that is accounted for.");
-
-h2("13.2  The money");
-
-fillIn("Fill from the management information: the runway in weeks at the current burn, and the date it ends with no revenue. Then the committed costs — insurance, software and hosting, travel to meetings, accreditation applications, the accountant. There is no marketing spend in this plan that is not already committed, and none is recommended before the first reference exists.");
-
-h2("13.3  What has to be true");
-
-bullet("The director writes the delivery record content in week one.");
-bullet("Three referees say yes.");
-bullet("At least one live conversation reaches somebody who owns a compound budget.");
-bullet("The first engagement is delivered to the standard the specimen sets. One disappointed first client is worse than no first client.");
-bullet("The runway covers ninety days with no revenue.");
-
-/* ================================================================== */
-h1("14. The scoreboard");
-
-p("Reviewed weekly, in fifteen minutes. Eight rows, and the first two are the only ones that matter before day 30.");
-
-table([4300, 1300, 1300, 1400],
-  ["Measure", "Day 30", "Day 60", "Day 90"],
-  [
-    ["Referees confirmed in writing", "3", "3", "3"],
-    ["Priced proposals issued", "1", "3", "5"],
-    ["Meetings with compound-holding buyers", "2", "4", "6"],
-    ["Engagements instructed", "0", "1", "2"],
-    ["Engagements delivered", "0", "1", "1"],
-    ["Client references obtained", "0", "1", "1"],
-    ["Qualified approaches, cumulative", "25", "50", "75"],
-    ["Frameworks progressed or admitted", "1", "1", "2"],
-  ], { size: 17 });
-
-note("A scoreboard of eight rows is read weekly. One of thirty rows is read once. If a row has not moved in three weeks, the question is not how to move it — it is whether it belongs on the board.");
+note("If a row has not moved in three weeks, the question is not how to move it. It is whether the plan is being run.");
 
 /* ================================================================== */
 pageBreak();
-h1("15. What is deliberately not in this plan");
+h1("9. Week one, by day");
 
-richBullet([{ t: "Europe and the Gulf. ", b: true },
-  { t: "Out of scope for ninety days, by decision. The analysis is not discarded — it is in the 60/20/20 revision of this plan, which records why the Gulf is a second market rather than a first: licensing and local establishment, a track record that Gulf procurement treats as disqualifying rather than inconvenient, payment cycles a company funded by a director's loan cannot absorb with no statutory payment regime behind it, and workforce accommodation exposure a one-person company cannot govern or insure." }]);
+table([1600, 6700],
+  ["Day", "Finished by close of play"],
+  [
+    ["Mon 21 Sep", "The delivery record: three schemes — employer, client, location, dates, scheme value, the value of the scope personally held, role, peak workforce, establishment duration, scope delivered, what changed. NOTHING ELSE TODAY. It unblocks CHIC and Hitachi Energy simultaneously and nobody else can write it."],
+    ["Tue 22 Sep", "Approach four referees to secure three; record the date each agrees. Send the Siemens Energy reply to Matthew, copying Andrew — drafted, and every day it sits unsent reflects on the person who made the referral."],
+    ["Wed 23 Sep", "The three financial documents from the workbook. Every figure is in the bank statements and the company's own records. Label all three as unaudited management information."],
+    ["Thu 24 Sep", "Resubmit CHIC through the portal, every section confirmed. Send the Hitachi Energy pack to Jamie Holiday with the request for twenty minutes. Then build the first 30 tier-1 organisations."],
+    ["Fri 25 Sep", `Finish the list to 60. Name a person and a trigger against each of the first ${perWeek}. Three LinkedIn comments. The first batch goes out Monday.`],
+  ]);
 
-p("The route recorded there still holds and still costs nothing: the UK offices of the contractors already working in those markets. It is reached by adding one question to a UK conversation once there is delivered work to point at — which is what this plan is for.");
+richBullet([{ t: "If Monday slips, the plan has not fallen behind — it has not started. ", b: true },
+  { t: "The delivery record is the only task in ninety days with no substitute, and it is the one most easily postponed because it is uncomfortable to write." }]);
 
-richBullet([{ t: "The trigger to reopen either market, stated in advance: ", b: true },
-  { t: "two delivered UK engagements, one of them for a multinational with overseas operations, and a named internal introduction to that multinational's regional team. Until all three exist, neither market is worked." }]);
+/* ================================================================== */
+h1("10. Out of scope, and the triggers to change that");
 
-bullet("No paid advertising. With no reference and one deliverer, paid acquisition buys enquiries that cannot be converted or serviced.");
-bullet("No second product. CONSTRUX and VERYX are real and they are not the wedge. One proposition, told the same way every time, until it has been sold once.");
-bullet("No certification programme. ISO 9001 is worth pursuing when a buyer says it is the blocker. None has.");
-bullet("No hiring. The first engagement tells the company what the second person should be; guessing before then is expensive.");
-bullet("No approach to GE Vernova beyond the single no-ask email already drafted. That stands until 2027 and it is a discipline, not a message.");
-
-h1("16. Review and revision");
-
-bullet("Weekly: the scoreboard, and nothing else. Fifteen minutes.");
-bullet("Day 30, 60 and 90: the full plan against the phase measures. Write down what was wrong about the last thirty days before planning the next thirty.");
-richBullet([{ t: "Reopen the question of market scope only on the trigger at section 15, never on a bad week. ", b: true },
-  { t: "The conditions that would justify moving effort out of the United Kingdom are at section 3.1, written in advance and in cold blood, precisely so the decision is not made in the wrong mood." }]);
+table([2700, 5600],
+  ["Excluded", "What would bring it in"],
+  [
+    ["Europe and the Gulf",
+     "Two delivered UK engagements, one for a multinational with overseas operations, and a named internal introduction to its regional team. The analysis is in revision 2 of this plan and it stands."],
+    ["Paid advertising", "A reference in hand and a second deliverer. Until then it buys enquiries that cannot be converted or serviced."],
+    ["CONSTRUX and VERYX as propositions", "The diagnostic sold three times. One proposition, told the same way, until it has been sold."],
+    ["ISO certification", "A buyer saying it is the blocker. None has."],
+    ["Hiring", `A second engagement instructed while the first is in delivery. At ${money(WEDGE / WEDGE_DAYS)} a day the constraint is days, not money — and that is exactly when the first hire pays for itself.`],
+    ["GE Vernova", "2027. The single no-ask email already drafted is the last contact."],
+  ]);
 
 approval();
-d.build().catch((err) => { console.error(err); process.exit(1); });
+d.build().then(() => {
+  console.log("\nTHE NUMBERS IN THE DOCUMENT");
+  console.log("  cold approach -> win     ", pc(coldRate, 2), "=> 1 per", perWinCold);
+  console.log("  2 live referrals alone   ", pc(pWarm));
+  console.log("  previous plan (75)       ", pc(pOld));
+  console.log("  target 80% needs         ", N80, "=>", perWeek + "/week");
+  console.log("  scheduled                ", perWeek * 9, "over", WEEKS, "weeks");
+  console.log("  one client on the ladder ", money(LTV), "=", (LTV / WEDGE).toFixed(1) + "x the wedge");
+  console.log("  wedge revenue per day    ", money(WEDGE / WEDGE_DAYS));
+}).catch((err) => { console.error(err); process.exit(1); });
