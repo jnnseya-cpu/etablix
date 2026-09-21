@@ -65,7 +65,12 @@ ARCHIVE="$BACKUP_DIR/etablix-data-$STAMP.tar.gz"
 say() { echo "[$(date -Is)] $*"; }
 die() { echo "[$(date -Is)] BACKUP FAILED: $*" >&2; exit 1; }
 
-docker inspect -f '{{.State.Running}}' "$NAME" 2>/dev/null | grep -q true \
+# Command substitution, not `| grep -q`, for the reason given at the
+# verification step below: a reader that exits early can kill the writer and
+# pipefail then blames the whole pipeline. The output here is five bytes so
+# the race is academic, but there is no reason to keep the shape around.
+RUNNING=$(docker inspect -f '{{.State.Running}}' "$NAME" 2>/dev/null || true)
+[ "$RUNNING" = "true" ] \
   || die "container '$NAME' is not running — nothing to back up"
 
 mkdir -p "$BACKUP_DIR"
@@ -97,27 +102,58 @@ SIZE=$(stat -c %s "$ARCHIVE" 2>/dev/null || echo 0)
 [ "$SIZE" -ge "$MIN_BYTES" ] \
   || die "archive is only ${SIZE} bytes (minimum ${MIN_BYTES}) — it is empty or truncated"
 
-tar -tzf "$ARCHIVE" >/dev/null 2>&1 \
+# The listing is read ONCE, into a variable, and examined with shell pattern
+# matching. It is deliberately not piped into grep -q.
+#
+# WHY. `tar -tzf "$ARCHIVE" | grep -q "$SNAP"` reads correctly and is wrong.
+# grep -q exits the instant it finds the first match; that closes the pipe;
+# tar is killed by SIGPIPE and exits 141; and `set -o pipefail` promotes the
+# dead writer's status to the status of the whole pipeline. So the check
+# failed BECAUSE it found what it was looking for, and a working backup was
+# reported as a broken one. Reproduced on an archive with 5,002 entries:
+# exit 141, "the database snapshot is not in the archive", snapshot present.
+#
+# Any pipeline here whose reader can finish early has the same defect. wc -l
+# is safe because it consumes everything; grep -q, head and sed -q are not.
+LIST=$(tar -tzf "$ARCHIVE" 2>/dev/null) \
   || die "archive does not read back as a valid gzip tar"
 
-tar -tzf "$ARCHIVE" | grep -q "$SNAP" \
-  || die "the database snapshot is not in the archive — the data directory archived was the wrong one"
+case "$LIST" in
+  (*"$SNAP"*) ;;
+  (*) die "the database snapshot ($SNAP) is not in the archive — $DATA held no snapshot, or the archive is of some other directory" ;;
+esac
 
-FILES=$(tar -tzf "$ARCHIVE" | wc -l)
+FILES=$(printf '%s\n' "$LIST" | wc -l)
 say "archive verified: $ARCHIVE ($(numfmt --to=iec "$SIZE" 2>/dev/null || echo "$SIZE bytes"), $FILES entries)"
 
 docker exec "$NAME" rm -f "$DATA/$SNAP" >/dev/null 2>&1 || true
 
 # ---- 4. off-site, because a backup on the same VPS dies with the VPS -------
+# ETABLIX_BACKUP_REMOTE takes either form:
+#
+#   b2                          → copied to b2:etablix-backups/
+#   b2:etablix-backups-nseya    → copied exactly there
+#
+# The second form exists because Backblaze bucket names are unique across
+# the whole of Backblaze, not across your account, so "etablix-backups" may
+# already belong to a stranger. Finding that out by editing this script at
+# 02:15 is not the intended experience.
 REMOTE="${ETABLIX_BACKUP_REMOTE:-}"
+case "$REMOTE" in
+  ("") DEST="" ;;
+  (*:*) DEST="${REMOTE%/}/" ;;
+  (*) DEST="$REMOTE:etablix-backups/" ;;
+esac
 OFFSITE=no
-if [ -n "$REMOTE" ] && command -v rclone >/dev/null 2>&1; then
-  if rclone copy "$ARCHIVE" "$REMOTE:etablix-backups/"; then
+if [ -n "$DEST" ] && command -v rclone >/dev/null 2>&1; then
+  if rclone copy "$ARCHIVE" "$DEST"; then
     OFFSITE=yes
-    say "off-site copy done: $REMOTE:etablix-backups/"
+    say "off-site copy done: $DEST"
   else
     say "WARNING: off-site copy failed — the archive exists only on this VPS"
   fi
+elif [ -n "$DEST" ]; then
+  say "WARNING: ETABLIX_BACKUP_REMOTE is set to '$REMOTE' but rclone is not installed — this archive exists only on this VPS"
 else
   say "NOTE: no off-site remote configured (set ETABLIX_BACKUP_REMOTE) — this archive exists only on this VPS"
 fi
