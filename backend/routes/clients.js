@@ -33,7 +33,7 @@ import { emit, emitDetached } from "../lib/comms.js";
 import { rateLimit } from "../lib/ratelimit.js";
 import { RETENTION, describeHoldings, erasePack, packDueAt } from "../lib/retention.js";
 import {
-  createDocument, renderDocument,
+  createDocument, renderDocument, stateMark,
   PIPELINE_DOCUMENTS,
 } from "./docs.js";
 import { startPipelineRun } from "./agents.js";
@@ -1387,10 +1387,38 @@ router.get("/portal/:token/documents/:docId", (req, res) => {
   if (!ref && !linked) return res.status(404).send("That document is not on this engagement.");
   const doc = collection("documents").find((d) => d.id === req.params.docId);
   if (!doc) return res.status(404).send("Document not found.");
-  // Always the real document, never a sample. A client looking at their own
-  // invoice must see the controlled copy; the sample render exists for showing
-  // a PROSPECT the shape of a deliverable and has no business on this route.
-  res.send(renderDocument(doc));
+
+  /*
+   * THE CLIENT'S COPY IS MARKED BY ITS STATE, NOT BY ANYBODY REMEMBERING.
+   *
+   *   awaiting their decision   → DRAFT
+   *   approved, balance unpaid  → UNPAID PROOF, tiled
+   *   paid                      → clean
+   *
+   * Invoices and notices are excluded: watermarking the invoice that asks for
+   * the money is self-defeating, and a payment notice is a contractual
+   * document whose whole value is that it is clean.
+   *
+   * Timing is the mechanism. The proof is marked from approval, not after a
+   * refusal to pay — by then the client already has the file and re-marking
+   * this copy reaches nothing. Marked from the start, they simply never hold
+   * a usable deliverable they have not paid for, and no punitive step is ever
+   * needed.
+   */
+  const COMMERCIAL = new Set(["invoice", "application", "notice", "quotation", "order"]);
+  let state = {};
+  if (!COMMERCIAL.has(doc.template)) {
+    const deliverable = (e.deliverables || []).find((x) => x.documentId === doc.id);
+    const awaitingDecision = Boolean(deliverable) && !deliverable.decision;
+    // Unpaid means: the balance for this engagement has not cleared. The
+    // deposit alone does not buy the deliverable — it buys the work starting.
+    const balance = (e.documents || []).filter((x) => x.kind === "balance");
+    const unpaid = !awaitingDecision
+      && Boolean(deliverable)
+      && (balance.length === 0 || balance.some((x) => !x.paidAt));
+    state = stateMark({ awaitingDecision, unpaid });
+  }
+  res.send(renderDocument(doc, null, state));
 });
 
 export default router;

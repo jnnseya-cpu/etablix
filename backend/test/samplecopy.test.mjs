@@ -20,7 +20,7 @@
  * sample becomes a way round the release date, which is worse than not having
  * one.
  */
-import { renderDocument } from "../routes/docs.js";
+import { renderDocument, stateMark } from "../routes/docs.js";
 
 let passed = 0;
 const failures = [];
@@ -100,6 +100,40 @@ const released = { ...doc, data: { ...doc.data, dueDate: inDays(-1) } };
 ok("a released document shows no banner", !/Do not issue before/.test(renderDocument(released)));
 ok("and its sample is still watermarked",
    /<span>SAMPLE<\/span>/.test(renderDocument(released, null, { sample: true })));
+
+/* ---- the state-driven mark: DRAFT, then UNPAID PROOF, then clean ----- */
+const st = (o) => renderDocument(doc, null, stateMark(o));
+
+ok("awaiting a decision is marked DRAFT", /<span>DRAFT<\/span>/.test(st({ awaitingDecision: true })));
+ok("awaiting a decision is NOT tiled", !/class="wm [^"]*tile/.test(st({ awaitingDecision: true })));
+
+const proof = st({ unpaid: true });
+ok("approved but unpaid is marked UNPAID PROOF", /<span>UNPAID PROOF<\/span>/.test(proof));
+ok("the unpaid proof is tiled", /class="wm [^"]*tile/.test(proof));
+ok("the unpaid proof carries many marks, not one",
+   (proof.match(/<span>UNPAID PROOF<\/span>/g) || []).length >= 40,
+   `found ${(proof.match(/<span>UNPAID PROOF<\/span>/g) || []).length}`);
+ok("the tiled marks are real elements, not a background image",
+   !/background-image/.test(proof),
+   "a browser printing with backgrounds off drops a background and prints spans regardless");
+ok("the tiled mark prints as heavily as it displays", /\.wm\.tile span \{ color: rgba\(192, 57, 43, 0\.32\)/.test(proof));
+
+/* IT IS A PROOF, NOT A DAMAGED DOCUMENT. Every word still has to be there. */
+ok("the unpaid proof keeps the findings in full",
+   proof.includes("The programme is not deliverable as written."));
+ok("the unpaid proof keeps the client and project", proof.includes("Northgate Energy Ltd"));
+ok("the unpaid proof keeps the legal note", /validation by a competent person/.test(proof));
+ok("the unpaid proof keeps the document number", proof.includes("SSD-2026-014"));
+
+const clean = st({});
+ok("paid is clean — no watermark at all", !/<div class="wm/.test(clean));
+ok("paid still carries the hold banner if held", /Do not issue before/.test(clean),
+   "state marking must not silently disable an unrelated control");
+
+/* the desk can read its own unpaid proof without fighting the marks */
+const deskView = renderDocument(doc, null, { mark: "UNPAID PROOF", tile: false });
+ok("tile can be switched off explicitly", !/class="wm [^"]*tile/.test(deskView));
+ok("and the word survives with it off", /<span>UNPAID PROOF<\/span>/.test(deskView));
 
 /* ---- synthetic: the notice changes audience -------------------------- */
 const syn = renderDocument(doc, null, { sample: true, synthetic: true });

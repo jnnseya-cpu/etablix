@@ -76,7 +76,35 @@ const MARKS = [
   { word: "NOT FOR ISSUE",            tone: "red",  note: "Must not leave the company." },
   { word: "SUPERSEDED",               tone: "red",  note: "A later revision exists." },
   { word: "VOID",                     tone: "red",  note: "Withdrawn. Do not rely on it." },
+  { word: "UNPAID PROOF",             tone: "red",  note: "Tiled. Readable, not usable. Clears on payment.", tile: true },
 ];
+
+/**
+ * The watermark a document gets on its own, from its state.
+ *
+ * Two states earn one without anybody choosing it:
+ *
+ *   awaiting the client's decision  → DRAFT, one diagonal mark
+ *   approved but not paid for       → UNPAID PROOF, tiled
+ *
+ * The second is the commercial one and its TIMING is the whole mechanism. A
+ * heavy watermark applied after a client refuses to pay achieves nothing:
+ * they already have the file, and re-marking the server's copy does not
+ * reach the PDF in their inbox. So the proof copy is marked FROM THE MOMENT
+ * IT IS APPROVED and the clean copy is released when payment is recorded.
+ * The client never holds a usable deliverable they have not paid for, and
+ * nobody has to do anything punitive later.
+ *
+ * It is a proof copy, not a damaged one. Every word is legible — which is
+ * what makes it a fair thing to hand over, and what keeps it defensible if
+ * the invoice is ever disputed. The marks make it unusable as a working
+ * document, not unreadable as a report.
+ */
+export function stateMark({ awaitingDecision = false, unpaid = false } = {}) {
+  if (unpaid) return { mark: "UNPAID PROOF", tile: true };
+  if (awaitingDecision) return { mark: "DRAFT", tile: false };
+  return {};
+}
 const markFor = (raw) => {
   const want = String(raw || "").trim().toUpperCase();
   return want ? MARKS.find((m) => m.word === want) || null : null;
@@ -1527,7 +1555,13 @@ function renderBody(doc, part = null, { sample = false } = {}) {
  */
 export function renderDocument(doc, part = null, opts = {}) {
   const { sample = false, mark = null } = opts;
-  let { synthetic = false } = opts;
+  let { synthetic = false, tile = false } = opts;
+  /* A tiled mark only makes sense with a mark to tile, and the allowlist
+     decides which marks tile by default. An explicit tile:false can turn it
+     off — the desk's own view of an unpaid proof does not need to fight the
+     watermark to read the thing it wrote. */
+  const tileDefault = (markFor(mark) || {}).tile === true;
+  tile = opts.tile === undefined ? tileDefault : !!opts.tile;
   /* `synthetic` only means anything on a sample, and it changes who the
      notice is written for.
        sample           → a caution to the SENDER: this is not anonymised.
@@ -1601,11 +1635,24 @@ export function renderDocument(doc, part = null, opts = {}) {
   .wm.len2 span { font-size: 82px; letter-spacing: 8px; }
   .wm.len3 span { font-size: 58px; letter-spacing: 5px; }
   .wm.red span { color: rgba(192, 57, 43, 0.10); }
+
+  /* TILED — for the unpaid proof copy. Real elements rather than a repeating
+     background image, because a browser printing with backgrounds switched
+     off drops a background and prints text regardless. Every mark is a span. */
+  .wm.tile { display: grid; grid-template-columns: repeat(4, 1fr);
+             align-content: space-evenly; padding: 14mm 6mm; }
+  .wm.tile span { position: static; top: auto; left: auto;
+                  transform: rotate(-28deg); text-align: center;
+                  font-size: 19px; letter-spacing: 1.5px; line-height: 2.9;
+                  color: rgba(192, 57, 43, 0.30); white-space: nowrap; }
   .page { position: relative; z-index: 1; }
   /* Screen renders lighter than print does, so print gets a touch more. */
   @media print {
     .wm span { color: rgba(156, 122, 60, 0.15); }
     .wm.red span { color: rgba(192, 57, 43, 0.13); }
+    /* The proof copy prints as heavily as it displays. Printing it is the
+       exact moment the mark has to be there. */
+    .wm.tile span { color: rgba(192, 57, 43, 0.32); }
   }
   .blk h3 { font-family: Arial, sans-serif; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: #9c7a3c; margin: 0 0 6px; }
   .blk p { margin: 0; font-size: 13.5px; line-height: 1.6; }
@@ -1630,7 +1677,9 @@ export function renderDocument(doc, part = null, opts = {}) {
   @media print { .markpick { display: none; } }
   .toolbar button { font-family: Arial, sans-serif; font-size: 13px; padding: 9px 20px; background: #14181d; color: #fff; border: 0; border-radius: 4px; cursor: pointer; }
   @media print { .toolbar { display: none; } .page { padding: 0; } }
-</style></head><body>${wm ? `<div class="wm ${wm.tone === "red" ? "red " : ""}len${Math.min(3, wm.word.split(" ").length)}"><span>${esc(wm.word)}</span></div>` : ""}
+</style></head><body>${wm ? `<div class="wm ${wm.tone === "red" ? "red " : ""}${tile ? "tile" : `len${Math.min(3, wm.word.split(" ").length)}`}">${
+  tile ? Array.from({ length: 44 }, () => `<span>${esc(wm.word)}</span>`).join("") : `<span>${esc(wm.word)}</span>`
+}</div>` : ""}
 <div class="toolbar">
   <details class="markpick"><summary>Watermark</summary><div>
     ${MARKS.map((m) => `<a href="?${new URLSearchParams({ ...(part ? { part: String(part) } : {}), ...(sample ? { sample: "1" } : {}), mark: m.word }).toString()}" class="${m.tone}"${wm && wm.word === m.word ? " aria-current=\"true\"" : ""}>${esc(m.word)}<small>${esc(m.note)}</small></a>`).join("")}

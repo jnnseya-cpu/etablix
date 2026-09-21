@@ -180,3 +180,61 @@ is rendered once to a PNG and anchored behind the text in the section header,
 which repeats on every page. `ImageRun` needs an explicit `type: "png"` there —
 without it the part is written as `.undefined` with no matching Default in
 `[Content_Types].xml` and Word opens the file as corrupt.
+
+
+---
+
+## Automatic marks: the client's copy is marked by its state
+
+Nobody chooses these. The client portal resolves them from the document's own
+state every time it renders.
+
+| State | Mark | Form |
+|---|---|---|
+| Awaiting the client's decision | `DRAFT` | One diagonal mark |
+| Approved, balance not paid | `UNPAID PROOF` | **Tiled — 44 marks per page** |
+| Paid | *none* | Clean |
+
+Invoices, payment applications, notices, quotations and orders are excluded.
+Watermarking the invoice that asks for the money is self-defeating, and a
+payment notice is a contractual document whose whole value is that it is
+clean.
+
+### Why the timing is the mechanism
+
+A heavy watermark applied *after* a client refuses to pay achieves nothing.
+They already have the file, and re-marking the copy on the server does not
+reach the PDF in their inbox.
+
+So the proof copy is marked **from the moment it is approved**, and the clean
+copy is released **when payment is recorded**. The client never holds a usable
+deliverable they have not paid for, and no punitive step is ever needed —
+which also means there is nothing to argue about if the invoice is disputed.
+
+The deposit does not lift it. The deposit buys the work starting; the balance
+buys the deliverable.
+
+### It is a proof copy, not a damaged one
+
+Every word stays legible. That is deliberate, and it is what makes it both
+fair to hand over and defensible later: the marks make the document unusable
+as a working document, not unreadable as a report. A deliberately degraded
+deliverable, handed to a client who has approved the work, is a different
+thing entirely and is not what this does.
+
+The tiled marks are **real elements, not a background image**. A browser
+printing with backgrounds switched off drops a background and prints text
+regardless, and printing is the exact moment the mark has to be there. The
+tiled mark also prints *darker* than it displays, for the same reason.
+
+### Reading your own proof copy
+
+The desk sees the same marks the client sees, so there are no surprises. To
+read it without fighting them:
+
+```
+/api/docs/<id>/render?token=<t>&mark=UNPAID%20PROOF&tile=0
+```
+
+`tile=0` keeps the word and drops the grid. The client's copy is unaffected —
+this is a render option on the desk's own view.
