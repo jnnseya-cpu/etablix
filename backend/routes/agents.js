@@ -42,7 +42,7 @@ const publicRun = ({ inputs, output, ...meta }, full = false) => {
 router.get("/", (req, res) => {
   const runs = [...collection("agentTasks")].reverse().slice(0, 60);
   res.json({
-    provider: publicProvider(),
+    provider: publicProvider({ admin: req.user?.role === ROLES.ADMIN }),
     agents: AI_AGENTS.map((a) => ({
       id: a.id,
       name: a.name,
@@ -63,12 +63,12 @@ router.get("/runs/:id", (req, res) => {
 
 router.put("/provider", admin, (req, res) => {
   setProvider({ apiKey: req.body?.apiKey, model: req.body?.model });
-  res.json({ provider: publicProvider() });
+  res.json({ provider: publicProvider({ admin: true }) });
 });
 
 router.post("/provider/test", admin, async (req, res) => {
   const result = await testProvider();
-  res.json({ result, provider: publicProvider() });
+  res.json({ result, provider: publicProvider({ admin: true }) });
 });
 
 /**

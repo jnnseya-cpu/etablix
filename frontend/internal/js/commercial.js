@@ -1355,8 +1355,12 @@ export async function loadOrganisation() {
     return provider.connected ? pill("AI · LIVE", "approved") : pill("AI · connect key", "");
   };
 
+  // No model identifier in the pill. Which engine runs the work is a supplier
+  // relationship, not a status — and this line is visible to every internal
+  // user, not just the administrator who configured it. The administrator can
+  // still see and change the model: it is the value of the input beside this.
   const providerStatus = provider.connected
-    ? pill(`CONNECTED · ${provider.model}`, "approved")
+    ? pill("CONNECTED", "approved")
     : provider.lastTest && !provider.lastTest.ok
       ? pill("FAILED", "declined")
       : pill("Not connected", "");

@@ -89,14 +89,35 @@ export const providerConnected = () => {
 };
 
 /** Masked view, safe for the browser. */
-export function publicProvider() {
+/**
+ * What the portal is allowed to know about the engine.
+ *
+ * WHICH MODEL RUNS THE WORK IS NOT A CLIENT-FACING FACT, AND NOT A
+ * STAFF-FACING ONE EITHER. It is a supplier relationship. Naming it on a
+ * screen invites the one question no supplier wants asked — "why would we
+ * pay you when we could use that ourselves?" — and it is also simply not
+ * anybody's business but the administrator who pays for the key.
+ *
+ * So the identifier and the key preview are returned ONLY to an
+ * administrator, who cannot configure the connection without them. Everyone
+ * else gets whether it is connected and whether the last test passed, which
+ * is all anyone else needs in order to run an agent.
+ *
+ * Withheld here rather than hidden in the page, because a value the browser
+ * receives is a value the reader can read.
+ */
+export function publicProvider({ admin = false } = {}) {
   const p = getProvider();
-  return {
-    model: p.model,
+  const view = {
     source: p.source,
-    keyPreview: p.apiKey ? `${p.apiKey.slice(0, 10)}…${p.apiKey.slice(-4)}` : null,
     connected: providerConnected(),
     lastTest: p.lastTest,
+  };
+  if (!admin) return view;
+  return {
+    ...view,
+    model: p.model,
+    keyPreview: p.apiKey ? `${p.apiKey.slice(0, 10)}…${p.apiKey.slice(-4)}` : null,
   };
 }
 
