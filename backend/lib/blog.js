@@ -55,6 +55,7 @@ export const LINKS = {
   terms: { url: "/policies/terms", label: "terms", file: "policies/terms.html" },
   suppliercode: { url: "/policies/supplier-code", label: "supplier code of conduct", file: "policies/supplier-code.html" },
   slavery: { url: "/policies/modern-slavery", label: "modern slavery statement", file: "policies/modern-slavery.html" },
+  netzero: { url: "/policies/net-zero", label: "our net zero commitment", file: "policies/net-zero.html" },
   blog: { url: "/blog", label: "the ETABLIX field notes", file: "blog.html" },
 };
 
@@ -139,7 +140,8 @@ export const PAGES = [
   { url: "/policies/terms", lastmod: "2026-09-07", priority: 0.3, changefreq: "yearly", file: "policies/terms.html" },
   { url: "/policies/cookies", lastmod: "2026-09-10", priority: 0.3, changefreq: "yearly", file: "policies/cookies.html" },
   { url: "/policies/supplier-code", lastmod: "2026-09-07", priority: 0.3, changefreq: "yearly", file: "policies/supplier-code.html" },
-  { url: "/policies/modern-slavery", lastmod: "2026-09-07", priority: 0.3, changefreq: "yearly", file: "policies/modern-slavery.html" },
+  { url: "/policies/modern-slavery", lastmod: "2026-09-25", priority: 0.3, changefreq: "yearly", file: "policies/modern-slavery.html" },
+  { url: "/policies/net-zero", lastmod: "2026-09-25", priority: 0.3, changefreq: "yearly", file: "policies/net-zero.html" },
 ];
 
 /**
