@@ -90,7 +90,7 @@ const cleanGreeting = (g) =>
     .trim();
 
 export const SIGNATURE_TEXT = [
-  "ETABLIX — Integrated Site Services · Part of Groupe Nseya",
+  "ETABLIX — Integrated Site Services · A Groupe Nseya brand",
   "Groupe Nseya House, Kingstanding, Birmingham, B44 8DJ",
   "contact@etablix.com · +44 7493 216101 · https://etablix.com",
 ].join("\n");
@@ -122,7 +122,7 @@ export function renderEmailHtml({ subject, bodyLines, severity = "info", details
   </td></tr>
   <tr><td style="padding:18px 32px 26px;font-family:Arial,Helvetica,sans-serif;border-top:1px solid #e3e6ea;">
     <p style="margin:0;font-size:12px;line-height:1.7;color:#5b6672;">
-      <b style="color:#14181d;">ETABLIX</b> — Integrated Site Services &middot; Part of Groupe Nseya<br>
+      <b style="color:#14181d;">ETABLIX</b> — Integrated Site Services &middot; A Groupe Nseya brand<br>
       Groupe Nseya House, Kingstanding, Birmingham, B44 8DJ<br>
       <a href="mailto:contact@etablix.com" style="color:#9c7a3c;">contact@etablix.com</a> &middot; +44&nbsp;7493&nbsp;216101 &middot; <a href="https://etablix.com" style="color:#9c7a3c;">etablix.com</a>
     </p>

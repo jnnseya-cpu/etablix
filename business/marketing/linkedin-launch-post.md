@@ -58,7 +58,7 @@ click on their own.
 > I would like to hear how you are handling it.
 >
 > ETABLIX — Integrated Site Services. Birmingham. A trading name of JNN GLOBAL
-> LTD, part of Groupe Nseya.
+> LTD, a Groupe Nseya brand.
 >
 > #Construction #Infrastructure #SiteServices
 

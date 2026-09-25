@@ -56,7 +56,7 @@ const doc = new Document({
       properties: { page: { margin: { top: 1000, bottom: 1000, left: 1100, right: 1100 } } },
       children: [
         p("ETABLIX — Integrated Site Services", { bold: true, size: 26, after: 20 }),
-        p("A trading name of JNN GLOBAL LTD · Company No. 15405437 · Birmingham B44 8DJ · Part of Groupe Nseya",
+        p("A trading name of JNN GLOBAL LTD · Company No. 15405437 · Birmingham B44 8DJ · A Groupe Nseya brand",
           { size: 17, color: SLATE, after: 320 }),
 
         rich([{ t: "Subject: ", b: true }, { t: "RE: DPS application — financial standing and contract examples" }],
@@ -103,7 +103,7 @@ const doc = new Document({
         p("[Your name]", { bold: true, after: 20 }),
         p("[Your title] · ETABLIX — Integrated Site Services", { size: 19, color: SLATE, after: 20 }),
         p("[phone] · [name]@etablix.com · etablix.com", { size: 19, color: SLATE, after: 20 }),
-        p("ETABLIX is a trading name of JNN GLOBAL LTD, registered in England and Wales, company number 15405437. Registered office: Birmingham B44 8DJ. Part of Groupe Nseya.",
+        p("ETABLIX and Groupe Nseya are trading names of JNN GLOBAL LTD, registered in England and Wales, company number 15405437. Registered office: Birmingham B44 8DJ.",
           { size: 16, color: SLATE }),
       ],
     },

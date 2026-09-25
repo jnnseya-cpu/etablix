@@ -119,7 +119,7 @@ const FOOTER = `
     <div class="footer-grid">
       <div class="footer-about">
         <a class="logo" href="/"><img class="logo-mark" src="/img/logo-mark-reverse.svg" alt="ETABLIX"><span class="logo-text">ETABLIX<small>Integrated Site Services</small></span></a>
-        <p>ETABLIX — Integrated Site Services, part of Groupe Nseya. We plan, procure, integrate and control every critical temporary-site and workforce-accommodation service — from first mobilisation to final reinstatement.</p>
+        <p>ETABLIX — Integrated Site Services, a Groupe Nseya brand. We plan, procure, integrate and control every critical temporary-site and workforce-accommodation service — from first mobilisation to final reinstatement.</p>
         <p style="font-size:0.88rem;">Groupe Nseya House, Kingstanding, Birmingham B44 8DJ<br>
         <a href="mailto:contact@etablix.com">contact@etablix.com</a> · <a href="tel:+447493216101">+44 7493 216101</a></p>
       </div>
@@ -154,8 +154,8 @@ const FOOTER = `
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 ETABLIX — Integrated Site Services, part of Groupe Nseya.<br>
-      <span style="font-size:0.78rem;opacity:0.8;">ETABLIX is a trading name of JNN GLOBAL LTD · Registered in England &amp; Wales · Company No. 15405437 · Registered office: Groupe Nseya House, Kingstanding, Birmingham B44 8DJ, United Kingdom</span></span>
+      <span>© 2026 ETABLIX — Integrated Site Services, a Groupe Nseya brand.<br>
+      <span style="font-size:0.78rem;opacity:0.8;">ETABLIX and Groupe Nseya are trading names of JNN GLOBAL LTD · Registered in England &amp; Wales · Company No. 15405437 · Registered office: Groupe Nseya House, Kingstanding, Birmingham B44 8DJ, United Kingdom</span></span>
       <span>One site. One village. One accountable system.</span>
     </div>
   </div>
@@ -175,7 +175,7 @@ const FOOTER = `
  */
 const BUSINESS = `{"@type":"ProfessionalService","@id":"https://etablix.com/#business","name":"ETABLIX — Integrated Site Services","url":"https://etablix.com/","image":"https://etablix.com/img/og-image.png","telephone":"+44 7493 216101","email":"contact@etablix.com","parentOrganization":{"@id":"https://etablix.com/#org"},"address":{"@type":"PostalAddress","streetAddress":"Groupe Nseya House, Kingstanding","addressLocality":"Birmingham","addressRegion":"West Midlands","postalCode":"B44 8DJ","addressCountry":"GB"},"openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday"],"opens":"08:00","closes":"18:00"},"areaServed":{"@type":"Country","name":"United Kingdom"},"knowsAbout":["Integrated site services","Workforce accommodation","Site establishment","Managed procurement","Temporary site utilities","Tender document preparation","CDM 2015"],"sameAs":["https://www.linkedin.com/company/etablix"]}`;
 
-const ORG = `{"@type":"Organization","@id":"${SITE}/#org","name":"ETABLIX","legalName":"JNN GLOBAL LTD","identifier":{"@type":"PropertyValue","propertyID":"UK Companies House","value":"15405437"},"url":"${SITE}/","logo":"${SITE}/img/logo-mark.svg","description":"Integrated site-services and workforce-accommodation contractor for the temporary site environment around the permanent works. Not a main contractor. Part of Groupe Nseya.","parentOrganization":{"@type":"Organization","name":"Groupe Nseya"},"sameAs":["https://www.linkedin.com/company/etablix"]}`;
+const ORG = `{"@type":"Organization","@id":"${SITE}/#org","name":"ETABLIX","legalName":"JNN GLOBAL LTD","identifier":{"@type":"PropertyValue","propertyID":"UK Companies House","value":"15405437"},"url":"${SITE}/","logo":"${SITE}/img/logo-mark.svg","description":"Integrated site-services and workforce-accommodation contractor for the temporary site environment around the permanent works. Not a main contractor.","sameAs":["https://www.linkedin.com/company/etablix"]}`;
 
 /**
  * The document head, complete, for any page this generator writes.
@@ -535,7 +535,7 @@ ${rows
 function renderLlms(built) {
   return `# ETABLIX — Integrated Site Services
 
-> ETABLIX plans, procures, integrates and controls the temporary site environment and workforce accommodation around the permanent works, from first mobilisation to final reinstatement. It is a trading name of JNN GLOBAL LTD (UK company 15405437), part of Groupe Nseya, based in Birmingham and operating across the United Kingdom.
+> ETABLIX plans, procures, integrates and controls the temporary site environment and workforce accommodation around the permanent works, from first mobilisation to final reinstatement. It is a trading name of JNN GLOBAL LTD (UK company 15405437), a Groupe Nseya brand, based in Birmingham and operating across the United Kingdom.
 
 ## What ETABLIX is not
 

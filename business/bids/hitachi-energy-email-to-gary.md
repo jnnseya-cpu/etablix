@@ -77,7 +77,7 @@ it with no idea who you are.
 > Managing Director · ETABLIX — Integrated Site Services
 > [phone] · contact@etablix.com · etablix.com
 >
-> ETABLIX is a trading name of JNN GLOBAL LTD, registered in England and Wales,
+> ETABLIX and Groupe Nseya are trading names of JNN GLOBAL LTD, registered in England and Wales,
 > company number 15405437. Registered office: Birmingham B44 8DJ. Part of
 > Groupe Nseya.
 

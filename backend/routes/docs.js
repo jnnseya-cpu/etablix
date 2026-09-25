@@ -1709,7 +1709,7 @@ export function renderDocument(doc, part = null, opts = {}) {
     document says so on its face.</div>`) : ""}
   ${renderBody(doc, part, { sample })}
   <div class="foot">
-    ETABLIX is a trading name of JNN GLOBAL LTD · Registered in England &amp; Wales · Company No. 15405437<br>
+    ETABLIX and Groupe Nseya are trading names of JNN GLOBAL LTD · Registered in England &amp; Wales · Company No. 15405437<br>
     Registered office: Groupe Nseya House, Kingstanding, Birmingham B44 8DJ, United Kingdom<br>
     contact@etablix.com · +44 7493 216101 · etablix.com
   </div>

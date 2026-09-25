@@ -46,7 +46,7 @@ first one. If you overrun, cut the second and third projects before you cut
 detail from the first: one project an assessor can picture beats three they
 cannot.
 
-> ETABLIX is a trading name of JNN GLOBAL LTD, incorporated in [month, year].
+> ETABLIX and Groupe Nseya are trading names of JNN GLOBAL LTD, incorporated in [month, year].
 > The company is newly formed and has not yet performed a contract of the type
 > this requirement describes, so I am answering No rather than submitting
 > examples that belong to another organisation. The delivery record relevant to
