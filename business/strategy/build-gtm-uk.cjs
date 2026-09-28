@@ -42,7 +42,20 @@
  */
 const COLD = { reply: 0.10, meeting: 0.40, proposal: 0.60, win: 0.33 };
 const WARM = { meeting: 0.50, proposal: 0.75, win: 0.40 };
-const LIVE_REFERRALS = 2;
+/* Three, from 28 September. Hitachi Energy and Siemens Energy were the two.
+   The third is GE Vernova: the sourcing leader for northern and southern
+   Europe read the approach, routed it to the manager who owns Site Services,
+   and committed him to making contact. That is a warmer start than either
+   referral had — the meeting is effectively already agreed — and it is
+   counted as a warm route rather than a cold approach because it is one.
+
+   It is worth recording HOW it came back, because the mechanism is
+   reusable. Revision 5 had GE Vernova out of scope until 2027 after four
+   unanswered approaches. That stand-down was never announced to them; it
+   governed what this company did, not what it said. So when the position
+   changed there was nothing to unwind and no awkwardness to manage. A
+   stand-down that had been put in writing would have had to be taken back. */
+const LIVE_REFERRALS = 3;
 const WEEKS_A = 12;             // 28 September to 18 December
 const WEEKS_B = 1;              // the January week
 const LEAD_WEEKS = 6;           // cold send -> decision, in WORKING weeks
@@ -120,7 +133,7 @@ const WEDGE_DAYS = 3;
 const CONTRACTED = WEDGE * 2 + REQ;
 const INVOICED = WEDGE * 2 + REQ * 0.3;
 
-const REV = "5";
+const REV = "6";
 const d = B.doc({
   slug: "Go-To-Market-UK-13-Week-Plan",
   running: "UK go-to-market · the operating model",
@@ -132,7 +145,7 @@ const d = B.doc({
   kind: "plan",
   control: [
     ["Document", "UK go-to-market — the operating model"],
-    ["Revision", "5 — supersedes revisions 3 and 4. Revision 4 ended at 18 December; this one completes the ninety days in January."],
+    ["Revision", "6 — supersedes revision 5. GE Vernova moved from out of scope to a third live route on 28 September; the funnel is recalculated on three warm routes rather than two."],
     ["Block A", `${dmy(START)} to ${dmy(BLOCK_A_END)} — weeks 1 to ${WEEKS_A}`],
     ["Shutdown", `${dmy(SHUT_FROM)} to ${dmy(SHUT_TO)} — ${SHUT_DAYS} days, zero activity assumed and zero planned`],
     ["Block B", `${dmy(JAN_START)} to ${dmy(LAST_DAY)} — week ${WEEKS}`],
@@ -208,12 +221,14 @@ h2("1.3  Therefore");
 table([4800, 3500],
   [`Confidence of at least one win by ${dmy(LAST_DAY)}`, `Effective approaches needed in weeks 1–${LEAD_WEEKS + 1}`],
   [
-    ["The 2 live referrals, alone", `${pc(pWarm)} — ${LIVE_REFERRALS} referrals, nothing else`],
+    [`The ${LIVE_REFERRALS} live routes, alone`, `${pc(pWarm)} — ${LIVE_REFERRALS} warm routes, nothing else`],
     [`${pc(0.7)} confidence`, String(N70)],
     [`${pc(0.8)} confidence`, String(N80)],
     [`${pc(0.9)} confidence`, String(N90)],
     [`THE PLAN: ${CONVERTIBLE_RAW} sent, ${CONVERTIBLE.toFixed(0)} effective`, `${pc(pPlan, 1)} — chosen, and the gap is named at 5.1`],
   ]);
+
+note(`The ${LIVE_REFERRALS} warm routes now carry ${pc(pWarm)} between them, up from ${pc(1 - Math.pow(1 - warmRate, 2))} when there were two. That is a real change in the facts and it is counted. It is not a reason to relax: the ${pc(warmRate)} warm win rate is the least tested assumption in this document, resting on no completed engagement at all. Three routes are now three chances to replace it with a number.`);
 
 richBullet([{ t: `${SPRINT} a week for six weeks, then ${W7_RATE} in week ${LEAD_WEEKS + 1}, then the rate drops. `, b: true },
   { t: `This is a sprint, not a cadence. ${Math.ceil(N80 / (LEAD_WEEKS + 1))} a week for seven weeks would buy ${pc(0.8)} and is not sustainable alongside delivery by one person; this is. The honest position is ${pc(pPlan, 1)} with the levers to close it, not ${pc(0.8)} on paper and ten unsent emails a week in practice.` }]);
@@ -296,7 +311,7 @@ h1("3. Where the first sale actually comes from");
 rich([{ t: "Not from a tier-one contractor. From a battery storage or solar developer. ", b: true },
   { t: `Three reasons, and with a seven-week sending window they matter more than they did: ${money(WEDGE)} is a rounding error against a £20–40m BESS scheme; the decision sits with one development or construction manager rather than a supply chain committee; and they have nobody in-house doing site establishment at all, because a developer with four projects cannot justify the headcount.` }]);
 
-p(`Tier-one contractors and the grid EPCs are the larger prize and they are the slower sale: prequalification, supplier onboarding, framework positions, and a purchase order that may take longer than this quarter. They are worked in parallel — both live referrals sit there — but nothing in this plan depends on them closing before ${dm(LAST_DAY)}.`);
+p(`Tier-one contractors and the grid EPCs are the larger prize and they are the slower sale: prequalification, supplier onboarding, framework positions, and a purchase order that may take longer than this quarter. They are worked in parallel — all three live routes sit there — but nothing in this plan depends on them closing before ${dm(LAST_DAY)}.`);
 
 h2("3.1  The target tiers");
 
@@ -306,7 +321,7 @@ table([1100, 2500, 4700],
     ["1", "BESS and solar developers and IPPs",
      `FASTEST CLOSE — and speed is the selection criterion. One decision-maker, no in-house function, small ticket against scheme value, and the director's UK Power Reserve background is directly on point. Lead with grid connection compound and temporary power. This tier should be the majority of the ${CONVERTIBLE_RAW} convertible approaches.`],
     ["2", "Grid and T&D EPC contractors",
-     "HIGHEST VALUE, SLOWER. Both live referrals are here. Repeated compounds at similar scale, which is where a specification written once carries. Lead with the repeat argument, not with one site."],
+     "HIGHEST VALUE, SLOWER. All three live routes are here. Repeated compounds at similar scale, which is where a specification written once carries. Lead with the repeat argument, not with one site."],
     ["3", "Data centre EPC and M&E contractors",
      "MEDIUM SPEED. Exyte already open. The out-of-London build-out puts peak workforce beyond the local catchment, which is the proposition in its purest form. Lead with labour catchment."],
     ["4", "Tier-one main contractors",
@@ -321,7 +336,7 @@ table([1100, 7200],
   ["Tier", "Organisations to research and qualify"],
   [
     ["1", "Zenobe · Harmony Energy · Field · Statera Energy · Pacific Green · Gresham House Energy Storage · Penso Power · Eelpower · Root-Power · Enso Energy · RES · Elgin Energy · Anesco · Balance Power · Clearstone Energy"],
-    ["2", "Hitachi Energy (LIVE) · Siemens Energy (LIVE) · Linxon · Omexom · Balfour Beatty · J Murphy & Sons · Taylor Woodrow · Freedom / NG Bailey · Telent · Jones Bros · Morrison Energy Services · Amey"],
+    ["2", "Hitachi Energy (LIVE) · Siemens Energy (LIVE) · GE Vernova (LIVE) · Linxon · Omexom · Balfour Beatty · J Murphy & Sons · Taylor Woodrow · Freedom / NG Bailey · Telent · Jones Bros · Morrison Energy Services · Amey"],
     ["3", "Exyte (OPEN) · Mercury · Winthrop · Kirby · Dornan · Designer Group · PM Group · Ethos Engineering"],
     ["4", "Balfour Beatty · Laing O'Rourke · Skanska · Kier · Morgan Sindall (OPEN) · Sir Robert McAlpine · VolkerWessels · Mace · BAM"],
   ], { size: 16 });
@@ -472,7 +487,7 @@ h2("6.1  Before close of play on " + dmy(BLOCK_A_END));
 bullet(`Every open proposal gets a dated resumption in writing: “I will come back to you on Monday ${dm(JAN_START)}.” Not “in the new year”. A named date is a diary entry; a vague one is an ending.`);
 bullet(`Every sequence mid-flight has its remaining touches deferred to week ${WEEKS} with one line acknowledging the break — not silently paused, which reads identically to being dropped.`);
 bullet("Every instructed engagement has its delivery date confirmed in writing against the January calendar, so nobody returns to a surprise.");
-bullet(`The two live referrals — Hitachi Energy and Siemens Energy — get a short, no-ask December note. They are the ${pc(pWarm)} and they are the relationships most damaged by a three-week silence.`);
+bullet(`The three live routes — Hitachi Energy, Siemens Energy and GE Vernova — get a short, no-ask December note. They are the ${pc(pWarm)} and they are the relationships most damaged by a three-week silence.`);
 bullet(`The week ${WEEKS} plan is written before the break, not during it. Returning on ${dm(JAN_START)} to decide what to do that week wastes the only week Block B has.`);
 
 h2("6.2  During");
@@ -658,7 +673,6 @@ table([2700, 5600],
     ["CONSTRUX and VERYX as propositions", "The diagnostic sold three times. One proposition, told the same way, until it has been sold."],
     ["ISO certification", "A buyer saying it is the blocker. None has."],
     ["Hiring", `A second engagement instructed while the first is in delivery. At ${money(WEDGE / WEDGE_DAYS)} a day the constraint is days, not money — and that is exactly when the first hire pays for itself.`],
-    ["GE Vernova", "2027. The single no-ask email already drafted is the last contact."],
     ["Tier-four main contractors in the sprint", `They are in the weeks 8–${WEEKS} pipeline batch instead. Their decision cycle is longer than the ${LEAD_WEEKS} working weeks the convertible window has, so a sprint approach to them is a Q1 approach sent in October.`],
     ["Any activity in the shutdown", `${dmy(SHUT_FROM)} to ${dmy(SHUT_TO)}. Section 6. Sending into an empty office burns an address that would have replied in January.`],
   ]);
