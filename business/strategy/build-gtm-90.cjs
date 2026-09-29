@@ -71,7 +71,7 @@ p("Stated without inflation, because a plan built on a flattering baseline plans
 
 h2("2.1  What exists and works");
 
-bullet("A delivery method that produces a defensible output, evidenced by a full worked specimen on a synthetic project — sixteen pages from the eight inputs a client is asked to supply.");
+bullet("A delivery method that produces a defensible output, evidenced by a full worked specimen on a synthetic project — eleven pages from the eight inputs a client is asked to supply.");
 bullet("A platform that runs the method: sixteen agents, deterministic engines that run before the model, and a document studio that issues numbered, watermarked, controlled documents.");
 bullet("A public site at a 99/100 average audit score, with the pages, the policies and the discovery surfaces in place.");
 bullet("Six issued policies — health and safety, environmental, quality, EDI, occupational health, and anti-bribery and corruption — each stating on its own face that it is not certified.");
