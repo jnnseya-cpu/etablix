@@ -1,0 +1,43 @@
+{
+  "written": "2026-09-29",
+  "title": "Eighteen miles of site and no services: linear projects and the establishment problem",
+  "seoTitle": "Site Establishment On Linear Construction Projects",
+  "description": "Why site establishment costs more on cable routes, overhead lines and pipelines than on a fixed compound \u2014 and why compound moves belong on the programme.",
+  "standfirst": "A substation is one compound you establish once. Eighteen miles of corridor is dozens of compounds that move. Almost every preliminaries model in British construction was built for the first one.",
+  "body": "eighteen-miles-of-site.html",
+  "buyer": "Estimator or project manager pricing a linear scheme at bid stage",
+  "topics": [
+    "linear construction projects",
+    "site establishment",
+    "overhead line construction",
+    "construction preliminaries",
+    "temporary site services"
+  ],
+  "faq": [
+    {
+      "q": "What is site establishment on a linear construction project?",
+      "a": "It is the same list of things as on any site \u2014 compound, welfare, temporary power and water, access, laydown, security, waste and reinstatement \u2014 but provided repeatedly along a corridor rather than once in a fixed location. On a cable route, overhead line, pipeline or highways scheme the work moves, so the establishment moves with it. Each cycle of set up, service, take down and reinstate carries mobilisation cost that a fixed compound pays only once, and each new parcel brings a different landowner, access and set of conditions."
+    },
+    {
+      "q": "How is welfare provided on a linear or moving construction site?",
+      "a": "The legal minimum does not change. Schedule 2 of CDM 2015 applies to a construction site whether it is fixed or moving, and the practical difficulty of a remote corridor changes what is reasonably practicable in the arrangements rather than whether arrangements are required. Mobile and relocatable welfare exists for this purpose. The decision that matters in practice is travel time from the working face: facilities that meet the standard but sit fifteen minutes away cost two journeys a day for every operative, and the sequencing of their moves belongs on the programme rather than being arranged the week before."
+    },
+    {
+      "q": "Why does site establishment cost more on linear works than on a fixed site?",
+      "a": "Because a cost normally spent once is spent many times, and because the corridor usually has no mains services. Everything is generated, tankered or carried in. The common estimating error is applying a preliminaries percentage taken from a fixed-compound project \u2014 a substation, a building, a plant \u2014 to a scheme with a completely different shape. The percentage is not wrong for the job it came from; it simply describes a site that does not move."
+    },
+    {
+      "q": "What difference does land held by wayleave rather than possession make?",
+      "a": "A great deal. Wayleaves, temporary occupation agreements and licences carry conditions on where you can stand, what you can store, how long you can stay and the condition in which the land is returned. A compound on land you do not possess is a compound that somebody else can constrain, and the reinstatement standard is set by the landowner's expectations as much as by any specification. On a long route the practical consequence is that reinstatement has to be priced per parcel rather than as a single closing item."
+    },
+    {
+      "q": "Should compound moves appear on the construction programme?",
+      "a": "Yes, and on most linear schemes they do not. On a fixed site the establishment is a cost. On a corridor it is a programme constraint: the work cannot move until the next compound is ready, and the next compound is not ready until the land agreement, the access, the power supply and the reinstatement of the previous parcel are resolved. Those dependencies put compound moves on the critical path far more often than they appear on the programme, and a move that is not on the programme is not being managed by anyone."
+    }
+  ],
+  "sources": [
+    "cdmSchedule2",
+    "hseWelfare",
+    "cdm2015"
+  ]
+}

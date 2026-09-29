@@ -1,0 +1,42 @@
+{
+  "written": "2026-09-29",
+  "title": "The twelve lead times that decide your start date",
+  "seoTitle": "Twelve Lead Times That Decide Your Site Start Date",
+  "description": "The twelve site establishment lead times to establish in writing before a mobilisation date means anything \u2014 and the question to ask for each one.",
+  "standfirst": "This post does not give you lead times. Anyone quoting generic durations for these is guessing. It gives you the twelve you have to establish yourself, and the question to ask for each.",
+  "body": "twelve-lead-times.html",
+  "buyer": "Project manager or planner setting a mobilisation date",
+  "topics": [
+    "construction mobilisation",
+    "site establishment",
+    "grid connection lead time",
+    "construction programme",
+    "temporary site services"
+  ],
+  "faq": [
+    {
+      "q": "What lead times affect a construction site mobilisation date?",
+      "a": "Twelve recur on almost every scheme: the grid connection; a temporary electrical supply where there is no permanent one; generation where there is neither; water supply and wastewater discharge consent; cabins and modular accommodation; planning conditions attaching to the compound; highway and access permissions; land agreements; security systems; connectivity; waste arrangements; and welfare meeting the legal minimum from day one. The first is usually the longest and the most often assumed to be shorter than it is."
+    },
+    {
+      "q": "How long does a temporary construction power connection take?",
+      "a": "There is no useful generic answer, and a figure quoted without reference to your scheme is a guess. The duration depends on the distribution network operator, the region, the load, whether reinforcement is needed and the current application queue. The practical approach is to obtain the quoted date in writing, establish whether it is conditional, and ask what the application-to-energisation history has been for that operator in that area. Treat a temporary supply and a permanent connection as two separate applications with two separate answers, because they are."
+    },
+    {
+      "q": "Why do mobilisation dates slip when the items were all on the list?",
+      "a": "Because the durations were carried over from a previous project. These lead times are not properties of the item, they are properties of the place and the moment: a connection application in one region behaves nothing like the same application in another, cabin stock in March is not cabin stock in September, and a landowner who has signed four wayleaves signs the fifth far faster than one who has never seen one. The second cause is sequencing \u2014 several of the twelve cannot start until another is resolved, and a schedule that runs them in parallel when four are in series produces a start date that was never achievable."
+    },
+    {
+      "q": "Does welfare need to be in place before the compound is built?",
+      "a": "Yes. Building the compound is itself construction work, so the operatives laying the hardstanding are entitled to the minimum welfare facilities in Schedule 2 of CDM 2015, weeks before anyone occupies an office. This is why the list distinguishes the day-one welfare arrangement from the final one: they are different procurements with different dates, and treating them as a single item is the most common reason the first few weeks are improvised."
+    },
+    {
+      "q": "How do you tell a real lead time from an assumption?",
+      "a": "Ask three questions of each one: who told us that number, when, and is it written down. A named supplier or authority, dated and in writing, is a lead time. A figure recalled from memory is an assumption, and it belongs on the risk register with an owner and a date by which it will be confirmed. No answer at all identifies the item that is going to move your start date. The exercise takes an afternoon and is worth doing before the programme is issued rather than after."
+    }
+  ],
+  "sources": [
+    "cdmSchedule2",
+    "cdm2015"
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "written": "2026-09-29",
+  "title": "Reinstatement: the line nobody prices, and the invoice nobody expected",
+  "seoTitle": "Pricing Site Reinstatement And Demobilisation",
+  "description": "Reinstatement is scoped by someone outside the project and paid when the job has no money left. What a reinstatement scope contains, and when to write it.",
+  "standfirst": "Every site establishment has two halves. The first is priced by somebody thinking about it. The second is priced as a percentage in the same afternoon, then not thought about again for two years.",
+  "body": "removal-is-the-line-nobody-prices.html",
+  "buyer": "Commercial manager or estimator pricing preliminaries at bid stage",
+  "topics": [
+    "site reinstatement",
+    "construction demobilisation",
+    "site establishment",
+    "construction preliminaries",
+    "condition survey"
+  ],
+  "faq": [
+    {
+      "q": "What does site reinstatement include on a construction project?",
+      "a": "Removing the temporary works and returning the land to an agreed condition: hardstanding and access tracks lifted or left by agreement, fencing returned to the original line and specification, drainage restored, topsoil replaced to a stated depth and provenance, compaction relieved, seeding or planting carried out in the right season, and waste removed under duty of care with transfer notes retained. The scope is not knowable from the drawings \u2014 it comes from the pre-commencement condition survey, the planning conditions and the land agreements."
+    },
+    {
+      "q": "Why is reinstatement so often underpriced?",
+      "a": "Because it is the only part of the establishment whose scope is defined by somebody outside the project. A landowner, highway authority or planning officer decides what returning the land means, and they decide it at the end while looking at the field, not at the start while looking at a specification. The cost then falls due when the account is being closed, retention is the last money outstanding, and the team that would have argued the point has been redeployed."
+    },
+    {
+      "q": "When should reinstatement be priced and scoped?",
+      "a": "At bid stage, and the reason is leverage. Before work starts you can negotiate a standard of return, agree what stays and what is removed, and record the pre-commencement condition. At handover you are negotiating with somebody who has watched lorries on their lane for two years. The condition survey, the agreed standard and the wind-down sequence are bid-stage documents that cost days to produce and prevent disputes that cost weeks."
+    },
+    {
+      "q": "What is a pre-commencement condition survey and why does it matter?",
+      "a": "A dated record of the condition of the land before anyone occupies it: photographs, a written survey and, where it can be obtained, the landowner's countersignature. It is the single most valuable document in the reinstatement process and it costs almost nothing to produce on day one. Without it, the standard of return is whatever the other party remembers, and memory at the end of a two-year occupation is not a neutral record."
+    },
+    {
+      "q": "How should a site compound be wound down on a project with a long commissioning period?",
+      "a": "In sequenced stages against the work that is still happening, not as a single event on the construction completion date. On process plant, energy infrastructure and first-of-a-kind schemes, commissioning, testing and optimisation continue after construction is nominally finished, and those people still require the welfare minimum in Schedule 2 of CDM 2015. A compound sized for the construction peak and struck on the completion date leaves a commissioning team improvising for months; holding the full compound fully serviced for a fifth of the peak headcount wastes money instead. Both are avoided by building a wind-down sequence at the start."
+    }
+  ],
+  "sources": [
+    "cdmSchedule2",
+    "cdm2015",
+    "hseWelfare"
+  ]
+}
