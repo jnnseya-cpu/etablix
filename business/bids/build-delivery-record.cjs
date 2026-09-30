@@ -123,7 +123,7 @@ for (let i = 1; i <= PROJECTS; i += 1) {
   p("Scope delivered");
   fillIn("Four to eight bullets. Only what you were personally accountable for. Write the verb you actually did — specified, procured, negotiated, managed, closed out — not 'was involved in'. If a buyer could not tell from the bullet whether you led it or watched it, rewrite the bullet.");
   bullet("[e.g. Specified and procured the welfare, accommodation and catering provision for a peak of NN operatives across a NN-week programme]");
-  bullet("[e.g. Negotiated and let NN subcontracts covering fencing, security, temporary power, water and waste, and held single-point responsibility for their interfaces]");
+  bullet("[e.g. Specified, negotiated and recommended the award of NN subcontracts covering fencing, security, temporary power, water and waste; held single-point responsibility for their interfaces and for performance against the terms. Use the verb that is true of how the order was actually placed.]");
   bullet("[e.g. Produced the site establishment element of the preliminaries for the tender, and owned the number through to final account]");
   bullet("[e.g. Managed the logistics plan, including access, laydown, deliveries and the traffic management approval with the highway authority]");
   bullet("[e.g. Closed the compound out, including reinstatement and the landowner's sign-off]");

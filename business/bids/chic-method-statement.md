@@ -77,7 +77,7 @@ scale, and the cycle maps onto the workstreams directly:
 | Stage of the cycle | Workstream it underwrites |
 |---|---|
 | Requirements and tender-stage specification | Project Manager · Employer's Agent |
-| Procurement, letting and holding the terms | Project Manager · Employer's Agent |
+| Procurement, award recommendation and holding the terms | Project Manager · Employer's Agent |
 | Integration into the construction programme and site logistics | Project Manager |
 | Mobilisation, installation and connection | Clerk of Works |
 | Daily operation, compliance and occupancy change | Clerk of Works · Project Manager |

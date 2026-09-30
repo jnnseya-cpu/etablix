@@ -42,6 +42,8 @@
  */
 const B = require("../policies/brand.cjs");
 
+const DASH = "—";
+
 const REV = "2";
 const d = B.doc({
   slug: "Director-Relevant-Experience",
@@ -109,7 +111,7 @@ table([1900, 6400],
   ["Stage", "What the director was accountable for"],
   [
     ["Requirements", "Establishing what a site actually needed — headcount, shift pattern, duration, location, ground and consent constraints — and converting that into a specification and a budget at tender stage, before a price existed."],
-    ["Procurement", "Specifying, sourcing, negotiating and letting the accommodation, welfare, utilities and associated services against that specification, and holding the resulting terms."],
+    ["Procurement", "Specifying, sourcing and negotiating the accommodation, welfare, utilities and associated services against that specification; selecting the contractor and recommending the award, the order being placed by the sourcing function; and holding the resulting terms."],
     ["Integration", "Fitting the temporary works and living systems into the construction programme, the site logistics and the wider engineering, HSE and commissioning interfaces, so that establishment did not sit outside the main sequence."],
     ["Mobilisation", "Delivery, installation, connection and commissioning of the establishment to the point where the site could occupy it and work from it."],
     ["Daily operation", "Servicing, maintenance, compliance, occupancy changes and problem resolution for the life of the establishment, as the single point of contact."],
@@ -169,7 +171,7 @@ const SOFIA_SCOPE = [
   "Identified and approached the contractor and supplier market for each package and built the bidder list. Where no suitable contractor was already established in the territory, found and qualified new ones rather than accepting a thin field.",
   "Issued the enquiry documents: scope, specification, programme dates, site constraints and the pricing schedule against which returns would be compared on the same basis.",
   "Assessed the returned quotations alongside the sourcing and civil engineering teams — technical compliance against the specification, price against the budget allowance, programme against the construction sequence, and the qualifications and exclusions each bidder had written into its own return.",
-  "[APPOINTMENT — choose the true wording, see the note below] the appointed contractor for each package, and held the resulting terms.",
+  "Selected the contractor for each package and recommended the award; the order was placed by the sourcing function. Held the resulting terms thereafter and was accountable for performance against them.",
   "Integrated the appointed works into the construction programme and the site logistics, and held the interfaces with engineering, planning, HSE and commissioning through mobilisation, installation and connection.",
   "Monitored the appointed contractors for the life of the establishment against scope, programme, quality, HSE and commercial position; raised non-conformance and closed it out.",
   "Closed out demobilisation: removal, off-hire, reinstatement of the land to the condition the agreement required, and the final account.",
@@ -215,10 +217,13 @@ for (const [title, employer, role, dates, intro, scope] of SCHEMES) {
 
 note("The four quantity rows are the ones an assessor weighs and the ones nobody else can supply. A scheme entry without them reads as a job description; with them it reads as a record.");
 
-h2("4.4  Two things to settle in the 4.1 bullets before this goes out");
+h2("4.4  Three notes on the 4.1 bullets");
 
-rich([{ t: "The appointment bullet. ", b: true },
-  { t: "Pick the wording that is true and use it, because an assessor may test it at the reference call and a large employer's sourcing function usually issues the order itself. If the award decision was yours: \u201cAppointed\u201d. If you selected and recommended and sourcing placed the order: \u201cRecommended the award and instructed sourcing to place the order for\u201d. The second is not a weaker answer — it describes a governed process, which is what a public buyer wants to read — but claiming the first when the second is true is the kind of detail that unravels a whole submission." }]);
+rich([{ t: "The award bullet says recommended, not appointed, and that is the accurate position. ", b: true },
+  { t: "The director selected the contractor and recommended the award; the order was placed by the sourcing function, as it is in most organisations of that size. The bullet is written that way because an assessor may test it at the reference call and because a sourcing colleague asked to confirm it would describe it in exactly those terms." }]);
+
+rich([{ t: "It is also the better answer, not a concession. ", b: true },
+  { t: "A public buyer is reading for governance. Somebody who says they personally awarded every package in a large organisation is describing either an unusual delegation or a process with no separation between the person specifying the requirement and the person committing the money. Selection and recommendation held by the technical owner, with the order placed by a separate function, is the control a buyer wants to see " + DASH + " and the accountability for the outcome stayed with the director either way, which is what the rest of the bullets show." }]);
 
 rich([{ t: "The assessment bullet names the sourcing and civil engineering teams, deliberately. ", b: true },
   { t: "Holding sole accountability for a scope and drawing on specialist colleagues to assess returns are not in tension: the first is the accountability, the second is how a competent person discharges it. An assessor reading that you evaluated multi-package quotations single-handed would not believe it. One who reads that you ran a cross-functional assessment and stayed accountable for the outcome will." }]);
@@ -270,8 +275,6 @@ d.build().then(() => {
   console.log("  2. Section 4: choose the third scheme, then fill the four quantity rows on");
   console.log("     all three — scheme value, scope value personally held, peak workforce,");
   console.log("     establishment duration. Those are what an assessor weighs.");
-  console.log("  3. Section 4.1: settle the appointment bullet per 4.4 \u2014 \"Appointed\" only if");
-  console.log("     the award decision was yours, otherwise the recommend-and-instruct wording.");
-  console.log("  4. Ask the three referees BEFORE naming them, and record the date each agreed.");
-  console.log("  5. Attach the specimen diagnostic.");
+  console.log("  3. Ask the three referees BEFORE naming them, and record the date each agreed.");
+  console.log("  4. Attach the specimen diagnostic.");
 }).catch((err) => { console.error(err); process.exit(1); });
