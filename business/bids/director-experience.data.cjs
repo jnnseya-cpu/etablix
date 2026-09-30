@@ -8,17 +8,10 @@
  * a document that simply does not make a claim. So an unfilled file still
  * produces a complete, issuable document — it just makes fewer claims.
  *
- * NOTHING HERE IS INVENTED. Every value below was taken from the director's
- * curriculum vitae or supplied by him directly. The quantity fields are empty
- * because he has not stated them, and a figure in a procurement document that
- * nobody can source is the one mistake that cannot be recovered from.
- *
- * WHAT TO FILL FIRST, in order of what it is worth to an assessor:
- *   1. schemes[].outcome  — what was different because he did it
- *   2. schemes[].peakWorkforce and .establishmentMonths
- *   3. referees            — CHIC asked for these and said they will call
- *   4. schemes[].schemeValue and .scopeValue
- *   5. schemes[].endClient — only where no confidentiality obligation bites
+ * NOTHING HERE IS INVENTED. Every value was taken from the director's
+ * curriculum vitae or supplied by him directly. Where a value came from his
+ * description of a scheme rather than from a document, it is marked CONFIRM
+ * and the builder repeats that in the notes file.
  */
 module.exports = {
   /* Set per submission, or pass as the first command-line argument:
@@ -31,34 +24,39 @@ module.exports = {
 
   schemes: [
     {
+      /* THE STRONGEST ENTRY IN THE SUBMISSION. This is the scheme on which the
+         director built a worker accommodation village from nothing: defined the
+         five packages, ran the enquiries, assessed the returns, recommended the
+         awards, and then consolidated the running of the village under a single
+         facilities management contract. That last step is ETABLIX Model 02,
+         performed before ETABLIX existed. */
       ref: "4.1",
-      title: "Sofia Offshore Wind Farm — grid connection, 1,400 MW",
+      title: "Skye Reinforcement Project — worker accommodation village",
       employer: "GE Vernova – Grid Solutions",
       role: "Construction Subcontract Manager",
       dates: "Dec 2022 – Dec 2025",
-      location: "United Kingdom, within a role covering Ireland and Northern and Southern Europe",
-      endClient: "",
-      schemeValue: "",
+      location: "Fort Augustus to the Isle of Skye, Scotland",
+      endClient: "SSEN Transmission (scheme promoter)",
+      schemeValue: "£690 million (the promoter's value for the whole reinforcement scheme, not for the accommodation scope)",
       scopeValue: "",
+      /* CONFIRM: 309 bedrooms and 36 months come from the director's earlier
+         description of the turnkey programme carrying the village. Check both
+         against the project record before this is submitted. */
+      beds: "309 bedrooms",
       peakWorkforce: "",
-      establishmentMonths: "",
+      establishmentMonths: "36 months",
       outcome: "",
       referee: "",
     },
     {
       ref: "4.2",
-      title: "Midland Main Line Upgrade",
-      employer: "Mott MacDonald",
-      role: "Senior Project Manager",
-      dates: "Oct 2018 – Nov 2021",
-      location: "United Kingdom",
-      endClient: "",
-      schemeValue: "",
-      scopeValue: "",
-      peakWorkforce: "",
-      establishmentMonths: "",
-      outcome: "",
-      referee: "",
+      title: "Sofia Offshore Wind Farm — grid connection, 1,400 MW",
+      employer: "GE Vernova – Grid Solutions",
+      role: "Construction Subcontract Manager",
+      dates: "Dec 2022 – Dec 2025",
+      location: "United Kingdom, within a role covering Ireland and Northern and Southern Europe",
+      endClient: "", schemeValue: "", scopeValue: "", beds: "",
+      peakWorkforce: "", establishmentMonths: "", outcome: "", referee: "",
     },
     {
       ref: "4.3",
@@ -67,13 +65,25 @@ module.exports = {
       role: "Programme Delivery Manager",
       dates: "Nov 2021 – Dec 2022",
       location: "West Midlands, United Kingdom",
-      endClient: "",
-      schemeValue: "",
-      scopeValue: "",
-      peakWorkforce: "",
-      establishmentMonths: "",
-      outcome: "",
-      referee: "",
+      endClient: "", schemeValue: "", scopeValue: "", beds: "",
+      peakWorkforce: "", establishmentMonths: "", outcome: "", referee: "",
+    },
+    /* HELD IN RESERVE, NOT DELETED. Midland Main Line is the stronger entry
+       where a category asks for rail or for work in a live operational
+       environment. Its scope bullets are written and live in the builder under
+       the ref "MML". To use it, give it the ref of the scheme it replaces —
+       three schemes in detail is what a procurement assessor expects, and a
+       fourth dilutes rather than adds. */
+    {
+      ref: "MML",
+      include: false,
+      title: "Midland Main Line Upgrade",
+      employer: "Mott MacDonald",
+      role: "Senior Project Manager",
+      dates: "Oct 2018 – Nov 2021",
+      location: "United Kingdom",
+      endClient: "", schemeValue: "", scopeValue: "", beds: "",
+      peakWorkforce: "", establishmentMonths: "", outcome: "", referee: "",
     },
   ],
 

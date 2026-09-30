@@ -79,6 +79,9 @@ rich([{ t: "At GE Vernova – Grid Solutions, between December 2022 and December
 
 p("That is the same scope ETABLIX is offering, and it is stated first because it is the relevant fact. It was performed as an employee of GE Vernova and is not presented as a contract held by this company. The individual schemes it covers, with referees, are at section 3.");
 
+rich([{ t: "The clearest single instance is the Skye Reinforcement Project. ", b: true },
+  { t: "Within SSEN Transmission\u2019s \u00a3690 million replacement of the 132 kV network between Fort Augustus and the Isle of Skye, the director defined, procured and ran the worker accommodation village: 309 bedrooms over 36 months, decomposed into five packages \u2014 civils, the modular accommodation, furniture and fit-out, kitchen and dining, and facilities management. Once all five were appointed he placed the running of the whole village with one of them, the facilities management contractor, under a single contract. That is the structure this company offers, performed on a live establishment before the company existed." }]);
+
 note("The work was performed as the accountable interface rather than as self-delivery: the accommodation, welfare and utilities themselves were supplied and installed by specialist subcontractors, under terms the director specified, procured and held. ETABLIX operates the same way.");
 
 h2("2.1  What ETABLIX does");

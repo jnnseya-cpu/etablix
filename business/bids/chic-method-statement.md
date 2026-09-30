@@ -67,6 +67,14 @@ Europe including the United Kingdom and the Republic of Ireland. Clients dealt
 with one accountable interface across the whole cycle: initial requirements,
 mobilisation, daily operation, demobilisation and reinstatement.
 
+The clearest single instance is the Skye Reinforcement Project: within SSEN
+Transmission's £690 million replacement of the 132 kV network between Fort
+Augustus and the Isle of Skye, he defined, procured and ran the worker
+accommodation village — 309 bedrooms over 36 months — specified as five packages
+(civils, the modular accommodation, furniture and fit-out, kitchen and dining,
+and facilities management), and once all five were appointed he placed the
+running of the whole village with one of them under a single contract.
+
 That sentence is here rather than in the curriculum vitae because it is the
 relevant fact about this company, and because it is a different claim from a
 construction management record. The three workstreams in section 1 are all

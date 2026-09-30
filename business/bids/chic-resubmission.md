@@ -77,21 +77,38 @@ utilities were supplied and installed by specialist subcontractors under terms
 you specified, procured and held. ETABLIX works the same way. Stating that
 before anyone asks is what stops the paragraph reading as an overclaim.
 
-**It is already drafted.** `node business/bids/build-director-experience.cjs`
-produces *Director's Relevant Experience*, which opens with this scope at section
-3.1 and maps the whole cycle stage by stage. Attach it under Supplementary
-Information and lift the paragraph into the narrative box.
+**It is already drafted, and so is the evidence behind it.**
+`node business/bids/build-director-experience.cjs` produces *Director's Relevant
+Experience*: the scope at 3.1 with the cycle mapped stage by stage, and Skye at
+4.1 with the five packages and ten scope bullets. Every bracket has been removed
+from that document — it is issuable as it stands. Attach it under Supplementary
+Information and lift the 3.1 paragraph into the narrative box.
 
 ### 1. The delivery record, in project detail rather than in summary
 
 This is where the last submission was thin. Do not describe a career. Describe
 projects, one at a time, with the facts only somebody who was there can supply.
 
-**Project one — the turnkey programme.** 36 months. A 309-bed workforce village
-inside the turnkey scope. Name the dates, your role, the scope that sat inside
-the contract, the specific interfaces you personally managed, the subcontractors
-you ran, and how it ended. Four to six sentences of genuine detail beats a page
-of positioning.
+**Project one — the Skye Reinforcement Project.** This is now written, in full,
+at section 4.1 of *Director's Relevant Experience*: SSEN Transmission's £690
+million replacement of the 132 kV network between Fort Augustus and the Isle of
+Skye, and the 309-bedroom, 36-month worker accommodation village inside it. The
+whole village decomposed into five packages — civils, the modular accommodation,
+furniture and fit-out, kitchen and dining, and facilities management — each one
+specified by you, enquired by you, assessed by you and recommended by you.
+
+**Lead with the last step of it.** Once all five packages were appointed you put
+the running of the whole village with one of them, the facilities management
+contractor, on a single contract. That is the ETABLIX Management Integrator
+model, on a live establishment, at the scale of a £690 million scheme, before
+the company existed. A selection panel is not really asking whether the method
+sounds right. It is asking whether anybody has run it. That sentence answers it.
+
+**Keep the £690 million labelled as the promoter's scheme value**, not as your
+scope. An assessor who reads it as the value of what you held and then discovers
+otherwise discounts the rest of the page. And confirm the 309 bedrooms and the
+36 months against the project record before it goes: both are your own figures,
+but they came from describing the scheme rather than from a document.
 
 **Project two — the 628MW portfolio.** More than thirty new-build generation and
 storage sites across England and Wales, built in sequence. You ran risk and

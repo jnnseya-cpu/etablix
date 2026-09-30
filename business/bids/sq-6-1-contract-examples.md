@@ -46,30 +46,29 @@ fails. This box is the whole submission.
 
 Fill the brackets. Delete nothing else. Check the word count before you paste.
 
-**The word budget, and it is tight.** Everything below except the bracketed
-passages is about 340 words. That leaves roughly 160 for the projects — enough
-for one told properly and two named briefly, not three told properly.
+**The word budget, and it is tight.** The draft below is written out in full
+and counted: **496 words of the 500 allowed.** Nothing in it is a placeholder,
+so it can be pasted as it stands once the two Skye figures are confirmed.
 
 | Part | Words | Cut it? |
 |---|---|---|
-| The position: No, and why | ~55 | No |
-| **The scope statement** | ~120 | **Never** |
-| The one project, in detail | ~110 | No |
-| Two further projects, one line each | ~50 | Yes, first |
-| What the company can evidence | ~95 | Trim to five bullets |
-| The two things not done | ~40 | No |
+| The position: No, and why | ~50 | No |
+| **The scope statement** | ~105 | **Never** |
+| **Skye, in detail** | ~135 | **Never** |
+| Sofia and the WMCA, one line each | ~25 | Yes, first |
+| What the company can evidence | ~90 | Trim to five bullets |
+| The two things not done | ~35 | No |
 
-If you overrun, cut the second and third projects, then trim the evidence list.
-**Cut the scope statement last and only if there is nothing else left**, because
-it is the only paragraph in the box that answers the question the buyer actually
-asked. One project an assessor can picture beats three they cannot.
+If you need room for something of your own, cut the Sofia and WMCA sentence,
+then trim the evidence list. **Cut the scope statement and the Skye paragraph
+last, and only if there is nothing else left** — between them they are the
+answer to the question the buyer actually asked. One project an assessor can
+picture beats three they cannot.
 
-> ETABLIX is a trading name of JNN GLOBAL LTD, incorporated in [month, year].
-> The company is newly formed and has not yet performed a contract of the type
-> this requirement describes, so I am answering No rather than submitting
-> examples that belong to another organisation. The delivery record relevant to
-> your assessment is mine personally, and I would rather set it out plainly
-> than attach it to the company.
+> ETABLIX is a trading name of JNN GLOBAL LTD. The company is newly formed and
+> has not yet performed a contract of the type this requirement describes, so I
+> am answering No rather than submitting examples that belong to another
+> organisation. The relevant delivery record is mine personally, set out below.
 >
 > At GE Vernova – Grid Solutions, from December 2022 to December 2025, I was
 > the single person accountable for planning, procuring, integrating and
@@ -87,50 +86,69 @@ asked. One project an assessor can picture beats three they cannot.
 > subcontractors under terms I specified, procured and held. ETABLIX works the
 > same way.
 >
-> [The Skye project goes here, in four or five sentences, and it now has one
-> job: to make the paragraph above concrete. You have the figures that make it
-> land — a 36-month programme with a 309-bed workforce village inside the
-> turnkey scope. Give the dates, the scope that sat inside the contract, the
-> interfaces you personally managed, and how it ended. Write it against the
-> cycle above: what you specified at tender, what you procured, how it
-> mobilised, how it ran, and how it came off the site. Detail only somebody who
-> was there could write is the entire point of this paragraph. Then, one line
-> each, a second and a third scheme.]
+> The clearest example is the Skye Reinforcement Project, SSEN Transmission's
+> £690 million replacement of the 132 kV network between Fort Augustus and the
+> Isle of Skye. Within it I defined, procured and ran the worker accommodation
+> village — 309 bedrooms, 36 months. I wrote the requirement and split it into
+> five packages: civils, the modular accommodation, furniture and fit-out,
+> kitchen and dining, and facilities management covering catering, housekeeping,
+> maintenance, deliveries, waste and transport to the working faces. That
+> included a menu cycle to avoid food fatigue, and meal times set against shift
+> rotation. I produced the enquiries, assessed every return with sourcing and
+> civil engineering, and recommended each award. Once appointed, I placed the
+> running of the whole village with one of them, the facilities management
+> contractor, on a single contract. That structure is what ETABLIX offers.
 >
-> [Scale and role are yours to describe. The client's commercial terms,
-> contract values, rates and supplier names are not. A duration and a bed
-> count are ordinary CV facts; a contract sum is not.]
+> Also: subcontract governance on the 1,400 MW Sofia Offshore Wind Farm grid
+> connection, and client-side programme delivery for the West Midlands
+> Combined Authority.
 >
 > What the company itself can evidence today, and which I will upload under
 > supplementary information:
 >
-> - Professional indemnity, public liability and employers' liability
->   insurance at [limits].
-> - Health and safety policy and arrangements, and [SSIP position].
-> - Named CVs for the personnel who would deliver the workstreams selected.
-> - Our written method for [the service], showing how work is planned,
->   supervised, recorded and reported.
-> - Management accounts, the cash position, and a forecast with its
->   assumptions stated on its face.
-> - [Referees who can speak to my delivery personally — name, title,
->   organisation. Ask each one first.]
+> - Insurance: cover will be in force before any appointment is accepted, with
+>   the employers' liability exemption statement attached while I am the only
+>   director-employee.
+> - Five signed policies: health and safety, occupational health, equality and
+>   diversity, environmental, quality management. No SSIP registration and no
+>   ISO certification is held or claimed.
+> - My CV, and the written method for site establishment and workforce
+>   accommodation.
+> - Management accounts, the cash position, and a forecast with its assumptions
+>   stated.
+> - Referees on request, each asked before being named.
 >
 > Two things I have not done. I have not presented work delivered under GE
 > Vernova's contracts as the company's own. And I have not offered a reference
-> I do not have permission to give.
+> without permission.
 >
-> I am happy to provide any further detail you need, or to discuss the record
-> above directly.
+> I am happy to provide any further detail, or to discuss the record directly.
 
 ## Before you submit
 
-**Name real projects or the scope statement is unproven.** The scope paragraph
-states what you held; the bracketed project paragraph is what proves it. One
-without the other fails: a scope claim with no scheme behind it reads as a job
+**Check the two Skye figures before you paste.** The draft states 309 bedrooms
+and 36 months. Both are your own figures, but they came from describing the
+scheme rather than from a project document, and this box sits under a false
+declaration warning. Confirm them, and correct the draft if either is out.
+
+**The £690 million is the scheme, not your scope.** The draft attributes it to
+SSEN Transmission as the promoter's figure for the whole reinforcement project.
+Keep it that way. An assessor who reads it as the value of what you personally
+held, and then finds out otherwise, discounts everything else on the page.
+
+**The evidence list no longer claims insurance.** An earlier draft of this box
+offered "professional indemnity, public liability and employers' liability
+insurance at [limits]". No such cover is held. In a box carrying a false
+declaration warning that is the mistake that ends an application, so the list
+now states the actual position and says plainly that no SSIP registration and
+no ISO certification is held.
+
+**What makes this answer work is that the scope statement and Skye prove each
+other.** The scope paragraph says what you held; Skye is the scheme where you
+held it, named, dated and decomposed into five packages an assessor can picture.
+Either alone would fail: a scope claim with no scheme behind it reads as a job
 advert, and a scheme with no scope around it leaves the assessor to work out the
-relevance — which is the criticism that returned this application the first
-time. A named site, a date range, a scope boundary and a problem you personally
-resolved reads as a person who did the work.
+relevance — which is the criticism that returned this application.
 
 **Check the trading name before you paste.** The draft says ETABLIX only. Do
 not add Groupe Nseya to a declaration unless it is a trading name actually

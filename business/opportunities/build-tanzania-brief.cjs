@@ -111,7 +111,7 @@ p("Justin Ngolu Nseya, Managing Director. Chartered Construction Manager (MCIOB)
 rich([{ t: "The method offered here is the method he ran. ", b: true },
   { t: "At GE Vernova " + GRID + " Grid Solutions he was the single person accountable for planning, procuring, integrating and controlling the temporary infrastructure and workforce-living systems that keep major projects operational. He held it across multiple concurrent sites, from tender stage through to handover, throughout Northern and Southern Europe including the United Kingdom and the Republic of Ireland: one accountable interface from initial requirements and mobilisation, through daily operation, to demobilisation and reinstatement." }]);
 
-p("Work has included the grid connection programme for a 1,400 MW offshore wind farm, high-voltage substation and transmission construction, rail upgrades in live operational environments, and public infrastructure delivered from RIBA stage 0 to handover. He works in English and French.");
+p("On the Skye Reinforcement Project in Scotland he defined, procured and ran a 309-bedroom worker accommodation village over 36 months, specifying it as five packages \u2014 civils, modular accommodation, furniture and fit-out, kitchen and dining, and facilities management \u2014 and then placing the running of the whole village with a single managing contractor. Other work has included the grid connection programme for a 1,400 MW offshore wind farm, high-voltage substation and transmission construction, rail upgrades in live operational environments, and public infrastructure delivered from RIBA stage 0 to handover. He works in English and French.");
 
 /* ------------------------------------------------------------------ */
 h1("Working internationally");

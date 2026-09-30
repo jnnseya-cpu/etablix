@@ -8,30 +8,41 @@ claim it does not make, not a hole in it. A field left empty is omitted, never
 printed as an empty bracket, because a bid document showing `[  ]` tells an
 assessor it was sent unfinished.
 
-## 20 things only the director can supply
+## 17 things only the director can supply
 
 | What | Why it is worth adding |
 |---|---|
 | The DPS or category this is submitted for | It changes per submission, so pass it as the first argument: node business/bids/build-director-experience.cjs "CHIC Development DPS, Category 1". Until then the cover simply omits the row. |
-| 4.1 — scheme value | the size of what he worked on |
+| 4.1 — peak workforce accommodated | how many people the establishment actually held at its fullest |
 | 4.1 — value of the scope personally held | the size of what he held, which is the number an assessor actually weighs |
-| 4.1 — peak workforce | the scale of the establishment |
-| 4.1 — duration of site establishment | how long he ran it |
 | 4.1 — what was different because he did it | the highest-value paragraph in the section and the only one no employer can write for him |
-| 4.1 — client or end client | name it only where no confidentiality obligation prevents it; the row is omitted rather than hedged |
 | 4.2 — scheme value | the size of what he worked on |
+| 4.2 — peak workforce accommodated | how many people the establishment actually held at its fullest |
 | 4.2 — value of the scope personally held | the size of what he held, which is the number an assessor actually weighs |
-| 4.2 — peak workforce | the scale of the establishment |
 | 4.2 — duration of site establishment | how long he ran it |
 | 4.2 — what was different because he did it | the highest-value paragraph in the section and the only one no employer can write for him |
 | 4.2 — client or end client | name it only where no confidentiality obligation prevents it; the row is omitted rather than hedged |
 | 4.3 — scheme value | the size of what he worked on |
+| 4.3 — peak workforce accommodated | how many people the establishment actually held at its fullest |
 | 4.3 — value of the scope personally held | the size of what he held, which is the number an assessor actually weighs |
-| 4.3 — peak workforce | the scale of the establishment |
 | 4.3 — duration of site establishment | how long he ran it |
 | 4.3 — what was different because he did it | the highest-value paragraph in the section and the only one no employer can write for him |
 | 4.3 — client or end client | name it only where no confidentiality obligation prevents it; the row is omitted rather than hedged |
 | Three named referees | CHIC asked for them in writing and said they may be contacted as part of verification. This is the single highest-value hour available: it converts the record from assertion into something the buyer can check. Ask each one first and record the date they agreed. |
+
+## Confirm these two figures before the document is submitted
+
+Section 4.1 states **309 bedrooms** and a **36-month** establishment duration for
+the Skye village. Both came from the director's earlier description of the
+turnkey programme that carried the village, not from a project document. They are
+in the document because an accommodation scope with no size attached is worth
+little, and because they are his own figures. Check them against the project
+record and correct them in `director-experience.data.cjs` if either is wrong.
+
+The **GBP 690 million** is labelled in the document as the promoter's value for the
+whole reinforcement scheme, not for the accommodation scope. Keep that
+distinction: an assessor who reads it as the value of his own scope and then
+discovers otherwise will discount everything else on the page.
 
 ## Two things to know before this goes out
 

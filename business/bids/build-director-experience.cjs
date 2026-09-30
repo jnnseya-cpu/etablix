@@ -27,6 +27,18 @@
  *      an assessor how to choose between two wordings, which is a note to the
  *      author appearing in the evidence.
  *
+ * REV 4 PUTS SKYE AT 4.1, and it should have been there from the start. The
+ * Skye Reinforcement Project is the scheme on which the director built a worker
+ * accommodation village from nothing: he defined all five packages, ran the
+ * enquiries, assessed the returns, recommended the awards, and then
+ * consolidated the running of the village under a single facilities management
+ * contract. That last step is ETABLIX Model 02 — the Management Integrator,
+ * described on the company's own site as its core offer — performed at the
+ * scale of a GBP 690 million reinforcement scheme before ETABLIX existed. Sofia
+ * is a strong entry and moves to 4.2; it evidences subcontract governance and
+ * commissioning, which is a different and narrower claim than having specified
+ * and procured an entire village.
+ *
  * SECTIONS 4.2 AND 4.3 ARE WRITTEN FROM THE CURRICULUM VITAE, not invented.
  * Every bullet traces to a line in it. Where the CV records an activity but
  * not an outcome, the bullet records the activity — an outcome nobody stated
@@ -52,7 +64,7 @@ const B = require("../policies/brand.cjs");
 const DATA = require("./director-experience.data.cjs");
 
 const DASH = "—";
-const REV = "3";
+const REV = "4";
 
 /* ---- inputs, and what is missing ---------------------------------- */
 const submittedFor = (process.argv[2] || DATA.submittedFor || "").trim();
@@ -154,7 +166,7 @@ table([2400, 2400, 3500],
   [
     ["Temporary infrastructure and workforce-living systems",
      "GE Vernova – Grid Solutions, UK, Ireland, Northern and Southern Europe, Dec 2022 – Dec 2025",
-     "Sole accountability for planning, procuring, integrating and controlling site establishment and workforce-living systems across multiple concurrent sites, tender stage to handover. Set out in full at 3.1 above."],
+     "Sole accountability for planning, procuring, integrating and controlling site establishment and workforce-living systems across multiple concurrent sites, tender stage to handover. Includes the worker accommodation village on the Skye Reinforcement Project, defined across five packages and detailed at section 4.1. The cycle is set out at 3.1."],
     ["Subcontractor and supply chain management",
      "GE Vernova – Grid Solutions, Construction Subcontract Manager, UK, Ireland, Northern and Southern Europe, Dec 2022 – Dec 2025",
      "Construction delivery and subcontractor governance across major high-voltage power, grid and offshore wind infrastructure. Contractor performance, construction sequencing, logistics, programme milestones and delivery risk, with mitigation and recovery where progress or interfaces threatened delivery."],
@@ -163,7 +175,7 @@ table([2400, 2400, 3500],
      "Coordination across civil, electrical, mechanical, high-voltage and commissioning disciplines, acting as the interface between client, engineering and design teams, construction management, planners, HSE teams and subcontractors."],
     ["Commissioning and operational handover",
      "GE Vernova – Grid Solutions",
-     "Commissioning, energisation readiness and operational handover on complex grid infrastructure, including the 1,400 MW Sofia Offshore Wind Farm grid connection programme."],
+     "Commissioning, energisation readiness and operational handover on complex grid infrastructure, including the 1,400 MW Sofia Offshore Wind Farm grid connection programme and the 132 kV Skye Reinforcement Project."],
     ["Client-side programme delivery",
      "West Midlands Combined Authority, Programme Delivery Manager, Nov 2021 – Dec 2022",
      "Regional transport, construction, regeneration and public infrastructure. Design coordination through construction, commissioning and handover; contractors, consultants, delivery partners and stakeholder interfaces; milestones, commercial performance, risk and governance reported to senior leadership and authority boards."],
@@ -190,8 +202,40 @@ h1("4. Three schemes in detail");
 
 p("Strongest first. Each records what the director was personally accountable for, in the order the work happened.");
 
+/* The five packages the director defined at Skye. A table rather than prose
+   because the structure IS the evidence: an assessor can see the whole village
+   decomposed, and can see that the decomposition was somebody's work. */
+const PACKAGES = {
+  "4.1": [
+    ["1 \u00b7 Civil works",
+     "Site preparation, groundworks, foundations, drainage, roads and hardstanding, and the utility connections the village would stand on, with the full requirement schedule behind each."],
+    ["2 \u00b7 Accommodation",
+     "Construction of the modular village itself \u2014 bedrooms, leisure space, offices, medical facility, laundry and the remaining welfare buildings \u2014 specified building by building."],
+    ["3 \u00b7 Furniture and fit-out",
+     "Everything that goes inside the buildings: the full furniture, fittings and equipment schedule across bedrooms, offices, leisure and welfare space."],
+    ["4 \u00b7 Kitchen and dining",
+     "Catering and dining facilities: equipment, layout, capacity against occupancy, and the servicing requirements behind them."],
+    ["5 \u00b7 Facilities management",
+     "Every operation for the life of the village: catering, housekeeping, maintenance, deliveries, waste, and transport between the village and the substation and overhead line works."],
+  ],
+};
+
 const SCOPE = {
   "4.1": [
+    "Defined the entire worker accommodation village from the construction programme: what the site needed, for how many people, for how long, in a remote Highland location with its own ground, access and consent constraints \u2014 and converted that into a specification and a tender-stage budget before any price existed.",
+    "Decomposed the village into the five packages set out above and wrote the requirement for each one. The decomposition was produced by the director alone: the work sat between construction, procurement and facilities management, and no other role in the organisation covered that combination.",
+    "Specified the facilities management package in operational detail, including a menu cycle designed to avoid food fatigue across a multi-year occupation, and breakfast, lunch and evening provision timed against shift rotation so that a worker coming off shift could eat rather than arrive after service had closed.",
+    "Included transport between the village and the working faces in the same package, because the role covered the substation works as well as the overhead line, and an accommodation village that is not connected to the job it serves creates lost hours nobody has priced.",
+    "Found and qualified the delivery and subcontract partners for each package, including in a territory where the established field was thin, rather than accepting the suppliers already on the list.",
+    "Produced the requests for quotation himself, against his own specification, so that returns could be compared on one basis.",
+    "Assessed every returned quotation alongside the sourcing and civil engineering teams \u2014 technical compliance against the specification, price against the budget allowance, programme against the construction sequence, and the qualifications and exclusions each bidder had written into its own return.",
+    "Selected the contractor for each package and recommended the award; the order was placed by the sourcing function. Held the resulting terms thereafter and was accountable for performance against them.",
+    "Once the five packages were appointed, selected one of them \u2014 the facilities management contractor \u2014 to manage the running of the whole village under a single contract, so that the project held one accountable supplier for the operation rather than five separate ones.",
+    "Ran the village through mobilisation, daily operation, demobilisation and reinstatement as the single point of contact.",
+  ],
+  /* The generic establishment sequence, kept because it is the right shape for
+     any scheme that is not Skye. Give it a scheme ref to use it. */
+  "GENERIC": [
     "Established the site requirement from the construction programme " + DASH + " headcount, shift pattern, duration, location, and the ground and consent constraints " + DASH + " and converted it into an enquiry scope and a tender-stage budget allowance, before any price existed.",
     "Identified and approached the contractor and supplier market for each package and built the bidder list. Where no suitable contractor was already established in the territory, found and qualified new ones rather than accepting a thin field.",
     "Issued the enquiry documents: scope, specification, programme dates, site constraints and the pricing schedule against which returns would be compared on the same basis.",
@@ -201,7 +245,7 @@ const SCOPE = {
     "Monitored the appointed contractors for the life of the establishment against scope, programme, quality, HSE and commercial position; raised non-conformance and closed it out.",
     "Closed out demobilisation: removal, off-hire, reinstatement of the land to the condition the agreement required, and the final account.",
   ],
-  "4.2": [
+  "MML": [
     "Coordinated civil and mechanical, electrical and plumbing works in a live operational rail environment, sequencing construction around operational running rather than around the design.",
     "Implemented programme controls and earned value monitoring on the scope, and reported performance against the baseline rather than against the last report.",
     "Controlled the technical interfaces between designers, contractors, consultants and the client's operational teams, and ran the requests for information and contractor queries through to resolution.",
@@ -209,6 +253,14 @@ const SCOPE = {
     "Administered the CDM 2015 obligations that sat within the appointment, including confirming the construction phase plan was in place and suitable before work started on site.",
     "Managed cost performance and the risk register against the scope, and escalated where intervention above project level was required.",
     "Took the scope through testing, commissioning and operational handover.",
+  ],
+  "4.2": [
+    "Led construction delivery and subcontractor governance across the grid connection workstreams, coordinating civil, electrical, mechanical, high-voltage and commissioning disciplines.",
+    "Managed contractor performance, construction sequencing, logistics and programme milestones, and implemented mitigation and recovery where progress or an interface threatened delivery.",
+    "Acted as the interface between the client, the engineering and design teams, construction management, planners, HSE and the subcontractors, and resolved the technical and integration issues that arose between them.",
+    "Oversaw requests for information, technical submittals, shop drawings, construction documentation and constructability reviews, so that decisions were made in time and implemented under control.",
+    "Held compliance with HSE legislation, CDM requirements, quality standards and statutory obligations across the appointed works.",
+    "Supported commissioning, energisation readiness and operational handover on the 1,400 MW connection programme.",
   ],
   "4.3": [
     "Directed multidisciplinary delivery from design coordination through construction, commissioning and handover across regional transport, construction, regeneration and public infrastructure.",
@@ -221,12 +273,16 @@ const SCOPE = {
 };
 
 const INTRO = {
-  "4.1": "Held under the scope set out at 3.1. On this scheme the director carried the site establishment and workforce-living scope as the single accountable interface " + DASH + " requirements and tender-stage specification, procurement, integration into the construction programme, mobilisation, daily operation, and demobilisation and reinstatement " + DASH + " alongside subcontract management of the construction works.",
-  "4.2": "Offered because it evidences delivery in a live operational environment, where the establishment and the works have to be sequenced around an asset that cannot be stopped. That constraint is the one most often underestimated in site establishment pricing.",
+  "4.1": "The closest match in the record to the service being applied for, and offered first for that reason. The Skye Reinforcement Project replaces and reinforces the 132 kV network between Fort Augustus and the Isle of Skye. Within it, the director defined, procured and ran the worker accommodation village: the whole establishment, from the requirement through five separate packages to demobilisation and reinstatement, held by one person.",
+  "4.2": "Offered because it evidences subcontract governance and commissioning on complex high-voltage infrastructure at scale, in a role covering the United Kingdom, Ireland and Northern and Southern Europe. It is a different claim from 4.1 and a narrower one: construction delivery and interface control rather than the definition and procurement of an establishment.",
+  "MML": "Offered because it evidences delivery in a live operational environment, where the establishment and the works have to be sequenced around an asset that cannot be stopped. That constraint is the one most often underestimated in site establishment pricing.",
   "4.3": "Offered because it is client-side. The director sat in the seat a public buyer occupies, holding contractors and consultants to account on the authority's behalf and reporting to its boards, which is the perspective this application is being assessed from.",
 };
 
-for (const s of DATA.schemes) {
+/* A scheme with include:false is held in reserve in the data file. It stays
+   written and stays out of the document, so nothing has to be deleted to
+   change which three schemes are offered. */
+for (const s of DATA.schemes.filter((x) => x.include !== false)) {
   h2(`${s.ref}  ${s.title}`);
   if (INTRO[s.ref]) p(INTRO[s.ref]);
 
@@ -235,13 +291,24 @@ for (const s of DATA.schemes) {
   if (has(s.endClient)) rows.push(["Client / end client", s.endClient]);
   if (has(s.schemeValue)) rows.push(["Scheme value", s.schemeValue]);
   if (has(s.scopeValue)) rows.push(["Value of the scope personally held", s.scopeValue]);
+  if (has(s.beds)) rows.push(["Village capacity", s.beds]);
   if (has(s.peakWorkforce)) rows.push(["Peak workforce on site", s.peakWorkforce]);
   if (has(s.establishmentMonths)) rows.push(["Duration of site establishment", s.establishmentMonths]);
   if (has(s.referee)) rows.push(["Referee", s.referee]);
   table([2400, 5900], ["", ""], rows, { size: 16 });
 
+  if (PACKAGES[s.ref]) {
+    rich([{ t: "The five packages, each specified by the director", b: true }]);
+    table([2100, 6200], ["Package", "What was specified"], PACKAGES[s.ref], { size: 16 });
+  }
+
   rich([{ t: "Scope personally accountable for", b: true }]);
   for (const b of (SCOPE[s.ref] || [])) bullet(b);
+
+  if (s.ref === "4.1") {
+    rich([{ t: "Why the last two bullets matter more than the rest. ", b: true },
+      { t: "Five packages appointed and then consolidated under one managing contractor is the structure ETABLIX offers as its Management Integrator model: the buyer keeps its own contracts and its own cash flow, and one party is accountable for making the whole system work. On this scheme the director produced that structure himself, on a live establishment, before the company existed. It is the answer to the question a selection panel is really asking " + DASH + " not whether the method sounds right, but whether anybody has run it." }]);
+  }
 
   if (has(s.outcome)) {
     rich([{ t: "What was different because the director did it", b: true }]);
@@ -250,8 +317,8 @@ for (const s of DATA.schemes) {
 
   for (const [label, field, why] of [
     ["scheme value", s.schemeValue, "the size of what he worked on"],
+    ["peak workforce accommodated", s.peakWorkforce, "how many people the establishment actually held at its fullest"],
     ["value of the scope personally held", s.scopeValue, "the size of what he held, which is the number an assessor actually weighs"],
-    ["peak workforce", s.peakWorkforce, "the scale of the establishment"],
     ["duration of site establishment", s.establishmentMonths, "how long he ran it"],
   ]) if (!has(field)) gap(`${s.ref} ${DASH} ${label}`, why);
   if (!has(s.outcome)) gap(`${s.ref} ${DASH} what was different because he did it`,
@@ -330,6 +397,20 @@ d.build().then(() => {
     for (const [what, why] of gaps) lines.push(`| ${what} | ${why} |`);
   }
   lines.push("",
+    "## Confirm these two figures before the document is submitted",
+    "",
+    "Section 4.1 states **309 bedrooms** and a **36-month** establishment duration for",
+    "the Skye village. Both came from the director's earlier description of the",
+    "turnkey programme that carried the village, not from a project document. They are",
+    "in the document because an accommodation scope with no size attached is worth",
+    "little, and because they are his own figures. Check them against the project",
+    "record and correct them in `director-experience.data.cjs` if either is wrong.",
+    "",
+    "The **GBP 690 million** is labelled in the document as the promoter's value for the",
+    "whole reinforcement scheme, not for the accommodation scope. Keep that",
+    "distinction: an assessor who reads it as the value of his own scope and then",
+    "discovers otherwise will discount everything else on the page.",
+    "",
     "## Two things to know before this goes out",
     "",
     "**The award wording is deliberate.** Section 4.1 says the director selected the",
