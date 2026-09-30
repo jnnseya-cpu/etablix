@@ -44,8 +44,43 @@ do not need a bank guarantee to clear this section.
 
 ## Section 1 — Technical and Professional Ability
 
-Give them four things, in this order, in the narrative and with the detail
+Give them five things, in this order, in the narrative and with the detail
 attached under Supplementary Information.
+
+### 0. The scope statement — open with this, not with a career summary
+
+This is the paragraph the first submission did not have, and it is the reason
+that submission read as thin. It states, in one move, that the service being
+applied for has already been performed by the person who will perform it:
+
+> At GE Vernova – Grid Solutions, between December 2022 and December 2025, I was
+> the single person accountable for planning, procuring, integrating and
+> controlling the temporary infrastructure and workforce-living systems that keep
+> major projects operational. I held that scope across multiple concurrent sites,
+> from tender stage through to handover, across Northern and Southern Europe
+> including the United Kingdom and the Republic of Ireland. Clients dealt with one
+> accountable interface across the whole cycle: initial requirements,
+> mobilisation, daily operation, demobilisation and reinstatement.
+
+**Why it is the strongest sentence available.** CHIC did not ask for a career.
+They asked for *relevant* experience, expertise and delivery capability. A
+general construction management record demonstrates competence but leaves the
+assessor to work out the relevance. This paragraph removes that step: the scope
+applied for and the scope already held are the same scope, named in the same
+words, at a scale and across a geography an assessor can check.
+
+**Two qualifications that must travel with it.** First, it was performed as an
+employee of GE Vernova and is not an ETABLIX contract — say so in the same
+breath, as the assessor already accepted once. Second, it was performed as the
+accountable interface, not as self-delivery: the accommodation, welfare and
+utilities were supplied and installed by specialist subcontractors under terms
+you specified, procured and held. ETABLIX works the same way. Stating that
+before anyone asks is what stops the paragraph reading as an overclaim.
+
+**It is already drafted.** `node business/bids/build-director-experience.cjs`
+produces *Director's Relevant Experience*, which opens with this scope at section
+3.1 and maps the whole cycle stage by stage. Attach it under Supplementary
+Information and lift the paragraph into the narrative box.
 
 ### 1. The delivery record, in project detail rather than in summary
 

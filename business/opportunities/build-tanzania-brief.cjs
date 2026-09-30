@@ -15,6 +15,8 @@
  */
 const B = require("../policies/brand.cjs");
 
+const GRID = "–";
+
 const REV = "2";
 const d = B.doc({
   slug: "Company-Profile",
@@ -104,9 +106,12 @@ p("Model B is the usual starting point on a large programme: a single accountabl
 /* ------------------------------------------------------------------ */
 h1("Leadership");
 
-fillIn("[Director name], Managing Director. Chartered — MCIOB. Two or three sentences: years in the industry, the sectors, the scale of site and workforce personally managed, and the kind of scheme. Written in the third person and kept to facts a referee would confirm.]");
+p("Justin Ngolu Nseya, Managing Director. Chartered Construction Manager (MCIOB), MSc BIM Management, BSc (Hons) Construction Management. Fourteen years in construction and programme delivery with Turner & Townsend, Mott MacDonald, the West Midlands Combined Authority and GE Vernova.");
 
-fillIn("[Optional second paragraph: the specific experience most relevant to this reader — remote sites, energy construction, large temporary works, multi-contractor environments.]");
+rich([{ t: "The method offered here is the method he ran. ", b: true },
+  { t: "At GE Vernova " + GRID + " Grid Solutions he was the single person accountable for planning, procuring, integrating and controlling the temporary infrastructure and workforce-living systems that keep major projects operational. He held it across multiple concurrent sites, from tender stage through to handover, throughout Northern and Southern Europe including the United Kingdom and the Republic of Ireland: one accountable interface from initial requirements and mobilisation, through daily operation, to demobilisation and reinstatement." }]);
+
+p("Work has included the grid connection programme for a 1,400 MW offshore wind farm, high-voltage substation and transmission construction, rail upgrades in live operational environments, and public infrastructure delivered from RIBA stage 0 to handover. He works in English and French.");
 
 /* ------------------------------------------------------------------ */
 h1("Working internationally");
@@ -122,6 +127,5 @@ fillIn("[Director name] · [email] · [telephone] · etablix.com");
 
 d.build().then(() => {
   console.log("\nBEFORE SENDING");
-  console.log("  - the leadership section: the director's record, third person, facts only");
   console.log("  - the contact details and the date");
 }).catch((err) => { console.error(err); process.exit(1); });

@@ -72,7 +72,16 @@ p("That distinction matters and it is made deliberately. The appointments this c
 note("Stating the gap in the first paragraph is not modesty and it is not a tactic. It is that everything else in this document becomes checkable, and therefore worth something. A buyer who is told the gap believes the rest of the pack. A buyer who discovers the gap believes none of it.");
 
 /* ------------------------------------------------------------------ */
-h1("2. What ETABLIX does");
+h1("2. The scope, and where it was performed before");
+
+rich([{ t: "At GE Vernova – Grid Solutions, between December 2022 and December 2025, the director was the single person accountable for planning, procuring, integrating and controlling the temporary infrastructure and workforce-living systems that keep major projects operational. ", b: true },
+  { t: "He held that scope across multiple concurrent sites, from tender stage through to handover, across Northern and Southern Europe including the United Kingdom and the Republic of Ireland. Clients dealt with one accountable interface across the whole cycle: initial requirements, mobilisation, daily operation, demobilisation and reinstatement." }]);
+
+p("That is the same scope ETABLIX is offering, and it is stated first because it is the relevant fact. It was performed as an employee of GE Vernova and is not presented as a contract held by this company. The individual schemes it covers, with referees, are at section 3.");
+
+note("The work was performed as the accountable interface rather than as self-delivery: the accommodation, welfare and utilities themselves were supplied and installed by specialist subcontractors, under terms the director specified, procured and held. ETABLIX operates the same way.");
+
+h2("2.1  What ETABLIX does");
 
 fillIn("Three short paragraphs. What the company does, who for, and what the client receives. No adjectives that cannot be tested — remove 'leading', 'innovative', 'world-class' and anything like them. Write it so a supply chain manager who reads nothing else knows whether to forward it.");
 

@@ -24,13 +24,25 @@
  *     contract performed by ETABLIX. ETABLIX has performed none.
  *   - CDM 2015 Principal Designer TRAINING is held. That is training. It is
  *     not an appointment and it is not a claim to have acted in the role.
+ *
+ * REV 2 ADDS THE SCOPE STATEMENT, and it is the reason the document works. Rev
+ * 1 mapped the director's record to construction management in general, which
+ * any competent construction CV does. It missed the one fact that answers the
+ * assessor's actual test: at GE Vernova the director was the single person
+ * accountable for planning, procuring, integrating and controlling temporary
+ * infrastructure and workforce-living systems across multiple sites, from
+ * tender stage to handover, in Northern and Southern Europe including the UK
+ * and the Republic of Ireland. That is not adjacent to what ETABLIX sells. It
+ * IS what ETABLIX sells, performed at scale, before the company existed. So it
+ * leads section 3 and frames section 4.1, rather than sitting as one capability
+ * row among eight.
  *   - The quantities an assessor actually weighs — scheme value, the value of
  *     the scope personally held, peak workforce, duration — are left as fields.
  *     They are the director's to state and nobody else can state them.
  */
 const B = require("../policies/brand.cjs");
 
-const REV = "1";
+const REV = "2";
 const d = B.doc({
   slug: "Director-Relevant-Experience",
   running: "Director's relevant experience",
@@ -86,9 +98,34 @@ h1("3. Experience mapped to the categories applied for");
 
 p("Ordered by relevance to what is being applied for rather than by date. The full chronology is at section 4.");
 
+h2("3.1  The scope that matches the service being applied for");
+
+rich([{ t: "At GE Vernova – Grid Solutions the director was the single person accountable for planning, procuring, integrating and controlling the temporary infrastructure and workforce-living systems that keep major projects operational. ", b: true },
+  { t: "The role was held across multiple concurrent sites, from tender stage through to handover, across Northern and Southern Europe including the United Kingdom and the Republic of Ireland. Clients dealt with one accountable interface covering the whole cycle: initial requirements, mobilisation, daily operation, demobilisation and reinstatement." }]);
+
+p("That cycle is set out below because it is the same cycle being applied for here, and because an assessor should be able to see the match without being asked to infer it.");
+
+table([1900, 6400],
+  ["Stage", "What the director was accountable for"],
+  [
+    ["Requirements", "Establishing what a site actually needed — headcount, shift pattern, duration, location, ground and consent constraints — and converting that into a specification and a budget at tender stage, before a price existed."],
+    ["Procurement", "Specifying, sourcing, negotiating and letting the accommodation, welfare, utilities and associated services against that specification, and holding the resulting terms."],
+    ["Integration", "Fitting the temporary works and living systems into the construction programme, the site logistics and the wider engineering, HSE and commissioning interfaces, so that establishment did not sit outside the main sequence."],
+    ["Mobilisation", "Delivery, installation, connection and commissioning of the establishment to the point where the site could occupy it and work from it."],
+    ["Daily operation", "Servicing, maintenance, compliance, occupancy changes and problem resolution for the life of the establishment, as the single point of contact."],
+    ["Demobilisation and reinstatement", "Removal, off-hire, final account, and returning the land to the condition the agreement required — the stage most often left unpriced and therefore most often disputed."],
+  ], { size: 16 });
+
+note("This is the direct relevance link the assessment team asked for. It is the director's own record as an employee of GE Vernova. It is not presented as a contract performed by ETABLIX, and ETABLIX has performed none.");
+
+h2("3.2  Supporting construction and programme management record");
+
 table([2400, 2400, 3500],
   ["Capability", "Where it was performed", "What was actually done"],
   [
+    ["Temporary infrastructure and workforce-living systems",
+     "GE Vernova – Grid Solutions, UK, Ireland, Northern and Southern Europe, Dec 2022 – Dec 2025",
+     "Sole accountability for planning, procuring, integrating and controlling site establishment and workforce-living systems across multiple concurrent sites, tender stage to handover. Set out in full at 3.1 above."],
     ["Subcontractor and supply chain management",
      "GE Vernova – Grid Solutions, Construction Subcontract Manager, UK, Ireland, Northern and Southern Europe, Dec 2022 – Dec 2025",
      "Construction delivery and subcontractor governance across major high-voltage power, grid and offshore wind infrastructure. Contractor performance, construction sequencing, logistics, programme milestones and delivery risk, with mitigation and recovery where progress or interfaces threatened delivery."],
@@ -125,13 +162,15 @@ p("Strongest first. Each is offered with a referee who can confirm it.");
 
 const SCHEMES = [
   ["4.1  Sofia Offshore Wind Farm — grid connection, 1,400 MW",
-   "GE Vernova – Grid Solutions", "Construction Subcontract Manager", "Dec 2022 – Dec 2025"],
-  ["4.2  Midland Main Line Upgrade", "Mott MacDonald", "Senior Project Manager", "Oct 2018 – Nov 2021"],
+   "GE Vernova – Grid Solutions", "Construction Subcontract Manager", "Dec 2022 – Dec 2025",
+   "Held under the scope set out at 3.1. On this scheme the director carried the site establishment and workforce-living scope as the single accountable interface — requirements and tender-stage specification, procurement, integration into the construction programme, mobilisation, daily operation, and demobilisation and reinstatement — alongside subcontract management of the construction works."],
+  ["4.2  Midland Main Line Upgrade", "Mott MacDonald", "Senior Project Manager", "Oct 2018 – Nov 2021", null],
   ["4.3  [Third scheme — choose the one closest to the categories applied for]",
-   "[employer]", "[role]", "[dates]"],
+   "[employer]", "[role]", "[dates]", null],
 ];
-for (const [title, employer, role, dates] of SCHEMES) {
+for (const [title, employer, role, dates, intro] of SCHEMES) {
   h2(title);
+  if (intro) p(intro);
   table([2400, 5900],
     ["", ""],
     [
@@ -176,7 +215,8 @@ h1("6. What this record does not cover");
 p("Listed because the assessment team's test is relevance, and because an assessor who finds a fourth gap after being shown three stops believing the three.");
 
 bullet("No contract has been performed by ETABLIX. Every entry above is the director's, performed as an employee of the organisation named.");
-bullet("The director's record is in construction and programme management — subcontract management, project controls, multi-discipline coordination, commissioning and handover. Where a category calls for a trade or a self-delivered service, this record does not answer it and is not offered as though it does.");
+bullet("The director's record is in site establishment, construction and programme management — temporary infrastructure and workforce-living systems, subcontract management, project controls, multi-discipline coordination, commissioning and handover. Where a category calls for a trade or a self-delivered service, this record does not answer it and is not offered as though it does.");
+bullet("The scope at 3.1 was performed as the accountable interface, not as self-delivery. The accommodation, welfare and utilities themselves were supplied and installed by specialist subcontractors, under terms the director specified, procured and held. ETABLIX works the same way and does not present itself as a supplier of the plant.");
 bullet("CDM 2015 Principal Designer training is held. The duty holder role has not been held, and is accepted only where a client appoints it expressly and in writing.");
 bullet("ETABLIX holds no ISO certification and makes no claim to any.");
 fillIn("Add anything else that is true of the specific categories applied for. Resist stopping the list early.");
@@ -190,7 +230,8 @@ approval();
 d.build().then(() => {
   console.log("\nBEFORE SUBMITTING");
   console.log("  1. Name the DPS or category in the control table, and delete any row at");
-  console.log("     section 3 that is not relevant to it. Relevance is the stated test.");
+  console.log("     section 3.2 that is not relevant to it. Relevance is the stated test.");
+  console.log("     Do NOT delete 3.1 — it is the direct relevance link.");
   console.log("  2. Section 4: choose the third scheme, then fill the four quantity rows on");
   console.log("     all three — scheme value, scope value personally held, peak workforce,");
   console.log("     establishment duration. Those are what an assessor weighs.");
