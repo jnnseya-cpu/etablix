@@ -30,17 +30,16 @@ assessor it was sent unfinished.
 | 4.3 — client or end client | name it only where no confidentiality obligation prevents it; the row is omitted rather than hedged |
 | Three named referees | CHIC asked for them in writing and said they may be contacted as part of verification. This is the single highest-value hour available: it converts the record from assertion into something the buyer can check. Ask each one first and record the date they agreed. |
 
-## Confirm these two figures before the document is submitted
+## The three Skye figures, and how each is stated
 
-Section 4.1 states **309 bedrooms** and a **36-month** establishment duration for
-the Skye village. Both came from the director's earlier description of the
-turnkey programme that carried the village, not from a project document. They are
-in the document because an accommodation scope with no size attached is worth
-little, and because they are his own figures. Check them against the project
-record and correct them in `director-experience.data.cjs` if either is wrong.
+**309 bedrooms** and **36 months** are confirmed by the director against the
+project record. They carry weight in the document because an accommodation scope
+with no size attached is worth little, and because they are the two numbers that
+let an assessor picture the village. State them as facts; they are.
 
-The **GBP 690 million** is labelled in the document as the promoter's value for the
-whole reinforcement scheme, not for the accommodation scope. Keep that
+The **GBP 690 million** is different. It is labelled in the document as the
+promoter's value for the whole reinforcement scheme, not for the accommodation
+scope, and a test fails the build if it ever appears without that. Keep the
 distinction: an assessor who reads it as the value of his own scope and then
 discovers otherwise will discount everything else on the page.
 

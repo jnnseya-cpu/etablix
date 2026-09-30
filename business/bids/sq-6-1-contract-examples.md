@@ -126,12 +126,12 @@ picture beats three they cannot.
 
 ## Before you submit
 
-**Check the two Skye figures before you paste.** The draft states 309 bedrooms
-and 36 months. Both are your own figures, but they came from describing the
-scheme rather than from a project document, and this box sits under a false
-declaration warning. Confirm them, and correct the draft if either is out.
+**The two Skye figures are confirmed.** 309 bedrooms and 36 months are checked
+against the project record. State them flatly — in a box this short they are the
+only two numbers that let an assessor picture the village, and hedging them would
+cost more than it protects.
 
-**The £690 million is the scheme, not your scope.** The draft attributes it to
+**The £690 million is different: it is the scheme, not your scope.** The draft attributes it to
 SSEN Transmission as the promoter's figure for the whole reinforcement project.
 Keep it that way. An assessor who reads it as the value of what you personally
 held, and then finds out otherwise, discounts everything else on the page.

@@ -39,9 +39,9 @@ module.exports = {
       endClient: "SSEN Transmission (scheme promoter)",
       schemeValue: "£690 million (the promoter's value for the whole reinforcement scheme, not for the accommodation scope)",
       scopeValue: "",
-      /* CONFIRM: 309 bedrooms and 36 months come from the director's earlier
-         description of the turnkey programme carrying the village. Check both
-         against the project record before this is submitted. */
+      /* Confirmed by the director against the project record, 2026. Both are
+         load-bearing: an accommodation scope with no size attached is worth
+         little, and these two numbers are what let an assessor picture it. */
       beds: "309 bedrooms",
       peakWorkforce: "",
       establishmentMonths: "36 months",

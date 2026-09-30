@@ -106,9 +106,10 @@ sounds right. It is asking whether anybody has run it. That sentence answers it.
 
 **Keep the £690 million labelled as the promoter's scheme value**, not as your
 scope. An assessor who reads it as the value of what you held and then discovers
-otherwise discounts the rest of the page. And confirm the 309 bedrooms and the
-36 months against the project record before it goes: both are your own figures,
-but they came from describing the scheme rather than from a document.
+otherwise discounts the rest of the page. The 309 bedrooms and the 36 months are
+different: both are confirmed against the project record and both are yours, so
+state them flatly. They are the two numbers that let a reader picture the
+village, and a hedge in front of them would cost you more than it protects.
 
 **Project two — the 628MW portfolio.** More than thirty new-build generation and
 storage sites across England and Wales, built in sequence. You ran risk and
