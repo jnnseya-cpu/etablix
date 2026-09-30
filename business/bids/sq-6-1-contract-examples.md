@@ -29,6 +29,13 @@ buyer has written this box precisely because they expect some applicants to be
 new, and the guide expressly provides for a start-up with limited trading
 results.
 
+**Answering No does not weaken the scope statement.** The assessment team has
+confirmed in writing that relevant director's experience may be used where the
+company is newly established, provided it is relevant to the categories applied
+for. The paragraph at the top of the draft below is that relevance, stated in
+the buyer's own terms. A No followed by it is a stronger answer than a Yes
+followed by somebody else's contracts.
+
 One warning from their own supplier guide: it says twice that **insufficient
 detail means the application is declined and returned**. A two-line answer here
 fails. This box is the whole submission.
@@ -39,41 +46,60 @@ fails. This box is the whole submission.
 
 Fill the brackets. Delete nothing else. Check the word count before you paste.
 
-**The word budget.** Everything below except the bracketed passages is about
-300 words. That leaves you roughly 200 for the projects — enough for one told
-properly and two named briefly, not three told properly. Spend the 200 on the
-first one. If you overrun, cut the second and third projects before you cut
-detail from the first: one project an assessor can picture beats three they
-cannot.
+**The word budget, and it is tight.** Everything below except the bracketed
+passages is about 340 words. That leaves roughly 160 for the projects — enough
+for one told properly and two named briefly, not three told properly.
 
-> ETABLIX and Groupe Nseya are trading names of JNN GLOBAL LTD, incorporated in [month, year].
+| Part | Words | Cut it? |
+|---|---|---|
+| The position: No, and why | ~55 | No |
+| **The scope statement** | ~120 | **Never** |
+| The one project, in detail | ~110 | No |
+| Two further projects, one line each | ~50 | Yes, first |
+| What the company can evidence | ~95 | Trim to five bullets |
+| The two things not done | ~40 | No |
+
+If you overrun, cut the second and third projects, then trim the evidence list.
+**Cut the scope statement last and only if there is nothing else left**, because
+it is the only paragraph in the box that answers the question the buyer actually
+asked. One project an assessor can picture beats three they cannot.
+
+> ETABLIX is a trading name of JNN GLOBAL LTD, incorporated in [month, year].
 > The company is newly formed and has not yet performed a contract of the type
 > this requirement describes, so I am answering No rather than submitting
 > examples that belong to another organisation. The delivery record relevant to
 > your assessment is mine personally, and I would rather set it out plainly
 > than attach it to the company.
 >
-> Before founding the company I was a construction subcontract manager at GE
-> Vernova, on EPC and full turnkey projects across the UK, Ireland and Europe.
-> On those projects the civil works, the site management and the site
-> infrastructure sat inside our own contract, and on one project the worker
-> accommodation as well. My role covered the pricing of that scope, the site
-> visits and site reports behind it, and the management of the civils and
-> site-services subcontractors who delivered it.
+> At GE Vernova – Grid Solutions, from December 2022 to December 2025, I was
+> the single person accountable for planning, procuring, integrating and
+> controlling the temporary infrastructure and workforce-living systems that
+> keep major projects operational. I held that scope across multiple concurrent
+> sites, from tender stage through to handover, across Northern and Southern
+> Europe including the United Kingdom and the Republic of Ireland. The client
+> had one accountable interface for the whole cycle: initial requirements,
+> mobilisation, daily operation, demobilisation and reinstatement. That is the
+> service ETABLIX is formed to provide. I performed it before the company
+> existed, and I will be the person performing it here.
 >
-> [The Skye project goes here, in four or five sentences. You have the figures
-> that make it land: a 36-month programme with a 309-bed workforce village
-> inside the turnkey scope. Give the dates, the scope that sat inside the
-> contract, the interfaces you personally managed, and how it ended. Detail
-> only somebody who was there could write is the entire point of this
-> paragraph — it is what separates a capable applicant from a hopeful one.
-> Then, in two sentences each, a second and a third.]
+> I held it as the accountable interface rather than as self-delivery: the
+> accommodation, welfare and utilities were supplied and installed by specialist
+> subcontractors under terms I specified, procured and held. ETABLIX works the
+> same way.
+>
+> [The Skye project goes here, in four or five sentences, and it now has one
+> job: to make the paragraph above concrete. You have the figures that make it
+> land — a 36-month programme with a 309-bed workforce village inside the
+> turnkey scope. Give the dates, the scope that sat inside the contract, the
+> interfaces you personally managed, and how it ended. Write it against the
+> cycle above: what you specified at tender, what you procured, how it
+> mobilised, how it ran, and how it came off the site. Detail only somebody who
+> was there could write is the entire point of this paragraph. Then, one line
+> each, a second and a third scheme.]
 >
 > [Scale and role are yours to describe. The client's commercial terms,
 > contract values, rates and supplier names are not. A duration and a bed
 > count are ordinary CV facts; a contract sum is not.]
->
-> That is the same work ETABLIX is formed to do, delivered by the same person.
 >
 > What the company itself can evidence today, and which I will upload under
 > supplementary information:
@@ -98,11 +124,18 @@ cannot.
 
 ## Before you submit
 
-**Name real projects or the paragraph is worthless.** The bracketed project
-paragraph is the only part of this answer an assessor will weigh. Generic
-description of a role reads as a job advert. A named site, a date range, a
-scope boundary and a problem you personally resolved reads as a person who did
-the work.
+**Name real projects or the scope statement is unproven.** The scope paragraph
+states what you held; the bracketed project paragraph is what proves it. One
+without the other fails: a scope claim with no scheme behind it reads as a job
+advert, and a scheme with no scope around it leaves the assessor to work out the
+relevance — which is the criticism that returned this application the first
+time. A named site, a date range, a scope boundary and a problem you personally
+resolved reads as a person who did the work.
+
+**Check the trading name before you paste.** The draft says ETABLIX only. Do
+not add Groupe Nseya to a declaration unless it is a trading name actually
+recorded against JNN GLOBAL LTD — this box sits under a false declaration
+warning, and branding is not a registered name.
 
 **Ask your referees first.** Naming someone who is then surprised by the call
 costs you the reference and the credibility together.
