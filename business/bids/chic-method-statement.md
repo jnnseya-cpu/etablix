@@ -41,22 +41,67 @@ including it, and neither is optional:
 > the 6.1 explanation is already carrying the weight of a company with no
 > contracts of its own. Tick the fewest that make the application worth
 > making.
+>
+> **Section 2.1 is what carries the first three.** The director has personally
+> held the accountable-interface role across the whole site establishment cycle,
+> and 2.1 maps each stage of it onto Project Manager, Employer's Agent and Clerk
+> of Works. That mapping is the relevance link CHIC asked for. It does not
+> extend to CDM Co-ordinator, which is why section 7 sets its own conditions.
 
 ## 2. Who delivers the work
 
-The company currently comprises one working director, [name], Managing
-Director, who personally delivers every engagement. This is stated at the front
-rather than buried, because capacity is the first question an assessor asks of
-a small supplier and an answer they have to hunt for reads as an answer being
-hidden.
+The company currently comprises one working director, Justin Ngolu Nseya
+MCIOB, Managing Director, who personally delivers every engagement. This is
+stated at the front rather than buried, because capacity is the first question
+an assessor asks of a small supplier and an answer they have to hunt for reads
+as an answer being hidden.
 
-[Name]'s relevant record is set out in the curriculum vitae at item [n] of the
-supplementary information and summarised in the response to question 6.1: [n]
-years in construction subcontract management at GE Vernova on EPC and full
-turnkey projects across the UK, Ireland and Europe, covering the pricing of
-civil works, site management and site infrastructure scope, the site visits and
-site reports behind it, and the management of the civils and site-services
-subcontractors delivering it.
+### 2.1 The scope he has already held
+
+At GE Vernova – Grid Solutions, between December 2022 and December 2025, he
+was the single person accountable for planning, procuring, integrating and
+controlling the temporary infrastructure and workforce-living systems that keep
+major projects operational. He held that scope across multiple concurrent
+sites, from tender stage through to handover, across Northern and Southern
+Europe including the United Kingdom and the Republic of Ireland. Clients dealt
+with one accountable interface across the whole cycle: initial requirements,
+mobilisation, daily operation, demobilisation and reinstatement.
+
+That sentence is here rather than in the curriculum vitae because it is the
+relevant fact about this company, and because it is a different claim from a
+construction management record. The three workstreams in section 1 are all
+accountable-interface appointments — the client hands over a scope and holds
+one person answerable for it. He has held exactly that, on real schemes, at
+scale, and the cycle maps onto the workstreams directly:
+
+| Stage of the cycle | Workstream it underwrites |
+|---|---|
+| Requirements and tender-stage specification | Project Manager · Employer's Agent |
+| Procurement, letting and holding the terms | Project Manager · Employer's Agent |
+| Integration into the construction programme and site logistics | Project Manager |
+| Mobilisation, installation and connection | Clerk of Works |
+| Daily operation, compliance and occupancy change | Clerk of Works · Project Manager |
+| Demobilisation, reinstatement and final account | Employer's Agent |
+
+Two qualifications travel with that paragraph wherever it appears, and both are
+stated before anyone has to ask.
+
+**It was performed as an employee of GE Vernova.** It is not an ETABLIX
+contract, and ETABLIX has performed none. CHIC accepted that distinction in
+the first assessment; it is not blurred now.
+
+**It was performed as the accountable interface, not as self-delivery.** The
+accommodation, welfare and utilities themselves were supplied and installed by
+specialist subcontractors, under terms he specified, procured and held. This
+company works the same way and does not present itself as a supplier of the
+plant. Section 8 describes the associate and subcontracting arrangements that
+carry it.
+
+The full record is in the curriculum vitae at item [n] of the supplementary
+information, and in *Director's Relevant Experience*, which sets the scope out
+stage by stage and offers referees who can confirm it from the other side.
+
+### 2.2 When one person is not enough
 
 Where an engagement requires competence or capacity beyond one person, the
 company engages a named associate under section 8 and tells the client it has
@@ -319,4 +364,4 @@ one is more useful to CHIC than either.
 
 Signed ............................................  Date ....................
 
-[Name], Managing Director
+Justin Ngolu Nseya MCIOB, Managing Director
