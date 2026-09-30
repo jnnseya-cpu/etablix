@@ -160,15 +160,31 @@ h1("4. Three schemes in detail");
 
 p("Strongest first. Each is offered with a referee who can confirm it.");
 
+/* The scope bullets sit OUTSIDE the fact table on purpose. A table cell in the
+   house style is one paragraph of one run, so a list crammed into a cell
+   renders as a wall. Real bullets also read the way an assessor scans: the
+   verb first, one accountability per line. */
+const SOFIA_SCOPE = [
+  "Established the site requirement from the construction programme — headcount, shift pattern, duration, location, and the ground and consent constraints — and converted it into an enquiry scope and a tender-stage budget allowance, before any price existed.",
+  "Identified and approached the contractor and supplier market for each package and built the bidder list. Where no suitable contractor was already established in the territory, found and qualified new ones rather than accepting a thin field.",
+  "Issued the enquiry documents: scope, specification, programme dates, site constraints and the pricing schedule against which returns would be compared on the same basis.",
+  "Assessed the returned quotations alongside the sourcing and civil engineering teams — technical compliance against the specification, price against the budget allowance, programme against the construction sequence, and the qualifications and exclusions each bidder had written into its own return.",
+  "[APPOINTMENT — choose the true wording, see the note below] the appointed contractor for each package, and held the resulting terms.",
+  "Integrated the appointed works into the construction programme and the site logistics, and held the interfaces with engineering, planning, HSE and commissioning through mobilisation, installation and connection.",
+  "Monitored the appointed contractors for the life of the establishment against scope, programme, quality, HSE and commercial position; raised non-conformance and closed it out.",
+  "Closed out demobilisation: removal, off-hire, reinstatement of the land to the condition the agreement required, and the final account.",
+];
+
 const SCHEMES = [
   ["4.1  Sofia Offshore Wind Farm — grid connection, 1,400 MW",
    "GE Vernova – Grid Solutions", "Construction Subcontract Manager", "Dec 2022 – Dec 2025",
-   "Held under the scope set out at 3.1. On this scheme the director carried the site establishment and workforce-living scope as the single accountable interface — requirements and tender-stage specification, procurement, integration into the construction programme, mobilisation, daily operation, and demobilisation and reinstatement — alongside subcontract management of the construction works."],
-  ["4.2  Midland Main Line Upgrade", "Mott MacDonald", "Senior Project Manager", "Oct 2018 – Nov 2021", null],
+   "Held under the scope set out at 3.1. On this scheme the director carried the site establishment and workforce-living scope as the single accountable interface — requirements and tender-stage specification, procurement, integration into the construction programme, mobilisation, daily operation, and demobilisation and reinstatement — alongside subcontract management of the construction works.",
+   SOFIA_SCOPE],
+  ["4.2  Midland Main Line Upgrade", "Mott MacDonald", "Senior Project Manager", "Oct 2018 – Nov 2021", null, null],
   ["4.3  [Third scheme — choose the one closest to the categories applied for]",
-   "[employer]", "[role]", "[dates]", null],
+   "[employer]", "[role]", "[dates]", null, null],
 ];
-for (const [title, employer, role, dates, intro] of SCHEMES) {
+for (const [title, employer, role, dates, intro, scope] of SCHEMES) {
   h2(title);
   if (intro) p(intro);
   table([2400, 5900],
@@ -183,13 +199,32 @@ for (const [title, employer, role, dates, intro] of SCHEMES) {
       ["Value of the scope personally held", "£[  ]"],
       ["Peak workforce on site", "[  ]"],
       ["Duration of site establishment", "[  ] months"],
-      ["Scope personally accountable for", "[Four to eight bullets. Only what you were personally accountable for. Use the verb you actually did — specified, procured, negotiated, managed, closed out — not 'was involved in'. If a reader could not tell whether you led it or watched it, rewrite it.]"],
-      ["What was different because you did it", "[One short paragraph, and the hardest to write. A quantity, a duration, a cost avoided, a problem that did not happen. If you have a number, use it and be ready to explain how you know it. If you do not, describe the change without a number rather than inventing one.]"],
       ["Referee", "[name, position, organisation, telephone, email — and the date they agreed to be named]"],
     ], { size: 16 });
+
+  rich([{ t: "Scope personally accountable for", b: true }]);
+  if (scope) {
+    for (const b of scope) bullet(b);
+  } else {
+    fillIn("Four to eight bullets, one accountability per line, in the order the work actually happened. Use the verb you did — established, identified, issued, assessed, appointed, integrated, monitored, closed out — never 'was involved in' or 'was responsible for'. If a reader could not tell whether you led it or watched it, rewrite the line. Model it on 4.1.");
+  }
+
+  rich([{ t: "What was different because you did it", b: true }]);
+  fillIn("One short paragraph, and the hardest to write. A quantity, a duration, a cost avoided, a problem that did not happen. If you have a number, use it and be ready to explain how you know it. If you do not, describe the change without a number rather than inventing one.");
 }
 
 note("The four quantity rows are the ones an assessor weighs and the ones nobody else can supply. A scheme entry without them reads as a job description; with them it reads as a record.");
+
+h2("4.4  Two things to settle in the 4.1 bullets before this goes out");
+
+rich([{ t: "The appointment bullet. ", b: true },
+  { t: "Pick the wording that is true and use it, because an assessor may test it at the reference call and a large employer's sourcing function usually issues the order itself. If the award decision was yours: \u201cAppointed\u201d. If you selected and recommended and sourcing placed the order: \u201cRecommended the award and instructed sourcing to place the order for\u201d. The second is not a weaker answer — it describes a governed process, which is what a public buyer wants to read — but claiming the first when the second is true is the kind of detail that unravels a whole submission." }]);
+
+rich([{ t: "The assessment bullet names the sourcing and civil engineering teams, deliberately. ", b: true },
+  { t: "Holding sole accountability for a scope and drawing on specialist colleagues to assess returns are not in tension: the first is the accountability, the second is how a competent person discharges it. An assessor reading that you evaluated multi-package quotations single-handed would not believe it. One who reads that you ran a cross-functional assessment and stayed accountable for the outcome will." }]);
+
+richBullet([{ t: "The strongest line in the eight is the one about qualifications and exclusions. ", b: true },
+  { t: "Anyone can compare two prices. Finding what a bidder has quietly written out of its own return is the skill that decides whether a site establishment budget holds, and it is precisely what ETABLIX sells. Leave it in and be ready to give an example." }]);
 
 /* ------------------------------------------------------------------ */
 h1("5. Referees");
@@ -235,6 +270,8 @@ d.build().then(() => {
   console.log("  2. Section 4: choose the third scheme, then fill the four quantity rows on");
   console.log("     all three — scheme value, scope value personally held, peak workforce,");
   console.log("     establishment duration. Those are what an assessor weighs.");
-  console.log("  3. Ask the three referees BEFORE naming them, and record the date each agreed.");
-  console.log("  4. Attach the specimen diagnostic.");
+  console.log("  3. Section 4.1: settle the appointment bullet per 4.4 \u2014 \"Appointed\" only if");
+  console.log("     the award decision was yours, otherwise the recommend-and-instruct wording.");
+  console.log("  4. Ask the three referees BEFORE naming them, and record the date each agreed.");
+  console.log("  5. Attach the specimen diagnostic.");
 }).catch((err) => { console.error(err); process.exit(1); });
