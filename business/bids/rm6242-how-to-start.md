@@ -1,5 +1,61 @@
 # RM6242 Construction Professional Services DPS — where and how to start
 
+> ## ASSESSED, 1 October 2026. Read this box before anything below it.
+>
+> The GCA assessment team has now assessed the submission in full and answered
+> the direct question. **Three of the four points are closed. The fourth is a
+> hard block, and it closes the route the rest of this project has been built
+> on.**
+>
+> **Passed — financial standing.** The unaudited management accounts, statement
+> of financial position, cash flow statement, turnover statement and bank
+> statements were accepted under **Question 128** as an acceptable alternative
+> method of demonstrating economic and financial standing for a recently
+> incorporated business with a null Dun & Bradstreet score. The FVRA documents
+> did their job. No guarantor was needed, exactly as Jan Williams indicated.
+>
+> **Closed — Carbon Reduction Plan.** Selecting contract and fee value
+> thresholds below £5 million at **Question 150** removes the mandatory PPN
+> 06/21 published-CRP requirement. The draft CRP is held on record against a
+> future increase in thresholds.
+>
+> **Outstanding but understood — Cyber Essentials.** Mandatory pass/fail for
+> final appointment. On issue, enter the certificate serial number, scope and
+> expiry at **DPSQ Questions 5 to 7**.
+>
+> **BLOCKED — the contract example, and there is no way round it.** The
+> assessment team answered the question directly: *no*, there is no alternative
+> route to Appointed status without at least one completed contract example, or
+> a completed project phase, certified on an **Attachment 1a signed by both
+> ETABLIX and the customer organisation**. Three specifics matter:
+>
+> - **The director's experience does not count here.** The contract example
+>   must be delivered by the **bidding entity itself** — as prime contractor,
+>   subcontractor, or a member of a Group of Economic Operators. This is the
+>   opposite of the position another assessment team gave us in writing, and
+>   both are correct for their own scheme. See the warning below.
+> - **Selection Questionnaire Questions 133 to 137 are Not Applicable to
+>   RM6242 and are not evaluated** — including the 500-word explanation prompt
+>   at Question 137. The polished 496-word answer in
+>   `sq-6-1-contract-examples.md` has no field to go in on this DPS.
+> - **Evaluation happens exclusively at DPSQ Question 53**, strict pass/fail.
+>   No example means the system marks the application non-compliant. It is not
+>   a judgement call and nobody can exercise discretion over it.
+>
+> **The one piece of good news, and it is bigger than it looks.** A *completed
+> project phase of an ongoing contract, where all deliverables for that phase
+> are finished*, counts. That is a far lower bar than a finished contract. It
+> means the first qualifying example could be weeks away rather than years —
+> one fixed-scope piece of work, completed, with a client willing to sign.
+>
+> **No penalty and no expiry.** The application stays at Registered 1, the DPS
+> stays open across its four-year life, and no place or progress is lost.
+> *(Note the conflict with the separate GCA DPS Team email warning that ~30+
+> days at Registered 1 without communication risks rejection. A clarification
+> has been asked. Until it is answered, keep writing every three to four weeks
+> — the cost of doing so is one email and the cost of not doing so is the
+> application.)*
+
 Crown Commercial Service replied through Jan Williams, Commercial Officer,
 Commercial Operations. Her answer settles the question, and it points in the
 opposite direction to the CHIC thread.

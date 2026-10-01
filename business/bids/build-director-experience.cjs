@@ -10,6 +10,18 @@
  * section 1, because an assessor reading it should be able to see immediately
  * that the substitution was authorised rather than assumed.
  *
+ * AND THE PERMISSION IS SCHEME-SPECIFIC. CHECK BEFORE SENDING IT. On 1 October
+ * 2026 the GCA assessment team confirmed the opposite position for RM6242
+ * Construction Professional Services: the contract example must be delivered by
+ * the BIDDING ENTITY itself — prime, subcontractor, or a member of a Group of
+ * Economic Operators — and the director's personal experience, however
+ * extensive, does not satisfy DPSQ Question 53. Selection Questionnaire
+ * Questions 133 to 137 are Not Applicable there and are not evaluated. Two
+ * public buyers gave opposite answers and both were right about their own
+ * scheme. So this document is evidence where the substitution has been accepted
+ * in writing and inadmissible where it has not, and which it is has to be
+ * established before it is submitted rather than after.
+ *
  * REV 3 MAKES IT AN ISSUABLE DOCUMENT RATHER THAN A FORM. Rev 2 was right on
  * substance and wrong as an artefact: it printed "[  ]", "[location]" and a
  * page of drafting instructions into the document itself, so what came out of

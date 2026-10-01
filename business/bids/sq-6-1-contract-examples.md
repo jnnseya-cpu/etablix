@@ -1,5 +1,25 @@
 # SQ question 6.1 — contract examples, and the explanation if you answer No
 
+> ## WHERE THIS ANSWER WORKS, AND WHERE IT DOES NOT
+>
+> **It does not work on RM6242.** The GCA assessment team confirmed on 1 October
+> 2026 that Selection Questionnaire **Questions 133 to 137 are Not Applicable to
+> the RM6242 Construction Professional Services DPS and are not evaluated** —
+> including the 500-word explanation prompt at Question 137. On that DPS the
+> contract example is judged only at DPSQ Question 53, pass/fail, and it must be
+> delivered by the bidding entity itself. There is no field for this answer and
+> no discretion to apply it.
+>
+> **It works where a buyer has accepted the substitution in writing**, as one
+> assessment team did: relevant director's experience may be used where the
+> company is newly established, provided it is relevant to the categories
+> applied for. That is the basis of *Director's Relevant Experience*.
+>
+> **So check before writing.** Two public buyers gave opposite answers and both
+> were right about their own scheme. Submitting this answer where the field does
+> not exist wastes a cycle; submitting it where it does is the strongest thing
+> we have. Confirm which it is first, and ask if the bid pack does not say.
+
 Two parts: a Yes/No, then a free-text box that only matters if you answer No.
 The box says 500 words. The counter says 10,000 characters. **Obey the word
 limit, not the counter** — 500 words is about 3,000 characters, so the counter
