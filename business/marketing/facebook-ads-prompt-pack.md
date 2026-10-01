@@ -80,6 +80,39 @@ faster than a weak image. Meta's old 20% text rule is long gone, so there is no
 limit to work around — but keep the overlay to six words or fewer, high contrast,
 upper left or lower third.
 
+## The differentiators, and why the first draft of this pack missed them
+
+The five images below started as five pictures of a problem. Problem agitation
+gets attention and it is correct direct-response practice, but **a competitor
+could have run all five**. Nothing in them said why ETABLIX rather than a
+capable quantity surveyor with a spreadsheet. For a cold audience that is
+survivable; for the click that leads to a purchase it is fatal, because by then
+the reader has seen three people describe the same pain.
+
+The platform pages already carry the three claims that do the differentiating,
+and they are better written than anything invented for an advertisement:
+
+| The claim, as the site states it | Why it sells |
+|---|---|
+| Sixteen deterministic engines produce the findings. The AI writes the report from those findings and cannot recompute them, so every output traces back to the rule and the record that produced it. **"Plenty of platforms say AI-powered. Very few can tell you what stops the AI being wrong."** | Every buyer in this market has now been pitched AI. None of them has been told what constrains it. This is the only line in the whole offer that a sceptical technical reader cannot have heard before. |
+| **"Engines refuse rather than warn."** A claimed change on a contract that bars it, with no notice on file, is rejected — not flagged for somebody to notice later. A warning nobody reads is a control that does not exist. | A commercial director has a dashboard full of amber warnings nobody acts on. "It refuses" is a different category of promise. |
+| **"Payment follows verified delivery — never invoice submission alone."** This single rule eliminates the most common site-services leak: paying for mobilised resources rather than delivered service. | This is money, this month, on a leak they have probably already paid for. It is the most immediately commercial sentence in the business. |
+
+**So the pack is now a funnel rather than five interchangeable images.** Two
+images open on the problem, two show the mechanism, one shows the artefact:
+
+| # | Job | Audience |
+|---|---|---|
+| 1 · The field | Stop the scroll on loss | Cold |
+| 5 · The bid room | Stop the scroll on deadline | Cold |
+| 6 · The refusal | Differentiate — it refuses, it does not warn | Warm, and anyone who clicked |
+| 7 · The thread to the clause | Differentiate — every figure traces to a rule | Warm |
+| 3 · The document | Close — this is what arrives | Retargeting only |
+
+Images 2 and 4 are kept as alternates. Two is the better cold opener where the
+audience is site-side rather than commercial; four is the credibility filler for
+a carousel's second frame, where no caption claims it.
+
 ---
 
 ## Prompt 1 — The field you have to give back
@@ -105,7 +138,7 @@ final account bite them at the end. This image is that feeling.
 > no machinery, no sunset glow, no drama, no HDR, no illustration, no cartoon, no
 > watermark.
 
-**Suggested overlay:** `Who priced putting it back?`
+**Overlay:** `Who priced putting it back?`
 
 ---
 
@@ -131,7 +164,13 @@ burned cost, and it is invisible in a benchmark rate.
 > faces in sharp focus, no smiling, no staged poses, no stock-photo cleanliness,
 > no sunshine, no illustration, no watermark.
 
-**Suggested overlay:** `Nine hundred lost hours. Day one.`
+**Overlay:** `The rate was right. The date was wrong.`
+
+> **Withdrawn: "Nine hundred lost hours. Day one."** That was the first version of
+> this overlay and it was an invented statistic. Nobody has measured nine hundred
+> hours on anything. It breaks the rule this whole business is built on, and it
+> would have been the one line in the campaign a contractor could have demanded a
+> source for. The replacement makes the same point and asserts nothing.
 
 ---
 
@@ -160,7 +199,7 @@ who we are.
 > watermark, no people, no hands, no clutter, no bright saturated colour, no
 > illustration, no 3D render look.
 
-**Suggested overlay:** `A number you can defend in a meeting.`
+**Overlay:** `A number you can defend in a meeting.`
 
 ---
 
@@ -187,7 +226,14 @@ Use it as the second image in a carousel, after the problem has landed.
 > identifiable real location, no helicopters, no lens flare, no HDR halos, no
 > illustration, no video-game render look, no watermark.
 
-**Suggested overlay:** `Three hundred beds. One accountable interface.`
+**Overlay:** `Paid for delivered. Not for mobilised.`
+
+> **Withdrawn: "Three hundred beds. One accountable interface."** The 309 bedrooms
+> are real, but they are the director's record at GE Vernova, not an ETABLIX
+> contract. Printed over an AI-generated village in an ETABLIX ad, that caption
+> claims the photograph. The bed count belongs in a submitted document where the
+> employer is named on the same page, not on an advertisement. The replacement
+> sells a control instead of a credential.
 
 ---
 
@@ -213,11 +259,74 @@ the establishment take-off, so somebody is about to put in a guess.
 > marks, no visible face, no clock showing a time, no stock-photo smiling, no
 > clean minimal office, no illustration, no watermark.
 
-**Suggested overlay:** `The bid is Friday. What did you put in for welfare?`
+**Overlay:** `The bid is Friday. What did you put in for welfare?`
 
 ---
 
-## Prompt 6 — The copy prompt
+## Prompt 6 — The refusal
+
+**The angle: the differentiator, and the sharpest one.** Every buyer in this
+market now has a dashboard of amber warnings nobody acts on. A system that
+*rejects* rather than flags is a different promise, and nobody else in site
+services is making it. This is the warm-audience workhorse.
+
+> Tight photograph of a single large monitor on a cluttered desk in a darkened
+> site office at night, shot slightly off-axis from the left so the screen is
+> seen at an angle. The screen shows a dense dark-mode data interface — a long
+> table of many narrow rows, columns of small figures, a left-hand navigation
+> rail — rendered too soft and too low-resolution for any character to be read.
+> One single row is picked out in a strong saturated red band that runs the full
+> width of the table, unmistakable against the cool grey-blue of every other row.
+> The rest of the room is almost dark: the edge of a hard hat, a cold mug, a
+> rolled drawing, a window with black night beyond. Shot on a 50mm lens at f/2,
+> the red row in sharpest focus and the rest falling away, screen glow as the
+> only light source, cool cyan ambient against the single red accent. Severe,
+> technical, final.
+>
+> Negative: no legible text, no legible numbers, no words anywhere, no logos, no
+> brand marks, no warning triangle, no amber or yellow, no people, no hands, no
+> code editor, no illustration, no 3D render look, no watermark.
+
+**Overlay:** `It refuses. It doesn't warn.`
+
+**Why the red band and not a warning icon.** A warning triangle is the visual
+language of every system the reader already ignores. A solid red bar across a
+row reads as *blocked*, which is the actual claim. The negative prompt forbids
+amber for the same reason.
+
+---
+
+## Prompt 7 — The thread back to the clause
+
+**The angle: traceability, made physical.** "Every output traces back to the rule
+and the record that produced it" is the strongest thing in the platform and the
+hardest to photograph, because it is an abstraction. So it is staged as a
+physical object: a literal thread from a figure to the clause that produced it.
+
+> Overhead flat-lay photograph on a large matte grey-green desk mat, cool even
+> daylight from directly above. Two printed documents lie side by side: on the
+> left a contract page of dense justified paragraphs with one clause marked by a
+> narrow yellow highlight; on the right a ruled pricing schedule of many narrow
+> rows of figures. A single taut red cotton thread runs from the highlighted
+> clause across the gap and ends pinned under a small brass map pin on one line
+> of the schedule. A second, slacker red thread loops away to the corner of a
+> third document just entering frame. A mechanical pencil and a steel rule lie at
+> the lower edge. All printed text and all figures must be soft and out of
+> resolution — legible as typography, unreadable as words. Shot directly from
+> above on a 50mm lens, f/5.6, even sharpness, restrained palette of grey-green,
+> cream paper, graphite and the single red thread. Forensic, deliberate, like an
+> investigator's board flattened onto a desk.
+>
+> Negative: no legible text, no legible numbers, no logos, no brand marks, no
+> handwriting, no sticky notes, no corkboard, no pins through the paper, no
+> people, no hands, no clutter, no warm tungsten light, no illustration, no
+> watermark.
+
+**Overlay:** `Every figure traces to a rule.`
+
+---
+
+## Prompt 8 — The copy prompt
 
 Feed this to a language model to generate the ad text. It carries the brand facts
 and every constraint, so that the output does not have to be audited line by line
@@ -250,6 +359,19 @@ afterwards.
 > sceptical of marketing, and have been sold to badly many times. They do not
 > respond to enthusiasm. They respond to someone describing their own problem
 > more precisely than they would describe it themselves.
+>
+> **The three differentiators. At least one must appear in every ad, and the ad
+> is weak without one.** State them as the company states them:
+> 1. Sixteen deterministic engines produce the findings; the language model writes
+>    the report from them and cannot recompute them, so every figure traces back
+>    to the rule and the record that produced it. Plenty of platforms say
+>    AI-powered; very few can say what stops the AI being wrong.
+> 2. The engines refuse rather than warn. A claimed change on a contract that bars
+>    it, with no notice on file, is rejected rather than flagged for somebody to
+>    notice later. A warning nobody reads is not a control.
+> 3. Payment follows verified delivery, never invoice submission alone — which
+>    removes the commonest leak in site services, paying for resources that were
+>    mobilised rather than service that was delivered.
 >
 > **The five angles, one per ad.** Write one ad for each:
 > 1. Demobilisation and reinstatement — the stage most often left unpriced and
