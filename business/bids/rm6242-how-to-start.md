@@ -23,7 +23,7 @@
 > final appointment. On issue, enter the certificate serial number, scope and
 > expiry at **DPSQ Questions 5 to 7**.
 >
-> **BLOCKED — the contract example, and there is no way round it.** The
+> **WAS BLOCKED — the contract example. Now solved; see the box below.** The
 > assessment team answered the question directly: *no*, there is no alternative
 > route to Appointed status without at least one completed contract example, or
 > a completed project phase, certified on an **Attachment 1a signed by both
@@ -42,19 +42,45 @@
 >   No example means the system marks the application non-compliant. It is not
 >   a judgement call and nobody can exercise discretion over it.
 >
-> **The one piece of good news, and it is bigger than it looks.** A *completed
-> project phase of an ongoing contract, where all deliverables for that phase
-> are finished*, counts. That is a far lower bar than a finished contract. It
-> means the first qualifying example could be weeks away rather than years —
-> one fixed-scope piece of work, completed, with a client willing to sign.
+> ## UNBLOCKED, 2 October 2026 — and this is the most valuable email of the year
 >
-> **No penalty and no expiry.** The application stays at Registered 1, the DPS
-> stays open across its four-year life, and no place or progress is lost.
-> *(Note the conflict with the separate GCA DPS Team email warning that ~30+
-> days at Registered 1 without communication risks rejection. A clarification
-> has been asked. Until it is answered, keep writing every three to four weeks
-> — the cost of doing so is one email and the cost of not doing so is the
-> application.)*
+> The assessment team answered the three follow-up questions, and the first
+> answer is the one that matters. Asked whether a completed fixed-scope advisory
+> appointment — a written report on site establishment requirements and costs
+> for a single site, delivered end to end and accepted by the client — would
+> satisfy DPSQ Question 53, they replied that it **"fully satisfies the
+> requirement for a contract example."**
+>
+> **That is the Site Systems Diagnostic, described in their words, confirmed in
+> writing as a qualifying contract example.** The block is not years of
+> trading. It is one paid diagnostic.
+>
+> The rules around it, all now confirmed:
+>
+> | Point | Confirmed position |
+> |---|---|
+> | Value | **No minimum and no maximum.** A small paid appointment counts. |
+> | Age | Completed **within the past three years**. |
+> | Scope | Must fall within the technical service filters selected in the DPSQ. |
+> | Quantity | **One** example for a single high-level service heading; **two** for multiple headings. |
+> | Certification | Attachment 1a, Letter of Confirmation of Works/Services, signed by authorised representatives of **both** organisations. |
+> | Position | Prime, subcontractor **or** a member of a Group of Economic Operators — all three fully valid. |
+> | Joining a GoEO | Permissible, and you may apply as both an individual entity and a consortium member. The **lead supplier** must log into SRS and add ETABLIX as a named consortium member. |
+> | Registered 1 | No timeout penalty. Answers can be carried into a new submission with **"Reuse answers from existing selection questionnaire."** Periodic email updates keep the file current. |
+>
+> **Select ONE service heading.** Two headings means two examples, which doubles
+> the bottleneck for no gain while there are no examples at all. Add headings
+> after the first Attachment 1a is banked, not before.
+>
+> **Get the Attachment 1a template before the first engagement, not after.** A
+> client asked to sign a confirmation of works at the point of scoping signs it
+> as a formality. The same client asked six weeks after the final invoice has to
+> be persuaded. The signature requirement belongs in the engagement letter.
+>
+> **And the thirty-day conflict is resolved**, in favour of this team: no loss
+> of progress or penalty at Registered 1, with periodic email updates
+> recommended rather than required. Keep sending one every three to four weeks
+> anyway — it costs one email.
 
 Crown Commercial Service replied through Jan Williams, Commercial Officer,
 Commercial Operations. Her answer settles the question, and it points in the
