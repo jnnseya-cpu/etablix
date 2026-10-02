@@ -97,46 +97,74 @@ lesson: a capability email carrying a curriculum vitae reads as an agency toutin
 a person, and the answer is a supplier-code notice against the whole company.
 Describe what the company does. Never attach the CV.
 
-## The CV is costing you interviews today, and it is a ten-minute fix
+## AZES: real work, no money. Three consequences.
 
-AZES RDC is confirmed as a title with no pay, contingent on senior Congolese
-ministerial approval that may take a long time or may never come. Treat it as a
-lottery ticket, not a plan, and spend no further time on it until the approval
-arrives.
+The appointment has mobilised and the role is being performed. What has not
+started is **payment**, which is subject to senior Congolese ministerial
+approval and may take a long time or may never come.
 
-But it is doing active harm where it sits. The CV currently opens:
+So it is not a title to be discounted — it is a genuine current senior delivery
+role — and that changes three things.
+
+### 1. It stays in the record, in full
+
+*Director's Relevant Experience* describes the responsibilities held, as a
+current role should. **The pay position is deliberately not in it.** It is a
+private commercial matter, it says nothing about technical and professional
+ability, and volunteering it would invite a question about financial standing
+that the accounts have already answered on their own terms.
+
+### 2. But the CV still needs fixing today, for a different reason
+
+The CV opens:
 
 > **AGENCE DES ZONES ÉCONOMIQUES SPÉCIALES (AZES RDC)**
 > Technical Director of Operations (Contract) | Jan 2026 – Present
 
-A resourcing manager at a tier-one contractor reads the top third of a CV and
-nothing else. What that says is: *currently employed as an executive in the DRC.*
-Which means not available, probably expensive, and almost certainly not
-interested in a site-based contract role in Scotland. **It is a stop sign on the
-first thing they read**, and it is the reason a very employable CV may be getting
-no calls.
+A resourcing manager at a tier-one contractor reads the top third and nothing
+else, and what that says is *currently a sitting executive in the DRC*. Not
+available, probably expensive, certainly not taking a site-based contract in
+Aberdeenshire. **It is a stop sign on the first thing they read.**
 
-Three changes, all true, none of them spin:
+The fix is not to diminish the role — it is real and it is senior. It is to
+remove the ambiguity about availability:
 
-1. **Add one line directly under the name**, before anything else:
-   *Available immediately for contract · Limited company (JNN GLOBAL LTD) ·
+1. **One line directly under the name**, before anything else:
+   *Available immediately for UK contract · Limited company (JNN GLOBAL LTD) ·
    Outside IR35 preferred · UK-wide and Ireland.*
-2. **Relabel AZES so it cannot be read as current employment.** It is an
-   appointment that has not mobilised, so say that:
-   *Technical Director of Operations (appointment, Jan 2026 — programme awaiting
-   government funding approval, not yet mobilised).* Move it below GE Vernova.
-   Nobody reasonable penalises an unmobilised appointment; everybody skips a
-   current executive.
-3. **Make GE Vernova the headline.** It is the most recent delivery, it is the
-   market being applied to, and it is three years of exactly the work those
-   thirteen newly appointed framework contractors are staffing for. It should be
-   the first employer on the page.
+2. **Make GE Vernova the first employer on the page.** Most recent UK delivery,
+   the market being applied to, and three years of exactly what those thirteen
+   newly appointed framework contractors are staffing for. AZES sits below it.
+3. **Qualify the AZES line on time, not on substance** — if the role is
+   part-time, remote or advisory in practice, say so in the title, because that
+   single word is what turns "unavailable" into "available". If it is genuinely
+   full-time, see the next point.
 
-The same correction has been made in *Director's Relevant Experience*, where the
-AZES row originally described directing EPC contractors across power, roads,
-water and industrial facilities. None of that has happened. In the one document
-that offers referees and invites a buyer to telephone them, that was the kind of
-overclaim that discredits every true row beside it.
+### 3. The hard one: unpaid full-time work cannot continue through this window
+
+If AZES is taking most of a working week with no income against it, that is the
+single largest claim on the only resource there is. Facing mortgage trouble in
+three months while working an unpaid week is not sustainable, and no amount of
+goodwill towards the programme changes the arithmetic.
+
+This is not a recommendation to abandon it. It is a recommendation to **put it on
+a footing that leaves time to earn**: reduce to an agreed number of days, agree
+a written date by which remuneration begins, and be straightforward with them
+about why. An agency that values the appointment will accommodate it. One that
+will not has told you what the appointment is worth.
+
+### And one thing worth asking them this week
+
+If JNN GLOBAL LTD is the contracting party for the AZES appointment — not the
+director personally — and any defined phase of work is complete, **AZES could
+countersign an Attachment 1a.** That would be a completed contract example
+delivered by the bidding entity, which is the single thing holding up every
+procurement thread.
+
+Two conditions to check before relying on it: who the contract is actually with,
+and whether an agency awaiting its own funding approval will put a signature on a
+confirmation of services. It costs one email to find out, and the upside is the
+whole procurement pipeline.
 
 ## The conversation to have this week, before anything else
 

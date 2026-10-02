@@ -58,23 +58,24 @@ on purpose. Sole accountability for a scope and drawing on specialist colleagues
 to assess returns are not in tension. An assessor reading that he evaluated
 multi-package quotations single-handed would not believe it.
 
-## Section 3.2's AZES RDC row says appointment, not delivery, on purpose
+## Section 3.2's AZES RDC row, and what it deliberately leaves out
 
-The first version of that row described executive leadership of power, roads,
-water and industrial facilities and said he was directing EPC contractors. None
-of that has happened. The appointment is real and dated, but the programme awaits
-senior Congolese government funding approval and has not mobilised, so no works
-have been directed under it.
+The appointment is live and the role is being performed: the programme has
+mobilised and the director is directing it. So the row describes the
+responsibilities held, as a current role should.
 
-Written the first way it was an overclaim, in the one document that offers
-referees and invites a buyer to check. A buyer who telephones AZES and is told
-the programme has not started would discount every other row on the page. The
-row now states the appointment, states that nothing has been delivered under it,
-and says it is not offered as experience. That is both true and stronger: it is
-the kind of precision an assessor notices.
+**Remuneration under that appointment has not started**, because it is subject to
+senior government approval. That fact is deliberately NOT in the document. It is
+a private commercial matter between the director and AZES, it says nothing about
+technical and professional ability, and a buyer assessing this submission has no
+legitimate interest in it. A document that volunteers it invites a question about
+financial standing that the accounts have already answered on their own terms.
 
-It also closes the capacity question without being asked. A current executive
-role raises an obvious doubt about availability; an unmobilised appointment does
-not. Section 10 of the CHIC method statement answers the capacity point directly
-- work that cannot be staffed is declined at enquiry - and the two documents
-should stay consistent.
+An earlier version of this row went the other way and said the programme had not
+mobilised and nothing had been delivered. That was wrong, and it was worse than
+wrong - it threw away a current, relevant, senior delivery role. Corrected.
+
+What does belong in the pack is the capacity question, because a current
+executive appointment raises it fairly. Section 10 of the CHIC method statement
+answers it directly - work that cannot be staffed is declined at enquiry - and
+the two documents should stay consistent.
