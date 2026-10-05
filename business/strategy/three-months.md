@@ -13,7 +13,25 @@ household.
 Pretending otherwise would be the most expensive thing in this document. So the
 plan below has two tracks, and **the first one is not ETABLIX.**
 
-## Track A — the thing that actually solves it, and it solves two problems at once
+## Track A has changed. GE Vernova came to us.
+
+On 5 October 2026 Marc Townsend, GRID Solutions UK, invited ETABLIX to register
+as a supplier on GE Vernova Supplier Connect. That invitation is now the best
+route in this plan and it supersedes the ordering below, because a purchase
+order to JNN GLOBAL LTD is income, the contract example the GCA requires, and a
+referee who has watched the director deliver — all from one process.
+
+**It does not replace the agency track, it leads it.** Registration, screening
+and approval take weeks, and a purchase order then needs a requisitioner with a
+live need. Four to ten weeks is realistic, which fits inside three months but
+not comfortably. The agency approaches below cost nothing if GE Vernova lands
+first and are the only thing standing between here and arrears if it slips.
+
+Full detail, including the five things to get right in the application and the
+NDA clause that has to be read before it is acknowledged, is in
+`business/marketing/ge-vernova-supplier-invitation.md`.
+
+## Track A (the general case) — contract back into the market you know
 
 **Contract back into the transmission market, through JNN GLOBAL LTD.**
 
@@ -191,9 +209,14 @@ months may be material.
 and no further submission changes that. The documents are built. They will be
 waiting when there is an Attachment 1a to attach.
 
-**Spend nothing on Cyber Essentials or insurance until there is income.** They
-are prerequisites for appointment, not for registration, and the frameworks are
-open for four years. They can wait three months. Cash cannot.
+**Cyber Essentials can wait. Insurance cannot, and that is a change.** This plan
+originally said to spend on neither until there was income, because both are
+prerequisites for framework *appointment* rather than registration. The GE
+Vernova supplier invitation reverses it for insurance: a tier-one contractor
+onboarding a supplier requires evidence of professional indemnity and public
+liability before a purchase order, not after. That is no longer speculative
+spend against a maybe — it is a condition of the one live revenue route. Get
+quotes this week. Cyber Essentials stays where it was.
 
 **Do not build anything else.** The platform, the sixteen agents, the policy set,
 the specimen and the bid documents are all finished to a standard well beyond
@@ -204,7 +227,9 @@ avoid selling, and it is the thing that has filled ten months.
 
 | Day | Action |
 |---|---|
+| Today | **Register on GE Vernova Supplier Connect**, in Chrome, using the personal link. Bank details and tax references go straight into the portal and nowhere else. |
 | Today | Telephone the mortgage lender. Then book a free advice appointment. |
+| Today | Read the attached GE Vernova NDA, specifically for anything restricting naming them as a reference customer. |
 | Today | Update the LinkedIn headline to the contract market: chartered construction manager, HV substation and OHL delivery, available for contract. |
 | Tomorrow | Three agencies specialising in transmission and energy contract staffing. Say: limited company, outside IR35 preferred, available immediately. |
 | Tomorrow | Direct approaches to the thirteen named National Grid framework contractors and the ASTI tier — supply chain and resourcing, not recruitment inboxes. |
