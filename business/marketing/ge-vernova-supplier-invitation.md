@@ -94,6 +94,43 @@ GE Vernova is buying from a services supplier is competence held by a named
 person. They are not ETABLIX certifications and must not be entered as though
 they were.
 
+### RESOLVED, 5 October. Marc Townsend authorised the documented route in writing
+
+> *"We would expect all vendors (service and goods suppliers) to hold at least
+> ISO 9001 to show that the business processes are documented and auditable from
+> a quality perspective. If you have documented systems, but this is just missing
+> third party verification, then I would state this is the application and upload
+> any associated documentation."*
+
+That is route one below, confirmed by the buyer. **Answer Yes to QMS, state in
+the field that the system is documented but not third-party verified, and
+upload.** Two documents go up, and the pairing matters:
+
+| Upload | What it is |
+|---|---|
+| **Quality Management Arrangements** | The system itself. Section 1 already states that no ISO 9001 is held and none is claimed; section 6 names every gap. |
+| **ISO 9001:2015 Coverage Statement** | New. Twenty-one clauses mapped to what exists: thirteen documented, six partial, one not applicable, one not in place. Built because Marc's test was *documented and auditable*, and auditable means an assessor can see coverage at a glance. |
+
+**Why a separate document rather than restructuring the Arrangements.** That
+document carries a deliberate instruction not to mirror the standard's clause
+numbering, on the reasoning that a document laid out as a quality manual with no
+certificate behind it reads as a company pretending. That reasoning still holds,
+so the Arrangements are untouched. The coverage statement does the opposite of
+pretending: it is titled as a map, it opens by saying no certificate is held, and
+a third of its rows record a requirement that is not met. **A map that shows its
+own holes cannot be mistaken for a certificate.**
+
+**What to type in the certification name field**, so that nobody downstream can
+read it as a certificate:
+
+> Documented Quality Management System — not third-party certified. ISO 9001:2015
+> coverage statement attached.
+
+Leave the certificate number and expiry fields empty. If the form demands a
+number, put **N/A — no certificate issued**, never an invented reference.
+
+### The original problem, and the three routes, kept for the next portal
+
 ### The portal hard-blocks on ISO or QMS. Do not solve that by answering Yes.
 
 SCx refuses to progress: *"SQE Certifications — Please select at least one of ISO
