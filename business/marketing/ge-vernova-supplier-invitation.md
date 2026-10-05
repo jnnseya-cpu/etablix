@@ -60,6 +60,40 @@ a pass/fail gate at registration. A claimed certification found to be absent is
 the one thing that ends a supplier relationship before it starts, and this is a
 company whose invitation letter opens with *unyielding integrity*.
 
+### Section 5, Certifications — the answers, and why six of them are not what they look like
+
+| Question | Answer | Why |
+|---|---|---|
+| Government supply chain security programme (CTPAT / PIP / AEO) | **No** | Customs and import-security schemes for businesses moving goods across borders. ETABLIX supplies services and ships nothing. |
+| ISO certifications | **No** | None held. |
+| QMS certifications | **No** | A *certified* quality management system is not held. Documented quality management arrangements exist and are signed, but documented is not certified and the two must never be conflated. |
+| SQRM — Supplier Quality Requirement Manual | **No, not yet** | GE Vernova's own document, issued to the supplier to accept. |
+| GT&C — GE Vernova Terms & Conditions | **No, not yet** | GE Vernova's own terms, issued to the supplier to accept. |
+| SEQ — Supplier Eligibility Questionnaire | **No, not yet** | GE Vernova's own questionnaire, issued during onboarding. |
+| EHS Prescreen checklist | **No, not yet** | GE Vernova's own checklist. The signed health and safety policy and arrangements already answer most of what it asks. |
+| MNDA — Mutual Non-Disclosure Agreement | **No for now** | This is the NDA attached to the invitation. It becomes Yes once signed — **but read it for the reference clause first.** Do not convert a No into a Yes just to tidy the form. |
+| Integrity Letter | **No, not yet** | Signed after reading the Supplier Integrity Guide and watching the training video. Do both, then it becomes Yes. |
+| Any other certifications | **Yes** | The director's personal professional qualifications. Label them exactly as that. |
+
+**Six of those ten are GE Vernova's own paperwork, not market credentials.** They
+are not things a supplier either has or lacks in the world — they are documents
+GE issues for the supplier to sign during onboarding. A row of honest "No"
+answers is the normal starting state of a new supplier and is what prompts them
+to be sent. It does not look weak. It looks like someone who read the question.
+
+**And the asymmetry is total.** A true No costs nothing here; every Yes will be
+asked for a certificate number, a scope and an expiry date, with an upload.
+A Yes that cannot be evidenced ends the relationship at the screening stage, in
+a process whose invitation letter opens with *unyielding integrity*.
+
+**On the last row.** Enter the director's qualifications and label them as
+personal rather than corporate: MCIOB Chartered Construction Manager, CSCS card,
+APMP, PRINCE2 Foundation, and **CDM 2015 Principal Designer training — written as
+training, never as an appointment.** They are genuinely relevant, because what
+GE Vernova is buying from a services supplier is competence held by a named
+person. They are not ETABLIX certifications and must not be entered as though
+they were.
+
 **4. Declare the former employment before anyone has to find it.** The director
 was a GE Vernova employee until December 2025 and is now applying to be a
 supplier to the same business unit. Many organisations have conflict-of-interest
