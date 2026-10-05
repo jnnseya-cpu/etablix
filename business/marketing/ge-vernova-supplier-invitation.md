@@ -94,6 +94,48 @@ GE Vernova is buying from a services supplier is competence held by a named
 person. They are not ETABLIX certifications and must not be entered as though
 they were.
 
+### The portal hard-blocks on ISO or QMS. Do not solve that by answering Yes.
+
+SCx refuses to progress: *"SQE Certifications — Please select at least one of ISO
+or QMS certificate."* Neither is held. There are four ways through and only three
+of them are available.
+
+**The one that is not available is claiming one.** A fabricated ISO 9001 entry in
+a portal that performs background screening, in a process whose invitation opens
+with *unyielding integrity*, is not a shortcut. It ends the supplier
+relationship, it ends the reference, and it would be a false statement made to
+obtain a commercial advantage. The form being inconvenient does not change that.
+If nothing below works, the registration waits.
+
+**Route one: the question may not mean what the error says.** The field asks
+*"Do you have any QMS Certifications?"* and the error says *"certificate"*, but
+many supplier portals use the QMS row for a documented quality management system
+rather than third-party certification. ETABLIX has signed, documented quality
+management arrangements. **If the field accepts documentation, the honest answer
+is Yes and the arrangements are the upload. If it requires a certificate, the
+answer stays No.** That ambiguity is not ours to resolve in our own favour — ask
+and use the answer.
+
+**Route two: the category is probably wrong.** SQE stands for Supplier Quality
+Engineering, and a mandatory ISO or QMS gate is a *goods and manufacturing*
+rule. A professional services supplier that ships nothing and manufactures
+nothing is normally routed to a different questionnaire or granted a documented
+exemption. If registration went in under a goods or manufacturing commodity
+code, this gate is a symptom of that and re-categorisation removes it. This is
+the same commodity-code question that has to be settled anyway before a purchase
+order can be raised.
+
+**Route three: an SQE can waive it, and that is their job.** There is a named
+human function behind this screen. A supplier quality engineer determines what
+quality requirements apply to a given supplier and category, and routinely sets
+them aside for low-risk service suppliers. Ask for the determination; do not ask
+for an exception.
+
+**Use the Live Chat first** — the invitation includes the link and it is the
+fastest route. If it cannot resolve it, write to Marc Townsend. Either way the
+question is a factual one with a factual answer, and asking it is itself a good
+first impression: it is what a supplier who reads the question does.
+
 **4. Declare the former employment before anyone has to find it.** The director
 was a GE Vernova employee until December 2025 and is now applying to be a
 supplier to the same business unit. Many organisations have conflict-of-interest
