@@ -39,6 +39,15 @@
  */
 const B = require("./brand.cjs");
 
+/* Issue and review dates are computed rather than left as brackets: the company
+   has one director who approves every policy, and a bracket on a document
+   uploaded to a buyer's portal reads as unfinished. Re-running the builder
+   re-dates the document, which is the correct behaviour for a live policy. */
+const ISSUE_DATE = new Date();
+const fmt = (dt) => dt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+const ISSUE = fmt(ISSUE_DATE);
+const REVIEW = fmt(new Date(ISSUE_DATE.getFullYear() + 1, ISSUE_DATE.getMonth(), ISSUE_DATE.getDate()));
+
 const REV = "1";
 const PPN = "PPN 06/21";
 const NET_ZERO_YEAR = "2050";

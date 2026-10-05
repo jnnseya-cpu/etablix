@@ -16,6 +16,15 @@
  */
 const B = require("./brand.cjs");
 
+/* Issue and review dates are computed rather than left as brackets: the company
+   has one director who approves every policy, and a bracket on a document
+   uploaded to a buyer's portal reads as unfinished. Re-running the builder
+   re-dates the document, which is the correct behaviour for a live policy. */
+const ISSUE_DATE = new Date();
+const fmt = (dt) => dt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+const ISSUE = fmt(ISSUE_DATE);
+const REVIEW = fmt(new Date(ISSUE_DATE.getFullYear() + 1, ISSUE_DATE.getMonth(), ISSUE_DATE.getDate()));
+
 const REV = "1";
 const d = B.doc({
   slug: "Health-and-Safety-Policy",
@@ -27,10 +36,10 @@ const d = B.doc({
   control: [
     ["Document", "Health and Safety Policy and Arrangements"],
     ["Revision", REV],
-    ["Date of issue", "[date]"],
-    ["Next review", "[date of issue + 12 months]"],
-    ["Owner", "[name], Managing Director"],
-    ["Approved by", "[name], Managing Director"],
+    ["Date of issue", ISSUE],
+    ["Next review", REVIEW],
+    ["Owner", "Justin Ngolu Nseya MCIOB, Managing Director"],
+    ["Approved by", "Justin Ngolu Nseya MCIOB, Managing Director"],
     ["Applies to", "Every person working for or on behalf of ETABLIX, on any site or premises"],
   ],
 });
@@ -81,7 +90,7 @@ table([3300, 5000],
 
 /* 3 */
 h1("3. Organisation and responsibilities");
-rich([{ t: "Managing Director — [name]. ", b: true }, { t: "Holds overall and final responsibility for health and safety. Personally responsible, until the company appoints others, for risk assessment, competence and training, the site visit procedure, the selection and monitoring of any subcontractor or associate, incident investigation and reporting, and the review of this policy. Holds the authority to stop or refuse any work on health and safety grounds, and will exercise it." }]);
+rich([{ t: "Managing Director \u2014 Justin Ngolu Nseya MCIOB. ", b: true }, { t: "Holds overall and final responsibility for health and safety. Personally responsible, until the company appoints others, for risk assessment, competence and training, the site visit procedure, the selection and monitoring of any subcontractor or associate, incident investigation and reporting, and the review of this policy. Holds the authority to stop or refuse any work on health and safety grounds, and will exercise it." }]);
 rich([{ t: "All persons working for or on behalf of the company — ", b: true }, { t: "take reasonable care for their own safety and that of others, use the equipment and protective equipment provided, follow site rules and inductions, report hazards, near misses and incidents without delay, and never proceed with work they believe to be unsafe. Nobody will be criticised for stopping work on safety grounds, and nobody will be asked to justify it afterwards." }]);
 h2("Competent advice");
 p("The company does not employ a health and safety professional. Competent assistance under regulation 7 of the Management Regulations is obtained from [named consultant or retained adviser — name them, or state \"will be retained before the first site appointment\"]. Where a question exceeds the company's own competence it is referred, not guessed at.");

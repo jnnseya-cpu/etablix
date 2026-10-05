@@ -26,6 +26,15 @@
  */
 const B = require("./brand.cjs");
 
+/* Issue and review dates are computed rather than left as brackets: the company
+   has one director who approves every policy, and a bracket on a document
+   uploaded to a buyer's portal reads as unfinished. Re-running the builder
+   re-dates the document, which is the correct behaviour for a live policy. */
+const ISSUE_DATE = new Date();
+const fmt = (dt) => dt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+const ISSUE = fmt(ISSUE_DATE);
+const REVIEW = fmt(new Date(ISSUE_DATE.getFullYear() + 1, ISSUE_DATE.getMonth(), ISSUE_DATE.getDate()));
+
 const REV = "1";
 const GIFT_LIMIT = "£30";
 const HOSP_LIMIT = "£50";
@@ -40,10 +49,10 @@ const d = B.doc({
   control: [
     ["Document", "Anti-Bribery and Corruption Policy"],
     ["Revision", REV],
-    ["Date of issue", "[date]"],
-    ["Next review", "[date of issue + 12 months, or on any material change]"],
-    ["Owner", "[name], Managing Director"],
-    ["Approved by", "[name], Managing Director"],
+    ["Date of issue", ISSUE],
+    ["Next review", REVIEW + " \u2014 or sooner on any material change"],
+    ["Owner", "Justin Ngolu Nseya MCIOB, Managing Director"],
+    ["Approved by", "Justin Ngolu Nseya MCIOB, Managing Director"],
     ["Applies to", "Every person acting for or on behalf of ETABLIX, however engaged"],
     ["Legal framework", "Bribery Act 2010, sections 1, 2, 6 and 7"],
   ],

@@ -35,6 +35,15 @@
  */
 const B = require("./brand.cjs");
 
+/* Issue and review dates are computed rather than left as brackets: the company
+   has one director who approves every policy, and a bracket on a document
+   uploaded to a buyer's portal reads as unfinished. Re-running the builder
+   re-dates the document, which is the correct behaviour for a live policy. */
+const ISSUE_DATE = new Date();
+const fmt = (dt) => dt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+const ISSUE = fmt(ISSUE_DATE);
+const REVIEW = fmt(new Date(ISSUE_DATE.getFullYear() + 1, ISSUE_DATE.getMonth(), ISSUE_DATE.getDate()));
+
 const REV = "1";
 const THRESHOLD = "£36 million";
 const HELPLINE = "08000 121 700";
@@ -50,10 +59,10 @@ const d = B.doc({
     ["Document", "Modern Slavery and Human Trafficking Statement"],
     ["Revision", REV],
     ["Financial year", "[financial year this statement covers]"],
-    ["Date of issue", "[date]"],
-    ["Next review", "[date of issue + 12 months, or on any material change]"],
-    ["Owner", "[name], Managing Director"],
-    ["Approved by", "[name], Managing Director, on behalf of the board"],
+    ["Date of issue", ISSUE],
+    ["Next review", REVIEW + " \u2014 or sooner on any material change"],
+    ["Owner", "Justin Ngolu Nseya MCIOB, Managing Director"],
+    ["Approved by", "Justin Ngolu Nseya MCIOB, Managing Director, on behalf of the board"],
     ["Basis", `Voluntary. Section 54 Modern Slavery Act 2015 applies at ${THRESHOLD} turnover; ETABLIX is below it.`],
     ["Applies to", "Every person acting for or on behalf of ETABLIX, and every supplier ETABLIX specifies, recommends or engages"],
   ],

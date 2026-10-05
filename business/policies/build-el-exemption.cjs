@@ -28,6 +28,15 @@
  */
 const B = require("./brand.cjs");
 
+/* Issue and review dates are computed rather than left as brackets: the company
+   has one director who approves every policy, and a bracket on a document
+   uploaded to a buyer's portal reads as unfinished. Re-running the builder
+   re-dates the document, which is the correct behaviour for a live policy. */
+const ISSUE_DATE = new Date();
+const fmt = (dt) => dt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+const ISSUE = fmt(ISSUE_DATE);
+const REVIEW = fmt(new Date(ISSUE_DATE.getFullYear() + 1, ISSUE_DATE.getMonth(), ISSUE_DATE.getDate()));
+
 const REV = "1";
 const d = B.doc({
   slug: "Employers-Liability-Insurance-Statement",
@@ -39,9 +48,9 @@ const d = B.doc({
   control: [
     ["Document", "Statement of position — employers' liability insurance"],
     ["Revision", REV],
-    ["Date", "[date]"],
+    ["Date", ISSUE],
     ["Company", "JNN GLOBAL LTD, trading as ETABLIX · Company No. 15405437"],
-    ["Given by", "[name], Managing Director"],
+    ["Given by", "Justin Ngolu Nseya MCIOB, Managing Director"],
     ["Statute", "Employers' Liability (Compulsory Insurance) Act 1969"],
     ["Purpose", "Provided in answer to a request for documentary evidence of employers' liability insurance"],
   ],
@@ -63,8 +72,8 @@ h2("1.1  The facts that engage the exemption");
 table([3000, 5300],
   ["", ""],
   [
-    ["Employees", "One. [Name], Managing Director. There are no other employees, no agency workers and no labour-only subcontractors engaged as employees."],
-    ["Shareholding", "[Name] holds [  ]% of the issued share capital of JNN GLOBAL LTD — not less than fifty per cent."],
+    ["Employees", "One. Justin Ngolu Nseya MCIOB, Managing Director. There are no other employees, no agency workers and no labour-only subcontractors engaged as employees."],
+    ["Shareholding", "Justin Ngolu Nseya MCIOB holds [  ]% of the issued share capital of JNN GLOBAL LTD — not less than fifty per cent."],
     ["Conclusion", "The company falls within the exemption and no policy is required by the 1969 Act."],
   ]);
 
@@ -113,9 +122,9 @@ table([3000, 5300],
   ["", ""],
   [
     ["Signed", "[signature]"],
-    ["Name", "[name]"],
+    ["Name", "Justin Ngolu Nseya MCIOB"],
     ["Title", "Managing Director, for and on behalf of JNN GLOBAL LTD trading as ETABLIX"],
-    ["Date", "[date]"],
+    ["Date", ISSUE],
   ]);
 
 approval();

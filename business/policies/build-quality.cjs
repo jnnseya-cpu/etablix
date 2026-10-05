@@ -15,6 +15,11 @@
  */
 const B = require("./brand.cjs");
 
+const ISSUE_DATE = new Date();
+const fmt = (dt) => dt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+const ISSUE = fmt(ISSUE_DATE);
+const REVIEW = fmt(new Date(ISSUE_DATE.getFullYear() + 1, ISSUE_DATE.getMonth(), ISSUE_DATE.getDate()));
+
 const REV = "1";
 const d = B.doc({
   slug: "Quality-Management-Arrangements",
@@ -26,10 +31,10 @@ const d = B.doc({
   control: [
     ["Document", "Quality Management Arrangements"],
     ["Revision", REV],
-    ["Date of issue", "[date]"],
-    ["Next review", "[date of issue + 12 months]"],
-    ["Owner", "[name], Managing Director"],
-    ["Approved by", "[name], Managing Director"],
+    ["Date of issue", ISSUE],
+    ["Next review", REVIEW],
+    ["Owner", "Justin Ngolu Nseya MCIOB, Managing Director"],
+    ["Approved by", "Justin Ngolu Nseya MCIOB, Managing Director"],
     ["Applies to", "Every output ETABLIX issues, whoever drafted it"],
   ],
 });
@@ -87,7 +92,7 @@ p("Any error found in an issued document — found by the company, by a client, 
 rich([{ t: "This applies to errors nobody else noticed. ", b: true }, { t: "A register containing only the mistakes a client caught is a record of what was caught, not of what happened, and it improves nothing." }]);
 
 h2("3.6 Client feedback");
-p("Feedback is sought at the end of every engagement and, on engagements longer than [three] months, at the midpoint as well. It is recorded whether it is good or bad, and anything adverse is treated under 3.5.");
+p("Feedback is sought at the end of every engagement and, on engagements longer than three months, at the midpoint as well. It is recorded whether it is good or bad, and anything adverse is treated under 3.5.");
 
 h2("3.7 Suppliers, associates and subcontractors");
 p("Anyone engaged to deliver part of an ETABLIX output is selected against competence, insurance and record; receives the same written scope the client received; and their output is checked by the company under 3.3 before it goes out. The company's name on a document means the company has checked it, whoever drafted it.");
@@ -96,7 +101,9 @@ pageBreak();
 
 /* 4 */
 h1("4. Records, and how long they are kept");
-p("Records are kept of: the written scope, the information received and the date it arrived, the working files behind each output, the checked and initialled issue copy, and all correspondence. They are held [state the system and the backup arrangement] and backed up [frequency]. They are never held only on one device.");
+p("Records are kept of: the written scope, the information received and the date it arrived, the working files behind each output, the checked and initialled issue copy, and all correspondence. They are never held only on one device.");
+
+fillIn("One sentence naming the system records are held in and how it is backed up, then delete this line. An assessor does not need the brand name, but a system with no stated backup is the gap they will ask about \u2014 it is clause 7.5 of ISO 9001 and the coverage statement marks 7.5 as documented on the strength of this section.");
 
 h2("Retention — the period is longer than most people assume");
 table([3000, 5300],

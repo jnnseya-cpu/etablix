@@ -157,13 +157,17 @@ function doc(meta) {
   pageBreak();
 
   /* ---------- signature ---------- */
-  const approval = () => {
+  /* The signatory is named rather than bracketed. The company has one director,
+     he approves every one of these, and "[name]" on a document uploaded to a
+     buyer's portal reads as unfinished. A caller may pass another name; nobody
+     currently needs to. */
+  const approval = (signatory = "Justin Ngolu Nseya MCIOB", role = "Managing Director") => {
     h1("Approval");
     p("This policy is a live document. It is reviewed on the dates recorded on the cover and "
     + "reissued whenever the work, the people or the law changes.", { after: 380 });
     p("Signed  ..............................................................", { after: 140 });
-    p("Name  [name]", { after: 60 });
-    p("Position  Managing Director", { after: 60 });
+    p("Name  " + signatory, { after: 60 });
+    p("Position  " + role, { after: 60 });
     p("Date  ....................................", { after: 300 });
   };
 

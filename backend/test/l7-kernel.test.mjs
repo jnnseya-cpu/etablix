@@ -59,21 +59,34 @@ ok(instant("") === null && instant(null) === null, "blank is not a date");
 /* ------------------------------------------------------------------ */
 console.log("\n--- the evidence registry\n");
 
+/* THE DATES ARE RELATIVE TO TODAY, AND THEY HAVE TO BE. This fixture originally
+   hard-coded an expiry of 2026-10-01 and then asserted the certificate was still
+   valid "today" against new Date(). It passed every run until 1 October 2026 and
+   failed on the 2nd — the test about a certificate that is valid today and
+   worthless at the deadline had itself quietly expired.
+
+   That is the exact failure the module under test exists to catch, so a fixed
+   date here is not a shortcut, it is the bug. Every date below is an offset from
+   now, which makes the property permanent: a certificate lapsing BETWEEN today
+   and the bid deadline must block the claim, whenever "today" happens to be. */
+const DAY = 86400000;
+const iso = (offsetDays) => new Date(Date.now() + offsetDays * DAY).toISOString().slice(0, 10);
+
 const cert = {
   id: "EV-1", kind: "CERTIFICATE", claim: "Accredited to ISO 9001",
-  source: { uri: "s3://ev/1.pdf", hash: "abc", expiresAt: "2026-10-01" },
+  source: { uri: "s3://ev/1.pdf", hash: "abc", expiresAt: iso(30) },
   status: "APPROVED", verifiedBy: "J Nseya", scope: { global: true },
 };
 
-ok(statusAt(cert, "2026-09-10") === "APPROVED", "in date today");
-ok(statusAt(cert, "2026-11-01") === "EXPIRED", "lapsed by November");
-ok(statusAt({ ...cert, source: { ...cert.source, expiresAt: "annual" } }, "2026-09-10") === "EXPIRED",
+ok(statusAt(cert, iso(0)) === "APPROVED", "in date today");
+ok(statusAt(cert, iso(60)) === "EXPIRED", "lapsed two months out");
+ok(statusAt({ ...cert, source: { ...cert.source, expiresAt: "annual" } }, iso(0)) === "EXPIRED",
    "AN UNREADABLE EXPIRY IS TREATED AS LAPSED, never as no expiry");
-ok(statusAt({ ...cert, status: "PENDING" }, "2026-09-10") === "PENDING", "an unapproved item stays unapproved");
+ok(statusAt({ ...cert, status: "PENDING" }, iso(0)) === "PENDING", "an unapproved item stays unapproved");
 ok(statusAt(cert, "not a date") === "REJECTED", "nothing is in date against a date nobody can read");
-ok(statusAt({ ...cert, source: { uri: "u", hash: "h" } }, "2026-09-10") === "EXPIRED",
+ok(statusAt({ ...cert, source: { uri: "u", hash: "h" } }, iso(0)) === "EXPIRED",
    "a certificate with no expiry at all is refused — that kind always carries one");
-ok(statusAt({ ...cert, kind: "CASE_STUDY", source: { uri: "u", hash: "h" } }, "2026-09-10") === "APPROVED",
+ok(statusAt({ ...cert, kind: "CASE_STUDY", source: { uri: "u", hash: "h" } }, iso(0)) === "APPROVED",
    "a case study without an expiry is fine — not every kind lapses");
 
 ok(inScope({ ...cert, scope: { global: false, bidIds: ["B1"] } }, "B1"), "bound to this bid");
@@ -85,16 +98,16 @@ ok(inScope(cert, "B2"), "a global item backs any bid");
   // deadline. Nothing that only asks "is it current" catches it.
   const r = checkClaims({
     claims: [{ id: "C1", text: "We are ISO 9001 accredited", evidenceId: "EV-1" }],
-    evidence: [cert], bidId: "B1", deadline: "2026-10-15",
+    evidence: [cert], bidId: "B1", deadline: iso(45),
   });
   ok(!r.ok, "GE-EV-01 blocks a claim whose certificate lapses BEFORE the deadline");
   ok(r.expired.length === 1 && r.expired[0].id === "C1", "and names the claim, not the certificate", r.expired);
-  ok(statusAt(cert, new Date().toISOString().slice(0, 10)) === "APPROVED",
+  ok(statusAt(cert, iso(0)) === "APPROVED",
      "THE SAME CERTIFICATE IS VALID TODAY — which is why 'is it current' is the wrong question");
 }
 {
   const r = checkClaims({
-    claims: [{ id: "C1", evidenceId: "EV-1" }], evidence: [cert], bidId: "B1", deadline: "2026-09-20",
+    claims: [{ id: "C1", evidenceId: "EV-1" }], evidence: [cert], bidId: "B1", deadline: iso(10),
   });
   ok(r.ok, "and passes on a deadline inside the validity");
 }

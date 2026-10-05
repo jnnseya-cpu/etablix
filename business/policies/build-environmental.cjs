@@ -14,6 +14,15 @@
  */
 const B = require("./brand.cjs");
 
+/* Issue and review dates are computed rather than left as brackets: the company
+   has one director who approves every policy, and a bracket on a document
+   uploaded to a buyer's portal reads as unfinished. Re-running the builder
+   re-dates the document, which is the correct behaviour for a live policy. */
+const ISSUE_DATE = new Date();
+const fmt = (dt) => dt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+const ISSUE = fmt(ISSUE_DATE);
+const REVIEW = fmt(new Date(ISSUE_DATE.getFullYear() + 1, ISSUE_DATE.getMonth(), ISSUE_DATE.getDate()));
+
 const REV = "1";
 const d = B.doc({
   slug: "Environmental-Policy",
@@ -25,10 +34,10 @@ const d = B.doc({
   control: [
     ["Document", "Environmental Policy and Arrangements"],
     ["Revision", REV],
-    ["Date of issue", "[date]"],
-    ["Next review", "[date of issue + 12 months]"],
-    ["Owner", "[name], Managing Director"],
-    ["Approved by", "[name], Managing Director"],
+    ["Date of issue", ISSUE],
+    ["Next review", REVIEW],
+    ["Owner", "Justin Ngolu Nseya MCIOB, Managing Director"],
+    ["Approved by", "Justin Ngolu Nseya MCIOB, Managing Director"],
     ["Applies to", "Every person working for or on behalf of ETABLIX, and every specification it issues"],
   ],
 });

@@ -17,6 +17,15 @@
 const B = require("./brand.cjs");
 const { SLATE } = B;
 
+/* Issue and review dates are computed rather than left as brackets: the company
+   has one director who approves every policy, and a bracket on a document
+   uploaded to a buyer's portal reads as unfinished. Re-running the builder
+   re-dates the document, which is the correct behaviour for a live policy. */
+const ISSUE_DATE = new Date();
+const fmt = (dt) => dt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+const ISSUE = fmt(ISSUE_DATE);
+const REVIEW = fmt(new Date(ISSUE_DATE.getFullYear() + 1, ISSUE_DATE.getMonth(), ISSUE_DATE.getDate()));
+
 const REV = "1";
 const d = B.doc({
   slug: "EDI-Policy",
@@ -28,10 +37,10 @@ const d = B.doc({
   control: [
     ["Document", "Equality, Diversity and Inclusion Policy"],
     ["Revision", REV],
-    ["Date of issue", "[date]"],
-    ["Next review", "[date of issue + 12 months]"],
-    ["Owner", "[name], Managing Director"],
-    ["Approved by", "[name], Managing Director"],
+    ["Date of issue", ISSUE],
+    ["Next review", REVIEW],
+    ["Owner", "Justin Ngolu Nseya MCIOB, Managing Director"],
+    ["Approved by", "Justin Ngolu Nseya MCIOB, Managing Director"],
     ["Applies to", "Every person working for or on behalf of ETABLIX, and every client, supplier and applicant"],
   ],
 });
@@ -147,7 +156,7 @@ note("A policy on a wall is not a reasonable step. What is reasonable is judged 
 
 /* ---- 7 ---- */
 h1("7. Raising a concern");
-p("Any concern about discrimination, harassment, bullying or victimisation should be raised with the Managing Director, [name], at [email] or [telephone].");
+p("Any concern about discrimination, harassment, bullying or victimisation should be raised with the Managing Director, Justin Ngolu Nseya MCIOB, at [email] or [telephone].");
 rich([{ t: "Where the concern is about the Managing Director, ", b: true }, { t: "it should be raised with [an independent route — name a non-executive, a retained adviser, or an external HR or employment law provider]. A company with one director must name that alternative route, because a grievance procedure whose only destination is the person complained about is not a procedure." }]);
 fillIn("[Name the alternative route before issue. If none is retained, engage one — an external HR or employment law adviser on a call-off basis is inexpensive and this is the section an assessor tests.]");
 p("Concerns are taken seriously, handled confidentially so far as investigation allows, and answered. Where a concern is upheld, the company acts — up to and including ending an engagement or a supply relationship.");

@@ -22,7 +22,14 @@
 const B = require("./brand.cjs");
 
 const REV = "1";
-const ISSUE = "[date]";
+
+/* Issue and review dates are computed rather than left as brackets: the company
+   has one director who approves every policy, and a bracket on a document
+   uploaded to a buyer's portal reads as unfinished. */
+const ISSUE_DATE = new Date();
+const fmt = (dt) => dt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+const ISSUE = fmt(ISSUE_DATE);
+const REVIEW = fmt(new Date(ISSUE_DATE.getFullYear() + 1, ISSUE_DATE.getMonth(), ISSUE_DATE.getDate()));
 
 const d = B.doc({
   slug: "Occupational-Health-Policy",
@@ -35,9 +42,9 @@ const d = B.doc({
     ["Document", "Management of Occupational Health, including mental health and fatigue"],
     ["Revision", REV],
     ["Date of issue", ISSUE],
-    ["Next review", "[date of issue + 12 months]"],
-    ["Owner", "[name], Managing Director"],
-    ["Approved by", "[name], Managing Director"],
+    ["Next review", REVIEW],
+    ["Owner", "Justin Ngolu Nseya MCIOB, Managing Director"],
+    ["Approved by", "Justin Ngolu Nseya MCIOB, Managing Director"],
     ["Applies to", "Every person working for or on behalf of ETABLIX, on any site or premises"],
   ],
 });
