@@ -9,6 +9,29 @@ files are kept as written — the comments in them were posted, and the reasonin
 in them about accuracy, tone and what not to say still stands. Only the
 no-pitch line is overtaken.
 
+**Second standing rule, from 7 October 2026. Always write in the first person.**
+
+Comments go out from the director's own profile. He *is* the company, so
+"we at ETABLIX specify" and "our director ran that scope" read as somebody
+writing on his behalf — which is less natural, slightly less honest, and weaker
+on a personal profile. Write **I**.
+
+> I ran that scope on a 309-bedroom workforce village across five packages, then
+> placed the running of the whole village with a single managing contractor.
+
+not
+
+> ~~Our director ran that scope on a 309-bedroom workforce village.~~
+
+The one exception is a comment posted from the ETABLIX company page, where
+corporate voice is correct. Everything else is first person.
+
+**The two rules together are the whole brief:** *first person, and sell.* Three
+comments were posted in the corporate voice before this was settled — Farhad
+Azizi on Burj Azizi, Kier on the Sizewell Link Road, and Balfour Beatty on the
+GRID UK capacity roundtable, the last of which was first person. They are left
+as posted.
+
 Nothing else in this file is new. It is the guardrails that were already being
 applied, written down so that adding a commercial close does not quietly drop
 them.
