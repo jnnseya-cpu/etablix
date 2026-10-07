@@ -13,7 +13,33 @@ household.
 Pretending otherwise would be the most expensive thing in this document. So the
 plan below has two tracks, and **the first one is not ETABLIX.**
 
-## Track A has changed. GE Vernova came to us.
+## 7 OCTOBER: GE VERNOVA IS A 2027 ROUTE. The agency track is now the plan.
+
+Two days after authorising the documented-QMS route, Grid Solutions added that
+third-party quality accreditation is a blocker to placing any purchase order,
+and that naming GE Vernova as a reference is **strictly forbidden**.
+
+That removes both of the things this plan was relying on them for. No purchase
+order without ISO 9001, which is weeks and real money that do not exist in this
+window. And no Attachment 1a, because that requires the customer to countersign
+a confirmation of services and a company that forbids being named as a reference
+will not sign one.
+
+**The agency route clears both blockers, which is why it is now the plan rather
+than the hedge.** A staffing or technical-recruitment agency placing JNN GLOBAL
+LTD on contract does not ask for ISO 9001. And the agency is then the customer,
+so **the agency can sign Attachment 1a** — the GCA confirmed that acting as a
+sub-contractor is a valid position for a contract example. One route, income and
+the framework unlock, no accreditation needed.
+
+**Keep the GE Vernova registration warm, cheaply.** Send the company information
+letter, sign and return the NDA, and leave it. The blocker is a certificate, and
+certificates arrive. Nothing there is urgent any more.
+
+**And one permanent rule out of it: GE Vernova is never named as a reference.**
+Not on a CV, not in a bid, not in a LinkedIn comment, not in conversation.
+
+## The invitation, as it stood on 5 October
 
 On 5 October 2026 Marc Townsend, GRID Solutions UK, invited ETABLIX to register
 as a supplier on GE Vernova Supplier Connect. That invitation is now the best

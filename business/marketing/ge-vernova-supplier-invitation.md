@@ -94,7 +94,66 @@ GE Vernova is buying from a services supplier is competence held by a named
 person. They are not ETABLIX certifications and must not be entered as though
 they were.
 
-### RESOLVED, 5 October. Marc Townsend authorised the documented route in writing
+## 7 OCTOBER: THE DOCUMENTED ROUTE WAS WITHDRAWN. Read this before anything below it.
+
+Marc Townsend, two days after authorising it:
+
+> *"I would recommend that you seek third party Quality accreditation to enable
+> you to quote for work for GE or any other businesses. This is certainly a
+> blocker for us to place any PO's."*
+>
+> *"With regards to your request about references, this is strictly forbidden, so
+> please do not name GE Vernova as a reference."*
+
+**Two things died and one survived.**
+
+**Dead: GE Vernova as the RM6242 contract example.** This is the loss that
+matters, and it is worth being precise about why. A purchase order to JNN GLOBAL
+LTD would still be a contract performed by the bidding entity — that part is
+unaffected. But Attachment 1a requires the **customer** to countersign a
+confirmation of the services delivered. A company that forbids being named as a
+reference will not sign one. So even a successful GE Vernova engagement cannot
+unlock RM6242, and the strategy that had this route answering three problems at
+once now answers at most two.
+
+**Dead for now: any purchase order at all.** Third-party quality accreditation is
+named as a blocker to placing POs. ISO 9001 for a one-director consultancy is
+weeks and real money, neither of which exists in a three-month window. **GE
+Vernova is a 2027 route, not a now route.**
+
+**Survived, and it changes which track is primary: the agency route clears both
+blockers.** A staffing or technical-recruitment agency placing JNN GLOBAL LTD on
+a contract does not ask for ISO 9001 — and the agency is then the customer, so
+the **agency** can sign Attachment 1a. The GCA confirmed that acting as a
+sub-contractor is a valid position for a contract example. One route, both
+problems, no accreditation.
+
+**So contract agencies move from the backup to the plan.** See
+`business/strategy/three-months.md`.
+
+### What is still worth doing with GE Vernova this week
+
+Three things, all cheap, because the registration should be kept warm rather than
+abandoned — the blocker is a certificate, and certificates arrive.
+
+1. **The company information letter.** Requested on official letterhead with the
+   legal name, complete address, tax information and an authorised signature.
+   Built at `business/policies/build-company-information-letter.cjs`. Nine fields
+   to complete, none of them sensitive. Note that it states plainly that the
+   company has no common seal and executes under section 44 of the Companies Act
+   2006 — a request for a seal from a UK company that has none is usually met
+   with silence, and silence reads as non-compliance.
+2. **The NDA.** The reference question it was being read for is now answered, so
+   read it instead for anything restricting work for other clients or the use of
+   general know-how. Then sign and return.
+3. **Nothing is named as a reference. Ever.** Not on a CV, not in a bid, not in a
+   LinkedIn comment, not in conversation. This is now a standing rule and it is
+   the reason the Skye scheme and the employer stay unnamed in every public
+   comment.
+
+### RESOLVED, 5 October — superseded two days later. Kept for the record.
+
+### Marc Townsend authorised the documented route in writing
 
 > *"We would expect all vendors (service and goods suppliers) to hold at least
 > ISO 9001 to show that the business processes are documented and auditable from

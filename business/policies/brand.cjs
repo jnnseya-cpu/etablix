@@ -52,7 +52,7 @@ const FOOTER_ID = "JNN GLOBAL LTD · 15405437";
 function doc(meta) {
   const { slug, kicker, title, sub, rev = "1", running, control = [],
           outDir = __dirname, kind = "policy", draftNote = true,
-          watermark = null } = meta;
+          watermark = null, letter = false, letterhead = [] } = meta;
   const outBase = path.join(outDir, "ETABLIX-" + slug);
   const blocks = [];
   const body = [];
@@ -135,26 +135,45 @@ function doc(meta) {
     ],
   }));
 
-  /* ---------- cover ---------- */
-  push("brand", {}, new Paragraph({ spacing: { before: 760, after: 0 },
-    children: [new TextRun({ text: "ETABLIX", font: F, size: 56, bold: true, color: INK })] }));
+  /* ---------- letterhead or cover ----------
+
+     LETTER MODE exists because supplier onboarding keeps asking for the same
+     thing: a statement "on official company letterhead" carrying the legal name,
+     the registered address, the tax references and a signature. A document that
+     opens with a full cover page and a control table is not a letter, and a
+     buyer's compliance team reads it as the wrong artefact.
+
+     So `letter: true` renders the same letterhead band, then an address block,
+     then the body — one continuous page, no cover, no page break. Everything
+     else about the house style is unchanged, which is the point: it is the same
+     letterhead, not a second brand. */
+  push("brand", {}, new Paragraph({ spacing: { before: letter ? 220 : 760, after: 0 },
+    children: [new TextRun({ text: "ETABLIX", font: F, size: letter ? 40 : 56, bold: true, color: INK })] }));
   push("strap", {}, new Paragraph({ spacing: { before: 0, after: 60 },
     children: [new TextRun({ text: "INTEGRATED SITE SERVICES", font: F, size: 18, bold: true, color: GOLD })] }));
-  p(COMPANY, { size: 18, color: SLATE, rule: true, after: 380 });
-  push("kicker", { text: kicker }, new Paragraph({ spacing: { before: 260, after: 0 },
-    children: [new TextRun({ text: kicker, font: F, size: 30, bold: true, color: GOLD })] }));
-  push("title", { text: title }, new Paragraph({ spacing: { before: 0, after: 0 },
-    children: [new TextRun({ text: title, font: F, size: 44, bold: true, color: INK })] }));
-  if (sub) push("sub", { text: sub }, new Paragraph({ spacing: { before: 60, after: 420 },
-    children: [new TextRun({ text: sub, font: F, size: 26, color: SLATE })] }));
-  if (control.length) table([2300, 6000], ["", ""], control);
-  p("", { after: 300 });
-  if (draftNote) {
-    note("This document is issued in draft until every bracketed field is completed and it is "
-       + `signed and dated. An unsigned, undated ${kind} is treated at a selection stage as a `
-       + "draft, and a draft evidences nothing.");
+  p(COMPANY, { size: 18, color: SLATE, rule: true, after: letter ? 160 : 380 });
+
+  if (letter) {
+    for (const line of letterhead) p(line, { size: 17, color: SLATE, before: 0, after: 20 });
+    p("", { after: 200 });
+    if (title) push("title", { text: title }, new Paragraph({ spacing: { before: 120, after: 160 },
+      children: [new TextRun({ text: title, font: F, size: 28, bold: true, color: INK })] }));
+  } else {
+    push("kicker", { text: kicker }, new Paragraph({ spacing: { before: 260, after: 0 },
+      children: [new TextRun({ text: kicker, font: F, size: 30, bold: true, color: GOLD })] }));
+    push("title", { text: title }, new Paragraph({ spacing: { before: 0, after: 0 },
+      children: [new TextRun({ text: title, font: F, size: 44, bold: true, color: INK })] }));
+    if (sub) push("sub", { text: sub }, new Paragraph({ spacing: { before: 60, after: 420 },
+      children: [new TextRun({ text: sub, font: F, size: 26, color: SLATE })] }));
+    if (control.length) table([2300, 6000], ["", ""], control);
+    p("", { after: 300 });
+    if (draftNote) {
+      note("This document is issued in draft until every bracketed field is completed and it is "
+         + `signed and dated. An unsigned, undated ${kind} is treated at a selection stage as a `
+         + "draft, and a draft evidences nothing.");
+    }
+    pageBreak();
   }
-  pageBreak();
 
   /* ---------- signature ---------- */
   /* The signatory is named rather than bracketed. The company has one director,
