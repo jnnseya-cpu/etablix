@@ -22,29 +22,26 @@ distinct ideas, all from the same scope.
 
 ## The comment
 
-> Forty-nine days ahead on a 2.2 km drive beneath the Thames. Congratulations to
-> everyone on that.
+> Forty-nine days ahead — congratulations to everyone on that.
 >
-> The part that decides whether it turns into money: beating the programme only
-> pays if the temporary estate can follow it. Accommodation, welfare, parking,
-> security and catering are generally contracted against the baseline dates, with
-> minimum terms and notice periods of their own — so a phase finishing seven
-> weeks early can still be paying for seven weeks of empty beds. The gain is in
-> the works. The leak is in the establishment.
+> The question it raises: can the temporary estate follow? Accommodation, welfare
+> and catering are usually contracted to the baseline dates with their own
+> minimum terms, so seven weeks early can still mean seven weeks of empty beds
+> paid for.
 >
-> Which is why break and flex mechanisms belong in the establishment packages at
-> the outset rather than being negotiated late: occupancy-linked terms, notice
-> periods matched to the programme's real volatility, and a demobilisation date
-> that can move in both directions.
->
-> That is what I do at ETABLIX — site establishment and workforce-living systems
-> specified, procured and held as one accountable interface, from requirements
-> and mobilisation through daily operation to demobilisation and reinstatement. I
-> ran that scope on a 309-bedroom workforce village across five packages, then
-> placed the running of it with a single managing contractor.
->
-> If anyone on the Great Grid Upgrade wants the establishment side able to keep
-> up with programmes like this, that is the conversation I have.
+> Break and flex belong in those packages at the outset, not negotiated late.
+> Specifying site establishment so the demobilisation date can move both ways is
+> what I do at ETABLIX.
+
+**78 words.** The first draft of this ran to 190 and is cut below for the record,
+because what was removed is the lesson: a second good idea about occupancy-linked
+terms and notice periods matched to programme volatility, the full scope
+sentence, the 309-bedroom village, and a closing offer. All true, all interesting,
+all of it pushing the sell below the fold where nobody reads it.
+
+**The 309 bedrooms were the hardest cut.** They are the strongest proof available
+and they still go, because a comment is not where proof belongs — it is where
+somebody decides whether to look at the profile. The profile carries the proof.
 
 ## Checks
 

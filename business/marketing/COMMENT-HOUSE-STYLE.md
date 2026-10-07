@@ -26,7 +26,30 @@ not
 The one exception is a comment posted from the ETABLIX company page, where
 corporate voice is correct. Everything else is first person.
 
-**The two rules together are the whole brief:** *first person, and sell.* Three
+**Third standing rule, from 7 October 2026. Keep it short — 60 to 90 words.**
+
+The four comments posted before this rule ran to 150–200 words each. That is an
+essay, not a comment. On LinkedIn a long comment is collapsed behind *see more*,
+which means the sell — always the last part — is the part nobody reads. Length
+does not demonstrate expertise. Having one sharp thing to say does.
+
+| | |
+|---|---|
+| Target | **60 to 90 words** |
+| Hard ceiling | 110 |
+| Paragraphs | Three or four, one or two lines each |
+| Ideas | **One.** Not the best two. |
+
+The four-part shape still holds — credit, insight, bridge, offer — but each part
+is now a sentence rather than a paragraph. The discipline is cutting the second
+good idea, which is always the hardest thing to delete and almost always what
+pushes a comment past the fold.
+
+**The sell survives the cut.** Shorter does not mean dropping the commercial
+close; it means the insight gets one sentence instead of four, so the close still
+lands above the fold.
+
+**The three rules together are the whole brief:** *first person, short, and sell.* Three
 comments were posted in the corporate voice before this was settled — Farhad
 Azizi on Burj Azizi, Kier on the Sizewell Link Road, and Balfour Beatty on the
 GRID UK capacity roundtable, the last of which was first person. They are left
