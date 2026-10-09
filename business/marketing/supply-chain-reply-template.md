@@ -26,11 +26,19 @@ asked. Everything after it is then believable.
    around the permanent works. If they build the structure, we are not their
    client; if they establish, service, operate or remove the site around it, we
    are. That one sentence saves a wasted conversation.
-2. **On most engagements the client contracts directly with each supplier.**
-   Under the Management Integrator model we specify the package, run the enquiry,
-   assess returns and recommend award; the contract is placed in the client's
-   name. So the register is a route to the enquiry, not a route to a contract
-   with us.
+2. **Who their customer is depends on the model, and both should be explained.**
+   This was got wrong in the first draft, which described only Model 02 and so
+   understated the opportunity.
+
+   | Model | Who the subcontractor contracts with |
+   |---|---|
+   | **02 · Management Integrator** | **The client.** We specify the package, run the enquiry, assess the returns and recommend the award; the contract is placed in the client's name and we never hold their supply-chain money. We then manage delivery and performance against it. |
+   | **03 · Prime Service Contractor** | **ETABLIX.** We contract with every supplier and deliver the complete site-services scope on one contract. Here we are the subcontractor's direct client and the party that pays. |
+
+   Both matter to a subcontractor deciding whether to bother, because they decide
+   who they invoice and whose credit they are taking. Under either model the
+   enquiry, the evaluation and the performance management come from us, which is
+   the part that makes the register worth being on.
 3. **Registration is not a promise of work**, and saying so costs nothing. A
    supplier who is told that and registers anyway is a supplier who will still
    answer the phone in a year.
