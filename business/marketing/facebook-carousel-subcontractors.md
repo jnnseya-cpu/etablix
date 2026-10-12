@@ -57,9 +57,9 @@ people being invited in, not a buyer being shown a loss.
 > palette of hi-vis orange, galvanised steel, fresh timber, wet gravel and
 > grey-white sky. Documentary realism, mild grain, nothing staged or glossy.
 > Square 1:1 with the subject off centre and clear sky or flat surface at the top
-> for a text overlay.
+> for a text overlay. Everything in frame is plain and unbranded: cabins, fence panels, hoardings, vehicles, hard hats, hi-vis and signage boards all have blank unmarked surfaces, with no lettering, livery, numberplates or markings of any kind. 
 
-> **Negative, every card:** no logos, no company names, no readable signage, no
+> **Negative, every card:** no branding anywhere in the scene — no logos, company names, lettering, livery, numberplates or signage on cabins, fencing, vehicles, hoardings, hard hats, hi-vis or any other object; all such surfaces blank; no legible text or numbers of any kind; no identifiable real location; 
 > legible text or numbers, no identifiable real location, no faces in sharp
 > focus, no HDR, no lens flare, no stock-photo smiling, no illustration, no 3D
 > render, no watermark.

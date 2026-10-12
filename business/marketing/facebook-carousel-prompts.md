@@ -39,7 +39,7 @@ folder. The shared treatment is what makes the set read as one piece of thinking
 > subject slightly off centre and clear sky or flat ground at the top for a text
 > overlay.
 
-> **Negative, every card:** no logos, no company names, no readable signage, no
+> **Negative, every card:** no branding anywhere in the scene — no logos, company names, lettering, livery, numberplates or signage on cabins, fencing, vehicles, hoardings, hard hats, hi-vis or any other object; all such surfaces blank; no legible text or numbers of any kind; no identifiable real location; 
 > text of any kind, no identifiable real location, no HDR, no lens flare, no
 > sunset glow, no stock-photo cleanliness, no smiling, no illustration, no 3D
 > render, no watermark.
@@ -138,8 +138,8 @@ also the one honest piece of proof available: the deliverable exists.
 > palette of walnut, cream paper and graphite — the only warm card in the set,
 > deliberately.
 >
-> **Negative:** no legible numbers, no legible text, no logos, no brand marks, no
-> people, no hands, no clutter, no watermark, no illustration, no 3D render.
+> **Negative:** no branding anywhere in the scene — no logos, company names, lettering, livery, numberplates or signage on any object; all such surfaces blank; no legible numbers, no legible text, no people, no
+> hands, no clutter, no watermark, no illustration, no 3D render.
 
 **Overlay:** `Or you work it out first.`
 

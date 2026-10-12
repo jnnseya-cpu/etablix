@@ -59,8 +59,15 @@ specimen diagnostic.**
 
 **An AI-generated construction image must never be presented as an ETABLIX
 project.** Not in the image, not in the caption, not by implication. Every prompt
-below therefore specifies: no logos, no company signage, no readable brand marks,
-no identifiable real site. These are illustrations of a problem, and the ad copy
+below therefore specifies that every cabin, fence panel, hoarding, vehicle, hard
+hat and garment in frame is **plain and unbranded**, and that no real site is
+identifiable.
+
+**That ban is on branding inside the photograph, not on branding the
+advertisement.** A logo on a cabin in a generated compound says *we built this*,
+and ETABLIX has built none. The ETABLIX wordmark belongs in the corner of the
+finished ad, added in Canva, where it says who is speaking rather than who did
+the work. These are illustrations of a problem, and the ad copy
 must talk about the problem rather than claiming the photograph.
 
 Three further rules, all of which the copy prompt enforces:
@@ -134,7 +141,7 @@ final account bite them at the end. This image is that feeling.
 > unresolved, documentary realism in the style of a land-use survey photograph.
 > Sharp throughout, high detail in the mud and gravel texture.
 >
-> Negative: no logos, no company names, no readable signage, no text, no people,
+> Negative: no branding anywhere in the scene — no logos, company names, lettering, livery, numberplates or signage on cabins, fencing, vehicles, hoardings, hard hats, hi-vis or any other object; all such surfaces blank; no legible text or numbers of any kind; no identifiable real location; no text, no people,
 > no machinery, no sunset glow, no drama, no HDR, no illustration, no cartoon, no
 > watermark.
 
@@ -160,7 +167,7 @@ burned cost, and it is invisible in a benchmark rate.
 > temperature with the orange hi-vis as the only warm note. Photojournalistic,
 > unposed, slightly grainy.
 >
-> Negative: no logos, no company names, no readable signage, no text, no visible
+> Negative: no branding anywhere in the scene — no logos, company names, lettering, livery, numberplates or signage on cabins, fencing, vehicles, hoardings, hard hats, hi-vis or any other object; all such surfaces blank; no legible text or numbers of any kind; no identifiable real location; no text, no visible
 > faces in sharp focus, no smiling, no staged poses, no stock-photo cleanliness,
 > no sunshine, no illustration, no watermark.
 
@@ -195,7 +202,7 @@ who we are.
 > figures in the table must be soft and illegible — out of resolution — so no
 > number can be read. Editorial, tactile, quietly authoritative.
 >
-> Negative: no legible numbers, no legible text, no logos, no brand marks, no
+> Negative: no branding anywhere in the scene — no logos, company names, lettering, livery, numberplates or signage on cabins, fencing, vehicles, hoardings, hard hats, hi-vis or any other object; all such surfaces blank; no legible text or numbers of any kind; no identifiable real location; no legible numbers, no
 > watermark, no people, no hands, no clutter, no bright saturated colour, no
 > illustration, no 3D render look.
 
@@ -222,7 +229,7 @@ Use it as the second image in a carousel, after the problem has landed.
 > 85mm lens, long exposure stillness, crisp detail, cinematic but documentary —
 > cool blue ambient against warm interior light.
 >
-> Negative: no logos, no company names, no readable signage, no text, no
+> Negative: no branding anywhere in the scene — no logos, company names, lettering, livery, numberplates or signage on cabins, fencing, vehicles, hoardings, hard hats, hi-vis or any other object; all such surfaces blank; no legible text or numbers of any kind; no identifiable real location; no text, no
 > identifiable real location, no helicopters, no lens flare, no HDR halos, no
 > illustration, no video-game render look, no watermark.
 
@@ -255,8 +262,7 @@ the establishment take-off, so somebody is about to put in a guess.
 > shadow, slight grain, shallow depth of field. The mood is pressure and
 > isolation at the end of a long day, not glamour.
 >
-> Negative: no legible text, no legible numbers on the screen, no logos, no brand
-> marks, no visible face, no clock showing a time, no stock-photo smiling, no
+> Negative: no branding anywhere in the scene — no logos, company names, lettering, livery, numberplates or signage on cabins, fencing, vehicles, hoardings, hard hats, hi-vis or any other object; all such surfaces blank; no legible text or numbers of any kind; no identifiable real location; no legible numbers on the screen, no visible face, no clock showing a time, no stock-photo smiling, no
 > clean minimal office, no illustration, no watermark.
 
 **Overlay:** `The bid is Friday. What did you put in for welfare?`
@@ -283,8 +289,7 @@ services is making it. This is the warm-audience workhorse.
 > only light source, cool cyan ambient against the single red accent. Severe,
 > technical, final.
 >
-> Negative: no legible text, no legible numbers, no words anywhere, no logos, no
-> brand marks, no warning triangle, no amber or yellow, no people, no hands, no
+> Negative: no branding anywhere in the scene — no logos, company names, lettering, livery, numberplates or signage on cabins, fencing, vehicles, hoardings, hard hats, hi-vis or any other object; all such surfaces blank; no legible text or numbers of any kind; no identifiable real location; no words anywhere, no warning triangle, no amber or yellow, no people, no hands, no
 > code editor, no illustration, no 3D render look, no watermark.
 
 **Overlay:** `It refuses. It doesn't warn.`
@@ -317,8 +322,7 @@ physical object: a literal thread from a figure to the clause that produced it.
 > cream paper, graphite and the single red thread. Forensic, deliberate, like an
 > investigator's board flattened onto a desk.
 >
-> Negative: no legible text, no legible numbers, no logos, no brand marks, no
-> handwriting, no sticky notes, no corkboard, no pins through the paper, no
+> Negative: no branding anywhere in the scene — no logos, company names, lettering, livery, numberplates or signage on cabins, fencing, vehicles, hoardings, hard hats, hi-vis or any other object; all such surfaces blank; no legible text or numbers of any kind; no identifiable real location; no handwriting, no sticky notes, no corkboard, no pins through the paper, no
 > people, no hands, no clutter, no warm tungsten light, no illustration, no
 > watermark.
 
