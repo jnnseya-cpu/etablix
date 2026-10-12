@@ -262,3 +262,74 @@ are real.
 **And answer every registration the same day**, from the template at
 `business/marketing/supply-chain-reply-template.md`. Paying for a registration
 and then leaving it unanswered is the most expensive mistake available here.
+
+---
+
+# The finished copy — subcontractor carousel
+
+Everything below is the live wording. Paste it into Meta Ads Manager as it is.
+
+## Primary text (the paragraph above the cards)
+
+> You have filled in a hundred supplier forms and heard nothing back. So here is
+> what ETABLIX actually buys: site establishment. Welfare and accommodation hire,
+> temporary power, fencing and security, waste, catering, compound groundworks,
+> reinstatement. Defined packages, not labour-only. There is nothing live today.
+> The register is how we build the list we go to when there is. Two minutes.
+
+*70 words.*
+
+### Two alternates to test against it
+
+> Most supplier registers are a filing cabinet. This one has a purpose. ETABLIX
+> buys the temporary side of a construction site — welfare, cabins, power,
+> fencing, waste, catering, compound groundworks, reinstatement — as defined
+> packages, not labour-only. Nothing is out for enquiry today. We are building
+> the list first so the enquiry goes to somebody real.
+
+> Straight answer before you spend two minutes on this: we have no live packages
+> right now. What we have is a register, and a clear scope — site establishment,
+> bought as defined packages rather than labour-only. Welfare, power, fencing,
+> waste, catering, compound groundworks, reinstatement. If that is your work, get
+> on the list before the enquiry goes out.
+
+## The five cards
+
+| # | On the image | Headline | Description | Link |
+|---|---|---|---|---|
+| 1 | Another form. Another silence. | The forms that go nowhere | Registration | — |
+| 2 | We buy the temporary. | What we actually buy | Site establishment | — |
+| 3 | Not the permanent. | Temporary works, not the asset | Our scope | — |
+| 4 | Nothing live today. | No live packages today | Honest position | — |
+| 5 | Be on the list first. | Join the register | Two minutes | etablix.com/subcontractors#register |
+
+**Call to action button:** *Sign up*. Card 5 only.
+
+**Card 4 stays exactly as written.** Not "limited opportunities", not "pipeline
+building", not deleted. The whole carousel earns its credibility on that one
+card, and the reader has been lied to by every supplier register they have ever
+joined. Say it plainly and the fifth card is believed.
+
+## Headline variants, if Meta rejects one for length
+
+| Card | Shorter |
+|---|---|
+| 1 | Forms into silence |
+| 2 | What we buy |
+| 3 | Temporary, not permanent |
+| 4 | Nothing live today |
+| 5 | Get on the list |
+
+## What this copy deliberately does not say
+
+No promise of work and no implied pipeline — card 4 exists to kill both. No
+volume, no value, no number of schemes, no client named, no scheme named, no
+former employer named. No accreditation claimed. No price. Nothing that could be
+read as an offer of employment or of labour-only engagement, which is exactly
+what "defined packages, not labour-only" is in the text to prevent.
+
+## Then answer them
+
+Every registration gets a same-day reply from
+`business/marketing/supply-chain-reply-template.md`. An advert that buys a
+registration and leaves it in silence has just proved card 1 right about us.

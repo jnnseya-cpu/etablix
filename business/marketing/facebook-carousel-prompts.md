@@ -243,3 +243,71 @@ claim ETABLIX cannot make.
 The Meta pixel on the site, the traffic pointed at `/diagnostic-sample` rather
 than the homepage, and a small cold spend to fill the retargeting pool before the
 real spend goes against it. Without the pixel the carousel is a brand exercise.
+
+---
+
+# The finished copy — client carousel
+
+Everything below is the live wording. Paste it into Meta Ads Manager as it is.
+
+## Primary text (the paragraph above the cards)
+
+> Site establishment is the part of the programme nobody prices properly.
+> Welfare, accommodation, temporary power, security, waste, reinstatement —
+> decided in a fortnight, then paid for over three years. ETABLIX writes it down
+> before the fence goes up: packages, quantities, interfaces, who carries what.
+> Fixed scope, fixed fee. You finish with a report you can put in front of a
+> client, a board or a funder.
+
+*68 words.*
+
+### Two alternates to test against it
+
+> The programme gets priced. The compound gets guessed at. Welfare, cabins,
+> power, security, waste, catering, reinstatement — three years of running cost
+> settled in the fortnight before anybody is watching. ETABLIX puts a number and
+> an owner against every line of it, in writing, before mobilisation. Fixed
+> scope, fixed fee.
+
+> By the time the compound is wrong, it is built. Welfare in the wrong place,
+> power undersized, no reinstatement obligation written down, and a monthly bill
+> nobody set. ETABLIX takes the site establishment apart on paper first —
+> packages, quantities, interfaces, accountability — and hands you the written
+> result. Fixed scope, fixed fee.
+
+## The five cards
+
+| # | On the image | Headline | Description | Link |
+|---|---|---|---|---|
+| 1 | Before the fence, a number. | Count it before you build | Pre-mobilisation | — |
+| 2 | Week one. Nobody can start. | Welfare on site, unopened | Week one | — |
+| 3 | Every day. Nobody counts it. | The cost nobody tracks | Running costs | — |
+| 4 | Then you give it back. | Reinstatement is in the contract | Handback | — |
+| 5 | Or you work it out first. | Get the Diagnostic | Fixed fee | etablix.com/diagnostic-sample |
+
+**Call to action button:** *Learn more*. Card 5 only — leave cards 1 to 4 with no
+button so the sequence reads as one argument rather than five pitches.
+
+**Card 5 is the only card that sells.** Cards 1 to 4 describe the reader's week.
+If a card has to be cut for length, cut card 3 — not card 4. Reinstatement is the
+line that makes a commercial reader stop.
+
+## Headline variants, if Meta rejects one for length
+
+| Card | Shorter |
+|---|---|
+| 1 | Price it first |
+| 2 | Welfare, unopened |
+| 3 | Nobody counts it |
+| 4 | Handback is contractual |
+| 5 | See the Diagnostic |
+
+## What this copy deliberately does not say
+
+No price. "Fixed scope, fixed fee" is as far as it goes, and the figure is given
+on a call. No statistic, no case study, no client name, no testimonial — none
+exists that can be used. No scheme is named and no former employer is named,
+anywhere, ever. No accreditation is claimed. Nothing in it implies a CDM 2015
+Principal Contractor or Principal Designer appointment. And nowhere does it
+suggest a main contractor does this badly: the argument is that the work falls
+due at bid stage, when nobody has the time.
