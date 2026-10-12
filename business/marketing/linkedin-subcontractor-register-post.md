@@ -1,5 +1,8 @@
 # LinkedIn post: asking subcontractors to register
 
+> **POSTED 12 October 2026.** What follows is the post as written and the
+> reasoning behind it. What to do with what comes back is at the end.
+
 **The constraint that shapes it: there are no live packages.** A recruitment post
 implying otherwise is the same lie by implication as a dishonest email, except
 broadcast. So the post has to be attractive *because* it is honest, not despite
@@ -65,3 +68,35 @@ scale or client names, because there are none to give.
 **Expect few registrations and the right ones.** A post that says "no work today"
 will convert worse than one that implies otherwise and far better than one that
 is found out.
+
+
+---
+
+## Now it is live: what the replies are actually worth
+
+**Answer every registration, and answer it the same way.** The template is at
+`business/marketing/supply-chain-reply-template.md` and its one rule does not
+bend: no live packages, said in those words. A post that was honest followed by
+a reply that hints at a pipeline undoes the post.
+
+**Each completed registration is evidence, not just a contact.** CHIC returned
+the application saying the detail on *delivery capability* was insufficient. A
+named subcontractor, prequalified, with current insurances and accreditations on
+file, in a category matching the scope being bid, is a direct answer to that
+question — and it is the kind a buyer can verify by telephone. The register is
+quietly building the thing three procurement threads said was missing.
+
+**So capture it properly from the first one.** Company name, trade category,
+contact, insurances with limits and expiry dates, accreditations, and the date
+the capability statement was received. A register that cannot be produced as a
+table on request is a list of emails.
+
+**Expect the wrong trades, and treat that as the filter working.** Groundworks
+firms who build structures, labour-only agencies, and people who did not read
+past the first line will register. Reply once, politely, explaining what we buy.
+A clear no now is worth more than a vague maybe that wastes a quarter of their
+year and ours.
+
+**Watch for the second kind of reply.** Somebody saying "we are on a scheme where
+exactly that is happening" is worth ten registrations. The post's closing
+invitation exists for them.
