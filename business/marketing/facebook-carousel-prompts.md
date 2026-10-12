@@ -145,6 +145,45 @@ also the one honest piece of proof available: the deliverable exists.
 
 ---
 
+## "No logos" means inside the photograph. Brand the ad.
+
+The negative prompt bans logos **in the scene the model generates** — on a cabin,
+a fence panel, a van door, a hoarding. It does not ban branding the finished ad,
+and the ad should be branded.
+
+**Three reasons for the ban, and the first is the one that matters.**
+
+**An AI image is not a photograph of our work.** A logo on a cabin in a generated
+compound says *we built this*. ETABLIX has completed no contracts. That is
+fabricated proof, and it is the one mistake that cannot be walked back once a
+buyer has seen it. The image illustrates a problem; it never depicts a project.
+
+**Image models render type as garbage.** A smeared half-legible brand mark on a
+cabin looks cheap and immediately reads as AI-generated, which costs more
+credibility than the logo could ever add.
+
+**And an invented logo may not be invented.** Models trained on real site
+photography produce marks that resemble real hire and modular companies. A
+recognisable third-party mark in a paid advertisement is a trademark problem and,
+worse, implies a commercial association that does not exist.
+
+**What to do instead, in Canva or Meta's editor, after the image is generated:**
+
+- **Put the ETABLIX wordmark in a corner of every card.** Small, consistent
+  position, consistent size across all five. That identifies the advertiser,
+  which is honest and expected.
+- **Set the overlay text there too**, for the same reason the images are
+  generated without text.
+- **Keep the brand furniture out of the photographic area** — a wordmark sitting
+  on sky or flat ground reads as a brand mark on an advertisement. The same
+  wordmark composited onto a cabin reads as a claim about who owns the cabin.
+
+**The line is simple.** Branding the advertisement says who is speaking.
+Branding the scene says who did the work. The first is required; the second is a
+claim ETABLIX cannot make.
+
+---
+
 ## The copy prompt
 
 > You are writing the copy for a five-card Meta carousel ad for ETABLIX —
