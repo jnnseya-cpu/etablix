@@ -4,19 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VERYX — Enterprise Execution Intelligence | ETABLIX</title>
-<meta name="description" content="VERYX is enterprise execution intelligence — the portfolio lens over every ETABLIX project: risks, AI agents and a key-authenticated Platform API.">
+<meta name="description" content="VERYX is enterprise execution intelligence — the portfolio lens over every ETABLIX project: risks, automated checks and a key-authenticated Platform API.">
 <link rel="canonical" href="https://etablix.com/veryx">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="ETABLIX">
 <meta property="og:title" content="VERYX — Enterprise Execution Intelligence | ETABLIX">
-<meta property="og:description" content="VERYX is enterprise execution intelligence — the portfolio lens over every ETABLIX project: risks, AI agents and a key-authenticated Platform API.">
+<meta property="og:description" content="VERYX is enterprise execution intelligence — the portfolio lens over every ETABLIX project: risks, automated checks and a key-authenticated Platform API.">
 <meta property="og:url" content="https://etablix.com/veryx">
 <meta property="og:image" content="https://etablix.com/img/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="VERYX — Enterprise Execution Intelligence | ETABLIX">
-<meta name="twitter:description" content="VERYX is enterprise execution intelligence — the portfolio lens over every ETABLIX project: risks, AI agents and a key-authenticated Platform API.">
+<meta name="twitter:description" content="VERYX is enterprise execution intelligence — the portfolio lens over every ETABLIX project: risks, automated checks and a key-authenticated Platform API.">
 <meta name="twitter:image" content="https://etablix.com/img/og-image.png">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
@@ -128,7 +128,7 @@
       <div class="card reveal">
         <h3>Scenario intelligence</h3>
         <p>Test the effect of programme moves, market shifts and resourcing decisions before committing to them.</p>
-        <ul><li>What-if programme scenarios</li><li>Resource and cost sensitivity</li><li>AI agents on live data</li></ul>
+        <ul><li>What-if programme scenarios</li><li>Resource and cost sensitivity</li><li>Automated checks on live data</li></ul>
       </div>
       <div class="card reveal">
         <h3>Multi-country oversight</h3>
@@ -169,7 +169,7 @@
     <h2 class="sec-label reveal"><span class="num">02</span><span class="lbl">VERYX Platform API</span></h2>
     <div class="section-head reveal">
       <h2>Connect your own systems to the OS.</h2>
-      <p>Read projects, tasks and risks, run AI agents and track usage — over a simple, key-authenticated REST API. Calls are metered against your plan; agent runs draw down prepaid ACU.</p>
+      <p>Read projects, tasks and risks, run automated checks and track usage — over a simple, key-authenticated REST API. Calls are metered against your plan; check runs draw down prepaid ACU.</p>
     </div>
 
     <div class="steps" style="grid-template-columns:repeat(3,1fr);margin-bottom:44px;">
@@ -196,8 +196,8 @@ curl -H <span class="s">"Authorization: Bearer vx_test_..."</span> \
             <tr><td><span class="method get">GET</span>/projects</td><td><span class="scope">read:projects</span></td><td class="desc">List the workspace projects and portfolios.</td></tr>
             <tr><td><span class="method get">GET</span>/tasks</td><td><span class="scope">read:tasks</span></td><td class="desc">List schedule tasks (optionally by <code>?project_id=</code>).</td></tr>
             <tr><td><span class="method get">GET</span>/risks</td><td><span class="scope">read:risks</span></td><td class="desc">Read the risk register, highest score first.</td></tr>
-            <tr><td><span class="method get">GET</span>/agents</td><td><span class="scope">read:agents</span></td><td class="desc">List the AI agents you can run and their ACU cost.</td></tr>
-            <tr><td><span class="method post">POST</span>/agents/{type}/run</td><td><span class="scope">run:agents</span></td><td class="desc">Run an AI agent. Consumes prepaid ACU.</td></tr>
+            <tr><td><span class="method get">GET</span>/agents</td><td><span class="scope">read:agents</span></td><td class="desc">List the automated checks you can run and their ACU cost.</td></tr>
+            <tr><td><span class="method post">POST</span>/agents/{type}/run</td><td><span class="scope">run:agents</span></td><td class="desc">Run an automated check. Consumes prepaid ACU.</td></tr>
             <tr><td><span class="method get">GET</span>/usage</td><td><span class="scope">read:usage</span></td><td class="desc">Your monthly quota, usage and ACU balance.</td></tr>
           </table>
         </div>
@@ -211,10 +211,10 @@ curl -H <span class="s">"Authorization: Bearer vx_test_..."</span> \
         <ul class="checklist">
           <li><b>Metered against your plan</b><span>Each call is metered against your plan's monthly API quota (see Business → API &amp; Developers).</span></li>
           <li><b>Per-endpoint rate limiting</b><span>Protects the platform; exceed it and you get HTTP 429.</span></li>
-          <li><b>Agent runs consume prepaid ACU</b><span>At the agent's published rate; an empty balance returns HTTP 402.</span></li>
+          <li><b>Check runs consume prepaid ACU</b><span>At the check's published rate; an empty balance returns HTTP 402.</span></li>
           <li><b>Environment-scoped keys</b><span>Test / production separation, revocable instantly.</span></li>
         </ul>
-        <div class="code-block" style="margin-top:22px;"><span class="c"># Run an AI agent</span>
+        <div class="code-block" style="margin-top:22px;"><span class="c"># Run an automated check</span>
 curl -X POST \
   https://www.veryxjnn.com/api/public/v1/agents/schedule-health/run \
   -H <span class="s">"Authorization: Bearer vx_live_..."</span>

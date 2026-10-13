@@ -287,7 +287,7 @@ function renderPost(post) {
   const explore = `<section class="post-explore">
     <h2>Where this connects to the work</h2>
     <ul>
-      <li><a href="${LINKS.diagnostic.url}">The engagement these agents produce</a> — nine questions in, twelve deliverables out, ten working days.</li>
+      <li><a href="${LINKS.diagnostic.url}">The engagement behind these notes</a> — nine questions in, twelve deliverables out, ten working days.</li>
       <li><a href="${LINKS.sample.url}">A specimen of the actual deliverable</a> — the level of detail, not a description of it.</li>
       <li><a href="${LINKS.models.url}">The three delivery models</a> — advisory, integrator and prime, and which one fits.</li>
       <li><a href="${LINKS.how.url}">How an engagement runs</a> — from first enquiry to an issued, numbered document.</li>
@@ -398,7 +398,7 @@ function renderIndex(built) {
 
   return (
     head({
-      title: "Field Notes — AI, Procurement and Site Services | ETABLIX",
+      title: "Field Notes — Site Establishment, Procurement and Mobilisation | ETABLIX",
       description,
       url,
       image: "/img/og-image.png",
