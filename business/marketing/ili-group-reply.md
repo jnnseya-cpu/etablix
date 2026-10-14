@@ -112,3 +112,111 @@ acquired a consented multi-year build in a remote location is at exactly the
 moment when the site establishment question becomes theirs and nobody has yet
 answered it. That is a better-aimed approach than the one that produced this
 reply, and it came out of a message that failed.
+
+---
+
+# He answered it — 14 October 2026
+
+Chris came back on every point, and gave more than was asked:
+
+> "Yes the acquiring party is the one that will be dealing with this. We pass
+> our register to the acquiring party for all our developments, which will
+> include you in this case, but I would recommend that you also contact them
+> directly after any transfer has taken place. We are bound by an NDA before
+> completion; however, we will announce the transfer via a press release
+> shortly after it takes place. In the past, these announcements are always
+> picked up by the industry press so I would recommend you keep an eye on
+> them. That said taking the significance of these projects into account, I
+> suspect the wider press will also take an interest."
+
+**What this is worth.** Three things, and the first is the one that matters.
+ETABLIX goes onto the register ILI hands to the acquiring party, which means
+the introduction arrives from the developer rather than cold from us. He
+confirmed the acquirer is the construction counterparty, so the pipeline entry
+is now correctly aimed. And he has told us how we will find out: a press
+release shortly after completion, which the trade press always carries.
+
+**What he cannot do, and must not be asked to do.** ILI is bound by an NDA
+until completion. He volunteered that, which means he is being straight rather
+than evasive, and the reply must visibly respect it. Asking him to hint at who
+or when — even softly, even as a favour — would ask him to breach a
+confidentiality undertaking, and he would be right to stop replying. Nothing is
+asked for before completion.
+
+**So the ask sits entirely on the public side of the line.** Once the press
+release is out the information is public, and a one-line note or a place on the
+release distribution costs him a click and no risk at all. That is a request he
+can grant immediately without consulting anybody, which is the only kind worth
+making of somebody who has just explained his constraint.
+
+## The reply
+
+> **Subject:** Re: ETABLIX — supply chain introduction
+>
+> Dear Chris,
+>
+> That is exactly what I needed to know, and more than I asked for. Thank you.
+>
+> Understood on the NDA, and I am not asking you to work around it — nothing
+> before completion. The register passing to the acquiring party is genuinely
+> useful, and I will also approach them directly once a transfer is public, as
+> you suggest.
+>
+> One small thing, if it is no trouble. When the press release goes out, a
+> single line to this address, or a place on the release distribution, would
+> mean I act on the day rather than whenever I happen to catch the coverage. It
+> is public by then, so there is nothing in it for you to weigh.
+>
+> Timing is most of the value for me. The construction accommodation and site
+> establishment question is at its most useful in the weeks just after a
+> transfer, while the new owner is still setting the delivery strategy and
+> before the contractor is appointed. A month later it has already become
+> somebody's inherited problem, and the answer costs more.
+>
+> I will keep an eye on the press either way. Good luck with the completion.
+>
+> Kind regards,
+>
+> **Justin Ngolu Nseya MCIOB**
+> Managing Director, ETABLIX Limited
+
+## Why it is written this way
+
+**The NDA sentence is the most important line in the email.** He raised a
+confidentiality obligation unprompted. Naming it back, and saying plainly that
+nothing is wanted before completion, is what makes the request that follows
+easy to grant. A reply that skated past it would have read as someone looking
+for a way round.
+
+**The ask is deliberately trivial.** A line to an address, or a name on a
+distribution list. No meeting, no call, no introduction to arrange, no judgement
+for him to make about whether we are any good. He can do it without asking
+permission, which is why he probably will.
+
+**The timing paragraph is the only selling in the letter, and it is aimed at
+him, not at the acquirer.** It tells him why the favour is worth doing — the
+window is weeks, not months — without claiming anything about ETABLIX. It is
+also true: once a contractor is appointed, the site establishment is inside
+somebody else's contract and the conversation is a different, worse one.
+
+**What it withholds.** No price. No acquirer named, even though the past ones
+are public, because showing homework at this point would look like we are
+working around his NDA rather than respecting it. No promise and no pipeline
+claim. No accreditation. Nothing implying a CDM duty holder appointment.
+
+## The standing watch this creates
+
+This thread is now a dated trigger rather than a conversation.
+
+1. **Watch the trade press** for an ILI transfer announcement — the pumped
+   storage schemes and the battery tranches both. He has said the wider press
+   may carry it too.
+2. **On the day it appears**, approach the acquirer directly. Do not wait for
+   the register to arrive from ILI; the register is a second, slower route to
+   the same door and both should be used.
+3. **Do not chase Chris in the meantime.** He has given everything he can give
+   before completion, and a follow-up asking for more would spend the goodwill
+   this exchange earned.
+4. **Work the acquirers that already hold ILI schemes now**, independently of
+   any new transfer. That was the conclusion of the first reply and nothing
+   here changes it — the developer is a signpost, not a customer.
