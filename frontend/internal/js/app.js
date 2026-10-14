@@ -772,7 +772,7 @@ async function loadVeryx() {
     `<p style="margin:22px 0 14px;">${sourceBadge(riskRes.source)}</p>` +
     kpis +
     block("Risk register — highest exposure first", risks) +
-    block("AI agent console", agents) +
+    block("Workstream console", agents) +
     block("Recent agent runs", runs) +
     block("Platform API keys", keys);
 }
@@ -939,7 +939,7 @@ document.getElementById("eng-ai")?.addEventListener("click", async () => {
     alert(err.message);
   } finally {
     btn.disabled = false;
-    btn.textContent = "🤖 Expand into a detailed scope of works";
+    btn.textContent = "Expand into a detailed scope of works";
   }
 });
 
@@ -1803,7 +1803,7 @@ document.addEventListener("click", async (e) => {
       </tr>`).join("")}
     </tbody></table></div>
     <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:12px;">
-      <button class="btn-run" id="pq-ai" title="Agent 7 — Assurance &amp; Evidence drafts scores from the registration; you adjust and record">🤖 Draft with Agent 7</button>
+      <button class="btn-run" id="pq-ai" title="Workstream 7 — Assurance &amp; Evidence drafts scores from the registration; you adjust and record">Draft with Workstream 7</button>
       <b id="pq-preview" style="font-family:var(--font-head);font-size:1.05rem;"></b>
       <label style="font-size:0.85rem;"><input type="checkbox" id="pq-apply" checked> Apply the recommended status (emails the supplier their outcome)</label>
     </div>
@@ -1841,7 +1841,7 @@ document.addEventListener("click", async (e) => {
   document.getElementById("pq-ai").addEventListener("click", async () => {
     const aiBtn = document.getElementById("pq-ai");
     aiBtn.disabled = true;
-    aiBtn.textContent = "Agent 7 reviewing…";
+    aiBtn.textContent = "Workstream 7 reviewing…";
     try {
       const { draft } = await api(`/api/subcontractors/${app_.id}/assessment/draft`, { method: "POST" });
       for (const sel of holder.querySelectorAll("select[data-pq]")) {
@@ -1852,13 +1852,13 @@ document.addEventListener("click", async (e) => {
       }
       refresh();
       document.getElementById("pq-ai-note").innerHTML = `<div style="border-left:3px solid var(--amber,#9c7a3c);padding:8px 0 8px 14px;margin-top:12px;font-size:0.85rem;">
-        <b>Agent 7 draft — a human decision is still required.</b> ${esc(draft.note)}
+        <b>Workstream 7 draft — a human decision is still required.</b> ${esc(draft.note)}
         ${draft.missingEvidence.length ? `<div style="margin-top:6px;"><b>Verify before recording:</b> ${draft.missingEvidence.map(esc).join(" · ")}</div>` : ""}
       </div>`;
-      aiBtn.textContent = "Re-draft with Agent 7";
+      aiBtn.textContent = "Re-draft with Workstream 7";
     } catch (err) {
       alert(err.message);
-      aiBtn.textContent = "🤖 Draft with Agent 7";
+      aiBtn.textContent = "Draft with Workstream 7";
     } finally {
       aiBtn.disabled = false;
     }

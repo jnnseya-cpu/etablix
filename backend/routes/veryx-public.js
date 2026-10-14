@@ -195,12 +195,12 @@ router.get("/risks", requireApiKey("read:risks"), (req, res) => {
   res.json({ data: risks });
 });
 
-/** GET /agents — list the AI agents you can run and their ACU cost. */
+/** GET /agents — list the automated checks you can run and their ACU cost. */
 router.get("/agents", requireApiKey("read:agents"), (req, res) => {
   res.json({ data: collection("agents") });
 });
 
-/** POST /agents/:type/run — run an AI agent. Consumes prepaid ACU. */
+/** POST /agents/:type/run — run an automated check. Consumes prepaid ACU. */
 router.post("/agents/:type/run", requireApiKey("run:agents"), (req, res) => {
   const agent = collection("agents").find((a) => a.type === req.params.type);
   if (!agent) return res.status(404).json({ error: "Unknown agent type." });
@@ -237,7 +237,7 @@ router.get("/openapi.json", (req, res) => {
       title: "VERYX Platform API",
       version: "1.0.0",
       description:
-        "Connect your own systems to the OS. Read projects, tasks and risks, run AI agents and track usage.",
+        "Connect your own systems to the OS. Read projects, tasks and risks, run automated checks and track usage.",
     },
     servers: [{ url: "/api/public/v1" }],
     components: {
@@ -258,8 +258,8 @@ router.get("/openapi.json", (req, res) => {
         get: { summary: "Read the risk register, highest score first." },
         post: { summary: "Raise a risk. The score is probability × impact, computed rather than accepted." },
       },
-      "/agents": { get: { summary: "List the AI agents you can run and their ACU cost." } },
-      "/agents/{type}/run": { post: { summary: "Run an AI agent. Consumes prepaid ACU." } },
+      "/agents": { get: { summary: "List the automated checks you can run and their ACU cost." } },
+      "/agents/{type}/run": { post: { summary: "Run an automated check. Consumes prepaid ACU." } },
       "/usage": { get: { summary: "Your monthly quota, usage and ACU balance." } },
       "/scopes": { get: { summary: "What every scope grants, and which ones write." } },
       "/risks/{id}": { patch: { summary: "Revise a risk. Validated on the merged result." } },

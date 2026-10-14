@@ -140,12 +140,28 @@ console.log("\n--- 16. the notice agent: it drafts, and there is no path that se
   ok(!notice.draft({ project: P, eventId: "nope", effect: "x" }).ok, "a notice about an event nobody recorded is refused");
   ok(!notice.draft({ project: "no-such-project", eventId: ev.id }).ok, "and so is one on a project with no contract");
 
-  const byAgent = notice.recordGiven({ project: P, eventId: ev.id, clause: "NEC4-A 61.3", by: "Notice Agent", role: "agent", method: "contract_system", reference: "x" });
+  const byAgent = notice.recordGiven({ project: P, eventId: ev.id, clause: "NEC4-A 61.3", by: "Notice Monitor", role: "agent", method: "contract_system", reference: "x" });
   refuses(byAgent, "is not a person", "recording an AGENT as having given a notice is refused — that record would be the evidence relied on");
   refuses(notice.recordGiven({ project: P, eventId: ev.id, clause: "c", by: "J Nseya" }), "no authority stated", "and a person with no stated authority is refused");
   refuses(notice.recordGiven({ project: P, eventId: ev.id, clause: "c", by: "J Nseya", role: "CM", method: "email_agreed" }), "no reference", "and with no transmission reference there is nothing to prove it arrived");
   ok(notice.recordGiven({ project: P, eventId: ev.id, clause: "NEC4-A 61.3", by: "J Nseya", role: "Commercial Manager, delegated", method: "contract_system", reference: "NEC-2291" }).ok,
      "a person, an authority, a method and a reference is recorded");
+  // THE GATE MUST REFUSE EVERY REGISTERED PRODUCER BY NAME, NOT BY HABIT.
+  // It used to match on the word "Agent", so renaming the producers defeated
+  // it without failing anything. This walks the real registry, so the next
+  // rename either keeps the gate honest or fails here.
+  {
+    const names = [...new Set(reg.catalogue().map((e) => e.agent).filter(Boolean))];
+    ok(names.length >= 15, `the registry still has producers to check (${names.length})`);
+    const admitted = names.filter((n) => notice.recordGiven({
+      project: P, eventId: ev.id, clause: "NEC4-A 61.3", by: n,
+      role: "agent", method: "contract_system", reference: "x",
+    }).ok);
+    ok(admitted.length === 0,
+       "no registered producer name is accepted as the giver of a notice, whatever it is called",
+       admitted.join(", "));
+  }
+
   const src = fs.readFileSync(new URL("../lib/engines/notice.js", import.meta.url), "utf8");
   ok(!/fetch\(|sendMail|transport|smtp/i.test(src), "and there is no code path in the module that transmits anything");
 }

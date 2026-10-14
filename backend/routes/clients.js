@@ -172,7 +172,7 @@ function diagnosticState(e) {
  * The second stage, where a deliverable has one.
  *
  * The requirements package is sold as the document set that goes to market,
- * and the set is assembled by Agent 13 from the package once a human has
+ * and the set is assembled by Workstream 13 from the package once a human has
  * approved it. The desk needs to know three things and no more: whether this
  * deliverable has a second stage at all, whether the first one is approved so
  * the second can start, and where the second one has got to.
@@ -668,7 +668,7 @@ router.post("/:id/deliverable", ...finance, acceptDocuments, async (req, res) =>
     if (held?.status) return res.status(held.status).json(held.body);
 
     // The run decides the template. This minted a diagnostic whatever the
-    // run was, so an approved Agent 9 requirements package would have been
+    // run was, so an approved Workstream 9 requirements package would have been
     // published to the client under the wrong headings.
     const mint = PIPELINE_DOCUMENTS[run.agent] || PIPELINE_DOCUMENTS.diagnostic;
     const { data } = mint.split(run.output);
@@ -758,9 +758,9 @@ router.post("/:id/deliverable", ...finance, acceptDocuments, async (req, res) =>
  * POST /api/clients/:id/run-follow-on — assemble the tender pack from the
  * requirements package this engagement has already produced and approved.
  *
- * This is the join that makes "ready to issue" literally true. Agent 9 writes
+ * This is the join that makes "ready to issue" literally true. Workstream 9 writes
  * everything that should go to market and binds it into one report; a tenderer
- * receives separate files, so Agent 13 assembles them — and assembles them
+ * receives separate files, so Workstream 13 assembles them — and assembles them
  * from the APPROVED package rather than from the draft, because a requirement
  * nobody signed off has no business inside a document a tenderer prices.
  *
@@ -783,7 +783,7 @@ router.post("/:id/run-follow-on", ...finance, async (req, res) => {
   }
   if (source.status !== "approved") {
     return res.status(409).json({
-      error: `The requirements package is ${source.status === "awaiting_approval" ? "waiting for approval" : `at "${source.status}"`}. The tender pack is assembled from what a competent person has approved, not from a draft — approve it under Organisation → AI agents first.`,
+      error: `The requirements package is ${source.status === "awaiting_approval" ? "waiting for approval" : `at "${source.status}"`}. The tender pack is assembled from what a competent person has approved, not from a draft — approve it under Organisation → workstreams first.`,
       runId: source.id, sourceStatus: source.status,
     });
   }
@@ -794,7 +794,7 @@ router.post("/:id/run-follow-on", ...finance, async (req, res) => {
   const state = diagnosticState(e);
   if (state.follow?.running && !req.body?.force) {
     return res.status(409).json({
-      error: "That tender pack is still being assembled. Watch it under Organisation → AI agents, or start another anyway if it has hung.",
+      error: "That tender pack is still being assembled. Watch it under Organisation → workstreams, or start another anyway if it has hung.",
       runId: e.followRunId, running: true,
     });
   }
@@ -815,7 +815,7 @@ router.post("/:id/run-follow-on", ...finance, async (req, res) => {
         client: e.client,
         project: e.project,
         handover,
-        // The approved package, whole. Agent 13 assembles from it and adds
+        // The approved package, whole. Workstream 13 assembles from it and adds
         // nothing to it, so it travels complete rather than summarised.
         [follow.into]: source.output,
         // Anything the desk supplies with the request — the timetable the
@@ -870,7 +870,7 @@ router.post("/:id/run-diagnostic", ...finance, async (req, res) => {
   const pipeline = pipelineFor(e.deliverable);
   if (!pipeline) {
     return res.status(400).json({
-      error: `${deliverable(e.deliverable).name} has no production agent yet, so there is nothing to run on this engagement. `
+      error: `${deliverable(e.deliverable).name} has no production workstream yet, so there is nothing to run on this engagement. `
         + "It has to be produced by hand — which is what the fee assumes, and is the reason parity across the deliverables matters.",
     });
   }
@@ -887,7 +887,7 @@ router.post("/:id/run-diagnostic", ...finance, async (req, res) => {
   const state = diagnosticState(e);
   if (state.diagnosticRunning && !req.body?.force) {
     return res.status(409).json({
-      error: "That diagnostic is still running. Watch it under Organisation → AI agents, or start another anyway if it has hung.",
+      error: "That diagnostic is still running. Watch it under Organisation → workstreams, or start another anyway if it has hung.",
       runId: e.diagnosticRunId,
       running: true,
     });

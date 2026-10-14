@@ -3,7 +3,7 @@
    the pricing stack, bid screening against the no-bid triggers, the
    cash-flow architecture with the exposure rule, the EVM payment gate,
    the retention ledger, the GTM account tracker, the document studio,
-   and the AI-agent roster with its human approval boundaries. */
+   and the workstream roster with its human approval boundaries. */
 
 // app.js imports this module, so this is a cycle — safe because
 // openPanel is a hoisted function declaration and is only ever called
@@ -1342,7 +1342,7 @@ export async function loadOrganisation() {
       <h3>${esc(r.title)} ${r.holder ? pill(r.holder, "approved") : ""} <span class="muted" style="font-weight:400;font-size:0.78rem;">· ${esc(r.employment)}</span></h3>
       <p class="muted" style="margin:4px 0 8px;">${esc(r.purpose)}</p>
       <details><summary style="cursor:pointer;font-size:0.85rem;font-weight:600;">Responsibilities</summary>${list(r.responsibilities)}</details>
-      <details><summary style="cursor:pointer;font-size:0.85rem;font-weight:600;color:var(--amber,#9c7a3c);">AI-supported functions</summary>${list(r.aiSupported)}</details>
+      <details><summary style="cursor:pointer;font-size:0.85rem;font-weight:600;color:var(--amber,#9c7a3c);">System-supported functions</summary>${list(r.aiSupported)}</details>
       <details><summary style="cursor:pointer;font-size:0.85rem;font-weight:600;">Human — never delegated</summary>${list(r.humanRetained)}</details>
     </div>`
     )
@@ -1352,7 +1352,7 @@ export async function loadOrganisation() {
     if (b === "engine") return pill("ENGINE · LIVE", "approved");
     if (b === "veryx") return veryxLink.connected ? pill("VERYX · CONNECTED", "approved") : pill("VERYX · connect key", "");
     if (b === "construx") return construxLink.connected ? pill("CONSTRUX · CONNECTED", "approved") : pill("CONSTRUX · awaiting token", "");
-    return provider.connected ? pill("AI · LIVE", "approved") : pill("AI · connect key", "");
+    return provider.connected ? pill("ENGINE · LIVE", "approved") : pill("ENGINE · connect key", "");
   };
 
   // No model identifier in the pill. Which engine runs the work is a supplier
@@ -1366,12 +1366,12 @@ export async function loadOrganisation() {
       : pill("Not connected", "");
   const providerBlock = `
     ${isAdmin ? `<form id="ai-provider-form" class="team-form" style="flex-wrap:wrap;">
-      <b style="font-family:var(--font-head);min-width:90px;align-self:center;">AI engine</b>
+      <b style="font-family:var(--font-head);min-width:90px;align-self:center;">Production engine</b>
       <input name="apiKey" type="password" placeholder="${provider.keyPreview ? `Key saved (${esc(provider.keyPreview)}) — paste to replace` : "Paste Anthropic API key (sk-ant-…)"}" autocomplete="off" style="flex:2;">
       <input name="model" value="${esc(provider.model || "claude-opus-5")}" placeholder="Model" style="max-width:190px;">
       <button class="btn-block" type="submit" style="width:auto;padding:11px 18px;">Save &amp; test</button>
       <span style="align-self:center;">${providerStatus}</span>
-    </form>` : `<p>AI engine: ${providerStatus}</p>`}
+    </form>` : `<p>Production engine: ${providerStatus}</p>`}
     ${provider.lastTest ? `<p class="muted" style="margin:6px 0 0;">${esc(provider.lastTest.summary)}</p>` : ""}
     <p class="muted" style="margin:8px 0 0;">One key powers every agent. An administrator creates it at <b>console.anthropic.com</b> → API keys and pastes it here — stored server-side only, never shown again in full, exactly like the platform keys. Every run lands in the approval queue below: a named human approves or rejects before anything is acted on.</p>`;
 
@@ -1392,7 +1392,7 @@ export async function loadOrganisation() {
           .join("")}
         <label class="muted" style="font-size:0.8rem;">Or upload the source documents — PDF, Word, text, and drawings or programme prints as PDF or image. Written documents are read in full; drawings and Gantt prints are shown to the agent as pages to look at, because their content is the layout rather than the labels. Up to 20 files, 25&nbsp;MB each.</label>
         <input type="file" name="__documents" multiple accept=".pdf,.docx,.txt,.md,.csv,.json,.png,.jpg,.jpeg,.webp" style="width:100%;border:1.5px dashed var(--line);padding:10px;border-radius:7px;margin-bottom:8px;">
-        <button class="btn-block" type="submit" style="width:auto;padding:11px 22px;" ${provider.connected ? "" : "disabled"}>${provider.connected ? "Run agent" : "Connect the AI engine first"}</button>
+        <button class="btn-block" type="submit" style="width:auto;padding:11px 22px;" ${provider.connected ? "" : "disabled"}>${provider.connected ? "Run workstream" : "Connect the production engine first"}</button>
         <span class="login-error" data-agent-error style="display:block;margin-top:8px;"></span>
       </form>
       <div data-agent-output="${a.id}"></div>
@@ -1435,7 +1435,7 @@ export async function loadOrganisation() {
     : '<p class="empty-note">No agent runs yet — run any agent above and its output arrives here for a named human to approve or reject.</p>';
   const runsBlock = `${runsTable}<div id="agent-run-viewer"></div>`;
 
-  const matrix = wrapT(`<table><thead><tr><th>Function</th><th>AI replacement potential</th><th>Human control required</th></tr></thead><tbody>${org.aiMatrix
+  const matrix = wrapT(`<table><thead><tr><th>Function</th><th>System replacement potential</th><th>Human control required</th></tr></thead><tbody>${org.aiMatrix
     .map(([f, p, h]) => `<tr><td>${esc(f)}</td><td><b>${esc(p)}</b></td><td class="muted">${esc(h)}</td></tr>`)
     .join("")}</tbody></table>`);
 
@@ -1444,7 +1444,7 @@ export async function loadOrganisation() {
     .join("")}</tbody></table>`);
 
   const models = org.deliveryModelLimits
-    .map((m) => `<div class="section-block"><h3>${esc(m.model)}</h3><p class="muted" style="margin:2px 0 6px;">${esc(m.line)}</p><p style="font-size:0.88rem;margin:0 0 6px;"><b>Team:</b> ${esc(m.team)}</p><p class="muted" style="font-size:0.85rem;"><b>AI:</b> ${esc(m.ai)}</p></div>`)
+    .map((m) => `<div class="section-block"><h3>${esc(m.model)}</h3><p class="muted" style="margin:2px 0 6px;">${esc(m.line)}</p><p style="font-size:0.88rem;margin:0 0 6px;"><b>Team:</b> ${esc(m.team)}</p><p class="muted" style="font-size:0.85rem;"><b>System:</b> ${esc(m.ai)}</p></div>`)
     .join("");
 
   const hiring = org.hiringSequence
@@ -1465,13 +1465,13 @@ export async function loadOrganisation() {
 
   document.getElementById("organisation-body").innerHTML =
     `<p style="border-left:3px solid var(--amber,#9c7a3c);padding-left:12px;font-size:0.92rem;">${esc(org.principle)}</p>` +
-    block("Launch core — four people, AI-amplified", coreCards) +
-    block("AI engine — one connection powers every agent", providerBlock) +
-    block(`The AI-agent workforce — ${org.agents.length} agents, each inside an approval boundary`, agentCards) +
+    block("Launch core — four people, system-amplified", coreCards) +
+    block("Production engine — one connection powers every workstream", providerBlock) +
+    block(`The workstream roster — ${org.agents.length} workstreams, each inside an approval boundary`, agentCards) +
     block("Agent runs — the approval queue", runsBlock) +
     block("Fractional professional assurance", fractional) +
     block("Contract-funded appointments — recruited against secured work, priced into the contract", contractFunded) +
-    block("What AI genuinely replaces — and what humans always keep", matrix) +
+    block("What the system genuinely replaces — and what humans always keep", matrix) +
     block("Non-negotiable separation of accountability", separation) +
     block("Delivery-model limits", models) +
     block("Hiring sequence", hiring) +

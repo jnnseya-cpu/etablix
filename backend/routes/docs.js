@@ -179,7 +179,7 @@ const LINES = (label = "Line items") => F("lines", label, "lines");
 
 /**
  * The twelve deliverables of a Site Systems Diagnostic, in the order the
- * website promises them and the order Agent 8 is required to produce
+ * website promises them and the order Workstream 8 is required to produce
  * them. One list drives the document fields, the specimen's contents
  * page, and the splitter that turns an approved agent run into a draft —
  * so the promise, the agent and the document can never drift apart.
@@ -216,7 +216,7 @@ export const CHALLENGE_SECTIONS = CH_SECTIONS;
 export const TEMPLATES = [
   {
     id: "diagnostic", prefix: "SSD", name: "Site Systems Diagnostic report",
-    description: "The paid entry engagement as an issued document: the one-paragraph findings and all twelve deliverables, branded and numbered in the SSD series. Draft it from an approved Agent 8 run rather than typing it.",
+    description: "The paid entry engagement as an issued document: the one-paragraph findings and all twelve deliverables, branded and numbered in the SSD series. Draft it from an approved Workstream 8 run rather than typing it.",
     fields: [
       F("client", "Client / organisation", "text", { required: true }),
       F("project", "Project / site", "text", { required: true }),
@@ -237,7 +237,7 @@ export const TEMPLATES = [
   PIPELINE_TEMPLATE({
     id: "mobreview", prefix: "MRR", name: "Mobilisation-readiness review",
     documentTitle: "Mobilisation-readiness review",
-    description: "Agent 10's eight deliverables as an issued document: the verdict, the eight sections, and the evidence ledger. Draft it from an approved Agent 10 run.",
+    description: "Workstream 10's eight deliverables as an issued document: the verdict, the eight sections, and the evidence ledger. Draft it from an approved Workstream 10 run.",
     sections: MR_SECTIONS,
     summaryLabel: "Verdict in one paragraph",
     appendixLabel: "Appendix A — evidence and assertion ledger",
@@ -246,7 +246,7 @@ export const TEMPLATES = [
   PIPELINE_TEMPLATE({
     id: "village", prefix: "WVR", name: "Workforce Village Requirements Package",
     documentTitle: "Workforce Village Requirements Package",
-    description: "Agent 11's twelve deliverables as an issued document. Fire strategy and life safety are referred to a competent person and the fire authority, never settled here. Draft it from an approved Agent 11 run.",
+    description: "Workstream 11's twelve deliverables as an issued document. Fire strategy and life safety are referred to a competent person and the fire authority, never settled here. Draft it from an approved Workstream 11 run.",
     sections: VR_SECTIONS,
     summaryLabel: "Requirements summary in one paragraph",
     appendixLabel: "Appendix A — traceability, safety referrals and open items",
@@ -255,7 +255,7 @@ export const TEMPLATES = [
   PIPELINE_TEMPLATE({
     id: "tendereval", prefix: "TEV", name: "Tender evaluation report",
     documentTitle: "Tender evaluation report",
-    description: "Agent 12's eight deliverables as an issued document: the recommendation, the normalised comparison, and the audit trail that lets the award be defended. Draft it from an approved Agent 12 run.",
+    description: "Workstream 12's eight deliverables as an issued document: the recommendation, the normalised comparison, and the audit trail that lets the award be defended. Draft it from an approved Workstream 12 run.",
     sections: PR_SECTIONS,
     summaryLabel: "Recommendation in one paragraph",
     appendixLabel: "Appendix A — audit trail and open items",
@@ -269,7 +269,7 @@ export const TEMPLATES = [
   PIPELINE_TEMPLATE({
     id: "ittpack", prefix: "ITT", name: "Invitation to tender — the pack that goes to market",
     documentTitle: "Invitation to tender",
-    description: "Agent 13's eight parts as the files that go to market: instructions, conditions, a scope sheet per package, the blank pricing schedule, the return forms, the form of tender and the issue register. Each part prints on its own. Draft it from an approved Agent 13 run.",
+    description: "Workstream 13's eight parts as the files that go to market: instructions, conditions, a scope sheet per package, the blank pricing schedule, the return forms, the form of tender and the issue register. Each part prints on its own. Draft it from an approved Workstream 13 run.",
     sections: TP_SECTIONS,
     summaryLabel: "Issue summary in one paragraph",
     appendixLabel: "Appendix A — traceability and open items",
@@ -285,7 +285,7 @@ export const TEMPLATES = [
   PIPELINE_TEMPLATE({
     id: "bidfile", prefix: "BID", name: "Bid file — the response to an invitation we have received",
     documentTitle: "Bid file",
-    description: "Agent 2's eight parts as the bid file: the requirements register with a verbatim quote against every row, the compliance matrix, the submission checklist and timetable, the drafted responses, the clarification schedule, the bid position and risk, the responsibility matrix and programme, and the submission register. Each part prints on its own. Draft it from an approved Agent 2 run.",
+    description: "Workstream 2's eight parts as the bid file: the requirements register with a verbatim quote against every row, the compliance matrix, the submission checklist and timetable, the drafted responses, the clarification schedule, the bid position and risk, the responsibility matrix and programme, and the submission register. Each part prints on its own. Draft it from an approved Workstream 2 run.",
     sections: BR_SECTIONS,
     summaryLabel: "Bid summary in one paragraph",
     appendixLabel: "Appendix A — traceability and open items",
@@ -301,7 +301,7 @@ export const TEMPLATES = [
   PIPELINE_TEMPLATE({
     id: "control", prefix: "MCR", name: "Monthly control report",
     documentTitle: "Monthly control report",
-    description: "Agent 5's eight parts: the position at period end, earned value by control account, change control, the valuation, the payment recommendations with their statutory dates, the cost forecast, cash and exposure, and the certificate with the decisions required. Produced every month for the life of a Model 02 or Model 03 appointment. Draft it from an approved Agent 5 run.",
+    description: "Workstream 5's eight parts: the position at period end, earned value by control account, change control, the valuation, the payment recommendations with their statutory dates, the cost forecast, cash and exposure, and the certificate with the decisions required. Produced every month for the life of a Model 02 or Model 03 appointment. Draft it from an approved Workstream 5 run.",
     sections: CR_SECTIONS,
     summaryLabel: "The month in one paragraph",
     appendixLabel: "Appendix A — traceability and open items",
@@ -314,7 +314,7 @@ export const TEMPLATES = [
   PIPELINE_TEMPLATE({
     id: "interfaces", prefix: "IFR", name: "Interface register — issued monthly and carried forward",
     documentTitle: "Interface register",
-    description: "Agent 3's eight parts: the package boundary matrix, the interface register itself, the movement log that makes it a living document, the interfaces at risk, the demand and capacity model behind them, the handover sequence, the change that moved them, and the certificate. Reissued every month with every reference carried forward. Draft it from an approved Agent 3 run.",
+    description: "Workstream 3's eight parts: the package boundary matrix, the interface register itself, the movement log that makes it a living document, the interfaces at risk, the demand and capacity model behind them, the handover sequence, the change that moved them, and the certificate. Reissued every month with every reference carried forward. Draft it from an approved Workstream 3 run.",
     sections: IR_SECTIONS,
     summaryLabel: "The register in one paragraph",
     appendixLabel: "Appendix A — traceability and open items",
@@ -327,7 +327,7 @@ export const TEMPLATES = [
   PIPELINE_TEMPLATE({
     id: "challenge", prefix: "CHR", name: "Challenge report — the adversarial review before a submission goes",
     documentTitle: "Challenge report",
-    description: "Agent 14's eleven parts: the nine review lenses, each written on its own pass, then the findings register and the certificate. It is issued against another agent's finished output and it is deliberately not given that agent's reasoning — a challenger who reads why something was done is persuaded by it, and the evaluator will not have that document either. Draft it from an approved Agent 14 run.",
+    description: "Workstream 14's eleven parts: the nine review lenses, each written on its own pass, then the findings register and the certificate. It is issued against another agent's finished output and it is deliberately not given that agent's reasoning — a challenger who reads why something was done is persuaded by it, and the evaluator will not have that document either. Draft it from an approved Workstream 14 run.",
     sections: CH_SECTIONS,
     summaryLabel: "The challenge in one paragraph",
     appendixLabel: "Appendix A — every finding traced to where it was found",
@@ -337,7 +337,7 @@ export const TEMPLATES = [
   {
     id: "sitereq", prefix: "SMR", name: "Site Management Requirements Package",
     documentTitle: "Site Management Requirements Package",
-    description: "Agent 9's twelve deliverables as an issued document: the requirements summary, the twelve sections, and the traceability appendix. Draft it from an approved Agent 9 run rather than typing it.",
+    description: "Workstream 9's twelve deliverables as an issued document: the requirements summary, the twelve sections, and the traceability appendix. Draft it from an approved Workstream 9 run rather than typing it.",
     fields: [
       F("client", "Client / organisation", "text", { required: true }),
       F("project", "Project / site", "text", { required: true }),
@@ -708,7 +708,7 @@ router.get("/from-run/:id", requireAuth, deliveryFinance, (req, res) => {
   if (!run) return res.status(404).json({ error: "Run not found." });
   // Two pipeline agents now produce a twelve-section deliverable, and each
   // drafts into its own template. Hardcoding the diagnostic here would have
-  // made Agent 9's £14,000–£45,000 package a retyping exercise.
+  // made Workstream 9's £14,000–£45,000 package a retyping exercise.
   const draft = PIPELINE_DOCUMENTS[run.agent];
   if (!draft) {
     return res.status(400).json({ error: "This agent does not produce a document. Only the pipeline agents do." });

@@ -115,7 +115,7 @@ export const ENGINES = [
     },
   },
   {
-    id: "notice", agent: "Notice Agent", engine: "contracts", depth: 4,
+    id: "notice", agent: "Notice Monitor", engine: "contracts", depth: 4,
     purpose: "Assembles a contractual notice from the project's own clause graph and event record. It drafts; it never gives.",
     shape: { project: "project id", eventId: "recorded contract event id", kind: "event|delay|claim|earlywarning", effect: "text", cause: "text", relief: "text", from: "text", to: "text" },
     fields: [
@@ -136,7 +136,7 @@ export const ENGINES = [
     },
   },
   {
-    id: "change", agent: "Change and Entitlement Agent", engine: "contracts", depth: 4,
+    id: "change", agent: "Change and Entitlement Assessor", engine: "contracts", depth: 4,
     purpose: "The change register, reconciled against the contract that governs it — including whether a claim was notified inside its bar.",
     shape: { project: "project id", changes: "[{ref,title,state,relief,instruction,instructedAt,notice,noticeAt,eventId,value,elements,days,programmeImpact,controlAccount}]" },
     fields: [
@@ -151,7 +151,7 @@ export const ENGINES = [
     },
   },
   {
-    id: "estimating", agent: "Estimating Agent", engine: "tender", depth: 3,
+    id: "estimating", agent: "Estimator", engine: "tender", depth: 3,
     purpose: "Quantities and rates with lineage on every number, and the nine assurance tests over the priced schedule.",
     shape: { lines: "[{id,what,quantity,unit,rate,total,source,sourceDate,currency,quantityBasis,productivity,validUntil,exclusions,escalation,confidence,approvedBy,scopeItemId}]", scopeItems: "[{id}]", quotes: "[]", asAt: "date" },
     fields: [RECORDS_FIELD],
@@ -175,7 +175,7 @@ export const ENGINES = [
     },
   },
   {
-    id: "programme", agent: "Programme Generation Agent", engine: "planning", depth: 3,
+    id: "programme", agent: "Programme Generator", engine: "planning", depth: 3,
     purpose: "Interrogates a programme rather than drawing one: open ends, missing logic, disconnected procurement, hidden negative float.",
     shape: { activities: "[{id,name,kind,start,end,duration,predecessors,successors,float,critical,constraint,quantity,unit,outputPerCrewPerDay,crews,leadTimeSource}]", dataDate: "date", completion: "date" },
     fields: [RECORDS_FIELD],
@@ -187,7 +187,7 @@ export const ENGINES = [
     },
   },
   {
-    id: "recovery", agent: "Recovery Agent", engine: "planning", depth: 4,
+    id: "recovery", agent: "Recovery Planner", engine: "planning", depth: 4,
     purpose: "Recovery options with their cost per day, against a baseline that has not been quietly rewritten.",
     shape: { baselineAtAward: "fingerprint", baselineAnalysed: "fingerprint", plannedCompletion: "date", forecastCompletion: "date", remainingDays: 0, project: "id", eventId: "id", options: "[{id,lever,recovers,cost,resourceChange,descoped,whoDoesItLater,risk}]" },
     fields: [RECORDS_FIELD],
@@ -200,7 +200,7 @@ export const ENGINES = [
     },
   },
   {
-    id: "productivity", agent: "Productivity Agent", engine: "resource", depth: 3,
+    id: "productivity", agent: "Productivity Analyser", engine: "resource", depth: 3,
     purpose: "Output measured against what was priced, per control account — the earliest honest warning on a labour overrun.",
     shape: { accounts: "[{id,unit,quantity,hours,rate}]", records: "[{controlAccount,from,to,units,hours,unit,cumulativeUnits,crew,source}]", asAt: "date" },
     fields: [RECORDS_FIELD],
@@ -212,7 +212,7 @@ export const ENGINES = [
     },
   },
   {
-    id: "safety", agent: "Safety Assurance Agent", engine: "risk", depth: 3,
+    id: "safety", agent: "Safety Assurance Review", engine: "risk", depth: 3,
     purpose: "RAMS cover, permits in date, tickets recorded, observations recurring. It administers; it never supervises.",
     shape: { asAt: "date", planned: "[{activity,date}]", rams: "[{id,covers,reviewedTo,approvedBy}]", permits: "[{id,kind,from,to,workTo,issuedBy,open}]", assignments: "[{person,activity,date,requires}]", held: "[{person,ticket,expires}]", observations: "[{id,kind,location,raisedAt,status,action}]" },
     fields: [RECORDS_FIELD],
@@ -224,7 +224,7 @@ export const ENGINES = [
     },
   },
   {
-    id: "audit", agent: "Audit Agent", engine: "risk", depth: 3,
+    id: "audit", agent: "Audit Review", engine: "risk", depth: 3,
     purpose: "The audit programme, its coverage of the standard, and the independence inside it.",
     shape: { audits: "[{id,area,state,auditor,auditorArea,plannedFor,carriedOut,clauses}]", findings: "[{id,audit,grade,owner,raisedAt,status,evidence,closedBy,verifiedBy,rootCause,closedAt}]", standardClauses: "[]", cycleFrom: "date", cycleTo: "date", asAt: "date" },
     fields: [RECORDS_FIELD],
@@ -236,7 +236,7 @@ export const ENGINES = [
     },
   },
   {
-    id: "model", agent: "Model Validation Agent", engine: "bim", depth: 3,
+    id: "model", agent: "Model Validator", engine: "bim", depth: 3,
     purpose: "Whether the federated model is usable for coordination, quantities and asset information — units and shared coordinates first.",
     shape: { models: "[{id,unit,basePoint}]", elements: "[{id,name,classification,level,hostLevel,system,type,x,y,z}]", stage: "2..6", naming: "template", projectBasePoint: "string", requiredUnit: "mm|m" },
     fields: [RECORDS_FIELD],
@@ -248,7 +248,7 @@ export const ENGINES = [
     },
   },
   {
-    id: "quantity", agent: "Quantity Agent", engine: "bim", depth: 3,
+    id: "quantity", agent: "Quantity Reconciler", engine: "bim", depth: 3,
     purpose: "Model against bill against drawings. The output is the disagreement, ranked by what it is worth.",
     shape: { rows: "[{item,source,unit,quantity,rate}]", tolerance: 0.02 },
     fields: [RECORDS_FIELD],
@@ -260,7 +260,7 @@ export const ENGINES = [
     },
   },
   {
-    id: "asset", agent: "Asset Agent", engine: "bim", depth: 3,
+    id: "asset", agent: "Asset Register", engine: "bim", depth: 3,
     purpose: "The asset register as the facilities team will receive it: tags that join up, no duplicates, attributes populated.",
     shape: { assets: "[{tag,type,system,location,parent,manufacturer,model,serial,installedAt,warrantyTo,expectedLifeYears}]", convention: "{system}-{type}-{number}", requiredByType: "{pump:[duty]}" },
     fields: [RECORDS_FIELD],
@@ -272,7 +272,7 @@ export const ENGINES = [
     },
   },
   {
-    id: "commissioning", agent: "Commissioning Agent", engine: "handover", depth: 4,
+    id: "commissioning", agent: "Commissioning Controller", engine: "handover", depth: 4,
     purpose: "The commissioning sequence, in order, witnessed by somebody who did not install it.",
     shape: { systems: "[{system,installer,stages:{installed:{complete,at,by,witness}},tests:[{name,criterion,result,target,tolerance,passed}]}]", handoverDate: "date", daysPerStage: 5 },
     fields: [RECORDS_FIELD],
@@ -284,7 +284,7 @@ export const ENGINES = [
     },
   },
   {
-    id: "handover-file", agent: "Handover Agent", engine: "handover", depth: 4,
+    id: "handover-file", agent: "Handover Controller", engine: "handover", depth: 4,
     purpose: "Completeness per asset across twelve evidence types, forecast from lead times before the date rather than after it.",
     shape: { assets: "[{tag,evidence:{submittal:{complete,ref,expires}}}]", handoverDate: "date", defectsByAsset: "{tag:count}" },
     fields: [RECORDS_FIELD],
@@ -296,7 +296,7 @@ export const ENGINES = [
     },
   },
   {
-    id: "lifecycle", agent: "Lifecycle and Asset Information Agent", engine: "handover", depth: 3,
+    id: "lifecycle", agent: "Lifecycle and Asset Information Controller", engine: "handover", depth: 3,
     purpose: "Replacement cycles and costs over the model period, with the price base date that lets them be escalated.",
     shape: { lines: "[{tag,expectedLifeYears,replacementCycleYears,firstReplacementYear,replacementCost,basis,priceBaseDate,currency,source,warrantyTo,sparesShelfLifeYears}]", periodYears: 25 },
     fields: [RECORDS_FIELD],

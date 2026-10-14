@@ -504,7 +504,7 @@ export function failureModes() {
       const g = graph([{ nodeId: "a", kind: "SOURCE", ref: "r", value: 1, unit: "m", confidence: 0.4 }, { nodeId: "b", kind: "CALC", ref: "f", value: 1, unit: "m", confidence: 0.99, parents: ["a"] }]);
       return propagateConfidence(g).nodes.find((n) => n.nodeId === "b").effectiveConfidence === 0.4;
     },
-    "AI-generated estimates with no source lineage": () => {
+    "Produced estimates with no source lineage": () => {
       // The claim was "no estimating agent exists yet, and it must not be
       // built before lineage is". Lineage now exists, so the mode is avoided
       // for a different reason than it was.

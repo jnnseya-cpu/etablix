@@ -150,11 +150,11 @@ async function workPipeline(runId, agent, inputs, runBy, visualFiles = [], resum
       // the issue certificate prints the same result the desk approved
       // against rather than a second one worked out later.
       ...(r.packCheck ? { packCheck: r.packCheck } : {}),
-      // Agent 2's submission-completeness check, kept on the run for the same
+      // Workstream 2's submission-completeness check, kept on the run for the same
       // reason: the bid file prints the result the desk approved against
       // rather than a second one worked out later from the same text.
       ...(r.bidCheck ? { bidCheck: r.bidCheck } : {}),
-      // Agent 5's payment reconciliation, for the same reason again: the
+      // Workstream 5's payment reconciliation, for the same reason again: the
       // certificate prints the result the desk approved against.
       ...(r.controlCheck ? { controlCheck: r.controlCheck } : {}),
       ...(r.interfaceCheck ? { interfaceCheck: r.interfaceCheck } : {}),
@@ -340,7 +340,7 @@ router.post("/:id/run", acceptDocuments, async (req, res) => {
     // was defensible while they were one 16,000-token call.
     //
     // They are not any more. A single-pass agent now continues its own output
-    // until the answer is finished, so Agent 2 reading a full ITT can take
+    // until the answer is finished, so Workstream 2 reading a full ITT can take
     // many calls and a long time — comfortably past the two-minute request
     // timeout on this server. The client would have seen a failed request
     // against a run that completed perfectly, and the output would have been

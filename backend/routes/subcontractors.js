@@ -367,7 +367,7 @@ router.get("/:id/companies-house", requireAuth, requireRole(...ACCESS.DELIVERY_F
 });
 
 /**
- * POST /api/subcontractors/:id/assessment/draft — Agent 7 drafts the
+ * POST /api/subcontractors/:id/assessment/draft — Workstream 7 drafts the
  * scorecard from the registration data. Nothing is saved: the draft
  * returns to the browser for a named human to adjust and record.
  * When Companies House is configured, the live register check rides
@@ -391,7 +391,7 @@ router.post("/:id/assessment/draft", requireAuth, requireRole(...ACCESS.DELIVERY
     res.json({ draft });
   } catch (err) {
     const msg = /authentication|invalid.*key/i.test(err.message)
-      ? "The AI engine key was rejected — check it under Organisation → AI engine."
+      ? "The production engine key was rejected — check it under Organisation → production engine."
       : err.message;
     res.status(502).json({ error: msg });
   }

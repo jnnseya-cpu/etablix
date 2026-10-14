@@ -50,6 +50,86 @@ that later surfaces loses the framework and the reputation with it.
 So the rule is: **do not raise it; never deny it; answer it properly when it is
 asked.**
 
+## Extended 14 October 2026 — the whole platform, not just the website
+
+> "What I want is not to tell people that your work will be done by an AI
+> agent. I don't want to see any of these anywhere from the whole platform and
+> the blog."
+
+The first sweep covered `frontend/public/`. That was too narrow: the internal
+console is shown in demonstrations and screenshotted into bids, the published
+API specification is read by developers, and operator notifications are read by
+the director. So the renames now run through the platform.
+
+**The numbered producers are Workstream N, not Agent N.** Thirty roster
+entries, the document-picker descriptions, the prequalification drafting button
+and every operator message. *Workstream* rather than *stage*, because the
+engagement already has six stages and the collision would confuse both.
+
+**The engine display names lost the Agent suffix.** The registry already held
+*Obligation Monitor* and *Submission Controller*, so the rest follow the same
+role-noun pattern: Notice Monitor, Change and Entitlement Assessor, Estimator,
+Programme Generator, Recovery Planner, Productivity Analyser, Safety Assurance
+Review, Audit Review, Model Validator, Quantity Reconciler, Asset Register,
+Commissioning Controller, Handover Controller, Lifecycle and Asset Information
+Controller.
+
+**The provider connection is the production engine.** The administrator still
+needs the vendor's name and `console.anthropic.com` to obtain a key, and that
+block keeps them — it is admin-gated and it is the one place the name has a job
+to do.
+
+**The robot emoji is gone** from the three buttons that carried it.
+
+**A bid return was saying it.** The submitted 250-word solution description
+read *"Deterministic engines run before any AI model… the model writes the
+report."* It now reads that sixteen deterministic engines produce the findings
+against written rules and the report presents them without the power to
+recompute. Same architecture, stronger claim, and no technology named. The
+editorial note beside it now says: say what is traceable, never what generates
+it.
+
+### What was deliberately left in place
+
+**Code comments and model instructions.** A comment is not a surface and nobody
+is sold to from one. Model instructions — `BRIEF_SYSTEM`, `COMPANY_BRIEF`, any
+`You are …` — are read by no person, and rewriting a prompt changes behaviour,
+which is a different decision from changing a label.
+
+**DOM identifiers and data fields.** `eng-ai`, `pq-ai`, `ai-provider-form`,
+`aiSupported`, `org.agents`, `run.agent`, `agentTasks`, `/agents`,
+`read:agents`, `run:agents`. These are machinery. Renaming the published API
+surface is still a separate, breaking decision with a deprecation window.
+
+### The bug this sweep caused, and the guard that now prevents the next one
+
+Renaming the producers broke a safety rule, silently. `notice.recordGiven`
+refuses to record a contractual notice as given by anything that is not a
+person, and it detected that by matching the word *agent* in the name. Once
+*Notice Agent* became *Notice Monitor*, the gate stopped recognising the very
+thing it exists to refuse — and a notice could have been recorded as given by
+"Notice Monitor", with that record becoming the evidence relied on.
+
+The gate now matches the role nouns actually in use, **and the test walks the
+real registry** and asserts that every registered producer name is refused. The
+next rename either keeps the gate honest or fails the build. A word list was
+what failed; reading the registry is what cannot.
+
+### It is a test now, not a note
+
+`backend/test/vendor-silence.test.mjs` fails the build on
+`AI agent`, `AI-powered`, `AI-driven`, `AI-native`, `AI-generated`,
+`AI engine`, `AI-amplified`, `AI-supported`, `agentic`, `artificial
+intelligence`, `Agent <number>` and the robot emoji, across the public site,
+the internal console, the deliverable routes, the published API spec, the
+roster, operator notifications, every published blog post and every bid return.
+Code comments, model instructions, DOM ids and data fields are documented
+exceptions. The unpublished post is asserted to stay unpublished.
+
+It caught three instances in the roster that this sweep had missed — a job
+description reading *"Check AI-generated outputs"*, an approval duty, and a
+risk-register entry — which is the argument for the test rather than the note.
+
 ## Words that are never touched, because they are not AI
 
 **Employer's Agent** and **Purchaser's Agent** are contractual roles under JCT

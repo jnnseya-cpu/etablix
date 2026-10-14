@@ -16,7 +16,7 @@
 import { ROLES } from "../../shared/constants.js";
 
 export const PRINCIPLE =
-  "ETABLIX retains direct control of client management, integration, commercial decisions, HSEQ, quality and service assurance. Labour-intensive delivery can be subcontracted, but accountability must never be subcontracted. AI agents make the lean structure possible, but the client must always see named humans who own commercial, technical, safety and site-delivery decisions.";
+  "ETABLIX retains direct control of client management, integration, commercial decisions, HSEQ, quality and service assurance. Labour-intensive delivery can be subcontracted, but accountability must never be subcontracted. The workstreams make the lean structure possible, but the client must always see named humans who own commercial, technical, safety and site-delivery decisions.";
 
 /** The launch organisation — four core people plus fractional support. */
 export const LEAN_CORE = [
@@ -110,17 +110,17 @@ export const LEAN_CORE = [
   },
   {
     id: "coordinator",
-    title: "Project Coordinator & AI Operations Controller",
+    title: "Project Coordinator & Production Operations Controller",
     employment: "Permanent or initially part-time",
     accessRole: ROLES.PROJECT_MANAGER,
-    purpose: "Operates ETABLIX's AI-assisted management system and ensures outputs are accurate, approved and issued. A project-information and automation-control role — not a personal assistant.",
+    purpose: "Operates ETABLIX's production management system and ensures outputs are accurate, approved and issued. A project-information and production-control role — not a personal assistant.",
     responsibilities: [
       "Control the central document register; maintain project records and correspondence",
       "Coordinate bids and supplier returns; maintain actions, decisions and interface registers",
       "Prepare meeting packs; assemble weekly and monthly reports",
-      "Check AI-generated outputs; route documents for human approval; maintain revisions",
+      "Check every produced output; route documents for human approval; maintain revisions",
       "Monitor expiring supplier documents; administer the CRM and project-control system",
-      "Ensure no AI-generated document is issued without the correct approval",
+      "Ensure no document is issued without the correct approval",
     ],
     aiSupported: [
       "File classification, metadata extraction, naming and revision checks",
@@ -161,7 +161,7 @@ export const CONTRACT_FUNDED = [
 export const AI_AGENTS = [
   {
     id: "opportunity",
-    name: "Agent 1 — Opportunity Intelligence",
+    name: "Workstream 1 — Opportunity Intelligence",
     inputs: ["Target sectors and regions", "Project types and client lists", "Minimum project size", "Expected mobilisation dates"],
     outputs: ["Qualified opportunity list", "Project intelligence brief", "Client organisation map and likely decision-makers", "Recommended approach and follow-up dates", "Bid / no-bid recommendation"],
     boundary: "Cannot contact anyone automatically — every campaign and recipient list is approved by the Managing Director first.",
@@ -170,7 +170,7 @@ export const AI_AGENTS = [
   },
   {
     id: "bid",
-    name: "Agent 2 — Bid & Requirements",
+    name: "Workstream 2 — Bid & Requirements",
     inputs: [
       "The invitation itself — ITT, PQQ, framework further competition or employer's requirements, uploaded in full",
       "The submission deadline, the return route and the client's own forms and templates",
@@ -191,7 +191,7 @@ export const AI_AGENTS = [
   },
   {
     id: "design",
-    name: "Agent 3 — Site-System Design Coordinator",
+    name: "Workstream 3 — Site-System Design Coordinator",
     inputs: [
       "The packages in the site-services system, with their codes and what each delivers",
       "THE PREVIOUS INTERFACE REGISTER in full — every reference in it is carried forward or logged as closed, and none is renumbered",
@@ -212,7 +212,7 @@ export const AI_AGENTS = [
   },
   {
     id: "commercial",
-    name: "Agent 4 — Commercial & Procurement",
+    name: "Workstream 4 — Commercial & Procurement",
     inputs: ["Scope packages and supplier bids", "Rate cards and client pricing", "Contract conditions and project budget"],
     outputs: ["Bid normalisation and exclusions comparison", "Commercial risk schedule and procurement recommendation draft", "Cost plan, commitment register and cash-flow forecast", "Margin forecast and potential variation alerts"],
     boundary: "No supplier appointment or payment is ever made without human approval.",
@@ -221,7 +221,7 @@ export const AI_AGENTS = [
   },
   {
     id: "controls",
-    name: "Agent 5 — Project Controls",
+    name: "Workstream 5 — Project Controls",
     inputs: [
       "The baseline programme and the budget at award, by package or control account",
       "Progress this period — daily reports, delivery records, inspection records, supplier updates, with what is measured separated from what is somebody's word",
@@ -242,7 +242,7 @@ export const AI_AGENTS = [
   },
   {
     id: "siteops",
-    name: "Agent 6 — Site Operations",
+    name: "Workstream 6 — Site Operations",
     inputs: ["Fault reports and helpdesk tickets", "Inspection results and utility data", "Cleaning, security, occupancy and maintenance records"],
     outputs: ["Priority-ranked work orders and SLA countdowns", "Repeat-failure detection and responsible supplier assignment", "Escalation notices and planned-maintenance reminders", "Daily operational dashboard"],
     boundary: "The Site Integration Manager controls emergency prioritisation and physical response.",
@@ -251,7 +251,7 @@ export const AI_AGENTS = [
   },
   {
     id: "assurance",
-    name: "Agent 7 — Assurance & Evidence",
+    name: "Workstream 7 — Assurance & Evidence",
     inputs: ["Inspection records, certificates and photographs", "Commissioning results and supplier documents", "Training records and asset information"],
     outputs: ["Evidence completeness report and nonconformance alerts", "Certificate expiry warnings", "Handover index and missing-document requests", "Acceptance-readiness status"],
     boundary: "Cannot close defects or approve work — authorised human acceptance only.",
@@ -260,7 +260,7 @@ export const AI_AGENTS = [
   },
   {
     id: "diagnostic",
-    name: "Agent 8 — Site Systems Diagnostic",
+    name: "Workstream 8 — Site Systems Diagnostic",
     inputs: ["Project programme, workforce forecast and proposed site layout", "Existing logistics plan and stated temporary-services requirements", "Current procurement packages, known mobilisation constraints and available site and utility information"],
     outputs: ["Site-service package map, scope-gap assessment and supplier-interface matrix", "Workforce, utility, welfare and accommodation demand — calculated, with assumptions stated", "The consent chain worked backwards from the access date", "Procurement strategy, preliminary risk register and indicative cost structure", "Recommended delivery model and the 30/60/90-day action list"],
     boundary: "Decision support only. Every load, ratio and duration is a first-pass planning figure for validation by a competent person; anything safety-critical is flagged rather than resolved.",
@@ -269,7 +269,7 @@ export const AI_AGENTS = [
   },
   {
     id: "site-requirements",
-    name: "Agent 9 — Site Management Requirements Package",
+    name: "Workstream 9 — Site Management Requirements Package",
     inputs: ["The scope package by package, the programme and required-on-site dates, the site layout", "The client's own standards and specifications, planning consents and conditions", "Utility positions and capacities, workforce and shift pattern, HSE and CDM arrangements, intended route to market"],
     outputs: ["Package structure with every scope boundary stated as a witnessed physical point", "Employer's Requirements package by package — every obligation verifiable and traced to its source", "Interface and responsibility matrix, technical, welfare and service-level requirements", "Statutory and CDM duties with the role holder named, programme requirements worked backwards", "Commercial requirements, evaluation model, contract strategy and the tender issue plan"],
     boundary: "A drafting service and decision support, not a design, a price or legal advice. Nothing in it appoints ETABLIX as CDM Principal Contractor. Requirements marked [PROPOSED] need the client's approval before issue.",
@@ -278,7 +278,7 @@ export const AI_AGENTS = [
   },
   {
     id: "mobilisation-review",
-    name: "Agent 10 — Mobilisation-readiness review",
+    name: "Workstream 10 — Mobilisation-readiness review",
     inputs: ["What was seen on the review visit, and what could not be reached", "The current programme and the mobilisation date being tested; the status of every service and package today", "Consents and connections, the layout as it will be at mobilisation, supplier appointments and lead times, the client's own risk register"],
     outputs: ["Readiness by service, rated READY / AT RISK / NOT READY with the evidence class of each", "What will stop mobilisation, ranked by the date it bites rather than by how large it feels", "The consent and connection position worked backwards from the date", "Recovery actions ordered by the date each must START", "A verdict on the date: deliverable, deliverable with named actions, or not deliverable with the earliest date that is"],
     boundary: "Decision support only. Every readiness statement carries its evidence class — observed, evidenced, asserted or unknown — and a verdict resting substantially on assertion says so. Anything safety-critical is flagged rather than resolved.",
@@ -287,7 +287,7 @@ export const AI_AGENTS = [
   },
   {
     id: "village-requirements",
-    name: "Agent 11 — Workforce Village Requirements Package",
+    name: "Workstream 11 — Workforce Village Requirements Package",
     inputs: ["Bed demand over the whole programme, the village site, and the planning position", "Utility positions, the intended accommodation standard and how the village is to be operated", "Deployment duration and the exit, transport strategy, committed packages, and the fire strategy if one exists"],
     outputs: ["Bed demand and occupancy model, with the sensitivity to the travelling proportion shown", "Site capacity appraisal, accommodation standard and unit schedule", "Layout, utility, catering, amenity and operating requirements — each measurable", "Consents and licensing worked backwards from first occupancy", "Deployment, exit and procurement strategy for the village"],
     boundary: "NOT A FIRE STRATEGY. Fire, means of escape, compartmentation, alarm and detection, evacuation and fire-service access are life-safety matters for a competent fire engineer and the fire and rescue authority; this package states the requirement and refers them. A drafting service and decision support, not a design, a price or legal advice.",
@@ -296,7 +296,7 @@ export const AI_AGENTS = [
   },
   {
     id: "procurement",
-    name: "Agent 12 — Managed Procurement Desk: tender evaluation",
+    name: "Workstream 12 — Managed Procurement Desk: tender evaluation",
     inputs: ["The package and its scope boundary, and the technical requirements the enquiry put to the market", "The tender returns — each tenderer's price, qualifications and exclusions", "The evaluation model as issued, the contract terms, the budget held in confidence, and the client's approval route"],
     outputs: ["The process record, written so the award can be defended if it is questioned", "Requirement-by-requirement compliance, with the treatment of each non-compliance applied consistently", "The commercial comparison NORMALISED — every adjustment shown as its own line with its source", "Every qualification found and valued: what accepting each return as written costs beyond its price", "Scores against the model as issued, and a recommendation with its conditions and its named alternative"],
     boundary: "A recommendation for a named human with delegated authority. ETABLIX does not award, does not place orders and does not commit the client to any supplier. No adjustment is ever invented: where one cannot be derived it is carried as an open item and the ranking is provisional.",
@@ -305,7 +305,7 @@ export const AI_AGENTS = [
   },
   {
     id: "tender-pack",
-    name: "Agent 13 — Tender pack assembler",
+    name: "Workstream 13 — Tender pack assembler",
     inputs: ["The APPROVED Site Management Requirements Package, in full", "The tender timetable the client has set, the tenderers, and the confirmed contract form", "How clarifications are handled and where returns go, the client's own forms and procurement rules, and which [PROPOSED] requirements have since been approved"],
     outputs: ["Instructions to tenderers and conditions of tendering, written as the documents a tenderer receives", "A scope sheet for every package — boundary, items, attendances, acceptance and exclusions", "The pricing schedule BLANK AND PRICEABLE: every line referenced to a scope item, with a unit and a quantity", "Technical and commercial return forms mapped to the criteria they are evidence for, and the form of tender", "The issue register and an issue certificate carrying the scope-to-price reconciliation"],
     boundary: "An assembly of an approved document, not a second opinion: nothing is added to the requirements package and no silence in it is filled — a gap is an open item. The CLIENT issues and the CLIENT awards; ETABLIX does not award, place orders or commit the client to any tenderer.",
@@ -314,9 +314,9 @@ export const AI_AGENTS = [
   },
   {
     id: "challenge",
-    name: "Agent 14 — Adversarial Challenger",
+    name: "Workstream 14 — Adversarial Challenger",
     inputs: [
-      "THE DOCUMENT UNDER REVIEW in full — another agent's finished output, exactly as it would be issued",
+      "THE DOCUMENT UNDER REVIEW in full — another workstream's finished output, exactly as it would be issued",
       "The invitation, brief, specification or contract it answers, and the evaluation methodology if it was published",
       "The price, the qualifications and the exclusions that go with it, and the evidence held with its expiry dates",
       "The authority position — who may sign, to what value, for what risk class — and the run that produced the document, so independence can be shown rather than claimed",
@@ -356,7 +356,7 @@ export const AI_AGENTS = [
    * ------------------------------------------------------------------- */
   {
     id: "obligation",
-    name: "Agent 15 — Obligation Monitor",
+    name: "Workstream 15 — Obligation Monitor",
     inputs: [
       "The project, whose contract form and any bespoke amendments are already recorded in the clause graph",
       "Project-specific obligations that are not in the standard form, each with its party, trigger, action, period, method, evidence and consequence",
@@ -374,7 +374,7 @@ export const AI_AGENTS = [
   },
   {
     id: "notice",
-    name: "Agent 16 — Notice Agent",
+    name: "Workstream 16 — Notice Monitor",
     inputs: [
       "The project and the recorded contract event the notice is about",
       "The effect on the works in facts rather than adjectives, and the cause or the relief sought where the notice kind needs one",
@@ -391,7 +391,7 @@ export const AI_AGENTS = [
   },
   {
     id: "change",
-    name: "Agent 17 — Change and Entitlement Agent",
+    name: "Workstream 17 — Change and Entitlement Assessor",
     inputs: [
       "The change register: reference, title, state, relief sought, the instruction and its date",
       "For each priced change, its elements with a basis on every one, its total, the days claimed and the programme impact behind them",
@@ -409,7 +409,7 @@ export const AI_AGENTS = [
   },
   {
     id: "estimating",
-    name: "Agent 18 — Estimating Agent",
+    name: "Workstream 18 — Estimator",
     inputs: [
       "The priced lines: quantity, unit, rate and total, each with its own lineage",
       "The scope items the estimate must cover, and any approved exclusions",
@@ -427,7 +427,7 @@ export const AI_AGENTS = [
   },
   {
     id: "submission",
-    name: "Agent 19 — Submission Controller",
+    name: "Workstream 19 — Submission Controller",
     inputs: [
       "The portal's upload slots and its mandatory form fields, and the return deadline",
       "The artefacts as they will be uploaded: filename, slot, pages, words, signature and any expiry",
@@ -437,13 +437,13 @@ export const AI_AGENTS = [
       "Nine administrative checks: mandatory fields, filenames, page and word limits, formats, signatures, the price in two places, contradictions, expiring certificates and empty slots",
       "A blunt verdict — READY TO UPLOAD, or DO NOT UPLOAD with what fails",
     ],
-    boundary: "It checks the ARTEFACTS, not the content: whether every required deliverable was written is Agent 2's question and it is already answered by that agent's own reconciliation. It uploads nothing — the last act before a submission is a person deciding to submit. A certificate is tested against the DEADLINE rather than against today, because a policy that lapses two days before the return date is evidence of nothing on the day it is assessed.",
+    boundary: "It checks the ARTEFACTS, not the content: whether every required deliverable was written is Workstream 2's question and it is already answered by that agent's own reconciliation. It uploads nothing — the last act before a submission is a person deciding to submit. A certificate is tested against the DEADLINE rather than against today, because a policy that lapses two days before the return date is evidence of nothing on the day it is assessed.",
     backing: ["engine", "llm"],
     desk: "Every one of the nine is a rejection that has happened to somebody, and none of them is about the quality of the bid. It runs at the point where somebody is about to press upload, which is why its verdict is deliberately blunt: a nuanced summary at that moment is a summary nobody reads.",
   },
   {
     id: "programme",
-    name: "Agent 20 — Programme Generation Agent",
+    name: "Workstream 20 — Programme Generator",
     inputs: [
       "The activities with their logic: predecessors, successors, dates, durations, float and constraints",
       "The quantity and output rate behind each duration, or the source of each procurement lead time",
@@ -459,7 +459,7 @@ export const AI_AGENTS = [
   },
   {
     id: "recovery",
-    name: "Agent 21 — Recovery Agent",
+    name: "Workstream 21 — Recovery Planner",
     inputs: [
       "The baseline fingerprint recorded at award, and the fingerprint of the programme being analysed",
       "The planned and forecast completion dates, and the working days remaining",
@@ -476,7 +476,7 @@ export const AI_AGENTS = [
   },
   {
     id: "productivity",
-    name: "Agent 22 — Productivity Agent",
+    name: "Workstream 22 — Productivity Analyser",
     inputs: [
       "The control accounts as budgeted: quantity, hours, unit and labour rate",
       "The measured periods: units placed and hours booked, per account, with the period each covers",
@@ -493,7 +493,7 @@ export const AI_AGENTS = [
   },
   {
     id: "safety",
-    name: "Agent 23 — Safety Assurance Agent",
+    name: "Workstream 23 — Safety Assurance Review",
     inputs: [
       "The planned activities and their dates, and the risk assessments and method statements with the activities each covers",
       "The permits with their validity and the work each covers, and who issued them",
@@ -511,7 +511,7 @@ export const AI_AGENTS = [
   },
   {
     id: "audit",
-    name: "Agent 24 — Audit Agent",
+    name: "Workstream 24 — Audit Review",
     inputs: [
       "The audit programme: area, auditor, the auditor's own area, the planned and actual dates, and the clauses covered",
       "The findings: grade, owner, date raised, and for a closure its evidence, closer, verifier and root cause",
@@ -529,7 +529,7 @@ export const AI_AGENTS = [
   },
   {
     id: "model",
-    name: "Agent 25 — Model Validation Agent",
+    name: "Workstream 25 — Model Validator",
     inputs: [
       "The federated models with their declared units and base points, and the project's own",
       "The elements with their names, classification codes, level of information, host level, system, type and coordinates",
@@ -545,7 +545,7 @@ export const AI_AGENTS = [
   },
   {
     id: "quantity",
-    name: "Agent 26 — Quantity Agent",
+    name: "Workstream 26 — Quantity Reconciler",
     inputs: [
       "The quantities taken from the model, item by item, with their units",
       "The bill of quantities for the same items, with the rates",
@@ -562,7 +562,7 @@ export const AI_AGENTS = [
   },
   {
     id: "asset",
-    name: "Agent 27 — Asset Agent",
+    name: "Workstream 27 — Asset Register",
     inputs: [
       "The asset register as it stands, with tags, types, systems, locations and parents",
       "The tagging convention, and the attributes each asset type requires under the employer's information requirements",
@@ -579,7 +579,7 @@ export const AI_AGENTS = [
   },
   {
     id: "commissioning",
-    name: "Agent 28 — Commissioning Agent",
+    name: "Workstream 28 — Commissioning Controller",
     inputs: [
       "Each system with its installing contractor and the commissioning stages it has reached, with the date and the witness for each",
       "The performance tests with their criterion, target, tolerance, result and recorded pass or fail",
@@ -597,7 +597,7 @@ export const AI_AGENTS = [
   },
   {
     id: "handover-file",
-    name: "Agent 29 — Handover Agent",
+    name: "Workstream 29 — Handover Controller",
     inputs: [
       "Each asset with its twelve evidence types, each carrying a document reference and any expiry",
       "The contractual handover date",
@@ -615,7 +615,7 @@ export const AI_AGENTS = [
   },
   {
     id: "lifecycle",
-    name: "Agent 30 — Lifecycle and Asset Information Agent",
+    name: "Workstream 30 — Lifecycle and Asset Information Controller",
     inputs: [
       "Each asset's expected life, replacement cycle and year of first replacement",
       "The replacement cost with its basis, price base date, currency and source",
@@ -717,7 +717,7 @@ export const OPERATING_PRINCIPLE = [
   "Fractional professional assurance",
   "Project-funded management team",
   "Subcontracted physical workforce",
-  "AI-driven administrative production",
+  "systematised administrative production",
   "Human-controlled decisions and approvals",
 ];
 
@@ -883,10 +883,10 @@ export const LEVEL_7 = [
   { id: "L7.2", name: "Evidence-bound assertion", state: "built",
     test: "No sentence enters a submission unless it resolves to an evidence object approved and unexpired at the submission deadline. Enforced by a gate, not a prompt.",
     where: "The evidence registry holds objects with an expiry, and gate GE-EV-01 compares that expiry to the SUBMISSION DEADLINE rather than to today — a certificate valid this morning and lapsed the day before the deadline is refused. An unreadable expiry counts as lapsed; an insurance or accreditation with no expiry at all is refused at the door. The registry does not fill itself: somebody still has to put the certificates in it.",
-    was: "Agent 2 refuses to claim an accreditation, certificate or reference that is not in its inputs, and marks what it needs as EVIDENCE REQUIRED with who holds it. That is a brief and a habit, not a registry: nothing yet holds evidence objects with an expiry date, so nothing can check that a certificate is still valid on the day the bid is submitted." },
+    was: "Workstream 2 refuses to claim an accreditation, certificate or reference that is not in its inputs, and marks what it needs as EVIDENCE REQUIRED with who holds it. That is a brief and a habit, not a registry: nothing yet holds evidence objects with an expiry date, so nothing can check that a certificate is still valid on the day the bid is submitted." },
   { id: "L7.3", name: "Adversarial self-challenge", state: "built",
     test: "Every material output — a price, a programme, a response, an assumption — is attacked by an independent agent with a different model and prompt lineage before human review.",
-    where: "Agent 14 is the challenger. It is given another agent's finished output and the invitation it answers, and NOT the author's working paper or reasoning — a challenger who reads why something was done is persuaded by it, and the evaluator scoring the bid will not have that document either. Nine lenses, each written on its own pass, then a findings register. The fifth reconciliation refuses the report unless every lens carries a section with something under it, every finding names one of the nine lenses, one of the four severities, a location and a remedy, and no critical finding carries a disposition. A report with nine lenses and no findings at all is refused: a submission with nothing wrong with it has not been challenged, it has been read. AND IT IS NOW OBLIGATORY: a bid file is not numbered without an independent challenge that ran, was approved, passed its own check and left no critical finding open. Refused at the mint rather than warned about on a screen, because a control that can be walked past at four o'clock on the day of the deadline is not a control, and there is no override parameter that gets past it.",
+    where: "Workstream 14 is the challenger. It is given another workstream's finished output and the invitation it answers, and NOT the author's working paper or reasoning — a challenger who reads why something was done is persuaded by it, and the evaluator scoring the bid will not have that document either. Nine lenses, each written on its own pass, then a findings register. The fifth reconciliation refuses the report unless every lens carries a section with something under it, every finding names one of the nine lenses, one of the four severities, a location and a remedy, and no critical finding carries a disposition. A report with nine lenses and no findings at all is refused: a submission with nothing wrong with it has not been challenged, it has been read. AND IT IS NOW OBLIGATORY: a bid file is not numbered without an independent challenge that ran, was approved, passed its own check and left no critical finding open. Refused at the mint rather than warned about on a screen, because a control that can be walked past at four o'clock on the day of the deadline is not a control, and there is no override parameter that gets past it.",
     was: "THE CHECK IS BUILT AND THE CHALLENGER IS NOT. A review by its own run, or on the author's prompt lineage, is refused as an assurance result; a high-risk lens demands a different model route or a deterministic validator; the red team is routed off the author's model automatically; and a lens nobody ran counts as unrun rather than clean. What does not exist is an agent that actually runs the nine lenses — so the rules that would govern the challenge are in place and nothing yet performs it.",
     wasBefore: "Nothing does this. It is the cheapest of the seven to add inside the current system and probably the most valuable per hour spent, because the four reconciliations already prove that a mechanical second opinion catches what a first pass will not." },
   { id: "L7.4", name: "Time-travel state", state: "built",
@@ -896,7 +896,7 @@ export const LEVEL_7 = [
   { id: "L7.5", name: "Full lineage", state: "built",
     test: "Every number in a price traces back to source, date, currency, quantity basis, productivity assumption, quote validity and approver.",
     where: "A number is a node that names its parents, and the chain walks back to its sources. Confidence cannot rise through arithmetic: a total computed from a rate somebody was sixty per cent sure of is sixty per cent, and the overstatement is named rather than silently accepted. A cycle is refused. A changed source marks stale exactly its descendants. THE CONDITION IS NOW MET FOR AN ESTIMATING AGENT and that agent still does not exist.",
-    was: "A document now records the run that produced it, and Agent 5 classes every figure as measured, evidenced, asserted or unknown. Neither is a lineage chain: there is no estimating agent, and there must not be one until lineage exists — an automated price nobody can defend is worse than a slow one." },
+    was: "A document now records the run that produced it, and Workstream 5 classes every figure as measured, evidenced, asserted or unknown. Neither is a lineage chain: there is no estimating agent, and there must not be one until lineage exists — an automated price nobody can defend is worse than a slow one." },
   { id: "L7.6", name: "Governed learning", state: "built",
     test: "Wins, losses, feedback and post-award variance update calibrated priors through a promotion pipeline with human approval. No agent output becomes institutional truth automatically.",
     where: "Five partitions kept apart: an agent's working context, project facts, user preference, organisational policy and approved lessons. An agent may write the first three and may only PROPOSE into the last two; it cannot write a lesson, cannot approve its own proposal, and no role below knowledge steward can promote one. The bid score cites approved lessons as evidence and REFUSES a thin prior — two observations is attached as context and does not count, because an anecdote quietly becoming a planning assumption is how an ungoverned memory compounds an error across every future bid. Institutional entries carrying no approver are counted rather than assumed to be zero.",
@@ -976,7 +976,7 @@ export const ENGINES = [
     id: "resource",
     name: "Resource and Cost Engine",
     purpose: "What it costs, what it earns and when the cash arrives.",
-    // The cost and cash-flow work is delivered inside Agent 5's monthly
+    // The cost and cash-flow work is delivered inside Workstream 5's monthly
     // control report — the valuation, the payment recommendations, the
     // forecast and the exposure test against the reserve. It is named here
     // rather than given a slot of its own, because an agent listed twice is
@@ -1143,7 +1143,7 @@ export const FOUNDATIONS = [
     was: "Nothing here reconstructs a historic position. An agent that always reads the latest file destroys the very position a claim depends on, and that is the gap most likely to cost real money." },
   { id: "provenance", name: "Provenance", state: "built",
     what: "Every conclusion links to its source, and verified fact, extracted fact, calculation, assumption, prediction, recommendation and human decision are distinguished from one another.",
-    where: "Every pipeline agent traces its output to the input that produced it, marks evidence class, and refuses to invent what it was not given. Agent 5 values what the evidence supports and says so on the row." },
+    where: "Every pipeline agent traces its output to the input that produced it, marks evidence class, and refuses to invent what it was not given. Workstream 5 values what the evidence supports and says so on the row." },
   { id: "contract", name: "Contract awareness", state: "built",
     what: "Reasoning inside the project's actual contract and its bespoke amendments, not generic construction knowledge — the same site event produces different rights, processes and time bars under different forms.",
     where: "The project's own contract is a graph of clauses with triggers, periods, time bars and a precedence order, and bespoke amendments supersede the standard clauses they name. See L7.1. Payment law is computed as before.",
@@ -1202,16 +1202,16 @@ export const FAILURE_MODES = [
   { mode: "One general-purpose agent", avoided: true, how: "Thirteen agents inside stated boundaries; nine with their own pipeline." },
   { mode: "Document chat with no structured data", avoided: true, how: "Every deliverable is split into numbered sections and reconciled by machine." },
   { mode: "Uncontrolled access to email and contractual communication", avoided: true, how: "No agent sends anything. Every communication is drafted and a person issues it." },
-  { mode: "Progress percentages with no evidence", avoided: true, how: "Agent 5 classes every figure as measured, evidenced, asserted or unknown, and values what the evidence supports." },
+  { mode: "Progress percentages with no evidence", avoided: true, how: "Workstream 5 classes every figure as measured, evidenced, asserted or unknown, and values what the evidence supports." },
   { mode: "Current documents with no historic revision context", avoided: true, how: "Facts carry a valid time and a transaction time, and a correction closes the earlier version rather than replacing it — so what was known on a date survives the correction that proved it wrong. Coverage is still partial: contract events are written this way and most of the system is not.",
     was: "Not addressed. See the temporal foundation above — this is the largest open gap." },
-  { mode: "AI-generated estimates with no source lineage", avoided: true, how: "Lineage exists: every number names its parents, confidence cannot rise through arithmetic, and a calculation with no parents is refused. There is still no estimating agent — but the reason has changed from 'it must not be built yet' to 'it may now be built', which is a different sentence and the register should not have kept saying the first one.",
-    was: "No estimating agent exists yet, and it must not be built before lineage is." },
+  { mode: "Produced estimates with no source lineage", avoided: true, how: "Lineage exists: every number names its parents, confidence cannot rise through arithmetic, and a calculation with no parents is refused. There is still no estimating workstream — but the reason has changed from 'it must not be built yet' to 'it may now be built', which is a different sentence and the register should not have kept saying the first one.",
+    was: "No estimating workstream exists yet, and it must not be built before lineage is." },
   { mode: "Automatic learning from unverified project records", avoided: true, how: "There is no memory at all, which on this point is the safe answer." },
   { mode: "Many agents with no common project state", avoided: true, how: "Runs, documents, engagements, contracts, site events, evidence, lineage and memory are all shared structured state.",
     was: "Partly. Runs, documents and engagements are shared; contracts and site events are not." },
   { mode: "Confidence scores produced only by the model itself", avoided: true, how: "Every gate is arithmetic performed outside the model: references compared, figures added, dates ordered." },
-  { mode: "A review that reads as thorough and contains nothing anybody can act on", avoided: true, how: "Agent 14's report is refused unless every finding names a lens, a severity, a location and a remedy — and a report with nine lenses and no findings at all is refused outright. An absence of findings under a lens is indistinguishable from the lens never having been applied, so the machine looks for the heading and for something underneath it." },
+  { mode: "A review that reads as thorough and contains nothing anybody can act on", avoided: true, how: "Workstream 14's report is refused unless every finding names a lens, a severity, a location and a remedy — and a report with nine lenses and no findings at all is refused outright. An absence of findings under a lens is indistinguishable from the lens never having been applied, so the machine looks for the heading and for something underneath it." },
   { mode: "Work marked by the run that produced it", avoided: true, how: "The independence check refuses a review whose run or prompt lineage is the author's, and the challenger runs as its own agent on its own run rather than as a final pass." },
   { mode: "Promising to replace project managers", avoided: true, how: "The register, every agent boundary and the website all say the opposite, and the AUTONOMY table above is what it means in practice." },
 ];

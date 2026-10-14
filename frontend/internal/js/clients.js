@@ -253,8 +253,8 @@ function detail() {
       ${e.diagnosticRunMissing
         ? `<b>This run is no longer in the run log.</b> It was started, and the record of it has gone — a capped log, or a store restored from before it finished. There is nothing to resume or publish, and the dates above still stand. Run it again on the client's pack; the button is above.`
         : e.diagnosticRunning
-          ? `It is working now — six passes over the client's pack, several minutes. Watch it under <b>Organisation → AI agents</b>. Do not start another unless it has genuinely stopped moving.`
-          : `Watch it finish under <b>Organisation → AI agents</b>, then publish it from the box above.`}</p>
+          ? `It is working now — six passes over the client's pack, several minutes. Watch it under <b>Organisation → workstreams</b>. Do not start another unless it has genuinely stopped moving.`
+          : `Watch it finish under <b>Organisation → workstreams</b>, then publish it from the box above.`}</p>
       <p class="panel-sub" style="margin:8px 0 0;font-size:0.8rem;">You can run it again at any time — on the same pack, as many times as you need. A new run replaces this one as the engagement's current run; the earlier ones stay in the run log and are listed below. <b>Neither date moves</b>: the handover and the report due date are read from the client's checklist, not from when you pressed the button.</p>
       ${(e.diagnosticRuns || []).length ? `<p class="panel-sub" style="margin:8px 0 0;font-size:0.8rem;">Superseded: ${e.diagnosticRuns.map((h) => `<code>${esc(h.id)}</code> (${esc(h.status)})`).join(" · ")}</p>` : ""}
     </div>` : ""}
@@ -460,7 +460,7 @@ function wire(body) {
           method: "POST", body: JSON.stringify({ force: Boolean(btn.dataset.running) }),
         });
         await loadClients();
-        note(`${out.replaced ? "New run started" : "Diagnostic started"} on ${out.files} client document(s). Handover ${out.handover}, report due ${out.due}. It runs six passes and takes several minutes — watch it under Organisation → AI agents.`);
+        note(`${out.replaced ? "New run started" : "Diagnostic started"} on ${out.files} client document(s). Handover ${out.handover}, report due ${out.due}. It runs six passes and takes several minutes — watch it under Organisation → workstreams.`);
         return;
       }
       if (btn.dataset.act === "follow") {
@@ -473,7 +473,7 @@ function wire(body) {
           method: "POST", body: JSON.stringify({ force: Boolean(btn.dataset.running) }),
         });
         await loadClients();
-        note(`Tender pack assembly started from the approved requirements package. Handover ${out.handover}, due ${out.due}. Watch it under Organisation → AI agents; when it finishes, the run notes carry the scope-to-price reconciliation and a pack that does not reconcile must not be issued.`);
+        note(`Tender pack assembly started from the approved requirements package. Handover ${out.handover}, due ${out.due}. Watch it under Organisation → workstreams; when it finishes, the run notes carry the scope-to-price reconciliation and a pack that does not reconcile must not be issued.`);
         return;
       }
       if (btn.dataset.act === "copy") {

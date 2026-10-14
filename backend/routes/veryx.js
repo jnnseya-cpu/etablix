@@ -1,5 +1,5 @@
 /**
- * VERYX internal API — the OS view for employees: risk register, AI agent
+ * VERYX internal API — the OS view for employees: risk register, workstream
  * catalogue and runs, and platform usage.
  *
  * Two data sources, chosen automatically per request:
@@ -133,7 +133,7 @@ router.get("/risks", safe(async (req, res) => {
   res.json({ source, risks: [...value].sort((a, b) => (b.score || 0) - (a.score || 0)) });
 }));
 
-/** GET /api/veryx/agents — AI agent catalogue with ACU cost. */
+/** GET /api/veryx/agents — workstream catalogue with ACU cost. */
 router.get("/agents", safe(async (req, res) => {
   const { source, value } = await fromPlatform("/agents", () => collection("agents"), extractAgents);
   // Run history is always the local audit trail, whichever source ran the agent.

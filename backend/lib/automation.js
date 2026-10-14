@@ -41,9 +41,31 @@ import { dataDir } from "./store.js";
  * "backups ran", which are not the same claim and only one of them is worth
  * anything at three in the morning.
  */
-function lastBackupAt() {
-  try { return Number(fs.readFileSync(path.join(dataDir(), "last-backup"), "utf8").trim()) || null; }
+export function lastBackupAt() {
+  let raw;
+  try { raw = Number(fs.readFileSync(path.join(dataDir(), "last-backup"), "utf8").trim()); }
   catch { return null; }
+  if (!Number.isFinite(raw) || raw <= 0) return null;
+  // THE STAMP IS SECONDS. THIS COMPARES AGAINST Date.now(), WHICH IS NOT.
+  //
+  // backup.sh writes `date +%s`, so the file holds seconds. This function
+  // used to hand that straight to a millisecond subtraction, and the result
+  // was an alert reporting the last backup as 497272 hours ago — which is
+  // Date.now() minus Date.now()/1000, i.e. the epoch, not a real gap. The
+  // backups were running the whole time. A monitor that cries wolf about
+  // backups is worse than no monitor, because the one night it is right is
+  // the night it gets ignored.
+  //
+  // Normalised here rather than in the shell script because the stamp
+  // already on the server is in seconds, and a restored older stamp would
+  // be too. 1e12 ms is September 2001, so anything below it cannot be a
+  // millisecond timestamp for any date this platform will ever see.
+  const ms = raw < 1e12 ? raw * 1000 : raw;
+  // A stamp in the future is a clock problem, not a fresh backup, and
+  // treating it as fresh would silence the alert for as long as the skew
+  // lasts. Allow an hour for ordinary drift, then refuse to trust it.
+  if (ms > Date.now() + 3600000) return null;
+  return ms;
 }
 
 const DAY = 86400000;

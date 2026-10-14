@@ -40,7 +40,7 @@ router.get("/", ...finance, (req, res) => {
 });
 
 /**
- * POST /api/engagements/draft-scope — the AI engine expands a short
+ * POST /api/engagements/draft-scope — the production engine expands a short
  * brief into a deep, priceable scope of works. Draft only: the buyer
  * edits before sending; nothing reaches a supplier unreviewed.
  */
@@ -56,7 +56,7 @@ router.post("/draft-scope", ...finance, async (req, res) => {
     res.json({ draft });
   } catch (err) {
     const msg = /authentication|invalid.*key/i.test(err.message)
-      ? "The AI engine key was rejected — check it under Organisation → AI engine."
+      ? "The production engine key was rejected — check it under Organisation → production engine."
       : err.message;
     res.status(502).json({ error: msg });
   }

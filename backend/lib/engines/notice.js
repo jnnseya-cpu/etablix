@@ -209,7 +209,20 @@ export function recordGiven({ project, eventId, clause, by = null, role = null, 
   const faults = [];
   const who = String(by || "").trim();
   if (!who) faults.push("nobody is named as giving it. A notice recorded as given by nobody is a notice nobody gave.");
-  if (/agent|system|automation|bot/i.test(who)) {
+  // WHAT COUNTS AS "NOT A PERSON" HAS TO TRACK WHAT THE PRODUCERS ARE CALLED.
+  //
+  // This was /agent|system|automation|bot/ and it held for as long as every
+  // producer had "Agent" in its name. When the display names were changed —
+  // Notice Agent became Notice Monitor, Quantity Agent became Quantity
+  // Reconciler — the gate silently stopped recognising the very things it
+  // exists to refuse, and a notice could have been recorded as given by
+  // "Notice Monitor". The record would then have been the evidence relied on.
+  //
+  // So the list covers the role nouns the producers are now named with, and
+  // engines.test.mjs asserts that EVERY registered display name is refused —
+  // which is what stops this drifting again the next time something is
+  // renamed. A real giver is a person's name, never a role noun.
+  if (/\bagent|system|automation|\bbot\b|workstream|monitor|engine|platform|construx|veryx|assessor|estimator|generator|planner|analyser|analyzer|validator|reconciler|controller|\breview\b|\bregister\b/i.test(who)) {
     faults.push(`"${who}" is not a person. Giving a contractual communication is reserved to a person with authority, and recording an agent as the giver would make this record the evidence relied on.`);
   }
   if (!String(role || "").trim()) faults.push("no authority stated. The question asked later is not who sent it but who was entitled to.");

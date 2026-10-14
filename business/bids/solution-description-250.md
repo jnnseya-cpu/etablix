@@ -34,9 +34,9 @@ version of this answer that survives a check.
 > CONSTRUX (construxvg.com) closes it in data. Commercial, programme, site,
 > safety, supplier and information control sit in one system of record, so the
 > project position is computed rather than reassembled each month.
-> Deterministic engines run before any AI model and produce the findings; the
-> model writes the report from them and cannot recompute them, so every output
-> traces to the rule and record behind it.
+> Sixteen deterministic engines produce the findings against written rules, and
+> the report presents those findings without the power to recompute them, so
+> every output traces to the clause and the record behind it.
 >
 > VERYX (veryxjnn.com) closes it at portfolio level. The same governed data
 > rolls up, so executives see what projects see and a risk raised on site
@@ -63,10 +63,11 @@ attribute it. But it is why the paragraph reads as observed rather than
 invented, and it will read that way to anybody who has run these projects.
 
 **The CONSTRUX paragraph is the technical differentiator.** Deterministic
-engines running before the model, with the model forbidden from recomputing the
-findings, is an architectural claim about auditability rather than a claim about
-AI. Assessors are reading a great many applications that say "AI-powered". Very
-few say what stops the AI from being wrong.
+engines producing the findings, and a report with no power to recompute them, is
+an architectural claim about auditability. It is deliberately not a claim about
+any production technology: assessors are reading a great many applications that
+promise clever software, and almost none that say what makes an output
+checkable. Say what is traceable, never what generates it.
 
 **The last paragraph answers the unasked question.** Any assessor reading three
 product names wonders whether this is one thing or a portfolio being passed off

@@ -192,7 +192,7 @@ export const SINGLE_PASS_MAX_TOKENS = Number(process.env.ETABLIX_AI_SINGLE_PASS_
 
 const client = () => {
   const { apiKey } = getProvider();
-  if (!apiKey) throw new Error("The AI provider is not connected — an administrator adds the API key under Organisation → AI agents.");
+  if (!apiKey) throw new Error("The AI provider is not connected — an administrator adds the API key under Organisation → production engine.");
   return new Anthropic({ apiKey, timeout: CALL_TIMEOUT_MS, maxRetries: CALL_RETRIES });
 };
 
@@ -337,7 +337,7 @@ export const AGENT_BRIEFS = {
   opportunity: {
     system: `${COMPANY_BRIEF}
 
-You are Agent 1 — Opportunity Intelligence. From the target criteria and any pasted intelligence, produce, under these exact headings:
+You are Workstream 1 — Opportunity Intelligence. From the target criteria and any pasted intelligence, produce, under these exact headings:
 1. QUALIFIED OPPORTUNITY LIST — each opportunity: project, client, likely mobilisation window, workforce peak estimate if inferable, why it fits ETABLIX.
 2. INTELLIGENCE BRIEF — what is known, what is inferred (marked "inferred"), what is unknown.
 3. DECISION-MAKERS — likely roles to approach (Project Director, Construction Director, procurement lead) and, only if named in the inputs, actual people. Never invent names.
@@ -350,7 +350,7 @@ Boundary: you cannot contact anyone; every outreach list requires Managing Direc
       { name: "focus", label: "Specific question (optional)", type: "text" },
     ],
   },
-  // Agent 2 is a PIPELINE now. It was a single call with a 16,000-token
+  // Workstream 2 is a PIPELINE now. It was a single call with a 16,000-token
   // ceiling producing six headings, and the ceiling was not a theoretical
   // problem: a requirements register is one row per requirement with a
   // verbatim quote of its source line, and a real ITT has well over a
@@ -361,7 +361,7 @@ Boundary: you cannot contact anyone; every outreach list requires Managing Direc
     system: `${COMPANY_BRIEF}\n\n${BR.BRIEF_SYSTEM}`,
     fields: BR.FIELDS,
   },
-  // Agent 3 is a PIPELINE now, and its job changed shape.
+  // Workstream 3 is a PIPELINE now, and its job changed shape.
   //
   // It drafted an interface register in a single pass, alongside a demand
   // schedule and a mobilisation sequence. Three agents already drafted an
@@ -374,7 +374,7 @@ Boundary: you cannot contact anyone; every outreach list requires Managing Direc
     system: `${COMPANY_BRIEF}\n\n${IR.BRIEF_SYSTEM}`,
     fields: IR.FIELDS,
   },
-  // Agent 14. The only agent given another agent's finished work and told to
+  // Workstream 14. The only agent given another agent's finished work and told to
   // attack it. Its brief deliberately withholds the author's reasoning: a
   // challenger who reads why something was done is persuaded by it, and the
   // evaluator scoring the bid will not have that document either.
@@ -385,7 +385,7 @@ Boundary: you cannot contact anyone; every outreach list requires Managing Direc
   diagnostic: {
     system: `${COMPANY_BRIEF}
 
-You are Agent 8 — Site Systems Diagnostic. This is the paid entry engagement:
+You are Workstream 8 — Site Systems Diagnostic. This is the paid entry engagement:
 a client hands over eight documents and receives twelve deliverables inside
 ten working days. Produce all twelve, under these exact headings, in this
 order. A missing or thin section is a failed engagement — the client keeps
@@ -497,7 +497,7 @@ competent person rather than resolved.`,
   commercial: {
     system: `${COMPANY_BRIEF}
 
-You are Agent 4 — Commercial & Procurement. From the pasted quotations and scope, produce, under these exact headings:
+You are Workstream 4 — Commercial & Procurement. From the pasted quotations and scope, produce, under these exact headings:
 1. BID NORMALISATION TABLE — suppliers side by side on a common scope breakdown; convert to common units where possible.
 2. EXCLUSIONS & ASSUMPTIONS COMPARISON — what each bid leaves out, verbatim where stated.
 3. COMMERCIAL RISK SCHEDULE — gaps, abnormally low lines, unsustainable rates, interface risks between packages.
@@ -511,7 +511,7 @@ Boundary: no supplier appointment or payment ever happens on your recommendation
       { name: "budget", label: "Budget / target price and contract conditions (optional)", type: "textarea" },
     ],
   },
-  // Agent 5 is a PIPELINE now, and it does a bigger job than it used to.
+  // Workstream 5 is a PIPELINE now, and it does a bigger job than it used to.
   //
   // It was programme controls only: lookaheads, delay warnings and a decision
   // list, with no valuation anywhere in it. Model 02 sells "monthly
@@ -527,7 +527,7 @@ Boundary: no supplier appointment or payment ever happens on your recommendation
   siteops: {
     system: `${COMPANY_BRIEF}
 
-You are Agent 6 — Site Operations. From the fault reports, tickets and service records, produce, under these exact headings:
+You are Workstream 6 — Site Operations. From the fault reports, tickets and service records, produce, under these exact headings:
 1. PRIORITY-RANKED WORK ORDERS — P1 (life-safety/statutory) to P4; each with the responsible supplier, SLA clock, and the evidence line it came from.
 2. REPEAT-FAILURE DETECTION — patterns across the records; the systemic cause hypothesis, marked as hypothesis.
 3. ESCALATION NOTICES (DRAFT) — for anything breaching SLA or repeating, a draft notice to the responsible supplier.
@@ -542,7 +542,7 @@ Boundary: the Site Integration Manager controls emergency prioritisation and phy
   assurance: {
     system: `${COMPANY_BRIEF}
 
-You are Agent 7 — Assurance & Evidence. From the records supplied, produce, under these exact headings:
+You are Workstream 7 — Assurance & Evidence. From the records supplied, produce, under these exact headings:
 1. EVIDENCE COMPLETENESS REPORT — per package/system: what evidence exists, what is required, the gap.
 2. NONCONFORMANCE ALERTS — anything in the records that fails its acceptance criteria, quoting the record.
 3. CERTIFICATE EXPIRY WARNINGS — dated items expiring within 60 days, sorted by date.
@@ -564,7 +564,7 @@ Object.assign(AGENT_BRIEFS, Object.fromEntries(DETERMINISTIC.map((e) => [e.id, e
 
 
 /**
- * Agent 7 pre-assessment: draft prequalification scores from a
+ * Workstream 7 pre-assessment: draft prequalification scores from a
  * supplier registration. Returns suggested 0–5 scores per criterion
  * with rationale and a missing-evidence list — a DRAFT only; the named
  * human assessor adjusts and records. Scores conservatively: what is
@@ -604,7 +604,7 @@ export async function draftPrequal(application, criteria, { chSummary } = {}) {
     prompt: `Prequalification criteria:\n${criteriaText}\n\nSupplier registration:\n${registration}`,
     system: `${COMPANY_BRIEF}
 
-You are Agent 7 — Assurance & Evidence, drafting a supplier prequalification pre-assessment for a human assessor. Score each criterion 0–5 based ONLY on what the registration evidences. Rules:
+You are Workstream 7 — Assurance & Evidence, drafting a supplier prequalification pre-assessment for a human assessor. Score each criterion 0–5 based ONLY on what the registration evidences. Rules:
 - Be conservative: a claim without evidence scores at most 2; no information at all scores 0–1. Never assume documents contain what their filenames suggest — note them as "to verify" instead.
 - Your draft is a starting point the human will adjust after reviewing the actual documents; say what they must check.
 - Respond with ONLY a JSON object, no prose before or after, in exactly this shape:
@@ -612,12 +612,12 @@ You are Agent 7 — Assurance & Evidence, drafting a supplier prequalification p
   });
 
   const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error("Agent 7 returned no structured draft — try again.");
+  if (!match) throw new Error("Workstream 7 returned no structured draft — try again.");
   let draft;
   try {
     draft = JSON.parse(match[0]);
   } catch {
-    throw new Error("Agent 7's draft could not be parsed — try again.");
+    throw new Error("Workstream 7's draft could not be parsed — try again.");
   }
   const scores = {};
   for (const c of criteria) {
@@ -640,7 +640,7 @@ You are Agent 7 — Assurance & Evidence, drafting a supplier prequalification p
 }
 
 /**
- * Agent 3 support for procurement: expand a short package brief into a
+ * Workstream 3 support for procurement: expand a short package brief into a
  * deep, priceable scope of works for the supplier enquiry pack. A
  * DRAFT — the buyer reviews and edits before anything is sent.
  */
@@ -788,7 +788,7 @@ export const PIPELINE_AGENTS = new Set(Object.keys(PIPELINE_SPECS));
  * The stages a run reports as it works.
  *
  * A single-pass agent gets ONE stage, not the diagnostic's six. It used to
- * fall through to DIAGNOSTIC_SPEC, so asking for the stages of Agent 2 came
+ * fall through to DIAGNOSTIC_SPEC, so asking for the stages of Workstream 2 came
  * back with "Reading the documents against each other", "The demand model"
  * and four other things it never does. That was harmless while single-pass
  * agents ran in the foreground and nothing read their stages. It stops being
@@ -1029,7 +1029,7 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
    *
    * They were not. One call, 16,000 tokens, and a `truncated: true` flag on
    * the way out. The pipeline agents have been continuing their passes for
-   * weeks; agents 1 to 7 — including Agent 2, which reads a received tender
+   * weeks; agents 1 to 7 — including Workstream 2, which reads a received tender
    * and is the one most likely to meet the ceiling, because an ITT's
    * requirements register is one row per requirement — simply stopped.
    *
