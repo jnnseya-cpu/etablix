@@ -63,12 +63,23 @@ export function answer(task, prompt = "") {
     return JSON.stringify({
       scores,
       rationale,
-      missingEvidence: [
-        "Employers and public liability certificates",
-        "Two contactable references for comparable work",
-        "Evidence of the stated mobilisation lead time",
+      basis: "Scored from the registration alone. Almost everything is unevidenced rather than adverse — the figures reflect what is on file, not the supplier's actual capability.",
+      risks: [
+        "No insurance certificates on file, so cover limits and jurisdiction are unknown.",
+        "No independent references, so the stated experience is unverified.",
       ],
-      note: "A conservative first pass from the registration alone. Nothing here has been verified against a document, and the assessor must review the uploaded certificates before recording a status.",
+      recommendation: "Issue the full questionnaire and obtain the outstanding evidence before this registration goes to any shortlist.",
+      // Grouped under the criteria they block, which is the shape the page
+      // renders and the assessor reads alongside the scorecard.
+      missingEvidence: ids.slice(0, 3).map((id, i) => ({
+        criterion: id,
+        items: i === 0
+          ? ["Employers and public liability certificates showing limits, insurer and period",
+             "Confirmation that cover responds in this jurisdiction"]
+          : i === 1
+            ? ["Two contactable references for comparable work"]
+            : ["Evidence of the stated mobilisation lead time"],
+      })),
     });
   }
 

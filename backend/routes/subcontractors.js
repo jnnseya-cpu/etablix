@@ -398,6 +398,61 @@ router.post("/:id/assessment/draft", requireAuth, requireRole(...ACCESS.DELIVERY
 });
 
 /**
+ * POST /api/subcontractors/:id/assessment/request-information — one click:
+ * tell the supplier exactly what is outstanding, give them a live link to
+ * re-submit against, and park the application.
+ *
+ * WHY THIS IS NOT A DECISION. The draft produces a list of outstanding
+ * evidence, and the assessor's realistic next move is almost never
+ * prequalify or decline — it is "go and get these twenty-four things". Before
+ * this existed that meant composing an email by hand from a wall of text, so
+ * in practice it meant the registration sat untouched and the supplier heard
+ * nothing.
+ *
+ * The status it sets is "information_requested", which is pending by
+ * construction: the shortlist filters admit only prequalified and approved,
+ * so nothing here can reach an enquiry. Only a person recording an
+ * assessment moves it on. This route never scores, never applies an outcome
+ * and never notifies anybody of one.
+ */
+router.post("/:id/assessment/request-information", requireAuth, requireRole(...ACCESS.DELIVERY_FINANCE), async (req, res) => {
+  const application = collection("subcontractors").find((a) => a.id === req.params.id);
+  if (!application) return res.status(404).json({ error: "Application not found." });
+  if (!application.email) return res.status(400).json({ error: "This registration has no email address, so nothing can be requested." });
+
+  // The items come from the drafted list the assessor has just read and can
+  // edit. Clamped rather than trusted: this text goes into an email.
+  const items = (Array.isArray(req.body?.items) ? req.body.items : [])
+    .map((v) => String(v).trim().slice(0, 300))
+    .filter(Boolean)
+    .slice(0, 60);
+  if (!items.length) return res.status(400).json({ error: "Nothing was listed to request." });
+  const note = String(req.body?.note || "").trim().slice(0, 2000);
+
+  // A live link to re-submit against, issued in the same click. Asking for
+  // corrections without giving somewhere to put them is how a request turns
+  // into a thread of attachments nobody can reconcile.
+  const token = crypto.randomBytes(16).toString("hex");
+  update("subcontractors", application.id, {
+    pqqToken: token,
+    status: "information_requested",
+    infoRequest: { at: Date.now(), by: req.user.name, items, note },
+  });
+  const link = `${SITE_URL}/pqq?t=${token}`;
+
+  const numbered = items.map((it, i) => `${i + 1}. ${it}`).join("\n");
+  await emit("supplier.docs_requested", {
+    email: application.email,
+    greeting: application.contact,
+    vars: { company: application.legalName, reference: application.reference || application.id, item: `${items.length} outstanding item${items.length === 1 ? "" : "s"}`, link },
+    detailsText: `${note ? note + "\n\n" : ""}What we need before your registration can be assessed:\n\n${numbered}\n\n`
+      + `Please complete and re-submit the questionnaire here (valid ${PQQ_VALID_DAYS} days), attaching the evidence:\n${link}\n\n`
+      + `Your registration stays open while we wait. Nothing has been declined.`,
+  });
+  res.json({ requested: true, items: items.length, link, status: "information_requested" });
+});
+
+/**
  * POST /api/subcontractors/:id/assessment — record a prequalification
  * assessment. Twelve scores (0–5), optional notes; the engine computes
  * the weighted outcome and, when applyStatus is true, moves the

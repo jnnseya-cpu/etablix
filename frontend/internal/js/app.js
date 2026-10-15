@@ -1778,6 +1778,85 @@ function prequalOutcome(scores) {
   return { pct, outcome: "DECLINE" };
 }
 
+/**
+ * The drafted assessment, laid out to be read and acted on.
+ *
+ * It used to be one amber paragraph: the summary, then every outstanding item
+ * joined with a middle dot. On a registration with nothing evidenced that is
+ * two dozen items in a single run of text, and an assessor cannot work from a
+ * wall — the information was all present and none of it was usable.
+ *
+ * So it is four blocks, each answering one question. Why these scores. What is
+ * risky about this supplier. What to do next. And what is outstanding, grouped
+ * under the criterion it blocks and numbered, so the list ties back to the
+ * scorecard directly above and can be worked through and ticked off.
+ *
+ * Every field is optional by design. The response is generated, so a missing
+ * section is omitted rather than rendered empty, and nothing here throws when
+ * one does not arrive.
+ */
+function renderPrequalDraft(draft) {
+  const block = (title, body) => body
+    ? `<div style="margin-top:14px;"><div style="font-family:var(--font-head);font-size:0.72rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--amber,#9c7a3c);margin-bottom:5px;">${title}</div>${body}</div>`
+    : "";
+
+  const basis = draft.basis ? `<p style="margin:0;line-height:1.55;">${esc(draft.basis)}</p>` : "";
+
+  const risks = (draft.risks || []).length
+    ? `<ul style="margin:0;padding-left:18px;line-height:1.55;">${draft.risks.map((r) => `<li style="margin-bottom:3px;">${esc(r)}</li>`).join("")}</ul>`
+    : "";
+
+  const rec = draft.recommendation
+    ? `<p style="margin:0;line-height:1.55;"><b>${esc(draft.recommendation)}</b></p>`
+    : "";
+
+  // Numbered continuously across the groups, so "twenty-four items" in the
+  // heading and the last number on the page are the same figure. A count that
+  // disagrees with the list is worse than no count.
+  let n = 0;
+  const groups = (draft.missingEvidence || []).map((g) => `
+    <div style="margin-bottom:10px;">
+      <div style="font-weight:600;margin-bottom:3px;">${esc(g.criterion)}</div>
+      <ol start="${n + 1}" style="margin:0;padding-left:26px;line-height:1.5;">
+        ${g.items.map((it) => { n++; return `<li style="margin-bottom:2px;">${esc(it)}</li>`; }).join("")}
+      </ol>
+    </div>`).join("");
+
+  const count = draft.missingEvidenceCount || n;
+  const evidence = groups
+    ? block(`Evidence to obtain before recording — ${count} item${count === 1 ? "" : "s"}`,
+            `<div style="font-size:0.82rem;">${groups}</div>`)
+    : "";
+
+  // ONE CLICK, BECAUSE THE REALISTIC NEXT MOVE IS NOT A DECISION.
+  //
+  // On a registration with nothing evidenced, the assessor is not choosing
+  // between prequalify and decline — they are asking for the missing
+  // documents. Leaving that as "compose an email from this list by hand"
+  // means it does not get done, and the supplier hears nothing at all.
+  //
+  // The button sends the list exactly as shown, issues a live link to
+  // re-submit against, and parks the application as information_requested —
+  // which is pending, not a verdict. Said on the button so nobody has to
+  // guess what it will do.
+  const request = count
+    ? `<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--line);">
+        <button class="btn-run" id="pq-request-info" data-items='${esc(JSON.stringify((draft.missingEvidence || []).flatMap((g) => g.items)))}'>Request these ${count} item${count === 1 ? "" : "s"} from the supplier</button>
+        <div class="muted" style="font-size:0.76rem;margin-top:5px;">Emails the list with a fresh questionnaire link and marks the application <b>information requested</b> — pending, not a decision. It is not prequalified or declined until a person records an assessment here.</div>
+      </div>`
+    : "";
+
+  return `<div style="border:1.5px solid var(--amber,#9c7a3c);border-radius:8px;padding:14px 18px;margin-top:12px;font-size:0.85rem;background:rgba(156,122,60,0.04);">
+    <div style="font-family:var(--font-head);font-weight:700;">Workstream 7 draft — a human decision is still required</div>
+    <div class="muted" style="font-size:0.78rem;margin-top:2px;">Scores have been filled in above. Adjust them against the documents, then record.</div>
+    ${block("Why these scores", basis)}
+    ${block("Risk profile", risks)}
+    ${block("Recommendation", rec)}
+    ${evidence}
+    ${request}
+  </div>`;
+}
+
 document.addEventListener("click", async (e) => {
   const btn = e.target.closest("button[data-assess]");
   if (!btn) return;
@@ -1817,7 +1896,17 @@ document.addEventListener("click", async (e) => {
   const refresh = () => {
     const scores = Object.fromEntries([...holder.querySelectorAll("select[data-pq]")].map((s) => [s.dataset.pq, s.value]));
     const { pct, outcome } = prequalOutcome(scores);
-    document.getElementById("pq-preview").textContent = `Weighted ${pct}% → ${outcome}`;
+    // The verdict and the reason for it, told apart. This was one string —
+    // "Weighted 13% → FAIL — critical criterion at zero" — in which the two
+    // dashes do different jobs and nothing says which.
+    const [verdict, reason] = outcome.split(" — ");
+    const tone = verdict === "PREQUALIFY" ? "var(--green,#2f7d4f)"
+      : verdict === "FAIL" || verdict === "DECLINE" ? "var(--red,#b3261e)"
+      : "var(--amber,#9c7a3c)";
+    document.getElementById("pq-preview").innerHTML =
+      `<span class="muted" style="font-weight:400;font-size:0.82rem;">Weighted score</span> ${pct}%`
+      + ` <span style="color:${tone};">· ${esc(verdict)}</span>`
+      + (reason ? ` <span class="muted" style="font-weight:400;font-size:0.78rem;">(${esc(reason)})</span>` : "");
   };
   holder.querySelectorAll("select[data-pq]").forEach((s) => s.addEventListener("change", refresh));
   refresh();
@@ -1851,16 +1940,38 @@ document.addEventListener("click", async (e) => {
         if (cell && why) cell.innerHTML = `<span class="muted" style="font-size:0.8rem;">${esc(why)}</span>`;
       }
       refresh();
-      document.getElementById("pq-ai-note").innerHTML = `<div style="border-left:3px solid var(--amber,#9c7a3c);padding:8px 0 8px 14px;margin-top:12px;font-size:0.85rem;">
-        <b>Workstream 7 draft — a human decision is still required.</b> ${esc(draft.note)}
-        ${draft.missingEvidence.length ? `<div style="margin-top:6px;"><b>Verify before recording:</b> ${draft.missingEvidence.map(esc).join(" · ")}</div>` : ""}
-      </div>`;
+      document.getElementById("pq-ai-note").innerHTML = renderPrequalDraft(draft);
       aiBtn.textContent = "Re-draft with Workstream 7";
     } catch (err) {
       alert(err.message);
       aiBtn.textContent = "Draft with Workstream 7";
     } finally {
       aiBtn.disabled = false;
+    }
+  });
+  // Delegated, because the button only exists once a draft has been rendered.
+  document.getElementById("pq-ai-note").addEventListener("click", async (ev) => {
+    const b = ev.target.closest("#pq-request-info");
+    if (!b) return;
+    const items = JSON.parse(b.dataset.items || "[]");
+    if (!confirm(`Email ${items.length} outstanding item${items.length === 1 ? "" : "s"} to ${app_.email}?\n\nThe application is marked "information requested" — pending. It is not declined, and it is not prequalified until you record an assessment.`)) return;
+    b.disabled = true;
+    const was = b.textContent;
+    b.textContent = "Sending…";
+    try {
+      const out = await api(`/api/subcontractors/${app_.id}/assessment/request-information`, {
+        method: "POST",
+        body: JSON.stringify({ items, note: document.getElementById("pq-notes").value.trim() }),
+      });
+      b.textContent = `Requested — ${out.items} item${out.items === 1 ? "" : "s"} sent`;
+      app_.status = out.status;
+      refresh();
+      await load();
+      refreshBell();
+    } catch (err) {
+      alert(err.message);
+      b.textContent = was;
+      b.disabled = false;
     }
   });
   document.getElementById("pq-submit").addEventListener("click", async () => {

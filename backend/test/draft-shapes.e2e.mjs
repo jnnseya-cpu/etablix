@@ -100,10 +100,64 @@ console.log("\n--- the supplier prequalification draft\n");
     ok(draft && typeof draft === "object", "a draft comes back", d.body);
     if (draft) {
       ok(draft.scores && typeof draft.scores === "object", "with the scores the page reads");
-      ok(typeof draft.note === "string", "with the note the page reads");
-      ok(Array.isArray(draft.missingEvidence), "with the missing-evidence list the page reads");
       ok(!("model" in draft), "and WITHOUT a model field — the browser gets this object whole", Object.keys(draft));
       ok(!namesAModel(draft), "nothing anywhere in the draft names the engine", draft);
+
+      // THE THREE SUMMARY FIELDS DO THREE JOBS.
+      // They were one paragraph that fused why the scores were low, what was
+      // risky, and what to do — and on a registration with nothing evidenced
+      // it was unreadable, which is the same as being absent.
+      console.log("\n--- the summary is three fields, not one paragraph\n");
+      ok(typeof draft.basis === "string" && draft.basis.length > 0, "basis says why the scores are what they are", draft.basis);
+      ok(Array.isArray(draft.risks), "risks is a list the page can render as a list", draft.risks);
+      ok(typeof draft.recommendation === "string", "recommendation says what the approver should do", draft.recommendation);
+
+      // THE OUTSTANDING ITEMS ARE GROUPED BY THE CRITERION THEY BLOCK.
+      // They were a flat array the page joined with a middle dot: two dozen
+      // items in one run of text that an assessor cannot work through.
+      console.log("\n--- the outstanding items are grouped and countable\n");
+      const ev = draft.missingEvidence;
+      ok(Array.isArray(ev) && ev.length > 0, "the evidence list is grouped", ev);
+      ok(ev.every((g) => typeof g.criterion === "string" && g.criterion && Array.isArray(g.items) && g.items.length),
+         "every group names the criterion it blocks and carries items", ev);
+      ok(ev.every((g) => g.items.every((i) => typeof i === "string" && i.trim())),
+         "and every item is a non-empty string");
+      const total = ev.reduce((n, g) => n + g.items.length, 0);
+      ok(draft.missingEvidenceCount === total,
+         `the count agrees with the list (${draft.missingEvidenceCount} vs ${total}) — a heading that disagrees is worse than none`);
+      ok(new Set(ev.flatMap((g) => g.items)).size === total, "and nothing is listed twice");
+    }
+
+    // --- the one-click request: pending, never a verdict
+    console.log("\n--- requesting the information holds the application pending\n");
+    {
+      const before = (await api(`/api/subcontractors`, { token: T })).body;
+      const items = (d.body?.draft?.missingEvidence || []).flatMap((g) => g.items);
+      const rq = await api(`/api/subcontractors/${id}/assessment/request-information`, {
+        method: "POST", token: T, json: { items, note: "Please attach the certificates." },
+      });
+      ok(rq.status === 200, `the request sends in one call (${rq.status})`, rq.body);
+      ok(rq.body?.items === items.length, "every listed item is sent, none dropped");
+      ok(typeof rq.body?.link === "string" && /\/pqq\?t=/.test(rq.body.link),
+         "with a live link to re-submit against — a request with nowhere to reply is a thread of attachments", rq.body?.link);
+
+      // The whole point. It must not be a decision.
+      ok(rq.body?.status === "information_requested", "and the application is parked, not decided", rq.body?.status);
+      const list = (await api(`/api/subcontractors`, { token: T })).body;
+      const row = (Array.isArray(list) ? list : list?.applications || []).find((a) => a.id === id);
+      ok(row?.status === "information_requested", "the stored status says the same", row?.status);
+      ok(!["prequalified", "approved", "declined"].includes(row?.status),
+         "it is neither prequalified, approved nor declined — only a person recording an assessment moves it on");
+      ok(!row?.assessment, "and no assessment was recorded by the request itself", row?.assessment);
+      void before;
+    }
+
+    // Nothing to send must refuse rather than email an empty list.
+    {
+      const empty = await api(`/api/subcontractors/${id}/assessment/request-information`, {
+        method: "POST", token: T, json: { items: [] },
+      });
+      ok(empty.status === 400, `an empty request is refused rather than sent (${empty.status})`, empty.body);
     }
   }
 }

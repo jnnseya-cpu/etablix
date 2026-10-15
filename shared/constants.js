@@ -99,6 +99,12 @@ export const LEAD_STATUS = ["new", "contacted", "qualified", "won", "lost"];
 export const APPLICATION_STATUS = [
   "submitted",
   "under_review",
+  // The supplier has been told what is missing and the ball is with them.
+  // Deliberately NOT a decision: it is neither prequalified nor declined, and
+  // the shortlist filters admit only "prequalified" and "approved", so a
+  // registration sitting here cannot reach an enquiry by accident. It leaves
+  // this state when a person records an assessment, never on its own.
+  "information_requested",
   "prequalified",
   "approved",
   "declined",

@@ -607,8 +607,15 @@ export async function draftPrequal(application, criteria, { chSummary } = {}) {
 You are Workstream 7 — Assurance & Evidence, drafting a supplier prequalification pre-assessment for a human assessor. Score each criterion 0–5 based ONLY on what the registration evidences. Rules:
 - Be conservative: a claim without evidence scores at most 2; no information at all scores 0–1. Never assume documents contain what their filenames suggest — note them as "to verify" instead.
 - Your draft is a starting point the human will adjust after reviewing the actual documents; say what they must check.
+- Keep the three summary fields doing three separate jobs. "basis" explains why the scores are what they are. "risks" lists what is specifically risky about THIS supplier. "recommendation" says what the approver should do next. Never repeat the same point across them.
+- Group every outstanding item under the criterion it blocks, using the criterion ids above. Use the id "general" only for an item that blocks no single criterion.
 - Respond with ONLY a JSON object, no prose before or after, in exactly this shape:
-{"scores": {"<criterion id>": <0-5 integer>, ...}, "rationale": {"<criterion id>": "<one short sentence>", ...}, "missingEvidence": ["<item>", ...], "note": "<2-3 sentence overall summary for the assessor>"}`,
+{"scores": {"<criterion id>": <0-5 integer>, ...},
+ "rationale": {"<criterion id>": "<one short sentence>", ...},
+ "basis": "<one or two sentences: why these scores are what they are>",
+ "risks": ["<one short sentence per risk>", ...],
+ "recommendation": "<what the named approver should do next>",
+ "missingEvidence": [{"criterion": "<criterion id>", "items": ["<document or check to obtain>", ...]}, ...]}`,
   });
 
   const match = text.match(/\{[\s\S]*\}/);
@@ -624,17 +631,46 @@ You are Workstream 7 — Assurance & Evidence, drafting a supplier prequalificat
     const v = Number(draft.scores?.[c.id]);
     scores[c.id] = Number.isInteger(v) && v >= 0 && v <= 5 ? v : 1;
   }
+
+  // THE OUTSTANDING ITEMS, GROUPED BY THE CRITERION THEY BLOCK.
+  //
+  // This was one flat array, and the page joined it with a middle dot. On a
+  // registration with nothing evidenced that produced a single unreadable
+  // paragraph of two dozen items, which is the same as producing nothing: an
+  // assessor cannot act on a wall. Grouping each item under the criterion it
+  // blocks ties the list to the scorecard immediately above it, so "why is
+  // this a one" and "what would move it" are read together.
+  //
+  // Tolerant of both shapes, because the response is generated rather than
+  // guaranteed: a flat array still renders, under one heading, instead of
+  // throwing away work that was paid for.
+  const label = new Map(criteria.map((c) => [c.id, c.label]));
+  const raw = Array.isArray(draft.missingEvidence) ? draft.missingEvidence : [];
+  const grouped = raw.filter((g) => g && typeof g === "object" && Array.isArray(g.items));
+  const clean = (list) => [...new Set(list.map((v) => String(v).trim()).filter(Boolean))];
+  let missingEvidence;
+  if (grouped.length) {
+    missingEvidence = grouped
+      .map((g) => ({ criterion: label.get(g.criterion) || "Not tied to one criterion", items: clean(g.items) }))
+      .filter((g) => g.items.length);
+  } else {
+    const flat = clean(raw.filter((v) => typeof v === "string"));
+    missingEvidence = flat.length ? [{ criterion: "Evidence to obtain", items: flat }] : [];
+  }
+
   return {
     scores,
     rationale: draft.rationale || {},
-    // Neither of these is trimmed any more. The first was capped at twenty
-    // items: an assessor reading "20 things are missing" from a registration
-    // where thirty were missing has been given a number that is wrong, and
-    // nothing said so. The second was cut at 1,000 characters — the prompt
-    // asks for two or three sentences, so the cap only ever fired when the
-    // model had more to say than that, which is the moment to keep it.
-    missingEvidence: Array.isArray(draft.missingEvidence) ? draft.missingEvidence : [],
-    note: String(draft.note || ""),
+    // Three fields doing three jobs, where there was one paragraph doing all
+    // three at once: why the scores are low, what is risky about this
+    // supplier, and what the approver should do. Nothing is trimmed — the
+    // caps that used to sit here cut a list of thirty down to twenty and a
+    // summary off mid-sentence, both silently.
+    basis: String(draft.basis || draft.note || "").trim(),
+    risks: Array.isArray(draft.risks) ? clean(draft.risks) : [],
+    recommendation: String(draft.recommendation || "").trim(),
+    missingEvidence,
+    missingEvidenceCount: missingEvidence.reduce((n, g) => n + g.items.length, 0),
     // NO `model:` FIELD, AND THAT IS THE FIX RATHER THAN AN OMISSION.
     //
     // This line read `model: response.model`. There is no `response` in this
@@ -649,8 +685,7 @@ You are Workstream 7 — Assurance & Evidence, drafting a supplier prequalificat
     // model identifier would then reach every delivery and finance user —
     // which is exactly what publicProvider's administrator gate exists to
     // prevent, and what vendor-silence.test.mjs asserts about the status
-    // pill. Nothing consumes the field: the page reads scores, rationale,
-    // note and missingEvidence. So it goes.
+    // pill. Nothing consumes the field, so it goes.
   };
 }
 
