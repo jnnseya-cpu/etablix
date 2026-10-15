@@ -44,6 +44,34 @@ const sec = (n, t, body) => `## ${n} · ${t}\n${body}`;
 export function answer(task, prompt = "") {
   if (/Reply with exactly/.test(task)) return "ETABLIX AI online";
 
+  // THE PREQUALIFICATION SCORECARD, FIRST, BECAUSE IT IS THE ONLY CALLER THAT
+  // NEEDS A PARSEABLE OBJECT RATHER THAN PROSE.
+  //
+  // draftPrequal asks for a bare JSON object and throws when it does not get
+  // one. Without this branch the mock answered with prose, the parse failed,
+  // and the endpoint could not be tested at all — which is how a plain
+  // ReferenceError in that function reached a live user instead of a build.
+  // The ids come from the criteria in the prompt, so this follows whatever
+  // the real criteria list happens to be rather than hard-coding today's.
+  if (/Prequalification criteria:/.test(prompt)) {
+    const ids = [...prompt.matchAll(/- id "([^"]+)"/g)].map((m) => m[1]);
+    const scores = {}, rationale = {};
+    for (const [i, id] of ids.entries()) {
+      scores[id] = (i % 4) + 1;                       // 1-4: conservative, never a free 5
+      rationale[id] = "Claimed in the registration; certificates not yet reviewed.";
+    }
+    return JSON.stringify({
+      scores,
+      rationale,
+      missingEvidence: [
+        "Employers and public liability certificates",
+        "Two contactable references for comparable work",
+        "Evidence of the stated mobilisation lead time",
+      ],
+      note: "A conservative first pass from the registration alone. Nothing here has been verified against a document, and the assessor must review the uploaded certificates before recording a status.",
+    });
+  }
+
   // AGENT 2 FIRST OF ALL, and the reason is the same one the note below
   // gives: its passes say "Write parts 1 and 2 of the bid file" while Agent
   // 13's say "of the tender pack". Those are one word apart, and getting the

@@ -192,7 +192,7 @@ export const SINGLE_PASS_MAX_TOKENS = Number(process.env.ETABLIX_AI_SINGLE_PASS_
 
 const client = () => {
   const { apiKey } = getProvider();
-  if (!apiKey) throw new Error("The AI provider is not connected — an administrator adds the API key under Organisation → production engine.");
+  if (!apiKey) throw new Error("The production engine is not connected — an administrator adds the API key under Organisation → production engine.");
   return new Anthropic({ apiKey, timeout: CALL_TIMEOUT_MS, maxRetries: CALL_RETRIES });
 };
 
@@ -635,7 +635,22 @@ You are Workstream 7 — Assurance & Evidence, drafting a supplier prequalificat
     // model had more to say than that, which is the moment to keep it.
     missingEvidence: Array.isArray(draft.missingEvidence) ? draft.missingEvidence : [],
     note: String(draft.note || ""),
-    model: response.model,
+    // NO `model:` FIELD, AND THAT IS THE FIX RATHER THAN AN OMISSION.
+    //
+    // This line read `model: response.model`. There is no `response` in this
+    // function — it takes `{ text }` from untilComplete — so every
+    // prequalification draft threw "response is not defined" AFTER the call
+    // had been made and the JSON parsed. The assessor saw a browser alert,
+    // the work was thrown away, and the call had already been paid for.
+    //
+    // The obvious repair is to capture the model the way draftScope does.
+    // That would have been worse: this object is returned to the browser
+    // wholesale by POST /api/subcontractors/:id/assessment/draft, so the
+    // model identifier would then reach every delivery and finance user —
+    // which is exactly what publicProvider's administrator gate exists to
+    // prevent, and what vendor-silence.test.mjs asserts about the status
+    // pill. Nothing consumes the field: the page reads scores, rationale,
+    // note and missingEvidence. So it goes.
   };
 }
 
@@ -646,7 +661,7 @@ You are Workstream 7 — Assurance & Evidence, drafting a supplier prequalificat
  */
 export async function draftScope({ title, project, brief }) {
   const { model } = getProvider();
-  const { text, model: ran } = await untilComplete({
+  const { text } = await untilComplete({
     model,
     max_tokens: SINGLE_PASS_MAX_TOKENS,
     label: "scope of works",
@@ -670,7 +685,10 @@ Use ONLY facts given in the brief — never invent quantities, dates, locations 
   // is a harder limit than max_tokens ever was: the model finished the scope
   // and the code threw the end of it away, so a subcontractor priced against
   // a requirement that stopped mid-section with nothing saying where.
-  return { scope, model: ran };
+  // Returned without the model identifier, for the reason recorded in
+  // draftPrequal above: this object is sent to the browser whole by
+  // POST /api/engagements/draft-scope, and the page reads only `scope`.
+  return { scope };
 }
 
 /** Which agents run as a multi-pass pipeline rather than a single call. */
