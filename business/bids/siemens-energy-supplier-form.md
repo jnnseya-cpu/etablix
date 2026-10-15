@@ -249,34 +249,53 @@ honour. It is a commitment, not a brochure line.
 
 ## Section 7 — Unique Selling Proposition
 
-They ask for bullet points and ask for it short. This is the only field on the
-form that sells, and a long answer in it is read as padding.
+They ask for bullet points and they ask for it short. This is the only field on
+the form that sells, and length in it is read as padding. Five bullets, about
+150 words. Paste as a bulleted list — the field takes formatting.
 
-> - **One accountable interface for the whole temporary site system** —
->   compound and welfare, temporary power and utilities, security, waste,
->   catering, workforce accommodation, logistics, demobilisation and
->   reinstatement — instead of ten to twenty-five separate packages, each with
->   its own interface for the project team to manage.
-> - **The interfaces are the scope.** The generator sized without the welfare
->   load, the accommodation opening after the workforce arrives, three
->   suppliers invoicing the same standby labour: these are not supplier
->   failures, they are gaps between suppliers that nobody owns. We own them.
-> - **Three ways to engage, so the risk sits where it belongs.** Advisory — we
->   specify and you contract. Management Integrator — you contract every
->   supplier directly and we control delivery; we never hold your supply-chain
->   money. Prime Service Contractor — one contract for the whole temporary
->   scope.
-> - **Priced and programmed before mobilisation, not during it.** Site
->   establishment is settled in the fortnight before anyone is watching and
->   paid for across the whole programme; we put a number, an owner and an
->   acceptance test against every line of it first.
-> - **Led by a chartered construction professional** (MCIOB) with delivery
->   experience across transmission, energy and major infrastructure, including
->   workforce accommodation villages scoped at several hundred beds and
->   multi-year duration.
-> - **Our own project-control platform**, CONSTRUX, so programme, cost, change,
->   evidence and supplier performance are reported from one record rather than
->   reassembled each month.
+> - One accountable interface for the whole temporary site system — compound
+>   and welfare, temporary power and utilities, security, waste, catering,
+>   workforce accommodation, logistics, demobilisation and reinstatement —
+>   instead of 10 to 25 separate packages for your project team to manage.
+> - We own the interfaces between those suppliers, which is where cost and
+>   programme actually leak: the generator sized without the welfare load,
+>   accommodation opening after the workforce arrives, three suppliers
+>   invoicing the same standby labour.
+> - Three engagement models, so the risk sits where you want it. Advisory — we
+>   specify, you contract. Management Integrator — you contract every supplier
+>   directly, we control delivery, and we never hold your supply-chain money.
+>   Prime Service Contractor — one contract for the whole temporary scope.
+> - Priced and programmed before mobilisation rather than during it: a number,
+>   an owner and an acceptance test against every line of it.
+> - Chartered construction leadership (MCIOB) across electricity transmission,
+>   energy and major infrastructure, including workforce accommodation villages
+>   scoped at several hundred beds over multi-year programmes — reported
+>   through our own project-control platform.
+
+### A shorter three-bullet version, if the field is tight
+
+> - One accountable interface for the whole temporary site system — welfare,
+>   power, security, waste, catering, workforce accommodation, logistics and
+>   reinstatement — instead of 10 to 25 packages your team manages separately.
+> - We own the interfaces between them, which is where cost and programme leak.
+>   Three engagement models, from advisory to a single contract for the whole
+>   temporary scope; in the middle model we never hold your supply-chain money.
+> - Chartered construction leadership (MCIOB) across transmission, energy and
+>   major infrastructure, including workforce accommodation villages of several
+>   hundred beds, priced and programmed before mobilisation rather than during
+>   it.
+
+### What these bullets deliberately avoid
+
+No certification is claimed, because none is held. No price, and no named
+client, scheme or former employer. No turnover, headcount or growth figure
+that the financial fields would contradict. Nothing implies a Principal
+Contractor or Principal Designer appointment under CDM 2015 — the scope is
+described as supply and control, not as a statutory duty holder. The
+accommodation experience is the director's and is written as capability rather
+than as a company track record, because the business-experience field already
+says 1 to 3 years and the two answers have to agree.
+
 
 ## Section 8 — Additional business related information
 
