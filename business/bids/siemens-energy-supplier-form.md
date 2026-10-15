@@ -199,53 +199,135 @@ honest.
 
 ## Section 5 — categorisation
 
-**Product Category (Level 1):** select **Direct** and **Indirect**. Site
-establishment straddles both: the compound, the civil works and the containers
-sit with the project, while facility management, waste and advisory sit with
-indirect spend.
+**This section is read by a machine and then by a category buyer, and a wrong
+tick here is worse than a blank one.** It does not merely fail to help: it
+routes enquiries for work ETABLIX cannot do, which then have to be declined.
+Declining a buyer's first enquiry is a worse first impression than never
+appearing in their list.
 
-**Product Category (Level 2):** select
+The Level 2 list is a single run of options drawn from all three Level 1
+buckets, and most of it describes components for power equipment. Read it as a
+manufacturer's taxonomy, because that is what it is, and resist the entries
+that merely sound right.
 
-- Civil Works
-- Construction / Erection
-- Containers & Ehouse
-- Facility Management
-- Waste Management
-- Consulting
+### Product Category (Level 1): **Direct** and **Indirect**
 
-**Do not select "Temporary Labor".** It is the one tempting wrong answer on the
-page. It would classify ETABLIX as a labour supplier, which is the opposite of
-the position taken everywhere else — defined packages, not labour-only — and it
-would route enquiries of entirely the wrong kind for years.
+Not Logistic. Workforce transport is a package ETABLIX procures inside a wider
+scope rather than a service it offers standalone, and claiming a third bucket
+on the strength of one sub-package reads as unfocused.
 
-Leave "Engineering Services" unticked as well. Design and temporary-works
-engineering are **bought in** rather than done in house, and ticking it invites
-a technical qualification ETABLIX would have to decline.
+### Product Category (Level 2): six ticks, and no more
 
-**UNSPSC.** The closest segments are **72000000 — Building and Facility
-Construction and Maintenance Services** and **80101600 — Project management**.
-Verify the exact code in the UNSPSC browser before entering it rather than
-taking these on trust; the segment is right, and the eight-digit code should be
-confirmed.
+**Direct**
 
-**Siemens Energy Business Area:** select **Grid Technologies** and **Wind
-Power**. Both run large construction sites with real site-establishment and
-workforce-accommodation requirements, and Grid Technologies matches the
-director's transmission background. Resist selecting all five — a scattergun
-reads as untargeted and routes to nobody in particular.
+- **Civil Works** — the compound: groundworks, hardstanding, drainage, access.
+  Real, and the one category that puts ETABLIX in front of *project*
+  procurement rather than indirect spend.
+
+**Indirect**
+
+- **Facility Management** — site services in operation: cleaning, catering,
+  welfare servicing, accommodation management.
+- **Waste Management** — a package held and controlled on every site.
+- **Consulting** — Model 01 Advisory: strategy, specification, package
+  boundaries, tender documents and evaluation.
+- **Outsourcing Services** — the closest match in this taxonomy to Models 02
+  and 03, where a whole service scope is managed under one accountable
+  structure.
+
+That is five. Add **Maintenance, repair, operations** only if you want enquiries
+for the running phase of site services as well as its set-up; it is defensible
+but it also attracts spares and consumables enquiries that are not ours.
+
+### Two corrections to an earlier recommendation
+
+An earlier draft of this sheet suggested **Containers & Ehouse** and
+**Construction / Erection**. Both were wrong, and the reason matters.
+
+**"Containers & Ehouse" is not site accommodation.** In a Siemens Energy
+taxonomy an E-house is a prefabricated electrical building — containerised
+switchgear and control equipment. Ticking it invites enquiries to supply
+electrical housings, which ETABLIX does not do. Welfare cabins and
+accommodation modules are not in this list at all, and that gap is handled in
+the Additional information box rather than by borrowing somebody else's
+category.
+
+**"Construction / Erection" and "Installation/Erection" mean erecting their
+plant.** Turbines, transformers, switchgear. ETABLIX does not erect plant, and
+these entries sit among blades, bushings and bus bars for that reason.
+
+**Also leave off, with the reason:**
+
+- **Field Services** and **Field Service Labour** — Siemens Energy's own field
+  service discipline, and the second is labour supply.
+- **Temporary Labor** — the most tempting wrong answer on the page. It would
+  classify ETABLIX as a labour supplier, the exact opposite of the position
+  held everywhere else: defined packages, not labour-only. A category is hard
+  to undo once a buyer's system holds it.
+- **Engineering Services** — design and temporary-works engineering are bought
+  in, not done in house. Ticking it invites a technical qualification that
+  would have to be declined.
+- **Building Services**, **Water Treatment**, **Fire Fighting** — permanent
+  plant and building systems, not temporary site utilities.
+- **Integrator** — conceptually close to "Management Integrator" and almost
+  certainly meaning electrical systems integration here. The resemblance is
+  linguistic, not commercial.
+- **Real Estate Construction** — Siemens Energy's own premises, not a
+  construction project's temporary village.
+
+### UNSPSC
+
+The field is optional, and one accurate code is worth more than five uncertain
+ones. Enter:
+
+> **72000000 — Building and Facility Construction and Maintenance Services**
+
+That segment is the right home for site establishment and site services. If the
+field accepts more than one, add **80101600 — Project management** for the
+advisory and control work.
+
+**Confirm the eight digits in the UNSPSC browser before submitting.** The
+segment is the part to rely on; the lower-level code should be checked rather
+than taken on trust from this sheet.
+
+### Siemens Energy Business Area: **Grid Technologies** and **Wind Power**
+
+Both build large sites, often remote, with genuine site-establishment and
+workforce-accommodation requirements — and Grid Technologies matches the
+director's transmission background, so the conversation starts on familiar
+ground.
+
+**Gas Services** is a defensible third: a major outage is a temporary
+population needing welfare, catering and sometimes accommodation at scale, on a
+fixed and unforgiving date. Add it if you want outage work; leave it off if you
+would rather be known for one thing first.
+
+**Do not select all five, and do not select "Other".** A single-director
+company claiming every business area reads as untargeted and routes to nobody
+in particular. Two named areas reach two real buyers.
+
 
 ## Section 6 — Production capacity (required)
 
-> Service provider; no manufacturing or production capacity, and none is
-> claimed. Delivery capacity on any single project is the capacity of the
-> specialist supply chain contracted for it, which is procured and scaled to
-> the requirement rather than held on a balance sheet. ETABLIX's own capacity
-> is the management capacity to define, procure and control that supply chain:
-> currently up to two concurrent engagements, with site establishments scoped
-> and specified at workforce populations in the hundreds.
+A required field with no honest numeric answer for a service business. Say so,
+then give the figure that is actually meaningful — and keep it to one that will
+be honoured.
 
-Adjust the "two concurrent engagements" figure to whatever you will actually
-honour. It is a commitment, not a brochure line.
+> Service provider: no manufacturing or production capacity, and none is
+> claimed. Delivery capacity on any project is the capacity of the specialist
+> supply chain contracted for it, procured and scaled to the requirement rather
+> than held as standing plant or headcount. ETABLIX's own capacity is the
+> management capacity to specify, procure and control that supply chain:
+> currently up to two concurrent engagements, at site establishments scoped for
+> workforce populations in the hundreds and programme durations measured in
+> years. Capacity is extended by contracting, not by recruitment, so lead time
+> to mobilise a further engagement is the lead time of the packages themselves.
+
+Set the "two concurrent engagements" figure to what will genuinely be honoured.
+It is a commitment a buyer may hold you to, not a brochure line, and the
+sentence after it is what makes a small number read as a model rather than a
+limitation.
+
 
 ## Section 7 — Unique Selling Proposition
 
