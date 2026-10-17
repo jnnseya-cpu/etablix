@@ -27,6 +27,8 @@
  * already doing it. So these tests pin the shape in both directions: the draft
  * arrives, and it never carries the engine's name.
  */
+import fs from "node:fs";
+
 const B = process.env.BASE || "http://localhost:3311";
 let pass = 0, fail = 0;
 const ok = (c, m, x) => { c ? (pass++, console.log("  ✓ " + m)) : (fail++, console.log("  ✗ " + m + (x !== undefined ? "  → " + JSON.stringify(x).slice(0, 300) : ""))); };
@@ -180,6 +182,80 @@ console.log("\n--- the scope-of-works draft\n");
     ok(!("model" in draft), "and WITHOUT a model field — this one was leaking it", Object.keys(draft));
     ok(!namesAModel(draft), "nothing in the scope payload names the engine");
   }
+}
+
+// --- 3. the signals queue, the page that works it, and the approach draft
+//
+// The watcher was built instead of an email harvester, and the difference is
+// that a person sends the approach. So the assertions here are as much about
+// what is ABSENT as what works: a draft comes back, and there is no route
+// anywhere that would send it.
+console.log("\n--- the signals queue and the drafted approach\n");
+{
+  const q = await api("/api/signals", { token: T });
+  ok(q.status === 200, `the queue answers (${q.status})`, q.body);
+  ok(Array.isArray(q.body?.signals), "with a list of signals");
+  ok(Array.isArray(q.body?.triggers) && q.body.triggers.length >= 5,
+     `and the triggers the page labels with (${q.body?.triggers?.length})`);
+
+  // DRIVE IT THE WAY THE PRODUCT DOES, against a real feed over real HTTP.
+  //
+  // Inserting a row from this process does not work and the attempt is what
+  // taught the lesson: the test and the server are separate processes with
+  // separate stores, so a signal written here is invisible there. So the test
+  // serves its own feed, points the server's source list at it, and sweeps —
+  // which also makes this the only thing that exercises robots.txt, the
+  // fetcher and the extractor end to end.
+  const http = await import("node:http");
+  const feed = `<?xml version="1.0"?><rss><channel>
+    <item>
+      <title>Main contractor appointed for the 400MW scheme</title>
+      <link>https://example.invalid/story</link>
+      <description>The developer has appointed a main contractor. Construction will begin next year with a peak workforce of 600 operatives and worker accommodation on site.</description>
+    </item>
+    <item><title>A photograph of the chief executive at a conference</title><link>https://example.invalid/dull</link><description>Nothing happened.</description></item>
+  </channel></rss>`;
+  const srv = http.createServer((rq, rs) => {
+    if (rq.url === "/robots.txt") { rs.writeHead(200, { "content-type": "text/plain" }); return rs.end("User-agent: *\nDisallow: /private\n"); }
+    if (rq.url === "/private/feed.xml") { rs.writeHead(200); return rs.end(feed); }
+    if (rq.url === "/feed.xml") { rs.writeHead(200, { "content-type": "application/rss+xml" }); return rs.end(feed); }
+    rs.writeHead(404); rs.end("no");
+  });
+  await new Promise((r) => srv.listen(0, "127.0.0.1", r));
+  const origin = `http://127.0.0.1:${srv.address().port}`;
+
+  fs.writeFileSync(process.env.ETABLIX_SIGNALS_SOURCES, JSON.stringify([
+    { id: "test-feed", name: "Test feed", url: `${origin}/feed.xml`, enabled: true },
+    { id: "test-barred", name: "A path robots.txt bars", url: `${origin}/private/feed.xml`, enabled: true },
+  ]));
+
+  const seeded = await api("/api/signals/sweep", { method: "POST", token: T, json: {} });
+  ok(seeded.status === 200, `the sweep runs (${seeded.status})`, seeded.body);
+  ok(seeded.body?.checked === 2, `both sources were read (${seeded.body?.checked})`);
+  ok(seeded.body?.queued === 1, `the award queued and the dull item did not (${seeded.body?.queued})`, seeded.body);
+  ok(seeded.body?.blocked === 1, `and robots.txt barred the path it disallows (${seeded.body?.blocked})`, seeded.body);
+  srv.close();
+
+  const after = await api("/api/signals?status=new", { token: T });
+  const row = (after.body?.signals || []).find((x) => /Main contractor appointed/.test(x.title));
+  ok(Boolean(row), "the signal is in the queue", (after.body?.signals || []).map((x) => x.title));
+  ok(row && row.triggers.includes("award") && row.triggers.includes("scale"),
+     "with both triggers recorded", row?.triggers);
+
+  const d = await api(`/api/signals/${row.id}/draft`, { method: "POST", token: T, json: {} });
+  ok(d.status === 200, `an approach drafts (${d.status})`, d.body);
+  const draft = String(d.body?.draft || "");
+  ok(draft.length > 40, "and comes back as text to edit", draft.slice(0, 120));
+  ok(!namesAModel(draft), "the draft never names the engine that wrote it", draft.slice(0, 200));
+
+  // It must not be sendable from anywhere in this feature.
+  const routes = fs.readFileSync(new URL("../routes/signals.js", import.meta.url), "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  ok(!/sendMail|smtp|nodemailer|\bemit\(/i.test(routes), "and no route in the feature can send it");
+
+  const page = fs.readFileSync(new URL("../../frontend/internal/js/signals-page.js", import.meta.url), "utf8");
+  ok(/Nothing has been sent/.test(page), "the screen says plainly that nothing was sent");
+  ok(!/\/send|sendApproach/i.test(page), "and offers no way to send from the page");
 }
 
 console.log(`\n=== ${pass} passed, ${fail} failed ===\n`);

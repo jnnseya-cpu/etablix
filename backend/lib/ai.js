@@ -690,6 +690,59 @@ You are Workstream 7 — Assurance & Evidence, drafting a supplier prequalificat
 }
 
 /**
+ * The approach, drafted from a signal the watcher found.
+ *
+ * THE THIRD THING THE WATCHER WAS SUPPOSED TO DO. It finds the moment and the
+ * published route in; this writes the opening. What it does NOT do is send:
+ * the draft comes back to the screen, a person edits it and sends it from
+ * their own mailbox. That separation is the whole design.
+ *
+ * The draft is deliberately short and deliberately specific. A long approach
+ * to somebody who has just won a contract is read as a circular; the only
+ * thing that earns a reply is evidence that the sender read the actual
+ * announcement.
+ */
+export async function draftApproach(signal, { from = "ETABLIX" } = {}) {
+  const { model } = getProvider();
+  const { text } = await untilComplete({
+    model,
+    max_tokens: 2000,
+    label: "approach draft",
+    prompt: [
+      `What happened: ${signal.title}`,
+      signal.summary ? `Detail as published: ${signal.summary}` : "",
+      signal.org ? `Organisation: ${signal.org}` : "",
+      `Source: ${signal.sourceName || signal.sourceId || "trade press"}`,
+      `Triggers matched: ${(signal.triggers || []).join(", ") || "none"}`,
+      `Published route in: ${signal.contactUrl || signal.roleAddress || "not found — the writer will locate it"}`,
+    ].filter(Boolean).join("\n"),
+    system: `${COMPANY_BRIEF}
+
+You draft a FIRST APPROACH from ${from} to an organisation that has just reached a moment in a project. A person will edit it and send it from their own mailbox; you are not sending anything.
+
+Write a subject line, then the email. Under 200 words in total. Plain text, no markdown, no bullet lists unless the content genuinely is a list.
+
+HOW IT MUST READ
+- Open by naming the specific thing that happened, as published. That sentence is the only reason the reader continues.
+- Say in one sentence what becomes true next: the site establishment — compound and welfare, temporary power and utilities, security, waste, catering, workforce accommodation, logistics, demobilisation and reinstatement — is now somebody's problem, and on most schemes it is settled in the weeks before anyone is watching.
+- Offer one of the three engagement routes, whichever fits what was announced: Advisory (we specify, they contract), Management Integrator (they contract every supplier directly, we control delivery, we never hold their supply-chain money), or Prime Service Contractor (one contract for the whole temporary scope).
+- Close with a small, specific ask: a short call, or to be pointed at the right person. Never ask for a meeting "to introduce ourselves".
+
+WHAT YOU MUST NOT DO, UNDER ANY CIRCUMSTANCES
+- Do not invent a fact, a figure, a statistic, a case study, a testimonial or a previous client. If you have no evidence for something, leave it out.
+- Do not name any client, scheme, employer or project that ${from} has worked on. Not one, in any form.
+- Do not claim any certification, accreditation or insurance. None is held.
+- Do not state or imply a price, a day rate or a fee.
+- Do not imply a Principal Contractor or Principal Designer appointment under CDM 2015.
+- Do not say or suggest that the recipient, their contractor or anyone else does this work badly. The argument is that it falls due when nobody has time, never that the people are not good enough.
+- Do not flatter, and do not open with congratulations as the first line.
+- No exclamation marks. Never use: revolutionary, game-changing, world-class, leading, cutting-edge, unlock, supercharge, seamless, synergy.
+- Do not mention software, automation, models or how this draft was produced.`,
+  });
+  return { draft: String(text || "").trim() };
+}
+
+/**
  * Workstream 3 support for procurement: expand a short package brief into a
  * deep, priceable scope of works for the supplier enquiry pack. A
  * DRAFT — the buyer reviews and edits before anything is sent.

@@ -26,7 +26,13 @@ import { politeFetch } from "./fetch.js";
 import { publishedContact, scrub } from "./contact.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
-const SOURCES_FILE = path.join(root, "content", "signals", "sources.json");
+// Overridable so a test — or a second deployment watching a different set —
+// can point at its own list without editing the repository's copy. Same
+// reasoning as ETABLIX_DATA_DIR, and it is what makes the sweep testable
+// against a real feed rather than only at the edges.
+const SOURCES_FILE = process.env.ETABLIX_SIGNALS_SOURCES
+  ? path.resolve(process.env.ETABLIX_SIGNALS_SOURCES)
+  : path.join(root, "content", "signals", "sources.json");
 
 /**
  * What counts as a moment.

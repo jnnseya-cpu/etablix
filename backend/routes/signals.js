@@ -10,7 +10,8 @@ import { Router } from "express";
 import { collection } from "../lib/store.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 import { ACCESS } from "../../shared/constants.js";
-import { sweep, act, suppress, isSuppressed, TRIGGERS, sources } from "../lib/signals/index.js";
+import { sweep, act, suppress, TRIGGERS, sources } from "../lib/signals/index.js";
+import { draftApproach } from "../lib/ai.js";
 
 const router = Router();
 
@@ -36,6 +37,29 @@ router.post("/sweep", requireAuth, requireRole(...ACCESS.DELIVERY_FINANCE), asyn
     res.json({ ...out, queued: out.queued.length });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * POST /api/signals/:id/draft — write the opening for this one.
+ *
+ * Returns the draft to the screen. It is not sent, it is not stored as sent,
+ * and there is no route here that would send it. The person reads it, edits
+ * it, and sends it from their own mailbox — which is the entire reason this
+ * was built instead of a harvester.
+ */
+router.post("/:id/draft", requireAuth, requireRole(...ACCESS.DELIVERY_FINANCE), async (req, res) => {
+  const signal = collection("signals").find((s) => s.id === req.params.id);
+  if (!signal) return res.status(404).json({ error: "That signal does not exist." });
+  try {
+    const { draft } = await draftApproach(signal);
+    if (!draft) return res.status(502).json({ error: "No draft came back — try again." });
+    res.json({ draft });
+  } catch (err) {
+    const msg = /authentication|invalid.*key/i.test(err.message)
+      ? "The production engine key was rejected — check it under Organisation → production engine."
+      : err.message;
+    res.status(502).json({ error: msg });
   }
 });
 
@@ -72,5 +96,4 @@ router.get("/suppressions", requireAuth, requireRole(...ACCESS.DELIVERY_FINANCE)
   res.json({ suppressions: collection("suppressions") });
 });
 
-export { isSuppressed };
 export default router;

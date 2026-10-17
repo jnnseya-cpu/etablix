@@ -35,7 +35,9 @@ done
 
 MOCK_PORT=$MOCK_PORT MOCK_DELAY=${MOCK_DELAY:-200} MOCK_LOG="$LOGS/mock-log.json" node backend/test/mock-anthropic.mjs > "$LOGS/mock.log" 2>&1 &
 MOCK=$!
+echo '[]' > "$DATA/signals-sources.json"
 ETABLIX_DATA_DIR=$DATA PORT=$PORT SITE_URL=http://localhost:$PORT \
+  ETABLIX_SIGNALS_SOURCES="$DATA/signals-sources.json" \
   ANTHROPIC_BASE_URL=http://127.0.0.1:$MOCK_PORT ANTHROPIC_API_KEY=mock-key \
   node backend/server.js > "$LOGS/server.log" 2>&1 &
 SRV=$!
@@ -52,6 +54,7 @@ for t in $SUITES; do
   SOAKDIR=""
   [ "$t" = "soak.e2e" ] && SOAKDIR=$(mktemp -d)
   if BASE=http://localhost:$PORT DATA="$DATA" MOCK_LOG="$LOGS/mock-log.json" \
+     ETABLIX_SIGNALS_SOURCES="$DATA/signals-sources.json" \
      ETABLIX_DATA_DIR="${SOAKDIR:-$DATA}" node "backend/test/$t.mjs" > "$LOGS/$t.log" 2>&1; then
     grep -Eo '[0-9]+ (passed|full circles)' "$LOGS/$t.log" | tail -1
   else

@@ -50,11 +50,13 @@ function card(s, labels) {
       : `<span class="muted">No published route found — find the supplier or contact page yourself before approaching.</span>`}
       ${s.roleAddress ? ` · <b>${esc(s.roleAddress)}</b>` : ""}</p>
     <div class="acts">
+      <button class="btn-run" data-draft="${esc(s.id)}">Draft the approach</button>
       <button class="btn-run" data-act="reading" data-id="${esc(s.id)}">Reading</button>
       <button class="btn-run" data-act="approached" data-id="${esc(s.id)}">I have approached them</button>
       <button class="btn-run" data-act="dismissed" data-id="${esc(s.id)}">Not for us</button>
       <button class="btn-run" data-suppress="${esc(s.org || s.url)}">Never approach</button>
     </div>
+    <div class="draft-slot" id="draft-${esc(s.id)}"></div>
   </div>`;
 }
 
@@ -99,6 +101,27 @@ root.addEventListener("click", async (e) => {
       alert(`${out.checked} source(s) read. ${out.queued} new signal(s) queued.`
         + `\n${out.unchanged} unchanged, ${out.blocked} barred by robots.txt, ${out.failed} failed.`);
     } catch (err) { alert(err.message); sweep.disabled = false; sweep.textContent = "Sweep now"; }
+    return;
+  }
+
+  const d = e.target.closest("button[data-draft]");
+  if (d) {
+    const slot = document.getElementById(`draft-${d.dataset.draft}`);
+    d.disabled = true; d.textContent = "Drafting…";
+    try {
+      const out = await api(`/api/signals/${d.dataset.draft}/draft`, { method: "POST", body: JSON.stringify({}) });
+      // Shown in a textarea rather than as text, because the next thing that
+      // happens to it is editing. A draft you cannot change on the spot gets
+      // copied into a mail client and sent unread.
+      slot.innerHTML = `<div style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px;">
+        <div style="font-family:var(--font-head);font-size:0.72rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--amber,#9c7a3c);margin-bottom:6px;">
+          A draft — read it, change it, send it yourself</div>
+        <textarea style="width:100%;min-height:220px;padding:10px 12px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;font-size:0.86rem;line-height:1.55;">${esc(out.draft)}</textarea>
+        <div class="muted" style="font-size:0.76rem;margin-top:5px;">Nothing has been sent. Check every fact against the announcement before it goes.</div>
+      </div>`;
+      d.textContent = "Re-draft";
+    } catch (err) { alert(err.message); d.textContent = "Draft the approach"; }
+    d.disabled = false;
     return;
   }
 
