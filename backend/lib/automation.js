@@ -29,6 +29,7 @@ import { reportError } from "./alerts.js";
 import { watched, live as contractDeadlines } from "./l7/watch.js";
 import { use } from "./l7/ports.js";
 import { sweepRetention } from "./retention.js";
+import { sweep as signalSweep } from "./signals/index.js";
 import fs from "node:fs";
 import path from "node:path";
 import { dataDir } from "./store.js";
@@ -89,6 +90,7 @@ export const RULES = [
   { id: "mail_delivery", name: "Outbound mail watch", description: "Alerts when messages are failing to send. Mail is the channel every other alert depends on, so its failure has to be reported through the ones that do not.", cooldownMs: 6 * HOUR },
   { id: "backup_watch", name: "Backup watch", description: "Alerts when no backup has been recorded for 36 hours. An untested backup is not a backup, and an unrecorded one is not even that.", cooldownMs: 12 * HOUR },
   { id: "contract_deadlines", name: "Contract time bars", description: "Resolves every recorded site event against the project's OWN contract — the standard form plus its bespoke amendments — and alerts on the time bars running against it. A time bar is not a task: miss an NEC4 clause 61.3 notification and the entitlement is gone, not weakened, and a Z-clause that shortens eight weeks to fourteen days makes the published form's answer wrong. The watch never notifies anything; issuing a notice stays with a person.", cooldownMs: 0 },
+  { id: "signal_watch", name: "Trigger watch", description: "Reads the enabled public sources for the moment a scheme becomes somebody's problem \u2014 consent granted, contractor appointed, project transferred, financial close \u2014 and queues it for a person to read. It never sends anything: the approach is written and sent by hand, from a real mailbox. robots.txt is obeyed, hosts are rate limited, no personal email address is ever stored, and the suppression list cannot be overridden.", cooldownMs: 12 * HOUR },
   { id: "retention_sweep", name: "Retention sweep", description: "Erases client information packs whose retention period has passed, and records each erasure. A retention policy that depends on somebody remembering is a retention policy in name only.", cooldownMs: 0 },
 ];
 
@@ -409,6 +411,25 @@ export async function runAutomation(trigger = "schedule") {
         findings.push(`${failedMail.length} outbound message(s) failed`);
       }
       checks.push(`Outbound mail: ${recent.length} sent in six hours, ${failedMail.length} failed`);
+    }
+
+    // --- The trigger watch --------------------------------------------------
+    // Finds moments, not addresses. Queued for a person; nothing is sent from
+    // here, and nothing in this module can send.
+    if (ruleEnabled(config, "signal_watch")) {
+      try {
+        const out = await signalSweep();
+        const worth = out.queued.filter((s) => s.score >= 5);
+        if (worth.length && shouldAlert(state, "signals.new", 12 * HOUR)) {
+          await fire("system.info", {
+            vars: { item: `${worth.length} new approach signal(s)`, outcome: "waiting in the queue to be read" },
+            detailsText: worth.slice(0, 10).map((s) => `${s.title}\n${s.url}`).join("\n\n"),
+          }, `${worth.length} new approach signal(s)`);
+        }
+        checks.push(`Trigger watch: ${out.checked} source(s), ${out.queued.length} queued, ${out.blocked} barred by robots, ${out.unchanged} unchanged`);
+      } catch (err) {
+        checks.push(`Trigger watch: failed \u2014 ${err.message}`);
+      }
     }
 
     // --- Backups ------------------------------------------------------------

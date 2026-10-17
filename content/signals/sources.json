@@ -1,0 +1,16 @@
+[
+  {
+    "_note": "SOURCES ARE DATA, NOT CODE. Edit this file and the next sweep picks it up; no deploy. Every entry ships DISABLED, because a URL invented at build time is a 404 at run time and a watcher quietly fetching nothing is worse than one that is obviously off. Check each URL in a browser, correct it, set enabled to true, then run: node backend/tools/signals-check.mjs",
+    "_fields": {
+      "id": "short stable key, used for deduplication reporting",
+      "name": "what it is, shown in the queue",
+      "org": "the organisation the signal is ABOUT, when a source only covers one",
+      "url": "the feed or listing page to read — an RSS or Atom feed is far better than a page",
+      "contactPage": "optional: the organisation's own supplier or contact page, read to find the published route in",
+      "enabled": "false until the URL has been checked by a person"
+    }
+  },
+  { "id": "example-developer-news", "name": "A developer's own news feed", "org": "", "url": "https://example.invalid/news/feed.xml", "contactPage": "https://example.invalid/suppliers", "enabled": false },
+  { "id": "example-trade-press", "name": "A trade publication's feed", "org": "", "url": "https://example.invalid/sector/rss", "enabled": false },
+  { "id": "example-planning-portal", "name": "A planning or consenting authority's decisions list", "org": "", "url": "https://example.invalid/decisions", "enabled": false }
+]
