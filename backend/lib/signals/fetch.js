@@ -84,6 +84,7 @@ async function robotsFor(origin) {
   const hit = robotsCache.get(origin);
   if (hit && Date.now() - hit.at < ROBOTS_TTL) return hit.rules;
   let groups = [];
+  let closed = null;
   try {
     const res = await fetch(`${origin}/robots.txt`, {
       headers: { "user-agent": UA, accept: "text/plain" },
@@ -93,11 +94,21 @@ async function robotsFor(origin) {
     // means the host could not tell us, and the conservative reading of a
     // host that cannot answer is to stay out until it can.
     if (res.status === 200) groups = parseRobots(await res.text());
-    else if (res.status >= 500) groups = [{ agents: ["*"], rules: [{ allow: false, path: "/" }], delay: 0 }];
-  } catch {
-    groups = [{ agents: ["*"], rules: [{ allow: false, path: "/" }], delay: 0 }];
+    else if (res.status >= 500) closed = "the host could not serve robots.txt (5xx)";
+  } catch (err) {
+    // UNREACHABLE IS NOT THE SAME AS FORBIDDEN, AND SAYING SO MATTERS.
+    //
+    // Both fail closed — staying out when the rules cannot be read is the
+    // only defensible default. But the first check run from a machine with
+    // no outbound access reported four live, well-run sites as "barred by
+    // robots.txt", which is a statement about those sites that was untrue.
+    // A diagnostic that blames the wrong party sends somebody to apologise
+    // to a publisher for their own firewall.
+    closed = `robots.txt could not be fetched (${err.name === "TimeoutError" ? "timed out" : err.message})`;
   }
-  const rules = applicable(groups, UA);
+  const rules = closed
+    ? { rules: [{ allow: false, path: "/" }], delay: 0, unreachable: closed }
+    : applicable(groups, UA);
   robotsCache.set(origin, { at: Date.now(), rules });
   return rules;
 }
@@ -114,6 +125,7 @@ export async function politeFetch(url, { now = Date.now } = {}) {
   if (u.protocol !== "https:" && u.protocol !== "http:") return { ok: false, reason: "unsupported scheme" };
 
   const group = await robotsFor(u.origin);
+  if (group.unreachable) return { ok: false, unreachable: true, reason: group.unreachable };
   if (!allowed(group, u.pathname)) return { ok: false, blocked: true, reason: "robots.txt disallows this path" };
 
   const wait = Math.max(MIN_INTERVAL, group.delay || 0);

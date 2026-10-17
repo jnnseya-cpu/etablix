@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signals — ETABLIX Internal</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/img/icon-180.png">
+<meta name="theme-color" content="#191a1c">
+<meta name="apple-mobile-web-app-title" content="ETABLIX">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/internal/css/internal.css">
+<style>
+  .sig { max-width: 1120px; margin: 0 auto; }
+  .sig h1 { font-family: "Barlow Condensed", var(--font-head), sans-serif; font-size: 2rem; text-transform: uppercase; margin: 0 0 4px; }
+  .sig .sub { color: var(--slate); font-size: 0.92rem; margin: 0 0 22px; max-width: 820px; line-height: 1.6; }
+  .bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 0 0 20px; }
+  .bar .spacer { flex: 1; }
+  .card { background: var(--white); border: 1px solid var(--line); border-left: 4px solid var(--orange); border-radius: 10px; padding: 16px 18px; margin: 0 0 12px; }
+  .card.hot { border-left-color: #c0392b; }
+  .card.cool { border-left-color: var(--line); opacity: 0.72; }
+  .card h3 { font-size: 1.02rem; margin: 0 0 6px; line-height: 1.4; }
+  .card h3 a { color: inherit; }
+  .meta { font-size: 0.76rem; color: var(--slate); display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 8px; }
+  .trig { display: inline-block; font-family: var(--font-head); font-size: 0.68rem; letter-spacing: 0.07em; text-transform: uppercase;
+          background: rgba(156,122,60,0.14); color: #7a5f2e; border-radius: 100px; padding: 3px 10px; margin: 0 6px 6px 0; }
+  .summary { font-size: 0.86rem; line-height: 1.55; margin: 0 0 10px; }
+  .route { font-size: 0.8rem; margin: 0 0 10px; }
+  .acts { display: flex; gap: 8px; flex-wrap: wrap; }
+  .note { border-left: 3px solid var(--line); padding: 10px 0 10px 14px; font-size: 0.84rem; color: var(--slate); line-height: 1.55; margin: 0 0 22px; }
+  .pill-count { font-family: "Barlow Condensed", var(--font-head), sans-serif; font-size: 1.6rem; }
+</style>
+</head>
+<body>
+<header class="desk-header">
+  <div class="brand-block">
+    <a class="logo" href="/internal/index.html"><img class="logo-mark" src="/img/logo-mark-reverse.svg" alt="ETABLIX"><span class="logo-text">ETABLIX<small>Integrated Site Services</small></span></a>
+    <span class="desk-label">SIGNALS</span>
+  </div>
+  <div class="desk-strap">Moments worth an approach — read, then write it yourself</div>
+  <div class="user-box">
+    <a class="btn-ghost" href="/internal/index.html" style="text-decoration:none;">Control Desk</a>
+    <button class="btn-ghost" id="logout">Sign out</button>
+  </div>
+</header>
+
+<main class="main">
+  <div class="sig" id="sig">
+    <p class="empty-note">Loading…</p>
+  </div>
+</main>
+
+<script type="module" src="/internal/js/signals-page.js"></script>
+</body>
+</html>
