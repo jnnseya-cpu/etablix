@@ -278,6 +278,10 @@ function readSchedule() {
     const out = {};
     for (const [slug, value] of Object.entries(raw)) {
       if (slug.startsWith("_") || !value || typeof value !== "object") continue;
+      // A retired entry is kept rather than skipped: it is the record of a
+      // deliberate withdrawal, and the thing that stops the post being
+      // offered for publication again.
+      if (value.retired) { out[slug] = { retired: value.retired, why: value.why || null }; continue; }
       if (!value.published) continue;
       out[slug] = { published: value.published, updated: value.updated || value.published };
     }
@@ -304,8 +308,21 @@ export const POSTS = CATALOGUE_POSTS
   .filter((p) => p.published && p.published <= today())
   .sort((a, b) => (a.published < b.published ? 1 : a.published > b.published ? -1 : 0));
 
-/** Written, not published. The buffer. */
-export const DRAFTS = CATALOGUE_POSTS.filter((p) => !POSTS.includes(p));
+/**
+ * Written and deliberately withdrawn — not a draft, and never offered.
+ *
+ * WHY THIS EXISTS. Unpublishing the AI agents post meant removing its
+ * schedule entry, and a post with no entry was by definition "written, not
+ * published" — a draft. So the Reach page, doing exactly as designed, began
+ * recommending it as the next thing to publish, with the command to do it.
+ * One keystroke would have undone a decision taken deliberately across the
+ * whole platform. "Not yet" and "never again" are different states and the
+ * schedule now holds both.
+ */
+export const RETIRED = CATALOGUE_POSTS.filter((p) => p.retired);
+
+/** Written, not published, and still wanted. The buffer. */
+export const DRAFTS = CATALOGUE_POSTS.filter((p) => !POSTS.includes(p) && !p.retired);
 
 /** Today, as the site reckons it: UTC, so a deploy at 23:50 cannot disagree. */
 export function today(at = new Date()) {

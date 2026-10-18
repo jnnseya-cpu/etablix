@@ -225,9 +225,31 @@ scanAi([path.join(root, "backend", "routes", "docs.js"),
    by having no entry in schedule.json. */
 {
   const schedule = JSON.parse(fs.readFileSync(path.join(root, "content", "blog", "schedule.json"), "utf8"));
-  const published = Object.keys(schedule).filter((k) => !k.startsWith("_"));
+  // A key is no longer the same as a publication: a retired entry is a key
+  // too, and it is the record of a withdrawal rather than a live post.
+  const published = Object.keys(schedule).filter((k) => !k.startsWith("_") && schedule[k]?.published);
   ok(!published.includes("ai-agents-in-construction"),
      "the AI agents post is not published", published.join(", "));
+
+  // WITHDRAWN IS NOT THE SAME AS NOT YET WRITTEN, AND THE DIFFERENCE BIT.
+  // Unpublishing meant removing the schedule entry, and a post with no entry
+  // counted as a draft — so the Reach page began recommending it as the next
+  // thing to publish, with the command to do it. One keystroke would have
+  // undone a decision taken deliberately across the whole platform.
+  const blog = await import("../lib/blog.js");
+  const retired = blog.RETIRED.map((p) => p.slug);
+  const drafts = blog.DRAFTS.map((p) => p.slug);
+  ok(retired.includes("ai-agents-in-construction"), "it is recorded as retired", retired.join(", "));
+  ok(!drafts.includes("ai-agents-in-construction"),
+     "and is NOT in the publishing queue, so nothing offers to publish it", drafts.join(", "));
+  ok(blog.POSTS.every((p) => !p.retired), "no retired post is live");
+
+  const { editorialState } = await import("../lib/editorial.js").catch(() => ({ editorialState: null }));
+  if (editorialState) {
+    const next = editorialState()?.nextToPublish?.slug;
+    ok(next !== "ai-agents-in-construction",
+       "and the desk does not suggest it as the next post to publish", next);
+  }
   scanAi(published.flatMap((slug) => [
     path.join(root, "content", "blog", `${slug}.html`),
     path.join(root, "content", "blog", `${slug}.json`),

@@ -19,7 +19,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { cadence, ratePerWeek, daysBetween } from "../lib/editorial.js";
-import { POSTS, DRAFTS, CATALOGUE_POSTS, PLAN, PLAN_ALL, SCHEDULE, SOURCES, LINKS } from "../lib/blog.js";
+import { POSTS, DRAFTS, CATALOGUE_POSTS, PLAN, PLAN_ALL, SCHEDULE, SOURCES, LINKS, RETIRED } from "../lib/blog.js";
 import { build } from "../tools/build-blog.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -102,12 +102,30 @@ console.log("\n--- a draft appears nowhere\n");
 console.log("\n--- schedule.json is the only thing that publishes\n");
 {
   const raw = JSON.parse(fs.readFileSync(path.join(root, "content", "blog", "schedule.json"), "utf8"));
-  const dated = Object.keys(raw).filter((k) => !k.startsWith("_"));
+  // THREE STATES, NOT TWO. A post is published, waiting, or withdrawn.
+  // This read every schedule key as a publication, which was true until a
+  // post had to be taken down: unpublishing meant deleting its entry, which
+  // made it a draft, which put it back in the queue to be published again.
+  // A withdrawal now has an entry of its own, so the count has to allow for
+  // one that is dated and deliberately not live.
+  const entries = Object.keys(raw).filter((k) => !k.startsWith("_"));
+  const dated = entries.filter((k) => raw[k]?.published);
+  const withdrawn = entries.filter((k) => raw[k]?.retired);
   ok(dated.length === POSTS.length, `${dated.length} dated entries, ${POSTS.length} published posts`, `${dated} vs ${POSTS.map((p) => p.slug)}`);
+  ok(dated.length + withdrawn.length === entries.length,
+     "every schedule entry either publishes a post or withdraws one", entries.join(", "));
   for (const p of POSTS) ok(SCHEDULE[p.slug]?.published === p.published, `${p.slug} takes its date from the schedule`);
   for (const d of DRAFTS) ok(!SCHEDULE[d.slug], `${d.slug} has no schedule entry, which is what makes it a draft`);
-  ok(CATALOGUE_POSTS.length === POSTS.length + DRAFTS.length, "every written post is either published or a draft, never both or neither");
+  ok(CATALOGUE_POSTS.length === POSTS.length + DRAFTS.length + RETIRED.length,
+     "every written post is published, waiting or withdrawn — exactly one of the three");
+  ok(RETIRED.every((r) => !POSTS.includes(r) && !DRAFTS.includes(r)),
+     "and a withdrawn post is in neither of the other two");
   for (const [slug, entry] of Object.entries(SCHEDULE)) {
+    if (entry.retired) {
+      ok(/^\d{4}-\d{2}-\d{2}$/.test(entry.retired), `${slug} has an ISO withdrawal date`, entry.retired);
+      ok(Boolean(entry.why), `${slug} records WHY it was withdrawn, so nobody undoes it by guessing`);
+      continue;
+    }
     ok(/^\d{4}-\d{2}-\d{2}$/.test(entry.published), `${slug} has an ISO published date`, entry.published);
     ok(entry.updated >= entry.published, `${slug} was not updated before it was published`);
   }
