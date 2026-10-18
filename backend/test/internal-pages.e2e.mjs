@@ -281,6 +281,28 @@ try {
     ok(undef === 0, "and nothing undefined", undef);
   }
 
+  console.log("\n--- the Signals page\n");
+  // ADDED BECAUSE NOTHING COVERED IT AND SOMEBODY HAD TO ASK "why can I not
+  // see this page". It was being served correctly the whole time, but there
+  // was no test that said so, and an answer reached by reasoning is not the
+  // same as one reached by looking.
+  await goto(`${BASE}/internal/signals.html`);
+  const sig = await settled("#sig", /Loading/);
+  ok(sig.length > 300, `it painted ${sig.length} characters`);
+  ok(/Signals/i.test(sig), "with its heading");
+  ok(!/could not|failed|error/i.test(sig.slice(0, 400)), "and no error", sig.slice(0, 160));
+  {
+    // The empty queue must explain itself. An empty screen that says nothing
+    // is indistinguishable from a broken one, which is exactly what happened.
+    const hasGuidance = await evaluate(`/no sources are enabled|Nothing in this list/i.test(document.body.textContent)`);
+    ok(hasGuidance === true, "and an empty queue says why it is empty rather than just being blank");
+    const undef = await evaluate(`(document.body.textContent.match(/undefined|NaN|\\[object Object\\]/g) || []).length`);
+    ok(undef === 0, "nothing undefined", undef);
+    // The whole point of the feature, asserted where a person would look.
+    const noSend = await evaluate(`document.querySelectorAll('button').length > 0 && !/\\bsend\\b/i.test([...document.querySelectorAll('button')].map(b => b.textContent).join(' '))`);
+    ok(noSend === true, "and no button on the page offers to send anything");
+  }
+
   console.log("\n--- the Control Desk\n");
   await goto(`${BASE}/internal/index.html`);
   // Wait for the thing the assertions below depend on, not for a number of

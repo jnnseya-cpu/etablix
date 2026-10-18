@@ -19,9 +19,38 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
-const SOURCES_FILE = process.env.ETABLIX_SIGNALS_SOURCES
-  ? path.resolve(process.env.ETABLIX_SIGNALS_SOURCES)
-  : path.join(root, "content", "signals", "sources.json");
+
+/**
+ * WHERE THE SOURCE LIST LIVES, AND A CLAIM THAT WAS WRONG.
+ *
+ * The file this shipped with said "sources are data, not code — edit the file
+ * and the next sweep picks it up; no deploy". That is true of a checkout and
+ * false of this deployment. content/ is copied into the Docker image at build
+ * time, so editing /opt/etablix/content on the host changes a file the running
+ * container never reads, and the next deploy overwrites it anyway. Following
+ * that instruction would have looked exactly like the watcher ignoring the
+ * list.
+ *
+ * So the live list belongs on the data volume, which is mounted, persists
+ * across deploys and is the only writable thing in there. The copy in the
+ * repository becomes a seed: it is written to the volume once, if nothing is
+ * there yet, and is never read again. After that the file on the volume is
+ * the truth and editing it needs no deploy — which is what was promised.
+ */
+const REPO_SOURCES = path.join(root, "content", "signals", "sources.json");
+const DATA_DIR = process.env.ETABLIX_DATA_DIR ? path.resolve(process.env.ETABLIX_DATA_DIR) : null;
+const LIVE_SOURCES = DATA_DIR ? path.join(DATA_DIR, "signals-sources.json") : null;
+
+export function sourcesFile() {
+  if (process.env.ETABLIX_SIGNALS_SOURCES) return path.resolve(process.env.ETABLIX_SIGNALS_SOURCES);
+  if (!LIVE_SOURCES) return REPO_SOURCES;
+  if (!fs.existsSync(LIVE_SOURCES)) {
+    // Seeded once, and only if the volume has nothing. A deploy must never
+    // overwrite a list somebody has edited.
+    try { fs.copyFileSync(REPO_SOURCES, LIVE_SOURCES); } catch { return REPO_SOURCES; }
+  }
+  return LIVE_SOURCES;
+}
 
 export const TRIGGERS = [
   // HOW THE TRADE PRESS ACTUALLY WRITES. The first version of this matched
@@ -96,7 +125,7 @@ export const TRIGGERS = [
 /** Sources are data, not code: the director edits them without a deploy. */
 export function sources() {
   try {
-    const list = JSON.parse(fs.readFileSync(SOURCES_FILE, "utf8"));
+    const list = JSON.parse(fs.readFileSync(sourcesFile(), "utf8"));
     return Array.isArray(list) ? list.filter((s) => s && s.url && s.enabled !== false) : [];
   } catch { return []; }
 }

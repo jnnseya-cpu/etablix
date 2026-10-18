@@ -19,14 +19,18 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 // From parse.js, NOT index.js: the queue needs the database and this does not.
-import { extract, score } from "../lib/signals/parse.js";
+import { extract, score, sourcesFile } from "../lib/signals/parse.js";
 import { politeFetch } from "../lib/signals/fetch.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const FILE = path.join(root, "content", "signals", "sources.json");
 const ALL = process.argv.includes("--all");
 
-const raw = JSON.parse(fs.readFileSync(FILE, "utf8"));
+// Say which file, out loud. The list that matters lives on the data volume,
+// not in the repository, and a tool that is silent about which one it read is
+// how somebody edits the wrong copy for an afternoon.
+const FILE_IN_USE = sourcesFile();
+console.log(`\nreading: ${FILE_IN_USE}`);
+const raw = JSON.parse(fs.readFileSync(FILE_IN_USE, "utf8"));
 const list = raw.filter((s) => s && s.url && (ALL || s.enabled !== false));
 if (!list.length) {
   console.log(ALL ? "\nNo sources have a url.\n" : "\nNothing is enabled. Run with --all to test the disabled ones.\n");
@@ -124,6 +128,6 @@ if (unreachable === list.length) {
 if (enable.length) {
   console.log(`\nThese answered and are still disabled. Set "enabled": true for:\n`);
   for (const id of enable) console.log(`  ${id}`);
-  console.log(`\nin content/signals/sources.json, then run a sweep:\n  curl -X POST -H "authorization: Bearer <token>" https://etablix.com/api/signals/sweep\n`);
+  console.log(`\nin ${FILE_IN_USE}, then run a sweep:\n  curl -X POST -H "authorization: Bearer <token>" https://etablix.com/api/signals/sweep\n`);
 }
 process.exit(broken ? 1 : 0);
