@@ -157,6 +157,48 @@ console.log("\n=== it finds moments, and it cannot send ===\n");
   ok(!/sendMail|smtp|\bemit\(/i.test(routes), "and neither does the route");
 }
 
+console.log("\n=== the diagnostic runs on the machine you are diagnosing ===\n");
+{
+  // THE REGRESSION THIS PINS. signals-check.mjs imported the queue, which
+  // imports the store, which imports node:sqlite. The VPS host runs Node 20,
+  // where that is not a built-in module — so the tool for diagnosing a
+  // problem died on startup with an error about SQLite that had nothing to
+  // do with anything it does. A diagnostic that cannot run on the machine
+  // you are diagnosing is not a diagnostic.
+  const graph = (entry) => {
+    const seen = new Set(), builtins = new Set(), stack = [entry];
+    while (stack.length) {
+      const f = stack.pop();
+      if (seen.has(f) || !fs.existsSync(f)) continue;
+      seen.add(f);
+      for (const m of fs.readFileSync(f, "utf8").matchAll(/from\s+["']([^"']+)["']/g)) {
+        const spec = m[1];
+        if (spec.startsWith("node:")) { builtins.add(spec); continue; }
+        if (spec.startsWith(".")) stack.push(path.join(path.dirname(f), spec));
+      }
+    }
+    return { seen, builtins };
+  };
+
+  const { seen, builtins } = graph(path.join(root, "backend", "tools", "signals-check.mjs"));
+  const files = [...seen].map((f) => path.relative(root, f));
+  ok(!files.includes("backend/lib/store.js"), "the check tool does not reach the store", files);
+  ok(!builtins.has("node:sqlite"), "and therefore not node:sqlite, which Node 20 does not have", [...builtins]);
+  ok(files.includes("backend/lib/signals/parse.js"), "it takes the parsing from parse.js", files);
+  ok(!files.includes("backend/lib/signals/index.js"), "and not from the queue", files);
+
+  // parse.js must stay pure, or the split silently undoes itself.
+  const pure = graph(path.join(root, "backend", "lib", "signals", "parse.js"));
+  ok(![...pure.seen].some((f) => /store\.js$/.test(f)), "parse.js itself stays free of the store",
+     [...pure.seen].map((f) => path.relative(root, f)));
+
+  // And the halves still add up: everything a caller imported before the
+  // split is still available from index.js.
+  for (const name of ["TRIGGERS", "sources", "fingerprint", "score", "extract", "queue", "sweep", "act", "suppress", "isSuppressed"]) {
+    ok(typeof S[name] !== "undefined", `index.js still exports ${name}`);
+  }
+}
+
 fs.rmSync(scratch, { recursive: true, force: true });
 console.log(`\n=== ${pass} passed, ${fail} failed ===\n`);
 process.exit(fail ? 1 : 0);

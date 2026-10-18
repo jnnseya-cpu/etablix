@@ -18,7 +18,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { extract, score } from "../lib/signals/index.js";
+// From parse.js, NOT index.js: the queue needs the database and this does not.
+import { extract, score } from "../lib/signals/parse.js";
 import { politeFetch } from "../lib/signals/fetch.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
