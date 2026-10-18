@@ -11,40 +11,34 @@
       "enabled": "false until a person has checked the URL"
     }
   },
-
   {
     "id": "ili-energy",
     "name": "ILI Group — transfers and project news",
     "org": "Intelligent Land Investments Group",
-    "url": "https://www.ili-energy.com/news",
-    "verify": "THE ONE WITH A LIVE REASON. Chris McCearney at ILI said on 14 Oct 2026 that a transfer is announced by press release shortly after completion and that the acquirer is the construction counterparty. This source is that watch. The domain is ili-energy.com, NOT ili-group — confirmed by two independent references. The /news path is a guess; check the site's own navigation and look for an RSS link before settling for the page.",
+    "url": "https://www.ili-energy.com/",
+    "verify": "/news returned 404 on 18 Oct 2026. Pointed at the root so the check tool can read the site's own declared feeds. If it declares none, open the site, find the news or press page, and put that address here. This is the watch Chris McCearney's transfer announcement will appear on, so it is worth the five minutes.",
     "enabled": false
   },
-
   {
     "id": "construction-enquirer",
     "name": "Construction Enquirer — contract awards and appointments",
     "org": "",
     "url": "https://www.constructionenquirer.com/feed/",
-    "verify": "Trade press carrying main contractor appointments, which is the 'award' trigger. The /feed/ path is the WordPress convention and a third-party feed directory lists it, but it is not confirmed on the Enquirer's own site. If it fails, --all will look for the site's declared feed.",
-    "enabled": false
+    "enabled": true
   },
-
   {
     "id": "construction-index",
     "name": "The Construction Index — awards, tenders and contract leads",
     "org": "",
-    "url": "https://www.theconstructionindex.co.uk/rss",
-    "verify": "The strongest of the three press sources: theconstructionindex.co.uk publishes a feeds page at /rss on its own site, and it covers contract awards and tenders rather than general news. That page may list several feeds — point this entry at the awards or news one specifically rather than at the index of feeds.",
-    "enabled": false
+    "url": "https://www.theconstructionindex.co.uk/feeds/news-uk.xml",
+    "enabled": true
   },
-
   {
     "id": "energy-consents-scotland",
     "name": "Energy Consents Unit (Scotland) — Section 36 decisions",
     "org": "",
     "url": "https://www.energyconsents.scot/",
-    "verify": "The consent trigger, and the hardest of the four. Scottish Ministers' Section 36 decisions are published here, but no RSS feed could be found for it. Expect to point this at the decisions or search-results listing page rather than a feed, and expect fewer, noisier items as a result. If the listing needs a query string to show decisions, put the full query URL here.",
+    "verify": "The root answers but parses to nothing — it is a homepage, not a list. Find the decisions or application-search results page in a browser, including any query string that filters to decided applications, and put that full URL here. Expect a page rather than a feed, and noisier results.",
     "enabled": false
   }
 ]

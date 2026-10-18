@@ -63,7 +63,23 @@ for (const s of list) {
     broken++; continue;
   }
   if (!res.ok) {
-    console.log(`    FAILED — ${res.reason}. Open it in a browser and correct the url.\n`);
+    console.log(`    FAILED — ${res.reason}.`);
+    // "Open it in a browser and correct the url" is homework, not an answer.
+    // The site root almost always declares its own feed, so go and look.
+    try {
+      const home = await politeFetch(new URL(s.url).origin + "/");
+      if (home.ok && home.body) {
+        const feeds = declaredFeeds(home.body, s.url);
+        if (feeds.length) {
+          console.log("    The site root declares these feeds — try one of them:");
+          for (const f of feeds.slice(0, 4)) console.log(`         ${f}`);
+        } else {
+          console.log("    The site root answers but declares no feed. Find the news or");
+          console.log("    decisions page in a browser and put that address here.");
+        }
+      }
+    } catch { /* the root is no help either; the failure above stands */ }
+    console.log("");
     broken++; continue;
   }
 
@@ -74,6 +90,14 @@ for (const s of list) {
   if (items.length && (isFeed || hits.length)) {
     console.log(`    OK — ${items.length} item(s) parsed, ${hits.length} would queue today${isFeed ? "" : "  (a page, not a feed)"}`);
     for (const h of hits.slice(0, 3)) console.log(`         · ${h.title.slice(0, 92)}`);
+    if (!hits.length) {
+      // A working feed scoring zero is ambiguous: a quiet day, or the wrong
+      // patterns. Printing what is actually in it settles that in one look —
+      // and the first time this ran, it was the patterns.
+      console.log("         nothing matched. What the feed actually holds today:");
+      for (const i of items.slice(0, 5)) console.log(`         · ${i.title.slice(0, 92)}`);
+      console.log("         If those look like the moments we want, the triggers need widening.");
+    }
     usable++;
     if (s.enabled === false) enable.push(s.id);
   } else {

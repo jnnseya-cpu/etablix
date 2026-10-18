@@ -24,27 +24,73 @@ const SOURCES_FILE = process.env.ETABLIX_SIGNALS_SOURCES
   : path.join(root, "content", "signals", "sources.json");
 
 export const TRIGGERS = [
-  { id: "consent", label: "Consent or permission granted", weight: 3,
-    patterns: [/planning (permission|consent)[^.]{0,40}(granted|approved|secured)/i,
-               /section 36[^.]{0,40}(approved|granted|consent)/i,
-               /development consent order[^.]{0,30}granted/i] },
+  // HOW THE TRADE PRESS ACTUALLY WRITES. The first version of this matched
+  // "has been awarded a contract" and scored ten items from a live UK
+  // construction awards feed at zero. Nobody writes that. They write wins,
+  // lands, secures, nets, bags, named on, picked for, gets the nod. Ten
+  // items and no hits was not a quiet market, it was a wrong list, and it
+  // would have been read as the former for weeks.
   { id: "award", label: "Contract awarded or contractor appointed", weight: 3,
-    patterns: [/(has been |been )?(awarded|appointed)[^.]{0,60}(contract|contractor)/i,
-               /(main|principal|tier[- ]?1) contractor[^.]{0,40}(appointed|selected|named)/i,
-               /preferred bidder/i] },
+    patterns: [
+      /\b(wins?|won|lands?|secures?|nets?|bags?|clinches?|scoops?)\b[^.]{0,70}\b(contract|deal|job|scheme|works|package|framework|project)\b/i,
+      /\b(contract|deal|job|scheme|works|package|framework)\b[^.]{0,50}\b(win|won|awarded|handed|landed)\b/i,
+      /\b(awarded|appointed|selected|chosen|named|picked|confirmed)\b[^.]{0,70}\b(contract|contractor|supplier|partner|framework|to (build|deliver|design))\b/i,
+      /\b(main|principal|managing|tier[- ]?1|lead)\s+contractor\b[^.]{0,50}\b(appointed|selected|named|confirmed|revealed|chosen)\b/i,
+      /\b(preferred bidder|contractor revealed|winner revealed|gets the nod|green ?lit)\b/i,
+      /\bsigns?\b[^.]{0,40}\b(contract|deal|agreement)\b/i,
+    ] },
+
+  // A price tag in a headline is the single most reliable sign that a real
+  // scheme has just become real. It is also how this press writes.
+  { id: "value", label: "A scheme with a price on it", weight: 2,
+    patterns: [/£\s?\d+(\.\d+)?\s?(m|bn|billion|million)\b/i] },
+
+  { id: "consent", label: "Consent or permission granted", weight: 3,
+    patterns: [
+      /\b(planning (permission|consent|approval)|consent)\b[^.]{0,50}\b(granted|approved|secured|won|given|obtained)\b/i,
+      /\b(approves?|approved|grants?|granted|backs?|backed|green ?light)\b[^.]{0,60}\b(scheme|plans?|project|development|application|proposals?)\b/i,
+      /\bsection 36\b[^.]{0,50}\b(approv|grant|consent)/i,
+      /\bdevelopment consent order\b[^.]{0,40}\b(granted|approved|made)\b/i,
+      /\b(plans?|proposals?|application|scheme|project|development)\b[^.]{0,40}\b(approved|cleared)\b/i,
+      // "Given the go-ahead" needs no noun in front of it: the phrase only
+      // ever means one thing, and it is how half the trade press says it.
+      /\bgiven the go[- ]?ahead\b/i,
+      /\bgets? the go[- ]?ahead\b/i,
+    ] },
+
   { id: "transfer", label: "Project sold or transferred to an owner", weight: 3,
-    patterns: [/(acquir|purchas)(ed|es|ition)[^.]{0,60}(project|scheme|portfolio|site)/i,
-               /(sold|divest(ed|s|ment))[^.]{0,60}(project|scheme|portfolio)/i,
-               /completes the (sale|acquisition)/i] },
+    patterns: [
+      /\b(acquires?|acquired|acquisition|buys?|bought|purchases?)\b[^.]{0,70}\b(project|scheme|portfolio|site|stake|business)\b/i,
+      /\b(sold|sells?|divests?|divested|divestment|disposal)\b[^.]{0,70}\b(project|scheme|portfolio|site|stake)\b/i,
+      /\bcompletes? the (sale|acquisition|purchase)\b/i,
+      /\b(takes? over|change of ownership|new owner)\b/i,
+    ] },
+
   { id: "close", label: "Financial close or investment decision", weight: 3,
-    patterns: [/financial close/i, /final investment decision/i, /\bFID\b/] },
-  { id: "mobilise", label: "Construction starting", weight: 2,
-    patterns: [/(construction|works|enabling works)[^.]{0,30}(to )?(begin|start|commence)/i,
-               /(ground|spade)[- ]break/i, /site establishment/i, /mobilis(ation|ing)/i] },
+    patterns: [/\bfinancial close\b/i, /\bfinal investment decision\b/i, /\bFID\b/,
+               /\breaches? (financial )?close\b/i, /\b(funding|investment) (secured|agreed|signed)\b/i] },
+
+  // WEIGHT 3, NOT 2, AND THE REASON IS COMMERCIAL RATHER THAN TECHNICAL.
+  // A construction start is late for the best version of this work — by then
+  // the contractor is appointed and the site establishment is largely
+  // decided. But an active site with a compound still buys services, and at
+  // weight 2 a bare "construction begins" scored below the threshold and was
+  // never seen at all. Better to read it ranked low than not to read it.
+  { id: "mobilise", label: "Construction starting", weight: 3,
+    patterns: [
+      /\b(construction|works|enabling works|building|groundworks?)\b[^.]{0,40}\b(begin|begins|start|starts|started|commence|commences|under ?way|get(s)? going)\b/i,
+      /\b(ground|spade)[- ]?break/i, /\bsite establishment\b/i, /\bmobilis(ation|ing|e)\b/i,
+      /\b(on site|start on site|work starts)\b/i,
+      /\bfirst (concrete|steel|sod|turf)\b/i,
+    ] },
+
   { id: "scale", label: "A workforce large enough to need housing", weight: 2,
-    patterns: [/\b([2-9]\d{2,}|\d{1,3},\d{3})\s+(workers|operatives|people|staff|jobs)\b/i,
-               /(worker|workforce|construction)[- ]?(accommodation|village|camp)/i,
-               /peak workforce/i] },
+    patterns: [
+      /\b([2-9]\d{2,}|\d{1,3},\d{3})\s+(workers|operatives|people|staff|jobs|personnel)\b/i,
+      /\b(worker|workers|workforce|construction|temporary)[- ]?(accommodation|village|camp|lodge|housing)\b/i,
+      /\bpeak workforce\b/i,
+      /\b(creat(e|es|ing)|support(s|ing)?)\b[^.]{0,30}\b([2-9]\d{2,}|\d{1,3},\d{3})\s+jobs\b/i,
+    ] },
 ];
 
 /** Sources are data, not code: the director edits them without a deploy. */

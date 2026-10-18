@@ -157,6 +157,54 @@ console.log("\n=== it finds moments, and it cannot send ===\n");
   ok(!/sendMail|smtp|\bemit\(/i.test(routes), "and neither does the route");
 }
 
+console.log("\n=== the triggers match how the trade press actually writes ===\n");
+{
+  // THE REGRESSION THIS PINS, AND IT WAS A REAL ONE. The first trigger list
+  // matched "has been awarded a contract" and scored a live UK construction
+  // awards feed at zero out of ten items. Nobody writes that sentence. They
+  // write wins, lands, secures, named on, revealed. Ten items and no hits
+  // reads exactly like a quiet market, which is the worst way for a watcher
+  // to fail — silently, and plausibly.
+  const SHOULD = [
+    "Balfour Beatty wins £300m Sizewell C contract",
+    "Kier lands £120m highways framework deal",
+    "Wates named main contractor on £85m scheme",
+    "Contractor revealed for £1.25bn Stonehenge tunnel",
+    "Morgan Sindall secures £45m hospital job",
+    "Galliford Try scoops £60m water contract",
+    "Plans approved for 400MW battery storage project",
+    "Section 36 consent granted for pumped storage scheme",
+    "Scheme given the go-ahead by ministers",
+    "Statkraft completes the acquisition of the project",
+    "Developer sells 50MW battery portfolio",
+    "Work starts on £200m data centre",
+    "Developer reaches financial close on offshore wind farm",
+    "Construction begins on 1,200-home scheme",
+    "Peak workforce of 800 operatives and worker accommodation on site",
+  ];
+  const SHOULD_NOT = [
+    "A photograph of the chief executive at a conference",
+    "Firm appoints new finance director",
+    "Industry reacts to the Budget",
+    "Five things we learned this week",
+    "Apprentice of the year announced",
+  ];
+  const missed = SHOULD.filter((t) => S.score(t).score < 3);
+  ok(missed.length === 0, `every real award, consent, transfer and start queues (${SHOULD.length - missed.length}/${SHOULD.length})`, missed.join(" | "));
+  const noisy = SHOULD_NOT.filter((t) => S.score(t).score >= 3);
+  ok(noisy.length === 0, "and ordinary trade news does not", noisy.join(" | "));
+
+  // The verbs that actually appear in headlines, each one named so a future
+  // tidy-up cannot quietly drop them.
+  for (const verb of ["wins", "lands", "secures", "scoops", "named", "revealed"]) {
+    const t = `Contractor ${verb} the £50m contract`;
+    ok(S.score(t).triggers.includes("award"), `"${verb}" reads as an award`);
+  }
+  ok(S.score("£1.25bn tunnel scheme").triggers.includes("value"), "a price tag is its own signal");
+  ok(S.score("A scheme worth millions of pounds").triggers.includes("value") === false,
+     "but a vague one is not");
+}
+
 console.log("\n=== the diagnostic runs on the machine you are diagnosing ===\n");
 {
   // THE REGRESSION THIS PINS. signals-check.mjs imported the queue, which
