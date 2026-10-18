@@ -52,9 +52,15 @@ export function renderCapabilityGrid(grid, counter) {
     const picked = boxes.filter((b) => b.checked).length;
     for (const b of boxes) if (!b.checked) b.disabled = picked >= CAPABILITIES_MAX;
     if (counter) {
-      counter.textContent = picked
-        ? `(${picked} of ${CAPABILITIES_MAX} selected)`
-        : `(select up to ${CAPABILITIES_MAX})`;
+      const atLimit = picked >= CAPABILITIES_MAX;
+      counter.textContent = !picked
+        ? `(select up to ${CAPABILITIES_MAX})`
+        : atLimit
+          ? `(${picked} of ${CAPABILITIES_MAX} — untick one to choose another)`
+          : `(${picked} of ${CAPABILITIES_MAX} selected)`;
+      // Say it once, where the reader is looking, instead of fading most of
+      // the list and leaving them to work out why nothing responds.
+      counter.classList.toggle("at-limit", atLimit);
     }
   };
   grid.addEventListener("change", refresh);

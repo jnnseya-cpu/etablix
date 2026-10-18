@@ -681,6 +681,12 @@ h3 { font-size: 1.28rem; }
   letter-spacing: 0;
   cursor: pointer;
   line-height: 1.35;
+  /* STATED, NOT INHERITED. These sit on a near-white panel and set no colour
+     of their own, so they took whatever the surrounding section happened to
+     be — which on a pale background is a list of twenty-one services nobody
+     can read. The panel has an explicit background, so the text on it needs
+     an explicit colour. */
+  color: var(--ink);
 }
 .cap-opt input {
   width: 17px;
@@ -689,8 +695,18 @@ h3 { font-size: 1.28rem; }
   margin-top: 1px;
   flex-shrink: 0;
 }
-.cap-opt input:disabled + span { opacity: 0.45; }
+/* AT THE LIMIT, THE REST MUST STILL BE READABLE.
+   This was opacity 0.45, which on the panel's background is roughly 3.2:1 —
+   under the 4.5:1 that ordinary text needs, and it applied to sixteen of the
+   twenty-one options the moment somebody picked five. The point is to say
+   "not available right now", not to make most of the list disappear while
+   the reader is still deciding. A colour change carries that at 6:1. */
+.cap-opt input:disabled + span { color: var(--slate); }
+.cap-opt:has(input:disabled) { cursor: not-allowed; }
 .cap-count { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--slate); }
+/* The counter is where "you have reached the limit" belongs — on the thing
+   that counts, not spread across sixteen faded options. */
+.cap-count.at-limit { color: var(--orange); font-weight: 700; }
 
 /* Honeypot — invisible to people, present for bots. Kept off-screen
    (not display:none) so naive scripts still see and fill it. */
