@@ -90,10 +90,24 @@ time, and a watcher quietly fetching nothing looks exactly like a quiet market.
    than a listing page. Add the organisation's own supplier or contact page as
    `contactPage` and the watcher will find the published route in.
 2. Check the URL in a browser, then set `enabled: true`.
-3. Run `node backend/tools/signals-check.mjs`. It says which sources answer,
-   which are barred by robots.txt, which have moved, and how many items would
-   queue today.
-4. The automation sweep runs it from then on. Signals scoring five or more
+3. Run the check **inside the container**, because the live source list lives
+   on the data volume and the host's Node is older than the container's:
+
+       docker exec etablix node backend/tools/signals-check.mjs --all
+
+   It names the file it read, says which sources answer, which are barred by
+   robots.txt and which have moved, follows a site's own declared feed when a
+   guessed path is wrong, and — when a feed parses but nothing matches —
+   prints what it actually holds, so a quiet day can be told from a wrong
+   pattern.
+
+4. Sweep, also inside the container, since it writes to the same volume:
+
+       docker exec etablix node backend/tools/signals-sweep.mjs
+
+   It prints what queued and why. Running it on the host would write to a
+   different store and report success while the screen stayed empty.
+5. The automation sweep runs it from then on. Signals scoring five or more
    raise one notification every twelve hours.
 
 **Start with the sources already known to matter.** The acquirers that buy ILI

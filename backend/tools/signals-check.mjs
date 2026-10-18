@@ -128,6 +128,6 @@ if (unreachable === list.length) {
 if (enable.length) {
   console.log(`\nThese answered and are still disabled. Set "enabled": true for:\n`);
   for (const id of enable) console.log(`  ${id}`);
-  console.log(`\nin ${FILE_IN_USE}, then run a sweep:\n  curl -X POST -H "authorization: Bearer <token>" https://etablix.com/api/signals/sweep\n`);
+  console.log(`\nin ${FILE_IN_USE}, then sweep:\n  docker exec etablix node backend/tools/signals-sweep.mjs\n`);
 }
 process.exit(broken ? 1 : 0);
