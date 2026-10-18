@@ -7,7 +7,8 @@
  */
 const token = sessionStorage.getItem("etablix.token");
   if (!token) {
-    location.replace("/internal/login.html");
+    (sessionStorage.setItem("etablix.after-login", location.pathname + location.search + location.hash),
+   location.replace("/internal/login.html"));
     /* location.replace() does NOT stop the script. Without halting here the
        module carried on to the first line that touches the session or the DOM and
        threw a TypeError before the browser had navigated — which is why a direct
@@ -37,7 +38,8 @@ const token = sessionStorage.getItem("etablix.token");
   ])
     .then(async ([a, b, c, d, e, f, g, h]) => {
       for (const res of [a, b, c, d, e, f, g, h]) {
-        if (res.status === 401) { sessionStorage.clear(); location.replace("/internal/login.html"); throw new Error("unauthorised"); }
+        if (res.status === 401) { sessionStorage.clear(); (sessionStorage.setItem("etablix.after-login", location.pathname + location.search + location.hash),
+   location.replace("/internal/login.html")); throw new Error("unauthorised"); }
         if (!res.ok) throw new Error(`${res.status} from ${res.url}`);
       }
       return [await a.json(), await b.json(), await c.json(), await d.json(), await e.json(), await f.json(), await g.json(), await h.json()];

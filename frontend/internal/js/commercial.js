@@ -26,7 +26,8 @@ async function api(path, options = {}) {
   });
   if (res.status === 401) {
     sessionStorage.clear();
-    location.replace("/internal/login.html");
+    (sessionStorage.setItem("etablix.after-login", location.pathname + location.search + location.hash),
+   location.replace("/internal/login.html"));
     throw new Error("Session expired");
   }
   const body = await res.json().catch(() => ({}));

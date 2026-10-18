@@ -103,5 +103,32 @@ console.log("\n--- the service grid states its own colours\n");
      "and the panel they sit on sets its background, so the pair is known");
 }
 
+console.log("\n--- every internal page uses a header class the stylesheet knows\n");
+{
+  // THE DEFECT THIS PINS. signals.html was written from scratch with
+  // <header class="desk-header">. The stylesheet scopes every header rule
+  // under .topbar, so none of it applied — including the one sizing the
+  // logo. logo-mark-reverse.svg has a viewBox and no width, so it grew to
+  // fill the page, pushed the content below the fold, and the page was
+  // reported as missing. It had been served correctly the whole time.
+  const internalCss = fs.readFileSync(path.join(root, "frontend", "internal", "css", "internal.css"), "utf8");
+  const dir = path.join(root, "frontend", "internal");
+  const pages = fs.readdirSync(dir).filter((f) => f.endsWith(".html"));
+  ok(pages.length >= 3, `${pages.length} internal pages to check`);
+
+  for (const f of pages) {
+    const html = fs.readFileSync(path.join(dir, f), "utf8");
+    const m = /<header[^>]*class="([^"]+)"/.exec(html);
+    if (!m) continue;
+    const cls = m[1].split(/\s+/)[0];
+    ok(new RegExp(`\\.${cls}\\b`).test(internalCss),
+       `${f}: header class "${cls}" is styled in internal.css`,
+       `nothing in internal.css matches .${cls}`);
+  }
+
+  ok(/\.logo \.logo-mark \{[^}]*width:/.test(internalCss),
+     "and the logo mark has a size that does not depend on its wrapper");
+}
+
 console.log(`\n=== ${pass} passed, ${fail} failed ===\n`);
 process.exit(fail ? 1 : 0);

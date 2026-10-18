@@ -69,6 +69,14 @@ button { font-family: inherit; cursor: pointer; }
   margin-bottom: 14px;
 }
 .logo .logo-mark { display: block; border-radius: 8px; }
+/* A FLOOR UNDER THE LOGO, WHATEVER CONTAINS IT.
+   logo-mark-reverse.svg carries a viewBox and no width or height, so an
+   unrecognised wrapper class leaves it filling the available width — which
+   is what happened when two pages used `desk-header`, a class this file
+   styles nowhere: a page-sized mark pushed the content below the fold and
+   the page was reported as missing. The selectors below still win where they
+   apply; this only stops the failure being catastrophic. */
+.logo .logo-mark { width: 30px; height: 30px; }
 .login-card .logo .logo-mark { width: 42px; height: 42px; }
 .logo .logo-text { display: flex; flex-direction: column; line-height: 1; color: inherit; }
 .logo .logo-text small {

@@ -10,7 +10,8 @@
  */
 const token = sessionStorage.getItem("etablix.token");
 if (!token) {
-  location.replace("/internal/login.html");
+  (sessionStorage.setItem("etablix.after-login", location.pathname + location.search + location.hash),
+   location.replace("/internal/login.html"));
   await new Promise(() => {});
 }
 document.getElementById("logout").addEventListener("click", () => {

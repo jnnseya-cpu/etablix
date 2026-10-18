@@ -7,7 +7,8 @@
  */
 const token = sessionStorage.getItem("etablix.token");
   if (!token) {
-    location.replace("/internal/login.html");
+    (sessionStorage.setItem("etablix.after-login", location.pathname + location.search + location.hash),
+   location.replace("/internal/login.html"));
     /* location.replace() does NOT stop the script. Without halting here the
        module carried on to the first line that touches the session or the DOM and
        threw a TypeError before the browser had navigated — which is why a direct
@@ -27,7 +28,8 @@ const token = sessionStorage.getItem("etablix.token");
     .then((res) => {
       if (res.status === 401) {
         sessionStorage.clear();
-        location.replace("/internal/login.html");
+        (sessionStorage.setItem("etablix.after-login", location.pathname + location.search + location.hash),
+   location.replace("/internal/login.html"));
         throw new Error("unauthorised");
       }
       return res.json();

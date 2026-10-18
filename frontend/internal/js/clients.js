@@ -20,7 +20,8 @@ async function api(path, options = {}) {
       ...(options.headers || {}),
     },
   });
-  if (res.status === 401) { sessionStorage.clear(); location.replace("/internal/login.html"); throw new Error("Session expired"); }
+  if (res.status === 401) { sessionStorage.clear(); (sessionStorage.setItem("etablix.after-login", location.pathname + location.search + location.hash),
+   location.replace("/internal/login.html")); throw new Error("Session expired"); }
   const body = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(body.error || `Request failed (${res.status})`);
   return body;
