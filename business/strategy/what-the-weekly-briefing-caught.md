@@ -103,3 +103,57 @@ already saw.
 
 The one job outstanding is unglamorous and it is the whole of the value: run the
 check on the server, and switch on the sources that answer.
+
+---
+
+## Addendum — the first live run, 19 October 2026
+
+The check was run on the server against all 25 sources. It found six defects
+the 248 tests did not, because every one of them needs a real feed to show up.
+
+**Find a Tender and Contracts Finder both answered**, as OCDS JSON, exactly as
+hoped. They are the first notice sources we have ever had. They also offered
+**70 of 100** and **95 of 100** notices respectively — every one a genuine
+contract award, and almost none of it our work: pricing agreements for cough
+assist therapy devices, periodicals subscriptions, a rightsizing project in Hong
+Kong. Unfiltered they would have ended the queue rather than filled it, so the
+portals now require an item to land in one of our six sectors. Trade press is
+deliberately *not* gated — an editor's judgement about what counts as
+construction news is the only thing trade press is for.
+
+**The award trigger was missing plurals.** Every noun in every pattern was
+singular, so "Root-Power *awards contracts* for three BESS projects" and "Alstom
+awarded €95 million signalling *contracts*" both scored as a bare value. The
+most important trigger in the file, silently missing the commonest phrasing.
+
+**Title Case defeated the name extractor.** Notice headings capitalise every
+word, so "AGR Unique Ref", "Cough Assist Therapy Devices" and "Hong Kong SCR
+Rightsizing" were being offered as organisations to write to. Where nearly every
+word is capitalised the capital means nothing, so nothing is claimed now — and
+for OCDS the names come out of the record's own fields instead of a regex.
+
+**TenderNed's 406 was ours, not theirs.** Our accept header offered only HTML
+and XML; it serves JSON. A notice API refused on content negotiation reads on
+screen exactly like a dead URL.
+
+**And the live source list was still not live.** It resolved the data volume
+only when `ETABLIX_DATA_DIR` was set, and nothing sets it — the volume is found
+by falling back to `/app/backend/data`. The check tool was reading the copy baked
+into the image, which a deploy overwrites. "Edit it, no deploy needed" was false
+for the second time. Now fixed against the path the database actually uses, with
+a test asserting the two agree.
+
+**Enabled, from 2 to 13**: SSEN Transmission, Solar Power Portal, Rail Business
+Daily, Mining Weekly, Engineering News, reNEWS, Data Centre Dynamics, ILI Group
+(its own declared feed — this is the ILI transfer watch), Find a Tender,
+Contracts Finder and eTenders Ireland.
+
+**Still outstanding**, in order of what they are worth: Sell2Wales and Public
+Contracts Scotland, both of which carry the schemes we care about most;
+TenderNed, which should be rechecked first since the fault was ours; and the two
+supply-chain pages, which are where a Meet the Buyer would be found and which
+nothing is yet watching.
+
+The pattern across all six: the module was written against examples I invented,
+and it passed 248 assertions while being wrong in ways only real feeds reveal.
+The tests were not weak. They were testing a fiction.

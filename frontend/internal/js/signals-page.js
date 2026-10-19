@@ -156,7 +156,8 @@ root.addEventListener("click", async (e) => {
       await render();
       alert(`${out.checked} source(s) read. ${out.queued} new signal(s) queued.`
         + `\n${out.unchanged} unchanged, ${out.blocked} barred by robots.txt, ${out.failed} failed.`
-        + `${out.expired ? `\n${out.expired} open notice(s) had already closed and were dropped.` : ""}`);
+        + `${out.expired ? `\n${out.expired} open notice(s) had already closed and were dropped.` : ""}`
+        + `${out.offSector ? `\n${out.offSector} notice(s) were outside our six sectors.` : ""}`);
     } catch (err) { alert(err.message); sweep.disabled = false; sweep.textContent = "Sweep now"; }
     return;
   }

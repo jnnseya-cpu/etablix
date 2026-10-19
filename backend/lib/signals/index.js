@@ -21,12 +21,12 @@
 import { collection, insert, update } from "../store.js";
 import { politeFetch } from "./fetch.js";
 import { publishedContact, scrub } from "./contact.js";
-import { TRIGGERS, SECTORS, SECTOR_LABEL, sources, fingerprint, score, extract, classify,
+import { TRIGGERS, SECTORS, SECTOR_LABEL, sources, sourcesFile, fingerprint, score, extract, classify,
          stage, STAGE_LABEL, OPEN_TRIGGERS, CONFIRMED_TRIGGERS, namedOrgs, extractDeadline, resolveUrl } from "./parse.js";
 
 // Re-exported so every caller keeps one import, and so the split between what
 // needs the database and what does not stays an implementation detail.
-export { TRIGGERS, SECTORS, SECTOR_LABEL, sources, fingerprint, score, extract, classify,
+export { TRIGGERS, SECTORS, SECTOR_LABEL, sources, sourcesFile, fingerprint, score, extract, classify,
          stage, STAGE_LABEL, OPEN_TRIGGERS, CONFIRMED_TRIGGERS, namedOrgs, extractDeadline, resolveUrl };
 
 
@@ -88,7 +88,7 @@ export function queue(signal) {
  * that has moved should not stop the other nine.
  */
 export async function sweep({ minScore = 3, enrich = true } = {}) {
-  const out = { checked: 0, blocked: 0, unchanged: 0, failed: 0, queued: [], skipped: 0, expired: 0 };
+  const out = { checked: 0, blocked: 0, unchanged: 0, failed: 0, queued: [], skipped: 0, expired: 0, offSector: 0 };
   for (const src of sources()) {
     out.checked++;
     // resolveUrl, not src.url: the procurement APIs are windowed queries and
@@ -111,6 +111,25 @@ export async function sweep({ minScore = 3, enrich = true } = {}) {
       // has to check every date themselves stops checking.
       const deadline = extractDeadline(text);
       const where = stage(triggers);
+
+      /**
+       * A NOTICE PORTAL WITHOUT A SECTOR FILTER IS NOT A SOURCE, IT IS A FLOOD.
+       *
+       * THE NUMBERS FROM THE FIRST LIVE RUN. Find a Tender: 100 notices read,
+       * 70 would have queued. Contracts Finder: 100 read, 95 would have
+       * queued. They were right to — every one is genuinely a contract award,
+       * so the award trigger fires on all of them. But they were pricing
+       * agreements for cough assist therapy devices, periodicals subscriptions
+       * and a rightsizing project in Hong Kong. Two hundred of those a day
+       * does not improve the queue, it ends it: nobody reads a list where the
+       * nineteenth item is the first relevant one.
+       *
+       * So a source may demand that an item land in one of our six sectors
+       * before it is queued at all. Only the portals set it, and they set it
+       * because they carry every procurement in the country rather than a
+       * trade press editor's judgement about what is construction news.
+       */
+      if (src.requireSector && !sectors.length && !src.sector) { out.offSector++; continue; }
       if (where === "open" && deadline && deadline.at < Date.now() - 86400000) { out.expired = (out.expired || 0) + 1; continue; }
 
       let contactUrl = null, roleAddress = null;
@@ -126,7 +145,9 @@ export async function sweep({ minScore = 3, enrich = true } = {}) {
         // What kind of moment, who is named in it, and by when. The three
         // things a reader had to open the link to find out.
         stage: where,
-        orgs: namedOrgs(text),
+        // A notice API states its buyer and suppliers in named fields, so the
+        // record wins. The regex is for prose, where there is nothing better.
+        orgs: (item.orgs && item.orgs.length) ? item.orgs : namedOrgs(text),
         deadlineAt: deadline ? deadline.at : null,
         deadlineKind: deadline ? deadline.kind : null,
         deadlineText: deadline ? deadline.text : null,

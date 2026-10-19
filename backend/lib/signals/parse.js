@@ -38,12 +38,31 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", ".
  * the truth and editing it needs no deploy — which is what was promised.
  */
 const REPO_SOURCES = path.join(root, "content", "signals", "sources.json");
-const DATA_DIR = process.env.ETABLIX_DATA_DIR ? path.resolve(process.env.ETABLIX_DATA_DIR) : null;
-const LIVE_SOURCES = DATA_DIR ? path.join(DATA_DIR, "signals-sources.json") : null;
+
+/**
+ * AND THE PROMISE WAS STILL NOT KEPT, WHICH THE FIRST LIVE RUN PROVED.
+ *
+ * This resolved the volume only when ETABLIX_DATA_DIR was set. Nothing sets it
+ * in production: deploy.sh mounts the named volume at /app/backend/data and
+ * store.js finds it by falling back to that path, not by reading an
+ * environment variable. So on the server DATA_DIR was null, the live list was
+ * never used, and the check tool printed "reading: /app/content/signals/
+ * sources.json" — the copy baked into the image, which a deploy overwrites.
+ *
+ * Editing the list without a deploy would have silently done nothing for the
+ * second time. The fix is to default to the same path store.js defaults to,
+ * computed here rather than imported, because parse.js must not reach the
+ * store. A test asserts the two agree, so the next person to move it moves
+ * both.
+ */
+const DATA_DIR = process.env.ETABLIX_DATA_DIR
+  ? path.resolve(process.env.ETABLIX_DATA_DIR)
+  : path.join(root, "backend", "data");
+const LIVE_SOURCES = path.join(DATA_DIR, "signals-sources.json");
 
 export function sourcesFile() {
   if (process.env.ETABLIX_SIGNALS_SOURCES) return path.resolve(process.env.ETABLIX_SIGNALS_SOURCES);
-  if (!LIVE_SOURCES) return REPO_SOURCES;
+  if (!fs.existsSync(path.dirname(LIVE_SOURCES))) return REPO_SOURCES;
   if (!fs.existsSync(LIVE_SOURCES)) {
     // Seeded once, and only if the volume has nothing. A deploy must never
     // overwrite a list somebody has edited.
@@ -61,26 +80,30 @@ export const TRIGGERS = [
   // would have been read as the former for weeks.
   { id: "award", label: "Contract awarded or contractor appointed", weight: 3,
     patterns: [
-      /\b(wins?|won|lands?|secures?|nets?|bags?|clinches?|scoops?)\b[^.]{0,70}\b(contract|deal|job|scheme|works|package|framework|project)\b/i,
-      /\b(contract|deal|job|scheme|works|package|framework)\b[^.]{0,50}\b(win|won|awarded|handed|landed)\b/i,
-      /\b(awarded|appointed|selected|chosen|named|picked|confirmed)\b[^.]{0,70}\b(contract|contractor|supplier|partner|framework|to (build|deliver|design))\b/i,
+      /\b(wins?|won|lands?|secures?|nets?|bags?|clinches?|scoops?)\b[^.]{0,70}\b(contracts?|deals?|jobs?|schemes?|works|packages?|frameworks?|projects?)\b/i,
+      /\b(contracts?|deals?|jobs?|schemes?|works|packages?|frameworks?)\b[^.]{0,50}\b(win|won|awarded|handed|landed)\b/i,
+      /\b(awarded|appointed|selected|chosen|named|picked|confirmed)\b[^.]{0,70}\b(contracts?|contractors?|suppliers?|partners?|frameworks?|to (build|deliver|design))\b/i,
       // "OCU Utility Services awarded Walpole SGT4 substation WORKS". The
       // pattern above wanted a contract noun and "works", "package" and
       // "scheme" are not in it, so the plainest phrasing in a real award
       // notice — the one the procurement portals themselves use — missed.
-      /\b(awarded|appointed|selected|chosen|named|picked)\b[^.]{0,70}\b(works|package|scheme|project|job|lot)\b/i,
+      /\b(awarded|appointed|selected|chosen|named|picked)\b[^.]{0,70}\b(works|packages?|schemes?|projects?|jobs?|lots?)\b/i,
       // The ACTIVE voice, where the client is the subject: "SSEN awards the
       // works", "Network Rail issues the framework". Every pattern above is
       // passive or contractor-led, so the client-led half of the trade press
       // was invisible. A contract noun is still required, so an industry
       // awards ceremony does not qualify.
-      /\b(awards?|issues?|lets?)\b[^.]{0,70}\b(contract|deal|works|package|framework|project|job)\b/i,
+      /\b(awards?|issues?|lets?)\b[^.]{0,70}\b(contracts?|deals?|works|packages?|frameworks?|projects?|jobs?)\b/i,
       /\b(main|principal|managing|tier[- ]?1|lead)?\s*contractor\b[^.]{0,50}\b(appointed|selected|named|confirmed|revealed|chosen|lined up)\b/i,
       // "Contractor appointed for the campus" — the noun leads and no contract
       // word follows, which the patterns above all required.
       /\b(contractor|builder|supplier|partner)\s+(appointed|selected|named|chosen|confirmed)\b/i,
       /\b(preferred bidder|contractor revealed|winner revealed|gets the nod|green ?lit)\b/i,
-      /\bsigns?\b[^.]{0,40}\b(contract|deal|agreement)\b/i,
+      // "Kier ON BOARD FOR Manchester tram stop upgrade" — a real Construction
+      // Enquirer headline that scored nothing. This is how that paper says
+      // appointed, and it says it constantly.
+      /\b(on board|lined up|in the frame|in line|tapped)\s+(for|to)\b/i,
+      /\bsigns?\b[^.]{0,40}\b(contracts?|deals?|agreements?)\b/i,
     ] },
 
   // A price tag in a headline is the single most reliable sign that a real
@@ -158,6 +181,11 @@ export const TRIGGERS = [
       /\b(closing date|deadline for (receipt|submission|tenders|participation|requests)|tenders? (are )?invited|bids? (are )?invited|seeking (a )?(contractor|supplier|provider))\b/i,
       /\b(dynamic purchasing system|\bDPS\b|framework (agreement|opportunity)|call[- ]off)\b/i,
       /\bopen (to|for) (tender|bid)/i,
+      // "RACE STARTS FOR £800m south Wales civils framework" — a framework
+      // coming to market, which is the earliest point at which we can bid,
+      // and the trade press announces it exactly like this.
+      /\b(race|hunt|search|contest|bidding)\b[^.]{0,20}\b(starts?|begins?|is on|under ?way|opens?)\b[^.]{0,60}\b(framework|contracts?|deals?|works|jobs?|packages?)\b/i,
+      /\b(framework|contracts?|works|packages?|schemes?)\b[^.]{0,40}\b(to market|out to tender|up for grabs|put out|goes out)\b/i,
     ] },
 
   /**
@@ -262,7 +290,7 @@ export const TRIGGERS = [
  */
 export const SECTORS = [
   { id: "grid", label: "Grid and power",
-    patterns: [/\b(substation|switchyard|converter station|transmission|overhead line|OHL|pylon|grid connection|national grid|HVDC|high[- ]voltage|\b\d{2,3}\s?kV\b|electricity network|interconnector|distribution network operator|DNO|SSEN|SP Energy|Ofgem)\b/i] },
+    patterns: [/\b(substation|switchyard|converter station|transmission|overhead line|OHL|pylon|grid connection|national grid|cable (project|route|works|circuit)|underground cable|subsea cable|HVDC|high[- ]voltage|\b\d{2,3}\s?kV\b|electricity network|interconnector|distribution network operator|DNO|SSEN|SP Energy|Ofgem)\b/i] },
 
   { id: "renewables", label: "Renewable energy",
     patterns: [/\b(offshore wind|onshore wind|wind farm|windfarm|turbine|solar farm|solar park|photovoltaic|\bPV\b|battery (energy )?storage|\bBESS\b|pumped storage|hydro|green hydrogen|electrolyser|electrolyzer|nuclear|\bSMR\b|small modular reactor)\b/i] },
@@ -376,6 +404,27 @@ const NOT_A_NAME = new Set([
   "contract","contracts","tender","tenders","notice","award","awards","project","scheme","works","framework","construction","phase","stage","package",
 ]);
 
+/**
+ * IS THE CAPITALISATION TELLING US ANYTHING?
+ *
+ * THE DEFECT THIS ANSWERS, AND IT CAME STRAIGHT OFF THE LIVE RUN. Find a
+ * Tender titles are Title Case: "HPB - Provision of Radioactive Waste
+ * Management Services", "Pricing Agreement - Cough Assist Therapy Devices".
+ * Every word is capitalised, so a method that treats a capital as a signal
+ * read those as organisations and put "AGR Unique Ref", "Cough Assist Therapy
+ * Devices" and "Hong Kong SCR Rightsizing" on cards as names to write to.
+ *
+ * Where nearly every word is capitalised, the capital carries no information
+ * at all, so nothing is claimed. Better an empty field than a confident
+ * wrong one.
+ */
+function looksTitleCase(fragment) {
+  const words = String(fragment).split(/\s+/).filter((w) => /^[A-Za-z]/.test(w));
+  if (words.length < 4) return false;
+  const caps = words.filter((w) => /^[A-Z]/.test(w)).length;
+  return caps / words.length > 0.72;
+}
+
 export function namedOrgs(text) {
   const str = String(text || "");
   const found = [];
@@ -406,10 +455,13 @@ export function namedOrgs(text) {
     if (words.length === 1 && !tailed) continue;
     if (words.length === 1 && COMPANY_TAIL.test(words[0].replace(/[.]$/, ""))) continue;
 
-    if (!tailed) {
-      const from = Math.max(0, m.index - 60), to = Math.min(str.length, m.index + m[1].length + 60);
-      if (!APPOINTMENT_NEAR.test(str.slice(from, to))) continue;
-    }
+    // In Title Case the capital means nothing, so neither test below means
+    // anything either. Checked for both branches, including the company-tail
+    // one: "Provision of Associated Services" ends in a tail word.
+    const near = str.slice(Math.max(0, m.index - 60), Math.min(str.length, m.index + m[1].length + 60));
+    if (looksTitleCase(near)) continue;
+
+    if (!tailed && !APPOINTMENT_NEAR.test(near)) continue;
     if (!found.some((f) => f.toLowerCase() === name.toLowerCase())) found.push(name);
   }
   return found.slice(0, 6);
@@ -654,8 +706,24 @@ export function extractJson(body, baseUrl) {
     }
     try { url = new URL(url || baseUrl, baseUrl).toString(); } catch { url = baseUrl; }
 
+    /**
+     * THE NAMES COME OFF THE RECORD, NOT OUT OF A REGEX.
+     *
+     * This is the whole advantage of reading the notice rather than an
+     * article about it: OCDS states who the buyer is and who the suppliers
+     * are in named fields. Guessing them from a Title Case notice heading
+     * produced "AGR Unique Ref" and "Cough Assist Therapy Devices" on the
+     * live run. There is no reason to guess when the record says.
+     */
+    const orgs = [];
+    const add = (n) => { const v = strip(n); if (v && v.length > 2 && !orgs.includes(v)) orgs.push(v); };
+    for (const a of (Array.isArray(r.awards) ? r.awards : [])) {
+      for (const sup of (Array.isArray(a.suppliers) ? a.suppliers : [])) add(sup && sup.name);
+    }
+    add(buyer);   // the supplier first: on an award it is the one who needs a compound
+
     items.push({
-      title, url,
+      title, url, orgs: orgs.slice(0, 6),
       summary: parts.join(" "),
       publishedAt: Date.parse(r.date || r.publishedDate || r.publicatieDatum || tender.datePublished || "") || null,
     });

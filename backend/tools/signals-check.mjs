@@ -99,7 +99,30 @@ for (const s of list) {
   }
 
   const items = extract(res.body, url);
-  const hits = items.filter((i) => score(`${i.title} ${i.summary}`).score >= 3);
+
+  /**
+   * THE CHECK MUST COUNT WHAT THE SWEEP WOULD COUNT, OR IT IS LYING.
+   *
+   * On the first live run this reported "70 would queue today" for Find a
+   * Tender. The sweep now applies a sector gate to the portals and drops an
+   * open notice whose date has passed, so an unfiltered count here would
+   * promise ten times the queue that actually arrives — and the next person
+   * to read the two numbers side by side would go looking for a bug that is
+   * in the diagnostic rather than the watcher.
+   */
+  const judge = (i) => {
+    const text = `${i.title} ${i.summary}`;
+    const r = score(text);
+    if (r.score < 3) return null;
+    if (s.requireSector && !r.sectors.length && !s.sector) return { drop: "outside our sectors" };
+    const d = extractDeadline(text);
+    const where = stage(r.triggers);
+    if (where === "open" && d && d.at < Date.now() - 86400000) return { drop: "already closed" };
+    return { r, d, where, text };
+  };
+  const judged = items.map((i) => [i, judge(i)]);
+  const hits = judged.filter(([, j]) => j && !j.drop).map(([i]) => i);
+  const dropped = judged.filter(([, j]) => j && j.drop);
   const head = res.body.slice(0, 600);
   const isJson = /^\s*[[{]/.test(head);
   const isFeed = isJson || /<rss|<feed\b|<\?xml/i.test(head);
@@ -112,12 +135,23 @@ for (const s of list) {
     // and printing only the title hides whether any of them worked.
     for (const h of hits.slice(0, 3)) {
       const text = `${h.title} ${h.summary}`;
-      const r = score(text), d = extractDeadline(text), who = namedOrgs(text);
+      const r = score(text), d = extractDeadline(text);
+      // The record's own names where it has them, the regex only otherwise —
+      // the same order the sweep uses, so this shows what the card will show.
+      const who = (h.orgs && h.orgs.length) ? h.orgs : namedOrgs(text);
       console.log(`         · [${stage(r.triggers)}] ${h.title.slice(0, 80)}`);
       console.log(`             score ${r.score} · ${r.triggers.join(", ") || "no trigger"} · ${r.sectors.join(", ") || "no sector"}`);
-      if (d) console.log(`             ${d.kind}: ${d.text}`);
+      if (d) {
+        const days = Math.round((d.at - Date.now()) / 86400000);
+        console.log(`             ${d.kind}: ${d.text}  (${days < 0 ? `${-days} days ago` : `in ${days} days`})`);
+      }
       if (who.length) console.log(`             named: ${who.join(" / ")}`);
     }
+    // Said out loud, because a gate that works silently looks like a source
+    // that has gone quiet.
+    const why = {};
+    for (const [, j] of dropped) why[j.drop] = (why[j.drop] || 0) + 1;
+    for (const [reason, n] of Object.entries(why)) console.log(`         ${n} scored but were dropped: ${reason}`);
     if (!hits.length) {
       // A working feed scoring zero is ambiguous: a quiet day, or the wrong
       // patterns. Printing what is actually in it settles that in one look —

@@ -9,17 +9,18 @@
       "contactPage": "optional: that organisation's own supplier or contact page, read for the published route in",
       "verify": "what is known and what is not — delete it once the source is checked",
       "enabled": "false until a person has checked the URL",
-      "sector": "one of grid, renewables, datacentres, rail, industrial, epc — set it only where a source covers that sector and nothing else, and its items inherit it even when the headline does not repeat the word. Leave it empty for general trade press and for the procurement portals, where the sector is read from the text."
+      "sector": "one of grid, renewables, datacentres, rail, industrial, epc — set it only where a source covers that sector and nothing else, and its items inherit it even when the headline does not repeat the word. Leave it empty for general trade press and for the procurement portals, where the sector is read from the text.",
+      "requireSector": "true means an item is only queued if it lands in one of our six sectors. Set it on the procurement portals and nowhere else: they carry every procurement in the country, so without it they drown the queue. On the first live run Find a Tender offered 70 of 100 notices and Contracts Finder 95 of 100 — every one a genuine award, almost none of it our work."
     },
-    "_why_procurement_portals": "THE HOLE THIS FILE HAD UNTIL 19 OCT 2026. Every source was trade press — somebody writing about a decision after it was taken. The decisions themselves are published in full, with the winner named, the value stated and the dates given, on the procurement portals. A watcher reading only the commentary is always a week behind the record and never sees the notices the press does not cover, which is most of them. The portals below are therefore the most valuable entries here, and the hardest to get right: several are windowed JSON APIs rather than feeds, and TED's search is POST-only, which a GET watcher cannot read at all. Each says honestly what is known and what still has to be checked."
+    "_why_procurement_portals": "THE HOLE THIS FILE HAD UNTIL 19 OCT 2026. Every source was trade press — somebody writing about a decision after it was taken. The decisions themselves are published in full, with the winner named, the value stated and the dates given, on the procurement portals. A watcher reading only the commentary is always a week behind the record and never sees the notices the press does not cover, which is most of them. The portals below are therefore the most valuable entries here, and the hardest to get right: several are windowed JSON APIs rather than feeds, and TED's search is POST-only, which a GET watcher cannot read at all. Each says honestly what is known and what still has to be checked.",
+    "_checked": "Checked against the live server on 19 October 2026. 11 sources enabled. Find a Tender and Contracts Finder both answered as OCDS JSON and are the first notice sources we have ever had. Still to resolve: Sell2Wales and Public Contracts Scotland (both matter), TenderNed (recheck — our accept header was wrong, not their API), and the two supply-chain pages, which are where a Meet the Buyer would be found."
   },
   {
     "id": "ili-energy",
     "name": "ILI Group — transfers and project news",
     "org": "Intelligent Land Investments Group",
-    "url": "https://www.ili-energy.com/",
-    "verify": "/news returned 404 on 18 Oct 2026. Pointed at the root so the check tool can read the site's own declared feeds. If it declares none, open the site, find the news or press page, and put that address here. This is the watch Chris McCearney's transfer announcement will appear on, so it is worth the five minutes.",
-    "enabled": false
+    "url": "https://ili-energy.com/feed/",
+    "enabled": true
   },
   {
     "id": "construction-enquirer",
@@ -42,7 +43,7 @@
     "name": "Energy Consents Unit (Scotland) — Section 36 decisions",
     "org": "",
     "url": "https://www.energyconsents.scot/",
-    "verify": "The root answers but parses to nothing — it is a homepage, not a list. Find the decisions or application-search results page in a browser, including any query string that filters to decided applications, and put that full URL here. Expect a page rather than a feed, and noisier results.",
+    "verify": "Answered on 19 Oct 2026 but parsed to nothing — it is a homepage. Find the application-search results page in a browser, filtered to decided applications, and paste that full URL including the query string.",
     "enabled": false
   },
   {
@@ -51,7 +52,7 @@
     "sector": "grid",
     "org": "",
     "url": "https://www.current-news.co.uk/news",
-    "verify": "URL not reachable from the machine that added it, so it is off until checked. Run signals-check.mjs --all: where this is a page rather than a feed it will read the site's own declared feed and print the address to use instead.",
+    "verify": "Answered on 19 Oct 2026 but parsed to nothing and declared no feed — a JavaScript-rendered page. Nothing here reads those and nothing should. Leave off unless a feed address turns up.",
     "enabled": false
   },
   {
@@ -60,7 +61,7 @@
     "sector": "grid",
     "org": "",
     "url": "https://www.nationalgrid.com/news",
-    "verify": "URL not reachable from the machine that added it, so it is off until checked. Run signals-check.mjs --all: where this is a page rather than a feed it will read the site's own declared feed and print the address to use instead.",
+    "verify": "403 on 19 Oct 2026, and the site root declares no feed. Cloudflare or similar is refusing the request, which is the publisher's choice and not something to work around. Find their news page in a browser and see whether it offers a feed; if not, leave this off.",
     "enabled": false
   },
   {
@@ -69,17 +70,15 @@
     "sector": "grid",
     "org": "",
     "url": "https://www.ssen-transmission.co.uk/news",
-    "verify": "URL not reachable from the machine that added it, so it is off until checked. Run signals-check.mjs --all: where this is a page rather than a feed it will read the site's own declared feed and print the address to use instead.",
-    "enabled": false
+    "enabled": true
   },
   {
     "id": "renews",
     "name": "reNEWS — renewable energy",
     "sector": "renewables",
     "org": "",
-    "url": "https://renews.biz/",
-    "verify": "URL not reachable from the machine that added it, so it is off until checked. Run signals-check.mjs --all: where this is a page rather than a feed it will read the site's own declared feed and print the address to use instead.",
-    "enabled": false
+    "url": "https://www.renews.biz/feed/",
+    "enabled": true
   },
   {
     "id": "solar-power-portal",
@@ -87,8 +86,7 @@
     "sector": "renewables",
     "org": "",
     "url": "https://www.solarpowerportal.co.uk/news",
-    "verify": "URL not reachable from the machine that added it, so it is off until checked. Run signals-check.mjs --all: where this is a page rather than a feed it will read the site's own declared feed and print the address to use instead.",
-    "enabled": false
+    "enabled": true
   },
   {
     "id": "energy-storage-news",
@@ -96,7 +94,7 @@
     "sector": "renewables",
     "org": "",
     "url": "https://www.energy-storage.news/news/",
-    "verify": "URL not reachable from the machine that added it, so it is off until checked. Run signals-check.mjs --all: where this is a page rather than a feed it will read the site's own declared feed and print the address to use instead.",
+    "verify": "403 on 19 Oct 2026 and the root declared no feed. Same as National Grid: the publisher is refusing. Leave off unless they publish a feed address.",
     "enabled": false
   },
   {
@@ -105,7 +103,7 @@
     "sector": "renewables",
     "org": "",
     "url": "https://www.offshorewind.biz/",
-    "verify": "URL not reachable from the machine that added it, so it is off until checked. Run signals-check.mjs --all: where this is a page rather than a feed it will read the site's own declared feed and print the address to use instead.",
+    "verify": "Answered on 19 Oct 2026 but parsed to nothing and declared no feed. Same as Current±.",
     "enabled": false
   },
   {
@@ -113,9 +111,8 @@
     "name": "Data Centre Dynamics",
     "sector": "datacentres",
     "org": "",
-    "url": "https://www.datacenterdynamics.com/en/news/",
-    "verify": "URL not reachable from the machine that added it, so it is off until checked. Run signals-check.mjs --all: where this is a page rather than a feed it will read the site's own declared feed and print the address to use instead.",
-    "enabled": false
+    "url": "https://www.datacenterdynamics.com/en/rss/",
+    "enabled": true
   },
   {
     "id": "new-civil-engineer",
@@ -123,7 +120,7 @@
     "sector": "rail",
     "org": "",
     "url": "https://www.newcivilengineer.com/latest/",
-    "verify": "URL not reachable from the machine that added it, so it is off until checked. Run signals-check.mjs --all: where this is a page rather than a feed it will read the site's own declared feed and print the address to use instead.",
+    "verify": "403 on 19 Oct 2026. Subscription publication, so this is expected. Leave off.",
     "enabled": false
   },
   {
@@ -131,9 +128,8 @@
     "name": "Rail Business Daily",
     "sector": "rail",
     "org": "",
-    "url": "https://news.railbusinessdaily.com/",
-    "verify": "URL not reachable from the machine that added it, so it is off until checked. Run signals-check.mjs --all: where this is a page rather than a feed it will read the site's own declared feed and print the address to use instead.",
-    "enabled": false
+    "url": "https://news.railbusinessdaily.com/feed/",
+    "enabled": true
   },
   {
     "id": "mining-weekly",
@@ -141,8 +137,7 @@
     "sector": "industrial",
     "org": "",
     "url": "https://newsletter-mw.creamermedia.com/page/home/feed",
-    "verify": "CONFIRMED as a real feed address by two independent references. Still off until the check confirms it answers from the server and parses.",
-    "enabled": false
+    "enabled": true
   },
   {
     "id": "engineering-news-mining",
@@ -150,8 +145,7 @@
     "sector": "industrial",
     "org": "",
     "url": "https://newsletter-en.creamermedia.com/page/mining/feed",
-    "verify": "CONFIRMED as a real feed address. Southern African in focus, which is deliberate: worker villages are a standing operating requirement there, not an exception.",
-    "enabled": false
+    "enabled": true
   },
   {
     "id": "find-a-tender",
@@ -159,8 +153,8 @@
     "sector": "",
     "org": "",
     "url": "https://www.find-tender.service.gov.uk/api/1.0/ocdsReleasePackages?updatedFrom={{date:-7}}T00:00:00&limit=100",
-    "verify": "THE SINGLE MOST VALUABLE SOURCE IN THIS FILE, and the least certain. Find a Tender is the UK's statutory notice service above threshold — every grid, rail and major civils award notice appears here with the winner named, the value stated and the contract period given, and the trade press covers perhaps one in twenty. It publishes OCDS release packages, which the sweep now reads natively (extractJson). WHAT IS CONFIRMED: the service exists and publishes an OCDS API. WHAT IS NOT: this exact path, the parameter names, whether a window is mandatory and whether the limit parameter is called limit. Run the check tool and read the error body — these APIs say what they wanted. If it answers 400, try dropping the parameters; if it answers 404, the version in the path has moved.",
-    "enabled": false
+    "enabled": true,
+    "requireSector": true
   },
   {
     "id": "contracts-finder",
@@ -168,8 +162,8 @@
     "sector": "",
     "org": "",
     "url": "https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search?publishedFrom={{date:-7}}",
-    "verify": "Find a Tender's below-threshold sibling, and the more useful of the two for us: the packages that get sub-let — welfare, accommodation, site establishment — are mostly below the Find a Tender threshold and land here instead. Also OCDS. The path and parameter names are NOT confirmed. Check the error body if it refuses.",
-    "enabled": false
+    "enabled": true,
+    "requireSector": true
   },
   {
     "id": "public-contracts-scotland",
@@ -177,8 +171,9 @@
     "sector": "",
     "org": "",
     "url": "https://www.publiccontractsscotland.gov.uk/",
-    "verify": "Scotland runs its own portal and the Scottish transmission schemes — SSEN's ASTI programme, the pumped storage schemes, the 400kV reinforcements — are procured through it. It publishes an RSS notice search; the exact address is NOT confirmed, so this points at the root and the check tool will read the site's own declared feeds. If it declares none, open the notice search in a browser, filter to the categories we want, and paste the RSS address the page offers.",
-    "enabled": false
+    "verify": "UNREACHABLE from the container on 19 Oct 2026 — robots.txt could not be fetched at all, which is this machine's outbound access and not the site. Retry; if it still cannot be reached, check DNS from inside the container before touching this entry. Scotland's transmission schemes are procured here, so it matters.",
+    "enabled": false,
+    "requireSector": true
   },
   {
     "id": "sell2wales",
@@ -186,8 +181,9 @@
     "sector": "",
     "org": "",
     "url": "https://www.sell2wales.gov.wales/",
-    "verify": "Wales runs its own portal on the same platform as Public Contracts Scotland. Worth having for its own sake and because the Wales–Ireland interconnector work and the National Grid substation packages in mid and north Wales are notified here. Same treatment: root, then the declared feed.",
-    "enabled": false
+    "verify": "Answered on 19 Oct 2026 but parsed to nothing — a landing page. Its notice search offers an RSS address once a search is run; open it, filter to the categories we want, and paste that address here. THIS IS WORTH THE TEN MINUTES: a Sell2Wales award notice was the hardest lead in the 19 October comparison that started all this.",
+    "enabled": false,
+    "requireSector": true
   },
   {
     "id": "etenders-ireland",
@@ -195,8 +191,8 @@
     "sector": "",
     "org": "",
     "url": "https://www.etenders.gov.ie/",
-    "verify": "Ireland is a live market for us in exactly one way and it is a significant one: the interconnector and grid reinforcement schemes that land on both coasts are procured on both sides. Root, then the declared feed.",
-    "enabled": false
+    "enabled": true,
+    "requireSector": true
   },
   {
     "id": "ted-europa",
@@ -204,8 +200,9 @@
     "sector": "",
     "org": "",
     "url": "https://ted.europa.eu/en/",
-    "verify": "A KNOWN LIMITATION, WRITTEN DOWN RATHER THAN DISCOVERED LATER. TED's current search API is POST-only with a JSON query body. politeFetch issues GET requests and must keep doing so — a watcher that can POST is one step from a watcher that can submit things, and that line is the whole design. So TED cannot be read through its search API by this tool at all. What CAN be read is whatever RSS or Atom TED still publishes; this points at the root so the check tool reports what it declares. If it declares nothing usable, leave this disabled and read TED by hand for the schemes we are already following rather than pretending the watcher covers it.",
-    "enabled": false
+    "verify": "Answered on 19 Oct 2026 but parsed to nothing and declared no usable feed, which matches what was written when it was added: TED's search is POST-only and this watcher issues GET requests by design. Leave off. TED is read by hand for the schemes we already follow.",
+    "enabled": false,
+    "requireSector": true
   },
   {
     "id": "tenderned",
@@ -213,8 +210,9 @@
     "sector": "",
     "org": "",
     "url": "https://www.tenderned.nl/papi/tenderned-rs-tns/v2/publicaties?publicatieDatumVanaf={{date:-7}}",
-    "verify": "Here for one reason: TenneT. TenneT procures the Dutch and the German onshore grid programme through TenderNed, and its framework awards are the largest single pool of substation and overhead-line work in Europe. Not a market we operate in today, which is exactly why watching it is cheap and worth it — it tells us who is winning that work before anybody asks us about it. The API is JSON and the sweep reads JSON; the path and the Dutch parameter name are NOT confirmed.",
-    "enabled": false
+    "verify": "406 Not Acceptable on 19 Oct 2026. That was OUR fault, not theirs: the accept header offered only HTML and XML and this API serves JSON. The header now includes JSON, so RECHECK THIS ONE FIRST — it may simply work.",
+    "enabled": false,
+    "requireSector": true
   },
   {
     "id": "ssen-supply-chain",
@@ -222,7 +220,7 @@
     "sector": "grid",
     "org": "Scottish and Southern Electricity Networks Transmission",
     "url": "https://www.ssen-transmission.co.uk/supply-chain/",
-    "verify": "A SUPPLIER EVENT IS A DOOR SOMEBODY HAS DELIBERATELY LEFT OPEN, and nothing in this file watched for one. When SSEN runs a Meet the Buyer for a named scheme, they are asking to be approached: no cold opening, no apology, and a published date. The path is NOT confirmed — find their supply chain or working-with-us page and put that address here. This is worth more per visit than any news feed in this file.",
+    "verify": "404 on 19 Oct 2026 — the path was a guess. Find SSEN Transmission's supply chain or working-with-us page in a browser and put that address here. A Meet the Buyer is the single most valuable thing in this file and nothing is watching for one yet.",
     "enabled": false
   },
   {
@@ -231,7 +229,7 @@
     "sector": "grid",
     "org": "National Grid Electricity Transmission",
     "url": "https://www.nationalgrid.com/electricity-transmission/",
-    "verify": "The same reasoning as SSEN. The Great Grid Upgrade runs early market engagement for its tranches and publishes the dates. Find their supplier or market engagement page and put that address here.",
+    "verify": "403 on 19 Oct 2026, same refusal as their news page. Find their supplier or market engagement page; if it is also refused, leave this off.",
     "enabled": false
   }
 ]

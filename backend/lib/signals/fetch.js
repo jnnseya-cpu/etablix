@@ -134,7 +134,13 @@ export async function politeFetch(url, { now = Date.now } = {}) {
   lastHit.set(u.host, now());
 
   const prior = conditional.get(url) || {};
-  const headers = { "user-agent": UA, accept: "text/html,application/xhtml+xml,application/xml,text/xml;q=0.9" };
+  // JSON IS IN THE LIST, AND IT WAS NOT.
+  // TenderNed answered 406 Not Acceptable to a perfectly good request: the
+  // accept header offered only HTML and XML, and it serves JSON. A notice API
+  // that refuses on content negotiation reads on screen exactly like a dead
+  // URL, and that is how the most valuable class of source in the file gets
+  // written off as broken.
+  const headers = { "user-agent": UA, accept: "application/json;q=0.9,text/html,application/xhtml+xml,application/xml,text/xml;q=0.8" };
   if (prior.etag) headers["if-none-match"] = prior.etag;
   if (prior.lastModified) headers["if-modified-since"] = prior.lastModified;
 

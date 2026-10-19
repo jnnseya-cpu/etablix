@@ -434,13 +434,35 @@ console.log("\n=== the name in the item, and what it refuses to guess ===\n");
    * as an organisation. A period may sit inside a name; it may never bridge
    * two sentences.
    */
-  const ocds = "Buyer: National Grid Electricity Transmission. Civils at Walpole. Contract awarded to OCU Utility Services Ltd.";
-  const names = S.namedOrgs(ocds);
+  const prose = "The works were awarded to Murphy Group. Civils at Walpole begin in the spring.";
+  const names = S.namedOrgs(prose);
   ok(!names.some((x) => /\. /.test(x)), "a name never runs across a full stop", names.join(" / "));
-  ok(names.includes("National Grid Electricity Transmission"), "the buyer is read whole", names.join(" / "));
-  ok(names.includes("OCU Utility Services Ltd"), "and so is the supplier", names.join(" / "));
+  ok(names.includes("Murphy Group"), "and the name before the stop is read whole", names.join(" / "));
   ok(S.namedOrgs("St.Modwen Logistics named as partner").includes("St.Modwen Logistics"),
      "while a full stop INSIDE a name is kept", S.namedOrgs("St.Modwen Logistics named as partner").join(" / "));
+
+  /**
+   * TITLE CASE, AND THE GARBAGE IT PUT ON CARDS ON THE FIRST LIVE RUN.
+   *
+   * Find a Tender headings are Title Case, so a method that treats a capital
+   * as a signal read them as organisations: "AGR Unique Ref", "Cough Assist
+   * Therapy Devices" and "Hong Kong SCR Rightsizing" were all offered as
+   * names to write to. Where nearly every word is capitalised the capital
+   * carries no information, so nothing is claimed.
+   */
+  for (const heading of [
+    "HPB - Provision of Radioactive Waste Management Services (AGR Unique Ref. 34 F/W)",
+    "Pricing Agreement - Cough Assist Therapy Devices - SBS - HUTH",
+    "Hong Kong SCR Rightsizing Project",
+    "S30150 Regulatory Monitoring and Compliance Technical Partner",
+  ]) {
+    ok(S.namedOrgs(heading).length === 0,
+       `a Title Case notice heading names nobody: ${heading.slice(0, 44)}`, S.namedOrgs(heading).join(" / "));
+  }
+  // Ordinary prose is unaffected, which is why the guard is about the
+  // surrounding text rather than about the candidate itself.
+  ok(S.namedOrgs("OCU Utility Services awarded Walpole SGT4 substation works, £4.17m").includes("OCU Utility Services"),
+     "but ordinary prose still yields its name");
 }
 
 console.log("\n=== a notice API is JSON, and the old extractor read none of it ===\n");
@@ -469,6 +491,19 @@ console.log("\n=== a notice API is JSON, and the old extractor read none of it =
   ok(r.triggers.includes("award") && r.triggers.includes("value"), "so the notice scores as an award with a value", r.triggers.join(", "));
   ok(r.sectors.includes("grid"), "and classifies into the right sector", r.sectors.join(", "));
   ok(S.extractDeadline(`${it.title} ${it.summary}`).at === Date.parse("2026-10-31T00:00:00Z"), "with its closing date read back out");
+
+  /**
+   * THE NAMES COME OFF THE RECORD. This is the entire advantage of reading a
+   * notice rather than an article about it, and on the first live run the
+   * regex was offering "AGR Unique Ref" where the record said
+   * "Cyclife UK Limited" in a named field.
+   */
+  ok(Array.isArray(it.orgs) && it.orgs.includes("OCU Utility Services Ltd"),
+     "the supplier is taken from the record's own field", JSON.stringify(it.orgs));
+  ok(it.orgs.includes("National Grid Electricity Transmission"), "and so is the buyer", JSON.stringify(it.orgs));
+  ok(it.orgs[0] === "OCU Utility Services Ltd",
+     "the supplier comes FIRST — on an award it is the party that needs a compound, not the client who let it",
+     JSON.stringify(it.orgs));
 
   // The envelope's name must not matter: every portal wraps the same thing.
   for (const key of ["results", "items", "notices", "publicaties"]) {
@@ -561,6 +596,85 @@ console.log("\n=== the card renders its own labels, which it did not ===\n");
     ok(new RegExp(`esc\\(${field.replace(".", "\\.")}`).test(page), `${field} is escaped before it reaches the page`);
   }
   ok(/\(s\.orgs \|\| \[\]\)\.map\(\(o\) => esc\(o\)\)/.test(page), "and so is every extracted organisation name");
+}
+
+console.log("\n=== what the first live run broke, and must not break again ===\n");
+{
+  /**
+   * EVERY ASSERTION BELOW IS A DEFECT THE SERVER FOUND AND THE TESTS DID NOT.
+   * They are kept together so the lesson stays attached to them: this module
+   * was written against invented examples and passed 248 assertions while six
+   * things were wrong in ways only real feeds reveal.
+   */
+
+  // 1. PLURALS. Every noun in every alternation was singular, so "Root-Power
+  //    AWARDS CONTRACTS for three BESS projects" and "Alstom awarded €95
+  //    million signalling CONTRACTS" both scored as a bare value — the award
+  //    itself, the most important trigger in the file, missed entirely.
+  for (const t of [
+    "Root-Power awards contracts for three BESS projects totalling £50 million",
+    "Alstom awarded €95 million signalling contracts to equip Ireland's national rail network",
+    "Contractor lands two packages on the substation scheme",
+  ]) ok(S.score(t).triggers.includes("award"), `plural nouns match: ${t.slice(0, 50)}`, S.score(t).triggers.join(", ") || "none");
+
+  // 2. IDIOMS the live feeds used and nothing matched.
+  ok(S.score("Kier on board for Manchester tram stop upgrade").triggers.includes("award"),
+     '"on board for" is how the trade press says appointed');
+  ok(S.score("Race starts for £800m south Wales civils framework").triggers.includes("tender"),
+     '"race starts for" is a framework coming to market');
+
+  // 3. "cable project" is grid work and the sector patterns had no cable in
+  //    them, so a real SSEN consent landed with no sector at all.
+  const cable = "Planning permission granted for Kinardochy to Errochty cable project";
+  ok(S.classify(cable).includes("grid"), "a cable project is grid work", S.classify(cable).join(", ") || "none");
+
+  // 4. THE SECTOR GATE. Find a Tender offered 70 of 100 notices and Contracts
+  //    Finder 95 of 100 — every one a genuine award, almost none our work.
+  const idx = fs.readFileSync(path.join(root, "backend", "lib", "signals", "index.js"), "utf8");
+  ok(/src\.requireSector && !sectors\.length/.test(idx), "a source can demand one of our six sectors before anything queues");
+  ok(/out\.offSector/.test(idx), "and the ones it refuses are counted rather than silently lost");
+  const check = fs.readFileSync(path.join(root, "backend", "tools", "signals-check.mjs"), "utf8");
+  ok(/requireSector/.test(check) && /already closed/.test(check),
+     "the check tool applies the same gates, so its count is not a promise the sweep cannot keep");
+
+  // 5. THE ACCEPT HEADER. TenderNed answered 406 Not Acceptable because the
+  //    header offered only HTML and XML, and it serves JSON. A notice API
+  //    refused on content negotiation reads exactly like a dead URL.
+  const fetchSrc = fs.readFileSync(path.join(root, "backend", "lib", "signals", "fetch.js"), "utf8");
+  ok(/accept:\s*"application\/json/.test(fetchSrc), "the fetcher asks for JSON as well as HTML and XML");
+
+  // 6. THE LIVE SOURCE LIST, WRONG FOR THE SECOND TIME. parse.js resolved the
+  //    data volume only when ETABLIX_DATA_DIR was set. Nothing sets it:
+  //    deploy.sh mounts the volume at /app/backend/data and store.js finds it
+  //    by falling back to that path. So on the server the live list was never
+  //    used and the check tool read the copy baked into the image — the one a
+  //    deploy overwrites. "Edit it, no deploy needed" was false twice over.
+  const parseSrc = fs.readFileSync(path.join(root, "backend", "lib", "signals", "parse.js"), "utf8");
+  const storeSrc = fs.readFileSync(path.join(root, "backend", "lib", "store.js"), "utf8");
+  ok(/"backend", "data"/.test(parseSrc), "parse.js falls back to the volume path, not to nothing");
+  ok(/path\.join\(__dirname, "\.\.", "data"\)/.test(storeSrc), "and store.js still defaults to that same directory");
+  ok(path.dirname(S.sourcesFile()) === path.resolve(process.env.ETABLIX_DATA_DIR || path.join(root, "backend", "data")),
+     "so the live list and the database sit on the same side of the mount", S.sourcesFile());
+}
+
+console.log("\n=== the enabled sources are the ones that answered ===\n");
+{
+  const list = JSON.parse(fs.readFileSync(path.join(root, "content", "signals", "sources.json"), "utf8"));
+  const on = list.filter((x) => x.url && x.enabled !== false);
+  ok(on.length >= 10, `${on.length} sources enabled after the live check (it was 2)`);
+
+  // THE GATE BELONGS ON EVERY PORTAL AND ON NOTHING ELSE. On a portal it is
+  // the difference between a queue and a flood. On trade press it would throw
+  // away the editor's judgement about what counts as construction news, which
+  // is the only thing trade press is for.
+  for (const id of ["find-a-tender", "contracts-finder", "etenders-ireland", "tenderned", "sell2wales", "public-contracts-scotland", "ted-europa"]) {
+    const src = list.find((x) => x.id === id);
+    ok(src && src.requireSector === true, `${id}: the sector gate is on`, JSON.stringify(src && src.requireSector));
+  }
+  for (const id of ["construction-enquirer", "construction-index", "ssen-transmission", "mining-weekly"]) {
+    const src = list.find((x) => x.id === id);
+    ok(src && !src.requireSector, `${id}: trade press is NOT gated — that is what an editor is for`);
+  }
 }
 
 fs.rmSync(scratch, { recursive: true, force: true });
