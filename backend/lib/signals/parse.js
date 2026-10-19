@@ -64,7 +64,16 @@ export const TRIGGERS = [
       /\b(wins?|won|lands?|secures?|nets?|bags?|clinches?|scoops?)\b[^.]{0,70}\b(contract|deal|job|scheme|works|package|framework|project)\b/i,
       /\b(contract|deal|job|scheme|works|package|framework)\b[^.]{0,50}\b(win|won|awarded|handed|landed)\b/i,
       /\b(awarded|appointed|selected|chosen|named|picked|confirmed)\b[^.]{0,70}\b(contract|contractor|supplier|partner|framework|to (build|deliver|design))\b/i,
-      /\b(main|principal|managing|tier[- ]?1|lead)\s+contractor\b[^.]{0,50}\b(appointed|selected|named|confirmed|revealed|chosen)\b/i,
+      // The ACTIVE voice, where the client is the subject: "SSEN awards the
+      // works", "Network Rail issues the framework". Every pattern above is
+      // passive or contractor-led, so the client-led half of the trade press
+      // was invisible. A contract noun is still required, so an industry
+      // awards ceremony does not qualify.
+      /\b(awards?|issues?|lets?)\b[^.]{0,70}\b(contract|deal|works|package|framework|project|job)\b/i,
+      /\b(main|principal|managing|tier[- ]?1|lead)?\s*contractor\b[^.]{0,50}\b(appointed|selected|named|confirmed|revealed|chosen|lined up)\b/i,
+      // "Contractor appointed for the campus" — the noun leads and no contract
+      // word follows, which the patterns above all required.
+      /\b(contractor|builder|supplier|partner)\s+(appointed|selected|named|chosen|confirmed)\b/i,
       /\b(preferred bidder|contractor revealed|winner revealed|gets the nod|green ?lit)\b/i,
       /\bsigns?\b[^.]{0,40}\b(contract|deal|agreement)\b/i,
     ] },
@@ -85,6 +94,10 @@ export const TRIGGERS = [
       // ever means one thing, and it is how half the trade press says it.
       /\bgiven the go[- ]?ahead\b/i,
       /\bgets? the go[- ]?ahead\b/i,
+      // "Data centre approved", "Solar farm consented", "Substation cleared".
+      // The thing approved is named and no planning noun follows it, which
+      // every pattern above required.
+      /\b(cent(re|er)|campus|farm|plant|station|facility|site|works|terminal|depot|village|park|hub)\b[^.]{0,30}\b(approved|consented|cleared|granted)\b/i,
     ] },
 
   { id: "transfer", label: "Project sold or transferred to an owner", weight: 3,
@@ -122,6 +135,73 @@ export const TRIGGERS = [
     ] },
 ];
 
+/**
+ * THE SIX SECTORS ETABLIX SELLS INTO, AND WHY THEY ARE SCORED SEPARATELY.
+ *
+ * The triggers answer "has something happened". They do not answer "is it
+ * ours", and without that a retail park award and a substation award score
+ * identically — so a general construction feed buries the one that matters
+ * under thirty that do not. The sector carries no veto: a signal with no
+ * sector still queues, because a moment in an unnamed sector is still a
+ * moment. It carries weight and a label, so the queue can be ranked and
+ * filtered by the thing that actually decides relevance.
+ *
+ * These are the sectors as the business states them publicly, in the same
+ * order, so the queue and the sales argument cannot drift apart.
+ */
+export const SECTORS = [
+  { id: "grid", label: "Grid and power",
+    patterns: [/\b(substation|switchyard|converter station|transmission|overhead line|OHL|pylon|grid connection|national grid|HVDC|high[- ]voltage|\b\d{2,3}\s?kV\b|electricity network|interconnector|distribution network operator|DNO|SSEN|SP Energy|Ofgem)\b/i] },
+
+  { id: "renewables", label: "Renewable energy",
+    patterns: [/\b(offshore wind|onshore wind|wind farm|windfarm|turbine|solar farm|solar park|photovoltaic|\bPV\b|battery (energy )?storage|\bBESS\b|pumped storage|hydro|green hydrogen|electrolyser|electrolyzer|nuclear|\bSMR\b|small modular reactor)\b/i] },
+
+  { id: "datacentres", label: "Data centres",
+    patterns: [/\b(data ?cent(re|er)|hyperscale|colocation|co-location|\bDC\b campus|\d+\s?MW\s+(IT|campus|facility)|server farm|cloud campus)\b/i] },
+
+  { id: "rail", label: "Rail and major civils",
+    patterns: [/\b(rail|railway|network rail|HS2|station (upgrade|redevelopment)|tunnelling|tunnel boring|\bTBM\b|viaduct|highways? england|national highways|motorway|bypass|bridge replacement|depot)\b/i] },
+
+  { id: "industrial", label: "Industrial and mining",
+    patterns: [/\b(mine|mining|quarry|smelter|refinery|petrochemical|process plant|gigafactory|manufacturing (plant|facility)|steelworks|cement works|terminal|port expansion|worker (village|accommodation)|camp)\b/i] },
+
+  { id: "epc", label: "Developers and EPCs",
+    patterns: [/\b(EPC contractor|\bEPC\b|developer|independent power producer|\bIPP\b|turnaround|shutdown|outage|planned maintenance (period|shutdown))\b/i] },
+];
+
+/** Which of ours a piece of text belongs to. None is a valid answer. */
+export function classify(text) {
+  return SECTORS.filter((s) => s.patterns.some((p) => p.test(text))).map((s) => s.id);
+}
+
+export const SECTOR_LABEL = Object.fromEntries(SECTORS.map((s) => [s.id, s.label]));
+
+/** What a sector match is worth. Enough to separate, never enough to admit. */
+export const SECTOR_WEIGHT = 3;
+
+/**
+ * Sectors that are plainly not ours, and the one case where saying so matters.
+ *
+ * At weight 2 a retail park award outscored a data centre appointment, which
+ * is the complaint this whole change answers: the triggers knew something had
+ * happened and nothing knew whether it was ours. Raising the sector weight
+ * separates the two, but a general construction feed is still mostly housing,
+ * retail and schools — real awards, real money, no temporary worker estate and
+ * no work for us.
+ *
+ * So an item that matches one of these AND matches none of ours is pushed
+ * below the threshold rather than ranked beneath it. The "and" is load
+ * bearing: a data centre on a retail park is still a data centre, and a
+ * station redevelopment is still rail.
+ */
+export const OFF_SECTOR = [
+  /\b(hous(e|ing)|homes?|residential|apartments?|flats?|build[- ]to[- ]rent|student accommodation|care home|retirement)\b/i,
+  /\b(retail|shopping cent(re|er)|supermarket|store|leisure cent(re|er)|hotel|restaurant|stadium)\b/i,
+  /\b(school|academy|college|university building|classroom|nursery)\b/i,
+  /\b(office (block|fit[- ]?out|refurbishment)|fit[- ]?out|refurbishment of)\b/i,
+];
+export const OFF_SECTOR_PENALTY = 3;
+
 /** Sources are data, not code: the director edits them without a deploy. */
 export function sources() {
   try {
@@ -141,7 +221,21 @@ export function score(text) {
   for (const t of TRIGGERS) {
     if (t.patterns.some((p) => p.test(text))) { hit.push(t.id); total += t.weight; }
   }
-  return { triggers: hit, score: total };
+  const sectors = classify(text);
+
+  // A SECTOR IS NOT A MOMENT, AND ON ITS OWN IT MUST COUNT FOR NOTHING.
+  // Adding the sector weight unconditionally gave "a nice photograph of a
+  // turbine" a score of three — the renewables sector, no event, straight
+  // into the queue. The sector answers "is this ours"; only a trigger
+  // answers "has something happened", and the second question comes first.
+  if (!hit.length) return { triggers: hit, sectors, score: 0 };
+
+  // Given that something happened, the sector lifts it above its neighbours.
+  // A substation award and a retail park award are both awards; only one of
+  // them is work we could do, and the ranking has to say so.
+  if (sectors.length) total += SECTOR_WEIGHT;
+  else if (OFF_SECTOR.some((p) => p.test(text))) total -= OFF_SECTOR_PENALTY;
+  return { triggers: hit, sectors, score: Math.max(0, total) };
 }
 
 const strip = (s) => String(s || "").replace(/<[^>]+>/g, " ").replace(/&[a-z]+;|&#\d+;/gi, " ").replace(/\s+/g, " ").trim();

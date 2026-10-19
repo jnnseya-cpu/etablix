@@ -32,6 +32,7 @@ const api = async (path, opts = {}) => {
 };
 
 let filter = "new";
+let sector = null;
 const when = (ts) => (ts ? new Date(ts).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "no date");
 
 function card(s, labels) {
@@ -44,7 +45,7 @@ function card(s, labels) {
       <span>score ${esc(s.score)}</span>
       <span>${esc(String(s.status).replace(/_/g, " "))}</span>
     </div>
-    <div>${(s.triggers || []).map((t) => `<span class="trig">${esc(labels[t] || t)}</span>`).join("")}</div>
+    <div>${(s.sectors || []).map((x) => `<span class="sect">${esc(sectorLabels[x] || x)}</span>`).join("")}${(s.triggers || []).map((t) => `<span class="trig">${esc(labels[t] || t)}</span>`).join("")}</div>
     ${s.summary ? `<p class="summary">${esc(s.summary.slice(0, 420))}</p>` : ""}
     <p class="route">${s.contactUrl
       ? `Published route in: <a href="${esc(s.contactUrl)}" target="_blank" rel="noopener noreferrer">${esc(s.contactUrl)}</a>`
@@ -62,8 +63,12 @@ function card(s, labels) {
 }
 
 async function render() {
-  const data = await api(`/api/signals${filter === "all" ? "" : `?status=${encodeURIComponent(filter)}`}`);
+  const q = new URLSearchParams();
+  if (filter !== "all") q.set("status", filter);
+  if (sector) q.set("sector", sector);
+  const data = await api(`/api/signals${q.toString() ? `?${q}` : ""}`);
   const labels = Object.fromEntries((data.triggers || []).map((t) => [t.id, t.label]));
+  const sectorLabels = Object.fromEntries((data.sectors || []).map((x) => [x.id, x.label]));
   const tabs = ["new", "reading", "approached", "dismissed", "all"];
 
   root.innerHTML = `
@@ -84,14 +89,25 @@ async function render() {
       <button class="btn-run" id="sweep">Sweep now</button>
     </div>
 
+    <div class="bar sectors">
+      <button class="btn-run ${!sector ? "btn-block" : ""}" data-sector="">All sectors</button>
+      ${(data.sectors || []).map((x) => {
+        const n = (data.sectorCounts || {})[x.id] || 0;
+        return `<button class="btn-run ${sector === x.id ? "btn-block" : ""}" data-sector="${esc(x.id)}">${esc(x.label)}${n ? ` · ${n}` : ""}</button>`;
+      }).join("")}
+    </div>
+
     ${data.signals.length
       ? data.signals.map((s) => card(s, labels)).join("")
-      : `<p class="empty-note">Nothing in this list.${filter === "new" ? " When a source finds a moment it appears here." : ""}</p>`}`;
+      : `<p class="empty-note">Nothing in this list${sector ? ` for ${esc(sectorLabels[sector] || sector)}` : ""}.${filter === "new" && !sector ? " When a source finds a moment it appears here." : ""}</p>`}`;
 }
 
 root.addEventListener("click", async (e) => {
   const f = e.target.closest("button[data-filter]");
   if (f) { filter = f.dataset.filter; return render(); }
+
+  const sx = e.target.closest("button[data-sector]");
+  if (sx) { sector = sx.dataset.sector || null; return render(); }
 
   const sweep = e.target.closest("#sweep");
   if (sweep) {

@@ -1,6 +1,6 @@
 [
   {
-    "_note": "SOURCES ARE DATA, NOT CODE. Edit this file and the next sweep picks it up; no deploy needed. Every entry below names a REAL organisation and the best URL known at the time of writing, but the URLs were NOT reachable from the machine that wrote this file, so none is confirmed live. That is why they ship disabled. Run: node backend/tools/signals-check.mjs --all — it tests every source including the disabled ones, follows a site's own declared feed when the given URL is not one, and prints exactly which to set enabled. Flip those, and leave the rest alone.",
+    "_note": "SOURCES ARE DATA, NOT CODE. Edit this file and the next sweep picks it up; no deploy needed. Every entry below names a REAL organisation and the best URL known at the time of writing, but the URLs were NOT reachable from the machine that wrote this file, so none is confirmed live. That is why they ship disabled. Run: node backend/tools/signals-check.mjs --all — it tests every source including the disabled ones, follows a site's own declared feed when the given URL is not one, and prints exactly which to set enabled. Flip those, and leave the rest alone. SECTOR: a source that only ever covers one of the six sectors names it here, and its items inherit that sector even when the headline does not repeat the word. Leave it empty for general trade press, where the sector is read from the text.",
     "_fields": {
       "id": "short stable key",
       "name": "what it is, shown in the queue",
@@ -24,14 +24,16 @@
     "name": "Construction Enquirer — contract awards and appointments",
     "org": "",
     "url": "https://www.constructionenquirer.com/feed/",
-    "enabled": true
+    "enabled": true,
+    "sector": ""
   },
   {
     "id": "construction-index",
     "name": "The Construction Index — awards, tenders and contract leads",
     "org": "",
     "url": "https://www.theconstructionindex.co.uk/feeds/news-uk.xml",
-    "enabled": true
+    "enabled": true,
+    "sector": ""
   },
   {
     "id": "energy-consents-scotland",
@@ -39,6 +41,114 @@
     "org": "",
     "url": "https://www.energyconsents.scot/",
     "verify": "The root answers but parses to nothing — it is a homepage, not a list. Find the decisions or application-search results page in a browser, including any query string that filters to decided applications, and put that full URL here. Expect a page rather than a feed, and noisier results.",
+    "enabled": false
+  },
+  {
+    "id": "current-news",
+    "name": "Current± — energy networks and grid",
+    "sector": "grid",
+    "org": "",
+    "url": "https://www.current-news.co.uk/news",
+    "verify": "URL not reachable from the machine that added it, so it is off until checked. Run signals-check.mjs --all: where this is a page rather than a feed it will read the site's own declared feed and print the address to use instead.",
+    "enabled": false
+  },
+  {
+    "id": "national-grid",
+    "name": "National Grid — announcements",
+    "sector": "grid",
+    "org": "",
+    "url": "https://www.nationalgrid.com/news",
+    "verify": "URL not reachable from the machine that added it, so it is off until checked. Run signals-check.mjs --all: where this is a page rather than a feed it will read the site's own declared feed and print the address to use instead.",
+    "enabled": false
+  },
+  {
+    "id": "ssen-transmission",
+    "name": "SSEN Transmission — news",
+    "sector": "grid",
+    "org": "",
+    "url": "https://www.ssen-transmission.co.uk/news",
+    "verify": "URL not reachable from the machine that added it, so it is off until checked. Run signals-check.mjs --all: where this is a page rather than a feed it will read the site's own declared feed and print the address to use instead.",
+    "enabled": false
+  },
+  {
+    "id": "renews",
+    "name": "reNEWS — renewable energy",
+    "sector": "renewables",
+    "org": "",
+    "url": "https://renews.biz/",
+    "verify": "URL not reachable from the machine that added it, so it is off until checked. Run signals-check.mjs --all: where this is a page rather than a feed it will read the site's own declared feed and print the address to use instead.",
+    "enabled": false
+  },
+  {
+    "id": "solar-power-portal",
+    "name": "Solar Power Portal",
+    "sector": "renewables",
+    "org": "",
+    "url": "https://www.solarpowerportal.co.uk/news",
+    "verify": "URL not reachable from the machine that added it, so it is off until checked. Run signals-check.mjs --all: where this is a page rather than a feed it will read the site's own declared feed and print the address to use instead.",
+    "enabled": false
+  },
+  {
+    "id": "energy-storage-news",
+    "name": "Energy-Storage.news — BESS",
+    "sector": "renewables",
+    "org": "",
+    "url": "https://www.energy-storage.news/news/",
+    "verify": "URL not reachable from the machine that added it, so it is off until checked. Run signals-check.mjs --all: where this is a page rather than a feed it will read the site's own declared feed and print the address to use instead.",
+    "enabled": false
+  },
+  {
+    "id": "offshorewind-biz",
+    "name": "offshoreWIND.biz",
+    "sector": "renewables",
+    "org": "",
+    "url": "https://www.offshorewind.biz/",
+    "verify": "URL not reachable from the machine that added it, so it is off until checked. Run signals-check.mjs --all: where this is a page rather than a feed it will read the site's own declared feed and print the address to use instead.",
+    "enabled": false
+  },
+  {
+    "id": "datacentre-dynamics",
+    "name": "Data Centre Dynamics",
+    "sector": "datacentres",
+    "org": "",
+    "url": "https://www.datacenterdynamics.com/en/news/",
+    "verify": "URL not reachable from the machine that added it, so it is off until checked. Run signals-check.mjs --all: where this is a page rather than a feed it will read the site's own declared feed and print the address to use instead.",
+    "enabled": false
+  },
+  {
+    "id": "new-civil-engineer",
+    "name": "New Civil Engineer",
+    "sector": "rail",
+    "org": "",
+    "url": "https://www.newcivilengineer.com/latest/",
+    "verify": "URL not reachable from the machine that added it, so it is off until checked. Run signals-check.mjs --all: where this is a page rather than a feed it will read the site's own declared feed and print the address to use instead.",
+    "enabled": false
+  },
+  {
+    "id": "rail-business-daily",
+    "name": "Rail Business Daily",
+    "sector": "rail",
+    "org": "",
+    "url": "https://news.railbusinessdaily.com/",
+    "verify": "URL not reachable from the machine that added it, so it is off until checked. Run signals-check.mjs --all: where this is a page rather than a feed it will read the site's own declared feed and print the address to use instead.",
+    "enabled": false
+  },
+  {
+    "id": "mining-weekly",
+    "name": "Mining Weekly (Creamer Media)",
+    "sector": "industrial",
+    "org": "",
+    "url": "https://newsletter-mw.creamermedia.com/page/home/feed",
+    "verify": "CONFIRMED as a real feed address by two independent references. Still off until the check confirms it answers from the server and parses.",
+    "enabled": false
+  },
+  {
+    "id": "engineering-news-mining",
+    "name": "Engineering News — mining (Creamer Media)",
+    "sector": "industrial",
+    "org": "",
+    "url": "https://newsletter-en.creamermedia.com/page/mining/feed",
+    "verify": "CONFIRMED as a real feed address. Southern African in focus, which is deliberate: worker villages are a standing operating requirement there, not an exception.",
     "enabled": false
   }
 ]

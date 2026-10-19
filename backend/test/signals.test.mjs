@@ -179,7 +179,7 @@ console.log("\n=== the triggers match how the trade press actually writes ===\n"
     "Developer sells 50MW battery portfolio",
     "Work starts on £200m data centre",
     "Developer reaches financial close on offshore wind farm",
-    "Construction begins on 1,200-home scheme",
+    "Construction begins on the 400MW scheme",
     "Peak workforce of 800 operatives and worker accommodation on site",
   ];
   const SHOULD_NOT = [
@@ -203,6 +203,68 @@ console.log("\n=== the triggers match how the trade press actually writes ===\n"
   ok(S.score("£1.25bn tunnel scheme").triggers.includes("value"), "a price tag is its own signal");
   ok(S.score("A scheme worth millions of pounds").triggers.includes("value") === false,
      "but a vague one is not");
+}
+
+console.log("\n=== all six sectors, not one ===\n");
+{
+  // THE COMPLAINT THIS ANSWERS. The triggers knew that something had
+  // happened and nothing knew whether it was ours, so a retail park award
+  // outscored a data centre appointment — on a general construction feed,
+  // the thirty irrelevant items bury the one that matters.
+  const ids = S.SECTORS.map((x) => x.id);
+  ok(ids.length === 6, `six sectors (${ids.length})`, ids.join(", "));
+  for (const want of ["grid", "renewables", "datacentres", "rail", "industrial", "epc"]) {
+    ok(ids.includes(want), `${want} is one of them`);
+  }
+
+  const CASES = {
+    grid: ["Balfour wins £300m substation contract", "SSEN Transmission awards 132kV overhead line works",
+           "Converter station contractor appointed"],
+    renewables: ["Consent granted for 400MW battery storage project", "Offshore wind farm reaches financial close",
+                 "Contractor named for solar farm", "Pumped storage scheme approved"],
+    datacentres: ["Contractor appointed for 90MW hyperscale data centre campus", "Colocation campus given the go-ahead"],
+    rail: ["Network Rail awards £125m framework", "Tunnelling contractor named for the viaduct"],
+    industrial: ["Mining group approves new worker village", "Smelter expansion contract awarded",
+                 "Refinery turnaround contractor appointed"],
+    epc: ["EPC contractor named for the plant", "Developer reaches financial close", "Shutdown contractor appointed"],
+  };
+  for (const [sector, headlines] of Object.entries(CASES)) {
+    for (const h of headlines) {
+      const r = S.score(h);
+      ok(r.sectors.includes(sector), `${sector}: "${h.slice(0, 54)}"`, r.sectors.join(",") || "none");
+      ok(r.score >= 3, `  and it queues (${r.score})`);
+    }
+  }
+
+  // The separation that was the whole point.
+  const ours = S.score("Contractor appointed for 90MW hyperscale data centre campus");
+  const theirs = S.score("Wates wins £40m retail park job");
+  ok(ours.score > theirs.score,
+     `a data centre appointment outranks a retail park award (${ours.score} vs ${theirs.score})`);
+  ok(theirs.score < 3, "and the retail park does not queue at all", theirs.score);
+
+  for (const off of ["Housebuilder lands 200-home contract", "School refurbishment contract awarded",
+                     "Hotel fit-out contractor named", "Care home scheme approved"]) {
+    ok(S.score(off).score < 3, `off-sector: "${off.slice(0, 48)}" does not queue`, S.score(off).score);
+  }
+
+  // The "and" in the exclusion is load bearing.
+  const mixed = S.score("Data centre approved on former retail park");
+  ok(mixed.sectors.includes("datacentres") && mixed.score >= 3,
+     "a data centre on a retail park is still a data centre", `${mixed.score} ${mixed.sectors}`);
+
+  // A single-sector source lends its sector to items that do not say it.
+  const cfg = JSON.parse(fs.readFileSync(path.join(root, "content", "signals", "sources.json"), "utf8"))
+    .filter((x) => x.id);
+  const covered = new Set(cfg.map((x) => x.sector).filter(Boolean));
+  // "epc" is deliberately absent: developers and EPCs are a kind of buyer
+  // rather than a kind of publication, and they appear across all five of
+  // the others. It is read from the text, which the cases above assert.
+  for (const want of ids.filter((x) => x !== "epc")) {
+    ok(covered.has(want), `at least one source is dedicated to ${want}`, [...covered].join(", "));
+  }
+  ok(!covered.has("epc"), "and no feed is labelled epc, because it is cross-cutting");
+  ok(cfg.some((x) => !x.sector), "and general trade press carries no sector hint, so it is read from the text");
 }
 
 console.log("\n=== the diagnostic runs on the machine you are diagnosing ===\n");

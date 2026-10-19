@@ -21,11 +21,11 @@
 import { collection, insert, update } from "../store.js";
 import { politeFetch } from "./fetch.js";
 import { publishedContact, scrub } from "./contact.js";
-import { TRIGGERS, sources, fingerprint, score, extract } from "./parse.js";
+import { TRIGGERS, SECTORS, SECTOR_LABEL, sources, fingerprint, score, extract, classify } from "./parse.js";
 
 // Re-exported so every caller keeps one import, and so the split between what
 // needs the database and what does not stays an implementation detail.
-export { TRIGGERS, sources, fingerprint, score, extract };
+export { TRIGGERS, SECTORS, SECTOR_LABEL, sources, fingerprint, score, extract, classify };
 
 
 /**
@@ -95,7 +95,7 @@ export async function sweep({ minScore = 3, enrich = true } = {}) {
     if (!res.ok) { out.failed++; continue; }
 
     for (const item of extract(res.body, src.url)) {
-      const { triggers, score: n } = score(`${item.title} ${item.summary}`);
+      const { triggers, sectors, score: n } = score(`${item.title} ${item.summary}`);
       if (n < minScore) continue;
 
       let contactUrl = null, roleAddress = null;
@@ -108,6 +108,9 @@ export async function sweep({ minScore = 3, enrich = true } = {}) {
         sourceId: src.id, sourceName: src.name || src.id,
         org: src.org || src.name || "", title: item.title, summary: item.summary,
         url: item.url, publishedAt: item.publishedAt, triggers, score: n,
+        // A source that only ever covers one sector says so, and the item
+        // inherits it: a mining feed's headline need not repeat the word.
+        sectors: sectors.length ? sectors : (src.sector ? [src.sector] : []),
         contactUrl: contactUrl || src.contactPage || null, roleAddress,
       });
       if (result.queued) out.queued.push(result.signal);

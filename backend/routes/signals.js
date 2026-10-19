@@ -10,7 +10,7 @@ import { Router } from "express";
 import { collection } from "../lib/store.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 import { ACCESS } from "../../shared/constants.js";
-import { sweep, act, suppress, TRIGGERS, sources } from "../lib/signals/index.js";
+import { sweep, act, suppress, TRIGGERS, SECTORS, sources } from "../lib/signals/index.js";
 import { draftApproach } from "../lib/ai.js";
 
 const router = Router();
@@ -18,13 +18,20 @@ const router = Router();
 /** GET /api/signals — the queue, newest and highest-scoring first. */
 router.get("/", requireAuth, requireRole(...ACCESS.DELIVERY_FINANCE), (req, res) => {
   const status = req.query.status ? String(req.query.status) : null;
+  const sector = req.query.sector ? String(req.query.sector) : null;
   const rows = collection("signals")
     .filter((s) => !status || s.status === status)
+    .filter((s) => !sector || (s.sectors || []).includes(sector))
     .sort((a, b) => (b.score - a.score) || (b.seenAt - a.seenAt))
     .slice(0, 300);
   res.json({
     signals: rows,
     triggers: TRIGGERS.map((t) => ({ id: t.id, label: t.label, weight: t.weight })),
+    sectors: SECTORS.map((x) => ({ id: x.id, label: x.label })),
+    // Counted across the whole queue rather than the filtered view, so the
+    // tabs do not change their own numbers when one is selected.
+    sectorCounts: Object.fromEntries(SECTORS.map((x) => [x.id,
+      collection("signals").filter((s) => (s.sectors || []).includes(x.id)).length])),
     sources: sources().map((s) => ({ id: s.id, name: s.name })),
     suppressions: collection("suppressions").length,
   });
