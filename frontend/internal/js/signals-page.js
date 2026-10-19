@@ -73,10 +73,14 @@ function card(s, labels, sectorLabels, stageLabels) {
     ${(s.orgs || []).length ? `<p class="orgs"><b>Named in the item:</b> ${(s.orgs || []).map((o) => esc(o)).join(" · ")}
       <span class="muted">— read as a hint, not a fact. On an award it is usually the contractor, who is the one who needs the compound; check the announcement before you write to anyone.</span></p>` : ""}
     ${s.summary ? `<p class="summary">${esc(s.summary.slice(0, 420))}</p>` : ""}
+    ${s.roleAddress ? `<p class="addr"><b>${esc(s.roleAddress)}</b>${s.contactOrg
+        ? ` — ${esc(s.contactOrg)}${s.contactRole === "supplier" ? " (the supplier)" : s.contactRole === "buyer" ? " (the client who let it, NOT the winner)" : ""}`
+        : ""}</p>` : ""}
+    ${s.contactWithheld ? `<p class="addr withheld">A contact is published on the notice, but it is a person's
+      address rather than a role address, so it has not been stored. Open the notice and read it there.</p>` : ""}
     <p class="route">${s.contactUrl
       ? `Published route in: <a href="${esc(s.contactUrl)}" target="_blank" rel="noopener noreferrer">${esc(s.contactUrl)}</a>`
-      : `<span class="muted">No published route found — find the supplier or contact page yourself before approaching.</span>`}
-      ${s.roleAddress ? ` · <b>${esc(s.roleAddress)}</b>` : ""}</p>
+      : `<span class="muted">No published route found — find the supplier or contact page yourself before approaching.</span>`}</p>
     <div class="acts">
       <button class="btn-run" data-draft="${esc(s.id)}">Draft the approach</button>
       <button class="btn-run" data-act="reading" data-id="${esc(s.id)}">Reading</button>

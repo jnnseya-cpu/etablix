@@ -14,6 +14,9 @@
  * host, whatever version it happens to be.
  */
 import crypto from "node:crypto";
+// contact.js depends on nothing but itself, so parse.js stays pure and the
+// diagnostic tools still run on a host with no SQLite.
+import { isRoleAddress } from "./contact.js";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -741,6 +744,79 @@ const money = (v) => {
  * page — never the API address. The identifier goes into the summary either
  * way, so the notice is findable by hand when no link can be built.
  */
+/**
+ * THE CONTACT ON THE NOTICE, AND WHOSE IT ACTUALLY IS.
+ *
+ * WHY THIS IS SAFE WHERE A CRAWLER WOULD NOT BE. The whole reason this is a
+ * watcher and not a harvester is that it does not go looking for people's
+ * addresses. This does not either: OCDS has a contactPoint field, the
+ * publisher filled it in for exactly this purpose, and it arrives in the same
+ * response as the award. Nothing is crawled and nothing is guessed.
+ *
+ * The rule does not relax, though. A notice contact is very often a named
+ * buyer — firstname.lastname@ — and that is personal data whatever field it
+ * came in. So nothing here decides what may be kept: the address is handed on
+ * raw and contact.js scrubs it on the way into storage, exactly as it does an
+ * address found on a page. One gate, not two.
+ *
+ * AND WHOSE ADDRESS IT IS MATTERS AS MUCH AS WHAT IT IS. On an award notice
+ * the contactPoint belongs to the BUYER who let the contract, while the party
+ * that needs a compound is the SUPPLIER who won it. An address shown without
+ * that label invites somebody to write to National Grid asking to supply OCU,
+ * which is one email and all the credibility.
+ */
+const contactFrom = (r, tender) => {
+  const parties = Array.isArray(r.parties) ? r.parties : [];
+  const roleOf = (p) => (Array.isArray(p.roles) ? p.roles.map((x) => String(x).toLowerCase()) : []);
+
+  // Suppliers first where one is listed with a contact: on an award that is
+  // the party worth writing to. Then the buyer, then anyone else named.
+  const ranked = [
+    ...parties.filter((p) => roleOf(p).includes("supplier")),
+    ...parties.filter((p) => roleOf(p).some((x) => x === "buyer" || x === "procuringentity")),
+    ...parties.filter((p) => !roleOf(p).length),
+  ];
+  const candidates = [
+    ...ranked.map((p) => ({ cp: p.contactPoint || {}, org: strip(p.name), role: roleOf(p)[0] || null })),
+    { cp: tender.contactPoint || {}, org: strip((r.buyer && r.buyer.name) || ""), role: "buyer" },
+    { cp: r.contactPoint || {}, org: strip((r.buyer && r.buyer.name) || ""), role: "buyer" },
+  ];
+
+  /**
+   * PREFER A ROLE ADDRESS OVER A BETTER-RANKED PERSONAL ONE.
+   *
+   * Taking simply the first address in rank order threw away a usable one: a
+   * supplier listed with a named buyer would mask the client's procurement@
+   * further down, and the card would end up showing nothing when there was
+   * something perfectly fair to show.
+   *
+   * isRoleAddress is used here to CHOOSE, not to decide what may be kept.
+   * scrub() still does that on the way into storage, so there is one gate and
+   * this is only a preference ahead of it. If every address on the notice is
+   * personal, the best-ranked one is still handed on — and scrub will null it,
+   * leaving contactFound to say that a contact exists on the notice without
+   * storing who.
+   */
+  let role = null, any = null, url = null;
+  for (const c of candidates) {
+    if (!url && typeof c.cp.url === "string" && c.cp.url.trim()) url = c.cp.url.trim();
+    const email = typeof c.cp.email === "string" ? c.cp.email.trim() : "";
+    if (!email) continue;
+    const entry = { address: email, org: c.org, role: c.role };
+    if (!any) any = entry;
+    if (!role && isRoleAddress(email)) role = entry;
+  }
+  const found = role || any;
+  return {
+    // Raw, on purpose. scrub() is the only thing that decides.
+    roleAddress: found ? found.address : null,
+    contactOrg: found ? found.org || null : null,
+    contactRole: found ? found.role || null : null,
+    contactFound: Boolean(found),
+    contactUrl: url,
+  };
+};
+
 const noticeId = (r, tender) => {
   for (const c of [r.ocid, r.id, tender.id, r.noticeId, r.publicatieId, r.releaseId]) {
     if (c !== undefined && c !== null && String(c).trim()) return String(c).trim();
@@ -827,8 +903,11 @@ export function extractJson(body, baseUrl, { noticeUrl = null, siteUrl = null } 
     }
     add(buyer);   // the supplier first: on an award it is the one who needs a compound
 
+    const contact = contactFrom(r, tender);
+
     items.push({
       title, url, orgs: orgs.slice(0, 6),
+      ...contact,
       summary: parts.join(" "),
       publishedAt: Date.parse(r.date || r.publishedDate || r.publicatieDatum || tender.datePublished || "") || null,
     });

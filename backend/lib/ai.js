@@ -725,6 +725,17 @@ export async function draftApproach(signal, { from = "ETABLIX" } = {}) {
         ? `${signal.deadlineKind === "event" ? "Event date" : "Closing date"}: ${signal.deadlineText} (${new Date(signal.deadlineAt).toISOString().slice(0, 10)})`
         : "",
       `Published route in: ${signal.contactUrl || signal.roleAddress || "not found — the writer will locate it"}`,
+      // WHOSE address it is. Without this the draft reads as though the
+      // recipient is the party that won the work, and on an award notice the
+      // published contact is usually the client who let it.
+      signal.roleAddress && signal.contactOrg
+        ? `The published address ${signal.roleAddress} belongs to ${signal.contactOrg}${
+            signal.contactRole === "buyer" ? " — the CLIENT WHO LET THE CONTRACT, not the contractor who won it" :
+            signal.contactRole === "supplier" ? " — the supplier named on the notice" : ""}.`
+        : "",
+      signal.contactWithheld
+        ? "A contact is published on the notice but it is a named individual's address, so it is not held here. Write the letter without a name in it."
+        : "",
     ].filter(Boolean).join("\n"),
     system: `${COMPANY_BRIEF}
 
@@ -754,7 +765,9 @@ WHAT YOU MUST NOT DO, UNDER ANY CIRCUMSTANCES
 - No exclamation marks. Never use: revolutionary, game-changing, world-class, leading, cutting-edge, unlock, supercharge, seamless, synergy.
 - Do not mention software, automation, models or how this draft was produced.
 - Do not state a role for a named organisation — contractor, client, owner, winner — unless the published detail above says so. A name extracted from a headline is a hint, and asserting it is how a letter arrives at the wrong company congratulating them on somebody else's contract.
-- Do not state a deadline or an event date that is not given above.`,
+- Do not state a deadline or an event date that is not given above.
+- Address the letter to whoever the published contact actually belongs to, as stated above. Where that is the CLIENT who let a contract rather than the contractor who won it, do not write as though they are the winner and do not congratulate them on it — ask instead to be pointed at the appointed contractor's commercial team, which is a reasonable thing to ask a client's procurement mailbox and the only useful thing to ask it here.
+- Never invent a recipient's name, and never use one that is not given above.`,
   });
   return { draft: String(text || "").trim() };
 }

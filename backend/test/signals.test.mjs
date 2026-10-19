@@ -880,6 +880,102 @@ console.log("\n=== the probe, so a URL hunt is a command and not a browser sessi
   }
 }
 
+console.log("\n=== the contact on the notice, and the rule that does not bend for it ===\n");
+{
+  /**
+   * WHY TAKING THIS IS NOT HARVESTING, AND WHY THE RULE STILL APPLIES.
+   *
+   * The whole reason this is a watcher rather than a harvester is that it does
+   * not go looking for people's addresses. Reading a notice's contactPoint is
+   * not looking: OCDS has the field, the publisher filled it in for exactly
+   * this purpose, and it arrives in the same response as the award. Nothing is
+   * crawled and nothing is guessed.
+   *
+   * None of which makes it safe to keep. A notice contact is very often a
+   * named buyer, and firstname.lastname@ is personal data whatever field it
+   * travelled in. So the extractor hands the address on RAW and contact.js
+   * scrubs it on the way into storage, exactly as it does one found on a page.
+   * One gate, and these assertions are what keeps it one.
+   */
+  const release = (parties, awards) => JSON.stringify({ releases: [{
+    ocid: "o1", tender: { title: "Walpole SGT4 substation civil works" },
+    buyer: { name: "National Grid Electricity Transmission" }, parties, awards,
+  }] });
+
+  // The SUPPLIER's role address wins over the buyer's named one: on an award
+  // the party needing a compound is the one that won it.
+  let [it] = S.extract(release([
+    { name: "National Grid Electricity Transmission", roles: ["buyer"], contactPoint: { email: "jane.smith@nationalgrid.com", url: "https://nationalgrid.test/suppliers" } },
+    { name: "OCU Utility Services Ltd", roles: ["supplier"], contactPoint: { email: "bd@ocugroup.com" } },
+  ]), "https://x.test/api");
+  ok(it.roleAddress === "bd@ocugroup.com", "the supplier's role address is preferred", it.roleAddress);
+  ok(it.contactRole === "supplier", "and it is labelled as the supplier's", it.contactRole);
+  ok(it.contactOrg === "OCU Utility Services Ltd", "with the organisation named", it.contactOrg);
+  ok(it.contactUrl === "https://nationalgrid.test/suppliers", "a contactPoint url is kept even from the other party", it.contactUrl);
+
+  // A ROLE address beats a better-ranked PERSONAL one. Taking simply the
+  // first by rank threw away the client's procurement@ whenever the supplier
+  // happened to list a named buyer, and showed nothing instead.
+  [it] = S.extract(release([
+    { name: "National Grid Electricity Transmission", roles: ["buyer"], contactPoint: { email: "procurement@nationalgrid.com" } },
+    { name: "OCU Utility Services Ltd", roles: ["supplier"], contactPoint: { email: "a.jones@ocugroup.com" } },
+  ]), "https://x.test/api");
+  ok(it.roleAddress === "procurement@nationalgrid.com",
+     "a role address outranks a better-placed personal one", it.roleAddress);
+  ok(it.contactRole === "buyer", "and is labelled as the client's, not the winner's", it.contactRole);
+
+  // Everything personal: handed on raw, and scrub is what refuses it.
+  [it] = S.extract(release([
+    { name: "SSEN Transmission", roles: ["buyer"], contactPoint: { email: "a.buyer@sse.com" } },
+  ]), "https://x.test/api");
+  ok(it.contactFound === true, "a personal-only notice still reports that a contact exists");
+  ok(it.roleAddress === "a.buyer@sse.com", "the extractor does NOT decide — it hands the address on raw", it.roleAddress);
+  ok(C.isRoleAddress(it.roleAddress) === false, "and the gate is what calls it personal");
+  ok(C.scrub({ roleAddress: it.roleAddress }).roleAddress === null, "so scrub nulls it before storage");
+
+  // THE LOAD-BEARING ASSERTION. Nothing may put a personal address into a
+  // stored row by any route: the contact field, the title or the summary.
+  const stored = C.scrub({
+    title: "Framework awarded — contact a.n.other@x.co.uk for details",
+    summary: "Enquiries to jane.smith@nget.co.uk or procurement@nget.co.uk.",
+    org: "NGET (j.bloggs@nget.co.uk)",
+    roleAddress: "a.jones@ocugroup.com",
+    contactOrg: "OCU Utility Services Ltd", contactRole: "supplier", contactWithheld: true,
+    html: "<html>page</html>", body: "raw", raw: "raw",
+  });
+  const addresses = [...JSON.stringify(stored).matchAll(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g)].map((m) => m[0]);
+  ok(addresses.length === 1 && addresses[0] === "procurement@nget.co.uk",
+     "only the role address survives anywhere in the row — contact field, title, summary and org alike",
+     addresses.join(", ") || "(none)");
+  ok(stored.contactOrg === "OCU Utility Services Ltd" && stored.contactWithheld === true,
+     "while WHOSE contact it was, and that one existed, are both kept — they are not personal data");
+
+  // The new allowlist entries are functions, not people. The test is the same
+  // one the whole gate rests on: no dot, no digit, nobody is called this.
+  for (const a of ["bd@ocugroup.com", "frameworks@ssen.co.uk", "opportunities@murphy.co.uk", "contracts@sse.com"]) {
+    ok(C.isRoleAddress(a), `a role address is kept: ${a}`);
+  }
+  for (const a of ["jane.smith@nget.co.uk", "j.smith@x.com", "jsmith2@x.com", "john@x.com", "a.n.other@x.co.uk"]) {
+    ok(!C.isRoleAddress(a), `a person's address is refused: ${a}`);
+  }
+
+  // contactWithheld has to be worked out BEFORE the scrub, because afterwards
+  // there is deliberately no way to tell "no contact was published" from "one
+  // was, and it was a person's" — and the reader needs that difference: the
+  // first means go and find a route in, the second means open the notice.
+  const idx = fs.readFileSync(path.join(root, "backend", "lib", "signals", "index.js"), "utf8");
+  const sweepBody = idx.slice(idx.indexOf("export async function sweep"));
+  ok(sweepBody.indexOf("contactWithheld =") < sweepBody.indexOf("queue({"),
+     "contactWithheld is computed before the row is queued and scrubbed");
+
+  const page = fs.readFileSync(path.join(root, "frontend", "internal", "js", "signals-page.js"), "utf8");
+  ok(/NOT the winner/.test(page),
+     "and the card says plainly when the address is the client's rather than the winner's");
+  ok(/esc\(s\.roleAddress\)/.test(page) && /esc\(s\.contactOrg\)/.test(page),
+     "both are escaped before they reach the page");
+  ok(/contactWithheld/.test(page), "and a withheld contact is explained rather than left blank");
+}
+
 fs.rmSync(scratch, { recursive: true, force: true });
 console.log(`\n=== ${pass} passed, ${fail} failed ===\n`);
 process.exit(fail ? 1 : 0);

@@ -20,7 +20,7 @@
  */
 import { collection, insert, update } from "../store.js";
 import { politeFetch } from "./fetch.js";
-import { publishedContact, scrub } from "./contact.js";
+import { publishedContact, scrub, isRoleAddress } from "./contact.js";
 import { TRIGGERS, SECTORS, SECTOR_LABEL, sources, sourcesFile, seedStatus, fingerprint, score, extract, classify,
          stage, STAGE_LABEL, OPEN_TRIGGERS, CONFIRMED_TRIGGERS, namedOrgs, extractDeadline, resolveUrl,
          WORKS, hasWorks } from "./parse.js";
@@ -171,10 +171,33 @@ export async function sweep({ minScore = 3, enrich = true } = {}) {
       if (src.requireWorks && !hasWorks(text)) { out.noWorks++; continue; }
       if (where === "open" && deadline && deadline.at < Date.now() - 86400000) { out.expired = (out.expired || 0) + 1; continue; }
 
-      let contactUrl = null, roleAddress = null;
-      if (enrich && src.contactPage) {
+      /**
+       * THE CONTACT, AND THE ORDER OF PREFERENCE.
+       *
+       * A notice's own contactPoint beats anything read off a company page: it
+       * is specific to this procurement, the publisher filled it in for this
+       * purpose, and it arrived in the same response as the award. A source's
+       * standing contact page is the fallback for everything else, which is
+       * most of the trade press.
+       *
+       * contactWithheld is computed HERE, before queue() scrubs, because
+       * afterwards there is deliberately no way to tell the difference between
+       * "no contact was published" and "one was, and it was a person's". The
+       * reader needs to know which: the first means go and find a route in,
+       * the second means open the notice and read it, where it is published
+       * and lawful to read and nobody has copied it into a database.
+       */
+      let contactUrl = item.contactUrl || null;
+      let roleAddress = item.roleAddress || null;
+      const contactWithheld = Boolean(item.contactFound) && !isRoleAddress(roleAddress);
+
+      if (enrich && !roleAddress && src.contactPage) {
         const page = await politeFetch(src.contactPage);
-        if (page.ok && page.body) ({ contactUrl, roleAddress } = publishedContact(page.body, src.contactPage));
+        if (page.ok && page.body) {
+          const got = publishedContact(page.body, src.contactPage);
+          contactUrl = contactUrl || got.contactUrl;
+          roleAddress = got.roleAddress;
+        }
       }
 
       const result = queue({
@@ -194,6 +217,12 @@ export async function sweep({ minScore = 3, enrich = true } = {}) {
         // inherits it: a mining feed's headline need not repeat the word.
         sectors: sectors.length ? sectors : (src.sector ? [src.sector] : []),
         contactUrl: contactUrl || src.contactPage || null, roleAddress,
+        // Whose address it is, which matters as much as what it is: on an
+        // award the notice's contact is often the BUYER who let the contract,
+        // while the party needing a compound is the supplier who won it.
+        contactOrg: item.contactOrg || null,
+        contactRole: item.contactRole || null,
+        contactWithheld,
       });
       if (result.queued) out.queued.push(result.signal);
       else out.skipped++;

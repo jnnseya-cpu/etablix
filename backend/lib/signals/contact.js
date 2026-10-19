@@ -28,6 +28,14 @@ export const ROLE_LOCALPARTS = new Set([
   "procurement", "purchasing", "supplychain", "supply-chain", "scm", "sourcing",
   "suppliers", "supplier", "vendors", "tenders", "tender", "bids", "commercial",
   "estimating", "estimates", "preconstruction", "admin", "accounts", "sales",
+  // ADDED WHEN THE NOTICE APIS STARTED SUPPLYING CONTACTS. Each of these is
+  // unambiguously a function rather than a person, which is the only test
+  // that matters here: no dot, no digit, and nobody is called "Frameworks".
+  // They are the forms that actually appear in a procurement notice's
+  // contact field and on a contractor's work-with-us page.
+  "bd", "businessdevelopment", "newbusiness", "opportunities", "workwithus",
+  "quotes", "quotations", "frameworks", "esourcing", "etendering", "notices",
+  "buying", "contracts", "procure", "supplierrelations", "supplychainteam",
 ]);
 
 const EMAIL = /\b([A-Za-z0-9._%+-]{1,64})@([A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,24})\b/g;
