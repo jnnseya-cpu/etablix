@@ -21,13 +21,13 @@
 import { collection, insert, update } from "../store.js";
 import { politeFetch } from "./fetch.js";
 import { publishedContact, scrub } from "./contact.js";
-import { TRIGGERS, SECTORS, SECTOR_LABEL, sources, sourcesFile, fingerprint, score, extract, classify,
+import { TRIGGERS, SECTORS, SECTOR_LABEL, sources, sourcesFile, seedStatus, fingerprint, score, extract, classify,
          stage, STAGE_LABEL, OPEN_TRIGGERS, CONFIRMED_TRIGGERS, namedOrgs, extractDeadline, resolveUrl,
          WORKS, hasWorks } from "./parse.js";
 
 // Re-exported so every caller keeps one import, and so the split between what
 // needs the database and what does not stays an implementation detail.
-export { TRIGGERS, SECTORS, SECTOR_LABEL, sources, sourcesFile, fingerprint, score, extract, classify,
+export { TRIGGERS, SECTORS, SECTOR_LABEL, sources, sourcesFile, seedStatus, fingerprint, score, extract, classify,
          stage, STAGE_LABEL, OPEN_TRIGGERS, CONFIRMED_TRIGGERS, namedOrgs, extractDeadline, resolveUrl,
          WORKS, hasWorks };
 

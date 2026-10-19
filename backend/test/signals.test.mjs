@@ -793,6 +793,57 @@ console.log("\n=== what the SECOND live run broke ===\n");
   ok(!three.queued, "nor is the same headline in different case and spacing", JSON.stringify(three));
 }
 
+console.log("\n=== the live list can fall behind, and must say so ===\n");
+{
+  /**
+   * A TRAP OF MY OWN MAKING, AND THE SYMPTOM OF IT IS SILENCE.
+   *
+   * The live copy on the data volume is seeded once and never overwritten, so
+   * that a hand edit survives a deploy. The unavoidable other half is that a
+   * change to the repository copy does not reach the server either — and the
+   * first time that mattered, a whole commit of new source settings sat in the
+   * image doing nothing while the server read the older list. Nothing broke,
+   * nothing logged, and the only sign was a sweep behaving like the version
+   * before.
+   *
+   * Refusing to overwrite is still right. Being silent about it is not.
+   */
+  const repo = JSON.parse(fs.readFileSync(path.join(root, "content", "signals", "sources.json"), "utf8"));
+  ok(Number(repo[0]._version) > 0, "the shipped list carries a version", repo[0]._version);
+
+  const here = fs.mkdtempSync(path.join(os.tmpdir(), "etablix-seed-"));
+  const livePath = path.join(here, "signals-sources.json");
+
+  // An older live copy is reported stale.
+  fs.writeFileSync(livePath, JSON.stringify([{ _version: 1 }, { id: "x", url: "https://x.test/", enabled: true }]));
+  process.env.ETABLIX_SIGNALS_SOURCES = livePath;
+  let st = S.seedStatus();
+  ok(st.stale === true, "an older live copy is reported as stale", JSON.stringify(st));
+  ok(st.repoVersion > st.liveVersion, "and both versions are named so the gap is visible", `${st.liveVersion} vs ${st.repoVersion}`);
+
+  // A current one is not, so the warning cannot become background noise.
+  fs.writeFileSync(livePath, JSON.stringify([{ _version: Number(repo[0]._version) }, { id: "x", url: "https://x.test/", enabled: true }]));
+  st = S.seedStatus();
+  ok(st.stale === false, "a current live copy is silent", JSON.stringify(st));
+
+  // It REPORTS. It must never copy over somebody's edit by itself.
+  const parseSrc = fs.readFileSync(path.join(root, "backend", "lib", "signals", "parse.js"), "utf8");
+  const seedFn = parseSrc.slice(parseSrc.indexOf("export function seedStatus"), parseSrc.indexOf("export const TRIGGERS"));
+  ok(!/writeFileSync|copyFileSync|rmSync/.test(seedFn),
+     "and it only reports — it never writes over the live list on its own");
+
+  // Both tools say it, because a sweep run against a stale list looks exactly
+  // like a sweep where nothing happened.
+  for (const tool of ["signals-check.mjs", "signals-sweep.mjs"]) {
+    const src = fs.readFileSync(path.join(root, "backend", "tools", tool), "utf8");
+    ok(/seedStatus\(\)/.test(src) && /stale/.test(src), `${tool} warns when the live list has fallen behind`);
+  }
+
+  fs.rmSync(here, { recursive: true, force: true });
+  process.env.ETABLIX_SIGNALS_SOURCES = "";
+  delete process.env.ETABLIX_SIGNALS_SOURCES;
+}
+
 console.log("\n=== the probe, so a URL hunt is a command and not a browser session ===\n");
 {
   /**

@@ -21,7 +21,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 // From parse.js, NOT index.js: the queue needs the database and this does not.
-import { extract, score, sourcesFile, resolveUrl, stage, namedOrgs, extractDeadline, hasWorks } from "../lib/signals/parse.js";
+import { extract, score, sourcesFile, seedStatus, resolveUrl, stage, namedOrgs, extractDeadline, hasWorks } from "../lib/signals/parse.js";
 import { politeFetch } from "../lib/signals/fetch.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -73,6 +73,21 @@ const COMMON_FEEDS = ["/feed/", "/rss.xml", "/index.xml", "/atom.xml", "/news/fe
 // how somebody edits the wrong copy for an afternoon.
 const FILE_IN_USE = sourcesFile();
 console.log(`\nreading: ${FILE_IN_USE}`);
+
+// SAID LOUDLY, BECAUSE THE SYMPTOM OF THIS IS SILENCE.
+const seed = seedStatus();
+if (seed.stale) {
+  console.log(`\n  !! THE LIVE LIST IS OLDER THAN THE ONE THAT SHIPPED.`);
+  console.log(`     live copy  version ${seed.liveVersion}   ${seed.live}`);
+  console.log(`     shipped    version ${seed.repoVersion}   ${seed.repo}`);
+  console.log(`     The live copy is seeded once and never overwritten, so a hand edit`);
+  console.log(`     survives a deploy — which means a change in the repository does not`);
+  console.log(`     reach this machine by itself. Nothing below reflects the newer list.`);
+  console.log(`\n     If NOBODY has hand-edited the live copy, take the new one:`);
+  console.log(`       docker exec etablix cp ${seed.repo} ${seed.live}`);
+  console.log(`     If somebody HAS, diff them and merge by hand — do not clobber it:`);
+  console.log(`       docker exec etablix diff ${seed.live} ${seed.repo}`);
+}
 const raw = JSON.parse(fs.readFileSync(FILE_IN_USE, "utf8"));
 const list = raw.filter((s) => s && s.url && (ALL || s.enabled !== false));
 if (!list.length && !process.argv.includes("--probe")) {

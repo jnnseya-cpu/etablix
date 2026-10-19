@@ -16,11 +16,22 @@
  * matters most.
  */
 import { sweep } from "../lib/signals/index.js";
-import { sourcesFile, sources } from "../lib/signals/parse.js";
+import { sourcesFile, seedStatus, sources } from "../lib/signals/parse.js";
 import { collection } from "../lib/store.js";
 
 const list = sources();
 console.log(`\nreading: ${sourcesFile()}`);
+
+// The sweep says it too. A sweep run against a list older than the one that
+// shipped behaves like the version before and looks like nothing happened.
+{
+  const seed = seedStatus();
+  if (seed.stale) {
+    console.log(`\n  !! this list is version ${seed.liveVersion}; version ${seed.repoVersion} shipped with the image.`);
+    console.log(`     The live copy is never overwritten, so a repository change does not reach`);
+    console.log(`     here by itself. Run signals-check.mjs for what to do about it.\n`);
+  }
+}
 console.log(`${list.length} source(s) enabled${list.length ? ": " + list.map((s) => s.id).join(", ") : ""}\n`);
 
 if (!list.length) {

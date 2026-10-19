@@ -71,6 +71,33 @@ export function sourcesFile() {
   return LIVE_SOURCES;
 }
 
+/**
+ * AND THE OTHER HALF OF "SEEDED ONCE", WHICH IS A TRAP I WALKED INTO MYSELF.
+ *
+ * The live copy is never overwritten, so that somebody's hand edit survives a
+ * deploy. The unavoidable consequence is that a change to the repository copy
+ * does NOT reach the server either — and the first time that mattered, a whole
+ * commit's worth of new source settings sat in the image doing nothing while
+ * the server went on reading the older list. Nothing was broken, nothing was
+ * logged, and the only symptom was a sweep behaving like the version before.
+ *
+ * Refusing to overwrite is still right. Being silent about it is not. So the
+ * repo copy carries a version, and anything that reads the list can say when
+ * the two have diverged. It reports; it never decides.
+ */
+export function seedStatus() {
+  const read = (f) => { try { return JSON.parse(fs.readFileSync(f, "utf8")); } catch { return null; } };
+  const version = (list) => (Array.isArray(list) && list[0] && Number(list[0]._version)) || 0;
+  const live = sourcesFile();
+  if (path.resolve(live) === path.resolve(REPO_SOURCES)) return { seeded: false, live, repo: REPO_SOURCES };
+  const liveVersion = version(read(live));
+  const repoVersion = version(read(REPO_SOURCES));
+  return {
+    seeded: true, live, repo: REPO_SOURCES, liveVersion, repoVersion,
+    stale: repoVersion > liveVersion,
+  };
+}
+
 export const TRIGGERS = [
   // HOW THE TRADE PRESS ACTUALLY WRITES. The first version of this matched
   // "has been awarded a contract" and scored ten items from a live UK
