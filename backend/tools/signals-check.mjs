@@ -1,8 +1,10 @@
 /**
  * Check the sources actually answer — and find the feed when they do not.
  *
- *   node backend/tools/signals-check.mjs          enabled sources only
- *   node backend/tools/signals-check.mjs --all    every source, disabled too
+ *   node backend/tools/signals-check.mjs            enabled sources only
+ *   node backend/tools/signals-check.mjs --all      every source, disabled too
+ *   node backend/tools/signals-check.mjs --probe    try the candidate paths
+ *   node backend/tools/signals-check.mjs --dump ID  print what one source sends
  *
  * WHY. A watcher pointed at a dead URL reports nothing, and nothing looks
  * exactly like a quiet market. This says which sources are real, which are
@@ -19,11 +21,52 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 // From parse.js, NOT index.js: the queue needs the database and this does not.
-import { extract, score, sourcesFile, resolveUrl, stage, namedOrgs, extractDeadline } from "../lib/signals/parse.js";
+import { extract, score, sourcesFile, resolveUrl, stage, namedOrgs, extractDeadline, hasWorks } from "../lib/signals/parse.js";
 import { politeFetch } from "../lib/signals/fetch.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ALL = process.argv.includes("--all");
+
+/**
+ * --probe: ASK THE SITE INSTEAD OF SENDING SOMEBODY TO A BROWSER.
+ *
+ * WHY THIS EXISTS. After the first live run, five sources were left needing a
+ * URL that only a person with a browser could find — and "open it in a
+ * browser, run a search, copy the RSS address" is the kind of ten-minute job
+ * that stays undone for a month and quietly keeps the best sources off. Two of
+ * them, Sell2Wales and Public Contracts Scotland, carry the schemes this
+ * business cares about most.
+ *
+ * So each unresolved source now lists CANDIDATE paths — cheap guesses, not
+ * claims — and this tries them one at a time, through the same polite fetcher
+ * as everything else: robots.txt obeyed, one request per host at a time, five
+ * seconds apart. Most will be refused, which costs nothing. The ones that
+ * answer and parse are printed with the exact line to paste.
+ *
+ *   node backend/tools/signals-check.mjs --probe              every source with candidates
+ *   node backend/tools/signals-check.mjs --probe sell2wales   just that one
+ */
+/**
+ * --dump: SHOW ME WHAT THE SERVER ACTUALLY SENDS.
+ *
+ * WHY. Every Find a Tender signal on the second live run linked to the API
+ * endpoint, because OCDS carries no human URL and I had no way to see which
+ * field holds the notice number without outbound access to the API. The
+ * choice was between guessing a URL template — which would give every signal
+ * a confident dead link, worse than no link — and asking the machine that can
+ * reach it to print the shape.
+ *
+ *   node backend/tools/signals-check.mjs --dump find-a-tender
+ */
+const DUMP = process.argv.includes("--dump");
+const DUMP_ID = DUMP ? process.argv[process.argv.indexOf("--dump") + 1] : null;
+
+const PROBE = process.argv.includes("--probe");
+const PROBE_ONLY = PROBE ? process.argv[process.argv.indexOf("--probe") + 1] : null;
+
+// Tried on every probed source after its own candidates, because these five
+// answer on a surprising number of sites and cost one request each.
+const COMMON_FEEDS = ["/feed/", "/rss.xml", "/index.xml", "/atom.xml", "/news/feed/"];
 
 // Say which file, out loud. The list that matters lives on the data volume,
 // not in the repository, and a tool that is silent about which one it read is
@@ -32,7 +75,7 @@ const FILE_IN_USE = sourcesFile();
 console.log(`\nreading: ${FILE_IN_USE}`);
 const raw = JSON.parse(fs.readFileSync(FILE_IN_USE, "utf8"));
 const list = raw.filter((s) => s && s.url && (ALL || s.enabled !== false));
-if (!list.length) {
+if (!list.length && !process.argv.includes("--probe")) {
   console.log(ALL ? "\nNo sources have a url.\n" : "\nNothing is enabled. Run with --all to test the disabled ones.\n");
   process.exit(0);
 }
@@ -46,6 +89,138 @@ const declaredFeeds = (html, base) =>
       try { return new URL(href, base).toString(); } catch { return null; }
     })
     .filter(Boolean);
+
+/**
+ * Try one candidate and say, in one line, what came back.
+ * Returns the resolved url when it answered AND parsed into something.
+ */
+async function tryOne(base, candidate) {
+  let target;
+  try { target = new URL(resolveUrl(candidate), base).toString(); } catch { return null; }
+  const res = await politeFetch(target);
+  const label = `      ${candidate.length > 58 ? candidate.slice(0, 55) + "..." : candidate.padEnd(58)}`;
+
+  if (res.unreachable) { console.log(`${label}  unreachable from here`); return null; }
+  if (res.blocked)     { console.log(`${label}  robots.txt says no`);    return null; }
+  if (!res.ok)         { console.log(`${label}  ${res.reason}`);         return null; }
+
+  const items = extract(res.body, target);
+  const head = res.body.slice(0, 600);
+  const isJson = /^\s*[[{]/.test(head);
+  const isFeed = isJson || /<rss|<feed\b|<\?xml/i.test(head);
+  if (!items.length) { console.log(`${label}  answers, parses to nothing`); return null; }
+
+  const hits = items.filter((i) => score(`${i.title} ${i.summary}`).score >= 3).length;
+  console.log(`${label}  ANSWERS — ${items.length} item(s), ${hits} would queue${isJson ? "  [JSON]" : isFeed ? "  [feed]" : "  [page]"}`);
+  for (const i of items.slice(0, 2)) console.log(`${" ".repeat(64)}· ${i.title.slice(0, 64)}`);
+  return { url: target, items: items.length, hits, isFeed };
+}
+
+if (DUMP) {
+  const src = raw.find((x) => x && x.id === DUMP_ID && x.url);
+  if (!src) { console.log(`\nNo source called "${DUMP_ID}".\n`); process.exit(1); }
+  const url = resolveUrl(src.url);
+  console.log(`\n=== ${src.id} ===\n${url}\n`);
+  const res = await politeFetch(url);
+  if (!res.ok) {
+    console.log(`FAILED — ${res.reason}`);
+    if (res.body) console.log(`\nthe body it answered with:\n${res.body.slice(0, 600)}`);
+    process.exit(1);
+  }
+
+  const head = res.body.slice(0, 400);
+  if (/^\s*[[{]/.test(head)) {
+    let doc; try { doc = JSON.parse(res.body); } catch { console.log("it claims JSON but does not parse."); process.exit(1); }
+    console.log(`top-level keys: ${Object.keys(doc).join(", ") || "(an array)"}\n`);
+    // Find the first array of objects, wherever it is, and describe one record.
+    const findRows = (o, depth = 0) => {
+      if (Array.isArray(o) && o.length && typeof o[0] === "object") return o;
+      if (o && typeof o === "object" && depth < 3) {
+        for (const v of Object.values(o)) { const got = findRows(v, depth + 1); if (got) return got; }
+      }
+      return null;
+    };
+    const rows = findRows(doc);
+    if (!rows) { console.log("no array of records found."); process.exit(1); }
+    console.log(`${rows.length} record(s). THE FIRST ONE, two levels deep:\n`);
+    const show = (o, prefix = "", depth = 0) => {
+      for (const [k, v] of Object.entries(o)) {
+        if (v === null || v === undefined) continue;
+        if (Array.isArray(v)) {
+          console.log(`  ${prefix}${k}[]  (${v.length})`);
+          if (v.length && typeof v[0] === "object" && depth < 2) show(v[0], `${prefix}${k}[0].`, depth + 1);
+          else if (v.length) console.log(`  ${prefix}${k}[0] = ${JSON.stringify(v[0]).slice(0, 90)}`);
+        } else if (typeof v === "object") {
+          if (depth < 2) show(v, `${prefix}${k}.`, depth + 1);
+          else console.log(`  ${prefix}${k} = {...}`);
+        } else {
+          console.log(`  ${prefix}${k} = ${JSON.stringify(v).slice(0, 110)}`);
+        }
+      }
+    };
+    show(rows[0]);
+    console.log(`\nWHAT TO LOOK FOR: a field holding the notice's own number — the form`);
+    console.log(`"100572-2026", not the "ocds-..." ocid. Set it as a template, e.g.`);
+    console.log(`  "noticeUrl": "https://host/Notice/{id}"`);
+    console.log(`and {id} is filled from ocid, id, tender.id, noticeId or publicatieId, in that order.`);
+    console.log(`If none of those holds it, paste this output back and the reader can be taught the field.\n`);
+  } else {
+    console.log("not JSON. The first 1200 characters:\n");
+    console.log(res.body.slice(0, 1200));
+    const first = /<(item|entry)\b[\s\S]*?<\/\1>/i.exec(res.body);
+    if (first) console.log(`\nthe first item:\n${first[0].slice(0, 900)}\n`);
+  }
+  process.exit(0);
+}
+
+if (PROBE) {
+  const probing = raw.filter((x) => x && x.url && Array.isArray(x.candidates) && x.candidates.length
+                                 && (!PROBE_ONLY || x.id === PROBE_ONLY));
+  if (!probing.length) {
+    console.log(PROBE_ONLY
+      ? `\nNo source called "${PROBE_ONLY}" has any candidates to try.\n`
+      : "\nNo source has candidates to try. Add a \"candidates\": [\"/feed/\", ...] array to one.\n");
+    process.exit(0);
+  }
+
+  console.log(`\n=== probing ${probing.length} source(s) ===`);
+  console.log("One request per host at a time, five seconds apart, robots.txt obeyed.");
+  console.log("Most of these will be refused. That is what a probe is for.\n");
+
+  const answers = [];
+  for (const src of probing) {
+    console.log(`  ${src.id}  —  ${src.name || ""}`);
+    let origin;
+    try { origin = new URL(resolveUrl(src.url)).origin; } catch { console.log("    the url is not a url\n"); continue; }
+
+    const seen = new Set();
+    let best = null;
+    for (const c of [...src.candidates, ...COMMON_FEEDS]) {
+      if (seen.has(c)) continue;
+      seen.add(c);
+      const got = await tryOne(origin, c);
+      // A feed beats a page, and more hits beats fewer. Keep looking either
+      // way: a later candidate may be the proper feed.
+      if (got && (!best || (got.isFeed && !best.isFeed) || (got.isFeed === best.isFeed && got.hits > best.hits))) best = got;
+    }
+    if (best) { answers.push([src.id, best]); console.log(`    BEST: ${best.url}\n`); }
+    else console.log("    nothing answered. This one needs a browser after all.\n");
+  }
+
+  if (!answers.length) {
+    console.log("=== nothing answered ===\n");
+    console.log("If EVERY candidate was unreachable, that is this machine's outbound access");
+    console.log("rather than the sites. Run this on the server that runs the sweep.\n");
+    process.exit(1);
+  }
+
+  console.log(`=== ${answers.length} source(s) resolved ===\n`);
+  console.log(`Paste these into ${FILE_IN_USE}, set "enabled": true, drop the "verify" note,`);
+  console.log(`and delete the "candidates" array — it has done its job:\n`);
+  for (const [id, b] of answers) console.log(`  ${id}\n    "url": "${b.url}"`);
+  console.log(`\nThen sweep:\n  docker exec etablix node backend/tools/signals-sweep.mjs\n`);
+  process.exit(0);
+}
 
 console.log(`\n=== ${list.length} source(s)${ALL ? ", including disabled" : ""} ===\n`);
 const enable = [];
@@ -98,7 +273,7 @@ for (const s of list) {
     broken++; continue;
   }
 
-  const items = extract(res.body, url);
+  const items = extract(res.body, url, { noticeUrl: s.noticeUrl || null, siteUrl: s.siteUrl || null });
 
   /**
    * THE CHECK MUST COUNT WHAT THE SWEEP WOULD COUNT, OR IT IS LYING.
@@ -115,6 +290,7 @@ for (const s of list) {
     const r = score(text);
     if (r.score < 3) return null;
     if (s.requireSector && !r.sectors.length && !s.sector) return { drop: "outside our sectors" };
+    if (s.requireWorks && !hasWorks(text)) return { drop: "nothing to build in it" };
     const d = extractDeadline(text);
     const where = stage(r.triggers);
     if (where === "open" && d && d.at < Date.now() - 86400000) return { drop: "already closed" };

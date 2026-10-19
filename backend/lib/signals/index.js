@@ -22,12 +22,14 @@ import { collection, insert, update } from "../store.js";
 import { politeFetch } from "./fetch.js";
 import { publishedContact, scrub } from "./contact.js";
 import { TRIGGERS, SECTORS, SECTOR_LABEL, sources, sourcesFile, fingerprint, score, extract, classify,
-         stage, STAGE_LABEL, OPEN_TRIGGERS, CONFIRMED_TRIGGERS, namedOrgs, extractDeadline, resolveUrl } from "./parse.js";
+         stage, STAGE_LABEL, OPEN_TRIGGERS, CONFIRMED_TRIGGERS, namedOrgs, extractDeadline, resolveUrl,
+         WORKS, hasWorks } from "./parse.js";
 
 // Re-exported so every caller keeps one import, and so the split between what
 // needs the database and what does not stays an implementation detail.
 export { TRIGGERS, SECTORS, SECTOR_LABEL, sources, sourcesFile, fingerprint, score, extract, classify,
-         stage, STAGE_LABEL, OPEN_TRIGGERS, CONFIRMED_TRIGGERS, namedOrgs, extractDeadline, resolveUrl };
+         stage, STAGE_LABEL, OPEN_TRIGGERS, CONFIRMED_TRIGGERS, namedOrgs, extractDeadline, resolveUrl,
+         WORKS, hasWorks };
 
 
 /**
@@ -76,7 +78,27 @@ export function queue(signal) {
   const row = scrub(signal);
   if (isSuppressed(row)) return { queued: false, reason: "suppressed" };
   const fp = fingerprint(row.url, row.title);
-  if (collection("signals").some((s) => s.fingerprint === fp)) return { queued: false, reason: "already seen" };
+  const seen = collection("signals");
+  if (seen.some((s) => s.fingerprint === fp)) return { queued: false, reason: "already seen" };
+
+  /**
+   * THE SAME STORY OFF TWO WIRES IS STILL ONE STORY.
+   *
+   * The fingerprint is url plus title, which is right for the same page seen
+   * twice and wrong for syndication. Mining Weekly and Engineering News are
+   * both Creamer Media, so the second live run queued "$40m for Prieska Copper
+   * Zinc Mine development" twice and "Deep Yellow pushes out FID" twice, under
+   * different URLs. Four of thirty signals were two signals.
+   *
+   * So an identical headline already in the queue is a duplicate regardless of
+   * where it came from. Headlines are specific enough that a genuine collision
+   * is rarer than the syndication this prevents, and the cost of being wrong
+   * is one missed read rather than a wrong approach.
+   */
+  const key = String(row.title || "").trim().toLowerCase().replace(/\s+/g, " ");
+  if (key && seen.some((s) => String(s.title || "").trim().toLowerCase().replace(/\s+/g, " ") === key)) {
+    return { queued: false, reason: "already seen under another source" };
+  }
   return { queued: true, signal: insert("signals", { ...row, fingerprint: fp, status: "new", seenAt: Date.now() }) };
 }
 
@@ -88,7 +110,7 @@ export function queue(signal) {
  * that has moved should not stop the other nine.
  */
 export async function sweep({ minScore = 3, enrich = true } = {}) {
-  const out = { checked: 0, blocked: 0, unchanged: 0, failed: 0, queued: [], skipped: 0, expired: 0, offSector: 0 };
+  const out = { checked: 0, blocked: 0, unchanged: 0, failed: 0, queued: [], skipped: 0, expired: 0, offSector: 0, noWorks: 0 };
   for (const src of sources()) {
     out.checked++;
     // resolveUrl, not src.url: the procurement APIs are windowed queries and
@@ -99,7 +121,8 @@ export async function sweep({ minScore = 3, enrich = true } = {}) {
     if (res.notModified) { out.unchanged++; continue; }
     if (!res.ok) { out.failed++; continue; }
 
-    for (const item of extract(res.body, resolveUrl(src.url))) {
+    for (const item of extract(res.body, resolveUrl(src.url),
+                               { noticeUrl: src.noticeUrl || null, siteUrl: src.siteUrl || null })) {
       const text = `${item.title} ${item.summary}`;
       const { triggers, sectors, score: n } = score(text);
       if (n < minScore) continue;
@@ -130,6 +153,22 @@ export async function sweep({ minScore = 3, enrich = true } = {}) {
        * trade press editor's judgement about what is construction news.
        */
       if (src.requireSector && !sectors.length && !src.sector) { out.offSector++; continue; }
+
+      /**
+       * AND IS THERE ANYTHING TO BUILD?
+       *
+       * The sector gate cut Find a Tender from 70 to 13, and all thirteen were
+       * Hinkley Point B decommissioning call-offs: a radioactive laundry
+       * service, fire door maintenance, LOLER inspections, facilities
+       * management. Real awards, right industry, and not one with a
+       * construction site, a workforce to house or a compound to establish.
+       *
+       * The sector says whether it is our industry. This says whether there is
+       * work of the kind that needs a temporary estate. On trade press an
+       * editor has already asked that question; on a portal, which publishes
+       * every framework call-off a site makes, nobody has.
+       */
+      if (src.requireWorks && !hasWorks(text)) { out.noWorks++; continue; }
       if (where === "open" && deadline && deadline.at < Date.now() - 86400000) { out.expired = (out.expired || 0) + 1; continue; }
 
       let contactUrl = null, roleAddress = null;

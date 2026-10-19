@@ -21,7 +21,32 @@
  */
 import { setTimeout as sleep } from "node:timers/promises";
 
-export const UA = "ETABLIX-SignalWatch/1.0 (+https://etablix.com/robots-contact)";
+export /**
+ * AND THE q VALUES HAVE TO BE RIGHT, WHICH MINE WERE NOT.
+ *
+ * The first fix added JSON at q=0.9 and left text/html with no q at all —
+ * which means q=1.0. So every server that can serve both was being told
+ * plainly that HTML was PREFERRED. Contracts Finder had answered with 100
+ * OCDS notices an hour earlier; after the "fix" it answered with a web page
+ * and parsed to nothing, and TenderNed did the same. A content-negotiation
+ * header that lies about what you want is worse than one that offers too
+ * little, because it fails quietly and looks like the publisher's fault.
+ *
+ * JSON first at full weight, the feed types next, HTML below them, and a
+ * catch-all at the bottom so a server with nothing else still answers.
+ */
+const ACCEPT = [
+  "application/json",
+  "application/rss+xml",
+  "application/atom+xml",
+  "application/xml;q=0.9",
+  "text/xml;q=0.9",
+  "text/html;q=0.8",
+  "application/xhtml+xml;q=0.8",
+  "*/*;q=0.5",
+].join(", ");
+
+const UA = "ETABLIX-SignalWatch/1.0 (+https://etablix.com/robots-contact)";
 const MIN_INTERVAL = 5000;        // never hit the same host faster than this
 const ROBOTS_TTL = 24 * 3600_000;
 const MAX_BYTES = 2_000_000;      // a listing page; anything larger is not one
@@ -140,7 +165,7 @@ export async function politeFetch(url, { now = Date.now } = {}) {
   // that refuses on content negotiation reads on screen exactly like a dead
   // URL, and that is how the most valuable class of source in the file gets
   // written off as broken.
-  const headers = { "user-agent": UA, accept: "application/json;q=0.9,text/html,application/xhtml+xml,application/xml,text/xml;q=0.8" };
+  const headers = { "user-agent": UA, accept: ACCEPT };
   if (prior.etag) headers["if-none-match"] = prior.etag;
   if (prior.lastModified) headers["if-modified-since"] = prior.lastModified;
 

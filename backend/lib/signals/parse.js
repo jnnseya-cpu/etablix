@@ -578,6 +578,54 @@ export function resolveUrl(url) {
   });
 }
 
+/**
+ * IS THERE ACTUALLY A CONSTRUCTION SITE IN IT?
+ *
+ * THE FLOOD THIS ANSWERS, FROM THE SECOND LIVE RUN. The sector gate cut Find
+ * a Tender from 70 notices to 13, which looked like success until you read the
+ * thirteen: every one was a Hinkley Point B decommissioning call-off. A
+ * radioactive laundry service. PPE lease and scaffold monitoring. Fire doors
+ * and fire dampers. LOLER and PSSR statutory inspections. Facilities
+ * management. Health physics monitors.
+ *
+ * All thirteen matched the renewables sector, correctly, because "nuclear" is
+ * in it. All thirteen were genuine contract awards. And not one of them has a
+ * construction site, a workforce to house or a compound to establish — they
+ * are operational services at a station being taken apart over twenty years.
+ *
+ * The sector answers "is this our industry". It does not answer "is there
+ * anything here to build", and on a procurement portal — where every framework
+ * call-off a nuclear site makes is published — that second question is the one
+ * that matters. A trade press editor asks it for us; a portal does not.
+ *
+ * So a source may demand evidence of construction. Deliberately generous:
+ * anything that puts people and plant on a site for a period counts, including
+ * demolition and decommissioning WORKS, because those need an establishment
+ * too. What it refuses is the supply of a thing or the provision of a service
+ * to a site that already exists.
+ */
+export const WORKS = [
+  /\b(construction|constructing|civils|civil engineering|groundworks?|earthworks?|enabling works|infrastructure works|temporary works|site establishment|site set[- ]?up)\b/i,
+  /\b(design and build|\bD&B\b|\bEPC\b|engineer,? procure|turnkey|balance of plant|\bBoP\b)\b/i,
+  /\b(overhead line|\bOHL\b|cable (installation|laying|route|pulling|jointing)|trenching|ducting|hdd|horizontal directional drill)/i,
+  /\b(substation|switchgear installation|converter station)\b[^.]{0,40}\b(construction|civil|works|build|erection|install)/i,
+  /\b(piling|foundations?|reinstatement|demolition|dismantl\w+|decommissioning works|tunnel\w*|shaft sinking|access (road|track)|haul road)\b/i,
+  /\b(erection|installation|commissioning|mobilis\w+|refurbishment works|upgrade works|replacement works|remediation|earthmoving)\b/i,
+  // compoundS. The plural bug, for the third time in this file — "temporary
+  // compounds in scope" is the single most on-the-nose phrase there is for
+  // this business and the gate was blind to it.
+  /\b(compounds?|welfare (facilities|units)|accommodation|site cabins?|temporary (power|accommodation|fencing)|hoardings?|scaffolding erection)\b/i,
+  /\b(main works|principal contractor|works packages?|build contract|construction contract|framework for (construction|civils|works))\b/i,
+  // "Metro extension WORK STARTS on the Curzon Street site". The mobilise
+  // trigger caught this and the gate did not, so a live site with a workforce
+  // on it would have been refused by the very check meant to find one.
+  /\b(work|works|construction|building|site works)\s+(starts?|started|begins?|began|commenc\w+|under ?way)\b/i,
+  /\b(extension|redevelopment|widening|electrification|dualling|realignment|diversion|new build|newbuild)\b/i,
+];
+
+/** Does the text show a site with something being built, moved or taken down? */
+export const hasWorks = (text) => WORKS.some((p) => p.test(text));
+
 /** Sources are data, not code: the director edits them without a deploy. */
 export function sources() {
   try {
@@ -650,7 +698,30 @@ const money = (v) => {
   return `${cur}${n.toLocaleString("en-GB")}`;
 };
 
-export function extractJson(body, baseUrl) {
+/**
+ * THE LINK HAS TO GO TO THE NOTICE, AND ON THE SECOND LIVE RUN IT DID NOT.
+ *
+ * Every one of thirteen Find a Tender signals linked to
+ * .../api/1.0/ocdsReleasePackages?updatedFrom=... — the API endpoint the sweep
+ * had just read. Clicking one gave a reader a megabyte of JSON. The items
+ * deduplicated correctly, because the fingerprint uses the title too, so this
+ * was never going to show up as a bug in the data; it was only ever going to
+ * show up as a person giving up on the queue.
+ *
+ * OCDS does not mandate a human URL, so three things are tried in order: a URL
+ * the record states, a template the source provides for building one from the
+ * record's own identifier, and failing both, the source's human-facing search
+ * page — never the API address. The identifier goes into the summary either
+ * way, so the notice is findable by hand when no link can be built.
+ */
+const noticeId = (r, tender) => {
+  for (const c of [r.ocid, r.id, tender.id, r.noticeId, r.publicatieId, r.releaseId]) {
+    if (c !== undefined && c !== null && String(c).trim()) return String(c).trim();
+  }
+  return null;
+};
+
+export function extractJson(body, baseUrl, { noticeUrl = null, siteUrl = null } = {}) {
   let doc;
   try { doc = JSON.parse(body); } catch { return null; }
   let rows = Array.isArray(doc) ? doc : null;
@@ -699,12 +770,19 @@ export function extractJson(body, baseUrl) {
     const ends = period.endDate || r.sluitingsdatum || r.deadline || "";
     if (ends) parts.push(`Closing date ${String(ends).slice(0, 10)}.`);
 
+    const ref = noticeId(r, tender);
+    if (ref) parts.push(`Reference ${ref}.`);
+
     let url = "";
     for (const cand of [r.url, r.uri, r.noticeUrl, r.links && r.links.self, r.publicatieUrl,
                         (Array.isArray(tender.documents) && tender.documents[0] && tender.documents[0].url)]) {
       if (typeof cand === "string" && cand) { url = cand; break; }
     }
-    try { url = new URL(url || baseUrl, baseUrl).toString(); } catch { url = baseUrl; }
+    // A template the source gives us, filled from the record's identifier.
+    if (!url && noticeUrl && ref) url = noticeUrl.replace(/\{(id|ocid|ref)\}/g, encodeURIComponent(ref));
+    // Last resort: the human search page, never the API endpoint we just read.
+    if (!url) url = siteUrl || "";
+    try { url = new URL(url || baseUrl, baseUrl).toString(); } catch { url = siteUrl || baseUrl; }
 
     /**
      * THE NAMES COME OFF THE RECORD, NOT OUT OF A REGEX.
@@ -738,10 +816,10 @@ export function extractJson(body, baseUrl) {
  * is a fallback and is read conservatively — a link with enough text beside
  * it to judge, and nothing inferred that is not on the page.
  */
-export function extract(body, baseUrl) {
+export function extract(body, baseUrl, opts = {}) {
   // JSON first: a procurement API's body would otherwise fall through to the
   // HTML branch and parse to nothing, which reads on screen as a dead source.
-  const asJson = extractJson(body, baseUrl);
+  const asJson = extractJson(body, baseUrl, opts);
   if (asJson) return asJson;
 
   const items = [];

@@ -562,9 +562,21 @@ console.log("\n=== the procurement portals are in the source list ===\n");
     try { new URL(S.resolveUrl(src.url)); } catch { fine = false; }
     ok(fine, `${src.id}: the url resolves to something fetchable`, src.url);
   }
-  // Nothing new ships enabled. A URL nobody has checked must not be swept.
+  /**
+   * A URL NOBODY HAS CHECKED MUST NOT BE SWEPT, and "verify" is what says so.
+   *
+   * That field had quietly taken on a second job — recording what is still
+   * imperfect about a source that HAS been checked and is running — which
+   * would have retired this rule by making it fail for a good reason. Those
+   * notes now live in "note", which does not block enabling. The distinction
+   * is the whole of the rule: verify means unknown, note means known and
+   * imperfect, and only the first one is a reason to stay off.
+   */
   for (const src of list.filter((x) => x.url && x.enabled !== false)) {
-    ok(!src.verify, `${src.id}: is enabled, so it carries no outstanding verify note`, src.verify);
+    ok(!src.verify, `${src.id}: is enabled, so nothing about it is still unverified`, src.verify);
+  }
+  for (const src of list.filter((x) => x.url && x.enabled === false)) {
+    ok(Boolean(src.verify), `${src.id}: is disabled, so it says what is not known about it`);
   }
 }
 
@@ -640,8 +652,9 @@ console.log("\n=== what the first live run broke, and must not break again ===\n
   // 5. THE ACCEPT HEADER. TenderNed answered 406 Not Acceptable because the
   //    header offered only HTML and XML, and it serves JSON. A notice API
   //    refused on content negotiation reads exactly like a dead URL.
-  const fetchSrc = fs.readFileSync(path.join(root, "backend", "lib", "signals", "fetch.js"), "utf8");
-  ok(/accept:\s*"application\/json/.test(fetchSrc), "the fetcher asks for JSON as well as HTML and XML");
+  const fetchHdr = fs.readFileSync(path.join(root, "backend", "lib", "signals", "fetch.js"), "utf8");
+  ok(/"application\/json"/.test(fetchHdr) && /accept: ACCEPT/.test(fetchHdr),
+     "the fetcher asks for JSON as well as HTML and XML");
 
   // 6. THE LIVE SOURCE LIST, WRONG FOR THE SECOND TIME. parse.js resolved the
   //    data volume only when ETABLIX_DATA_DIR was set. Nothing sets it:
@@ -674,6 +687,145 @@ console.log("\n=== the enabled sources are the ones that answered ===\n");
   for (const id of ["construction-enquirer", "construction-index", "ssen-transmission", "mining-weekly"]) {
     const src = list.find((x) => x.id === id);
     ok(src && !src.requireSector, `${id}: trade press is NOT gated — that is what an editor is for`);
+  }
+}
+
+console.log("\n=== what the SECOND live run broke ===\n");
+{
+  /**
+   * The first run taught that invented examples hide defects. The second
+   * taught that fixing one gate reveals the next, and that a fix shipped
+   * without a live check can be worse than the bug it replaced.
+   */
+
+  // 1. THE ACCEPT HEADER REGRESSION, AND IT WAS MINE. The first fix added
+  //    JSON at q=0.9 and left text/html with no q, which means q=1.0 — so
+  //    every server that can serve both was told plainly that HTML was
+  //    preferred. Contracts Finder answered 100 OCDS notices an hour before
+  //    and a web page afterwards. TenderNed the same. A header that lies
+  //    about what you want fails quietly and looks like the publisher's
+  //    fault.
+  const fetchSrc = fs.readFileSync(path.join(root, "backend", "lib", "signals", "fetch.js"), "utf8");
+  const accept = (/const ACCEPT = \[([\s\S]*?)\]\.join/.exec(fetchSrc) || [, ""])[1];
+  const weight = (type) => {
+    const line = accept.split("\n").find((l) => l.includes(type));
+    if (!line) return -1;
+    const q = /q=([\d.]+)/.exec(line);
+    return q ? Number(q[1]) : 1;
+  };
+  ok(weight("application/json") === 1, "JSON is offered at full weight", weight("application/json"));
+  ok(weight("text/html") < weight("application/json"),
+     "and HTML is offered BELOW it, which is the whole point",
+     `html ${weight("text/html")} vs json ${weight("application/json")}`);
+  ok(weight("application/rss+xml") >= weight("text/html"), "a feed also outranks a web page");
+
+  // 2. THE WORKS GATE. The sector gate cut Find a Tender from 70 notices to
+  //    13, and all thirteen were Hinkley Point B decommissioning call-offs.
+  //    Real awards, right industry, no construction site and nobody to house.
+  const NOT_WORKS = [
+    "HPB - Provision of a radioactive laundry service, PPE lease and scaffold monitoring service",
+    "HPB - Fire System Maintenance: Fire Detection, Fire Doors & Fire Dampers",
+    "HPB - The Provision of LOLER and PSSR Statutory Inspections",
+    "HPB - Provision of Facilities Management Services",
+    "HPB Health Physics Monitors",
+    "HPB - Provision of Radioactive Waste Management Services",
+    "HPB - Provision of Electrical Security Systems & Associated Services",
+    "FW Services - Procurement Cost Estimation and demand planning Tools",
+    "Pricing Agreement - Cough Assist Therapy Devices",
+  ];
+  for (const t of NOT_WORKS) ok(!S.hasWorks(t), `nothing to build: ${t.slice(0, 56)}`);
+
+  const IS_WORKS = [
+    "Walpole SGT4 400kV substation civil works and temporary compound",
+    "Trawsfynydd Footbridge Demolition Consultancy",
+    "Battery energy storage system balance of plant - BESS",
+    "Preliminary Market Engagement - Kinardochy to Errochty 400kV overhead line",
+    // "temporary compoundS" — the plural bug for the third time in this file,
+    // on the single most on-the-nose phrase there is for this business.
+    "Kinardochy to Errochty cable project: planning permission granted, temporary compounds in scope",
+    "Race starts for £800m south Wales civils framework",
+    // The mobilise trigger caught this and the gate did not, so a live site
+    // with a workforce on it would have been refused by the check meant to
+    // find one.
+    "Metro extension work starts on HS2 Curzon Street Station site",
+  ];
+  for (const t of IS_WORKS) ok(S.hasWorks(t), `there is work here: ${t.slice(0, 56)}`);
+
+  const idx = fs.readFileSync(path.join(root, "backend", "lib", "signals", "index.js"), "utf8");
+  ok(/src\.requireWorks && !hasWorks\(text\)/.test(idx), "a source can demand evidence of construction");
+  ok(/out\.noWorks/.test(idx), "and what it refuses is counted");
+
+  // 3. THE LINK WENT TO THE API. Every one of thirteen Find a Tender signals
+  //    linked to the ocdsReleasePackages endpoint the sweep had just read, so
+  //    clicking one gave a reader a megabyte of JSON. It would never have
+  //    shown up as bad data — only as a person giving up on the queue.
+  const pkg = JSON.stringify({ releases: [{
+    ocid: "ocds-h6vhtk-04b5d5",
+    tender: { title: "Walpole SGT4 substation civil works" },
+    buyer: { name: "National Grid Electricity Transmission" },
+  }] });
+  const api = "https://www.find-tender.service.gov.uk/api/1.0/ocdsReleasePackages?updatedFrom=2026-10-12";
+  const site = "https://www.find-tender.service.gov.uk/Search/Results";
+
+  const [bare] = S.extract(pkg, api);
+  ok(bare.url === api, "with nothing to go on it still has to link somewhere");
+
+  const [withSite] = S.extract(pkg, api, { siteUrl: site });
+  ok(withSite.url === site, "given a human search page, it links there and NOT at the API", withSite.url);
+  ok(/ocds-h6vhtk-04b5d5/.test(withSite.summary),
+     "and the reference travels in the summary, so the notice is findable by hand", withSite.summary);
+
+  const [withTpl] = S.extract(pkg, api, { siteUrl: site, noticeUrl: "https://host/Notice/{id}" });
+  ok(withTpl.url === "https://host/Notice/ocds-h6vhtk-04b5d5",
+     "and a template, once somebody has confirmed the right field, builds the notice's own url", withTpl.url);
+
+  // 4. SYNDICATION. Mining Weekly and Engineering News are both Creamer
+  //    Media, so the second run queued "$40m for Prieska Copper Zinc Mine
+  //    development" twice and "Deep Yellow pushes out FID" twice under
+  //    different URLs. Four of thirty signals were two signals.
+  const one = S.queue({ sourceId: "mining-weekly", title: "Prieska Copper Zinc Mine development awarded, $40m civils", url: "https://a.test/1", triggers: ["award"], score: 6, sectors: ["industrial"] });
+  ok(one.queued, "the first copy of a syndicated story queues");
+  const two = S.queue({ sourceId: "engineering-news", title: "Prieska Copper Zinc Mine development awarded, $40m civils", url: "https://b.test/2", triggers: ["award"], score: 6, sectors: ["industrial"] });
+  ok(!two.queued, "the same headline off a second wire does not", JSON.stringify(two));
+  ok(/another source/.test(two.reason || ""), "and it says why", two.reason);
+  // Whitespace and case are not a different story either.
+  const three = S.queue({ sourceId: "x", title: "  prieska copper   zinc mine development awarded, $40M civils ", url: "https://c.test/3", triggers: ["award"], score: 6, sectors: ["industrial"] });
+  ok(!three.queued, "nor is the same headline in different case and spacing", JSON.stringify(three));
+}
+
+console.log("\n=== the probe, so a URL hunt is a command and not a browser session ===\n");
+{
+  /**
+   * WHY THIS EXISTS. After the first live run five sources needed a URL only a
+   * person with a browser could find — and "open it, run a search, copy the
+   * RSS address" is the ten-minute job that stays undone for a month and
+   * quietly keeps the best sources off. Two of them, Sell2Wales and Public
+   * Contracts Scotland, carry the schemes this business cares about most.
+   */
+  const check = fs.readFileSync(path.join(root, "backend", "tools", "signals-check.mjs"), "utf8");
+  ok(/--probe/.test(check) && /COMMON_FEEDS/.test(check), "the check tool can probe candidate paths");
+  ok(/politeFetch\(target\)/.test(check), "and it probes through the polite fetcher, so robots.txt still decides");
+  ok(/--dump/.test(check), "and can print what a source actually sends, rather than guessing its shape");
+
+  const list = JSON.parse(fs.readFileSync(path.join(root, "content", "signals", "sources.json"), "utf8"));
+  // Anything still unresolved must carry candidates, or the probe cannot help
+  // it and it falls back to being somebody's forgotten errand.
+  const stuck = list.filter((x) => x.url && x.enabled === false);
+  for (const src of stuck) {
+    ok(Array.isArray(src.candidates) && src.candidates.length,
+       `${src.id}: is disabled, so it carries candidates for the probe to try`, JSON.stringify(src.candidates));
+  }
+  // Every portal needs both gates and a human fallback link.
+  for (const id of ["find-a-tender", "contracts-finder", "etenders-ireland", "tenderned", "sell2wales", "public-contracts-scotland", "ted-europa"]) {
+    const src = list.find((x) => x.id === id);
+    ok(src && src.requireWorks === true, `${id}: the works gate is on`);
+    ok(src && typeof src.siteUrl === "string" && /^https:/.test(src.siteUrl),
+       `${id}: has a human page to link to instead of its API`, src && src.siteUrl);
+  }
+  // A noticeUrl template on the wrong field gives every signal a confident
+  // dead link. None may be set until --dump has shown the right one.
+  for (const src of list.filter((x) => x.noticeUrl)) {
+    ok(/\{(id|ocid|ref)\}/.test(src.noticeUrl), `${src.id}: the template has a placeholder the reader fills`, src.noticeUrl);
   }
 }
 

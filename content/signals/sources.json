@@ -7,10 +7,15 @@
       "org": "the organisation a signal is ABOUT, where a source only covers one",
       "url": "the feed, notice API or listing page to read. An RSS or Atom feed is best, a JSON notice API is read natively, an HTML page is the last resort. {{date:-7}} and {{date:0}} are substituted for the date seven days ago and today, which is how the windowed procurement APIs are queried without editing this file every Monday.",
       "contactPage": "optional: that organisation's own supplier or contact page, read for the published route in",
-      "verify": "what is known and what is not — delete it once the source is checked",
+      "verify": "what is NOT known about this source. A source carrying a verify note has not been checked and MUST NOT be enabled — a watcher pointed at a dead URL reports nothing, and nothing looks exactly like a quiet market. Delete it when the check passes and move anything still imperfect into note.",
       "enabled": "false until a person has checked the URL",
       "sector": "one of grid, renewables, datacentres, rail, industrial, epc — set it only where a source covers that sector and nothing else, and its items inherit it even when the headline does not repeat the word. Leave it empty for general trade press and for the procurement portals, where the sector is read from the text.",
-      "requireSector": "true means an item is only queued if it lands in one of our six sectors. Set it on the procurement portals and nowhere else: they carry every procurement in the country, so without it they drown the queue. On the first live run Find a Tender offered 70 of 100 notices and Contracts Finder 95 of 100 — every one a genuine award, almost none of it our work."
+      "requireSector": "true means an item is only queued if it lands in one of our six sectors. Set it on the procurement portals and nowhere else: they carry every procurement in the country, so without it they drown the queue. On the first live run Find a Tender offered 70 of 100 notices and Contracts Finder 95 of 100 — every one a genuine award, almost none of it our work.",
+      "candidates": "paths to TRY, not paths that exist. They are cheap guesses, tested one at a time by signals-check.mjs --probe, which prints the ones that answer and parse along with the exact line to paste into url. The point is that nobody has to open a browser and hunt: the tool asks the site.",
+      "requireWorks": "true means an item is only queued if the text shows construction, demolition or site work — something that puts people and plant on a site. Set it on the procurement portals with requireSector. The sector gate alone cut Find a Tender to 13 notices and every one was a Hinkley Point B decommissioning call-off: a radioactive laundry service, fire door maintenance, LOLER inspections. Right industry, real awards, no construction site and nothing to house. A trade press editor asks that question for us; a portal does not.",
+      "siteUrl": "the human-facing search page for a notice API. Used as the link when a record states no URL of its own, so a reader never lands on the API endpoint the sweep just read.",
+      "noticeUrl": "optional template for building a notice's own URL from the record's identifier, e.g. \"https://host/Notice/{id}\". Only set it once --dump has shown which field holds the right identifier. A template on the wrong field gives every signal a confident dead link.",
+      "note": "what IS known about a source that has been checked and is running: a caveat, a thing still to improve, a reason it is enabled despite returning little. Unlike verify, a note does not block enabling."
     },
     "_why_procurement_portals": "THE HOLE THIS FILE HAD UNTIL 19 OCT 2026. Every source was trade press — somebody writing about a decision after it was taken. The decisions themselves are published in full, with the winner named, the value stated and the dates given, on the procurement portals. A watcher reading only the commentary is always a week behind the record and never sees the notices the press does not cover, which is most of them. The portals below are therefore the most valuable entries here, and the hardest to get right: several are windowed JSON APIs rather than feeds, and TED's search is POST-only, which a GET watcher cannot read at all. Each says honestly what is known and what still has to be checked.",
     "_checked": "Checked against the live server on 19 October 2026. 11 sources enabled. Find a Tender and Contracts Finder both answered as OCDS JSON and are the first notice sources we have ever had. Still to resolve: Sell2Wales and Public Contracts Scotland (both matter), TenderNed (recheck — our accept header was wrong, not their API), and the two supply-chain pages, which are where a Meet the Buyer would be found."
@@ -20,7 +25,8 @@
     "name": "ILI Group — transfers and project news",
     "org": "Intelligent Land Investments Group",
     "url": "https://ili-energy.com/feed/",
-    "enabled": true
+    "enabled": true,
+    "note": "Its own declared WordPress feed answered on 19 Oct 2026 but parsed to nothing — either the feed is empty or it is gated. Left ENABLED because it costs one request and this is the watch Chris McCearney's transfer announcement will appear on. If it stays empty for a fortnight, open it in a browser and see what is there."
   },
   {
     "id": "construction-enquirer",
@@ -43,8 +49,18 @@
     "name": "Energy Consents Unit (Scotland) — Section 36 decisions",
     "org": "",
     "url": "https://www.energyconsents.scot/",
-    "verify": "Answered on 19 Oct 2026 but parsed to nothing — it is a homepage. Find the application-search results page in a browser, filtered to decided applications, and paste that full URL including the query string.",
-    "enabled": false
+    "verify": "Answered on 19 Oct 2026 but parsed to nothing — it is a homepage. Find the application-search results page in a browser, filtered to decided applications, and paste that full URL including the query string. | PROBE IT FIRST: 'node backend/tools/signals-check.mjs --probe energy-consents-scotland' tries this source's candidate paths one at a time and prints the ones that answer, which is faster and more reliable than hunting in a browser.",
+    "enabled": false,
+    "candidates": [
+      "/Applications",
+      "/applications",
+      "/ApplicationSearch",
+      "/Search",
+      "/application-search",
+      "/decisions",
+      "/feed",
+      "/rss"
+    ]
   },
   {
     "id": "current-news",
@@ -52,8 +68,16 @@
     "sector": "grid",
     "org": "",
     "url": "https://www.current-news.co.uk/news",
-    "verify": "Answered on 19 Oct 2026 but parsed to nothing and declared no feed — a JavaScript-rendered page. Nothing here reads those and nothing should. Leave off unless a feed address turns up.",
-    "enabled": false
+    "verify": "Answered on 19 Oct 2026 but parsed to nothing and declared no feed — a JavaScript-rendered page. Nothing here reads those and nothing should. Leave off unless a feed address turns up. | PROBE IT FIRST: 'node backend/tools/signals-check.mjs --probe current-news' tries this source's candidate paths one at a time and prints the ones that answer, which is faster and more reliable than hunting in a browser.",
+    "enabled": false,
+    "candidates": [
+      "/feed",
+      "/feed/",
+      "/rss",
+      "/rss.xml",
+      "/news/feed",
+      "/index.xml"
+    ]
   },
   {
     "id": "national-grid",
@@ -61,8 +85,15 @@
     "sector": "grid",
     "org": "",
     "url": "https://www.nationalgrid.com/news",
-    "verify": "403 on 19 Oct 2026, and the site root declares no feed. Cloudflare or similar is refusing the request, which is the publisher's choice and not something to work around. Find their news page in a browser and see whether it offers a feed; if not, leave this off.",
-    "enabled": false
+    "verify": "403 on 19 Oct 2026, and the site root declares no feed. Cloudflare or similar is refusing the request, which is the publisher's choice and not something to work around. Find their news page in a browser and see whether it offers a feed; if not, leave this off. | PROBE IT FIRST: 'node backend/tools/signals-check.mjs --probe national-grid' tries this source's candidate paths one at a time and prints the ones that answer, which is faster and more reliable than hunting in a browser.",
+    "enabled": false,
+    "candidates": [
+      "/feed",
+      "/rss",
+      "/news/feed",
+      "/stories/feed",
+      "/media-centre/rss"
+    ]
   },
   {
     "id": "ssen-transmission",
@@ -94,8 +125,14 @@
     "sector": "renewables",
     "org": "",
     "url": "https://www.energy-storage.news/news/",
-    "verify": "403 on 19 Oct 2026 and the root declared no feed. Same as National Grid: the publisher is refusing. Leave off unless they publish a feed address.",
-    "enabled": false
+    "verify": "403 on 19 Oct 2026 and the root declared no feed. Same as National Grid: the publisher is refusing. Leave off unless they publish a feed address. | PROBE IT FIRST: 'node backend/tools/signals-check.mjs --probe energy-storage-news' tries this source's candidate paths one at a time and prints the ones that answer, which is faster and more reliable than hunting in a browser.",
+    "enabled": false,
+    "candidates": [
+      "/feed/",
+      "/feed",
+      "/rss",
+      "/rss.xml"
+    ]
   },
   {
     "id": "offshorewind-biz",
@@ -103,8 +140,15 @@
     "sector": "renewables",
     "org": "",
     "url": "https://www.offshorewind.biz/",
-    "verify": "Answered on 19 Oct 2026 but parsed to nothing and declared no feed. Same as Current±.",
-    "enabled": false
+    "verify": "Answered on 19 Oct 2026 but parsed to nothing and declared no feed. Same as Current±. | PROBE IT FIRST: 'node backend/tools/signals-check.mjs --probe offshorewind-biz' tries this source's candidate paths one at a time and prints the ones that answer, which is faster and more reliable than hunting in a browser.",
+    "enabled": false,
+    "candidates": [
+      "/feed/",
+      "/feed",
+      "/rss",
+      "/rss.xml",
+      "/news/feed/"
+    ]
   },
   {
     "id": "datacentre-dynamics",
@@ -120,8 +164,14 @@
     "sector": "rail",
     "org": "",
     "url": "https://www.newcivilengineer.com/latest/",
-    "verify": "403 on 19 Oct 2026. Subscription publication, so this is expected. Leave off.",
-    "enabled": false
+    "verify": "403 on 19 Oct 2026. Subscription publication, so this is expected. Leave off. | PROBE IT FIRST: 'node backend/tools/signals-check.mjs --probe new-civil-engineer' tries this source's candidate paths one at a time and prints the ones that answer, which is faster and more reliable than hunting in a browser.",
+    "enabled": false,
+    "candidates": [
+      "/feed/",
+      "/feed",
+      "/rss",
+      "/rss.xml"
+    ]
   },
   {
     "id": "rail-business-daily",
@@ -154,7 +204,10 @@
     "org": "",
     "url": "https://www.find-tender.service.gov.uk/api/1.0/ocdsReleasePackages?updatedFrom={{date:-7}}T00:00:00&limit=100",
     "enabled": true,
-    "requireSector": true
+    "requireSector": true,
+    "requireWorks": true,
+    "siteUrl": "https://www.find-tender.service.gov.uk/Search/Results",
+    "note": "ANSWERED on 19 Oct 2026 as OCDS JSON and is enabled. TWO THINGS STILL TO SETTLE. (1) Every item linked to the API endpoint, because an OCDS release carries no human URL and no template is set. Items now fall back to siteUrl and carry the reference in the summary, which is findable but not one click. Run 'signals-check.mjs --dump find-a-tender', look for a field holding the notice number (the form 100572-2026, not the ocds-... ocid), and set noticeUrl to e.g. \"https://www.find-tender.service.gov.uk/Notice/{id}\". DO NOT GUESS IT — a template built on the wrong field gives every signal a confident dead link, which is worse than the fallback. (2) The first run with the sector gate returned 13 notices and all thirteen were Hinkley Point B decommissioning call-offs. requireWorks now also applies; recheck what survives."
   },
   {
     "id": "contracts-finder",
@@ -163,7 +216,10 @@
     "org": "",
     "url": "https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search?publishedFrom={{date:-7}}",
     "enabled": true,
-    "requireSector": true
+    "requireSector": true,
+    "requireWorks": true,
+    "siteUrl": "https://www.contractsfinder.service.gov.uk/Search",
+    "note": "ANSWERED with 100 OCDS notices on the first run, then parsed to nothing on the second — OUR FAULT, not theirs: the accept header had been changed to prefer HTML over JSON. Fixed. RECHECK THIS FIRST; it should go back to answering as JSON. Same two caveats as Find a Tender about the notice URL."
   },
   {
     "id": "public-contracts-scotland",
@@ -171,9 +227,21 @@
     "sector": "",
     "org": "",
     "url": "https://www.publiccontractsscotland.gov.uk/",
-    "verify": "UNREACHABLE from the container on 19 Oct 2026 — robots.txt could not be fetched at all, which is this machine's outbound access and not the site. Retry; if it still cannot be reached, check DNS from inside the container before touching this entry. Scotland's transmission schemes are procured here, so it matters.",
+    "verify": "UNREACHABLE from the container on 19 Oct 2026 — robots.txt could not be fetched at all, which is this machine's outbound access and not the site. Retry; if it still cannot be reached, check DNS from inside the container before touching this entry. Scotland's transmission schemes are procured here, so it matters. | PROBE IT FIRST: 'node backend/tools/signals-check.mjs --probe public-contracts-scotland' tries this source's candidate paths one at a time and prints the ones that answer, which is faster and more reliable than hunting in a browser.",
     "enabled": false,
-    "requireSector": true
+    "requireSector": true,
+    "candidates": [
+      "/NoticeSearch/NoticeSearch_RSS.aspx",
+      "/Search/Search_RSS.aspx",
+      "/NoticeSearch/rss",
+      "/rss",
+      "/noticesearch/noticesearch_rss.aspx",
+      "/feed",
+      "/rss.xml",
+      "/Search/Search_Switch.aspx?Opt=RSS"
+    ],
+    "requireWorks": true,
+    "siteUrl": "https://www.publiccontractsscotland.gov.uk/"
   },
   {
     "id": "sell2wales",
@@ -181,9 +249,23 @@
     "sector": "",
     "org": "",
     "url": "https://www.sell2wales.gov.wales/",
-    "verify": "Answered on 19 Oct 2026 but parsed to nothing — a landing page. Its notice search offers an RSS address once a search is run; open it, filter to the categories we want, and paste that address here. THIS IS WORTH THE TEN MINUTES: a Sell2Wales award notice was the hardest lead in the 19 October comparison that started all this.",
+    "verify": "Answered on 19 Oct 2026 but parsed to nothing — a landing page. Its notice search offers an RSS address once a search is run; open it, filter to the categories we want, and paste that address here. THIS IS WORTH THE TEN MINUTES: a Sell2Wales award notice was the hardest lead in the 19 October comparison that started all this. | PROBE IT FIRST: 'node backend/tools/signals-check.mjs --probe sell2wales' tries this source's candidate paths one at a time and prints the ones that answer, which is faster and more reliable than hunting in a browser.",
     "enabled": false,
-    "requireSector": true
+    "requireSector": true,
+    "candidates": [
+      "/search/Search_RSS.aspx",
+      "/Search/Search_RSS.aspx",
+      "/search/search_switch.aspx?ID=RSS",
+      "/sitecontent/rss",
+      "/rss",
+      "/Search/Notice_RSS.aspx",
+      "/search/noticesearch_rss.aspx",
+      "/Search/Search_Switch.aspx?Opt=RSS",
+      "/feed",
+      "/rss.xml"
+    ],
+    "requireWorks": true,
+    "siteUrl": "https://www.sell2wales.gov.wales/"
   },
   {
     "id": "etenders-ireland",
@@ -192,7 +274,10 @@
     "org": "",
     "url": "https://www.etenders.gov.ie/",
     "enabled": true,
-    "requireSector": true
+    "requireSector": true,
+    "requireWorks": true,
+    "siteUrl": "https://www.etenders.gov.ie/",
+    "note": "PROBE IT FIRST: 'node backend/tools/signals-check.mjs --probe etenders-ireland' tries this source's candidate paths one at a time and prints the ones that answer, which is faster and more reliable than hunting in a browser."
   },
   {
     "id": "ted-europa",
@@ -200,9 +285,18 @@
     "sector": "",
     "org": "",
     "url": "https://ted.europa.eu/en/",
-    "verify": "Answered on 19 Oct 2026 but parsed to nothing and declared no usable feed, which matches what was written when it was added: TED's search is POST-only and this watcher issues GET requests by design. Leave off. TED is read by hand for the schemes we already follow.",
+    "verify": "Answered on 19 Oct 2026 but parsed to nothing and declared no usable feed, which matches what was written when it was added: TED's search is POST-only and this watcher issues GET requests by design. Leave off. TED is read by hand for the schemes we already follow. | PROBE IT FIRST: 'node backend/tools/signals-check.mjs --probe ted-europa' tries this source's candidate paths one at a time and prints the ones that answer, which is faster and more reliable than hunting in a browser.",
     "enabled": false,
-    "requireSector": true
+    "requireSector": true,
+    "candidates": [
+      "/en/rss",
+      "/rss",
+      "/feed",
+      "/en/simap/rss",
+      "/en/notice/rss"
+    ],
+    "requireWorks": true,
+    "siteUrl": "https://ted.europa.eu/en/"
   },
   {
     "id": "tenderned",
@@ -210,9 +304,18 @@
     "sector": "",
     "org": "",
     "url": "https://www.tenderned.nl/papi/tenderned-rs-tns/v2/publicaties?publicatieDatumVanaf={{date:-7}}",
-    "verify": "406 Not Acceptable on 19 Oct 2026. That was OUR fault, not theirs: the accept header offered only HTML and XML and this API serves JSON. The header now includes JSON, so RECHECK THIS ONE FIRST — it may simply work.",
+    "verify": "406 on the first run, then parsed to nothing on the second — both our fault, both in the accept header, now ordered correctly. RECHECK. If it answers as JSON, the Dutch field names in extractJson (publicatieNaam, sluitingsdatum, publicatieDatum) may need correcting against what it actually sends: run --dump tenderned.",
     "enabled": false,
-    "requireSector": true
+    "requireSector": true,
+    "candidates": [
+      "/papi/tenderned-rs-tns/v2/publicaties",
+      "/papi/tenderned-rs-tns/v2/publicaties?publicatieDatumVanaf={{date:-7}}",
+      "/papi/tenderned-rs-tns/v2/publicaties?page=0&size=100",
+      "/api/publicaties",
+      "/rss"
+    ],
+    "requireWorks": true,
+    "siteUrl": "https://www.tenderned.nl/aankondigingen/overzicht"
   },
   {
     "id": "ssen-supply-chain",
@@ -220,8 +323,20 @@
     "sector": "grid",
     "org": "Scottish and Southern Electricity Networks Transmission",
     "url": "https://www.ssen-transmission.co.uk/supply-chain/",
-    "verify": "404 on 19 Oct 2026 — the path was a guess. Find SSEN Transmission's supply chain or working-with-us page in a browser and put that address here. A Meet the Buyer is the single most valuable thing in this file and nothing is watching for one yet.",
-    "enabled": false
+    "verify": "404 on 19 Oct 2026 — the path was a guess. Find SSEN Transmission's supply chain or working-with-us page in a browser and put that address here. A Meet the Buyer is the single most valuable thing in this file and nothing is watching for one yet. | PROBE IT FIRST: 'node backend/tools/signals-check.mjs --probe ssen-supply-chain' tries this source's candidate paths one at a time and prints the ones that answer, which is faster and more reliable than hunting in a browser.",
+    "enabled": false,
+    "candidates": [
+      "/working-with-us/",
+      "/supply-chain",
+      "/supply-chain-opportunities/",
+      "/about-us/supply-chain/",
+      "/suppliers/",
+      "/working-with-us/supply-chain/",
+      "/our-projects/",
+      "/news-and-views/feed/",
+      "/feed/",
+      "/rss"
+    ]
   },
   {
     "id": "national-grid-supply-chain",
@@ -229,7 +344,17 @@
     "sector": "grid",
     "org": "National Grid Electricity Transmission",
     "url": "https://www.nationalgrid.com/electricity-transmission/",
-    "verify": "403 on 19 Oct 2026, same refusal as their news page. Find their supplier or market engagement page; if it is also refused, leave this off.",
-    "enabled": false
+    "verify": "403 on 19 Oct 2026, same refusal as their news page. Find their supplier or market engagement page; if it is also refused, leave this off. | PROBE IT FIRST: 'node backend/tools/signals-check.mjs --probe national-grid-supply-chain' tries this source's candidate paths one at a time and prints the ones that answer, which is faster and more reliable than hunting in a browser.",
+    "enabled": false,
+    "candidates": [
+      "/electricity-transmission/about-us/suppliers",
+      "/suppliers",
+      "/our-suppliers",
+      "/electricity-transmission/suppliers",
+      "/electricity-transmission/network-and-infrastructure/suppliers",
+      "/the-great-grid-upgrade",
+      "/feed",
+      "/rss"
+    ]
   }
 ]
