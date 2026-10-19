@@ -714,6 +714,16 @@ export async function draftApproach(signal, { from = "ETABLIX" } = {}) {
       signal.org ? `Organisation: ${signal.org}` : "",
       `Source: ${signal.sourceName || signal.sourceId || "trade press"}`,
       `Triggers matched: ${(signal.triggers || []).join(", ") || "none"}`,
+      // The stage decides who is being written to and what can honestly be
+      // asked for. Without it every draft read as "congratulations on the
+      // award" regardless of whether anything had been awarded.
+      `Stage: ${signal.stage || "early"} (open = a live opportunity with a date; confirmed = it has been awarded or has started; early = funded, submitted or being consulted on, nothing let yet)`,
+      (signal.orgs || []).length
+        ? `Organisations named in the item: ${(signal.orgs || []).join(", ")}. These are extracted from the text and MAY BE WRONG — do not assert a role for any of them that the published detail does not state.`
+        : "",
+      signal.deadlineAt
+        ? `${signal.deadlineKind === "event" ? "Event date" : "Closing date"}: ${signal.deadlineText} (${new Date(signal.deadlineAt).toISOString().slice(0, 10)})`
+        : "",
       `Published route in: ${signal.contactUrl || signal.roleAddress || "not found — the writer will locate it"}`,
     ].filter(Boolean).join("\n"),
     system: `${COMPANY_BRIEF}
@@ -726,6 +736,11 @@ HOW IT MUST READ
 - Open by naming the specific thing that happened, as published. That sentence is the only reason the reader continues.
 - Say in one sentence what becomes true next: the site establishment — compound and welfare, temporary power and utilities, security, waste, catering, workforce accommodation, logistics, demobilisation and reinstatement — is now somebody's problem, and on most schemes it is settled in the weeks before anyone is watching.
 - Offer one of the three engagement routes, whichever fits what was announced: Advisory (we specify, they contract), Management Integrator (they contract every supplier directly, we control delivery, we never hold their supply-chain money), or Prime Service Contractor (one contract for the whole temporary scope).
+
+WRITE TO THE STAGE. The three are not the same letter with a different date.
+- open: there is a live notice or a supplier event with a date. Refer to it plainly, say what we would be answering or attending, and ask the one question that decides whether it is worth either side's time. If a closing or event date is given, name it once. Do not congratulate anyone — nothing has been won.
+- confirmed: it has been awarded or has started. The person who now needs temporary accommodation, welfare, a compound and the logistics around them is usually the CONTRACTOR, not the client who let it. Where the detail names a contractor, write to that reader. Do not open with congratulations, but you may acknowledge the appointment in a clause.
+- early: funded, submitted, consented or being consulted on, with nothing let. Do not ask for work and do not imply any is available. Ask to be kept in mind, or to understand how the temporary scope is being planned, and say plainly that it is early. An early approach that pretends to be a late one is the fastest way to be remembered badly.
 - Close with a small, specific ask: a short call, or to be pointed at the right person. Never ask for a meeting "to introduce ourselves".
 
 WHAT YOU MUST NOT DO, UNDER ANY CIRCUMSTANCES
@@ -737,7 +752,9 @@ WHAT YOU MUST NOT DO, UNDER ANY CIRCUMSTANCES
 - Do not say or suggest that the recipient, their contractor or anyone else does this work badly. The argument is that it falls due when nobody has time, never that the people are not good enough.
 - Do not flatter, and do not open with congratulations as the first line.
 - No exclamation marks. Never use: revolutionary, game-changing, world-class, leading, cutting-edge, unlock, supercharge, seamless, synergy.
-- Do not mention software, automation, models or how this draft was produced.`,
+- Do not mention software, automation, models or how this draft was produced.
+- Do not state a role for a named organisation — contractor, client, owner, winner — unless the published detail above says so. A name extracted from a headline is a hint, and asserting it is how a letter arrives at the wrong company congratulating them on somebody else's contract.
+- Do not state a deadline or an event date that is not given above.`,
   });
   return { draft: String(text || "").trim() };
 }

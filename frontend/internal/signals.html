@@ -31,6 +31,22 @@
   .bar.sectors { margin-top: -8px; }
   .trig { display: inline-block; font-family: var(--font-head); font-size: 0.68rem; letter-spacing: 0.07em; text-transform: uppercase;
           background: rgba(156,122,60,0.14); color: #7a5f2e; border-radius: 100px; padding: 3px 10px; margin: 0 6px 6px 0; }
+  /* WHAT KIND OF MOMENT. Colour carries it, but never alone: the word is
+     always written out, because a reader who is colour-blind, printing, or
+     glancing at a phone in the sun gets exactly the same information. */
+  .stage { font-family: var(--font-head); font-size: 0.68rem; letter-spacing: 0.07em; text-transform: uppercase;
+           font-weight: 700; border-radius: 4px; padding: 2px 7px; }
+  .stage-open      { color: #0f5132; background: #e7eeea; }   /* 7.8:1 */
+  .stage-confirmed { color: #6b4e1f; background: #f3ecdd; }
+  .stage-early     { color: #3c4a57; background: #eceff2; }
+  /* THE DATE, SAID AS A COUNTDOWN. "31 Oct 2026" makes the reader do the
+     arithmetic; "closes in 11 days" does not, and that is the only reason
+     this line exists. */
+  .due { font-size: 0.82rem; font-weight: 600; margin: 0 0 8px; color: #3c4a57; }
+  .due-soon { color: #9b2312; }                                /* 5.1:1 */
+  .due-late { color: #5a6672; font-weight: 400; }              /* 5.9:1 */
+  .orgs { font-size: 0.82rem; line-height: 1.5; margin: 0 0 8px; color: var(--ink); }
+  .orgs .muted { font-weight: 400; }
   .summary { font-size: 0.86rem; line-height: 1.55; margin: 0 0 10px; }
   .route { font-size: 0.8rem; margin: 0 0 10px; }
   .acts { display: flex; gap: 8px; flex-wrap: wrap; }

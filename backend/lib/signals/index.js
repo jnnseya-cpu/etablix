@@ -21,11 +21,13 @@
 import { collection, insert, update } from "../store.js";
 import { politeFetch } from "./fetch.js";
 import { publishedContact, scrub } from "./contact.js";
-import { TRIGGERS, SECTORS, SECTOR_LABEL, sources, fingerprint, score, extract, classify } from "./parse.js";
+import { TRIGGERS, SECTORS, SECTOR_LABEL, sources, fingerprint, score, extract, classify,
+         stage, STAGE_LABEL, OPEN_TRIGGERS, CONFIRMED_TRIGGERS, namedOrgs, extractDeadline, resolveUrl } from "./parse.js";
 
 // Re-exported so every caller keeps one import, and so the split between what
 // needs the database and what does not stays an implementation detail.
-export { TRIGGERS, SECTORS, SECTOR_LABEL, sources, fingerprint, score, extract, classify };
+export { TRIGGERS, SECTORS, SECTOR_LABEL, sources, fingerprint, score, extract, classify,
+         stage, STAGE_LABEL, OPEN_TRIGGERS, CONFIRMED_TRIGGERS, namedOrgs, extractDeadline, resolveUrl };
 
 
 /**
@@ -86,17 +88,30 @@ export function queue(signal) {
  * that has moved should not stop the other nine.
  */
 export async function sweep({ minScore = 3, enrich = true } = {}) {
-  const out = { checked: 0, blocked: 0, unchanged: 0, failed: 0, queued: [], skipped: 0 };
+  const out = { checked: 0, blocked: 0, unchanged: 0, failed: 0, queued: [], skipped: 0, expired: 0 };
   for (const src of sources()) {
     out.checked++;
-    const res = await politeFetch(src.url);
+    // resolveUrl, not src.url: the procurement APIs are windowed queries and
+    // several refuse a request with no window, so the source file states the
+    // window as {{date:-7}} and the sweep fills in today's date.
+    const res = await politeFetch(resolveUrl(src.url));
     if (res.blocked) { out.blocked++; continue; }
     if (res.notModified) { out.unchanged++; continue; }
     if (!res.ok) { out.failed++; continue; }
 
-    for (const item of extract(res.body, src.url)) {
-      const { triggers, sectors, score: n } = score(`${item.title} ${item.summary}`);
+    for (const item of extract(res.body, resolveUrl(src.url))) {
+      const text = `${item.title} ${item.summary}`;
+      const { triggers, sectors, score: n } = score(text);
       if (n < minScore) continue;
+
+      // THE DATE DECIDES WHETHER IT IS STILL AN OPPORTUNITY.
+      // An open notice whose closing date has passed is not a lead, it is a
+      // line of history occupying the top of a queue sorted by score. It is
+      // dropped at the door rather than filtered later, because a reader who
+      // has to check every date themselves stops checking.
+      const deadline = extractDeadline(text);
+      const where = stage(triggers);
+      if (where === "open" && deadline && deadline.at < Date.now() - 86400000) { out.expired = (out.expired || 0) + 1; continue; }
 
       let contactUrl = null, roleAddress = null;
       if (enrich && src.contactPage) {
@@ -108,6 +123,13 @@ export async function sweep({ minScore = 3, enrich = true } = {}) {
         sourceId: src.id, sourceName: src.name || src.id,
         org: src.org || src.name || "", title: item.title, summary: item.summary,
         url: item.url, publishedAt: item.publishedAt, triggers, score: n,
+        // What kind of moment, who is named in it, and by when. The three
+        // things a reader had to open the link to find out.
+        stage: where,
+        orgs: namedOrgs(text),
+        deadlineAt: deadline ? deadline.at : null,
+        deadlineKind: deadline ? deadline.kind : null,
+        deadlineText: deadline ? deadline.text : null,
         // A source that only ever covers one sector says so, and the item
         // inherits it: a mining feed's headline need not repeat the word.
         sectors: sectors.length ? sectors : (src.sector ? [src.sector] : []),

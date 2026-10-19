@@ -10,7 +10,7 @@ import { Router } from "express";
 import { collection } from "../lib/store.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 import { ACCESS } from "../../shared/constants.js";
-import { sweep, act, suppress, TRIGGERS, SECTORS, sources } from "../lib/signals/index.js";
+import { sweep, act, suppress, TRIGGERS, SECTORS, STAGE_LABEL, sources } from "../lib/signals/index.js";
 import { draftApproach } from "../lib/ai.js";
 
 const router = Router();
@@ -19,10 +19,29 @@ const router = Router();
 router.get("/", requireAuth, requireRole(...ACCESS.DELIVERY_FINANCE), (req, res) => {
   const status = req.query.status ? String(req.query.status) : null;
   const sector = req.query.sector ? String(req.query.sector) : null;
+  const stageWanted = req.query.stage ? String(req.query.stage) : null;
+
+  /**
+   * SORTED BY WHAT RUNS OUT FIRST, NOT BY WHAT SCORES HIGHEST.
+   *
+   * Score ranks how interesting a moment is. It says nothing about when it
+   * stops being available, so a notice closing on Friday sat below a
+   * consultation about a scheme that breaks ground in 2028 because the
+   * consultation happened to match one more pattern. A queue a person reads
+   * top-down has to put the thing that expires first at the top.
+   */
+  const closing = (s) => (s.deadlineAt && s.deadlineAt >= Date.now() ? s.deadlineAt : null);
   const rows = collection("signals")
     .filter((s) => !status || s.status === status)
     .filter((s) => !sector || (s.sectors || []).includes(sector))
-    .sort((a, b) => (b.score - a.score) || (b.seenAt - a.seenAt))
+    .filter((s) => !stageWanted || (s.stage || "early") === stageWanted)
+    .sort((a, b) => {
+      const ca = closing(a), cb = closing(b);
+      if (ca && cb) return ca - cb;          // both expire: soonest first
+      if (ca) return -1;                     // a dated one always outranks
+      if (cb) return 1;
+      return (b.score - a.score) || (b.seenAt - a.seenAt);
+    })
     .slice(0, 300);
   res.json({
     signals: rows,
@@ -32,6 +51,9 @@ router.get("/", requireAuth, requireRole(...ACCESS.DELIVERY_FINANCE), (req, res)
     // tabs do not change their own numbers when one is selected.
     sectorCounts: Object.fromEntries(SECTORS.map((x) => [x.id,
       collection("signals").filter((s) => (s.sectors || []).includes(x.id)).length])),
+    stages: Object.entries(STAGE_LABEL).map(([id, label]) => ({ id, label })),
+    stageCounts: Object.fromEntries(Object.keys(STAGE_LABEL).map((id) => [id,
+      collection("signals").filter((s) => (s.stage || "early") === id).length])),
     sources: sources().map((s) => ({ id: s.id, name: s.name })),
     suppressions: collection("suppressions").length,
   });

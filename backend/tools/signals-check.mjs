@@ -19,7 +19,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 // From parse.js, NOT index.js: the queue needs the database and this does not.
-import { extract, score, sourcesFile } from "../lib/signals/parse.js";
+import { extract, score, sourcesFile, resolveUrl, stage, namedOrgs, extractDeadline } from "../lib/signals/parse.js";
 import { politeFetch } from "../lib/signals/fetch.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -53,8 +53,12 @@ let usable = 0, broken = 0, unreachable = 0;
 
 for (const s of list) {
   console.log(`  ${s.id}  —  ${s.name || ""}`);
-  console.log(`    ${s.url}`);
-  const res = await politeFetch(s.url);
+  // The URL as the sweep will actually request it, dates filled in. Printing
+  // the template instead is how you spend an afternoon testing by hand a URL
+  // that is not the one the watcher asks for.
+  const url = resolveUrl(s.url);
+  console.log(`    ${url}${url !== s.url ? `\n      (from ${s.url})` : ""}`);
+  const res = await politeFetch(url);
 
   if (res.unreachable) {
     console.log(`    UNREACHABLE — ${res.reason}.`);
@@ -68,12 +72,19 @@ for (const s of list) {
   }
   if (!res.ok) {
     console.log(`    FAILED — ${res.reason}.`);
+    // A notice API that refuses almost always says which parameter it wanted.
+    // Printing that beats "open it in a browser", which for a POST-only or
+    // key-gated API is not even possible.
+    if (res.body && /^\s*[[{]/.test(res.body.slice(0, 40))) {
+      console.log(`    It answered with JSON, which usually names the problem:`);
+      console.log(`      ${res.body.slice(0, 300).replace(/\s+/g, " ")}`);
+    }
     // "Open it in a browser and correct the url" is homework, not an answer.
     // The site root almost always declares its own feed, so go and look.
     try {
-      const home = await politeFetch(new URL(s.url).origin + "/");
+      const home = await politeFetch(new URL(url).origin + "/");
       if (home.ok && home.body) {
-        const feeds = declaredFeeds(home.body, s.url);
+        const feeds = declaredFeeds(home.body, url);
         if (feeds.length) {
           console.log("    The site root declares these feeds — try one of them:");
           for (const f of feeds.slice(0, 4)) console.log(`         ${f}`);
@@ -87,13 +98,26 @@ for (const s of list) {
     broken++; continue;
   }
 
-  const items = extract(res.body, s.url);
+  const items = extract(res.body, url);
   const hits = items.filter((i) => score(`${i.title} ${i.summary}`).score >= 3);
-  const isFeed = /<rss|<feed\b|<\?xml/i.test(res.body.slice(0, 600));
+  const head = res.body.slice(0, 600);
+  const isJson = /^\s*[[{]/.test(head);
+  const isFeed = isJson || /<rss|<feed\b|<\?xml/i.test(head);
 
   if (items.length && (isFeed || hits.length)) {
-    console.log(`    OK — ${items.length} item(s) parsed, ${hits.length} would queue today${isFeed ? "" : "  (a page, not a feed)"}`);
-    for (const h of hits.slice(0, 3)) console.log(`         · ${h.title.slice(0, 92)}`);
+    const shape = isJson ? "  (a JSON notice API)" : isFeed ? "" : "  (a page, not a feed)";
+    console.log(`    OK — ${items.length} item(s) parsed, ${hits.length} would queue today${shape}`);
+    // What the queue would actually SHOW, not just the headline: the stage,
+    // the date and the name. Those three are the whole point of the change
+    // and printing only the title hides whether any of them worked.
+    for (const h of hits.slice(0, 3)) {
+      const text = `${h.title} ${h.summary}`;
+      const r = score(text), d = extractDeadline(text), who = namedOrgs(text);
+      console.log(`         · [${stage(r.triggers)}] ${h.title.slice(0, 80)}`);
+      console.log(`             score ${r.score} · ${r.triggers.join(", ") || "no trigger"} · ${r.sectors.join(", ") || "no sector"}`);
+      if (d) console.log(`             ${d.kind}: ${d.text}`);
+      if (who.length) console.log(`             named: ${who.join(" / ")}`);
+    }
     if (!hits.length) {
       // A working feed scoring zero is ambiguous: a quiet day, or the wrong
       // patterns. Printing what is actually in it settles that in one look —
@@ -110,7 +134,7 @@ for (const s of list) {
   }
 
   if (!isFeed) {
-    const feeds = declaredFeeds(res.body, s.url);
+    const feeds = declaredFeeds(res.body, url);
     if (feeds.length) {
       console.log("    This page declares its own feed — point the source at one of these instead:");
       for (const f of feeds.slice(0, 4)) console.log(`         ${f}`);

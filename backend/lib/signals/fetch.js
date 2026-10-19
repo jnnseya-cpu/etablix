@@ -144,7 +144,18 @@ export async function politeFetch(url, { now = Date.now } = {}) {
     const etag = res.headers.get("etag");
     const lastModified = res.headers.get("last-modified");
     if (etag || lastModified) conditional.set(url, { etag, lastModified });
-    if (!res.ok) return { ok: false, status: res.status, reason: `http ${res.status}` };
+    if (!res.ok) {
+      // KEEP A LITTLE OF THE ERROR BODY, AND ONLY A LITTLE.
+      // A notice API that refuses a request almost always says which
+      // parameter it wanted. Throwing that away left the check tool able to
+      // report "http 400" and nothing else, which for a POST-only or
+      // key-gated API is a dead end rather than a clue. Capped hard and never
+      // stored on a signal — it exists for the diagnostic to print and
+      // nothing else reads it.
+      let why = "";
+      try { why = (await res.text()).slice(0, 500); } catch { /* no body to read */ }
+      return { ok: false, status: res.status, reason: `http ${res.status}`, body: why };
+    }
 
     // Read with a ceiling. A listing page that is two megabytes is not a
     // listing page, and streaming the rest of it helps nobody.
