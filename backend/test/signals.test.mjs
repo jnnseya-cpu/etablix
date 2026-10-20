@@ -976,6 +976,105 @@ console.log("\n=== the contact on the notice, and the rule that does not bend fo
   ok(/contactWithheld/.test(page), "and a withheld contact is explained rather than left blank");
 }
 
+console.log("\n=== a notice announced for later is not a notice that is open ===\n");
+{
+  /**
+   * WHERE THIS CAME FROM. Defence Construction Canada published an Advanced
+   * Procurement Notice for a 60MW data centre worth up to CA$1.85bn, with the
+   * notice itself "expected to be posted in the winter of 2027". The watcher
+   * saw the words "Procurement Notice", fired the tender trigger, and ranked
+   * it OPEN — act this week — for a competition that will not exist for over a
+   * year, above items carrying a real closing date.
+   *
+   * An advance notice is the opposite of a live one, and it is also the
+   * earliest sight of a scheme there is. So it queues, it ranks, and it is
+   * emphatically not urgent.
+   */
+  const APN = "Canada puts out Advanced Procurement Notice for data center in Ontario. "
+    + "Estimated to cost between CA$1.5bn and $1.85bn. Defence Construction Canada has put out a public "
+    + "Advanced Procurement Notice (APN) for a data center project in the National Capital Region of Ontario. "
+    + "The notice is for a modify design built contract, and is expected to be posted in the winter of 2027. "
+    + "The data center will offer 60MW of IT capacity.";
+
+  const r = S.score(APN);
+  ok(r.triggers.includes("forward"), "an advance procurement notice fires the forward trigger", r.triggers.join(", "));
+  ok(S.stage(r.triggers) === "early",
+     "and it reads as EARLY, not open — the competition is a year away", S.stage(r.triggers));
+  ok(r.sectors.includes("datacentres"), "the sector is still read", r.sectors.join(", "));
+  ok(r.score >= 3, "and it still queues, because it is the earliest sight there is", r.score);
+
+  for (const t of [
+    "Prior information notice for the substation civils framework",
+    "Notice of intent: 400kV overhead line refurbishment, procurement anticipated 2028",
+    "Pipeline notice: upcoming opportunity for enabling works",
+  ]) ok(S.stage(S.score(t).triggers) === "early", `forward notice reads early: ${t.slice(0, 48)}`, S.stage(S.score(t).triggers));
+
+  // A live notice with a real date must still read open, or the fix has eaten
+  // the thing it was protecting.
+  const live = "MaresConnect HVDC: contract notice issued, deadline for participation 31 October 2026";
+  ok(S.stage(S.score(live).triggers) === "open", "a real contract notice is still open", S.stage(S.score(live).triggers));
+
+  // AND THE EXCEPTION THAT MATTERS. A Meet the Buyer held NOW for a
+  // procurement coming later is a real date on a real calendar, and that is
+  // precisely the moment this queue exists to catch.
+  const both = "Advanced Procurement Notice: data centre groundworks. A Meet the Buyer event is planned for 3 December 2026";
+  ok(S.stage(S.score(both).triggers) === "open",
+     "a supplier event survives the forward demotion — there is a date to attend", S.stage(S.score(both).triggers));
+
+  // The authority is named: "Defence Construction Canada" ends in a country,
+  // so the company-tail test refused it and the card named nobody at all for
+  // a CA$1.85bn notice.
+  ok(S.namedOrgs(APN).includes("Defence Construction Canada"),
+     "a company word inside the name counts, not only at the end", S.namedOrgs(APN).join(" / ") || "nothing");
+  // Narrow on purpose: these must still name nobody.
+  for (const n of ["National Capital Region of Ontario", "Hinkley Point C this winter", "Advanced Procurement Notice for data center"]) {
+    ok(S.namedOrgs(n).length === 0, `and still names nobody in: ${n}`, S.namedOrgs(n).join(" / "));
+  }
+}
+
+console.log("\n=== no source file carries a stray control character ===\n");
+{
+  /**
+   * THE DEFECT THIS PINS, AND IT IS THE NASTIEST KIND THERE IS.
+   *
+   * The forward trigger above was written into this module through a script
+   * whose string was not raw, so every \b in it became a literal backspace —
+   * thirteen of them. The file still parsed. The regexes still compiled. They
+   * simply lost every word boundary, so the trigger matched nothing and the
+   * only symptom was an advance notice continuing to read as open.
+   *
+   * A silently weakened pattern is worse than a syntax error, because a syntax
+   * error stops the build. So: a C0 control character other than tab, newline
+   * or carriage return has no business in a source file, and now cannot sit in
+   * one unnoticed.
+   */
+  const dirs = [["backend"], ["frontend", "internal", "js"], ["frontend", "public", "js"], ["shared"]];
+  const walk = (dir) => {
+    const out = [];
+    if (!fs.existsSync(dir)) return out;
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) { if (e.name !== "node_modules" && e.name !== "data") out.push(...walk(full)); }
+      else if (/\.(js|mjs|cjs|json)$/.test(e.name)) out.push(full);
+    }
+    return out;
+  };
+  const files = dirs.flatMap((d) => walk(path.join(root, ...d)));
+  ok(files.length > 50, `${files.length} source files to check`);
+
+  const bad = [];
+  for (const f of files) {
+    const text = fs.readFileSync(f, "utf8");
+    // Everything below 0x20 except tab, newline and carriage return.
+    const m = /[\x00-\x08\x0b\x0c\x0e-\x1f]/.exec(text);
+    if (m) {
+      const line = text.slice(0, m.index).split("\n").length;
+      bad.push(`${path.relative(root, f)}:${line} holds 0x${m[0].charCodeAt(0).toString(16).padStart(2, "0")}`);
+    }
+  }
+  ok(bad.length === 0, "no source file holds a stray control character", bad.join("; "));
+}
+
 fs.rmSync(scratch, { recursive: true, force: true });
 console.log(`\n=== ${pass} passed, ${fail} failed ===\n`);
 process.exit(fail ? 1 : 0);

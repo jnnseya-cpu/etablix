@@ -205,7 +205,7 @@ export const TRIGGERS = [
    */
   { id: "tender", label: "An open opportunity we could bid", weight: 3,
     patterns: [
-      /\b(contract|tender|procurement|prior information|concession)\s+notice\b/i,
+      /\b(contract|tender|procurement|concession)\s+notice\b/i,
       /\b(invitation to tender|\bITT\b|invitation to negotiate|request for (quotation|proposal)|\bRFQ\b|\bRFP\b)\b/i,
       /\b(expressions? of interest|\bEOI\b|pre[- ]?qualification|\bPQQ\b|selection questionnaire|\bSQ\b)\b/i,
       /\b(closing date|deadline for (receipt|submission|tenders|participation|requests)|tenders? (are )?invited|bids? (are )?invited|seeking (a )?(contractor|supplier|provider))\b/i,
@@ -216,6 +216,32 @@ export const TRIGGERS = [
       // and the trade press announces it exactly like this.
       /\b(race|hunt|search|contest|bidding)\b[^.]{0,20}\b(starts?|begins?|is on|under ?way|opens?)\b[^.]{0,60}\b(framework|contracts?|deals?|works|jobs?|packages?)\b/i,
       /\b(framework|contracts?|works|packages?|schemes?)\b[^.]{0,40}\b(to market|out to tender|up for grabs|put out|goes out)\b/i,
+    ] },
+
+  /**
+   * A PROCUREMENT THAT HAS BEEN ANNOUNCED AND HAS NOT STARTED.
+   *
+   * THE DEFECT THIS CAME OUT OF. Defence Construction Canada published an
+   * Advanced Procurement Notice for a 60MW data centre worth up to CA$1.85bn,
+   * with the notice itself "expected to be posted in the winter of 2027". The
+   * watcher read "Procurement Notice", fired the tender trigger and ranked it
+   * OPEN — act this week — for a competition that does not exist for over a
+   * year, above items with a real closing date on them.
+   *
+   * An advance notice is the opposite of a live one, and it is the single
+   * earliest sight of a scheme there is: fourteen months to understand it, to
+   * find who will bid it, and in this case to deal with a security clearance
+   * that cannot be obtained quickly. So it earns its own trigger and its own
+   * place — queued, ranked, and emphatically not urgent.
+   */
+  { id: "forward", label: "Announced for later — a forward notice", weight: 2,
+    patterns: [
+      /\b(advance[d]?|forward|early)\s+procurement\s+notice\b/i,
+      /\bprior information notice\b/i,
+      /\bnotice of (intent|future|upcoming)\b/i,
+      /\b(procurement|tender|notice|competition)\b[^.]{0,50}\b(expected to be (posted|published|issued)|will be (posted|published|issued)|anticipated|forthcoming|in the pipeline)\b/i,
+      /\b(future|upcoming|planned|anticipated)\s+(opportunit|procurement|competition|tender)/i,
+      /\bpipeline notice\b/i,
     ] },
 
   /**
@@ -391,8 +417,24 @@ export const OPEN_TRIGGERS = ["tender", "supplier-event"];
 export const CONFIRMED_TRIGGERS = ["award", "close", "transfer", "mobilise"];
 
 export function stage(triggers = []) {
-  if (triggers.some((t) => OPEN_TRIGGERS.includes(t))) return "open";
-  if (triggers.some((t) => CONFIRMED_TRIGGERS.includes(t))) return "confirmed";
+  const t = new Set(triggers);
+
+  /**
+   * A FORWARD NOTICE IS NOT AN OPEN ONE, WHATEVER ELSE MATCHED.
+   *
+   * "Advanced Procurement Notice" contains the words "Procurement Notice", so
+   * the tender trigger fires on it and the thing read as open. It is the
+   * opposite: a competition announced for later, in the case that found this,
+   * fourteen months later. So the forward reading wins over the tender one.
+   *
+   * A supplier event survives it, because a Meet the Buyer held NOW for a
+   * procurement coming later is a real date on a real calendar, and that is
+   * exactly the moment this whole queue exists to catch.
+   */
+  if (t.has("forward") && !t.has("supplier-event")) t.delete("tender");
+
+  if ([...t].some((x) => OPEN_TRIGGERS.includes(x))) return "open";
+  if ([...t].some((x) => CONFIRMED_TRIGGERS.includes(x))) return "confirmed";
   return "early";
 }
 
@@ -422,6 +464,10 @@ export const STAGE_LABEL = {
  * a guess dressed as a fact costs a misdirected approach.
  */
 const COMPANY_TAIL = /^(ltd|limited|plc|llp|group|holdings|construction|constructions|constructors|constructor|civils|civil|infrastructure|utilities|utility|contractors|contractor|contracting|engineering|services|service|partnership|consortium|joint venture|\bjv\b|uk|international|energy|power|networks|rail|solutions|industries|works)$/i;
+
+// Words that mean "this is an organisation" wherever they sit in the name.
+// Kept deliberately short: every addition is a new way to be confidently wrong.
+const COMPANY_INSIDE = /^(construction|infrastructure|utilities|civils|engineering|contractors|contracting|networks|transmission|energy|power|rail|logistics|industries)$/i;
 
 const APPOINTMENT_NEAR = /\b(wins?|won|lands?|secures?|awarded|awards?|appoints?|appointed|named|selected|chosen|preferred bidder|supplier|contractor|principal contractor)\b/i;
 
@@ -477,7 +523,16 @@ export function namedOrgs(text) {
     const name = words.join(" ");
     if (name.length < 3) continue;
 
-    const tailed = COMPANY_TAIL.test(words[words.length - 1].replace(/[.]$/, ""));
+    /**
+     * The company word need not be last. "Defence Construction Canada" ends in
+     * a country, so the tail test refused it and the card named nobody at all
+     * for a $1.85bn notice. A narrower set is accepted anywhere in the run —
+     * narrow on purpose, so "National Capital Region" and "Hinkley Point C"
+     * still name nobody.
+     */
+    const bare = (w) => w.replace(/[.]$/, "");
+    const tailed = COMPANY_TAIL.test(bare(words[words.length - 1]))
+                || (words.length > 1 && words.some((w) => COMPANY_INSIDE.test(bare(w))));
     // A single word only counts when it carries a company tail of its own,
     // which "Hochtief" does not and "Balfour Beatty" does not need. And a
     // single word that IS the generic tail — "Civils", "Services", "Group" —
