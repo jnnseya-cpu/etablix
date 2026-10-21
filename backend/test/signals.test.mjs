@@ -1172,6 +1172,60 @@ console.log("\n=== a head start on the contact, without going looking for one ==
   }
 }
 
+console.log("\n=== the backfill can only mend a link, not touch anything else ===\n");
+{
+  /**
+   * WHY A BACKFILL NEEDS ITS OWN RULES. Every Find a Tender signal queued
+   * before 21 October links to the API endpoint the sweep had just read, and
+   * re-sweeping cannot mend them: the fingerprint already holds those stories,
+   * so a fresh sweep skips them as "already seen" and the broken links stay
+   * broken for ever. Hence a tool that edits rows in the live queue.
+   *
+   * That is a dangerous shape, so the guarantees are asserted rather than
+   * intended. A backfill that quietly re-runs today's rules over old rows is
+   * not a backfill, it is an undocumented migration — and the first thing it
+   * would destroy is the record of what somebody had already read and
+   * dismissed.
+   */
+  const tool = fs.readFileSync(path.join(root, "backend", "tools", "signals-relink.mjs"), "utf8");
+
+  // It can change a row. It cannot create or destroy one.
+  ok(/import \{ collection, update \}/.test(tool), "it imports update, and only update, from the store");
+  ok(!/\binsert\s*\(/.test(tool), "it cannot insert a signal");
+  ok(!/\bremove\s*\(/.test(tool), "and it cannot remove one");
+  const imports = [...tool.matchAll(/import \{([^}]*)\} from/g)].flatMap((m) => m[1].split(",").map((x) => x.trim()));
+  ok(!imports.includes("sweep") && !imports.includes("queue"),
+     "it imports neither sweep nor queue, so it cannot add to the list it is mending", imports.join(", "));
+  ok(!/\bsweep\(|\bqueue\(/.test(tool), "and calls neither");
+
+  // Every write must patch url and nothing else, or a status somebody set by
+  // hand gets quietly overwritten by a tool nobody thought was risky.
+  const patches = [...tool.matchAll(/update\("signals",\s*[^,]+,\s*(\{[^}]*\})/g)].map((m) => m[1]);
+  ok(patches.length >= 1, `${patches.length} update call(s) found`);
+  for (const patch of patches) {
+    const fields = [...patch.matchAll(/([A-Za-z_$][\w$]*)\s*[:,}]/g)].map((m) => m[1]);
+    ok(fields.length === 1 && fields[0] === "url",
+       "an update patches url and nothing else", patch);
+  }
+
+  // Dry run is the default. Writing to the live queue takes a deliberate flag.
+  ok(/const WRITE = process\.argv\.includes\("--write"\)/.test(tool), "it writes only when told to");
+  ok(/if \(WRITE\) update\("signals"/.test(tool), "and every write is behind that flag");
+
+  // It must build links through the SAME extractor the sweep uses, not a
+  // second implementation of the rule that could drift away from it.
+  const extractCall = /extract\(res\.body,[\s\S]{0,160}?\)\)/.exec(tool);
+  ok(Boolean(extractCall), "it calls extract() on the fetched body", tool.slice(0, 60));
+  ok(/noticeUrl: src\.noticeUrl/.test(extractCall[0]) && /siteUrl: src\.siteUrl/.test(extractCall[0]),
+     "with the source's own template and fallback — the same code path as the sweep, not a second copy of the rule",
+     extractCall[0]);
+
+  // And a row is only a candidate when it does NOT already point at a notice,
+  // which is what makes running it twice harmless.
+  ok(/!String\(sig\.url \|\| ""\)\.startsWith\(prefix\)/.test(tool),
+     "a signal already pointing at a notice is skipped, so a second run is a no-op");
+}
+
 fs.rmSync(scratch, { recursive: true, force: true });
 console.log(`\n=== ${pass} passed, ${fail} failed ===\n`);
 process.exit(fail ? 1 : 0);
