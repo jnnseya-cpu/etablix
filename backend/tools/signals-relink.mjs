@@ -15,18 +15,43 @@
  * data volume the application reads. Run on the host it edits a different
  * store and reports success against rows nobody will ever see.
  *
- * WHAT IT WILL NOT DO. It changes one field, `url`, and nothing else. It does
- * not re-score, re-sector, re-stage, re-deduplicate, queue anything new or
- * touch a status somebody has set. A backfill that quietly re-runs the current
- * rules over old rows is not a backfill, it is an undocumented migration — and
- * the first thing it would destroy is the record of what a person had already
- * read and dismissed.
+ * AND IT MENDS MORE THAN THE LINK, because mending only the link was useless.
+ * Those same rows predate the fields that answer the question a reader
+ * actually has — who do I write to. They carry no buyer, no supplier, no
+ * contact and no deadline, so a relinked row still showed a headline and
+ * nothing else. The two halves of the repair are one job.
  *
- * It is safe to run twice: a row already pointing at a notice is left alone.
+ * WHAT IT WILL NOT TOUCH, AND THIS IS THE LOAD-BEARING PART. It writes only
+ * the fields in MENDABLE below: the link, the parties, the published contact
+ * route and the dates. It will not write status, actedBy, actedAt or note —
+ * a person's judgement about a signal is theirs and a tool must not quietly
+ * revise it. It also deliberately leaves score, triggers and sectors alone:
+ * re-deriving those under today's rules would reorder a queue somebody has
+ * already read, and "the list moved while I was working it" is a worse defect
+ * than the one being fixed.
+ *
+ * The contact still passes through scrub(), the same gate the sweep uses, so
+ * no personal address reaches storage by this route either.
+ *
+ * It is safe to run twice: a row that already has what it needs is left alone.
  */
 import { politeFetch } from "../lib/signals/fetch.js";
-import { extract, resolveUrl, sources, sourcesFile, seedStatus } from "../lib/signals/parse.js";
+import { extract, resolveUrl, sources, sourcesFile, seedStatus, stage, extractDeadline, namedOrgs } from "../lib/signals/parse.js";
+import { scrub, isRoleAddress } from "../lib/signals/contact.js";
 import { collection, update } from "../lib/store.js";
+
+/**
+ * The only fields this tool may ever write. Everything a person sets, and
+ * everything that decides the queue's order, is deliberately absent.
+ */
+const MENDABLE = [
+  "url", "summary",
+  "buyer", "suppliers", "orgs",
+  "roleAddress", "contactOrg", "contactRole", "contactWithheld", "contactUrl",
+  "deadlineAt", "deadlineKind", "deadlineText",
+  "stage",
+];
+const NEVER = ["status", "actedBy", "actedAt", "note", "id", "fingerprint", "seenAt", "sourceId", "score", "triggers", "sectors"];
 
 const WRITE = process.argv.includes("--write");
 
@@ -67,16 +92,27 @@ const byId = new Map(all.map((s) => [s.id, s]));
 const signals = collection("signals");
 console.log(`${signals.length} signal(s) in the queue, ${all.length} source(s) enabled\n`);
 
-// Only sources that can actually produce a notice link are worth reading.
+/** Does this row already point at a notice rather than at an API or a search page? */
+const linkedProperly = (sig, src) => {
+  for (const t of [].concat(src.noticeUrl || [])) {
+    const prefix = String(t).split("{")[0];
+    if (prefix && String(sig.url || "").startsWith(prefix)) return true;
+  }
+  return false;
+};
+
+/** And does it carry the fields that answer "who do I write to"? */
+const hasParties = (sig) => Boolean(sig.buyer) || (Array.isArray(sig.suppliers) && sig.suppliers.length);
+
+// A row is worth mending if its link is wrong OR it predates the party fields.
 const candidates = signals.filter((sig) => {
   const src = byId.get(sig.sourceId);
   if (!src || !src.noticeUrl) return false;
-  const prefix = String(src.noticeUrl).split("{")[0];
-  return prefix && !String(sig.url || "").startsWith(prefix);
+  return !linkedProperly(sig, src) || !hasParties(sig);
 });
 
 if (!candidates.length) {
-  console.log("Nothing to relink: every signal from a source with a notice template already points at one.\n");
+  console.log("Nothing to mend: every signal from a notice source has its link and its parties.\n");
   process.exit(0);
 }
 
@@ -87,68 +123,128 @@ for (const sig of candidates) {
 }
 console.log(`${candidates.length} signal(s) across ${bySource.size} source(s) link somewhere other than a notice.\n`);
 
-let fixed = 0, fromSummary = 0, fromFeed = 0, unresolved = 0, failedSource = 0;
+let mended = 0, linkOnly = 0, unresolved = 0, failedSource = 0;
+const changedFields = new Set();
+
+/**
+ * Everything the record now says about a signal, as a patch, with nothing in
+ * it a person owns.
+ *
+ * Built from the same item the sweep would build, then put through scrub() —
+ * the one gate — so a published contact that turns out to be a named
+ * individual is nulled here exactly as it would be on the way into the queue.
+ */
+function patchFor(sig, item, src) {
+  const text = `${item.title} ${item.summary || ""}`;
+  const deadline = extractDeadline(text);
+  const orgs = (item.orgs && item.orgs.length) ? item.orgs : namedOrgs(text);
+
+  const fresh = scrub({
+    url: item.url,
+    summary: item.summary || sig.summary || "",
+    buyer: item.buyer || null,
+    suppliers: item.suppliers || [],
+    orgs,
+    roleAddress: item.roleAddress || null,
+    contactOrg: item.contactOrg || null,
+    contactRole: item.contactRole || null,
+    contactWithheld: Boolean(item.contactFound) && !isRoleAddress(item.roleAddress),
+    contactUrl: item.contactUrl || src.contactPage || null,
+    deadlineAt: deadline ? deadline.at : null,
+    deadlineKind: deadline ? deadline.kind : null,
+    deadlineText: deadline ? deadline.text : null,
+    // The stage is a reading of the triggers already stored, not a re-score.
+    stage: stage(sig.triggers || []),
+  });
+
+  const patch = {};
+  for (const key of MENDABLE) {
+    if (!(key in fresh)) continue;
+    const next = fresh[key], now = sig[key];
+    if (JSON.stringify(next) === JSON.stringify(now === undefined ? null : now)) continue;
+    if (next === null || next === "" || (Array.isArray(next) && !next.length)) {
+      // Never replace something with nothing: a row that already names a
+      // supplier must not lose it because today's read came back thin.
+      if (now !== undefined && now !== null && (!Array.isArray(now) || now.length)) continue;
+    }
+    patch[key] = next;
+  }
+  return patch;
+}
 
 for (const [sourceId, rows] of bySource) {
   const src = byId.get(sourceId);
-  console.log(`  ${sourceId} — ${rows.length} signal(s)`);
+  console.log(`  ${sourceId} — ${rows.length} signal(s) to look at`);
 
-  // FIRST, the cheap path: the reference is already in the summary, so the
-  // link can be rebuilt without asking the publisher for anything.
-  const stillStuck = [];
-  for (const sig of rows) {
-    const ref = ocidIn(sig.summary) || ocidIn(sig.title);
-    const url = fill(src.noticeUrl, ref);
-    if (!url) { stillStuck.push(sig); continue; }
-    console.log(`     ${WRITE ? "fixed  " : "would  "} ${sig.title.slice(0, 58)}`);
-    console.log(`              ${url}   (reference held)`);
-    if (WRITE) update("signals", sig.id, { url });
-    fixed++; fromSummary++;
-  }
-  if (!stillStuck.length) { console.log(""); continue; }
-
-  // SECOND, and only for what is left: read the source once and match by
-  // title. extract() is given the same options the sweep gives it, so the URL
-  // comes out of the same code path rather than a second implementation of
-  // the same rule that could drift from it.
-  console.log(`     ${stillStuck.length} hold no reference — reading the source to match by title`);
+  // Read the source ONCE. Parties and contacts only exist in the record, so
+  // unlike a link they cannot be reconstructed from what is already stored.
   const res = await politeFetch(resolveUrl(src.url));
-  if (!res.ok || !res.body) {
-    console.log(`     SOURCE DID NOT ANSWER — ${res.reason || "no body"}. Those ${stillStuck.length} stay as they are.\n`);
-    failedSource += stillStuck.length;
-    continue;
-  }
-
   const live = new Map();
-  for (const item of extract(res.body, resolveUrl(src.url), { noticeUrl: src.noticeUrl, siteUrl: src.siteUrl })) {
-    if (item.title) live.set(norm(item.title), item.url);
+  if (res.ok && res.body) {
+    for (const item of extract(res.body, resolveUrl(src.url), { noticeUrl: src.noticeUrl, siteUrl: src.siteUrl })) {
+      if (item.title) live.set(norm(item.title), item);
+    }
+    console.log(`     read ${live.size} item(s) from the source`);
+  } else {
+    console.log(`     SOURCE DID NOT ANSWER — ${res.reason || "no body"}. Falling back to held references only.`);
   }
 
-  const prefix = String(src.noticeUrl).split("{")[0];
-  for (const sig of stillStuck) {
-    const url = live.get(norm(sig.title));
-    if (!url || !url.startsWith(prefix)) {
-      // Almost always means the notice has aged out of the API's date window.
-      console.log(`     no match  ${sig.title.slice(0, 58)}`);
-      unresolved++;
+  for (const sig of rows) {
+    const item = live.get(norm(sig.title));
+
+    if (item) {
+      const patch = patchFor(sig, item, src);
+      if (!Object.keys(patch).length) { console.log(`     already current  ${sig.title.slice(0, 54)}`); continue; }
+      for (const k of Object.keys(patch)) changedFields.add(k);
+      console.log(`     ${WRITE ? "mended" : "would"}  ${sig.title.slice(0, 54)}`);
+      console.log(`              ${patch.url || sig.url}`);
+      const who = patch.suppliers || sig.suppliers, buyer = patch.buyer || sig.buyer;
+      if ((who || []).length) console.log(`              won by ${(who || []).join(", ")}`);
+      if (buyer) console.log(`              let by ${buyer}`);
+      if (patch.roleAddress) console.log(`              contact ${patch.roleAddress}`);
+      else if (patch.contactWithheld) console.log(`              a contact is on the notice but it is a person's — not stored`);
+      console.log(`              fields: ${Object.keys(patch).join(", ")}`);
+      if (WRITE) update("signals", sig.id, patch);
+      mended++;
       continue;
     }
-    console.log(`     ${WRITE ? "fixed  " : "would  "} ${sig.title.slice(0, 58)}`);
-    console.log(`              ${url}   (matched in the feed)`);
-    if (WRITE) update("signals", sig.id, { url });
-    fixed++; fromFeed++;
+
+    // Not in the source any more — almost always aged out of the API's date
+    // window. The link can still be rebuilt from a reference already held;
+    // the parties cannot, because nothing local ever carried them.
+    const ref = ocidIn(sig.summary) || ocidIn(sig.title);
+    const url = fill(src.noticeUrl, ref);
+    if (url && url !== sig.url) {
+      console.log(`     ${WRITE ? "link  " : "would "}  ${sig.title.slice(0, 54)}`);
+      console.log(`              ${url}   (link only — aged out, so no parties)`);
+      if (WRITE) update("signals", sig.id, { url });
+      changedFields.add("url");
+      linkOnly++;
+    } else {
+      console.log(`     no match  ${sig.title.slice(0, 54)}`);
+      unresolved++;
+      if (!res.ok) failedSource++;
+    }
   }
   console.log("");
 }
 
-console.log(`=== ${WRITE ? "relinked" : "would relink"} ${fixed} of ${candidates.length} ===`);
-console.log(`    ${fromSummary} from a reference already held, ${fromFeed} matched in the source`);
+// Said out loud, every run: the point of the allowlist is that it is checkable.
+console.log(`fields written: ${[...changedFields].sort().join(", ") || "none"}`);
+const forbidden = [...changedFields].filter((f) => NEVER.includes(f));
+if (forbidden.length) {
+  console.log(`\n!! REFUSING: tried to write ${forbidden.join(", ")}, which this tool must never touch.\n`);
+  process.exit(1);
+}
+
+console.log(`\n=== ${WRITE ? "mended" : "would mend"} ${mended + linkOnly} of ${candidates.length} ===`);
+console.log(`    ${mended} fully from the record, ${linkOnly} link only`);
 if (unresolved) {
   console.log(`    ${unresolved} could not be matched — almost always a notice that has aged out of`);
   console.log(`      the API's date window. Widen the window in the source url ({{date:-30}}) and`);
   console.log(`      run again, or leave them: the search-page link still works, it is just slower.`);
 }
-if (failedSource) console.log(`    ${failedSource} left alone because their source did not answer`);
+if (failedSource) console.log(`    ${failedSource} of those because the source did not answer at all`);
 
 if (!WRITE) {
   console.log(`\nNothing was changed. To apply:\n  docker exec etablix node backend/tools/signals-relink.mjs --write\n`);

@@ -20,7 +20,7 @@
     },
     "_why_procurement_portals": "THE HOLE THIS FILE HAD UNTIL 19 OCT 2026. Every source was trade press — somebody writing about a decision after it was taken. The decisions themselves are published in full, with the winner named, the value stated and the dates given, on the procurement portals. A watcher reading only the commentary is always a week behind the record and never sees the notices the press does not cover, which is most of them. The portals below are therefore the most valuable entries here, and the hardest to get right: several are windowed JSON APIs rather than feeds, and TED's search is POST-only, which a GET watcher cannot read at all. Each says honestly what is known and what still has to be checked.",
     "_checked": "Checked against the live server on 19 October 2026. 11 sources enabled. Find a Tender and Contracts Finder both answered as OCDS JSON and are the first notice sources we have ever had. Still to resolve: Sell2Wales and Public Contracts Scotland (both matter), TenderNed (recheck — our accept header was wrong, not their API), and the two supply-chain pages, which are where a Meet the Buyer would be found.",
-    "_version": 5
+    "_version": 6
   },
   {
     "id": "ili-energy",
@@ -209,8 +209,11 @@
     "requireSector": true,
     "requireWorks": true,
     "siteUrl": "https://www.find-tender.service.gov.uk/Search/Results",
-    "note": "ANSWERED on 19 Oct 2026 as OCDS JSON and is enabled. The notice link is now built from the record's own ocid: https://www.find-tender.service.gov.uk/procurement/{ocid} is a real page, confirmed against a live example rather than guessed, and a record with no ocid falls back to the search page rather than producing a dead link. STILL TO CHECK: the sector and works gates together returned 13 notices on the first run and all thirteen were Hinkley Point B decommissioning call-offs; see what survives now that requireWorks applies.",
-    "noticeUrl": "https://www.find-tender.service.gov.uk/procurement/{ocid}"
+    "note": "ANSWERED on 19 Oct 2026 as OCDS JSON and is enabled. THE LINK GOES TO THE NOTICE: in a Find a Tender release the id is the notice number (065943-2025 form) and the public page is /Notice/<that number>, confirmed against live examples. The ocid identifies the WHOLE PROCUREMENT, which can carry many notices, so /procurement/<ocid> is only the fallback — and Find a Tender states an ocid can be replaced, which is a second reason to prefer the notice number.",
+    "noticeUrl": [
+      "https://www.find-tender.service.gov.uk/Notice/{id}",
+      "https://www.find-tender.service.gov.uk/procurement/{ocid}"
+    ]
   },
   {
     "id": "contracts-finder",
@@ -222,7 +225,7 @@
     "requireSector": true,
     "requireWorks": true,
     "siteUrl": "https://www.contractsfinder.service.gov.uk/Search",
-    "note": "ANSWERED with 100 OCDS notices on the first run, then parsed to nothing on the second — OUR FAULT, not theirs: the accept header had been changed to prefer HTML over JSON. Fixed. RECHECK THIS FIRST. NO noticeUrl TEMPLATE IS SET HERE ON PURPOSE: Contracts Finder keys its notice pages by a GUID that is a DIFFERENT value from the ocid, so an ocid-based template would give every signal a confident dead link. Run 'signals-check.mjs --dump contracts-finder', find the field holding that GUID or a url field on the record, and set the template from what the record actually says."
+    "note": "ANSWERED with 100 OCDS notices on the first run, then parsed to nothing on the second — OUR FAULT, not theirs: the accept header had been changed to prefer HTML over JSON. Fixed. RECHECK THIS FIRST. NO noticeUrl TEMPLATE IS SET, because Contracts Finder keys its notice pages by a GUID and it is not confirmed which field carries it — an ocid-based template would give every signal a confident dead link. ITS API DOCUMENTS Published/Notice/OCDS/{id}, so the release id is PROBABLY that GUID and \"https://www.contractsfinder.service.gov.uk/notice/{id}\" is the template to TEST. Run 'signals-check.mjs --dump contracts-finder', look at what id actually holds, try the url in a browser, and only then set it."
   },
   {
     "id": "public-contracts-scotland",

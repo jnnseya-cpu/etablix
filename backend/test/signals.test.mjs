@@ -1130,8 +1130,20 @@ console.log("\n=== the link goes to the notice, and the parties are labelled ===
   ok(it.suppliers.includes("OCU Utility Services Ltd"), "and so is the supplier", JSON.stringify(it.suppliers));
 
   const sources = JSON.parse(fs.readFileSync(path.join(root, "content", "signals", "sources.json"), "utf8"));
+  /**
+   * THE NOTICE FIRST, THE PROCUREMENT PAGE SECOND. In a Find a Tender release
+   * the `id` is the notice number and the public page is /Notice/<number>; the
+   * ocid identifies the WHOLE procurement, which can carry many notices across
+   * planning, tender, award and contract. Linking to /procurement/<ocid> put a
+   * reader on the process and left them to work out which notice the signal
+   * was about — a step removed from the opportunity, which was the complaint.
+   */
   const fts = sources.find((x) => x.id === "find-a-tender");
-  ok(fts.noticeUrl === TPL, "Find a Tender carries the evidenced template", fts.noticeUrl);
+  const ftsTemplates = [].concat(fts.noticeUrl);
+  ok(/\/Notice\/\{id\}$/.test(ftsTemplates[0]),
+     "Find a Tender links to the NOTICE first, by its own notice number", ftsTemplates[0]);
+  ok(/\/procurement\/\{ocid\}$/.test(ftsTemplates[1]),
+     "and falls back to the procurement page only when there is no notice number", ftsTemplates[1]);
   const cf = sources.find((x) => x.id === "contracts-finder");
   ok(!cf.noticeUrl, "Contracts Finder deliberately carries NONE — its GUID is not the ocid", cf.noticeUrl);
   ok(/GUID/.test(cf.note || ""), "and says so where the next person will read it");
@@ -1198,15 +1210,51 @@ console.log("\n=== the backfill can only mend a link, not touch anything else ==
      "it imports neither sweep nor queue, so it cannot add to the list it is mending", imports.join(", "));
   ok(!/\bsweep\(|\bqueue\(/.test(tool), "and calls neither");
 
-  // Every write must patch url and nothing else, or a status somebody set by
-  // hand gets quietly overwritten by a tool nobody thought was risky.
-  const patches = [...tool.matchAll(/update\("signals",\s*[^,]+,\s*(\{[^}]*\})/g)].map((m) => m[1]);
-  ok(patches.length >= 1, `${patches.length} update call(s) found`);
-  for (const patch of patches) {
-    const fields = [...patch.matchAll(/([A-Za-z_$][\w$]*)\s*[:,}]/g)].map((m) => m[1]);
-    ok(fields.length === 1 && fields[0] === "url",
-       "an update patches url and nothing else", patch);
+  /**
+   * MENDING ONLY THE LINK WAS USELESS, so the tool now writes the parties and
+   * the contact too — which makes the allowlist the thing that keeps it safe
+   * rather than the narrowness of the patch.
+   *
+   * Two lists, and they must not overlap. MENDABLE is what a record can say
+   * about a signal. NEVER is what a person owns, plus the three fields that
+   * decide the queue's order: re-deriving score, triggers and sectors under
+   * today's rules would reorder a list somebody is part-way through reading,
+   * and "it moved while I was working it" is a worse defect than the one being
+   * repaired.
+   */
+  const listOf = (name) => {
+    const m = new RegExp(`const ${name} = \\[([\\s\\S]*?)\\];`).exec(tool);
+    return m ? [...m[1].matchAll(/"([^"]+)"/g)].map((x) => x[1]) : null;
+  };
+  const mendable = listOf("MENDABLE"), never = listOf("NEVER");
+  ok(Array.isArray(mendable) && mendable.length, "it declares what it may write", String(mendable));
+  ok(Array.isArray(never) && never.length, "and what it must never write", String(never));
+  ok(!mendable.some((f) => never.includes(f)), "the two lists do not overlap",
+     mendable.filter((f) => never.includes(f)).join(", "));
+
+  for (const owned of ["status", "actedBy", "actedAt", "note"]) {
+    ok(never.includes(owned) && !mendable.includes(owned), `${owned} is a person's and is off limits`);
   }
+  for (const ranking of ["score", "triggers", "sectors"]) {
+    ok(never.includes(ranking) && !mendable.includes(ranking),
+       `${ranking} is left alone, so the queue does not reorder under a reader`);
+  }
+  for (const wanted of ["url", "buyer", "suppliers", "roleAddress", "contactWithheld"]) {
+    ok(mendable.includes(wanted), `${wanted} is mendable — it is what the rows were missing`);
+  }
+
+  // The patch is built by walking MENDABLE, so a field outside it cannot be
+  // written even by accident, and the tool refuses at runtime if one is.
+  ok(/for \(const key of MENDABLE\)/.test(tool), "the patch is built from the allowlist, not assembled by hand");
+  ok(/NEVER\.includes\(f\)/.test(tool) && /REFUSING/.test(tool),
+     "and it checks what it actually wrote, refusing rather than reporting success");
+
+  // A thin read must never blank a field that already holds something.
+  ok(/Never replace something with nothing/.test(tool),
+     "a row that already names a supplier cannot lose it to a thin read");
+
+  // The contact goes through the same single gate as the sweep.
+  ok(/scrub\(\{/.test(tool), "the contact passes through scrub(), so no personal address arrives by this route");
 
   // Dry run is the default. Writing to the live queue takes a deliberate flag.
   ok(/const WRITE = process\.argv\.includes\("--write"\)/.test(tool), "it writes only when told to");
@@ -1220,10 +1268,12 @@ console.log("\n=== the backfill can only mend a link, not touch anything else ==
      "with the source's own template and fallback — the same code path as the sweep, not a second copy of the rule",
      extractCall[0]);
 
-  // And a row is only a candidate when it does NOT already point at a notice,
-  // which is what makes running it twice harmless.
-  ok(/!String\(sig\.url \|\| ""\)\.startsWith\(prefix\)/.test(tool),
-     "a signal already pointing at a notice is skipped, so a second run is a no-op");
+  // A row is a candidate only while something is missing, and a patch with no
+  // changes in it is not written — which is what makes a second run a no-op.
+  ok(/linkedProperly\(sig, src\) \|\| !hasParties\(sig\)/.test(tool),
+     "a row is looked at only while its link or its parties are missing");
+  ok(/if \(!Object\.keys\(patch\)\.length\)/.test(tool),
+     "and an unchanged row is skipped rather than rewritten, so a second run is a no-op");
 }
 
 fs.rmSync(scratch, { recursive: true, force: true });

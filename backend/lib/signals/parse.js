@@ -911,6 +911,30 @@ function fromTemplate(template, r, tender) {
   return missing ? null : url;
 }
 
+/**
+ * THE NOTICE FIRST, THE PROCUREMENT PAGE ONLY IF THERE IS NO NOTICE.
+ *
+ * A correction, and the distinction matters more than it looks. In a Find a
+ * Tender release the `id` is THE NOTICE NUMBER — 065943-2025 — and the ocid
+ * identifies the WHOLE PROCUREMENT, which can carry many notices across
+ * planning, tender, award and contract. Linking to /procurement/<ocid> landed
+ * a reader on the process and left them to find which of its notices the
+ * signal was actually about. That is a step removed from the opportunity, and
+ * "a step removed" is the entire complaint this was meant to answer.
+ *
+ * So a source may give an ordered list of templates. The first whose fields
+ * the record actually carries wins; the rest are fallbacks. The ocid is also
+ * the less stable of the two — Find a Tender states that a procurement's ocid
+ * can be replaced — which is a second reason to prefer the notice number.
+ */
+function bestTemplate(templates, r, tender) {
+  for (const t of [].concat(templates || [])) {
+    const url = fromTemplate(t, r, tender);
+    if (url) return url;
+  }
+  return null;
+}
+
 export function extractJson(body, baseUrl, { noticeUrl = null, siteUrl = null } = {}) {
   let doc;
   try { doc = JSON.parse(body); } catch { return null; }
@@ -969,7 +993,7 @@ export function extractJson(body, baseUrl, { noticeUrl = null, siteUrl = null } 
       if (typeof cand === "string" && cand) { url = cand; break; }
     }
     // A template the source gives us, filled from the record's identifier.
-    if (!url && noticeUrl) url = fromTemplate(noticeUrl, r, tender) || "";
+    if (!url && noticeUrl) url = bestTemplate(noticeUrl, r, tender) || "";
     // Last resort: the human search page, never the API endpoint we just read.
     if (!url) url = siteUrl || "";
     try { url = new URL(url || baseUrl, baseUrl).toString(); } catch { url = siteUrl || baseUrl; }
