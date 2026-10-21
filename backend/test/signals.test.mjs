@@ -526,7 +526,8 @@ console.log("\n=== a windowed API needs today's date, and the file must not need
   // The sweep must request the RESOLVED url. Requesting the template would
   // 400 every time and read on screen as a dead source.
   const sweepSrc = fs.readFileSync(path.join(root, "backend", "lib", "signals", "index.js"), "utf8");
-  ok(/politeFetch\(resolveUrl\(/.test(sweepSrc), "the sweep fetches the resolved url, not the template");
+  ok(/const first = resolveUrl\(src\.url\)/.test(sweepSrc) && /politeFetch\(first\)/.test(sweepSrc),
+     "the sweep fetches the resolved url, not the template");
 }
 
 console.log("\n=== an opportunity that has closed is not an opportunity ===\n");
@@ -1172,10 +1173,20 @@ console.log("\n=== a head start on the contact, without going looking for one ==
 
   // The sweep still must not fetch anything but a source's own declared pages.
   const idx = fs.readFileSync(path.join(root, "backend", "lib", "signals", "index.js"), "utf8");
+  /**
+   * THE SWEEP NOW FOLLOWS PAGES, so there is a third thing it fetches — and
+   * the rule has to hold for it too. Every target must trace back to a source:
+   * its own url, the next page OF THAT RESPONSE, or its declared contact page.
+   * Never an address found inside an item, which is the harvester this was
+   * built instead of.
+   */
   const fetches = [...idx.matchAll(/politeFetch\(([^)]*)\)/g)].map((m) => m[1].trim());
-  ok(fetches.length >= 2 && fetches.every((f) => /src\.url|src\.contactPage/.test(f)),
-     "the sweep fetches only a source's own url and its declared contact page — never a company found in an item",
-     fetches.join(" | "));
+  ok(fetches.length >= 3, `${fetches.length} fetch targets`, fetches.join(" | "));
+  ok(fetches.every((f) => ["first", "next", "src.contactPage"].includes(f)),
+     "the sweep fetches only the source url, its next page, and its declared contact page", fetches.join(" | "));
+  ok(/const first = resolveUrl\(src\.url\)/.test(idx), "  and `first` is the source's own url");
+  ok(/const next = nextLink\(body, url\)/.test(idx),
+     "  and `next` comes from the response the source itself returned, never from an item");
 
   // And there is still no transport anywhere in the module.
   for (const f of ["index.js", "parse.js", "contact.js", "fetch.js"]) {
@@ -1367,6 +1378,101 @@ console.log("\n=== the junk a procurement portal publishes, and why it was getti
     const src = re.source;
     ok(src.length > 20, `an exclusion pattern is specific, not a bare word: ${src.slice(0, 44)}`);
   }
+}
+
+console.log("\n=== the opportunities a real Find a Tender page holds ===\n");
+{
+  /**
+   * TWENTY REAL NOTICES OFF ONE SEARCH PAGE, reported as "all these kinds of
+   * opportunity cannot be found in the signal but more of the useless ones
+   * are appearing". Reading them found three separate faults, and the first
+   * was the worst thing in this file.
+   *
+   * NATIONAL GRID'S SUBSTATION CONSTRUCTION MARKET SCORED ZERO. Open-ended,
+   * every English region and Wales, with site welfare facilities, fencing,
+   * site security and temporary water, drainage and electricity named in its
+   * own published scope. Right sector, work plainly in it — and no trigger
+   * fired at all, because the Procurement Act 2023 renamed the dynamic
+   * purchasing system a DYNAMIC MARKET and I had matched only the old name.
+   * The single most valuable class of entry a portal carries was invisible.
+   */
+  const PAGE = [
+    ["National Grid Substation Construction. This QUDM is for substation construction, mechanical and electrical for Lot 1: EPC Substation Construction Suppliers. AIS/GIS Substation Extensions. Provision of site welfare facilities, fencing and site security, temporary connections for water, drainage and electricity. Notice type UK13: Dynamic market intention notice. Dynamic market end date Open-ended.",
+      { trigger: "tender", sector: "grid", stage: "open", why: "an open-ended dynamic market, and it scored nothing" }],
+    ["Major Projects QUDM. National Grid UK Limited. This QUDM is for Substation Construction, Underground Cable Construction. Major AIS/GIS substation extension. Notice type UK13: Dynamic market intention notice.",
+      { trigger: "tender", sector: "grid", stage: "open", why: "the same, under Find a Tender's own abbreviation" }],
+    ["TD2340 - Framework for Highways Services. Derby City Council. Improvement, construction, specialist services, materials supply, plant hire and associated activities across the highway network and structures and drainage schemes. UK4: Tender notice.",
+      { trigger: "tender", sector: "rail", stage: "open", why: "major civils means highways, and only 'National Highways' matched" }],
+    ["Dynamic Purchasing - Construction, Civil Engineering and associated works. Orkney Islands Council. Building construction and Civil Engineering works. Works to piers and harbours.",
+      { trigger: "tender", sector: "rail", stage: "open", why: "piers and harbours are major civils and had no sector at all" }],
+    ["Supply of Substation Compound Equipment. National Grid Electricity Distribution. Supply of various lots of Substation Compound equipment across various NGED sites. UK3: Planned procurement notice.",
+      { trigger: "forward", sector: "grid", stage: "early", why: "a planned procurement notice is a forward notice and was unmatched" }],
+    ["BCU-ITT-64220 - Substation 4 Switchgear Upgrade. Betsi Cadwaladr University Health Board. LV switchgear infrastructure within Substation 4 at Wrexham. Attendance at a site visit is a mandatory requirement. UK4: Tender notice. Total value £1,140,000.",
+      { trigger: "tender", sector: "grid", stage: "open", why: "an upgrade on a live substation needs an establishment too" }],
+  ];
+
+  for (const [text, want] of PAGE) {
+    const r = S.score(text);
+    ok(r.score >= 3, `queues: ${want.why}`, `scored ${r.score} — ${text.slice(0, 60)}`);
+    ok(r.triggers.includes(want.trigger), `  trigger ${want.trigger}`, r.triggers.join(", ") || "NONE");
+    ok(r.sectors.includes(want.sector), `  sector ${want.sector}`, r.sectors.join(", ") || "none");
+    ok(S.stage(r.triggers) === want.stage, `  reads as ${want.stage}`, S.stage(r.triggers));
+    ok(S.hasWorks(text), `  and has work in it`, "hasWorks false");
+    ok(!S.notOurs(text), `  and is not excluded`, "excluded");
+  }
+
+  // The useless ones off the same page must still be refused.
+  for (const junk of [
+    "Provision of a Cemetery Site Feasibility Assessment and Wider Site Search. Peterborough City Council.",
+    "Central Forest District Planting DPS. Forestry England. Restock and Beat Up Clearfell Sites, New Planting.",
+    "The Supply of Electricity to MOD sites in Northern Ireland. Pricing model: variable price, cost-plus.",
+    "Delivery Partner Dynamic Purchasing System. Homes England. General residential led development.",
+    "High-Level Conservation Measures for Targeted Nutrient Neutrality Sites. Natural England.",
+    "Corran Ferry New Electric Vessel. Detailed design and build for one passenger and vehicle ferry.",
+  ]) {
+    const r = S.score(junk);
+    const refused = r.score < 3 || !r.sectors.length || !S.hasWorks(junk) || S.notOurs(junk);
+    ok(refused, `still refused: ${junk.slice(0, 52)}`,
+       `score ${r.score} / sector ${r.sectors.join(",") || "none"} / works ${S.hasWorks(junk)}`);
+  }
+}
+
+console.log("\n=== a market open since February cannot be found in a seven-day window ===\n");
+{
+  /**
+   * THE STRUCTURAL FAULT BEHIND THE OTHER TWO. The notice APIs are windowed
+   * queries read one response at a time, and the window was seven days. That
+   * is right for news and wrong for the entries worth most: a dynamic market
+   * is open-ended, admits members at any time, cannot cap its numbers — and
+   * may have been published in February. National Grid's was eight months old
+   * and still open. No pattern could have rescued it.
+   *
+   * So the window widens and the sweep follows the pages a source asks for.
+   */
+  ok(typeof S.nextLink === "function", "the reader can find a response's next page");
+  ok(S.nextLink(JSON.stringify({ links: { next: "/api?cursor=abc" } }), "https://x.test/api")
+       === "https://x.test/api?cursor=abc", "a relative next link is resolved against the request");
+  ok(S.nextLink(JSON.stringify({ releases: [] }), "https://x.test/api") === null, "no next link is no next page");
+  ok(S.nextLink("<rss/>", "https://x.test/api") === null, "and a feed has none either");
+
+  const idx = fs.readFileSync(path.join(root, "backend", "lib", "signals", "index.js"), "utf8");
+  ok(/Math\.min\(Number\(src\.pages\) \|\| 1, 50\)/.test(idx),
+     "a source says how deep to go, the default is one page, and it is capped");
+  ok(/await politeFetch\(next\)/.test(idx),
+     "every extra page goes through the polite fetcher — one host at a time, robots.txt obeyed");
+
+  const list = JSON.parse(fs.readFileSync(path.join(root, "content", "signals", "sources.json"), "utf8"));
+  const deep = list.find((x) => x.id === "find-a-tender-markets");
+  ok(Boolean(deep), "there is a source for the open markets, separate from the news window");
+  ok(/\{\{date:-\d{2,3}\}\}/.test(deep.url), "it looks back months, not days", deep.url);
+  ok(Number(deep.pages) > 5, "and follows enough pages to reach them", deep.pages);
+  ok(deep.requireSector === true && deep.requireWorks === true,
+     "with both gates on, so the volume costs reading time and not queue noise");
+
+  // The daily news window must stay shallow, or a sweep takes all morning.
+  const daily = list.find((x) => x.id === "find-a-tender");
+  ok(Number(daily.pages || 1) <= 3, "while the daily window stays shallow", daily.pages);
+  ok(/\{\{date:-7\}\}/.test(daily.url), "and narrow", daily.url);
 }
 
 fs.rmSync(scratch, { recursive: true, force: true });

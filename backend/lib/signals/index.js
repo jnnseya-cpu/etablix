@@ -23,13 +23,13 @@ import { politeFetch } from "./fetch.js";
 import { publishedContact, scrub, isRoleAddress } from "./contact.js";
 import { TRIGGERS, SECTORS, SECTOR_LABEL, sources, sourcesFile, seedStatus, fingerprint, score, extract, classify,
          stage, STAGE_LABEL, OPEN_TRIGGERS, CONFIRMED_TRIGGERS, namedOrgs, extractDeadline, resolveUrl,
-         WORKS, hasWorks, NOT_OURS, notOurs } from "./parse.js";
+         WORKS, hasWorks, NOT_OURS, notOurs, nextLink } from "./parse.js";
 
 // Re-exported so every caller keeps one import, and so the split between what
 // needs the database and what does not stays an implementation detail.
 export { TRIGGERS, SECTORS, SECTOR_LABEL, sources, sourcesFile, seedStatus, fingerprint, score, extract, classify,
          stage, STAGE_LABEL, OPEN_TRIGGERS, CONFIRMED_TRIGGERS, namedOrgs, extractDeadline, resolveUrl,
-         WORKS, hasWorks, NOT_OURS, notOurs };
+         WORKS, hasWorks, NOT_OURS, notOurs, nextLink };
 
 
 /**
@@ -110,19 +110,44 @@ export function queue(signal) {
  * that has moved should not stop the other nine.
  */
 export async function sweep({ minScore = 3, enrich = true } = {}) {
-  const out = { checked: 0, blocked: 0, unchanged: 0, failed: 0, queued: [], skipped: 0, expired: 0, offSector: 0, noWorks: 0, notOurs: 0 };
+  const out = { checked: 0, blocked: 0, unchanged: 0, failed: 0, queued: [], skipped: 0, expired: 0, offSector: 0, noWorks: 0, notOurs: 0, pages: 0 };
   for (const src of sources()) {
     out.checked++;
     // resolveUrl, not src.url: the procurement APIs are windowed queries and
     // several refuse a request with no window, so the source file states the
     // window as {{date:-7}} and the sweep fills in today's date.
-    const res = await politeFetch(resolveUrl(src.url));
+    const first = resolveUrl(src.url);
+    const res = await politeFetch(first);
     if (res.blocked) { out.blocked++; continue; }
     if (res.notModified) { out.unchanged++; continue; }
     if (!res.ok) { out.failed++; continue; }
 
-    for (const item of extract(res.body, resolveUrl(src.url),
-                               { noticeUrl: src.noticeUrl || null, siteUrl: src.siteUrl || null })) {
+    /**
+     * FOLLOW THE PAGES A SOURCE ASKS FOR.
+     *
+     * One response is a hundred notices and a pointer to the rest. For news
+     * that is plenty; for a notice API it is not, because the entries worth
+     * most are the open-ended dynamic markets, and those are old. A source
+     * says how deep to go and the default stays one, so nothing that does not
+     * ask for this behaves any differently.
+     */
+    const opts = { noticeUrl: src.noticeUrl || null, siteUrl: src.siteUrl || null };
+    const items = extract(res.body, first, opts);
+    let pages = 1, url = first, body = res.body;
+    const wanted = Math.max(1, Math.min(Number(src.pages) || 1, 50));
+    while (pages < wanted) {
+      const next = nextLink(body, url);
+      if (!next) break;
+      const more = await politeFetch(next);
+      if (!more.ok || !more.body) break;
+      const batch = extract(more.body, next, opts);
+      if (!batch.length) break;
+      items.push(...batch);
+      url = next; body = more.body; pages++;
+    }
+    out.pages = (out.pages || 0) + pages;
+
+    for (const item of items) {
       const text = `${item.title} ${item.summary}`;
       const { triggers, sectors, score: n } = score(text);
       if (n < minScore) continue;

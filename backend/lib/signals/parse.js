@@ -209,7 +209,24 @@ export const TRIGGERS = [
       /\b(invitation to tender|\bITT\b|invitation to negotiate|request for (quotation|proposal)|\bRFQ\b|\bRFP\b)\b/i,
       /\b(expressions? of interest|\bEOI\b|pre[- ]?qualification|\bPQQ\b|selection questionnaire|\bSQ\b)\b/i,
       /\b(closing date|deadline for (receipt|submission|tenders|participation|requests)|tenders? (are )?invited|bids? (are )?invited|seeking (a )?(contractor|supplier|provider))\b/i,
-      /\b(dynamic purchasing system|\bDPS\b|framework (agreement|opportunity)|call[- ]off)\b/i,
+      /\b(dynamic purchasing( system)?|\bDPS\b|framework (agreement|opportunity)|call[- ]off)\b/i,
+      /**
+       * THE SINGLE MOST VALUABLE THING ON A PORTAL, AND IT SCORED ZERO.
+       *
+       * The Procurement Act 2023 renamed the dynamic purchasing system a
+       * DYNAMIC MARKET, and I matched only the old name. National Grid's
+       * substation construction market — open-ended, every English region and
+       * Wales, site welfare facilities and security named in its own scope —
+       * fired no trigger at all. Right sector, work plainly in it, and nothing
+       * said an opportunity existed, so it never reached the queue.
+       *
+       * These are the best entries a portal has: open-ended, no deadline to
+       * miss, admission at any time and no cap on members. QUDM is Find a
+       * Tender's own abbreviation for the utilities version and appears in the
+       * body text of every one of them.
+       */
+      /\b(dynamic market|\bQUDM\b|qualification system|market intention notice)\b/i,
+      /\b(apply to join|admission to the (market|system)|open to new (suppliers|members|entrants))\b/i,
       /\bopen (to|for) (tender|bid)/i,
       // "RACE STARTS FOR £800m south Wales civils framework" — a framework
       // coming to market, which is the earliest point at which we can bid,
@@ -236,7 +253,7 @@ export const TRIGGERS = [
    */
   { id: "forward", label: "Announced for later — a forward notice", weight: 2,
     patterns: [
-      /\b(advance[d]?|forward|early)\s+procurement\s+notice\b/i,
+      /\b(advance[d]?|forward|early|planned|preliminary)\s+procurement\s+notice\b/i,
       /\bprior information notice\b/i,
       /\bnotice of (intent|future|upcoming)\b/i,
       /\b(procurement|tender|notice|competition)\b[^.]{0,50}\b(expected to be (posted|published|issued)|will be (posted|published|issued)|anticipated|forthcoming|in the pipeline)\b/i,
@@ -355,7 +372,7 @@ export const SECTORS = [
     patterns: [/\b(data ?cent(re|er)|hyperscale|colocation|co-location|\bDC\b campus|\d+\s?MW\s+(IT|campus|facility)|server farm|cloud campus)\b/i] },
 
   { id: "rail", label: "Rail and major civils",
-    patterns: [/\b(rail|railway|network rail|HS2|station (upgrade|redevelopment)|tunnelling|tunnel boring|\bTBM\b|viaduct|highways? england|national highways|motorway|bypass|bridge replacement|(rail|train|tram|traction|engineering) depot)\b/i] },
+    patterns: [/\b(rail|railway|network rail|HS2|station (upgrade|redevelopment)|tunnelling|tunnel boring|\bTBM\b|viaduct|highways? (england|services|framework|network|maintenance|improvement)|national highways|\bhighway works\b|carriageway|motorway|bypass|bridge replacement|(rail|train|tram|traction|engineering) depot|harbour|\bpiers?\b|quay|jetty|sea ?wall|breakwater|flood defence|coastal defence)\b/i] },
 
   { id: "industrial", label: "Industrial and mining",
     // "terminal" and "camp" both had to be qualified. A card payment terminal
@@ -707,7 +724,7 @@ export const WORKS = [
   /\b(design and build|\bD&B\b|EPC (contract|contractor|works|delivery)|engineer,? procure|turnkey|balance of plant)\b/i,
 
   /\b(overhead line|\bOHL\b|cable (installation|laying|route|pulling|jointing)|trenching|ducting|horizontal directional drill)/i,
-  /\b(substation|switchgear|converter station)\b[^.]{0,40}\b(construction|civil|works|build|erection|install)/i,
+  /\b(substation|switchgear|converter station)\b[^.]{0,40}\b(construction|civil|works|build|erection|install|upgrade|replacement|refurbish|extension|rebuild)/i,
 
   // "Foundations" alone is a charity. Piling is not.
   /\b(piling|piled|bored pile|sheet pile|(pile|concrete|turbine|tower) foundations?)\b/i,
@@ -995,6 +1012,33 @@ function bestTemplate(templates, r, tender) {
   for (const t of [].concat(templates || [])) {
     const url = fromTemplate(t, r, tender);
     if (url) return url;
+  }
+  return null;
+}
+
+/**
+ * THE NEXT PAGE, AND WHY NOT HAVING IT MADE THE BEST SOURCES USELESS.
+ *
+ * The notice APIs are windowed queries read one response at a time, and the
+ * window was seven days. That is right for news and wrong for the thing worth
+ * most: a DYNAMIC MARKET is open-ended, admits members at any time and may
+ * have been published in February. National Grid's substation market was
+ * eight months old and still open — and a seven-day window could never return
+ * it, however good the patterns got.
+ *
+ * Widening the window is not enough on its own, because a response holds a
+ * hundred notices and says where the rest are. So a source may declare how
+ * many pages to follow, and the sweep follows them through the same polite
+ * fetcher: one host at a time, five seconds apart, robots.txt obeyed.
+ */
+export function nextLink(body, baseUrl) {
+  let doc;
+  try { doc = JSON.parse(body); } catch { return null; }
+  for (const cand of [doc && doc.links && doc.links.next, doc && doc.next, doc && doc.nextPage,
+                      doc && doc._links && doc._links.next && doc._links.next.href]) {
+    if (typeof cand === "string" && cand.trim()) {
+      try { return new URL(cand, baseUrl).toString(); } catch { return null; }
+    }
   }
   return null;
 }
