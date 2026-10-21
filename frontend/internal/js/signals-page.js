@@ -54,6 +54,27 @@ const countdown = (at) => {
 // own scope, which worked only because a signal with no sectors never entered
 // the loop that touched them — the first signal carrying a sector would have
 // thrown a ReferenceError and emptied the page.
+/**
+ * A HEAD START ON FINDING THE CONTACT, WITHOUT THE WATCHER GOING LOOKING.
+ *
+ * The line this must not cross is still the line: nothing here crawls a
+ * company's website hunting for addresses, and nothing stores a person's. What
+ * it does is build a link out of a name we already hold, to the public
+ * statutory register, so the reader can do in one click what they would
+ * otherwise do by typing the name into a search box.
+ *
+ * It is a SEARCH link, not a record: the name came off a notice and may not
+ * match a registered name exactly.
+ */
+const lookup = (name) =>
+  `https://find-and-update.company-information.service.gov.uk/search?q=${encodeURIComponent(name)}`;
+
+const party = (label, name, note) => name
+  ? `<span class="pty"><b>${esc(label)}</b> ${esc(name)}
+       <a href="${esc(lookup(name))}" target="_blank" rel="noopener noreferrer" title="Look up on Companies House">↗</a>${
+       note ? `<i>${esc(note)}</i>` : ""}</span>`
+  : "";
+
 function card(s, labels, sectorLabels, stageLabels) {
   const hot = s.score >= 6, cool = s.status === "dismissed" || s.status === "approached";
   const due = s.deadlineAt ? countdown(s.deadlineAt) : null;
@@ -70,8 +91,15 @@ function card(s, labels, sectorLabels, stageLabels) {
     ${due ? `<p class="due ${due.late ? "due-late" : due.soon ? "due-soon" : ""}">
       ${s.deadlineKind === "event" ? "Event" : "Closes"} ${esc(due.text)} — ${esc(s.deadlineText || "")}${due.late ? ". Too late to answer this one." : ""}</p>` : ""}
     <div>${(s.sectors || []).map((x) => `<span class="sect">${esc(sectorLabels[x] || x)}</span>`).join("")}${(s.triggers || []).map((t) => `<span class="trig">${esc(labels[t] || t)}</span>`).join("")}</div>
-    ${(s.orgs || []).length ? `<p class="orgs"><b>Named in the item:</b> ${(s.orgs || []).map((o) => esc(o)).join(" · ")}
-      <span class="muted">— read as a hint, not a fact. On an award it is usually the contractor, who is the one who needs the compound; check the announcement before you write to anyone.</span></p>` : ""}
+    ${(s.buyer || (s.suppliers || []).length) ? `<p class="parties">
+      ${(s.suppliers || []).map((n) => party("Won by", n, "— the one who needs the compound")).join("")}
+      ${party("Let by", s.buyer, "— the client, not the winner")}
+    </p>` : ""}
+    ${(s.orgs || []).length && !s.buyer && !(s.suppliers || []).length
+      ? `<p class="orgs"><b>Named in the item:</b> ${(s.orgs || []).map((o) =>
+          `<a href="${esc(lookup(o))}" target="_blank" rel="noopener noreferrer">${esc(o)}</a>`).join(" · ")}
+        <span class="muted">— read as a hint, not a fact. On an award it is usually the contractor, who is the one who needs the compound; check the announcement before you write to anyone.</span></p>`
+      : ""}
     ${s.summary ? `<p class="summary">${esc(s.summary.slice(0, 420))}</p>` : ""}
     ${s.roleAddress ? `<p class="addr"><b>${esc(s.roleAddress)}</b>${s.contactOrg
         ? ` — ${esc(s.contactOrg)}${s.contactRole === "supplier" ? " (the supplier)" : s.contactRole === "buyer" ? " (the client who let it, NOT the winner)" : ""}`

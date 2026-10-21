@@ -223,6 +223,10 @@ export async function sweep({ minScore = 3, enrich = true } = {}) {
         contactOrg: item.contactOrg || null,
         contactRole: item.contactRole || null,
         contactWithheld,
+        // Who let it and who won it, kept apart. On an award the supplier is
+        // the one who needs a compound; the buyer is the one who paid for it.
+        buyer: item.buyer || null,
+        suppliers: item.suppliers || [],
       });
       if (result.queued) out.queued.push(result.signal);
       else out.skipped++;

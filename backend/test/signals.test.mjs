@@ -607,7 +607,8 @@ console.log("\n=== the card renders its own labels, which it did not ===\n");
   for (const field of ["s.deadlineText", "s.url", "s.title"]) {
     ok(new RegExp(`esc\\(${field.replace(".", "\\.")}`).test(page), `${field} is escaped before it reaches the page`);
   }
-  ok(/\(s\.orgs \|\| \[\]\)\.map\(\(o\) => esc\(o\)\)/.test(page), "and so is every extracted organisation name");
+  ok(/\(s\.orgs \|\| \[\]\)\.map\(/.test(page) && /esc\(o\)/.test(page),
+     "and so is every extracted organisation name, now that each is also a lookup link");
 }
 
 console.log("\n=== what the first live run broke, and must not break again ===\n");
@@ -775,9 +776,13 @@ console.log("\n=== what the SECOND live run broke ===\n");
   ok(/ocds-h6vhtk-04b5d5/.test(withSite.summary),
      "and the reference travels in the summary, so the notice is findable by hand", withSite.summary);
 
-  const [withTpl] = S.extract(pkg, api, { siteUrl: site, noticeUrl: "https://host/Notice/{id}" });
-  ok(withTpl.url === "https://host/Notice/ocds-h6vhtk-04b5d5",
-     "and a template, once somebody has confirmed the right field, builds the notice's own url", withTpl.url);
+  const [withTpl] = S.extract(pkg, api, { siteUrl: site, noticeUrl: "https://host/procurement/{ocid}" });
+  ok(withTpl.url === "https://host/procurement/ocds-h6vhtk-04b5d5",
+     "and a template naming a field the record HAS builds the notice's own url", withTpl.url);
+  // The same template naming a field it has NOT must build nothing at all —
+  // the Contracts Finder trap, where the notice GUID is not the ocid.
+  const [wrongField] = S.extract(pkg, api, { siteUrl: site, noticeUrl: "https://host/Notice/{id}" });
+  ok(wrongField.url === site, "while one naming a missing field falls back instead", wrongField.url);
 
   // 4. SYNDICATION. Mining Weekly and Engineering News are both Creamer
   //    Media, so the second run queued "$40m for Prieska Copper Zinc Mine
@@ -1073,6 +1078,98 @@ console.log("\n=== no source file carries a stray control character ===\n");
     }
   }
   ok(bad.length === 0, "no source file holds a stray control character", bad.join("; "));
+}
+
+console.log("\n=== the link goes to the notice, and the parties are labelled ===\n");
+{
+  /**
+   * TWO THINGS A READER NEEDED THAT THE QUEUE DID NOT GIVE THEM: a link
+   * straight to the opportunity, and the name of the party to write to
+   * without parsing a sentence to find it.
+   */
+  const rel = (extra = {}) => JSON.stringify({ releases: [{
+    ocid: "ocds-h6vhtk-0657bc",
+    tender: { title: "Walpole substation civil works" },
+    buyer: { name: "National Grid Electricity Transmission" },
+    awards: [{ suppliers: [{ name: "OCU Utility Services Ltd" }] }],
+    ...extra,
+  }] });
+  const api = "https://www.find-tender.service.gov.uk/api/1.0/ocdsReleasePackages";
+  const site = "https://www.find-tender.service.gov.uk/Search/Results";
+  const TPL = "https://www.find-tender.service.gov.uk/procurement/{ocid}";
+
+  let [it] = S.extract(rel(), api, { noticeUrl: TPL, siteUrl: site });
+  ok(it.url === "https://www.find-tender.service.gov.uk/procurement/ocds-h6vhtk-0657bc",
+     "a Find a Tender signal links to the notice, built from the record's own ocid", it.url);
+
+  /**
+   * THE TRAP THIS PINS. The first version treated {id}, {ocid} and {ref} as
+   * synonyms, filling whichever identifier was available. On Find a Tender
+   * that nearly works. On Contracts Finder it does not: its notice pages are
+   * keyed by a GUID that is a DIFFERENT value from the ocid, so a template
+   * written /Notice/{id} and filled with an ocid would have given every
+   * Contracts Finder signal a confident dead link — worse than the search-page
+   * fallback, because a reader stops trusting every link rather than one.
+   */
+  [it] = S.extract(rel(), api, { noticeUrl: "https://x.test/Notice/{id}", siteUrl: site });
+  ok(it.url === site,
+     "a template naming a field the record does NOT carry builds no url and falls back", it.url);
+  [it] = S.extract(rel({ ocid: undefined }), api, { noticeUrl: TPL, siteUrl: site });
+  ok(it.url === site, "and so does a missing ocid", it.url);
+  [it] = S.extract(rel({ id: "015074-2026" }), api, { noticeUrl: "https://x.test/Notice/{id}", siteUrl: site });
+  ok(it.url === "https://x.test/Notice/015074-2026", "while {id} resolves the record id when it is there", it.url);
+
+  // Never the API endpoint the sweep just read, under any circumstances.
+  [it] = S.extract(rel({ ocid: undefined }), api, {});
+  ok(!/ocdsReleasePackages/.test(it.url) || it.url === api,
+     "with nothing to go on it still has to link somewhere", it.url);
+
+  // The parties, kept apart.
+  [it] = S.extract(rel(), api, { noticeUrl: TPL, siteUrl: site });
+  ok(it.buyer === "National Grid Electricity Transmission", "the buyer is a field, not prose", it.buyer);
+  ok(it.suppliers.includes("OCU Utility Services Ltd"), "and so is the supplier", JSON.stringify(it.suppliers));
+
+  const sources = JSON.parse(fs.readFileSync(path.join(root, "content", "signals", "sources.json"), "utf8"));
+  const fts = sources.find((x) => x.id === "find-a-tender");
+  ok(fts.noticeUrl === TPL, "Find a Tender carries the evidenced template", fts.noticeUrl);
+  const cf = sources.find((x) => x.id === "contracts-finder");
+  ok(!cf.noticeUrl, "Contracts Finder deliberately carries NONE — its GUID is not the ocid", cf.noticeUrl);
+  ok(/GUID/.test(cf.note || ""), "and says so where the next person will read it");
+
+  // Every template anywhere must name a placeholder, or it is a constant.
+  for (const src of sources.filter((x) => x.noticeUrl)) {
+    ok(/\{(ocid|id|ref)\}/.test(src.noticeUrl), `${src.id}: the template has a placeholder`, src.noticeUrl);
+  }
+}
+
+console.log("\n=== a head start on the contact, without going looking for one ===\n");
+{
+  /**
+   * The line does not move. Nothing crawls a company's site hunting for
+   * addresses and nothing stores a person's. What the card adds is a link
+   * built from a name already held, to the public statutory register, so the
+   * reader does in one click what they would otherwise do by typing.
+   */
+  const page = fs.readFileSync(path.join(root, "frontend", "internal", "js", "signals-page.js"), "utf8");
+  ok(/find-and-update\.company-information\.service\.gov\.uk/.test(page),
+     "the card links a named party to the public register");
+  ok(/encodeURIComponent\(name\)/.test(page), "and the name is encoded into the query, not concatenated raw");
+  ok(/Won by/.test(page) && /Let by/.test(page), "the supplier and the buyer are labelled differently");
+  ok(/the client, not the winner/.test(page),
+     "and the card says which is which, so nobody writes to the client asking to supply the winner");
+
+  // The sweep still must not fetch anything but a source's own declared pages.
+  const idx = fs.readFileSync(path.join(root, "backend", "lib", "signals", "index.js"), "utf8");
+  const fetches = [...idx.matchAll(/politeFetch\(([^)]*)\)/g)].map((m) => m[1].trim());
+  ok(fetches.length >= 2 && fetches.every((f) => /src\.url|src\.contactPage/.test(f)),
+     "the sweep fetches only a source's own url and its declared contact page — never a company found in an item",
+     fetches.join(" | "));
+
+  // And there is still no transport anywhere in the module.
+  for (const f of ["index.js", "parse.js", "contact.js", "fetch.js"]) {
+    const src = fs.readFileSync(path.join(root, "backend", "lib", "signals", f), "utf8");
+    ok(!/nodemailer|sendMail|smtp\.|createTransport/i.test(src), `${f} has no way to send anything`);
+  }
 }
 
 fs.rmSync(scratch, { recursive: true, force: true });

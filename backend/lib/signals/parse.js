@@ -872,12 +872,44 @@ const contactFrom = (r, tender) => {
   };
 };
 
+const clean = (v) => (v === undefined || v === null || !String(v).trim() ? null : String(v).trim());
+
 const noticeId = (r, tender) => {
   for (const c of [r.ocid, r.id, tender.id, r.noticeId, r.publicatieId, r.releaseId]) {
-    if (c !== undefined && c !== null && String(c).trim()) return String(c).trim();
+    const v = clean(c);
+    if (v) return v;
   }
   return null;
 };
+
+/**
+ * A TEMPLATE RESOLVES THE FIELD IT NAMES, AND REFUSES IF THAT FIELD IS ABSENT.
+ *
+ * THE TRAP THIS AVOIDS. The first version replaced {id}, {ocid} and {ref} with
+ * whatever identifier happened to be available, treating them as synonyms. On
+ * Find a Tender they very nearly are. On Contracts Finder they are NOT: the
+ * notice page is keyed by a GUID which is a different value from the ocid, so
+ * a template written as /Notice/{id} and filled with an ocid would have given
+ * every single Contracts Finder signal a confident dead link — worse than the
+ * search-page fallback it replaced, because a reader would stop trusting the
+ * links rather than the one link.
+ *
+ * So {ocid} means the ocid and nothing else, {id} means the record id, and a
+ * template naming a field the record does not carry builds no URL at all.
+ */
+function fromTemplate(template, r, tender) {
+  const values = {
+    ocid: clean(r.ocid),
+    id: clean(r.id) || clean(tender.id) || clean(r.noticeId),
+    ref: noticeId(r, tender),
+  };
+  let missing = false;
+  const url = String(template).replace(/\{(ocid|id|ref)\}/g, (_, key) => {
+    if (!values[key]) { missing = true; return ""; }
+    return encodeURIComponent(values[key]);
+  });
+  return missing ? null : url;
+}
 
 export function extractJson(body, baseUrl, { noticeUrl = null, siteUrl = null } = {}) {
   let doc;
@@ -937,7 +969,7 @@ export function extractJson(body, baseUrl, { noticeUrl = null, siteUrl = null } 
       if (typeof cand === "string" && cand) { url = cand; break; }
     }
     // A template the source gives us, filled from the record's identifier.
-    if (!url && noticeUrl && ref) url = noticeUrl.replace(/\{(id|ocid|ref)\}/g, encodeURIComponent(ref));
+    if (!url && noticeUrl) url = fromTemplate(noticeUrl, r, tender) || "";
     // Last resort: the human search page, never the API endpoint we just read.
     if (!url) url = siteUrl || "";
     try { url = new URL(url || baseUrl, baseUrl).toString(); } catch { url = siteUrl || baseUrl; }
@@ -960,8 +992,27 @@ export function extractJson(body, baseUrl, { noticeUrl = null, siteUrl = null } 
 
     const contact = contactFrom(r, tender);
 
+    /**
+     * WHO LET IT AND WHO WON IT, AS SEPARATE FIELDS.
+     *
+     * Both were already in the summary as prose, which is readable and
+     * useless: a person had to parse a sentence to answer the only question
+     * that decides whether a signal is worth an hour — who do I write to. On
+     * an award the supplier needs the compound and the buyer let the work,
+     * and the card has to be able to label them differently.
+     */
+    const suppliers = [];
+    for (const a of (Array.isArray(r.awards) ? r.awards : [])) {
+      for (const sup of (Array.isArray(a.suppliers) ? a.suppliers : [])) {
+        const n = strip(sup && sup.name);
+        if (n && !suppliers.includes(n)) suppliers.push(n);
+      }
+    }
+
     items.push({
       title, url, orgs: orgs.slice(0, 6),
+      buyer: buyer || null,
+      suppliers: suppliers.slice(0, 6),
       ...contact,
       summary: parts.join(" "),
       publishedAt: Date.parse(r.date || r.publishedDate || r.publicatieDatum || tender.datePublished || "") || null,
