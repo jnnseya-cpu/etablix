@@ -226,7 +226,7 @@ console.log("\n=== all six sectors, not one ===\n");
     rail: ["Network Rail awards £125m framework", "Tunnelling contractor named for the viaduct"],
     industrial: ["Mining group approves new worker village", "Smelter expansion contract awarded",
                  "Refinery turnaround contractor appointed"],
-    epc: ["EPC contractor named for the plant", "Developer reaches financial close", "Shutdown contractor appointed"],
+    epc: ["EPC contractor named for the plant", "Energy developer reaches financial close", "Shutdown contractor appointed"],
   };
   for (const [sector, headlines] of Object.entries(CASES)) {
     for (const h of headlines) {
@@ -1274,6 +1274,99 @@ console.log("\n=== the backfill can only mend a link, not touch anything else ==
      "a row is looked at only while its link or its parties are missing");
   ok(/if \(!Object\.keys\(patch\)\.length\)/.test(tool),
      "and an unchanged row is skipped rather than rewritten, so a second run is a no-op");
+}
+
+console.log("\n=== the junk a procurement portal publishes, and why it was getting in ===\n");
+{
+  /**
+   * REPORTED FROM THE QUEUE: "we don't need a travel and accommodation booking
+   * to be in the list". That one example exposed two lazy patterns of mine and
+   * a whole class of false positive behind them.
+   *
+   * The chain was: "airport TERMINAL" matched the industrial sector, because
+   * the sector pattern held a bare "terminal" that a card payment terminal
+   * and an airport terminal both satisfy. Then bare "ACCOMMODATION" passed the
+   * works gate, because the gate did not ask whose accommodation or where.
+   * A staff travel contract therefore read as a worker village on an
+   * industrial site, and on a real notice the OCDS summary adds "Contract
+   * awarded to X", which fires the award trigger — so it scored six and
+   * queued.
+   *
+   * The sector gate asks whether it is our industry. The works gate asks
+   * whether there is anything to build. Neither asked what was being BOUGHT,
+   * which on a portal is the question that matters.
+   */
+  const JUNK = [
+    "Travel and Accommodation Booking Services including airport terminal transfers",
+    "Provision of Agency Staff and Recruitment Services",
+    "Energy Performance Certificates (EPC) for the council housing stock",
+    "Software Developer Licences and IT Support Services",
+    "Commissioning of Adult Social Care Services",
+    "Supply and installation of desktop computers",
+    "Legal Services Framework - contract extension",
+    "Summer camp activity provision for young people",
+    "Planned maintenance of card payment terminals",
+    "Mental health and safeguarding services for children",
+    "Marketing services framework for the visitor economy",
+    "Hotel booking and vehicle hire management services",
+  ];
+  for (const t of JUNK) {
+    // A portal item needs BOTH a sector and something to build. Failing either
+    // is enough, and most of these now fail both.
+    const refused = !S.classify(t).length || !S.hasWorks(t) || S.notOurs(t);
+    ok(refused, `refused: ${t.slice(0, 58)}`,
+       `sector ${S.classify(t).join(",") || "none"} / works ${S.hasWorks(t)} / notOurs ${S.notOurs(t)}`);
+  }
+
+  /**
+   * AND THE OTHER DIRECTION, WHICH MATTERS MORE. Tightening a pattern to kill
+   * noise is easy; the danger is killing the signal with it. Every one of
+   * these is work this business exists to do and must survive untouched.
+   */
+  const REAL = [
+    ["Walpole SGT4 400kV substation civil works and temporary compound", "grid"],
+    ["Kinardochy to Errochty 400kV overhead line groundworks, worker accommodation in scope", "grid"],
+    ["Battery energy storage system balance of plant - BESS", "renewables"],
+    ["Metro extension work starts on HS2 Curzon Street Station site", "rail"],
+    ["Prieska Copper Zinc Mine development, construction camp and site establishment", "industrial"],
+    ["Port terminal expansion: piling and reinstatement works", "industrial"],
+    ["EPC contractor appointed for 250MW solar farm", "renewables"],
+    ["Hyperscale data centre: enabling works and site establishment", "datacentres"],
+    ["Rail depot redevelopment, temporary welfare units required", "rail"],
+  ];
+  for (const [t, sector] of REAL) {
+    ok(S.classify(t).includes(sector), `still ${sector}: ${t.slice(0, 50)}`, S.classify(t).join(",") || "none");
+    ok(S.hasWorks(t), `  and still has work in it`, "hasWorks false");
+    ok(!S.notOurs(t), `  and is not excluded`, "excluded");
+  }
+
+  // The exclusion list has to stay NARROW. Catering, security, waste,
+  // furniture and connectivity are all in this business's own scope on a site,
+  // so excluding them would cost real signals to save a little noise.
+  for (const inScope of [
+    "Site catering and welfare provision for the construction compound",
+    "Temporary site security and fencing for the substation works",
+    "Site waste management and skip hire for the enabling works",
+    "Modular accommodation furniture for the worker village",
+    "Temporary connectivity and power for the construction compound",
+  ]) {
+    ok(!S.notOurs(inScope), `not excluded, it is our own scope: ${inScope.slice(0, 48)}`);
+    ok(S.hasWorks(inScope), `  and reads as work`, "hasWorks false");
+  }
+
+  // Wired in everywhere, and counted rather than silently dropped.
+  const idx = fs.readFileSync(path.join(root, "backend", "lib", "signals", "index.js"), "utf8");
+  ok(/if \(notOurs\(text\)\) \{ out\.notOurs\+\+; continue; \}/.test(idx),
+     "the sweep refuses them and counts what it refused");
+  const check = fs.readFileSync(path.join(root, "backend", "tools", "signals-check.mjs"), "utf8");
+  ok(/notOurs\(text\)/.test(check), "and the check tool applies the same rule, so its count stays honest");
+
+  // Every pattern in the list must be anchored on something concrete. A bare
+  // word in an exclusion list is how a real signal disappears silently.
+  for (const re of S.NOT_OURS) {
+    const src = re.source;
+    ok(src.length > 20, `an exclusion pattern is specific, not a bare word: ${src.slice(0, 44)}`);
+  }
 }
 
 fs.rmSync(scratch, { recursive: true, force: true });

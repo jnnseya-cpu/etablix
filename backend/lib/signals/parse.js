@@ -355,13 +355,21 @@ export const SECTORS = [
     patterns: [/\b(data ?cent(re|er)|hyperscale|colocation|co-location|\bDC\b campus|\d+\s?MW\s+(IT|campus|facility)|server farm|cloud campus)\b/i] },
 
   { id: "rail", label: "Rail and major civils",
-    patterns: [/\b(rail|railway|network rail|HS2|station (upgrade|redevelopment)|tunnelling|tunnel boring|\bTBM\b|viaduct|highways? england|national highways|motorway|bypass|bridge replacement|depot)\b/i] },
+    patterns: [/\b(rail|railway|network rail|HS2|station (upgrade|redevelopment)|tunnelling|tunnel boring|\bTBM\b|viaduct|highways? england|national highways|motorway|bypass|bridge replacement|(rail|train|tram|traction|engineering) depot)\b/i] },
 
   { id: "industrial", label: "Industrial and mining",
-    patterns: [/\b(mine|mining|quarry|smelter|refinery|petrochemical|process plant|gigafactory|manufacturing (plant|facility)|steelworks|cement works|terminal|port expansion|worker (village|accommodation)|camp)\b/i] },
+    // "terminal" and "camp" both had to be qualified. A card payment terminal
+    // and an airport terminal are not port infrastructure, and a summer camp
+    // for young people is not a worker camp — between them they were the route
+    // by which a staff travel contract reached the queue.
+    patterns: [/\b(mining|quarry|smelter|refinery|petrochemical|process plant|gigafactory|manufacturing (plant|facility)|steelworks|cement works|(port|rail|freight|oil|gas|bulk|container|marine) terminal|port expansion|(worker|workers|workforce|construction|mining) (village|accommodation|camp)|\bmine\b[^.]{0,20}\b(site|shaft|development|expansion|project)\b)/i] },
 
   { id: "epc", label: "Developers and EPCs",
-    patterns: [/\b(EPC contractor|\bEPC\b|developer|independent power producer|\bIPP\b|turnaround|shutdown|outage|planned maintenance (period|shutdown))\b/i] },
+    // THE NOISIEST SECTOR IN THE FILE, and all of it from three bare words.
+    // "developer" is a software developer far more often than a scheme
+    // promoter; bare "EPC" is an Energy Performance Certificate; and an
+    // "outage" is as likely to be an IT system as a refinery.
+    patterns: [/\b(EPC (contractor|contract|works)|(property|energy|renewable|solar|wind|scheme|site|project) developer|independent power producer|\bIPP\b|turnaround|(plant|station|refinery|process|unit) (shutdown|outage)|(shutdown|outage|turnaround) (contractor|works|scope|campaign)|planned (shutdown|outage)|planned maintenance (period|shutdown))\b/i] },
 ];
 
 /** Which of ours a piece of text belongs to. None is a valid answer. */
@@ -691,22 +699,78 @@ export function resolveUrl(url) {
  */
 export const WORKS = [
   /\b(construction|constructing|civils|civil engineering|groundworks?|earthworks?|enabling works|infrastructure works|temporary works|site establishment|site set[- ]?up)\b/i,
-  /\b(design and build|\bD&B\b|\bEPC\b|engineer,? procure|turnkey|balance of plant|\bBoP\b)\b/i,
-  /\b(overhead line|\bOHL\b|cable (installation|laying|route|pulling|jointing)|trenching|ducting|hdd|horizontal directional drill)/i,
-  /\b(substation|switchgear installation|converter station)\b[^.]{0,40}\b(construction|civil|works|build|erection|install)/i,
-  /\b(piling|foundations?|reinstatement|demolition|dismantl\w+|decommissioning works|tunnel\w*|shaft sinking|access (road|track)|haul road)\b/i,
-  /\b(erection|installation|commissioning|mobilis\w+|refurbishment works|upgrade works|replacement works|remediation|earthmoving)\b/i,
-  // compoundS. The plural bug, for the third time in this file — "temporary
-  // compounds in scope" is the single most on-the-nose phrase there is for
-  // this business and the gate was blind to it.
-  /\b(compounds?|welfare (facilities|units)|accommodation|site cabins?|temporary (power|accommodation|fencing)|hoardings?|scaffolding erection)\b/i,
+
+  // EPC HAD TO BE QUALIFIED. Bare \bEPC\b also means Energy Performance
+  // Certificate, which every council in the country buys for its housing
+  // stock, so it was admitting a steady stream of certificates as though they
+  // were turnkey contracts.
+  /\b(design and build|\bD&B\b|EPC (contract|contractor|works|delivery)|engineer,? procure|turnkey|balance of plant)\b/i,
+
+  /\b(overhead line|\bOHL\b|cable (installation|laying|route|pulling|jointing)|trenching|ducting|horizontal directional drill)/i,
+  /\b(substation|switchgear|converter station)\b[^.]{0,40}\b(construction|civil|works|build|erection|install)/i,
+
+  // "Foundations" alone is a charity. Piling is not.
+  /\b(piling|piled|bored pile|sheet pile|(pile|concrete|turbine|tower) foundations?)\b/i,
+  /\b(reinstatement|demolition|dismantl\w+|decommissioning works|tunnel\w*|shaft sinking|access (road|track)|haul road)\b/i,
+
+  // INSTALLATION AND COMMISSIONING BOTH NEEDED A NOUN. "Supply and
+  // installation of desktop computers" is not site work, and in the public
+  // sector "commissioning" overwhelmingly means buying a service — adult
+  // social care, mental health, children's services — not energising plant.
+  /\b(erection|earthmoving|mobilis(ation|ing)\b|remediation works|refurbishment works|upgrade works|replacement works)\b/i,
+  /\b(plant|equipment|substation|switchgear|turbine|module|cable|mechanical|electrical|M&E) (installation|commissioning)\b/i,
+  /\b(pre|cold|hot)[- ]?commissioning\b/i,
+
+  // ACCOMMODATION NEEDED A SITE IN FRONT OF IT. Bare "accommodation" is how
+  // "travel and accommodation booking" reached the queue — a staff travel
+  // contract read as a worker village. What this business does is the
+  // temporary estate on a construction site, so the word only counts when
+  // something says that is what it is.
+  /\b(worker|workers|workforce|site|temporary|construction|operatives?|contractors?)[- ]?(accommodation|village|camp|lodge|housing|cabins?)\b/i,
+  /\baccommodation (village|camp|units?|blocks?|modules?|compound)\b/i,
+  /\b(compounds?|welfare (facilities|units|cabins?)|temporary (power|fencing|services|utilities)|hoardings?|scaffolding erection)\b/i,
+
   /\b(main works|principal contractor|works packages?|build contract|construction contract|framework for (construction|civils|works))\b/i,
-  // "Metro extension WORK STARTS on the Curzon Street site". The mobilise
-  // trigger caught this and the gate did not, so a live site with a workforce
-  // on it would have been refused by the very check meant to find one.
   /\b(work|works|construction|building|site works)\s+(starts?|started|begins?|began|commenc\w+|under ?way)\b/i,
-  /\b(extension|redevelopment|widening|electrification|dualling|realignment|diversion|new build|newbuild)\b/i,
+
+  // "Extension" alone is a CONTRACT extension far more often than a railway
+  // one, and a contract extension is paperwork, not a site.
+  /\b(metro|rail|railway|line|runway|platform|network|route|tunnel|building|station|pier|quay) extension\b/i,
+  /\b(redevelopment|widening|electrification|dualling|realignment|new build|newbuild)\b/i,
 ];
+
+/**
+ * WHAT THIS BUSINESS WILL NEVER DO, SAID OUT LOUD.
+ *
+ * WHY A LIST LIKE THIS IS NEEDED AT ALL. The sector gate asks "is this our
+ * industry" and the works gate asks "is there anything to build". Both are
+ * about the SCHEME. Neither asks what is actually being bought, and on a
+ * procurement portal that is the question that matters: a council buying
+ * agency staff, laptops, legal advice or school meals will never be a
+ * customer for a site compound, however the words land.
+ *
+ * Deliberately narrow, and only the unambiguous cases. Catering, security,
+ * waste, furniture and connectivity all appear in this business's own scope on
+ * a site, so none of them is listed — excluding them would cost real signals
+ * to save a little noise, which is the wrong trade. These are the categories
+ * that cannot be ours under any reading.
+ */
+export const NOT_OURS = [
+  /\b(travel|flight|hotel|taxi|car hire|vehicle hire|fleet) (booking|management|services?|arrangements?)\b/i,
+  /\b(accommodation|travel) booking\b/i,
+  /\b(recruitment|agency (staff|workers)|temporary staffing|payroll|\bHR\b|human resources) (services?|framework|agency|supply)\b/i,
+  /\b(software|licences?|licensing|laptops?|desktops?|servers? (supply|refresh)|\bIT\b (support|services?|equipment)|telephony|broadband|helpdesk)\b/i,
+  /\b(legal|insurance broking|audit|accountancy|actuarial|banking|treasury) services\b/i,
+  /\b(medical|clinical|healthcare|pharmaceutical|dental|ambulance|patient|prosthetic|therapy) (services?|supplies|equipment|devices?)\b/i,
+  /\b(social care|adult care|children'?s services|mental health|safeguarding|fostering)\b/i,
+  /\b(training|e[- ]?learning|teaching|tuition|curriculum|apprenticeship delivery) (services?|provision|framework|programme)\b/i,
+  /\b(stationery|printing and publishing|photocopi|postal services)\b/i,
+  /\b(marketing|advertising|public relations|translation|interpreting) services\b/i,
+  /\benergy performance certificate/i,
+];
+
+/** Something this business cannot sell to, whatever else the words suggest. */
+export const notOurs = (text) => NOT_OURS.some((p) => p.test(text));
 
 /** Does the text show a site with something being built, moved or taken down? */
 export const hasWorks = (text) => WORKS.some((p) => p.test(text));

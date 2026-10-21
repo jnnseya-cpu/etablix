@@ -21,7 +21,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 // From parse.js, NOT index.js: the queue needs the database and this does not.
-import { extract, score, sourcesFile, seedStatus, resolveUrl, stage, namedOrgs, extractDeadline, hasWorks } from "../lib/signals/parse.js";
+import { extract, score, sourcesFile, seedStatus, resolveUrl, stage, namedOrgs, extractDeadline, hasWorks, notOurs } from "../lib/signals/parse.js";
 import { politeFetch } from "../lib/signals/fetch.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -304,6 +304,7 @@ for (const s of list) {
     const text = `${i.title} ${i.summary}`;
     const r = score(text);
     if (r.score < 3) return null;
+    if (notOurs(text)) return { drop: "a category we could never sell to" };
     if (s.requireSector && !r.sectors.length && !s.sector) return { drop: "outside our sectors" };
     if (s.requireWorks && !hasWorks(text)) return { drop: "nothing to build in it" };
     const d = extractDeadline(text);

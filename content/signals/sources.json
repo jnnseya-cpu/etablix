@@ -20,7 +20,7 @@
     },
     "_why_procurement_portals": "THE HOLE THIS FILE HAD UNTIL 19 OCT 2026. Every source was trade press — somebody writing about a decision after it was taken. The decisions themselves are published in full, with the winner named, the value stated and the dates given, on the procurement portals. A watcher reading only the commentary is always a week behind the record and never sees the notices the press does not cover, which is most of them. The portals below are therefore the most valuable entries here, and the hardest to get right: several are windowed JSON APIs rather than feeds, and TED's search is POST-only, which a GET watcher cannot read at all. Each says honestly what is known and what still has to be checked.",
     "_checked": "Checked against the live server on 19 October 2026. 11 sources enabled. Find a Tender and Contracts Finder both answered as OCDS JSON and are the first notice sources we have ever had. Still to resolve: Sell2Wales and Public Contracts Scotland (both matter), TenderNed (recheck — our accept header was wrong, not their API), and the two supply-chain pages, which are where a Meet the Buyer would be found.",
-    "_version": 6
+    "_version": 7
   },
   {
     "id": "ili-energy",

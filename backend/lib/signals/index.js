@@ -23,13 +23,13 @@ import { politeFetch } from "./fetch.js";
 import { publishedContact, scrub, isRoleAddress } from "./contact.js";
 import { TRIGGERS, SECTORS, SECTOR_LABEL, sources, sourcesFile, seedStatus, fingerprint, score, extract, classify,
          stage, STAGE_LABEL, OPEN_TRIGGERS, CONFIRMED_TRIGGERS, namedOrgs, extractDeadline, resolveUrl,
-         WORKS, hasWorks } from "./parse.js";
+         WORKS, hasWorks, NOT_OURS, notOurs } from "./parse.js";
 
 // Re-exported so every caller keeps one import, and so the split between what
 // needs the database and what does not stays an implementation detail.
 export { TRIGGERS, SECTORS, SECTOR_LABEL, sources, sourcesFile, seedStatus, fingerprint, score, extract, classify,
          stage, STAGE_LABEL, OPEN_TRIGGERS, CONFIRMED_TRIGGERS, namedOrgs, extractDeadline, resolveUrl,
-         WORKS, hasWorks };
+         WORKS, hasWorks, NOT_OURS, notOurs };
 
 
 /**
@@ -110,7 +110,7 @@ export function queue(signal) {
  * that has moved should not stop the other nine.
  */
 export async function sweep({ minScore = 3, enrich = true } = {}) {
-  const out = { checked: 0, blocked: 0, unchanged: 0, failed: 0, queued: [], skipped: 0, expired: 0, offSector: 0, noWorks: 0 };
+  const out = { checked: 0, blocked: 0, unchanged: 0, failed: 0, queued: [], skipped: 0, expired: 0, offSector: 0, noWorks: 0, notOurs: 0 };
   for (const src of sources()) {
     out.checked++;
     // resolveUrl, not src.url: the procurement APIs are windowed queries and
@@ -152,6 +152,22 @@ export async function sweep({ minScore = 3, enrich = true } = {}) {
        * because they carry every procurement in the country rather than a
        * trade press editor's judgement about what is construction news.
        */
+      /**
+       * AND IS IT SOMETHING WE COULD EVER SELL TO?
+       *
+       * The sector gate asks whether it is our industry and the works gate
+       * asks whether there is anything to build. Both are about the SCHEME.
+       * Neither asks what is actually being BOUGHT — and on a procurement
+       * portal that is the question that matters. A council buying agency
+       * staff, laptops or legal advice will never need a site compound,
+       * however the words happen to land.
+       *
+       * Applied to every source, not only the portals, because the list is
+       * narrow enough to be safe anywhere: a trade press piece about an IT
+       * support contract is not wanted either.
+       */
+      if (notOurs(text)) { out.notOurs++; continue; }
+
       if (src.requireSector && !sectors.length && !src.sector) { out.offSector++; continue; }
 
       /**
