@@ -76,15 +76,27 @@ const ocidIn = (text) => (/\b(ocds-[a-z0-9]+-[a-z0-9]+)\b/i.exec(String(text || 
  * template on the wrong field gives a confident dead link, which is worse than
  * the API link it would replace.
  */
-function fill(template, ref) {
-  if (!template || !ref) return null;
-  if (/\{(id|ref)\}/.test(template) && !/^ocds-/i.test(ref)) return null;  // not an ocid, not safe to assume
-  let missing = false;
-  const url = template.replace(/\{(ocid|id|ref)\}/g, (_, key) => {
-    if (key === "ocid" && !/^ocds-/i.test(ref)) { missing = true; return ""; }
-    return encodeURIComponent(ref);
-  });
-  return missing ? null : url;
+function fill(templates, ref) {
+  if (!templates || !ref) return null;
+  const isOcid = /^ocds-/i.test(ref);
+  // AN ARRAY, BECAUSE A SOURCE NOW GIVES AN ORDERED LIST. This took a string
+  // until the notice template became "notice first, procurement page second",
+  // and then threw TypeError: template.replace is not a function on the first
+  // row whose story had aged out of the feed — which is the only branch that
+  // reaches here. Everything up to that point had already been mended, so the
+  // failure looked like a crash halfway through a backfill.
+  for (const t of [].concat(templates)) {
+    const tpl = String(t);
+    // EACH PLACEHOLDER WANTS ITS OWN KIND OF IDENTIFIER, and getting this
+    // backwards is the whole defect: a {id} template filled with an ocid
+    // produces /Notice/ocds-h6vhtk-0657bc, which is a confident dead link and
+    // worse than the search-page fallback it replaced.
+    if (/\{ocid\}/.test(tpl) && !isOcid) continue;   // wants an ocid; this is not one
+    if (/\{id\}/.test(tpl) && isOcid) continue;      // wants a notice number; this is an ocid
+    const url = tpl.replace(/\{(ocid|id|ref)\}/g, () => encodeURIComponent(ref));
+    if (!/\{[a-z]+\}/i.test(url)) return url;
+  }
+  return null;
 }
 
 const all = sources();
@@ -190,6 +202,10 @@ for (const [sourceId, rows] of bySource) {
   }
 
   for (const sig of rows) {
+    // ONE BAD ROW MUST NOT END THE RUN. A backfill that stops halfway leaves
+    // the queue in two states and gives no clue which rows were reached —
+    // and this one did exactly that, on a TypeError in the fallback branch.
+    try {
     const item = live.get(norm(sig.title));
 
     if (item) {
@@ -224,6 +240,11 @@ for (const [sourceId, rows] of bySource) {
       console.log(`     no match  ${sig.title.slice(0, 54)}`);
       unresolved++;
       if (!res.ok) failedSource++;
+    }
+    } catch (err) {
+      console.log(`     ERROR     ${sig.title.slice(0, 54)}`);
+      console.log(`               ${err.message}`);
+      unresolved++;
     }
   }
   console.log("");

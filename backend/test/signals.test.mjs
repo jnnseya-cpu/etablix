@@ -1550,6 +1550,78 @@ console.log("\n=== the digest reads the registry, not a hand-written list ===\n"
      "and a date that has already gone by is called out rather than left looking live");
 }
 
+console.log("\n=== what the live run broke, third time out ===\n");
+{
+  /**
+   * THREE FAULTS OFF ONE SESSION AT THE SERVER, and the first stopped the
+   * backfill dead on its first real use.
+   *
+   * fill() took a STRING template, and the notice template had become an
+   * ORDERED LIST — notice number first, procurement page second — when the
+   * link was corrected a few hours earlier. I changed the extractor and the
+   * source file and not this. It threw on the first row whose story had aged
+   * out of the feed, which is the only branch that reaches fill(), so
+   * everything before it had already been written: a backfill that stopped
+   * halfway and gave no clue which rows it had reached.
+   */
+  const tool = fs.readFileSync(path.join(root, "backend", "tools", "signals-relink.mjs"), "utf8");
+  const body = tool.slice(tool.indexOf("function fill("), tool.indexOf("\nconst all = sources()"));
+  const fill = new Function("return " + body.slice(0, body.lastIndexOf("}") + 1).trim())();
+
+  const TPL = ["https://www.find-tender.service.gov.uk/Notice/{id}",
+               "https://www.find-tender.service.gov.uk/procurement/{ocid}"];
+
+  ok(typeof fill(TPL, "ocds-h6vhtk-0657bc") === "string",
+     "a LIST of templates no longer throws — the live crash", String(fill(TPL, "ocds-h6vhtk-0657bc")));
+
+  /**
+   * AND EACH PLACEHOLDER WANTS ITS OWN KIND OF IDENTIFIER. The first repair
+   * filled {id} with an ocid, producing /Notice/ocds-h6vhtk-0657bc — a
+   * confident dead link, and worse than the search-page fallback it replaced,
+   * because a reader stops trusting every link rather than one.
+   */
+  ok(fill(TPL, "ocds-h6vhtk-0657bc") === "https://www.find-tender.service.gov.uk/procurement/ocds-h6vhtk-0657bc",
+     "an ocid fills the {ocid} template and skips the {id} one", fill(TPL, "ocds-h6vhtk-0657bc"));
+  ok(fill(TPL, "065943-2026") === "https://www.find-tender.service.gov.uk/Notice/065943-2026",
+     "a notice number fills the {id} template", fill(TPL, "065943-2026"));
+  ok(fill(["https://x/Notice/{id}"], "ocds-h6vhtk-1") === null,
+     "and a template that only wants a notice number builds nothing from an ocid",
+     String(fill(["https://x/Notice/{id}"], "ocds-h6vhtk-1")));
+  ok(fill(TPL, null) === null, "no reference, no url");
+  ok(typeof fill("https://x/procurement/{ocid}", "ocds-h6vhtk-1") === "string",
+     "a bare string still works, so nothing that passes one breaks");
+
+  // One bad row must not end the run, which is how the crash left the queue
+  // in two states with nothing to say which rows were reached.
+  ok(/try \{/.test(tool) && /catch \(err\)/.test(tool),
+     "a row that throws is reported and the rest of the run continues");
+
+  /**
+   * THE CHECK TOOL WAS DESCRIBING A SOURCE THAT DOES NOT EXIST. On the live
+   * run it reported identical counts for the seven-day Find a Tender source
+   * and the 120-day one — same hundred items, same sixty-seven dropped —
+   * because it read one page while the sweep reads twelve. The deep source
+   * exists to reach pages two to twelve.
+   */
+  const check = fs.readFileSync(path.join(root, "backend", "tools", "signals-check.mjs"), "utf8");
+  ok(/nextLink\(bodyNow, at\)/.test(check), "the check tool follows pages too");
+  ok(/Number\(s\.pages\) \|\| 1, 50/.test(check), "to the depth the source asks for, capped the same way");
+  ok(/\$\{read\} pages/.test(check), "and says how many it read, so the two sources read differently on screen");
+
+  /**
+   * AND THE ONE COMMAND COULD NOT FIND ITSELF. It defaulted to /opt/etablix
+   * and the live server keeps the checkout elsewhere, so the first thing the
+   * script said was "No such file or directory" — a poor showing for something
+   * whose whole purpose is not having to look anything up.
+   */
+  const sh = fs.readFileSync(path.join(root, "deploy", "update.sh"), "utf8");
+  ok(/HERE=\$\(cd "\$\(dirname "\$\{BASH_SOURCE\[0\]\}"\)" && pwd\)/.test(sh),
+     "update.sh works out where it is rather than assuming");
+  ok(/REPO=\$\{ETABLIX_REPO:-\$\(cd "\$HERE\/\.\." && pwd\)\}/.test(sh),
+     "and takes the repository from its own location, with the variable as an override");
+  ok(/\$HERE\/update\.sh/.test(sh), "and prints the path that actually works on this machine");
+}
+
 fs.rmSync(scratch, { recursive: true, force: true });
 console.log(`\n=== ${pass} passed, ${fail} failed ===\n`);
 process.exit(fail ? 1 : 0);

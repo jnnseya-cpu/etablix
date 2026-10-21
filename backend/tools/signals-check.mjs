@@ -21,7 +21,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 // From parse.js, NOT index.js: the queue needs the database and this does not.
-import { extract, score, sourcesFile, seedStatus, resolveUrl, stage, namedOrgs, extractDeadline, hasWorks, notOurs } from "../lib/signals/parse.js";
+import { extract, score, sourcesFile, seedStatus, resolveUrl, stage, namedOrgs, extractDeadline, hasWorks, notOurs, nextLink } from "../lib/signals/parse.js";
 import { politeFetch } from "../lib/signals/fetch.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -288,7 +288,29 @@ for (const s of list) {
     broken++; continue;
   }
 
-  const items = extract(res.body, url, { noticeUrl: s.noticeUrl || null, siteUrl: s.siteUrl || null });
+  /**
+   * PAGE LIKE THE SWEEP DOES, OR LIE ABOUT WHAT IT WILL FIND.
+   *
+   * On the live run this reported identical counts for the seven-day Find a
+   * Tender source and the 120-day one — same hundred items, same sixty-seven
+   * dropped — because it read one page while the sweep reads twelve. The deep
+   * source exists precisely to reach what is on pages two to twelve, so a
+   * check that stops at page one describes a source that does not exist.
+   */
+  const opts = { noticeUrl: s.noticeUrl || null, siteUrl: s.siteUrl || null };
+  const items = extract(res.body, url, opts);
+  let read = 1, at = url, bodyNow = res.body;
+  const depth = Math.max(1, Math.min(Number(s.pages) || 1, 50));
+  while (read < depth) {
+    const next = nextLink(bodyNow, at);
+    if (!next) break;
+    const more = await politeFetch(next);
+    if (!more.ok || !more.body) break;
+    const batch = extract(more.body, next, opts);
+    if (!batch.length) break;
+    items.push(...batch);
+    at = next; bodyNow = more.body; read++;
+  }
 
   /**
    * THE CHECK MUST COUNT WHAT THE SWEEP WOULD COUNT, OR IT IS LYING.
@@ -321,7 +343,8 @@ for (const s of list) {
 
   if (items.length && (isFeed || hits.length)) {
     const shape = isJson ? "  (a JSON notice API)" : isFeed ? "" : "  (a page, not a feed)";
-    console.log(`    OK — ${items.length} item(s) parsed, ${hits.length} would queue today${shape}`);
+    const pageNote = read > 1 ? `, ${read} pages` : depth > 1 ? ", 1 page (no next link)" : "";
+    console.log(`    OK — ${items.length} item(s) parsed${pageNote}, ${hits.length} would queue today${shape}`);
     // What the queue would actually SHOW, not just the headline: the stage,
     // the date and the name. Those three are the whole point of the change
     // and printing only the title hides whether any of them worked.

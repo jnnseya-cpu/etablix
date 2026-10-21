@@ -23,7 +23,14 @@
 # the volume first.
 set -uo pipefail
 
-REPO=${ETABLIX_REPO:-/opt/etablix}
+# WHERE THE CHECKOUT IS, WORKED OUT RATHER THAN ASSUMED.
+# This defaulted to /opt/etablix and the live server keeps it somewhere else,
+# so the one command reported "No such file or directory" — which is a poor
+# first impression for a script whose whole purpose is not having to look
+# things up. It lives in deploy/ inside the repository, so its own path is the
+# answer; the environment variable stays as an override.
+HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+REPO=${ETABLIX_REPO:-$(cd "$HERE/.." && pwd)}
 NAME=${ETABLIX_CONTAINER:-etablix}
 BRANCH=${ETABLIX_BRANCH:-claude/construction-marketing-website-ndn7cx}
 DATA=/app/backend/data
@@ -174,6 +181,7 @@ cat <<BANNER
   Read the queue:   https://etablix.com/internal/signals.html
   Outstanding list: $REPO/business/strategy/what-is-outstanding.md
 
-  Run this again after any change. It is the same command every time.
+  Run this again after any change. It is the same command every time:
+    $HERE/update.sh
 BANNER
 exit 0
