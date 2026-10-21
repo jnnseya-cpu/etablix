@@ -14,6 +14,25 @@ the day you need it. `deploy/backup.sh` takes a whole one with `VACUUM INTO`.
 
 ---
 
+## The one command
+
+After anything changes — a deploy, a new source, a new tool — run this and
+nothing else:
+
+    /opt/etablix/deploy/update.sh
+
+It deploys if the checkout is behind the branch, takes the shipped source list
+onto the data volume (after backing up the live one), checks every source,
+mends any signal queued before the notice links and contacts worked, sweeps,
+checks health and the backup age, and then prints what is left for a person.
+
+    /opt/etablix/deploy/update.sh --check    change nothing, just report
+    /opt/etablix/deploy/update.sh --deep     also probe sources that need a URL
+
+It is safe to run twice, it deletes nothing, and the only file it overwrites is
+backed up beside itself first. Everything below this section is the detail
+behind one of its steps — read it when a step says something you do not expect.
+
 ## Daily — is it healthy?
 
     curl -s https://etablix.com/api/health | python3 -m json.tool

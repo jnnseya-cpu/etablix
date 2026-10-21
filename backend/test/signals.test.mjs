@@ -1475,6 +1475,81 @@ console.log("\n=== a market open since February cannot be found in a seven-day w
   ok(/\{\{date:-7\}\}/.test(daily.url), "and narrow", daily.url);
 }
 
+console.log("\n=== one command, and it stays correct as this grows ===\n");
+{
+  /**
+   * WHY THIS IS TESTED AT ALL. Every change to this platform used to end with
+   * a different handful of commands — take the new source list, run the check,
+   * mend the links, sweep, read the queue — and remembering which applied this
+   * week was a job in itself. deploy/update.sh is the one set.
+   *
+   * The thing worth asserting is not that it runs, but that it cannot GO
+   * STALE. A script listing today's commands is wrong by the next change, so
+   * every section asks a question about the live system and acts on the
+   * answer, and the "what needs you" section reads the registry rather than a
+   * list written out by hand.
+   */
+  const sh = fs.readFileSync(path.join(root, "deploy", "update.sh"), "utf8");
+
+  ok(/^#!\/bin\/bash/.test(sh), "it is a script");
+  ok(/--check/.test(sh) && /CHECK_ONLY/.test(sh),
+     "it can report without changing anything, which is how you look before you leap");
+  ok(/-h\|--help/.test(sh), "and it explains itself");
+
+  // Every tool the day's work needs must be driven from here, or somebody is
+  // back to remembering which ones apply.
+  for (const tool of ["signals-check.mjs", "signals-relink.mjs", "signals-sweep.mjs", "signals-digest.mjs"]) {
+    ok(sh.includes(tool), `it runs ${tool}`);
+    ok(fs.existsSync(path.join(root, "backend", "tools", tool)), `  and ${tool} exists`);
+  }
+  ok(/autodeploy\.sh/.test(sh), "it deploys when the checkout is behind the branch");
+
+  /**
+   * THE ONE THING IT OVERWRITES IS BACKED UP FIRST. The live source list is
+   * the only file this touches, and it is the file a person may have hand
+   * edited, so a timestamped copy goes beside it before the shipped one lands.
+   */
+  ok(/signals-sources\.\$STAMP\.bak/.test(sh), "the live source list is backed up before it is replaced");
+  ok(/STAMP=\$\(date /.test(sh), "under a timestamp, so one run cannot overwrite another's backup");
+
+  // Nothing in it may delete. An operator script that removes things is one
+  // typo from being the outage it was written to prevent.
+  const destructive = [...sh.matchAll(/\b(rm|rmdir|drop|truncate|docker volume rm|DELETE FROM)\b/g)].map((m) => m[1]);
+  ok(destructive.length === 0, "it deletes nothing at all", destructive.join(", "));
+
+  // It must say where to look next, because the whole point is not having to
+  // go and find it.
+  ok(/what-is-outstanding\.md/.test(sh), "it points at the outstanding list");
+  ok(/internal\/signals\.html/.test(sh), "and at the queue");
+  ok(/same command every time/.test(sh), "and says plainly that it is the same command every time");
+}
+
+console.log("\n=== the digest reads the registry, not a hand-written list ===\n");
+{
+  /**
+   * The part that keeps update.sh honest. A new sector, stage or source has
+   * to appear in "what needs you" without anybody editing a script — so this
+   * reads SECTORS, STAGE_LABEL and the source file itself.
+   */
+  const dig = fs.readFileSync(path.join(root, "backend", "tools", "signals-digest.mjs"), "utf8");
+  for (const fromRegistry of ["SECTORS", "STAGE_LABEL", "sources", "seedStatus"]) {
+    ok(dig.includes(fromRegistry), `the digest reads ${fromRegistry} rather than a list of its own`);
+  }
+
+  // Read only. It is run at the end of every update and on a schedule, so it
+  // must not be able to change, queue or send anything.
+  ok(!/\binsert\(|\bupdate\(|\bremove\(|\bqueue\(|\bsweep\(/.test(dig),
+     "it writes nothing, queues nothing and sweeps nothing");
+  const imports = [...dig.matchAll(/import \{([^}]*)\} from/g)].flatMap((m) => m[1].split(",").map((x) => x.trim()));
+  ok(imports.includes("collection") && !imports.includes("insert") && !imports.includes("update"),
+     "it imports only the read side of the store", imports.join(", "));
+
+  // The urgent part is the dated part, and it has to be sorted by the date.
+  ok(/deadlineAt - b\.deadlineAt|a\.deadlineAt - b/.test(dig), "what closes soonest is listed first");
+  ok(/already passed/.test(dig),
+     "and a date that has already gone by is called out rather than left looking live");
+}
+
 fs.rmSync(scratch, { recursive: true, force: true });
 console.log(`\n=== ${pass} passed, ${fail} failed ===\n`);
 process.exit(fail ? 1 : 0);
