@@ -154,6 +154,45 @@ console.log("\n--- cron points at the repository\n");
 // So the rule is checked rather than remembered: every directory the
 // application reads from the repository root has to be in the image.
 
+/**
+ * A FLOATING BASE TAG ONLY FLOATS IF THE BUILD PULLS IT.
+ *
+ * The Dockerfile says FROM node:22-alpine, which tracks the newest 22.x, so a
+ * Node security release is supposed to reach this image without anybody
+ * editing a version number. It did not. `docker build` without --pull reuses
+ * the cached base layer, so the container was still running 22.22.2 the day
+ * after Node shipped 22.23.4 — a fix for an out-of-bounds write in the Brotli
+ * decoder that can lead to remote code execution (CVE-2026-111497).
+ *
+ * That CVE is not abstract here. The signals watcher fetches fifteen external
+ * sites and Node's fetch advertises accept-encoding: br, so the decoder is fed
+ * data this business does not control, from hosts it does not own.
+ *
+ * Checked rather than remembered, because the failure is silent: the deploy
+ * succeeds, the health check passes, and the runtime is simply old.
+ */
+console.log("\n--- a deploy fetches the base image, so a runtime fix arrives\n");
+{
+  for (const f of ["deploy.sh", "staging.sh"]) {
+    const sh = fs.readFileSync(path.join(root, "deploy", f), "utf8");
+    const builds = [...sh.matchAll(/docker build[^\n]*/g)].map((m) => m[0]);
+    ok(builds.length > 0, `${f} builds an image`);
+    for (const b of builds) {
+      ok(/\s--pull\b/.test(b),
+         `  ${f} pulls the base image, so a Node security release reaches the container`,
+         b.slice(0, 80));
+    }
+  }
+
+  // And the floor is written down where a build can act on it.
+  const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+  const floor = String((pkg.engines || {}).node || "");
+  ok(/^>=\s*22\./.test(floor), "package.json requires the Node 22 line", floor);
+  const [, minor] = (/^>=\s*22\.(\d+)/.exec(floor) || []);
+  ok(Number(minor) >= 23,
+     "  at or above 22.23, the line that carries the October 2026 security fixes", floor);
+}
+
 console.log("\n--- the container image copies every directory the application reads\n");
 {
   const docker = fs.readFileSync(path.join(root, "Dockerfile"), "utf8");

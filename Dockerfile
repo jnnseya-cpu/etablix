@@ -1,6 +1,17 @@
 # Node 22, because the store uses node:sqlite from the standard library —
 # a real transactional database with no dependency to install and no server
 # to host. See backend/lib/store.js.
+#
+# THE TAG FLOATS ON PURPOSE, AND THE BUILD MUST PULL FOR THAT TO MEAN ANYTHING.
+# node:22-alpine tracks the newest 22.x, so a security release reaches this
+# image without anybody editing this line — but only if the build fetches the
+# tag again. `docker build` on its own reuses the cached base layer, which is
+# how this container was still running 22.22.2 the day after Node shipped
+# 22.23.4 to fix an out-of-bounds write in the Brotli decoder that can lead to
+# remote code execution (CVE-2026-111497). That one matters here specifically:
+# the signals watcher fetches fifteen external sites, and Node's fetch asks
+# for Brotli by default, so the decoder sees data this business does not
+# control. deploy.sh and staging.sh therefore build with --pull.
 FROM node:22-alpine
 
 WORKDIR /app

@@ -101,7 +101,7 @@ SHORT=$(git rev-parse --short=12 HEAD)
 echo "$SHORT" > BUILD_COMMIT
 
 # ---- 2. build, tagged with the commit --------------------------------------
-docker build --build-arg BUILD_COMMIT="$SHORT" -t "etablix:$SHORT" -t etablix:candidate . >>"$LOG" 2>&1
+docker build --pull --build-arg BUILD_COMMIT="$SHORT" -t "etablix:$SHORT" -t etablix:candidate . >>"$LOG" 2>&1
 PREV_IMAGE=$(docker inspect --format '{{.Image}}' "$NAME" 2>/dev/null || echo "")
 
 # ---- 3. prove the new build answers BEFORE switching -----------------------

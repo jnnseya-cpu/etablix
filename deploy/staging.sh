@@ -85,7 +85,7 @@ while docker exec "$NAME" wget -qO- http://localhost:3000/api/health 2>/dev/null
 done
 
 say "building $SHORT"
-docker build --build-arg BUILD_COMMIT="$SHORT" -t "etablix:$SHORT" -t etablix:staging . >>"$LOG" 2>&1
+docker build --pull --build-arg BUILD_COMMIT="$SHORT" -t "etablix:$SHORT" -t etablix:staging . >>"$LOG" 2>&1
 
 # ---- the staging environment: the live one with the teeth removed ----------
 # Mail off, its own URL, its own port. Written to a private file each time
