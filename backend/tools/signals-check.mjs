@@ -257,6 +257,13 @@ for (const s of list) {
   }
   const res = await politeFetch(url);
 
+  // Said before "unreachable", because a cooling host is reachable and fine.
+  if (res.cooling) {
+    console.log(`    RATE LIMITED — ${res.reason}.`);
+    console.log("    Nothing is wrong with this source. The host asked us to wait, so it is");
+    console.log("    skipped without a request until then. Do not change the url.\n");
+    unreachable++; continue;
+  }
   if (res.unreachable) {
     console.log(`    UNREACHABLE — ${res.reason}.`);
     console.log("    This is about THIS MACHINE, not about the site. Check outbound access");
@@ -314,7 +321,7 @@ for (const s of list) {
   for (const target of targets.slice(1)) {
     const one = await politeFetch(target);
     read++;
-    if (!one.ok || !one.body) { missing++; console.log(`      ${target.split("/").pop()}  ${one.reason || "no body"}`); continue; }
+    if (!one.ok || !one.body) { missing++; console.log(`      ${target.split("/").pop()}  ${one.reason || "no body"}`); if (one.cooling) break; continue; }
     items.push(...extract(one.body, target, opts));
   }
   if (missing) console.log(`      ${missing} of ${targets.length} named notice(s) did not answer`);

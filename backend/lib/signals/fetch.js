@@ -20,6 +20,9 @@
  * No third-party service, no API key, no dependency outside Node.
  */
 import { setTimeout as sleep } from "node:timers/promises";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 export /**
  * AND THE q VALUES HAVE TO BE RIGHT, WHICH MINE WERE NOT.
@@ -55,6 +58,80 @@ const TIMEOUT_MS = 20_000;
 const robotsCache = new Map();    // host -> { at, rules }
 const lastHit = new Map();        // host -> timestamp
 const conditional = new Map();    // url  -> { etag, lastModified }
+
+/**
+ * WHAT A HOST HAS TOLD US, KEPT WHERE THE NEXT PROCESS CAN READ IT.
+ *
+ * THE FAILURE THIS ANSWERS, AND IT WAS ARITHMETIC RATHER THAN BAD LUCK. Find a
+ * Tender and Contracts Finder both began answering 429 in a hundredth of a
+ * second with an empty body — an edge rate limiter, not a slow query, and
+ * earned honestly. One run of the operator script asked Find a Tender for
+ * about nineteen addresses during the source check and then the same nineteen
+ * again during the sweep, because those are separate node processes and
+ * MIN_INTERVAL lived in a Map that dies with each one. Three runs inside an
+ * hour is a hundred requests to one government service from one address.
+ *
+ * So the spacing and the penalty box both go on the data volume, where every
+ * process that follows can see them. Two consequences, and the second matters
+ * more than the first: a cooling host costs no request at all, not even
+ * robots.txt, and the reader is told when it clears instead of watching the
+ * same four lines fail every time.
+ *
+ * Degrades to memory if the volume is not writable. A watcher that cannot
+ * write a throttle file should still be polite, not refuse to run.
+ */
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const DATA_DIR = process.env.ETABLIX_DATA_DIR
+  ? path.resolve(process.env.ETABLIX_DATA_DIR)
+  : path.resolve(HERE, "..", "..", "data");
+const HOSTS_FILE = path.join(DATA_DIR, "signals-hosts.json");
+
+const BACKOFF_BASE = 15 * 60_000;   // first 429: a quarter of an hour
+const BACKOFF_MAX = 6 * 3600_000;   // and never more than six hours
+
+let hostsMemo = null;
+
+function hosts() {
+  if (hostsMemo) return hostsMemo;
+  try { hostsMemo = JSON.parse(fs.readFileSync(HOSTS_FILE, "utf8")) || {}; }
+  catch { hostsMemo = {}; }
+  if (typeof hostsMemo !== "object" || Array.isArray(hostsMemo)) hostsMemo = {};
+  return hostsMemo;
+}
+
+function rememberHost(host, patch) {
+  const all = hosts();
+  all[host] = { ...(all[host] || {}), ...patch };
+  // Atomic, so a run interrupted halfway cannot leave a half-written file that
+  // reads as "nothing is cooling" on the next run.
+  try {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+    const tmp = `${HOSTS_FILE}.${process.pid}.tmp`;
+    fs.writeFileSync(tmp, JSON.stringify(all, null, 2));
+    fs.renameSync(tmp, HOSTS_FILE);
+  } catch { /* memory only; politeness is kept either way */ }
+}
+
+/** When a host may be approached again, or 0 if it may be approached now. */
+export function coolingUntil(host) {
+  const until = Number((hosts()[host] || {}).until || 0);
+  return until > Date.now() ? until : 0;
+}
+
+/**
+ * Retry-After is either a count of seconds or an HTTP date, and a server under
+ * load is entitled to say either. Honour what it asks for in preference to our
+ * own guess, within reason — a header asking for a week is not a reason to
+ * stop watching a portal for a week.
+ */
+export function retryAfterMs(header) {
+  if (!header) return null;
+  const secs = Number(String(header).trim());
+  if (Number.isFinite(secs) && secs >= 0) return Math.min(secs * 1000, BACKOFF_MAX);
+  const at = Date.parse(String(header));
+  if (!Number.isNaN(at)) return Math.min(Math.max(at - Date.now(), 0), BACKOFF_MAX);
+  return null;
+}
 
 /** Parse robots.txt into the groups that apply to us, plus any crawl delay. */
 export function parseRobots(text) {
@@ -149,14 +226,29 @@ export async function politeFetch(url, { now = Date.now } = {}) {
   try { u = new URL(url); } catch { return { ok: false, reason: "not a url" }; }
   if (u.protocol !== "https:" && u.protocol !== "http:") return { ok: false, reason: "unsupported scheme" };
 
+  // A COOLING HOST COSTS NOTHING, NOT EVEN ROBOTS.TXT. Checking robots first
+  // would spend a request on the very host that has asked us to stop, which is
+  // how a penalty box gets extended rather than served.
+  const cool = coolingUntil(u.host);
+  if (cool) {
+    const mins = Math.ceil((cool - Date.now()) / 60_000);
+    return { ok: false, cooling: true, until: cool,
+      reason: `rate limited — not asking again for ${mins} min (until ${new Date(cool).toISOString().slice(11, 16)} UTC)` };
+  }
+
   const group = await robotsFor(u.origin);
   if (group.unreachable) return { ok: false, unreachable: true, reason: group.unreachable };
   if (!allowed(group, u.pathname)) return { ok: false, blocked: true, reason: "robots.txt disallows this path" };
 
+  // The last approach as recorded by ANY process, not just this one. The
+  // check and the sweep are separate invocations and used to each start with a
+  // clean memory, so five seconds apart was never five seconds apart.
   const wait = Math.max(MIN_INTERVAL, group.delay || 0);
-  const since = now() - (lastHit.get(u.host) || 0);
+  const seenAt = Math.max(lastHit.get(u.host) || 0, Number((hosts()[u.host] || {}).lastHit || 0));
+  const since = now() - seenAt;
   if (since < wait) await sleep(wait - since);
   lastHit.set(u.host, now());
+  rememberHost(u.host, { lastHit: now() });
 
   const prior = conditional.get(url) || {};
   // JSON IS IN THE LIST, AND IT WAS NOT.
@@ -175,6 +267,28 @@ export async function politeFetch(url, { now = Date.now } = {}) {
     const etag = res.headers.get("etag");
     const lastModified = res.headers.get("last-modified");
     if (etag || lastModified) conditional.set(url, { etag, lastModified });
+    /**
+     * TOO MANY REQUESTS IS AN INSTRUCTION, NOT AN ERROR.
+     *
+     * Treated as a plain failure it reads on screen exactly like a dead URL,
+     * and the next run makes the same requests again — which is what turned a
+     * day of enthusiastic testing into a ban on two government services. 503
+     * is included because a host under load saying "later" deserves the same
+     * courtesy, and both carry Retry-After often enough to honour it.
+     */
+    if (res.status === 429 || res.status === 503) {
+      let why = "";
+      try { why = (await res.text()).slice(0, 500); } catch { /* usually empty */ }
+      const strikes = Number((hosts()[u.host] || {}).strikes || 0) + 1;
+      const asked = retryAfterMs(res.headers.get("retry-after"));
+      const guessed = Math.min(BACKOFF_BASE * 2 ** (strikes - 1), BACKOFF_MAX);
+      const until = now() + (asked ?? guessed);
+      rememberHost(u.host, { until, strikes, why: `http ${res.status}` });
+      const mins = Math.ceil((until - now()) / 60_000);
+      return { ok: false, status: res.status, cooling: true, until, body: why,
+        reason: `http ${res.status} — backing off ${mins} min${asked != null ? " (Retry-After)" : ""}, until ${new Date(until).toISOString().slice(11, 16)} UTC` };
+    }
+
     if (!res.ok) {
       // KEEP A LITTLE OF THE ERROR BODY, AND ONLY A LITTLE.
       // A notice API that refuses a request almost always says which
@@ -190,6 +304,10 @@ export async function politeFetch(url, { now = Date.now } = {}) {
 
     // Read with a ceiling. A listing page that is two megabytes is not a
     // listing page, and streaming the rest of it helps nobody.
+    // It answered. Forget the strikes, so one bad afternoon does not keep
+    // doubling a backoff for the rest of the week.
+    if (Number((hosts()[u.host] || {}).strikes || 0)) rememberHost(u.host, { strikes: 0, until: 0, why: null });
+
     const reader = res.body?.getReader();
     if (!reader) return { ok: true, status: res.status, body: (await res.text()).slice(0, MAX_BYTES) };
     const chunks = [];
@@ -212,4 +330,8 @@ export function resetFetchState() {
   robotsCache.clear();
   lastHit.clear();
   conditional.clear();
+  hostsMemo = {};
+  // Emptied rather than removed: this file lives on the data volume beside
+  // things that must never be deleted, and an empty object reads identically.
+  try { if (fs.existsSync(HOSTS_FILE)) fs.writeFileSync(HOSTS_FILE, "{}"); } catch { /* memory is enough */ }
 }

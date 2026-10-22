@@ -36,7 +36,7 @@
  * It is safe to run twice: a row that already has what it needs is left alone.
  */
 import { politeFetch } from "../lib/signals/fetch.js";
-import { extract, resolveUrl, sources, sourcesFile, seedStatus, stage, extractDeadline, namedOrgs } from "../lib/signals/parse.js";
+import { extract, resolveUrl, sources, sourcesFile, seedStatus, stage, extractDeadline, namedOrgs, noticeTargets } from "../lib/signals/parse.js";
 import { scrub, isRoleAddress } from "../lib/signals/contact.js";
 import { collection, update } from "../lib/store.js";
 
@@ -188,18 +188,27 @@ for (const [sourceId, rows] of bySource) {
   const src = byId.get(sourceId);
   console.log(`  ${sourceId} — ${rows.length} signal(s) to look at`);
 
-  // Read the source ONCE. Parties and contacts only exist in the record, so
-  // unlike a link they cannot be reconstructed from what is already stored.
-  const res = await politeFetch(resolveUrl(src.url));
+  // Read the source ONCE — or, for a source that names the notices it watches,
+  // once per name. Asking for src.url raw would request the address with
+  // {{notice}} still in it, which is the same mistake the check tool made.
+  // Parties and contacts only exist in the record, so unlike a link they
+  // cannot be reconstructed from what is already stored.
+  const targets = noticeTargets(src);
   const live = new Map();
-  if (res.ok && res.body) {
-    for (const item of extract(res.body, resolveUrl(src.url), { noticeUrl: src.noticeUrl, siteUrl: src.siteUrl })) {
+  let answered = 0;
+  for (const target of targets) {
+    const res = await politeFetch(target);
+    if (!res.ok || !res.body) {
+      console.log(`     SOURCE DID NOT ANSWER — ${res.reason || "no body"}. Falling back to held references only.`);
+      if (res.cooling) break;   // the rest of the list is guaranteed refusals
+      continue;
+    }
+    answered++;
+    for (const item of extract(res.body, target, { noticeUrl: src.noticeUrl, siteUrl: src.siteUrl })) {
       if (item.title) live.set(norm(item.title), item);
     }
-    console.log(`     read ${live.size} item(s) from the source`);
-  } else {
-    console.log(`     SOURCE DID NOT ANSWER — ${res.reason || "no body"}. Falling back to held references only.`);
   }
+  if (answered) console.log(`     read ${live.size} item(s) from ${answered} of ${targets.length} address(es)`);
 
   for (const sig of rows) {
     // ONE BAD ROW MUST NOT END THE RUN. A backfill that stops halfway leaves

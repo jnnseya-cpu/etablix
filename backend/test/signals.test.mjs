@@ -1488,7 +1488,21 @@ console.log("\n=== a market open since February cannot be found in a seven-day w
   const deep = list.find((x) => x.id === "find-a-tender-markets");
   ok(Boolean(deep), "there is a source for the open markets, separate from the news window");
   ok(/\{\{date:-\d{2,3}\}\}/.test(deep.url), "it looks back months, not days", deep.url);
-  ok(Number(deep.pages) > 5, "and follows enough pages to reach them", deep.pages);
+  /**
+   * DEEPER THAN THE NEWS WINDOW, AND NOT SO DEEP THAT IT GETS US BANNED.
+   *
+   * This asserted more than five pages, which was written when paging was my
+   * answer to the National Grid market — the wrong instrument, as the watchlist
+   * then proved. Twelve pages here, asked twice per operator run because the
+   * check and the sweep are separate processes, is most of the forty-odd
+   * requests that earned a 429 from Find a Tender's edge. The deep window's
+   * remaining job is recent frameworks, which three pages covers.
+   */
+  ok(Number(deep.pages) > 1, "it follows more than one page, unlike a news feed", deep.pages);
+  ok(Number(deep.pages) <= 5, "  but not so deep that one run is a rate limit", deep.pages);
+  const watch = list.find((x) => x.id === "find-a-tender-watch");
+  ok(Boolean(watch && (watch.notices || []).length),
+     "  because naming the old markets is what reaches them, not paging");
   ok(deep.requireSector === true && deep.requireWorks === true,
      "with both gates on, so the volume costs reading time and not queue noise");
 

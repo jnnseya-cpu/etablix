@@ -4,7 +4,8 @@
 #
 #   /opt/etablix/deploy/update.sh              do the work, then say what needs you
 #   /opt/etablix/deploy/update.sh --check      change nothing, just report
-#   /opt/etablix/deploy/update.sh --deep       also probe sources that need a URL (slow)
+#   /opt/etablix/deploy/update.sh --deep       also diagnose and probe every source
+#                                              (slow, and it re-asks every publisher)
 #
 # WHY THIS EXISTS. Every change to this platform used to end with a different
 # handful of commands: take the new source list, run the check, mend the links,
@@ -105,26 +106,33 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-say "3. Do the sources still answer?"
+say "3. Sweep"
 # ---------------------------------------------------------------------------
+# THE SWEEP GOES FIRST AND IT IS THE ONLY THING THAT READS THE SOURCES.
+#
+# THE FAILURE THIS ANSWERS. This used to run the full source check here and
+# then sweep below, which meant every source was requested TWICE per run: the
+# seven-day Find a Tender window, twelve pages of the deep one, six named
+# notices, Contracts Finder — about forty requests to two government services,
+# doubled. Three runs inside an hour and both began answering 429 from the
+# edge in a hundredth of a second, which is a ban, fairly earned.
+#
+# The sweep now names what failed and why, so the check was answering a
+# question the sweep had already answered — at the price of asking every
+# publisher again. It is still here, under --deep, for when a source needs
+# diagnosing rather than reading.
 if [ "$CHECK_ONLY" = "1" ]; then
-  echo "    (would run: signals-check.mjs --all)"
+  echo "    (would run: signals-sweep.mjs)"
 else
-  ex node backend/tools/signals-check.mjs --all 2>&1 | grep -vE "ExperimentalWarning|trace-warnings" | sed 's/^/    /'
-  CHECK_RC=${PIPESTATUS[0]}
-  [ "${CHECK_RC:-0}" -ne 0 ] && note "some sources need attention — see section 3 above"
-fi
-
-if [ "$DEEP" = "1" ]; then
-  say "3b. Probing the sources that still need a URL"
-  echo "    One request per host at a time, five seconds apart. This takes a few minutes."
-  run ex node backend/tools/signals-check.mjs --probe
+  ex node backend/tools/signals-sweep.mjs 2>&1 | grep -vE "ExperimentalWarning|trace-warnings" | sed 's/^/    /'
 fi
 
 # ---------------------------------------------------------------------------
 say "4. Mend anything queued before the links and contacts worked"
 # ---------------------------------------------------------------------------
 # Idempotent: a row that already has its notice link and its parties is skipped.
+# It reads each source once more, which is why it follows the sweep rather than
+# preceding it — the conditional request and the shared throttle both apply.
 if [ "$CHECK_ONLY" = "1" ]; then
   ex node backend/tools/signals-relink.mjs 2>&1 | grep -vE "ExperimentalWarning|trace-warnings" | tail -6 | sed 's/^/    /'
 else
@@ -132,13 +140,43 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-say "5. Sweep"
-# ---------------------------------------------------------------------------
-if [ "$CHECK_ONLY" = "1" ]; then
-  echo "    (would run: signals-sweep.mjs)"
+if [ "$DEEP" = "1" ]; then
+  say "4b. Diagnosing every source, one by one"
+  echo "    This asks every publisher again, so it is not the default. Use it when"
+  echo "    a source needs fixing, not to find out what the sweep already said."
+  if [ "$CHECK_ONLY" = "1" ]; then
+    echo "    (would run: signals-check.mjs --all, then --probe)"
+  else
+    ex node backend/tools/signals-check.mjs --all 2>&1 | grep -vE "ExperimentalWarning|trace-warnings" | sed 's/^/    /'
+    CHECK_RC=${PIPESTATUS[0]}
+    [ "${CHECK_RC:-0}" -ne 0 ] && note "some sources need attention — see section 4b above"
+    echo "    Probing the sources that still need a URL. One request per host at a time."
+    ex node backend/tools/signals-check.mjs --probe 2>&1 | grep -vE "ExperimentalWarning|trace-warnings" | sed 's/^/    /'
+  fi
 else
-  ex node backend/tools/signals-sweep.mjs 2>&1 | grep -vE "ExperimentalWarning|trace-warnings" | sed 's/^/    /'
+  echo "    (source diagnosis skipped — it re-asks every publisher. Run with --deep when a source needs fixing.)"
 fi
+
+# ---------------------------------------------------------------------------
+say "5. Is any host asking us to wait?"
+# ---------------------------------------------------------------------------
+# Read from the throttle file, so a rate limit is a stated fact with a time on
+# it rather than four lines that look like broken sources.
+ex node -e '
+try {
+  const fs = require("fs");
+  const all = JSON.parse(fs.readFileSync("/app/backend/data/signals-hosts.json", "utf8"));
+  const now = Date.now();
+  const cooling = Object.entries(all).filter(([, v]) => Number(v.until || 0) > now);
+  if (!cooling.length) { console.log("    no host is rate limiting us"); process.exit(0); }
+  for (const [host, v] of cooling) {
+    const mins = Math.ceil((v.until - now) / 60000);
+    console.log(`    ${host}  —  ${v.why || "backing off"}, clear in ${mins} min (${new Date(v.until).toISOString().slice(11,16)} UTC)`);
+  }
+  console.log("    Until then those sources are skipped without a request. Running this");
+  console.log("    again sooner costs nothing and achieves nothing.");
+} catch (e) { console.log("    no throttle file yet (nothing has been rate limited)"); }
+' 2>&1 | grep -vE "ExperimentalWarning|trace-warnings"
 
 # ---------------------------------------------------------------------------
 say "6. Is the platform healthy?"

@@ -108,7 +108,7 @@ export function queue(signal) {
  * that has moved should not stop the other nine.
  */
 export async function sweep({ minScore = 3, enrich = true } = {}) {
-  const out = { checked: 0, blocked: 0, unchanged: 0, failed: 0, queued: [], skipped: 0, expired: 0, offSector: 0, noWorks: 0, notOurs: 0, pages: 0, failures: [] };
+  const out = { checked: 0, blocked: 0, unchanged: 0, failed: 0, queued: [], skipped: 0, expired: 0, offSector: 0, noWorks: 0, notOurs: 0, pages: 0, failures: [], cooling: 0 };
 
   /**
    * A COUNT OF FAILURES IS NOT A REPORT OF THEM.
@@ -120,8 +120,10 @@ export async function sweep({ minScore = 3, enrich = true } = {}) {
    * costs nothing to keep it.
    */
   const fail = (src, url, res) => {
-    out.failed++;
-    out.failures.push({ id: src.id, url, why: (res && res.reason) || "no body" });
+    // A HOST IN A PENALTY BOX IS NOT A BROKEN SOURCE, and counting it as one
+    // sends the reader to fix a URL that was never wrong.
+    if (res && res.cooling) out.cooling++; else out.failed++;
+    out.failures.push({ id: src.id, url, why: (res && res.reason) || "no body", cooling: !!(res && res.cooling) });
   };
   for (const src of sources()) {
     out.checked++;
@@ -179,7 +181,8 @@ export async function sweep({ minScore = 3, enrich = true } = {}) {
     for (const target of targets.slice(1)) {
       const one = await politeFetch(target);
       pages++;
-      if (!one.ok || !one.body) { fail(src, target, one); continue; }
+      // Once a host is cooling, the rest of the list is six guaranteed refusals.
+      if (!one.ok || !one.body) { fail(src, target, one); if (one.cooling) break; continue; }
       items.push(...extract(one.body, target, opts));
     }
 

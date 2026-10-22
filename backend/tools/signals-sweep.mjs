@@ -48,6 +48,7 @@ console.log(`  sources read        ${out.checked}`);
 console.log(`  unchanged since last ${out.unchanged}`);
 console.log(`  barred by robots    ${out.blocked}`);
 console.log(`  failed              ${out.failed}`);
+if (out.cooling) console.log(`  rate limited        ${out.cooling}  (asked us to wait — see below)`);
 console.log(`  already seen        ${out.skipped}`);
 console.log(`  NEWLY QUEUED        ${out.queued.length}`);
 
@@ -58,6 +59,11 @@ if (out.failures && out.failures.length) {
   for (const f of out.failures) {
     console.log(`    ${f.id}  —  ${f.why}`);
     console.log(`      ${f.url}`);
+  }
+  if (out.failures.some((f) => f.cooling)) {
+    console.log("\n  A rate limit is not a broken source and there is nothing to fix in the");
+    console.log("  file. Those hosts will be skipped without a request until the time above,");
+    console.log("  so running this again sooner costs nothing and achieves nothing.");
   }
 }
 
