@@ -116,7 +116,36 @@ export async function sweep({ minScore = 3, enrich = true } = {}) {
     // resolveUrl, not src.url: the procurement APIs are windowed queries and
     // several refuse a request with no window, so the source file states the
     // window as {{date:-7}} and the sweep fills in today's date.
-    const first = resolveUrl(src.url);
+    /**
+     * A NAMED NOTICE IS FETCHED, NOT SEARCHED FOR.
+     *
+     * THE FAILURE THIS ANSWERS, AND IT WAS MINE TWICE OVER. National Grid's
+     * substation construction dynamic market was published on 19 February
+     * 2026 and is still open: open-ended, every English region and Wales,
+     * site welfare and security named in its own scope. It is the single best
+     * entry on the portal and the watcher never found it.
+     *
+     * When that was reported I widened the date window to 120 days and added
+     * paging. Both were useless, because the notice is EIGHT MONTHS old — it
+     * sits outside any window worth querying, and a hundred items a page
+     * against tens of thousands of notices is not a search, it is a lottery.
+     *
+     * The API answers a direct request for a notice by its own identifier.
+     * That fact was in the documentation I had already read and quoted. So a
+     * source may now name the notices it watches, and each is fetched
+     * exactly, every sweep, one request each. No window, no paging, no luck.
+     *
+     * This is how an open-ended market is watched: you do not trawl for it,
+     * you name it. It queues once, a person reads it, and it is then
+     * "already seen" for ever — which is correct, because a market that
+     * admits members at any time needs reading once and acting on, not
+     * re-reading every morning.
+     */
+    const targets = Array.isArray(src.notices) && src.notices.length
+      ? src.notices.map((id) => resolveUrl(String(src.url).replace(/\{\{notice\}\}/g, encodeURIComponent(String(id).trim()))))
+      : [resolveUrl(src.url)];
+
+    const first = targets[0];
     const res = await politeFetch(first);
     if (res.blocked) { out.blocked++; continue; }
     if (res.notModified) { out.unchanged++; continue; }
@@ -134,7 +163,17 @@ export async function sweep({ minScore = 3, enrich = true } = {}) {
     const opts = { noticeUrl: src.noticeUrl || null, siteUrl: src.siteUrl || null };
     const items = extract(res.body, first, opts);
     let pages = 1, url = first, body = res.body;
-    const wanted = Math.max(1, Math.min(Number(src.pages) || 1, 50));
+
+    // The rest of the watchlist, each fetched exactly. A notice that has been
+    // withdrawn answers 404 and is skipped rather than stopping the others.
+    for (const target of targets.slice(1)) {
+      const one = await politeFetch(target);
+      pages++;
+      if (!one.ok || !one.body) { out.failed++; continue; }
+      items.push(...extract(one.body, target, opts));
+    }
+
+    const wanted = targets.length > 1 ? 1 : Math.max(1, Math.min(Number(src.pages) || 1, 50));
     while (pages < wanted) {
       const next = nextLink(body, url);
       if (!next) break;

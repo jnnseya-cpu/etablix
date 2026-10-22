@@ -526,8 +526,10 @@ console.log("\n=== a windowed API needs today's date, and the file must not need
   // The sweep must request the RESOLVED url. Requesting the template would
   // 400 every time and read on screen as a dead source.
   const sweepSrc = fs.readFileSync(path.join(root, "backend", "lib", "signals", "index.js"), "utf8");
-  ok(/const first = resolveUrl\(src\.url\)/.test(sweepSrc) && /politeFetch\(first\)/.test(sweepSrc),
-     "the sweep fetches the resolved url, not the template");
+  ok(/resolveUrl\(src\.url\)/.test(sweepSrc) && /politeFetch\(first\)/.test(sweepSrc),
+     "the sweep fetches a resolved url, not a template");
+  ok(/const first = targets\[0\]/.test(sweepSrc),
+     "and the first target is the source's own url, or the first notice it names");
 }
 
 console.log("\n=== an opportunity that has closed is not an opportunity ===\n");
@@ -1181,10 +1183,15 @@ console.log("\n=== a head start on the contact, without going looking for one ==
    * built instead of.
    */
   const fetches = [...idx.matchAll(/politeFetch\(([^)]*)\)/g)].map((m) => m[1].trim());
-  ok(fetches.length >= 3, `${fetches.length} fetch targets`, fetches.join(" | "));
-  ok(fetches.every((f) => ["first", "next", "src.contactPage"].includes(f)),
-     "the sweep fetches only the source url, its next page, and its declared contact page", fetches.join(" | "));
-  ok(/const first = resolveUrl\(src\.url\)/.test(idx), "  and `first` is the source's own url");
+  ok(fetches.length >= 4, `${fetches.length} fetch targets`, fetches.join(" | "));
+  ok(fetches.every((f) => ["first", "target", "next", "src.contactPage"].includes(f)),
+     "the sweep fetches only the source url, a notice it names, its next page, and its declared contact page",
+     fetches.join(" | "));
+  // Every one of those four traces back to the source. `target` is the one
+  // added by the watchlist, and it is built from src.url and src.notices —
+  // never from anything found inside an item.
+  ok(/const targets = Array\.isArray\(src\.notices\)/.test(idx) && /resolveUrl\(src\.url\)/.test(idx),
+     "  and the targets are built from the source's own url and its own notice list");
   ok(/const next = nextLink\(body, url\)/.test(idx),
      "  and `next` comes from the response the source itself returned, never from an item");
 
@@ -1620,6 +1627,80 @@ console.log("\n=== what the live run broke, third time out ===\n");
   ok(/REPO=\$\{ETABLIX_REPO:-\$\(cd "\$HERE\/\.\." && pwd\)\}/.test(sh),
      "and takes the repository from its own location, with the variable as an override");
   ok(/\$HERE\/update\.sh/.test(sh), "and prints the path that actually works on this machine");
+}
+
+console.log("\n=== a named market is fetched, not searched for ===\n");
+{
+  /**
+   * THE FAILURE THIS ANSWERS, AND IT WAS MINE TWICE OVER.
+   *
+   * National Grid's substation construction dynamic market, notice
+   * 015074-2026, was published on 19 February 2026 and is still open:
+   * open-ended, every English region and Wales, with site welfare facilities,
+   * fencing, site security and temporary water, drainage and electricity named
+   * in its own published scope. It is the single best entry on the portal.
+   *
+   * It was handed to me directly, off a real Find a Tender page, with the
+   * complaint that the watcher could not find it. I widened the date window to
+   * 120 days and added paging. BOTH WERE USELESS: the notice is eight months
+   * old, so it falls outside any window worth querying, and a hundred items a
+   * page against tens of thousands of notices is a lottery rather than a
+   * search. The system was updated on that advice and still found nothing.
+   *
+   * The API answers a direct request for a notice by its own identifier, and
+   * that fact was in the documentation I had already read and quoted back.
+   * So a source may now NAME the notices it watches. No window, no paging.
+   */
+  const list = JSON.parse(fs.readFileSync(path.join(root, "content", "signals", "sources.json"), "utf8"));
+  const watch = list.find((x) => x.id === "find-a-tender-watch");
+  ok(Boolean(watch), "there is a source that watches named notices");
+  ok(/\{\{notice\}\}/.test(watch.url), "its url marks where each identifier goes", watch.url);
+  ok(Array.isArray(watch.notices) && watch.notices.length >= 2,
+     `and it names ${(watch.notices || []).length} notice(s)`);
+  ok(watch.notices.includes("015074-2026"),
+     "including the National Grid substation market that started all this", watch.notices.join(", "));
+  ok(watch.enabled !== false, "and it is switched on");
+
+  /**
+   * NEITHER GATE APPLIES TO A CURATED LIST, and that is deliberate. The sector
+   * and works gates exist to protect a reader from a portal publishing every
+   * procurement in the country. A human chose each of these by hand, so there
+   * is nothing left for a filter to protect against — and a gate here would
+   * silently drop the very notice somebody added on purpose.
+   */
+  ok(watch.requireSector !== true && watch.requireWorks !== true,
+     "the gates are off, because a person already decided each entry belongs");
+
+  // Every identifier must be the shape the API accepts: nnnnnn-yyyy.
+  for (const id of watch.notices) {
+    ok(/^\d{6}-\d{4}$/.test(id), `${id} is a Find a Tender notice identifier`, id);
+  }
+
+  const idx = fs.readFileSync(path.join(root, "backend", "lib", "signals", "index.js"), "utf8");
+  ok(/Array\.isArray\(src\.notices\) && src\.notices\.length/.test(idx),
+     "the sweep fetches a watchlist when a source names one");
+  ok(/\\\{\\\{notice\\\}\\\}/.test(idx) || idx.includes("{{notice}}"),
+     "substituting each identifier into the url");
+  ok(/targets\.slice\(1\)/.test(idx), "and reads every one of them, not only the first");
+  // A withdrawn notice answers 404. That must not stop the rest of the list.
+  ok(/if \(!one\.ok \|\| !one\.body\) \{ out\.failed\+\+; continue; \}/.test(idx),
+     "a notice that has gone is counted and skipped, not fatal");
+  // Paging and a watchlist are different instruments; mixing them would
+  // multiply requests for no gain.
+  ok(/targets\.length > 1 \? 1 :/.test(idx), "a watchlist does not also page");
+
+  /**
+   * AND THE ONE THAT MADE THE DERBY FRAMEWORK READ AS EARLY. A council titles
+   * it "Framework FOR Highways Services"; only "framework agreement" and
+   * "framework opportunity" matched, so a £128m live framework scored as a
+   * bare value and would have been refused by the portal gate for having no
+   * trigger worth the name.
+   */
+  const derby = "TD2340 - Framework for Highways Services. Derby City Council. Improvement, construction, "
+    + "specialist services, materials supply, plant hire across the highway network and drainage schemes.";
+  const r = S.score(derby);
+  ok(r.triggers.includes("tender"), '"Framework for" is a framework', r.triggers.join(", ") || "none");
+  ok(S.stage(r.triggers) === "open", "and it reads as open", S.stage(r.triggers));
 }
 
 fs.rmSync(scratch, { recursive: true, force: true });

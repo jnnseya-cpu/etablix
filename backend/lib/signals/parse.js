@@ -209,7 +209,9 @@ export const TRIGGERS = [
       /\b(invitation to tender|\bITT\b|invitation to negotiate|request for (quotation|proposal)|\bRFQ\b|\bRFP\b)\b/i,
       /\b(expressions? of interest|\bEOI\b|pre[- ]?qualification|\bPQQ\b|selection questionnaire|\bSQ\b)\b/i,
       /\b(closing date|deadline for (receipt|submission|tenders|participation|requests)|tenders? (are )?invited|bids? (are )?invited|seeking (a )?(contractor|supplier|provider))\b/i,
-      /\b(dynamic purchasing( system)?|\bDPS\b|framework (agreement|opportunity)|call[- ]off)\b/i,
+      // "Framework FOR highways services" is how a council titles one, and
+      // only "framework agreement" and "framework opportunity" matched.
+      /\b(dynamic purchasing( system)?|\bDPS\b|framework (agreement|opportunity|for)|call[- ]off)\b/i,
       /**
        * THE SINGLE MOST VALUABLE THING ON A PORTAL, AND IT SCORED ZERO.
        *

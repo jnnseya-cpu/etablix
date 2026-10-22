@@ -17,11 +17,12 @@
       "noticeUrl": "optional template for building a notice's own URL from the record's identifier, e.g. \"https://host/Notice/{id}\". Only set it once --dump has shown which field holds the right identifier. A template on the wrong field gives every signal a confident dead link.",
       "note": "what IS known about a source that has been checked and is running: a caveat, a thing still to improve, a reason it is enabled despite returning little. Unlike verify, a note does not block enabling.",
       "_version": "bumped in the REPO copy whenever this file changes in a way the live copy needs. The live copy on the data volume is seeded once and never overwritten, so that a hand edit survives a deploy — which also means a repo change does not reach the server by itself. signals-check.mjs compares the two and says so loudly.",
-      "pages": "how many pages of a notice API to follow, via the response's own next link. Default 1. One response is a hundred notices and a pointer to the rest; for news that is plenty, but the entries worth most are open-ended dynamic markets and those are old, so finding them means both a wider window and more pages. Capped at 50, and every page goes through the same polite fetcher — one host at a time, five seconds apart."
+      "pages": "how many pages of a notice API to follow, via the response's own next link. Default 1. One response is a hundred notices and a pointer to the rest; for news that is plenty, but the entries worth most are open-ended dynamic markets and those are old, so finding them means both a wider window and more pages. Capped at 50, and every page goes through the same polite fetcher — one host at a time, five seconds apart.",
+      "notices": "specific notice identifiers to fetch directly, with {{notice}} in the url marking where each goes. This is how an open-ended dynamic market is watched: it may have been published a year ago and still be open, so no date window will return it. A human curates this list; the sector and works gates are therefore switched off, because a person has already decided each entry belongs."
     },
     "_why_procurement_portals": "THE HOLE THIS FILE HAD UNTIL 19 OCT 2026. Every source was trade press — somebody writing about a decision after it was taken. The decisions themselves are published in full, with the winner named, the value stated and the dates given, on the procurement portals. A watcher reading only the commentary is always a week behind the record and never sees the notices the press does not cover, which is most of them. The portals below are therefore the most valuable entries here, and the hardest to get right: several are windowed JSON APIs rather than feeds, and TED's search is POST-only, which a GET watcher cannot read at all. Each says honestly what is known and what still has to be checked.",
     "_checked": "Checked against the live server on 19 October 2026. 11 sources enabled. Find a Tender and Contracts Finder both answered as OCDS JSON and are the first notice sources we have ever had. Still to resolve: Sell2Wales and Public Contracts Scotland (both matter), TenderNed (recheck — our accept header was wrong, not their API), and the two supply-chain pages, which are where a Meet the Buyer would be found.",
-    "_version": 8
+    "_version": 9
   },
   {
     "id": "ili-energy",
@@ -232,6 +233,30 @@
     "requireWorks": true,
     "pages": 12,
     "note": "THE SAME API AS find-a-tender, READ DEEPER AND FURTHER BACK, AND THE REASON IS THE WHOLE POINT. A dynamic market is open-ended: it admits members at any time, has no closing date to miss and cannot cap its numbers, which makes it the most valuable entry a portal has. National Grid's substation construction market was published in February 2026 and is still open — and a seven-day window could never return it, however good the patterns got. So this one looks back 120 days and follows twelve pages. Twelve requests five seconds apart is about a minute, which is why it is a separate source rather than a change to the daily one: if it ever becomes too slow, disable this and leave the news window alone. The sector and works gates do the filtering, so the volume costs reading time rather than queue noise.",
+    "enabled": true
+  },
+  {
+    "id": "find-a-tender-watch",
+    "name": "Find a Tender — the markets we are watching, by name",
+    "sector": "",
+    "org": "",
+    "url": "https://www.find-tender.service.gov.uk/api/1.0/ocdsReleasePackages/{{notice}}",
+    "notices": [
+      "015074-2026",
+      "074509-2026",
+      "084911-2026",
+      "087005-2026",
+      "095754-2026",
+      "093228-2026"
+    ],
+    "noticeUrl": [
+      "https://www.find-tender.service.gov.uk/Notice/{id}",
+      "https://www.find-tender.service.gov.uk/procurement/{ocid}"
+    ],
+    "siteUrl": "https://www.find-tender.service.gov.uk/Search/Results",
+    "requireSector": false,
+    "requireWorks": false,
+    "note": "THE ONLY RELIABLE WAY TO WATCH AN OPEN-ENDED MARKET. National Grid's substation construction dynamic market (015074-2026) was published on 19 February 2026 and is still open — open-ended, every English region and Wales, site welfare facilities and security named in its own published scope. It is the best entry on the portal, and no date window will ever return it: it is eight months old, and a hundred items a page against tens of thousands of notices is a lottery rather than a search. The API answers a direct request for a notice by its identifier, so this source NAMES the ones that matter and fetches each exactly, one request each, every sweep. NEITHER GATE APPLIES HERE, deliberately: a human chose every entry on this list, so there is nothing for a sector or works filter to protect against. ADD TO THE notices ARRAY whenever a notice is worth keeping an eye on — that is the maintenance this source is designed around, and it is the one list in this file worth curating by hand.",
     "enabled": true
   },
   {
