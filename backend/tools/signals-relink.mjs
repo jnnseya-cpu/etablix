@@ -55,6 +55,19 @@ const NEVER = ["status", "actedBy", "actedAt", "note", "id", "fingerprint", "see
 
 const WRITE = process.argv.includes("--write");
 
+/**
+ * MEND ONE SOURCE, WHEN ONE SOURCE IS THE QUESTION.
+ *
+ * Without this, finding out whether eighteen Find a Tender rows can be mended
+ * means asking every publisher with rows in the queue — and asking a
+ * government portal a dozen extra questions to answer a question about a
+ * different one is how this installation earned a 429 in the first place.
+ *
+ *   signals-relink.mjs --source=find-a-tender           say what it would do
+ *   signals-relink.mjs --source=find-a-tender --write   do it
+ */
+const ONLY = (process.argv.find((a) => a.startsWith("--source=")) || "").split("=").slice(1).join("=") || null;
+
 console.log(`\nreading: ${sourcesFile()}`);
 {
   const seed = seedStatus();
@@ -133,7 +146,15 @@ for (const sig of candidates) {
   if (!bySource.has(sig.sourceId)) bySource.set(sig.sourceId, []);
   bySource.get(sig.sourceId).push(sig);
 }
-console.log(`${candidates.length} signal(s) across ${bySource.size} source(s) link somewhere other than a notice.\n`);
+if (ONLY) {
+  for (const id of [...bySource.keys()]) if (id !== ONLY) bySource.delete(id);
+  if (!bySource.size) {
+    console.log(`No signal from "${ONLY}" needs mending. Sources that do: ${[...new Set(candidates.map((c) => c.sourceId))].join(", ") || "none"}\n`);
+    process.exit(0);
+  }
+  console.log(`ONLY ${ONLY}, as asked. Nothing else is read and nothing else is asked for.\n`);
+}
+console.log(`${[...bySource.values()].reduce((n, r) => n + r.length, 0)} signal(s) across ${bySource.size} source(s) link somewhere other than a notice.\n`);
 
 let mended = 0, linkOnly = 0, unresolved = 0, failedSource = 0;
 const changedFields = new Set();

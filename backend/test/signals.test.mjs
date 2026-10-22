@@ -1643,6 +1643,16 @@ console.log("\n=== what the live run broke, third time out ===\n");
    * halfway and gave no clue which rows it had reached.
    */
   const tool = fs.readFileSync(path.join(root, "backend", "tools", "signals-relink.mjs"), "utf8");
+
+  /**
+   * IT CAN BE POINTED AT ONE SOURCE. Asking every publisher with rows in the
+   * queue in order to answer a question about one of them is how this
+   * installation earned a 429 from two government services.
+   */
+  ok(/--source=/.test(tool), "the backfill can be limited to one source");
+  ok(/const ONLY = /.test(tool) && /bySource\.delete\(id\)/.test(tool),
+     "  and the limit is applied before anything is requested, not after");
+
   const body = tool.slice(tool.indexOf("function fill("), tool.indexOf("\nconst all = sources()"));
   const fill = new Function("return " + body.slice(0, body.lastIndexOf("}") + 1).trim())();
 
