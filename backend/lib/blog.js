@@ -109,6 +109,16 @@ export const SOURCES = {
     title: "Procurement Act 2023",
     publisher: "legislation.gov.uk",
   },
+  wasteDutyOfCare: {
+    url: "https://www.gov.uk/government/publications/waste-duty-of-care-code-of-practice",
+    title: "Waste duty of care: code of practice",
+    publisher: "Department for Environment, Food and Rural Affairs / Environment Agency",
+  },
+  hseSiteTransport: {
+    url: "https://www.hse.gov.uk/construction/safetytopics/vehiclessitetransport.htm",
+    title: "Construction site transport safety",
+    publisher: "Health and Safety Executive",
+  },
 };
 
 /**
@@ -541,7 +551,61 @@ const QUEUE = [
     objection: "We take photographs.",
     sell: "Photographs prove it looked right. A closeout pack proves it was returned, by whom, on what date, under whose duty.",
     sources: ["cdm2015"],
+  },  {
+    slug: "one-interface-twenty-one-trades",
+    title: "Twenty-one trades, one interface: what integration actually removes",
+    buyer: "Project director with eleven site-services suppliers and no single programme",
+    query: "how many suppliers does a construction site compound need",
+    objection: "We already have good suppliers. Adding a layer adds cost.",
+    sell: "It removes a layer. Eleven relationships competing for the attention of the person building the permanent works is the layer.",
+    sources: ["cdm2015"],
   },
+  {
+    slug: "the-procurement-desk",
+    title: "The Managed Procurement Desk: aggregation without the cashflow risk",
+    buyer: "Commercial director weighing a single site-services supplier",
+    query: "site services aggregation supplier consolidation construction",
+    objection: "Aggregators take a margin on our trades and sit on our money.",
+    sell: "Then do not buy one that does. Aggregate the buying, keep the contracts, and the solvency question never arises.",
+    sources: ["hgcra", "procurementAct"],
+  },
+  {
+    slug: "assurance-before-it-is-an-event",
+    title: "Project controls on the temporary scope, before a problem becomes an event",
+    buyer: "Project controls lead with no visibility of the site-services scope",
+    query: "project controls temporary works site services reporting",
+    objection: "Our controls cover the project. Site services are in there somewhere.",
+    sell: "Name the cost code. If it takes more than a moment, the scope is unmeasured rather than controlled.",
+    sources: ["cdm2015"],
+  },
+  {
+    slug: "temporary-mep-is-a-design-job",
+    title: "Temporary power, water and drainage are a design job, not a hire order",
+    buyer: "Project manager treating temporary services as procurement",
+    query: "temporary electrical water drainage construction site design",
+    objection: "We hire a generator and order a bowser. It is not engineering.",
+    sell: "The load calculation, the distribution, the earthing and the discharge consent are all engineering, and three of them have lead times.",
+    sources: ["cdm2015", "workplaceAcop"],
+  },
+  {
+    slug: "enabling-works-decide-the-start-date",
+    title: "Enabling works decide the start date more often than the main works do",
+    buyer: "Planner setting a construction start",
+    query: "enabling works construction programme start date",
+    objection: "Enabling works are a few weeks of groundwork before the real job.",
+    sell: "They are the only weeks where a missing consent, a utility queue or an access agreement can still move everything behind them.",
+    sources: ["cdm2015"],
+  },
+  {
+    slug: "total-site-lifecycle-management",
+    title: "Total Site Lifecycle Management: one scope from diagnosis to reinstatement",
+    buyer: "Client who buys site services stage by stage and pays for the gaps between them",
+    query: "who manages site establishment for the whole project lifecycle",
+    objection: "We buy each stage when we need it. That keeps us flexible.",
+    sell: "It keeps you flexible and it leaves six handovers unowned. The gaps between stages are where the cost lands.",
+    sources: ["cdm2015", "hseCdmSummary"],
+  },
+
 ];
 
 /**

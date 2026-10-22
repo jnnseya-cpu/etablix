@@ -1,0 +1,39 @@
+{
+  "written": "2026-10-22",
+  "title": "What \"prime\" means when we use it, and what it does not",
+  "seoTitle": "Prime Service Contractor: What It Means, And Does Not",
+  "description": "Single-point responsibility for site services without taking the CDM principal contractor appointment. The distinction, and where it is written down.",
+  "standfirst": "One contract for the whole temporary scope is a commercial arrangement. It is not a CDM appointment, and conflating the two is how a client ends up believing a duty has moved when it has not.",
+  "body": "what-prime-means.html",
+  "buyer": "Client considering single-point responsibility for site services",
+  "topics": [
+    "site services procurement",
+    "principal contractor",
+    "CDM 2015",
+    "single point responsibility",
+    "construction delivery models"
+  ],
+  "faq": [
+    {
+      "q": "Does a prime service contractor become the principal contractor?",
+      "a": "No. The principal contractor is an appointment a client makes in writing under CDM 2015 where more than one contractor is involved, and it carries duties for planning, managing and monitoring the construction phase of the whole project. A prime service contract for site services is a commercial arrangement covering one scope of work. The two are different instruments doing different jobs. Where we work under a prime arrangement we are a contractor within the appointed principal contractor's arrangements, and our appointment says so in terms. A client who believes the CDM duty has moved because a single supplier now holds the site-services scope has been told something untrue."
+    },
+    {
+      "q": "What is the difference between advisory, management integrator and prime?",
+      "a": "They differ in how much of the arrangement sits with us rather than with you. Under advisory we write the requirements, the specification and the tender documents, you run the procurement and you hold every contract, and our involvement ends when the documents are issued. Under management integrator you still contract every supplier directly and we control delivery across them, which means we hold the programme and the interfaces but no money. Under prime the whole temporary scope sits on one contract with us and the supply chain sits behind us. The scope of work is identical in all three. What changes is who carries the contracts."
+    },
+    {
+      "q": "Who holds the money in a management integrator arrangement?",
+      "a": "You do, and that is the point of the model. Every supplier is contracted directly by the client and paid directly by the client, so no part of your supply-chain cashflow passes through us. We hold no retention, no margin on the trades and no payment obligation to anyone in the chain. The reason that matters is simple: an aggregator that holds your supply-chain money concentrates the risk of its own solvency onto your programme. If that firm fails, the suppliers stop. Keeping the contracts with you removes the question entirely, and it is a rule rather than a preference."
+    },
+    {
+      "q": "Can single-point responsibility be arranged without transferring cashflow risk?",
+      "a": "Yes, and the two are routinely confused. Single-point responsibility means one party is answerable for the outcome of a scope: one programme, one interface, one person to telephone when a delivery is late. Transferring cashflow risk means the money for a chain of suppliers passes through an intermediary. You can have the first without the second, which is what the management integrator model is for. Where a client does want everything on one contract, prime does that, and the working-capital rules in the appointment set out what we may and may not aggregate."
+    }
+  ],
+  "sources": [
+    "cdm2015",
+    "hseCdmSummary",
+    "hgcra"
+  ]
+}

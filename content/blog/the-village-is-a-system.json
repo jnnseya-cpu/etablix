@@ -1,0 +1,39 @@
+{
+  "written": "2026-10-22",
+  "title": "A site village is a system, not a shopping list",
+  "seoTitle": "Workforce Village Design: A System, Not A List",
+  "description": "Six correct purchases can still make one wrong establishment. Why a workforce village is designed as one operating environment, and where the interfaces fail.",
+  "standfirst": "Every unit on the order was the right unit. The establishment still does not work, because nothing on an order form describes what happens between the units.",
+  "body": "the-village-is-a-system.html",
+  "buyer": "Anyone who has procured welfare unit by unit",
+  "topics": [
+    "workforce accommodation",
+    "site establishment",
+    "construction welfare",
+    "site layout design",
+    "temporary site services"
+  ],
+  "faq": [
+    {
+      "q": "What is the difference between buying welfare units and designing a site establishment?",
+      "a": "An order specifies objects. An establishment specifies an operating environment, which is the objects plus everything between them: where people walk, where vehicles turn, which units share a drainage run, how far the furthest operative travels to reach a toilet, what the peak headcount is rather than the week-one headcount, and what happens when the site grows. Six correct purchases arranged badly still produce a compound that loses time twice a day for every person on it. The units are the cheapest part of the decision and the arrangement is the expensive one."
+    },
+    {
+      "q": "How do you size a construction site compound?",
+      "a": "Against the headcount curve rather than a single figure, because the number that matters is peak occupancy and the number usually used is whoever is on site at mobilisation. A compound sized for the first trade is undersized for the busiest twelve weeks, and expanding it later means a second mobilisation, a second set of connections and a second disruption. Sizing properly means knowing the curve, the shift pattern, how far people will travel to reach facilities, and whether the site is split into working areas that each need their own provision."
+    },
+    {
+      "q": "What usually goes wrong with a site village?",
+      "a": "The interfaces, almost always. Drainage that assumed mains and found none. A power requirement that exceeded the temporary supply once heating was switched on. Pedestrian routes crossing a vehicle route because the two were planned by different people. Canteen capacity that worked for the headcount but not for a single thirty-minute break. Units delivered in an order that left the last one with no crane access. None of these is a failure of procurement. Each is a failure to plan the objects as one thing."
+    },
+    {
+      "q": "Does a workforce village need to be designed by a single party?",
+      "a": "It needs to be designed as a single thing, which is not quite the same claim. Several suppliers can deliver the parts, and usually do. What cannot be split is the arrangement: one layout, one services strategy, one headcount curve, one sequence of delivery and removal, and one person answerable when two of those disagree. Where the arrangement is split, the interfaces become nobody's work, and the interfaces are where a village fails rather than in any of its components."
+    }
+  ],
+  "sources": [
+    "workplaceAcop",
+    "cdm2015",
+    "hseSiteTransport"
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "written": "2026-10-22",
+  "title": "The nine questions we ask before we will quote",
+  "seoTitle": "Nine Questions Before We Will Quote A Site Setup",
+  "description": "A ballpark for site establishment is a number you will hold us to and we will not honour. Here are the nine answers that produce one we will stand behind.",
+  "standfirst": "We are asked for a ballpark most weeks. The honest answer is that a number given without these nine answers is a guess wearing a decimal point.",
+  "body": "nine-questions-before-we-quote.html",
+  "buyer": "Client who wants a number this week",
+  "topics": [
+    "site establishment cost",
+    "construction estimating",
+    "site setup pricing",
+    "temporary site services",
+    "pre-construction planning"
+  ],
+  "faq": [
+    {
+      "q": "What information is needed to price a site establishment?",
+      "a": "At minimum: the peak headcount and the shape of the curve getting there, the programme duration including demobilisation, whether mains water, drainage and power are available at the boundary or have to be brought in, the site's access and turning constraints, the planning or consent conditions attached to temporary works, whether the workforce is local or needs accommodation, the shift pattern, who holds the principal contractor appointment, and what the reinstatement standard is at the end. Without those, any figure is a guess, and a guess given to a client becomes a number they plan against."
+    },
+    {
+      "q": "Why will you not give a ballpark figure for site setup?",
+      "a": "Because a ballpark is not treated as a ballpark. It goes into a cost plan, it is repeated to a board, and six months later it is the number against which our actual price is judged — and the gap is attributed to us rather than to the information that was missing when it was given. We would rather spend an hour establishing what is actually being asked and then give a number we will stand behind. Where a client genuinely needs an order of magnitude for a feasibility decision, we will say what drives the range and how wide it is."
+    },
+    {
+      "q": "How long does it take to price site establishment properly?",
+      "a": "For most projects the answer to the nine questions can be assembled in a week where the information exists and the client can point at it. The constraint is almost never our analysis; it is that two or three of the answers are not written down anywhere, and finding them requires asking a utility, a planner or a programme owner. That is the real value of asking early: the questions that take time to answer are the ones that also take time to act on, and they are the ones that move a start date."
+    },
+    {
+      "q": "What is a Site Systems Diagnostic?",
+      "a": "It is a defined advisory product with a defined output rather than an open-ended review. We take the project information, work through the temporary scope stage by stage, and return a written assessment of what is required, what is missing, what the lead times are and where the programme is exposed. It is bought on a fixed scope for a fixed fee, it is not a tender for the work, and a client who then procures the scope themselves has lost nothing by starting with it."
+    }
+  ],
+  "sources": [
+    "cdm2015",
+    "hseCdmSummary"
+  ]
+}

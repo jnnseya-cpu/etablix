@@ -1,0 +1,38 @@
+{
+  "written": "2026-10-22",
+  "title": "Waste, cleaning and consumables: the operating lines that leak money for eighteen months",
+  "seoTitle": "Site Running Costs: The Lines Nobody Owns",
+  "description": "Waste, cleaning, consumables and idle hire are small weekly numbers with no owner. Over a long programme they are the largest uncontrolled cost on a compound.",
+  "standfirst": "Nobody argues about a skip. The problem is that nobody owns the skip either, and seventy-eight weeks of unowned weekly cost is not a small number any more.",
+  "body": "the-operating-lines-that-leak.html",
+  "buyer": "Commercial manager on a long-duration project",
+  "topics": [
+    "site establishment running costs",
+    "construction waste management",
+    "plant hire off-hire",
+    "temporary site services",
+    "project controls"
+  ],
+  "faq": [
+    {
+      "q": "What are the running costs of a construction site compound?",
+      "a": "The recurring lines are waste collection and disposal, cleaning of welfare and offices, consumables for those facilities, servicing and emptying of non-mains units, fuel or power for generators and heating, water, connectivity, security including any manned cover, and the hire charges on every unit, cabin, fence run and item of plant that remains on site. Individually they are modest weekly figures. The reason they matter is duration: a seventy-eight week programme multiplies each of them by seventy-eight, and unlike a construction package they attract no scrutiny at tender because they are not a lump sum anybody is bidding."
+    },
+    {
+      "q": "What is idle hire and how does it happen?",
+      "a": "Idle hire is paying a hire charge on something nobody is using. It happens because hire starts on delivery and ends on collection, and collection requires somebody to notice that a unit is finished with, raise an off-hire, and confirm the collection actually happened. On a busy site the person who would notice is the person building the permanent works, and a cabin at the far end of a compound is invisible to them. The charge continues until an invoice becomes large enough for a commercial manager to query it, which on a long programme can be months."
+    },
+    {
+      "q": "Who is responsible for construction waste on site?",
+      "a": "The duty of care for waste runs to anyone who produces, imports, carries, keeps, treats or disposes of it, and it is not discharged by handing a skip to somebody with a van. The waste duty of care code of practice requires you to check that whoever takes it is authorised to do so, to describe the waste accurately, and to keep transfer documentation. On a construction site the practical risk is a subcontractor filling a skip that was ordered for a different stream, which turns a clean load into a mixed one and changes both the cost and the paperwork."
+    },
+    {
+      "q": "How do you control site establishment operating costs?",
+      "a": "By giving each line an owner, a baseline and a frequency before mobilisation rather than after the first invoice. In practice that means a schedule listing every recurring charge with its unit rate and expected quantity, a named person responsible for off-hire, a weekly rather than monthly check on anything that accrues daily, and a reconciliation between what was ordered and what is actually on site. None of that is sophisticated. It is simply work that nobody has been given, which is why it is almost always found undone."
+    }
+  ],
+  "sources": [
+    "wasteDutyOfCare",
+    "cdm2015"
+  ]
+}
