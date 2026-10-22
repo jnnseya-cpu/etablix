@@ -809,6 +809,38 @@ export const NOT_OURS = [
   /\b(stationery|printing and publishing|photocopi|postal services)\b/i,
   /\b(marketing|advertising|public relations|translation|interpreting) services\b/i,
   /\benergy performance certificate/i,
+
+  /**
+   * AN EPC CERTIFICATE AND AN EPC CONTRACTOR ARE OPPOSITE THINGS.
+   *
+   * "Fairhive Retrofit Assessments & EPC's" reached the queue because the
+   * exclusion above spells the phrase out in full and the notice abbreviates
+   * it. The abbreviation cannot simply be banned: an EPC contractor —
+   * engineer, procure, construct — is one of the six sectors this business
+   * exists to sell to, and "EPC contract" must keep scoring.
+   *
+   * What separates them is the surrounding word. A certificate is assessed,
+   * surveyed, rated and lodged; a contractor builds. Both orders are matched
+   * because a title puts either first.
+   */
+  /\b(EPC'?s?|energy performance certificate)\b[^.]{0,48}\b(assessment|survey|rating|lodg|inspector)/i,
+  /\b(assessments?|surveys?|ratings?)\b[^.]{0,48}\b(EPC'?s?|energy performance certificate)\b/i,
+
+  /**
+   * TREES ARE NOT A CONSTRUCTION SITE.
+   *
+   * "Sectional Dismantling and Removal of 22 Lombardy Poplars" scored as works
+   * because dismantling and removal are in the works list — correctly, since
+   * demolition needs an establishment too. A row of poplars does not.
+   *
+   * Narrow on purpose: the vegetation noun must be present. Site clearance,
+   * which is genuine enabling works, is untouched, and so is a framework that
+   * merely happens to mention landscaping among many other things — the words
+   * have to be next to each other.
+   */
+  /\b(trees?|poplars?|hedges?|hedgerows?|shrubs?|vegetation|woodland|arboricultur\w*)\b[^.]{0,40}\b(removal|felling|fell|surgery|pruning|maintenance|management|clearance|works|survey)\b/i,
+  /\b(removal|felling|pruning|surgery|maintenance|management)\b[^.]{0,40}\b(trees?|poplars?|hedges?|hedgerows?|vegetation|woodland)\b/i,
+  /\b(grounds maintenance|grass cutting|verge maintenance|arboricultural services)\b/i,
 ];
 
 /** Something this business cannot sell to, whatever else the words suggest. */

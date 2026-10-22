@@ -1388,6 +1388,47 @@ console.log("\n=== the junk a procurement portal publishes, and why it was getti
     ok(S.hasWorks(inScope), `  and reads as work`, "hasWorks false");
   }
 
+  /**
+   * TWO THAT REACHED THE LIVE QUEUE, TAKEN FROM IT.
+   *
+   * Both were found by auditing what the eighteen Find a Tender rows with no
+   * notice link actually were. Nobody reported them — they were sitting in a
+   * queue described as filtered.
+   */
+  for (const leaked of [
+    // The exclusion spelled "energy performance certificate" out in full and
+    // the notice abbreviates it.
+    "Fairhive Retrofit Assessments & EPC's",
+    "Fairhive Retrofit Assessments and EPCs",
+    // Dismantling and removal are genuine works words. A row of poplars is
+    // not a construction site.
+    "Sectional Dismantling and Removal of 22 Lombardy Poplars",
+    "Tree Surgery and Hedge Maintenance Framework",
+    "Arboricultural Services Framework",
+    "Grounds Maintenance and Grass Cutting",
+    "Vegetation Management across the highway network",
+  ]) {
+    ok(S.notOurs(leaked), `refused, it is not something we could sell to: ${leaked.slice(0, 50)}`);
+  }
+
+  /**
+   * AND THE ONES THAT MUST SURVIVE THOSE TWO PATTERNS, which is the whole
+   * difficulty. An EPC CONTRACTOR — engineer, procure, construct — is one of
+   * the six sectors this business exists to sell to, so the abbreviation could
+   * not simply be banned. And demolition genuinely needs an establishment, so
+   * "removal" had to stay a works word everywhere a building is involved.
+   */
+  for (const keep of [
+    "EPC contractor appointed for 400MW solar scheme",
+    "Appointment of EPC contract for substation works",
+    "Demolition and removal of redundant switchgear building",
+    "Site clearance and enabling works, Hinkley",
+    "National Grid Substation Construction",
+    "SVRP Civils & Marine Works Framework",
+  ]) {
+    ok(!S.notOurs(keep), `  and this still passes: ${keep.slice(0, 50)}`, "wrongly excluded");
+  }
+
   // Wired in everywhere, and counted rather than silently dropped.
   const idx = fs.readFileSync(path.join(root, "backend", "lib", "signals", "index.js"), "utf8");
   ok(/if \(notOurs\(text\)\) \{ out\.notOurs\+\+; continue; \}/.test(idx),
