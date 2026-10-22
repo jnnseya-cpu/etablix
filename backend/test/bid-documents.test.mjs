@@ -10,17 +10,37 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, mkdtempSync, rmSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { PDFParse } from "pdf-parse";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const BUILDER = path.join(ROOT, "business/bids/build-director-experience.cjs");
-const PDF = path.join(ROOT, "business/bids/ETABLIX-Director-Relevant-Experience.pdf");
 const NOTES = path.join(ROOT, "business/bids/DIRECTOR-EXPERIENCE-NOTES.md");
 
-execFileSync(process.execPath, [BUILDER], { cwd: ROOT, stdio: "pipe" });
+/**
+ * BUILT SOMEWHERE ELSE, BECAUSE THE REAL ONES ARE TRACKED.
+ *
+ * This used to run the builder in place and read the tracked PDF. The docx
+ * library stamps dcterms:created with the moment it runs, so every test run
+ * left ETABLIX-Director-Relevant-Experience.docx and .pdf showing as modified
+ * in git — identical content, one byte of difference, every time. A reader who
+ * sees that often enough stops looking before committing, and that is how a
+ * real change gets committed unexamined.
+ *
+ * What the suite actually needs is what the document SAYS, which a copy built
+ * into a temporary directory answers exactly as well.
+ */
+const OUT = mkdtempSync(path.join(os.tmpdir(), "etablix-bid-"));
+const PDF = path.join(OUT, "ETABLIX-Director-Relevant-Experience.pdf");
+
+execFileSync(process.execPath, [BUILDER], {
+  cwd: ROOT, stdio: "pipe",
+  env: { ...process.env, ETABLIX_BID_OUT_DIR: OUT },
+});
+process.on("exit", () => { try { rmSync(OUT, { recursive: true, force: true }); } catch { /* temp */ } });
 const { text } = await new PDFParse({ data: new Uint8Array(readFileSync(PDF)) }).getText();
 const flat = text.replace(/\s+/g, " ");
 

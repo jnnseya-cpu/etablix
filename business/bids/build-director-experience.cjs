@@ -75,6 +75,29 @@ const path = require("node:path");
 const B = require("../policies/brand.cjs");
 const DATA = require("./director-experience.data.cjs");
 
+/**
+ * WHERE THE BUILT DOCUMENT LANDS, AND WHY IT IS OVERRIDABLE.
+ *
+ * Beside this file, which is right: the .docx and .pdf are tracked
+ * deliverables and the point is that they are current. But the test suite runs
+ * this builder to read what the document says, and the docx library stamps
+ * dcterms:created with the moment it ran, so every test run left two tracked
+ * files showing as modified with identical content and a one-byte difference.
+ *
+ * That trains a reader to commit changes without looking at them, which is the
+ * habit that eventually commits a real one by accident. A test has written
+ * into tracked state in this repository before — four fixture rows into the
+ * dev store — and the lesson is the same one: a test builds somewhere else.
+ *
+ * The library offers no way to fix the timestamp (docx 9.8.1 has no created or
+ * modified option; it is hard-coded), and rezipping the package by hand is the
+ * operation that broke the NDA document once already. So the fix is the output
+ * directory rather than the bytes.
+ */
+const OUT_DIR = process.env.ETABLIX_BID_OUT_DIR
+  ? path.resolve(process.env.ETABLIX_BID_OUT_DIR)
+  : __dirname;
+
 const DASH = "—";
 const REV = "4";
 
@@ -110,7 +133,7 @@ const d = B.doc({
   title: "DIRECTOR'S EXPERIENCE",
   sub: "submitted in place of company contract examples, as the assessment team confirmed is permitted",
   rev: REV,
-  outDir: __dirname,
+  outDir: OUT_DIR,
   kind: "statement",
   draftNote: false,
   control,
