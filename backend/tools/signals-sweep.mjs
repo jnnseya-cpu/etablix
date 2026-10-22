@@ -51,6 +51,16 @@ console.log(`  failed              ${out.failed}`);
 console.log(`  already seen        ${out.skipped}`);
 console.log(`  NEWLY QUEUED        ${out.queued.length}`);
 
+// WHICH ONES, AND WHY. A number on its own sends the reader to the check tool
+// to find out what the sweep already knew.
+if (out.failures && out.failures.length) {
+  console.log("\n  what failed:\n");
+  for (const f of out.failures) {
+    console.log(`    ${f.id}  —  ${f.why}`);
+    console.log(`      ${f.url}`);
+  }
+}
+
 if (out.queued.length) {
   console.log("\nWhat was queued, highest first:\n");
   for (const s of [...out.queued].sort((a, b) => b.score - a.score)) {

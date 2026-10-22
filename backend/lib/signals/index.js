@@ -21,15 +21,13 @@
 import { collection, insert, update } from "../store.js";
 import { politeFetch } from "./fetch.js";
 import { publishedContact, scrub, isRoleAddress } from "./contact.js";
-import { TRIGGERS, SECTORS, SECTOR_LABEL, sources, sourcesFile, seedStatus, fingerprint, score, extract, classify,
-         stage, STAGE_LABEL, OPEN_TRIGGERS, CONFIRMED_TRIGGERS, namedOrgs, extractDeadline, resolveUrl,
-         WORKS, hasWorks, NOT_OURS, notOurs, nextLink } from "./parse.js";
+import { TRIGGERS, SECTORS, SECTOR_LABEL, sources, sourcesFile, seedStatus, fingerprint, score, extract, classify, stage, STAGE_LABEL, OPEN_TRIGGERS, CONFIRMED_TRIGGERS, namedOrgs, extractDeadline, resolveUrl, WORKS, hasWorks, NOT_OURS, notOurs, nextLink, noticeTargets } from "./parse.js";
 
 // Re-exported so every caller keeps one import, and so the split between what
 // needs the database and what does not stays an implementation detail.
 export { TRIGGERS, SECTORS, SECTOR_LABEL, sources, sourcesFile, seedStatus, fingerprint, score, extract, classify,
          stage, STAGE_LABEL, OPEN_TRIGGERS, CONFIRMED_TRIGGERS, namedOrgs, extractDeadline, resolveUrl,
-         WORKS, hasWorks, NOT_OURS, notOurs, nextLink };
+         WORKS, hasWorks, NOT_OURS, notOurs, nextLink, noticeTargets };
 
 
 /**
@@ -110,7 +108,21 @@ export function queue(signal) {
  * that has moved should not stop the other nine.
  */
 export async function sweep({ minScore = 3, enrich = true } = {}) {
-  const out = { checked: 0, blocked: 0, unchanged: 0, failed: 0, queued: [], skipped: 0, expired: 0, offSector: 0, noWorks: 0, notOurs: 0, pages: 0 };
+  const out = { checked: 0, blocked: 0, unchanged: 0, failed: 0, queued: [], skipped: 0, expired: 0, offSector: 0, noWorks: 0, notOurs: 0, pages: 0, failures: [] };
+
+  /**
+   * A COUNT OF FAILURES IS NOT A REPORT OF THEM.
+   *
+   * The live run said "failed 4" and named none of them, so the only way to
+   * learn which four was to run the check tool over all twenty-seven sources
+   * and read the output — which is exactly the going-and-finding this is meant
+   * to remove. The reason is already in hand at the moment of failure; it
+   * costs nothing to keep it.
+   */
+  const fail = (src, url, res) => {
+    out.failed++;
+    out.failures.push({ id: src.id, url, why: (res && res.reason) || "no body" });
+  };
   for (const src of sources()) {
     out.checked++;
     // resolveUrl, not src.url: the procurement APIs are windowed queries and
@@ -141,15 +153,13 @@ export async function sweep({ minScore = 3, enrich = true } = {}) {
      * admits members at any time needs reading once and acting on, not
      * re-reading every morning.
      */
-    const targets = Array.isArray(src.notices) && src.notices.length
-      ? src.notices.map((id) => resolveUrl(String(src.url).replace(/\{\{notice\}\}/g, encodeURIComponent(String(id).trim()))))
-      : [resolveUrl(src.url)];
+    const targets = noticeTargets(src);
 
     const first = targets[0];
     const res = await politeFetch(first);
     if (res.blocked) { out.blocked++; continue; }
     if (res.notModified) { out.unchanged++; continue; }
-    if (!res.ok) { out.failed++; continue; }
+    if (!res.ok) { fail(src, first, res); continue; }
 
     /**
      * FOLLOW THE PAGES A SOURCE ASKS FOR.
@@ -169,7 +179,7 @@ export async function sweep({ minScore = 3, enrich = true } = {}) {
     for (const target of targets.slice(1)) {
       const one = await politeFetch(target);
       pages++;
-      if (!one.ok || !one.body) { out.failed++; continue; }
+      if (!one.ok || !one.body) { fail(src, target, one); continue; }
       items.push(...extract(one.body, target, opts));
     }
 

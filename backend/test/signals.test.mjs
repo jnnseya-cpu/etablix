@@ -526,8 +526,14 @@ console.log("\n=== a windowed API needs today's date, and the file must not need
   // The sweep must request the RESOLVED url. Requesting the template would
   // 400 every time and read on screen as a dead source.
   const sweepSrc = fs.readFileSync(path.join(root, "backend", "lib", "signals", "index.js"), "utf8");
-  ok(/resolveUrl\(src\.url\)/.test(sweepSrc) && /politeFetch\(first\)/.test(sweepSrc),
-     "the sweep fetches a resolved url, not a template");
+  // The expansion lives in parse.js as noticeTargets, because the check tool
+  // has to agree with the sweep about what will be requested. So test the
+  // behaviour, which is stronger than grepping for a line: ask it for a
+  // template and prove nothing template-shaped survives.
+  ok(S.noticeTargets({ url: "https://x/api?from={{date:-7}}" })[0] === `https://x/api?from=${week}`,
+     "the sweep fetches a resolved url, not a template", S.noticeTargets({ url: "https://x/api?from={{date:-7}}" })[0]);
+  ok(/const targets = noticeTargets\(src\)/.test(sweepSrc) && /politeFetch\(first\)/.test(sweepSrc),
+     "and it asks noticeTargets for them rather than building its own");
   ok(/const first = targets\[0\]/.test(sweepSrc),
      "and the first target is the source's own url, or the first notice it names");
 }
@@ -1190,8 +1196,18 @@ console.log("\n=== a head start on the contact, without going looking for one ==
   // Every one of those four traces back to the source. `target` is the one
   // added by the watchlist, and it is built from src.url and src.notices —
   // never from anything found inside an item.
-  ok(/const targets = Array\.isArray\(src\.notices\)/.test(idx) && /resolveUrl\(src\.url\)/.test(idx),
-     "  and the targets are built from the source's own url and its own notice list");
+  ok(/const targets = noticeTargets\(src\)/.test(idx),
+     "  and the targets come from noticeTargets, which takes only the source");
+  // THE PROPERTY THIS PROTECTS, stated where it now lives. noticeTargets is
+  // handed a source and nothing else, so there is no route by which an address
+  // found inside an item could become something the watcher requests.
+  const parseSrc = fs.readFileSync(path.join(root, "backend", "lib", "signals", "parse.js"), "utf8");
+  const fn = (/export function noticeTargets\(src\) \{[\s\S]*?\n\}/.exec(parseSrc) || [""])[0];
+  ok(fn.length > 0, "  and noticeTargets is where the expansion happens");
+  ok(/src\.notices/.test(fn) && /src\.url/.test(fn),
+     "  built from the source's own url and its own notice list");
+  ok(!/\bitem\b|\bentry\b|\.link\b|\.href\b/.test(fn),
+     "  and from nothing found inside an item", fn);
   ok(/const next = nextLink\(body, url\)/.test(idx),
      "  and `next` comes from the response the source itself returned, never from an item");
 
@@ -1677,14 +1693,23 @@ console.log("\n=== a named market is fetched, not searched for ===\n");
   }
 
   const idx = fs.readFileSync(path.join(root, "backend", "lib", "signals", "index.js"), "utf8");
-  ok(/Array\.isArray\(src\.notices\) && src\.notices\.length/.test(idx),
-     "the sweep fetches a watchlist when a source names one");
-  ok(/\\\{\\\{notice\\\}\\\}/.test(idx) || idx.includes("{{notice}}"),
-     "substituting each identifier into the url");
+  // Behavioural, against the real source entry: the six identifiers in
+  // sources.json must become six exact addresses with no template left.
+  const built = S.noticeTargets(watch);
+  ok(built.length === watch.notices.length,
+     "the sweep fetches a watchlist when a source names one", `${built.length} target(s)`);
+  ok(built.every((u) => !u.includes("{{") && watch.notices.some((id) => u.endsWith(id))),
+     "substituting each identifier into the url", built.join(" | "));
+  ok(built[0].includes("015074-2026"),
+     "and the National Grid substation market is one of them", built[0]);
   ok(/targets\.slice\(1\)/.test(idx), "and reads every one of them, not only the first");
   // A withdrawn notice answers 404. That must not stop the rest of the list.
-  ok(/if \(!one\.ok \|\| !one\.body\) \{ out\.failed\+\+; continue; \}/.test(idx),
+  ok(/if \(!one\.ok \|\| !one\.body\) \{[^}]*continue; \}/.test(idx),
      "a notice that has gone is counted and skipped, not fatal");
+  // And it is NAMED. "failed 4" with no names was the live run's own report,
+  // and finding out which four meant checking all twenty-seven by hand.
+  ok(/out\.failures\.push\(\{ id: src\.id/.test(idx),
+     "and a failure keeps the source that caused it, not just a tally");
   // Paging and a watchlist are different instruments; mixing them would
   // multiply requests for no gain.
   ok(/targets\.length > 1 \? 1 :/.test(idx), "a watchlist does not also page");

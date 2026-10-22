@@ -21,7 +21,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 // From parse.js, NOT index.js: the queue needs the database and this does not.
-import { extract, score, sourcesFile, seedStatus, resolveUrl, stage, namedOrgs, extractDeadline, hasWorks, notOurs, nextLink } from "../lib/signals/parse.js";
+import { extract, score, sourcesFile, seedStatus, resolveUrl, stage, namedOrgs, extractDeadline, hasWorks, notOurs, nextLink, noticeTargets } from "../lib/signals/parse.js";
 import { politeFetch } from "../lib/signals/fetch.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -134,7 +134,7 @@ async function tryOne(base, candidate) {
 if (DUMP) {
   const src = raw.find((x) => x && x.id === DUMP_ID && x.url);
   if (!src) { console.log(`\nNo source called "${DUMP_ID}".\n`); process.exit(1); }
-  const url = resolveUrl(src.url);
+  const url = noticeTargets(src)[0];
   console.log(`\n=== ${src.id} ===\n${url}\n`);
   const res = await politeFetch(url);
   if (!res.ok) {
@@ -246,8 +246,15 @@ for (const s of list) {
   // The URL as the sweep will actually request it, dates filled in. Printing
   // the template instead is how you spend an afternoon testing by hand a URL
   // that is not the one the watcher asks for.
-  const url = resolveUrl(s.url);
+  // EVERY ADDRESS THE SWEEP WOULD REQUEST, not the template. A watchlist
+  // source carries {{notice}} and a list of identifiers; printing or fetching
+  // the unexpanded form reports a 404 from a URL the sweep never asks for.
+  const targets = noticeTargets(s);
+  const url = targets[0];
   console.log(`    ${url}${url !== s.url ? `\n      (from ${s.url})` : ""}`);
+  if (targets.length > 1) {
+    console.log(`      ${targets.length} named notice(s), each fetched exactly — no window, no paging`);
+  }
   const res = await politeFetch(url);
 
   if (res.unreachable) {
@@ -300,7 +307,20 @@ for (const s of list) {
   const opts = { noticeUrl: s.noticeUrl || null, siteUrl: s.siteUrl || null };
   const items = extract(res.body, url, opts);
   let read = 1, at = url, bodyNow = res.body;
-  const depth = Math.max(1, Math.min(Number(s.pages) || 1, 50));
+
+  // The rest of a watchlist, each fetched exactly, and a withdrawn notice
+  // answering 404 is reported rather than stopping the others.
+  let missing = 0;
+  for (const target of targets.slice(1)) {
+    const one = await politeFetch(target);
+    read++;
+    if (!one.ok || !one.body) { missing++; console.log(`      ${target.split("/").pop()}  ${one.reason || "no body"}`); continue; }
+    items.push(...extract(one.body, target, opts));
+  }
+  if (missing) console.log(`      ${missing} of ${targets.length} named notice(s) did not answer`);
+
+  // A watchlist has already made all the requests it is going to make.
+  const depth = targets.length > 1 ? read : Math.max(1, Math.min(Number(s.pages) || 1, 50));
   while (read < depth) {
     const next = nextLink(bodyNow, at);
     if (!next) break;

@@ -691,6 +691,29 @@ export function resolveUrl(url) {
 }
 
 /**
+ * EVERY URL A SOURCE WILL ACTUALLY BE ASKED FOR.
+ *
+ * One source, one URL, almost always. The exception is a source that names the
+ * notices it watches: {{notice}} in its address and a notices array beside it,
+ * which becomes one exact request per entry and is the only reliable way to
+ * watch an open-ended market.
+ *
+ * WHY THIS IS A FUNCTION AND NOT TWO COPIES OF A LINE. The sweep learned to
+ * expand the watchlist and the check tool did not, so the check fetched the
+ * address with {{notice}} still in it, got a 404 from a URL nobody would ever
+ * request, and reported the watchlist broken on a run where it was fine. A
+ * diagnostic that disagrees with the thing it diagnoses is worse than no
+ * diagnostic: it sends you to fix what is already working. Both callers now
+ * ask this, so neither can drift from the other again.
+ */
+export function noticeTargets(src) {
+  const list = src && Array.isArray(src.notices) ? src.notices.filter((x) => String(x || "").trim()) : [];
+  if (!list.length) return [resolveUrl(src && src.url)];
+  return list.map((id) =>
+    resolveUrl(String(src.url).replace(/\{\{notice\}\}/g, encodeURIComponent(String(id).trim()))));
+}
+
+/**
  * IS THERE ACTUALLY A CONSTRUCTION SITE IN IT?
  *
  * THE FLOOD THIS ANSWERS, FROM THE SECOND LIVE RUN. The sector gate cut Find
