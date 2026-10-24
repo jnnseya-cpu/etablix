@@ -9,10 +9,11 @@
  * lookups return { configured: false } and the scorecard says how to
  * enable it — the feature ships dark and lights up with the key.
  */
+import { credentialValue } from "./credentials.js";
 
 const CH_BASE = "https://api.company-information.service.gov.uk";
 
-export const isConfigured = () => Boolean(process.env.CH_API_KEY);
+export const isConfigured = () => Boolean(credentialValue("companies_house"));
 
 /** Normalise a UK company number: uppercase, strip spaces, pad bare digits to 8. */
 export function normaliseNumber(raw) {
@@ -31,13 +32,13 @@ export async function lookupCompany(regNumber) {
   const number = normaliseNumber(regNumber);
   if (!/^[A-Z0-9]{8}$/.test(number)) return { configured: true, found: false, number };
 
-  const auth = "Basic " + Buffer.from(`${process.env.CH_API_KEY}:`).toString("base64");
+  const auth = "Basic " + Buffer.from(`${credentialValue("companies_house")}:`).toString("base64");
   const res = await fetch(`${CH_BASE}/company/${number}`, {
     headers: { Authorization: auth },
     signal: AbortSignal.timeout(10000),
   });
   if (res.status === 404) return { configured: true, found: false, number };
-  if (res.status === 401) throw new Error("Companies House rejected the API key — check CH_API_KEY.");
+  if (res.status === 401) throw new Error("Companies House rejected the API key — check it in the Control Desk under Organisation, or CH_API_KEY in the environment.");
   if (!res.ok) throw new Error(`Companies House responded HTTP ${res.status}.`);
   const c = await res.json();
 
@@ -62,7 +63,7 @@ export async function lookupCompany(regNumber) {
 
 /** One-paragraph verification summary for scorecards and agent briefings. */
 export function describeCheck(check, declaredName) {
-  if (!check?.configured) return "Companies House check not configured (set CH_API_KEY to enable automatic verification).";
+  if (!check?.configured) return "Companies House check not configured — an administrator adds the key in the Control Desk under Organisation, or sets CH_API_KEY.";
   if (!check.found) return `Companies House: number ${check.number} NOT FOUND — verify the registration number with the supplier before proceeding.`;
   const flags = [];
   if (check.status !== "active") flags.push(`status is "${check.status}"`);

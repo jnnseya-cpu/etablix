@@ -12,6 +12,8 @@
  */
 
 import nodemailer from "nodemailer";
+import crypto from "node:crypto";
+import { credentialValue } from "./credentials.js";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -34,11 +36,11 @@ const FROM = rawFrom.includes("<") ? rawFrom : `ETABLIX <${rawFrom}>`;
 // about at boot, when somebody is watching the log.
 function auditSenderAlignment() {
   const fromDomain = (rawFrom.match(/@([^>\s]+)/) || [])[1];
-  if (!process.env.SMTP_HOST) {
-    console.warn("[mail] No SMTP_HOST set — every message is written to outbox.log and nobody receives it.");
+  if (!credentialValue("smtp_host")) {
+    console.warn("[mail] No mail server configured — every message is written to outbox.log and nobody receives it. Set it in the environment, or in the Control Desk under Organisation.");
     return;
   }
-  const authDomain = (String(process.env.SMTP_USER || "").match(/@(.+)$/) || [])[1];
+  const authDomain = (String(credentialValue("smtp_user") || "").match(/@(.+)$/) || [])[1];
   if (authDomain && fromDomain && authDomain.toLowerCase() !== fromDomain.toLowerCase()) {
     console.warn(
       `[mail] SENDER MISALIGNMENT: sending as ${fromDomain} through a mailbox at ${authDomain}. ` +
@@ -53,22 +55,58 @@ function auditSenderAlignment() {
 }
 auditSenderAlignment();
 
-const transport = process.env.SMTP_HOST
-  ? nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT || 587),
-      secure: Number(process.env.SMTP_PORT) === 465,
+/**
+ * THE TRANSPORT IS BUILT WHEN IT IS NEEDED, NOT WHEN THE FILE LOADS.
+ *
+ * It used to be a module-level const reading process.env, which froze the mail
+ * configuration at boot. That was fine while SMTP could only come from the
+ * environment. Now an administrator can set it in the Control Desk, and a
+ * setting that needs a container restart to take effect is not a setting — it
+ * is a deployment with a form in front of it.
+ *
+ * Rebuilt only when the configuration actually changes, so the common case is
+ * still one transport reused for the life of the process. The cache key holds
+ * a digest of the password rather than the password, because a cache key is
+ * exactly the kind of string that ends up in a debug log one day.
+ */
+let cachedTransport = null;   // { sig, transport }
+
+export function mailSettings() {
+  return {
+    host: credentialValue("smtp_host"),
+    port: Number(credentialValue("smtp_port") || 587),
+    user: credentialValue("smtp_user"),
+    pass: credentialValue("smtp_pass"),
+    timeoutMs: Number(process.env.SMTP_TIMEOUT_MS || 10000),
+  };
+}
+
+function getTransport() {
+  const c = mailSettings();
+  if (!c.host) return null;
+  const passDigest = c.pass ? crypto.createHash("sha256").update(c.pass).digest("hex").slice(0, 12) : "none";
+  const sig = `${c.host}|${c.port}|${c.user}|${passDigest}|${c.timeoutMs}`;
+  if (cachedTransport && cachedTransport.sig === sig) return cachedTransport.transport;
+  cachedTransport = {
+    sig,
+    transport: nodemailer.createTransport({
+      host: c.host,
+      port: c.port,
+      secure: c.port === 465,
       // A firewalled or wrong SMTP host does not refuse the connection, it
       // simply never answers. Without these the send waits minutes, and if
       // anything is awaiting it, so does the customer's browser.
-      connectionTimeout: Number(process.env.SMTP_TIMEOUT_MS || 10000),
-      greetingTimeout: Number(process.env.SMTP_TIMEOUT_MS || 10000),
+      connectionTimeout: c.timeoutMs,
+      greetingTimeout: c.timeoutMs,
       socketTimeout: Number(process.env.SMTP_TIMEOUT_MS || 20000),
-      auth: process.env.SMTP_USER
-        ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
-        : undefined,
-    })
-  : null;
+      auth: c.user ? { user: c.user, pass: c.pass } : undefined,
+    }),
+  };
+  return cachedTransport.transport;
+}
+
+/** Called when a credential changes, so the next send uses the new settings. */
+export const resetMailTransport = () => { cachedTransport = null; };
 
 // A placeholder with no value renders as nothing — raw {{tokens}} must
 // never reach a recipient. The double-space/dangling-separator tidy-up
@@ -154,6 +192,7 @@ export function renderEvent(code, vars = {}, { greeting, detailsText } = {}) {
 }
 
 async function sendEmail(to, subject, text, html, attachments, replyTo) {
+  const transport = getTransport();
   if (transport) {
     try {
       // The envelope sender is stated explicitly rather than left to the

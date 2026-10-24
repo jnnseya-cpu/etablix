@@ -14,6 +14,7 @@
  * reports once rather than flooding. Never throws: an alert failure must not
  * worsen the failure it is reporting.
  */
+import { credentialValue } from "./credentials.js";
 
 import fs from "node:fs";
 import path from "node:path";
@@ -40,7 +41,7 @@ function toDisk(entry) {
 
 /** Route 2: a webhook, which does not share a failure mode with email. */
 function toWebhook(entry) {
-  const url = process.env.ALERT_WEBHOOK_URL;
+  const url = credentialValue("alert_webhook");
   if (!url) return;
   const body = JSON.stringify({ text: `ETABLIX ${entry.level}: ${entry.context} — ${entry.message}` });
   // Never awaited, and its own failure is swallowed: an alert must not be
