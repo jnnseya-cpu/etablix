@@ -15,6 +15,7 @@ import { packBytes } from "./lib/runstore.js";
 import { startHeartbeat, stopHeartbeat, heartbeatState } from "./lib/heartbeat.js";
 import { viewCounter, startViewFlush, stopViewFlush, importLegacyTraffic } from "./lib/reach.js";
 import { canonicalUrl } from "./lib/canonical-url.js";
+import { retiredUrls } from "./lib/retired-urls.js";
 import { requireAuth, requireRole } from "./middleware/auth.js";
 import { ROLES } from "../shared/constants.js";
 import fs from "node:fs";
@@ -227,6 +228,16 @@ const staticOpts = {
  * the application rather than left to whichever proxy the operator installed.
  */
 app.use(canonicalUrl());
+
+/**
+ * A page withdrawn on purpose answers 410, not 404.
+ *
+ * Mounted immediately after the canonical redirect and before anything that
+ * serves a file, so a retired address never reaches the static handler. It
+ * reads the retired list from content/blog/schedule.json, so retiring another
+ * post in the usual way needs no change here.
+ */
+app.use(retiredUrls());
 
 /**
  * Proving to a search engine that this site is ours.
