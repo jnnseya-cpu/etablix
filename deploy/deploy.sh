@@ -151,10 +151,34 @@ announce() {
   fi
 }
 
+# ---------------------------------------------------------------------------
+# HEALTHY IS NOT THE SAME AS CORRECT.
+#
+# /api/health answers ok:true as long as the process is up. It says nothing
+# about whether the runtime carries this month's security fixes, whether the
+# seeded demo administrator is still in the database, or whether a withdrawn
+# article is answering 404 to every crawler that asks. Each of those has been
+# true of a container that reported healthy.
+#
+# So a deploy runs the launch checks and says so. It does NOT roll back on a
+# failure — these are findings about configuration and data, not about the
+# build, and reverting to the previous image fixes none of them. The deploy
+# succeeded; something still needs a person, and the point is that it is said
+# out loud at the moment somebody is watching rather than six weeks later.
+# ---------------------------------------------------------------------------
+launch_checks() {
+  if docker exec "$NAME" node backend/tools/launch-checks.mjs --quiet \
+       2>&1 | grep -vE "ExperimentalWarning|trace-warnings" | tee -a "$LOG"; then
+    say "launch checks pass"
+  else
+    say "LAUNCH CHECKS FAILED — the deploy is fine, the items above are not. See $LOG"
+  fi
+}
+
 for i in $(seq 1 30); do
   sleep 2
   BODY=$(docker exec "$NAME" wget -qO- http://localhost:3000/api/health 2>/dev/null || true)
-  case "$BODY" in *'"ok":true'*) say "deployed $SHORT"; announce; exit 0;; esac
+  case "$BODY" in *'"ok":true'*) say "deployed $SHORT"; announce; launch_checks; exit 0;; esac
 done
 say "DEPLOYED BUT NOT ANSWERING — run ./rollback.sh"
 exit 1

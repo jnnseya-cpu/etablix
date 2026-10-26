@@ -193,6 +193,60 @@ console.log("\n--- a deploy fetches the base image, so a runtime fix arrives\n")
      "  at or above 22.23, the line that carries the October 2026 security fixes", floor);
 }
 
+/**
+ * THE FOUR THINGS THAT CAN ONLY BE ANSWERED ON THE SERVER, AS ONE COMMAND.
+ *
+ * Each came out of an audit and each ended the same way: "run this on the
+ * server and tell me what it says." The one that mattered most — whether the
+ * seeded demo administrator is live in production — went unanswered through
+ * three rounds of asking. A check nobody runs is not a control, so it runs
+ * after every deploy whether or not anybody asks.
+ */
+console.log("\n--- the launch checks run themselves\n");
+{
+  const tool = path.join(root, "backend", "tools", "launch-checks.mjs");
+  ok(fs.existsSync(tool), "the launch checks exist as one tool");
+  const src = fs.readFileSync(tool, "utf8");
+
+  for (const [what, re] of [
+    ["the seeded demo accounts", /admin@etablix\.com/],
+    ["the Node security floor", /MIN_NODE/],
+    ["credentials encrypted at rest", /ETABLIX_TOKEN_SECRET/],
+    ["a withdrawn article answering 410", /410/],
+  ]) ok(re.test(src), `  it checks ${what}`);
+
+  ok(/process\.exit\(failed\.length \? 1 : 0\)/.test(src),
+     "  and exits non-zero on failure, so a script can act on it");
+  // It must never print the thing it is checking for.
+  ok(!/etablix-admin-2026|etablix-pm-2026|etablix-qa-2026/.test(src),
+     "  and no password appears in the tool itself");
+
+  const deploySh = fs.readFileSync(path.join(root, "deploy", "deploy.sh"), "utf8");
+  ok(/launch-checks\.mjs/.test(deploySh), "a deploy runs them without being asked");
+  ok(/LAUNCH CHECKS FAILED/.test(deploySh), "  and says so loudly when one fails");
+  // A failing check is a finding about data or configuration. Rolling back to
+  // the previous image fixes none of them and would undo a good deploy.
+  const fnBody = (/launch_checks\(\) \{[\s\S]*?\n\}/.exec(deploySh) || [""])[0];
+  ok(fnBody.length > 0, "  the launch-check step is a function of its own");
+  ok(!/rollback|docker (stop|rm)|exit 1/.test(fnBody),
+     "  which never rolls back or stops the container, because the build is not what failed", fnBody.slice(0, 120));
+
+  const update = fs.readFileSync(path.join(root, "deploy", "update.sh"), "utf8");
+  ok(/launch-checks\.mjs/.test(update), "the one operator command runs them too");
+
+  /**
+   * AND AUTOMATIC DEPLOY IS INSTALLED RATHER THAN ASSUMED. The cron entry has
+   * been wrong twice — once a stale copy under /opt, once another project's
+   * checkout entirely — and on both occasions nothing deployed and nothing
+   * said so.
+   */
+  ok(/etablix-autodeploy/.test(update), "update.sh checks the auto-deploy cron entry");
+  ok(/NOT INSTALLED/.test(update) && /POINTED ELSEWHERE/.test(update),
+     "  and distinguishes missing from pointing at the wrong checkout");
+  ok(/\$REPO\/deploy\/autodeploy\.sh/.test(update),
+     "  pointing it at this checkout, which a deploy keeps current");
+}
+
 console.log("\n--- the container image copies every directory the application reads\n");
 {
   const docker = fs.readFileSync(path.join(root, "Dockerfile"), "utf8");

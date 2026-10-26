@@ -78,6 +78,37 @@ else
   else
     echo "    up to date"
   fi
+
+  # ---------------------------------------------------------------------
+  # AUTOMATIC DEPLOY, INSTALLED RATHER THAN ASSUMED.
+  #
+  # autodeploy.sh does nothing on its own — it needs a cron entry, and that
+  # entry has been wrong twice: once pointing at a stale copy under /opt, once
+  # at a different project's checkout entirely, after which nothing deployed
+  # and nothing said so. A deploy that silently stops happening is worse than
+  # one that never started, because the version on screen keeps looking fine.
+  #
+  # So it is checked and installed here, pointed at the script inside THIS
+  # checkout, which is the copy that gets updated by a deploy.
+  # ---------------------------------------------------------------------
+  CRON=/etc/cron.d/etablix-autodeploy
+  WANT="*/5 * * * * root flock -n /run/etablix-deploy.lock $REPO/deploy/autodeploy.sh"
+  if [ ! -f "$CRON" ]; then
+    echo "    automatic deploy: NOT INSTALLED"
+    if [ "$CHECK_ONLY" = "1" ]; then
+      echo "    (would install: $WANT)"
+    elif [ "$(id -u)" = "0" ]; then
+      echo "$WANT" > "$CRON" && echo "    installed — a push now reaches the site within five minutes"
+    else
+      note "automatic deploy is not installed and this is not running as root. As root: echo '$WANT' > $CRON"
+    fi
+  elif ! grep -qF "$REPO/deploy/autodeploy.sh" "$CRON" 2>/dev/null; then
+    echo "    automatic deploy: INSTALLED BUT POINTED ELSEWHERE"
+    echo "      $(cat "$CRON")"
+    note "the auto-deploy cron entry does not run $REPO/deploy/autodeploy.sh — nothing from this checkout deploys. Fix: echo '$WANT' > $CRON"
+  else
+    echo "    automatic deploy: on, every five minutes, from this checkout"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -177,6 +208,17 @@ try {
   console.log("    again sooner costs nothing and achieves nothing.");
 } catch (e) { console.log("    no throttle file yet (nothing has been rate limited)"); }
 ' 2>&1 | grep -vE "ExperimentalWarning|trace-warnings"
+
+# ---------------------------------------------------------------------------
+say "5b. The checks that can only be answered on this machine"
+# ---------------------------------------------------------------------------
+# Four findings came out of the security audit and the indexing report, and
+# each one ended as "run this on the server and tell me what it says". Four
+# commands to copy, four outputs to read, four chances to do three of them.
+# They are one command now, and it runs here whether anybody asks for it.
+ex node backend/tools/launch-checks.mjs 2>&1 | grep -vE "ExperimentalWarning|trace-warnings" | sed 's/^/  /'
+LAUNCH_RC=${PIPESTATUS[0]}
+[ "${LAUNCH_RC:-0}" -ne 0 ] && note "a launch check failed — see section 5b above. These are the ones that need you."
 
 # ---------------------------------------------------------------------------
 say "6. Is the platform healthy?"
