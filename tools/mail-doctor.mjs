@@ -90,14 +90,68 @@ async function readSelector(sel) {
   return { sel, state: "key", chars: key.length, target };
 }
 
+/**
+ * BEFORE ANY VERDICT: CAN THIS MACHINE RESOLVE DNS, AND DOES THE DOMAIN EXIST?
+ *
+ * THE FAILURE THIS ANSWERS, AND IT WAS THIS TOOL'S SECOND TIME. Run inside a
+ * container whose outbound traffic goes through an HTTPS proxy that resolves
+ * names itself, every lookup returns ENOTFOUND. txt() treats ENOTFOUND as "no
+ * such record", which is right for a missing _dmarc subdomain and catastrophically
+ * wrong for the domain itself. So this printed "no SPF record at all", "no DKIM
+ * selector", "no DMARC record", "MX none" and "3 blocking problems" about a
+ * domain whose records it had never actually read — and that report was taken
+ * seriously for several minutes.
+ *
+ * The header of this file already states the rule it was breaking: a lookup
+ * that fails is reported as a lookup that failed, and can never turn into a
+ * verdict. That was applied to DKIM selectors and not to anything else.
+ *
+ * A control lookup comes first. If a name that certainly exists cannot be
+ * resolved, the fault is here and NO verdict about anyone's DNS is safe, so
+ * none is offered. Exit code 2 means "could not determine", which is a
+ * different thing from 0 (nothing wrong) and 1 (something wrong).
+ */
+const CONTROL = "cloudflare.com";
+async function diagnosable(domain) {
+  try {
+    await dns.resolveNs(CONTROL);
+  } catch (e) {
+    return { ok: false, why: `this machine cannot resolve DNS at all — a control lookup of ${CONTROL} returned ${e.code || e.message}` };
+  }
+  try {
+    await dns.resolveNs(domain);
+    return { ok: true };
+  } catch (e) {
+    if (e.code === "ENOTFOUND") {
+      return { ok: false, why: `${domain} has no nameservers of its own in DNS — the domain itself does not resolve from here, so nothing can be read about its mail` };
+    }
+    return { ok: false, why: `nameserver lookup for ${domain} failed with ${e.code || e.message}` };
+  }
+}
+
 console.log(`\n=== mail doctor · ${DOMAIN} ===\n`);
+
+const reach = await diagnosable(DOMAIN);
+if (!reach.ok) {
+  console.log(`  CANNOT DIAGNOSE — ${reach.why}.\n`);
+  console.log("  No findings are printed, because a lookup that did not happen is not");
+  console.log("  evidence of a missing record. Run this from a machine with ordinary");
+  console.log("  DNS access. If it reports the same thing there, the domain's own");
+  console.log("  nameservers are the first thing to check, before SPF or DKIM.\n");
+  process.exit(2);
+}
 
 // ---------------------------------------------------------------- where the mail lands
 let mx = [];
 try {
   mx = await dns.resolveMx(DOMAIN);
   console.log("  MX   " + mx.sort((a, b) => a.priority - b.priority).map((m) => m.exchange).join(", "));
-} catch { console.log("  MX   none"); }
+} catch (e) {
+  // Past the preflight the domain resolves, so ENOTFOUND/ENODATA here really
+  // does mean no MX. Any other code is a lookup that failed, and says so.
+  if (e.code === "ENOTFOUND" || e.code === "ENODATA") console.log("  MX   none");
+  else console.log(`  MX   LOOKUP FAILED (${e.code || e.message}) — not read, not judged`);
+}
 
 // ------------------------------------------------------------------------- SPF
 const root = (await txt(DOMAIN)) || [];
