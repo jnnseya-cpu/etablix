@@ -14,7 +14,7 @@ version of the same one.
 |---|---|---|
 | **Pod-Trak** | `procurement@pod-trak.com` (Supply Chain), `tenders@pod-trak.com` (tenders and frameworks) | Published on their own contact page |
 | **AmcoGiffen** | `supplychain@amcogiffen.co.uk` | Published on their own supply chain page |
-| **M Group** | `enquiries@mgroupltd.com` — no dedicated procurement address published | Their contact page, which also lists the fields to send |
+| **M Group** | ~~`enquiries@mgroupltd.com`~~ **REJECTED — use the web form or telephone** | Their contact page, which also lists the fields to send |
 | **Coombes Group** | `enquiries@coombesgroup.com` | Published on their own contact page |
 
 Pod-Trak also publishes 0845 450 4190; AmcoGiffen 01226 243413; M Group
@@ -35,6 +35,36 @@ estimated dates of 22 June 2026 to 21 June 2027 with an extension to June 2028.
 "reported as" and invites correction, which is honest, shows the homework, and
 is better letter-craft than asserting a date to the company that holds the
 contract and knows it.
+
+## What happened when they were sent, 28 October 2026
+
+Pod-Trak, AmcoGiffen and Coombes were delivered without a bounce. **M Group's
+gateway rejected the message outright:**
+
+    554 Email rejected due to security policies
+    eu-smtp-inbound-1.mimecast.com (195.130.217.201)
+
+**Three delivering and one refusing is the useful fact.** It clears this
+domain's mail authentication: a broken DKIM key or a failing SPF record would
+have troubled all four, not one. The DKIM revocation recorded in
+`deploy/EMAIL-DELIVERABILITY.md` on 8 September is still worth fixing, but it
+is not what caused this.
+
+**It does not mean the address was wrong.** A wrong address returns 550 with
+"user unknown"; Mimecast would have said so. A 554 citing a policy document
+means their gateway refused the message on a rule — the mailbox very likely
+exists and the message was not allowed in. A young domain cold-emailing a
+generic enquiries box is exactly what such rules are written to stop.
+
+**Do not retry the same address.** A second attempt meets the same policy and
+repeated rejections build a history that is harder to undo than the first one.
+
+The route for M Group is now, in order: the enquiry form on their own contact
+page, which bypasses mail authentication entirely and takes the letter below
+verbatim; then the switchboard on +44 (0)1438 743 744 to ask who owns
+supply-chain enquiries and send to a named person; then LinkedIn. Note that M
+Group publishes no dedicated procurement address at all, which is itself a
+signal about how much cold supply-chain email they want.
 
 ## Why three letters and not one sent three times
 
