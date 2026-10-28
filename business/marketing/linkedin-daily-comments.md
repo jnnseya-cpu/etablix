@@ -17,9 +17,32 @@ A specific observation from your own experience that the post does not contain.
 If you have nothing to add, scroll past — a filler comment costs more standing
 than no comment.
 
-**Never pitch, never link, never name ETABLIX.** Your profile is one click away
-and it says what you do. A comment that sells converts a contribution into an
-advertisement, and people who would have looked you up now will not.
+**~~Never pitch, never link, never name ETABLIX.~~ SUPERSEDED, 28 October 2026.**
+The original rule read: *"Your profile is one click away and it says what you
+do. A comment that sells converts a contribution into an advertisement, and
+people who would have looked you up now will not."*
+
+The director's instruction reverses it. **Every comment now sells ETABLIX and
+introduces it to the company that posted and to everyone reading** — naming the
+scope, the two halves of the work and the contracting position, punchily, with
+the USP carried every time. The governing version is in `CLAUDE.md` at the
+repository root.
+
+Why it was reversed, recorded so the argument is not had twice: nine comments
+written in October followed the old rule's spirit and sold nothing. The
+director read them and said *"it looks like we don't talk about ETABLIX, both
+parts of the work and how to contribute."* He was right. A comment that
+contributes expertise and never says who is contributing it earns standing for
+a stranger.
+
+**The risk the old rule names is real and has not gone away.** A comment that
+sells and contributes nothing is worse than no comment. The answer is that the
+selling has to be carried by a genuine observation about the post in front of
+you — not that the selling is removed. Still never link, and still never
+comment at all when there is nothing to add.
+
+**Never pitch, never link.** No URLs in a comment; the profile is one click
+away for anyone who wants it.
 
 **Stay in your lane, and say where the lane ends.** You are construction and
 site establishment, not commissioning, not design, not M&E. Speaking from the
