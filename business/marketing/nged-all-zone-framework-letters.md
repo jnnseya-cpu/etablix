@@ -3,8 +3,10 @@
 National Grid Electricity Distribution named 31 suppliers on its £600m substation
 civils framework on 1 October 2026, across ten geographical lots covering the
 South West, Wales and the Midlands. Four firms hold a place on **all ten lots**:
-AmcoGiffen, M Group, Pod-Trak and Coombes Forestry. The first three are the
-targets. Coombes is vegetation management and needs a different letter or none.
+AmcoGiffen, M Group, Pod-Trak and Coombes Forestry. The first three took the
+same argument in three forms. Coombes needed a different letter and now has
+one — see section 4 for why it is a different argument rather than a weaker
+version of the same one.
 
 ## Verified contact routes
 
@@ -13,9 +15,14 @@ targets. Coombes is vegetation management and needs a different letter or none.
 | **Pod-Trak** | `procurement@pod-trak.com` (Supply Chain), `tenders@pod-trak.com` (tenders and frameworks) | Published on their own contact page |
 | **AmcoGiffen** | `supplychain@amcogiffen.co.uk` | Published on their own supply chain page |
 | **M Group** | `enquiries@mgroupltd.com` — no dedicated procurement address published | Their contact page, which also lists the fields to send |
+| **Coombes Group** | `enquiries@coombesgroup.com` | Published on their own contact page |
 
 Pod-Trak also publishes 0845 450 4190; AmcoGiffen 01226 243413; M Group
-+44 (0)1438 743 744. A named procurement and supply chain director was announced
++44 (0)1438 743 744; Coombes 01730 231 761, at Unit 6 New Buildings Farm,
+Winchester Road, Petersfield GU32 3PB. Two addresses found for Coombes
+elsewhere — one on a membership page naming the managing director directly, one
+on a directory using a domain the company no longer uses — are deliberately not
+used: the first is years old and the second does not match their current site. A named procurement and supply chain director was announced
 at AmcoGiffen in 2022 — do not use the name without confirming the person is
 still in post.
 
@@ -202,4 +209,73 @@ Kind regards,
 
 Justin Ngolu Nseya
 Managing Director, JNN Global Ltd, trading as ETABLIX
+contact@etablix.com · +44 7493 216101
+
+---
+
+## 4 · Coombes Group (Coombes Forestry)
+
+**Why this is a different argument, not a weaker one.** The note that produced
+these letters said Coombes "is vegetation management and needs a different
+letter". That was right, and the reason is specific: Coombes is the only one of
+the four whose core trade *produces* a waste stream rather than merely
+generating a skip. For a civils contractor arisings are a container at the gate.
+For a vegetation contractor across ten zones they are volume, duty of care,
+haulage and a disposal route, on dozens of small rural sites at once.
+
+The letter is careful not to suggest they cannot manage their own arisings —
+that is their trade and they are better at it than anybody writing to them. The
+offer is everything *around* the cutting: the compound, welfare and access for
+crews, security while working inside a live substation, and the chain off site.
+
+**And they are a target twice over.** Their own site describes them as rail and
+forestry contractors. Rail is one of the six sectors this business sells into,
+and possession work has the same repeated site-establishment problem on a much
+shorter clock. The letter raises that once, at the end, as a request for an
+introduction rather than a second pitch.
+
+Note for the avoidance of confusion: the signals watcher deliberately excludes
+vegetation management from the queue, because ETABLIX does not bid for tree
+work. Selling site services *to* a vegetation contractor is the opposite
+transaction and there is no conflict between the two.
+
+**To:** enquiries@coombesgroup.com
+**Subject:** Site establishment and arisings across the ten NGED zones
+
+Dear Coombes team,
+
+Congratulations on your place across all ten lots on National Grid Electricity
+Distribution's substation civils framework.
+
+I am writing about the part of that work which is not your trade. The vegetation
+is. What repeats on every one of ten zones is everything around it — the
+compound, welfare and access for crews on small rural sites, security while
+working inside a live substation, and the arisings chain off site. On a civils
+call-off, waste is a skip at the gate. On yours it is volume, duty of care,
+haulage and a disposal route, on dozens of sites at once.
+
+I am Justin Ngolu Nseya, director of JNN Global Ltd, trading as ETABLIX. I do
+that package in two halves:
+
+- **The paper** — output specification, package boundaries and tender documents,
+  written once and applied across every zone.
+- **The site** — procurement, mobilisation and the interfaces between those
+  suppliers.
+
+Under either, **you hold every supplier contract and I never hold your
+supply-chain money.** Fixed scope, fixed fee.
+
+One other thing. Your own site describes Coombes as rail and forestry
+contractors, and rail possession work has the same repeated site-establishment
+problem on a much shorter clock. If that sits with someone else at Coombes, I
+would welcome the introduction.
+
+Could you point me to whoever owns the site-services or temporary-works packages
+on these call-offs?
+
+Kind regards,
+
+Justin Ngolu Nseya
+Managing Director, JNN Global Ltd (company number 15405437), trading as ETABLIX
+Groupe Nseya House, Kingstanding, Birmingham B44 8DJ
 contact@etablix.com · +44 7493 216101
