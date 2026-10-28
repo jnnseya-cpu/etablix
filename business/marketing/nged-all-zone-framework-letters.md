@@ -14,7 +14,7 @@ version of the same one.
 |---|---|---|
 | **Pod-Trak** | `procurement@pod-trak.com` (Supply Chain), `tenders@pod-trak.com` (tenders and frameworks) | Published on their own contact page |
 | **AmcoGiffen** | `supplychain@amcogiffen.co.uk` | Published on their own supply chain page |
-| **M Group** | ~~`enquiries@mgroupltd.com`~~ **REJECTED — use the web form or telephone** | Their contact page, which also lists the fields to send |
+| **M Group** | `info@mgroupltd.com` — confirmed by the director. ~~`enquiries@mgroupltd.com`~~ was wrong and was rejected | Address confirmed directly; the fields to send are from their contact page |
 | **Coombes Group** | `enquiries@coombesgroup.com` | Published on their own contact page |
 
 Pod-Trak also publishes 0845 450 4190; AmcoGiffen 01226 243413; M Group
@@ -50,21 +50,21 @@ have troubled all four, not one. The DKIM revocation recorded in
 `deploy/EMAIL-DELIVERABILITY.md` on 8 September is still worth fixing, but it
 is not what caused this.
 
-**It does not mean the address was wrong.** A wrong address returns 550 with
-"user unknown"; Mimecast would have said so. A 554 citing a policy document
-means their gateway refused the message on a rule — the mailbox very likely
-exists and the message was not allowed in. A young domain cold-emailing a
-generic enquiries box is exactly what such rules are written to stop.
+**THE ADDRESS WAS WRONG.** `enquiries@mgroupltd.com` came from structured data
+on their website rather than from a visible contact line, and it was flagged at
+the time as needing confirmation. It was not confirmed before sending. The
+correct address is **`info@mgroupltd.com`**.
 
-**Do not retry the same address.** A second attempt meets the same policy and
-repeated rejections build a history that is harder to undo than the first one.
+**And the bounce code hid it.** A non-existent mailbox normally returns 550 with
+"user unknown", which is why a 554 citing a security policy was read here as a
+filter rejecting a known-good address. That reading was wrong: Mimecast tenants
+commonly configure recipient validation AS a policy, so an unknown recipient
+comes back as a generic 554 rather than a clean 550. The lesson is not about
+Mimecast — it is that an address taken from page metadata is a guess until
+somebody confirms it, and the bounce you get from a guess may not tell you that
+is what happened.
 
-The route for M Group is now, in order: the enquiry form on their own contact
-page, which bypasses mail authentication entirely and takes the letter below
-verbatim; then the switchboard on +44 (0)1438 743 744 to ask who owns
-supply-chain enquiries and send to a named person; then LinkedIn. Note that M
-Group publishes no dedicated procurement address at all, which is itself a
-signal about how much cold supply-chain email they want.
+Do not resend to the old address. Send to `info@mgroupltd.com`.
 
 ## Why three letters and not one sent three times
 
