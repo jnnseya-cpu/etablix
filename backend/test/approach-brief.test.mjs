@@ -94,6 +94,25 @@ console.log("\n=== length and shape, which is what cost the replies ===\n");
      "the subject line has its own rule");
 }
 
+console.log("\n=== the prompt does not quote a previous model output ===\n");
+{
+  /**
+   * THE REFUSAL THIS PREVENTS. The brief carried a verbatim previous draft as
+   * a worked example of what not to write. The provider declined every request
+   * made with it, citing restrictions on reverse engineering or duplicating
+   * model outputs — a system prompt that quotes a model's own prior output and
+   * then instructs the model about how it writes is the shape of an attempt to
+   * extract or replicate behaviour, whatever it was meant to do.
+   *
+   * The lesson is kept as prose. A rule is described; nothing is quoted.
+   */
+  const quoted = [...brief.matchAll(/\n\s{4,}"[^"]{60,}/g)].map((m) => m[0].trim().slice(0, 70));
+  ok(quoted.length === 0,
+     "no long quoted passage sits in the brief", quoted.join(" | "));
+  ok(!/produced this|came out like this|for example, this draft/i.test(brief),
+     "  and nothing introduces one");
+}
+
 console.log("\n=== the company is named in full, every time ===\n");
 {
   ok(/NAME THE COMPANY IN FULL, EVERY TIME/.test(brief),

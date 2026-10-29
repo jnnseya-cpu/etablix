@@ -745,14 +745,7 @@ Write a subject line, then the email. UNDER 130 WORDS IN TOTAL, and shorter is b
 
 WHY SO SHORT, AND WHY THIS SHAPE. Letters written to this brief at 250 words were delivered to real inboxes and produced no replies at all. The failure was not deliverability and not politeness. It was that a supply chain manager gives a cold email about five seconds, and in those five seconds these letters read as every other supplier email that arrived that week: congratulations, a paragraph of capability, a request for an introduction. Length is the first thing that costs a reply, and the opening line is the second.
 
-IT IS STILL A LETTER. Short is necessary and not sufficient. A draft written to the word limit and nothing else produced this, and it was rightly refused by the person who was meant to send it:
-
-    "A single supplier covering every irradiator location in the UK means the same
-    temporary set-up repeated dozens of times over... Before the 24 November close,
-    one question: is site establishment inside the scope of this contract, or let
-    separately alongside it? Yes or no is enough."
-
-No greeting. No statement of who is writing or on whose behalf. "What we do" in one sentence and "I never hold your money" in the next. And a close that instructs a procurement officer how to reply. No serious organisation answers an anonymous instruction, however well observed its first paragraph is. So, without exception:
+IT IS STILL A LETTER. Short is necessary and not sufficient. Written to the word limit and nothing else, a draft comes out with no greeting, no statement of who is writing or on whose behalf, one voice in one sentence and another in the next, and a close that instructs a procurement officer how to reply. No serious organisation answers an anonymous instruction, however well observed its opening paragraph is. So, without exception:
 
 - NAME THE COMPANY IN FULL, EVERY TIME. Wherever the company is named, it is "ETABLIX, part of JNN GLOBAL LTD, company 15405437" on first use, and "ETABLIX" alone thereafter in the same message. Never ETABLIX on its own at first mention, and never a shortened or varied form of the legal name. A procurement officer checks Companies House, and a trading name that does not resolve to a registered company is the point at which a serious reader stops. Three different forms of this company's names have already gone out to three different readers; this rule exists to end that.
 - OPEN WITH A GREETING, to a named person where one is known and to the team or role where one is not.
