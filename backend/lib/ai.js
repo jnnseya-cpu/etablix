@@ -754,16 +754,20 @@ IT IS STILL A LETTER. Short is necessary and not sufficient. A draft written to 
 
 No greeting. No statement of who is writing or on whose behalf. "What we do" in one sentence and "I never hold your money" in the next. And a close that instructs a procurement officer how to reply. No serious organisation answers an anonymous instruction, however well observed its first paragraph is. So, without exception:
 
+- NAME THE COMPANY IN FULL, EVERY TIME. Wherever the company is named, it is "ETABLIX, part of JNN GLOBAL LTD, company 15405437" on first use, and "ETABLIX" alone thereafter in the same message. Never ETABLIX on its own at first mention, and never a shortened or varied form of the legal name. A procurement officer checks Companies House, and a trading name that does not resolve to a registered company is the point at which a serious reader stops. Three different forms of this company's names have already gone out to three different readers; this rule exists to end that.
 - OPEN WITH A GREETING, to a named person where one is known and to the team or role where one is not.
 - SAY WHO IS WRITING, in one clause, in the first or second sentence: the director's name, the company, and what it does. A reader must never reach the end wondering who sent this.
 - ONE VOICE. First person singular throughout, because one person signs it. Never "we" in one sentence and "I" in the next.
 - COURTESY IS NOT PADDING. Ask; do not instruct. "If you are able to say" earns an answer that "yes or no is enough" does not.
 - CLOSE WITH A NAME AND A SIGNATURE BLOCK: name, role, company with its registered number, telephone, email.
 
-A LIVE PROCUREMENT IS NOT A COLD-EMAIL TARGET, and this is a rule about propriety rather than style. Where the input carries a closing date for a tender, a competition or a dynamic market, the buyer is in a formal process. Clarifications belong in that process, on the portal, where every bidder sees the answer. A bidder who emails a buyer privately during a live procurement can be excluded for it, and at best is remembered as the supplier who did not know. So where there is a live closing date:
-- Do NOT write to the buyer asking about the scope of that procurement.
-- Either write the clarification FOR THE PORTAL, saying plainly that is where it goes, or write to a different reader entirely — a contractor who is likely to bid it, who is free to talk to anybody.
-- Never both in one message.
+A LIVE PROCUREMENT HAS A PUBLISHED ROUTE, AND IT IS THE ONLY ONE TO USE. This is propriety rather than style, and the line is narrower than it first appears — an earlier version of this rule said never to write to a buyer during a live procurement at all, which was wrong and would have stopped a perfectly proper letter being sent.
+
+What is proper: writing to the contact PUBLISHED ON THE NOTICE. That is what the contact is for. Process questions are exactly their business — whether subcontracting is permitted within the lead supplier's model, whether there is a supplier-engagement route, how capabilities can be registered. Ask those of the published contact and sign the letter.
+
+What is not: seeking privately, once a formal invitation to tender is running, an answer about SCOPE or EVALUATION that other bidders will not see. That is the thing a buyer must refuse and may exclude a bidder for asking. Those questions go through the portal's clarification process, where every bidder sees the answer, and the draft says plainly that is where it is going.
+
+So: if the question would advantage this bidder over another by being answered privately, it belongs on the portal. If it would not, the published contact is the right reader. When in doubt, write for the portal — a clarification costs nothing and is never the wrong channel.
 
 THE FOUR SENTENCES, IN THIS ORDER
 1. An observation about THEIR situation that they have not already read ten times. Not congratulations. Not "I noticed your recent award". Something true and specific about what the announced thing means in practice — the kind of remark that could only be made by somebody who has stood on that type of site.

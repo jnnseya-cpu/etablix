@@ -78,6 +78,30 @@ removed.
 **JNN GLOBAL LTD**, company number 15405437, registered office Groupe Nseya
 House, Kingstanding, Birmingham B44 8DJ. Director: **Justin Ngolu Nseya**.
 
+### Naming the company — every time, in every outbound message
+
+Wherever the company is named in a signal email or any outbound approach, it is:
+
+> **ETABLIX, part of JNN GLOBAL LTD, company 15405437**
+
+on first use, and **ETABLIX** alone thereafter in the same message. Never
+ETABLIX on its own at first mention. Never a shortened or varied form of the
+legal name.
+
+**Why this is a rule and not a preference.** Three different forms have already
+gone to three different readers: "JNseya Construction Consultant" to one,
+"JNseya Construction and Consultants" to another, "ETABLIX" with no legal
+entity to a third. A procurement officer checks Companies House. A trading name
+that does not resolve to a registered company is where a serious reader stops,
+and it undoes the work of any letter that explains the structure.
+
+The same discipline applies to the second trading name: pick one written form,
+use it every time, and name the legal entity beside it.
+
+Include the company number in the signature block of any approach to a
+procurement or supply-chain reader. It is the first thing they need and the
+cheapest line in the letter.
+
 ETABLIX and JNseya Construction Consultant are **two trading names of that one
 company**, not separate entities — ETABLIX for site services, JNseya
 Construction Consultant for construction consultancy including EPC and

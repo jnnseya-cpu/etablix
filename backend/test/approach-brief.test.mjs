@@ -80,15 +80,11 @@ console.log("\n=== length and shape, which is what cost the replies ===\n");
     ["a signature block", /CLOSE WITH A NAME AND A SIGNATURE BLOCK/],
   ]) ok(re.test(brief), `  and it requires ${what}`);
 
-  /**
-   * PROPRIETY, NOT STYLE. A bidder who emails a buyer privately during a live
-   * procurement can be excluded for it. Clarifications belong on the portal,
-   * where every bidder sees the answer.
-   */
-  ok(/A LIVE PROCUREMENT IS NOT A COLD-EMAIL TARGET/.test(brief),
-     "a live procurement is not treated as a cold-email target");
-  ok(/can be excluded for it/.test(brief),
-     "  and the brief says why, so it is not softened later");
+  // The propriety rule has its own section below. It used to be asserted here
+  // in a form that banned writing to a buyer at all during a live procurement
+  // — too broad, and it would have stopped a proper letter being sent. The
+  // assertions went with the rule rather than being left to enforce it.
+
   ok(/never ask to be pointed at the right person|Never ask .*pointed at/i.test(brief),
      "  and asking for a referral is forbidden, because a favour from a stranger is not given",
      brief.slice(brief.indexOf("Close with"), brief.indexOf("Close with") + 160));
@@ -96,6 +92,30 @@ console.log("\n=== length and shape, which is what cost the replies ===\n");
      "congratulations may not be the opening — it is what every other supplier sends");
   ok(/A SUBJECT LINE IS NOT A HEADLINE/.test(brief),
      "the subject line has its own rule");
+}
+
+console.log("\n=== the company is named in full, every time ===\n");
+{
+  ok(/NAME THE COMPANY IN FULL, EVERY TIME/.test(brief),
+     "the brief requires the full name on first use");
+  ok(/part of JNN GLOBAL LTD, company 15405437/.test(brief),
+     "  in exactly the form the director set", /part of JNN GLOBAL LTD[^"]*/.exec(brief)?.[0]);
+  ok(/checks Companies House/.test(brief),
+     "  and says why, so it survives somebody shortening it for brevity");
+}
+
+console.log("\n=== a live procurement: the published route, and only that ===\n");
+{
+  // An earlier version of this rule banned writing to a buyer at all during a
+  // live procurement. That was wrong and would have stopped a proper letter.
+  ok(/published on the notice|PUBLISHED ON THE NOTICE/i.test(brief),
+     "writing to the contact published on the notice is allowed");
+  ok(/SCOPE or EVALUATION/.test(brief),
+     "  and what is actually improper is named: scope or evaluation, answered privately");
+  ok(/every bidder sees the answer/.test(brief),
+     "  with the portal as the channel where the answer is shared");
+  ok(/When in doubt, write for the portal/.test(brief),
+     "  and a default for the ambiguous case");
 }
 
 console.log("\n=== the USP sentence is required, not optional ===\n");
