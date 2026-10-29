@@ -13,7 +13,7 @@
  * a named human action, recorded on the run and announced in-app.
  */
 
-import Anthropic from "@anthropic-ai/sdk";
+import Anthropic, { betaRefusalFallbackMiddleware } from "@anthropic-ai/sdk";
 import { ENGINES as DETERMINISTIC } from "./engines/index.js";
 import { getSettings, saveSettings } from "./store.js";
 import { runPipeline, pipelineSpec, DIAGNOSTIC_SPEC, STANDARD, DIAGNOSTIC_STAGES, CONTINUATION_GUARD, STALL_CHARS, PASS_CHAR_CEILING, continuationInstruction } from "./diagnostic.js";
@@ -35,6 +35,25 @@ import { reconcileChallenge, challengeNotes } from "./challengecheck.js";
 import { meter, callFromUsage, budgetFor, summarise } from "./l7/acu.js";
 
 const DEFAULT_MODEL = "claude-opus-5";
+
+/**
+ * WHERE A DECLINED REQUEST GOES INSTEAD.
+ *
+ * These models carry safety classifiers that can decline a request outright.
+ * The reply comes back as a normal response with stop_reason "refusal" rather
+ * than an error, and the documented remedy is to send the same request to
+ * another model: a classifier that declines one does not usually decline all.
+ *
+ * This matters here because it happened. An approach draft was declined
+ * repeatedly, the brief was rewritten twice chasing it, and the feature was
+ * unusable for an afternoon while the remedy sat in the refusal message the
+ * whole time. Reading the error before theorising about it would have been
+ * quicker.
+ *
+ * One fallback, a different family from the default, so a refusal from one
+ * classifier is not simply met by the same classifier again.
+ */
+const FALLBACK_MODEL = process.env.ETABLIX_AI_FALLBACK_MODEL || "claude-sonnet-5-5";
 
 /**
  * The key comes from the environment first.
@@ -193,7 +212,12 @@ export const SINGLE_PASS_MAX_TOKENS = Number(process.env.ETABLIX_AI_SINGLE_PASS_
 const client = () => {
   const { apiKey } = getProvider();
   if (!apiKey) throw new Error("The production engine is not connected — an administrator adds the API key under Organisation → production engine.");
-  return new Anthropic({ apiKey, timeout: CALL_TIMEOUT_MS, maxRetries: CALL_RETRIES });
+  return new Anthropic({
+    apiKey, timeout: CALL_TIMEOUT_MS, maxRetries: CALL_RETRIES,
+    // On a refusal the middleware retries on the fallback model and splices
+    // its events onto the open stream, so a caller sees one answer.
+    middleware: [betaRefusalFallbackMiddleware([{ model: FALLBACK_MODEL }])],
+  });
 };
 
 /**
@@ -217,12 +241,17 @@ const client = () => {
  */
 async function untilComplete({ model, max_tokens, system, prompt, label }) {
   const call = async (content) => {
-    const res = await client().messages.stream({
+    // beta.messages, because the refusal-fallback middleware works there.
+    const res = await client().beta.messages.stream({
       model, max_tokens, system, messages: [{ role: "user", content }],
     }).finalMessage();
     if (res.stop_reason === "refusal") {
-      throw new Error(`The provider declined the ${label} request` +
-        (res.stop_details?.explanation ? `: ${res.stop_details.explanation}` : "."));
+      // Both the chosen model AND the fallback declined. That is a fact about
+      // the request rather than about one classifier, so it is worth saying.
+      throw new Error(
+        `Both ${model} and the fallback ${FALLBACK_MODEL} declined the ${label} request` +
+        (res.stop_details?.explanation ? `: ${res.stop_details.explanation}` : ".") +
+        " Change what is being asked for rather than retrying.");
     }
     return {
       text: res.content.filter((b) => b.type === "text").map((b) => b.text).join(""),
