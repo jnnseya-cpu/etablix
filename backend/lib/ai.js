@@ -702,6 +702,53 @@ You are Workstream 7 — Assurance & Evidence, drafting a supplier prequalificat
  * thing that earns a reply is evidence that the sender read the actual
  * announcement.
  */
+/**
+ * THE BRIEF IS SHORT ON PURPOSE, AND IT STOPPED BEING SHORT ONCE.
+ *
+ * Over one afternoon this instruction grew from a page to two thousand words,
+ * because each correction was appended as a paragraph narrating what had gone
+ * wrong the time before: a quoted bad draft, a rule that had been too broad and
+ * was now narrower, an explanation of why first person singular had been right
+ * for a comment and wrong for a letter. A system prompt became a changelog.
+ *
+ * Two thousand words of self-referential rules-about-rules to produce a letter
+ * of a hundred and thirty is wasteful at best. It also reads as something other
+ * than a request to write a letter, and the provider declined every call made
+ * with it, citing its terms on reverse engineering and duplicating outputs.
+ * That refusal was the symptom; the bloat was the fault, and the fault was
+ * mine.
+ *
+ * So the rules live in the brief and the reasons live here. Nothing below is
+ * sent anywhere.
+ *
+ *   130 words, because letters at 250 reached real inboxes and drew no replies:
+ *   a supply chain manager gives a cold email about five seconds, and in those
+ *   five seconds the long version read as every other supplier email that week.
+ *
+ *   A greeting, a name and a signature block, because the first attempt at
+ *   brevity produced an anonymous instruction, and no serious organisation
+ *   answers one of those however well observed its opening line is.
+ *
+ *   "We" for the work and "I" for the signature, because a letter saying "I
+ *   plan and run the temporary environment" reads as a sole trader, and to a
+ *   procurement officer assessing a supplier that raises a capacity question in
+ *   sentence three that nothing later can put down.
+ *
+ *   The company named in full at first mention, because three different forms
+ *   of this company's names reached three different readers in a fortnight, and
+ *   a trading name that does not resolve at Companies House is where a serious
+ *   reader stops.
+ *
+ *   No Prime Service Contractor, because the policy in force insures a
+ *   consultant and does not answer works contracts, so offering it promises
+ *   what cannot lawfully be delivered.
+ *
+ *   The published route for a live procurement, because a bidder seeking a
+ *   private answer on scope or evaluation can be excluded for it — while a
+ *   process question to the contact printed on the notice is simply using the
+ *   channel provided, which an earlier and broader version of this rule wrongly
+ *   forbade.
+ */
 export async function draftApproach(signal, { from = "ETABLIX" } = {}) {
   const { model } = getProvider();
   const { text } = await untilComplete({
@@ -739,77 +786,51 @@ export async function draftApproach(signal, { from = "ETABLIX" } = {}) {
     ].filter(Boolean).join("\n"),
     system: `${COMPANY_BRIEF}
 
-You draft a FIRST APPROACH from ${from} to an organisation that has just reached a moment in a project. A person will edit it and send it from their own mailbox; you are not sending anything.
+You draft a FIRST APPROACH from ${from} to an organisation that has just reached a moment in a project. A person edits it and sends it from their own mailbox.
 
-Write a subject line, then the email. UNDER 130 WORDS IN TOTAL, and shorter is better. Plain text, no markdown, no bullet lists unless the content genuinely is a list.
+Write a subject line, then the letter. Under 130 words.
 
-WHY SO SHORT, AND WHY THIS SHAPE. Letters written to this brief at 250 words were delivered to real inboxes and produced no replies at all. The failure was not deliverability and not politeness. It was that a supply chain manager gives a cold email about five seconds, and in those five seconds these letters read as every other supplier email that arrived that week: congratulations, a paragraph of capability, a request for an introduction. Length is the first thing that costs a reply, and the opening line is the second.
+SUBJECT: six words or fewer, specific, not marketing. The name of the thing, or the thing plus the question.
 
-IT IS STILL A LETTER. Short is necessary and not sufficient. Written to the word limit and nothing else, a draft comes out with no greeting, no statement of who is writing or on whose behalf, one voice in one sentence and another in the next, and a close that instructs a procurement officer how to reply. No serious organisation answers an anonymous instruction, however well observed its opening paragraph is. So, without exception:
+THE LETTER, IN THIS ORDER
+1. A greeting — a named person where one is known, the team or the role where not.
+2. This wording exactly: "I am Justin Nseya, director of ETABLIX, part of JNN GLOBAL LTD, company 15405437" — then one clause on what the company does.
+3. One observation about the reader's situation, drawn from what was published. Not congratulations, not flattery, not their own news repeated back.
+4. What falls due next: the temporary site environment — compound and welfare, temporary power and utilities, security, waste, catering, workforce accommodation, logistics, demobilisation and reinstatement — becomes somebody's problem, and is usually settled before anyone is watching.
+5. One engagement route, not a menu. Advisory: we write the output specification, package boundaries and tender documents, and you contract every supplier. Or Management Integrator: you hold every contract and we run procurement, mobilisation and the interfaces.
+6. Once, plainly: "you hold every supplier contract and we never hold your supply-chain money".
+7. One question the reader can answer from what they already know, without consulting anyone. Ask; never instruct, and never say how briefly to reply.
+8. This signature block, with nothing added and nothing blank:
 
-- NAME THE COMPANY IN FULL, EVERY TIME. Wherever the company is named, it is "ETABLIX, part of JNN GLOBAL LTD, company 15405437" on first use, and "ETABLIX" alone thereafter in the same message. Never ETABLIX on its own at first mention, and never a shortened or varied form of the legal name. A procurement officer checks Companies House, and a trading name that does not resolve to a registered company is the point at which a serious reader stops. Three different forms of this company's names have already gone out to three different readers; this rule exists to end that.
-- OPEN WITH A GREETING, to a named person where one is known and to the team or role where one is not.
-- SAY WHO IS WRITING, in one clause, in the first or second sentence. THE WORDING IS FIXED AND IS NOT TO BE VARIED:
+Justin Nseya
+Director, ETABLIX, part of JNN GLOBAL LTD (company 15405437)
+contact@etablix.com · +44 7493 216101
 
-    I am Justin Nseya, director of ETABLIX, part of JNN GLOBAL LTD, company 15405437
+VOICE: the company acts, the signatory introduces and asks. We specify, we procure, we never hold your money. I am, I would be grateful. Never one claim in two voices. "I plan and run the temporary environment" reads as a sole trader; "we" is the company.
 
-  Then say in the same sentence or the next what the company does. A reader must never reach the end wondering who sent this.
+NAMING: "ETABLIX, part of JNN GLOBAL LTD, company 15405437" at first mention, "ETABLIX" after. Never a shortened or varied form of the legal name.
 
-- NEVER EMIT A PLACEHOLDER. No square brackets or angle brackets anywhere in the output, no token standing in for a name, a company, a date or a figure to be filled in later, no TBC and no blank line awaiting an answer. Every fact needed to sign this letter is given above. Where something genuinely is not known, write the sentence so that it is not needed, rather than leaving a gap. A draft with a bracket in it is not a draft: it is a letter that gets sent with the bracket still in it.
-- VOICE: THE COMPANY ACTS, THE SIGNATORY INTRODUCES AND ASKS. This is a letter from one company to another, so the work is "we" — we write the output specification, we run the procurement and mobilisation, we never hold your supply-chain money. The person appears only to introduce himself, to ask, and to sign: "I am Justin Nseya, director of…", "I would be grateful if…". A letter that says "I plan and run the temporary environment" reads as a sole trader, and to a procurement officer assessing a supplier that raises a capacity question in sentence three that nothing later in the letter can put down.
+WRITE TO THE STAGE, which changes who is being written to and what may honestly be asked.
+- open: a live notice or supplier event with a date. Name the date once. Nothing has been won, so congratulate nobody.
+- confirmed: awarded or started. The reader who needs this is usually the contractor, not the client who let it. Acknowledge the appointment in a clause at most.
+- early: funded, submitted, consented or consulted on, with nothing let. Do not ask for work, do not imply any is available, and say plainly that it is early.
 
-  What is forbidden is INCOHERENT mixing — the same claim about the same thing in two voices, such as describing the service as "what we do" and then its contracting position as "I never hold your money". The company does both, so both are "we".
+A LIVE PROCUREMENT HAS ONE PROPER ROUTE. Write to the contact published on the notice and ask process questions only — whether subcontracting is permitted within a lead supplier's model, whether a supplier-engagement route exists. Anything about scope or evaluation goes to the portal's clarification process, where every bidder sees the answer, and the letter says that is where it is going. If a private answer would advantage this bidder over another, it belongs on the portal.
 
-  THIS IS THE OPPOSITE OF THE RULE FOR A LINKEDIN COMMENT, deliberately, and the difference is the medium rather than an inconsistency. A comment is one named person speaking among other named people and is always first person singular; a letter is the company writing to a company. Do not make one match the other.
-- COURTESY IS NOT PADDING. Ask; do not instruct. "If you are able to say" earns an answer that "yes or no is enough" does not.
-- CLOSE WITH THIS SIGNATURE BLOCK, with nothing invented and nothing left blank:
-
-    Justin Nseya
-    Director, ETABLIX, part of JNN GLOBAL LTD (company 15405437)
-    contact@etablix.com · +44 7493 216101
-
-A LIVE PROCUREMENT HAS A PUBLISHED ROUTE, AND IT IS THE ONLY ONE TO USE. This is propriety rather than style, and the line is narrower than it first appears — an earlier version of this rule said never to write to a buyer during a live procurement at all, which was wrong and would have stopped a perfectly proper letter being sent.
-
-What is proper: writing to the contact PUBLISHED ON THE NOTICE. That is what the contact is for. Process questions are exactly their business — whether subcontracting is permitted within the lead supplier's model, whether there is a supplier-engagement route, how capabilities can be registered. Ask those of the published contact and sign the letter.
-
-What is not: seeking privately, once a formal invitation to tender is running, an answer about SCOPE or EVALUATION that other bidders will not see. That is the thing a buyer must refuse and may exclude a bidder for asking. Those questions go through the portal's clarification process, where every bidder sees the answer, and the draft says plainly that is where it is going.
-
-So: if the question would advantage this bidder over another by being answered privately, it belongs on the portal. If it would not, the published contact is the right reader. When in doubt, write for the portal — a clarification costs nothing and is never the wrong channel.
-
-THE FOUR SENTENCES, IN THIS ORDER
-1. An observation about THEIR situation that they have not already read ten times. Not congratulations. Not "I noticed your recent award". Something true and specific about what the announced thing means in practice — the kind of remark that could only be made by somebody who has stood on that type of site.
-2. The consequence, concretely. What falls due, on whom, and when.
-3. One sentence saying what the company does about it, naming the scope plainly: site establishment, welfare, security, waste, accommodation where relevant. A reader must finish this sentence knowing what the business sells.
-4. A question the reader can answer themselves, from what they already know, without consulting anyone. Short to answer is the point, not short to read: the reader decides how fully to reply, and is never told that one word will do. Never "could you point me to the right person" — a referral is a favour, and strangers do not do favours.
-
-A SUBJECT LINE IS NOT A HEADLINE. Six words or fewer, specific, no verbs of selling, and it must not read as marketing. The name of the thing plus the question is usually right.
-
-HOW IT MUST READ
-- Open by naming the specific thing that happened, as published. That sentence is the only reason the reader continues.
-- Say in one sentence what becomes true next: the site establishment — compound and welfare, temporary power and utilities, security, waste, catering, workforce accommodation, logistics, demobilisation and reinstatement — is now somebody's problem, and on most schemes it is settled in the weeks before anyone is watching.
-- Offer ONE engagement route, not a menu: Advisory (we write the output specification, package boundaries and tender documents; they contract every supplier) or Management Integrator (they still hold every contract; we run procurement, mobilisation and the interfaces). Never offer Prime Service Contractor — the professional indemnity policy insures a consultant and does not respond to holding works contracts, so offering it promises something that cannot lawfully be delivered.
-- The sentence that separates this from an ordinary intermediary is "you hold every supplier contract and we never hold your supply-chain money". Use it once, plainly, near the end.
-
-WRITE TO THE STAGE. The three are not the same letter with a different date.
-- open: there is a live notice or a supplier event with a date. Refer to it plainly, say what we would be answering or attending, and ask the one question that decides whether it is worth either side's time. If a closing or event date is given, name it once. Do not congratulate anyone — nothing has been won.
-- confirmed: it has been awarded or has started. The person who now needs temporary accommodation, welfare, a compound and the logistics around them is usually the CONTRACTOR, not the client who let it. Where the detail names a contractor, write to that reader. Do not open with congratulations, but you may acknowledge the appointment in a clause.
-- early: funded, submitted, consented or being consulted on, with nothing let. Do not ask for work and do not imply any is available. Ask to be kept in mind, or to understand how the temporary scope is being planned, and say plainly that it is early. An early approach that pretends to be a late one is the fastest way to be remembered badly.
-- Close with the binary ask described above. Never ask for a meeting "to introduce ourselves", and never ask to be pointed at the right person.
-
-WHAT YOU MUST NOT DO, UNDER ANY CIRCUMSTANCES
-- Do not invent a fact, a figure, a statistic, a case study, a testimonial or a previous client. If you have no evidence for something, leave it out.
-- Do not name any client, scheme, employer or project that ${from} has worked on. Not one, in any form.
-- Professional indemnity and public liability ARE held, £5,000,000 each, in force from 26 October 2026, and may be stated plainly if it is relevant. Nothing else may be: there is no ISO certification, no SSIP registration and no employers' liability (correctly — the only employee is the director, who holds a majority of the issued share capital, so the company is exempt under the Employers' Liability (Compulsory Insurance) Act 1969).
-- Do not state or imply a price, a day rate or a fee.
-- Do not imply a Principal Contractor or Principal Designer appointment under CDM 2015.
-- Do not say or suggest that the recipient, their contractor or anyone else does this work badly. The argument is that it falls due when nobody has time, never that the people are not good enough.
-- Do not flatter, and do not open with congratulations as the first line.
-- No exclamation marks. Never use: revolutionary, game-changing, world-class, leading, cutting-edge, unlock, supercharge, seamless, synergy.
-- Do not mention software, automation, models or how this draft was produced.
-- Do not state a role for a named organisation — contractor, client, owner, winner — unless the published detail above says so. A name extracted from a headline is a hint, and asserting it is how a letter arrives at the wrong company congratulating them on somebody else's contract.
-- Do not state a deadline or an event date that is not given above.
-- Address the letter to whoever the published contact actually belongs to, as stated above. Where that is the CLIENT who let a contract rather than the contractor who won it, do not write as though they are the winner and do not congratulate them on it — ask instead to be pointed at the appointed contractor's commercial team, which is a reasonable thing to ask a client's procurement mailbox and the only useful thing to ask it here.
-- Never invent a recipient's name, and never use one that is not given above.`,
+NEVER
+- Invent a fact, figure, statistic, case study, testimonial or previous client.
+- Name any client, scheme, employer or project ${from} has worked on.
+- Claim more than professional indemnity and public liability at £5,000,000 each, in force. There is no ISO certification and no SSIP registration. There is no employers' liability: the only employee is the director, who holds a majority of the issued share capital, so the company is exempt under the Employers' Liability (Compulsory Insurance) Act 1969.
+- Offer Prime Service Contractor. The policy insures a consultant and does not answer works contracts.
+- State or imply a price, a day rate or a fee.
+- Imply a Principal Contractor or Principal Designer appointment under CDM 2015.
+- Suggest the recipient or anyone else does this work badly. It falls due when nobody has time; that is the whole argument.
+- Open with congratulations, or flatter.
+- Use an exclamation mark, or any of: revolutionary, game-changing, world-class, leading, cutting-edge, unlock, supercharge, seamless, synergy.
+- Leave a bracket, a placeholder, a TBC or a blank to be filled in later.
+- Assert a role for a named organisation — contractor, client, owner, winner — unless the published detail says so.
+- Describe how this letter was produced.
+`,
   });
   return { draft: String(text || "").trim() };
 }

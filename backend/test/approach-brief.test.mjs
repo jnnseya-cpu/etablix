@@ -1,31 +1,32 @@
 /**
- * THE BRIEF THAT WRITES A FIRST APPROACH, PINNED.
+ * THE BRIEF THAT WRITES A FIRST APPROACH, PINNED BY SUBSTANCE RATHER THAN PROSE.
  *
- * WHY THIS TEST EXISTS. Four letters written to the old brief were delivered to
- * real inboxes at real companies and produced no replies at all. The failure
- * was not deliverability and not politeness — it was length and shape. The
- * brief allowed 200 words and the letters ran to 250; a supply chain manager
- * gives a cold email about five seconds, and in those five seconds the letters
- * read as every other supplier email that week.
+ * An earlier version of this file asserted on headings — "OPEN WITH A GREETING",
+ * "ONE VOICE", "CLOSE WITH A NAME AND A SIGNATURE BLOCK". Rewriting the brief
+ * broke twenty assertions at once without a single rule having changed, which
+ * is a test telling you about its own wording rather than about the thing it
+ * guards. Where a rule can be checked by what it requires rather than by how it
+ * is phrased, it is checked that way here.
  *
- * Two other faults were live in the same brief and were worse than the prose,
- * because they would have put something untrue in front of a customer:
+ * What is guarded, and why each one earned a test:
  *
- *   1. It offered Prime Service Contractor. The policy in force insures a
- *      consultant and does not respond to holding works contracts, so a draft
- *      offering Model C promises what cannot lawfully be delivered.
- *   2. It said "Do not claim any insurance. None is held." True until
- *      26 October 2026 and false afterwards, so it forbade the single most
- *      useful fact the company has.
- *
- * A prompt is not documentation. It is the thing that runs.
+ *   LENGTH — letters at 250 words reached real inboxes and drew no replies.
+ *   IDENTITY — the first attempt at brevity produced an anonymous instruction.
+ *   NAMING — three forms of this company's names reached three readers in a
+ *     fortnight, and one did not resolve at Companies House.
+ *   INSURANCE — the brief once said none was held, which became false on
+ *     26 October 2026 and forbade the most useful fact the company has.
+ *   MODEL C — the policy insures a consultant, so offering it promises what
+ *     cannot lawfully be delivered.
+ *   PROPRIETY — a bidder seeking a private answer on scope can be excluded.
+ *   SIZE — at two thousand words the provider declined every call made with it.
  */
 import fs from "node:fs";
 import path from "node:path";
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..", "..");
 const src = fs.readFileSync(path.join(root, "backend", "lib", "ai.js"), "utf8");
-const brief = src.slice(src.indexOf("You draft a FIRST APPROACH"), src.indexOf("Do not flatter"));
+const brief = src.slice(src.indexOf("You draft a FIRST APPROACH"), src.indexOf("`,", src.indexOf("You draft a FIRST APPROACH")));
 
 let pass = 0, fail = 0;
 const ok = (c, m, saw) => {
@@ -33,177 +34,112 @@ const ok = (c, m, saw) => {
   else { fail++; console.log(`  ✗ ${m}${saw !== undefined ? `\n      saw: ${saw}` : ""}`); }
 };
 
-console.log("\n=== it must not offer a model the insurance will not answer ===\n");
+console.log("\n=== it stays small enough to be a request to write a letter ===\n");
 {
-  ok(/Never offer Prime Service Contractor/.test(brief),
-     "the approach brief forbids Prime Service Contractor outright");
-  ok(/insures a consultant|does not respond to holding works contracts/i.test(brief),
-     "  and says why, so it is not quietly reversed by someone tidying the prompt");
+  const words = brief.split(/\s+/).filter(Boolean).length;
+  ok(words < 900, `the brief is ${words} words`, words);
+  ok(brief.length < 6000, `and ${brief.length} characters`, brief.length);
 
+  // Reasons belong in the comment above the function, which is never sent.
+  const fn = src.slice(src.indexOf("THE BRIEF IS SHORT ON PURPOSE"), src.indexOf("export async function draftApproach"));
+  ok(fn.length > 500, "the reasoning for each rule is kept in a comment instead", fn.length);
+  ok(!/produced this|came out like this|for example, this draft/i.test(brief),
+     "and no worked example of a previous output is quoted in the brief");
+  const quoted = [...brief.matchAll(/\n\s{4,}"[^"]{60,}/g)];
+  ok(quoted.length === 0, "nor any long quoted passage", quoted.map((m) => m[0].slice(0, 50)).join(" | "));
+}
+
+console.log("\n=== length and shape of the letter it asks for ===\n");
+{
+  const m = /Under (\d+) words/i.exec(brief);
+  ok(Boolean(m) && Number(m[1]) <= 150, "a tight word limit is set for the letter", m ? m[0] : "none");
+  ok(/six words or fewer/i.test(brief), "the subject line is capped");
+  ok(/answer from what they already know/i.test(brief),
+     "the closing question is answerable unaided");
+  ok(/never say how briefly to reply/i.test(brief),
+     "and the reader is not told how briefly to answer");
+  ok(/Not congratulations/i.test(brief), "congratulations may not open it");
+}
+
+console.log("\n=== the letter identifies who sent it ===\n");
+{
+  ok(/A greeting/i.test(brief), "it opens with a greeting");
+  ok(/I am Justin Nseya, director of ETABLIX, part of JNN GLOBAL LTD, company 15405437/.test(brief),
+     "the introduction is given as fixed wording, not described");
+  ok(/Director, ETABLIX, part of JNN GLOBAL LTD \(company 15405437\)/.test(brief),
+     "and so is the signature block");
+  ok(/contact@etablix\.com/.test(brief) && /\+44 7493 216101/.test(brief),
+     "with a real address and telephone number in it");
+
+  // The brief must not contain the placeholders it forbids.
+  const own = [...brief.matchAll(/\[(director|company|name|insert)[^\]]*\]/gi)].map((m) => m[0]);
+  ok(own.length === 0, "and the brief carries no placeholder of its own", own.join(", "));
+  ok(/Leave a bracket, a placeholder, a TBC or a blank/i.test(brief),
+     "placeholders are forbidden in the output");
+}
+
+console.log("\n=== the company's voice, which is not the comment rule ===\n");
+{
+  ok(/the company acts, the signatory introduces and asks/i.test(brief),
+     "the work is the company's voice and the signature is the person's");
+  ok(/we never hold your money|we never hold your supply-chain money/i.test(brief),
+     "the contracting position belongs to the company");
+  ok(/reads as a sole trader/i.test(brief),
+     "and the reason is given, so it is not reverted to match the LinkedIn rule");
+}
+
+console.log("\n=== naming the company ===\n");
+{
+  ok(/"ETABLIX, part of JNN GLOBAL LTD, company 15405437" at first mention/.test(brief),
+     "the full name is required at first mention");
+  ok(/Never a shortened or varied form of the legal name/.test(brief),
+     "and no variant is permitted");
+}
+
+console.log("\n=== what may and may not be claimed ===\n");
+{
+  ok(/£5,000,000/.test(brief), "the cover actually held may be stated");
+  ok(/no ISO certification/i.test(brief) && /no SSIP registration/i.test(brief),
+     "and the two that are not held are named");
+  ok(/Employers' Liability \(Compulsory Insurance\) Act 1969/.test(brief),
+     "with the employers' liability exemption written out rather than left blank");
+  ok(!/Do not claim any certification, accreditation or insurance\. None is held\./.test(src),
+     "the old blanket denial is gone — it became false on 26 October 2026");
+
+  ok(/Offer Prime Service Contractor/.test(brief) && /policy insures a consultant/i.test(brief),
+     "Model C is forbidden, with the reason");
   const company = src.slice(src.indexOf("const COMPANY_BRIEF"), src.indexOf("const COMPANY_BRIEF") + 3000);
   ok(/must never be offered, quoted or implied to a prospect or client/.test(company),
-     "the company brief that feeds EVERY agent carries the same constraint",
-     company.slice(0, 80));
+     "and the brief feeding every other agent carries the same constraint");
 }
 
-console.log("\n=== insurance: the truth, which changed on 26 October 2026 ===\n");
+console.log("\n=== a live procurement has one proper route ===\n");
 {
-  ok(!/Do not claim any certification, accreditation or insurance\. None is held\./.test(src),
-     "the old blanket 'none is held' is gone — it became false");
-  ok(/5,000,000/.test(brief) || /£5,000,000/.test(brief),
-     "the cover actually held may be stated");
-  for (const [what, re] of [
-    ["no ISO certification", /no ISO certification/i],
-    ["no SSIP registration", /no SSIP registration/i],
-    ["the employers' liability exemption", /Employers' Liability \(Compulsory Insurance\) Act 1969/],
-  ]) ok(re.test(brief), `  and ${what} is still stated as the limit`);
+  ok(/contact published on the notice/i.test(brief),
+     "writing to the published contact is allowed");
+  ok(/scope or evaluation/i.test(brief),
+     "and what is improper is named: scope or evaluation, answered privately");
+  ok(/every bidder sees the answer/.test(brief), "with the portal as the shared channel");
+  ok(/would advantage this bidder over another/.test(brief),
+     "and a test for the ambiguous case");
 }
 
-console.log("\n=== length and shape, which is what cost the replies ===\n");
-{
-  const m = /UNDER (\d+) WORDS IN TOTAL/.exec(brief);
-  ok(Boolean(m), "a hard word limit is set", m ? m[0] : "none found");
-  ok(m && Number(m[1]) <= 150, "  and it is tight enough to be read", m ? m[1] : "—");
-
-  ok(/answer themselves, from what they already know/i.test(brief),
-     "the close is a question the recipient can answer unaided");
-  ok(/never told that one word will do/i.test(brief),
-     "  and the reader is never instructed how briefly to reply");
-
-  // Short is necessary and not sufficient. The word limit alone produced a
-  // draft with no greeting, no sender and an order rather than a request.
-  for (const [what, re] of [
-    ["a greeting", /OPEN WITH A GREETING/],
-    ["who is writing", /SAY WHO IS WRITING/],
-    ["the company's voice for the work", /THE COMPANY ACTS, THE SIGNATORY INTRODUCES AND ASKS/],
-    ["courtesy as a requirement", /COURTESY IS NOT PADDING/],
-    ["a signature block", /CLOSE WITH THIS SIGNATURE BLOCK/],
-  ]) ok(re.test(brief), `  and it requires ${what}`);
-
-  // The propriety rule has its own section below. It used to be asserted here
-  // in a form that banned writing to a buyer at all during a live procurement
-  // — too broad, and it would have stopped a proper letter being sent. The
-  // assertions went with the rule rather than being left to enforce it.
-
-  ok(/never ask to be pointed at the right person|Never ask .*pointed at/i.test(brief),
-     "  and asking for a referral is forbidden, because a favour from a stranger is not given",
-     brief.slice(brief.indexOf("Close with"), brief.indexOf("Close with") + 160));
-  ok(/Not congratulations/i.test(brief),
-     "congratulations may not be the opening — it is what every other supplier sends");
-  ok(/A SUBJECT LINE IS NOT A HEADLINE/.test(brief),
-     "the subject line has its own rule");
-}
-
-console.log("\n=== a letter is not a LinkedIn comment ===\n");
-{
-  /**
-   * The first-person-singular rule was carried across from the comment rules,
-   * where it is right, into business letters, where it is not. "I plan and run
-   * the temporary environment" reads as a sole trader to a procurement officer
-   * assessing a supplier.
-   */
-  ok(/the work is "we"/.test(brief), "the work is described in the company's voice");
-  ok(/reads as a sole trader/.test(brief),
-     "  and the brief says why, so it is not reverted to match the comment rule");
-  ok(/we never hold your supply-chain money/.test(brief),
-     "the contracting position is the company's, not the individual's");
-  ok(/THIS IS THE OPPOSITE OF THE RULE FOR A LINKEDIN COMMENT/.test(brief),
-     "the difference from a comment is stated as deliberate");
-  ok(/INCOHERENT mixing/.test(brief),
-     "and what is actually forbidden — the same claim in two voices — is still forbidden");
-}
-
-console.log("\n=== the director is named, and placeholders are banned ===\n");
-{
-  /**
-   * The brief told the model to name the director and never said who that was,
-   * so every draft came out saying "[director name]" — and a draft with a
-   * bracket in it is one that gets sent with the bracket still in it.
-   */
-  ok(/I am Justin Nseya, director of ETABLIX, part of JNN GLOBAL LTD, company 15405437/.test(brief),
-     "the opening clause is given in full, as fixed wording");
-  ok(/NEVER EMIT A PLACEHOLDER/.test(brief), "placeholders are forbidden outright");
-  for (const [what, re] of [
-    ["brackets of any kind", /No square brackets or angle brackets anywhere in the output/],
-    ["tokens standing in for a fact", /no token standing in for a name, a company, a date or a figure/],
-    ["TBC and blanks left to fill", /no TBC and no blank line awaiting an answer/],
-  ]) ok(re.test(brief), `  including ${what}`);
-
-  /**
-   * AND THE PROHIBITION IS WRITTEN WITHOUT THE THING IT PROHIBITS. The first
-   * version listed the forbidden placeholders literally, so the brief carried
-   * the exact tokens it was banning — and this test caught it. A rule that
-   * demonstrates its own violation is a rule a model may copy.
-   */
-  ok(/Justin Nseya\n    Director, ETABLIX, part of JNN GLOBAL LTD \(company 15405437\)/.test(brief),
-     "and the signature block is given rather than described");
-
-  // The brief must not itself contain the placeholder it forbids.
-  const ownPlaceholders = [...brief.matchAll(/\[(director|company|name|insert)[^\]]*\]/gi)].map((m) => m[0]);
-  ok(ownPlaceholders.length === 0,
-     "the brief contains no placeholder of its own", ownPlaceholders.join(", "));
-}
-
-console.log("\n=== the prompt does not quote a previous model output ===\n");
-{
-  /**
-   * THE REFUSAL THIS PREVENTS. The brief carried a verbatim previous draft as
-   * a worked example of what not to write. The provider declined every request
-   * made with it, citing restrictions on reverse engineering or duplicating
-   * model outputs — a system prompt that quotes a model's own prior output and
-   * then instructs the model about how it writes is the shape of an attempt to
-   * extract or replicate behaviour, whatever it was meant to do.
-   *
-   * The lesson is kept as prose. A rule is described; nothing is quoted.
-   */
-  const quoted = [...brief.matchAll(/\n\s{4,}"[^"]{60,}/g)].map((m) => m[0].trim().slice(0, 70));
-  ok(quoted.length === 0,
-     "no long quoted passage sits in the brief", quoted.join(" | "));
-  ok(!/produced this|came out like this|for example, this draft/i.test(brief),
-     "  and nothing introduces one");
-}
-
-console.log("\n=== the company is named in full, every time ===\n");
-{
-  ok(/NAME THE COMPANY IN FULL, EVERY TIME/.test(brief),
-     "the brief requires the full name on first use");
-  ok(/part of JNN GLOBAL LTD, company 15405437/.test(brief),
-     "  in exactly the form the director set", /part of JNN GLOBAL LTD[^"]*/.exec(brief)?.[0]);
-  ok(/checks Companies House/.test(brief),
-     "  and says why, so it survives somebody shortening it for brevity");
-}
-
-console.log("\n=== a live procurement: the published route, and only that ===\n");
-{
-  // An earlier version of this rule banned writing to a buyer at all during a
-  // live procurement. That was wrong and would have stopped a proper letter.
-  ok(/published on the notice|PUBLISHED ON THE NOTICE/i.test(brief),
-     "writing to the contact published on the notice is allowed");
-  ok(/SCOPE or EVALUATION/.test(brief),
-     "  and what is actually improper is named: scope or evaluation, answered privately");
-  ok(/every bidder sees the answer/.test(brief),
-     "  with the portal as the channel where the answer is shared");
-  ok(/When in doubt, write for the portal/.test(brief),
-     "  and a default for the ambiguous case");
-}
-
-console.log("\n=== the USP sentence is required, not optional ===\n");
-{
-  ok(/never hold your supply-chain money/i.test(brief),
-     "the sentence that separates this from an intermediary is named in the brief");
-  ok(/output specification|package boundaries/i.test(brief),
-     "and so is the paper half of the work");
-}
-
-console.log("\n=== the limits that were already right are still there ===\n");
+console.log("\n=== the limits that were always right ===\n");
 {
   for (const [what, re] of [
-    ["inventing a fact or figure", /Do not invent a fact, a figure/],
-    ["naming a client or scheme", /Do not name any client, scheme, employer or project/],
-    ["stating a price", /Do not state or imply a price/],
+    ["inventing a fact or figure", /Invent a fact, figure, statistic/],
+    ["naming a client or scheme", /Name any client, scheme, employer or project/],
+    ["stating a price", /State or imply a price/],
     ["implying CDM Principal Contractor", /Principal Contractor or Principal Designer appointment under CDM/],
     ["saying anyone does the work badly", /does this work badly/],
-  ]) ok(re.test(src), `${what} is still forbidden`);
+    ["asserting a role from a headline", /Assert a role for a named organisation/],
+    ["describing how the letter was produced", /Describe how this letter was produced/],
+  ]) ok(re.test(brief), `${what} is forbidden`);
+
+  ok(/WRITE TO THE STAGE/.test(brief), "and the three stages are still written to differently");
+  for (const stage of ["open", "confirmed", "early"]) {
+    ok(new RegExp(`^- ${stage}:`, "m").test(brief), `  ${stage} has its own instruction`);
+  }
 }
 
 console.log(`\n=== ${pass} passed, ${fail} failed ===\n`);
