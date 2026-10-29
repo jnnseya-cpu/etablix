@@ -75,7 +75,7 @@ console.log("\n=== length and shape, which is what cost the replies ===\n");
   for (const [what, re] of [
     ["a greeting", /OPEN WITH A GREETING/],
     ["who is writing", /SAY WHO IS WRITING/],
-    ["one voice throughout", /ONE VOICE/],
+    ["the company's voice for the work", /THE COMPANY ACTS, THE SIGNATORY INTRODUCES AND ASKS/],
     ["courtesy as a requirement", /COURTESY IS NOT PADDING/],
     ["a signature block", /CLOSE WITH THIS SIGNATURE BLOCK/],
   ]) ok(re.test(brief), `  and it requires ${what}`);
@@ -92,6 +92,25 @@ console.log("\n=== length and shape, which is what cost the replies ===\n");
      "congratulations may not be the opening — it is what every other supplier sends");
   ok(/A SUBJECT LINE IS NOT A HEADLINE/.test(brief),
      "the subject line has its own rule");
+}
+
+console.log("\n=== a letter is not a LinkedIn comment ===\n");
+{
+  /**
+   * The first-person-singular rule was carried across from the comment rules,
+   * where it is right, into business letters, where it is not. "I plan and run
+   * the temporary environment" reads as a sole trader to a procurement officer
+   * assessing a supplier.
+   */
+  ok(/the work is "we"/.test(brief), "the work is described in the company's voice");
+  ok(/reads as a sole trader/.test(brief),
+     "  and the brief says why, so it is not reverted to match the comment rule");
+  ok(/we never hold your supply-chain money/.test(brief),
+     "the contracting position is the company's, not the individual's");
+  ok(/THIS IS THE OPPOSITE OF THE RULE FOR A LINKEDIN COMMENT/.test(brief),
+     "the difference from a comment is stated as deliberate");
+  ok(/INCOHERENT mixing/.test(brief),
+     "and what is actually forbidden — the same claim in two voices — is still forbidden");
 }
 
 console.log("\n=== the director is named, and placeholders are banned ===\n");

@@ -756,7 +756,11 @@ IT IS STILL A LETTER. Short is necessary and not sufficient. Written to the word
   Then say in the same sentence or the next what the company does. A reader must never reach the end wondering who sent this.
 
 - NEVER EMIT A PLACEHOLDER. No square brackets or angle brackets anywhere in the output, no token standing in for a name, a company, a date or a figure to be filled in later, no TBC and no blank line awaiting an answer. Every fact needed to sign this letter is given above. Where something genuinely is not known, write the sentence so that it is not needed, rather than leaving a gap. A draft with a bracket in it is not a draft: it is a letter that gets sent with the bracket still in it.
-- ONE VOICE. First person singular throughout, because one person signs it. Never "we" in one sentence and "I" in the next.
+- VOICE: THE COMPANY ACTS, THE SIGNATORY INTRODUCES AND ASKS. This is a letter from one company to another, so the work is "we" — we write the output specification, we run the procurement and mobilisation, we never hold your supply-chain money. The person appears only to introduce himself, to ask, and to sign: "I am Justin Nseya, director of…", "I would be grateful if…". A letter that says "I plan and run the temporary environment" reads as a sole trader, and to a procurement officer assessing a supplier that raises a capacity question in sentence three that nothing later in the letter can put down.
+
+  What is forbidden is INCOHERENT mixing — the same claim about the same thing in two voices, such as describing the service as "what we do" and then its contracting position as "I never hold your money". The company does both, so both are "we".
+
+  THIS IS THE OPPOSITE OF THE RULE FOR A LINKEDIN COMMENT, deliberately, and the difference is the medium rather than an inconsistency. A comment is one named person speaking among other named people and is always first person singular; a letter is the company writing to a company. Do not make one match the other.
 - COURTESY IS NOT PADDING. Ask; do not instruct. "If you are able to say" earns an answer that "yes or no is enough" does not.
 - CLOSE WITH THIS SIGNATURE BLOCK, with nothing invented and nothing left blank:
 
@@ -775,7 +779,7 @@ So: if the question would advantage this bidder over another by being answered p
 THE FOUR SENTENCES, IN THIS ORDER
 1. An observation about THEIR situation that they have not already read ten times. Not congratulations. Not "I noticed your recent award". Something true and specific about what the announced thing means in practice — the kind of remark that could only be made by somebody who has stood on that type of site.
 2. The consequence, concretely. What falls due, on whom, and when.
-3. One sentence saying what you do about it, naming the scope plainly: site establishment, welfare, security, waste, accommodation where relevant. A reader must finish this sentence knowing what the business sells.
+3. One sentence saying what the company does about it, naming the scope plainly: site establishment, welfare, security, waste, accommodation where relevant. A reader must finish this sentence knowing what the business sells.
 4. A question the reader can answer themselves, from what they already know, without consulting anyone. Short to answer is the point, not short to read: the reader decides how fully to reply, and is never told that one word will do. Never "could you point me to the right person" — a referral is a favour, and strangers do not do favours.
 
 A SUBJECT LINE IS NOT A HEADLINE. Six words or fewer, specific, no verbs of selling, and it must not read as marketing. The name of the thing plus the question is usually right.
@@ -784,7 +788,7 @@ HOW IT MUST READ
 - Open by naming the specific thing that happened, as published. That sentence is the only reason the reader continues.
 - Say in one sentence what becomes true next: the site establishment — compound and welfare, temporary power and utilities, security, waste, catering, workforce accommodation, logistics, demobilisation and reinstatement — is now somebody's problem, and on most schemes it is settled in the weeks before anyone is watching.
 - Offer ONE engagement route, not a menu: Advisory (we write the output specification, package boundaries and tender documents; they contract every supplier) or Management Integrator (they still hold every contract; we run procurement, mobilisation and the interfaces). Never offer Prime Service Contractor — the professional indemnity policy insures a consultant and does not respond to holding works contracts, so offering it promises something that cannot lawfully be delivered.
-- The sentence that separates this from an ordinary intermediary is "you hold every supplier contract and I never hold your supply-chain money". Use it once, plainly, near the end.
+- The sentence that separates this from an ordinary intermediary is "you hold every supplier contract and we never hold your supply-chain money". Use it once, plainly, near the end.
 
 WRITE TO THE STAGE. The three are not the same letter with a different date.
 - open: there is a live notice or a supplier event with a date. Refer to it plainly, say what we would be answering or attending, and ask the one question that decides whether it is worth either side's time. If a closing or event date is given, name it once. Do not congratulate anyone — nothing has been won.
