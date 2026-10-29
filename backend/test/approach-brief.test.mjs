@@ -77,7 +77,7 @@ console.log("\n=== length and shape, which is what cost the replies ===\n");
     ["who is writing", /SAY WHO IS WRITING/],
     ["one voice throughout", /ONE VOICE/],
     ["courtesy as a requirement", /COURTESY IS NOT PADDING/],
-    ["a signature block", /CLOSE WITH A NAME AND A SIGNATURE BLOCK/],
+    ["a signature block", /CLOSE WITH THIS SIGNATURE BLOCK/],
   ]) ok(re.test(brief), `  and it requires ${what}`);
 
   // The propriety rule has its own section below. It used to be asserted here
@@ -92,6 +92,37 @@ console.log("\n=== length and shape, which is what cost the replies ===\n");
      "congratulations may not be the opening — it is what every other supplier sends");
   ok(/A SUBJECT LINE IS NOT A HEADLINE/.test(brief),
      "the subject line has its own rule");
+}
+
+console.log("\n=== the director is named, and placeholders are banned ===\n");
+{
+  /**
+   * The brief told the model to name the director and never said who that was,
+   * so every draft came out saying "[director name]" — and a draft with a
+   * bracket in it is one that gets sent with the bracket still in it.
+   */
+  ok(/I am Justin Nseya, director of ETABLIX, part of JNN GLOBAL LTD, company 15405437/.test(brief),
+     "the opening clause is given in full, as fixed wording");
+  ok(/NEVER EMIT A PLACEHOLDER/.test(brief), "placeholders are forbidden outright");
+  for (const [what, re] of [
+    ["brackets of any kind", /No square brackets or angle brackets anywhere in the output/],
+    ["tokens standing in for a fact", /no token standing in for a name, a company, a date or a figure/],
+    ["TBC and blanks left to fill", /no TBC and no blank line awaiting an answer/],
+  ]) ok(re.test(brief), `  including ${what}`);
+
+  /**
+   * AND THE PROHIBITION IS WRITTEN WITHOUT THE THING IT PROHIBITS. The first
+   * version listed the forbidden placeholders literally, so the brief carried
+   * the exact tokens it was banning — and this test caught it. A rule that
+   * demonstrates its own violation is a rule a model may copy.
+   */
+  ok(/Justin Nseya\n    Director, ETABLIX, part of JNN GLOBAL LTD \(company 15405437\)/.test(brief),
+     "and the signature block is given rather than described");
+
+  // The brief must not itself contain the placeholder it forbids.
+  const ownPlaceholders = [...brief.matchAll(/\[(director|company|name|insert)[^\]]*\]/gi)].map((m) => m[0]);
+  ok(ownPlaceholders.length === 0,
+     "the brief contains no placeholder of its own", ownPlaceholders.join(", "));
 }
 
 console.log("\n=== the prompt does not quote a previous model output ===\n");

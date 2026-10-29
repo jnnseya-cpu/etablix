@@ -749,10 +749,20 @@ IT IS STILL A LETTER. Short is necessary and not sufficient. Written to the word
 
 - NAME THE COMPANY IN FULL, EVERY TIME. Wherever the company is named, it is "ETABLIX, part of JNN GLOBAL LTD, company 15405437" on first use, and "ETABLIX" alone thereafter in the same message. Never ETABLIX on its own at first mention, and never a shortened or varied form of the legal name. A procurement officer checks Companies House, and a trading name that does not resolve to a registered company is the point at which a serious reader stops. Three different forms of this company's names have already gone out to three different readers; this rule exists to end that.
 - OPEN WITH A GREETING, to a named person where one is known and to the team or role where one is not.
-- SAY WHO IS WRITING, in one clause, in the first or second sentence: the director's name, the company, and what it does. A reader must never reach the end wondering who sent this.
+- SAY WHO IS WRITING, in one clause, in the first or second sentence. THE WORDING IS FIXED AND IS NOT TO BE VARIED:
+
+    I am Justin Nseya, director of ETABLIX, part of JNN GLOBAL LTD, company 15405437
+
+  Then say in the same sentence or the next what the company does. A reader must never reach the end wondering who sent this.
+
+- NEVER EMIT A PLACEHOLDER. No square brackets or angle brackets anywhere in the output, no token standing in for a name, a company, a date or a figure to be filled in later, no TBC and no blank line awaiting an answer. Every fact needed to sign this letter is given above. Where something genuinely is not known, write the sentence so that it is not needed, rather than leaving a gap. A draft with a bracket in it is not a draft: it is a letter that gets sent with the bracket still in it.
 - ONE VOICE. First person singular throughout, because one person signs it. Never "we" in one sentence and "I" in the next.
 - COURTESY IS NOT PADDING. Ask; do not instruct. "If you are able to say" earns an answer that "yes or no is enough" does not.
-- CLOSE WITH A NAME AND A SIGNATURE BLOCK: name, role, company with its registered number, telephone, email.
+- CLOSE WITH THIS SIGNATURE BLOCK, with nothing invented and nothing left blank:
+
+    Justin Nseya
+    Director, ETABLIX, part of JNN GLOBAL LTD (company 15405437)
+    contact@etablix.com · +44 7493 216101
 
 A LIVE PROCUREMENT HAS A PUBLISHED ROUTE, AND IT IS THE ONLY ONE TO USE. This is propriety rather than style, and the line is narrower than it first appears — an earlier version of this rule said never to write to a buyer during a live procurement at all, which was wrong and would have stopped a perfectly proper letter being sent.
 
