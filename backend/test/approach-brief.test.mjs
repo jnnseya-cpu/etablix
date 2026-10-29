@@ -37,7 +37,7 @@ const ok = (c, m, saw) => {
 console.log("\n=== it stays small enough to be a request to write a letter ===\n");
 {
   const words = brief.split(/\s+/).filter(Boolean).length;
-  ok(words < 900, `the brief is ${words} words`, words);
+  ok(words < 1000, `the brief is ${words} words`, words);
   ok(brief.length < 6000, `and ${brief.length} characters`, brief.length);
 
   // Reasons belong in the comment above the function, which is never sent.
@@ -56,9 +56,41 @@ console.log("\n=== length and shape of the letter it asks for ===\n");
   ok(/six words or fewer/i.test(brief), "the subject line is capped");
   ok(/answer from what they already know/i.test(brief),
      "the closing question is answerable unaided");
-  ok(/never say how briefly to reply/i.test(brief),
+  ok(/never tell them how briefly to reply/i.test(brief),
      "and the reader is not told how briefly to answer");
-  ok(/Not congratulations/i.test(brief), "congratulations may not open it");
+  ok(/Open with congratulations, or flatter/.test(brief), "congratulations may not open it");
+}
+
+console.log("\n=== its own structure must not leak into the letter ===\n");
+{
+  /**
+   * A numbered eight-step recipe produced a letter organised like the recipe:
+   * "One route: Advisory, where..." echoing the instruction to offer one route,
+   * and "I write knowing this is early" echoing the instruction to say so. The
+   * brief now asks for an effect and forbids narrating the letter.
+   */
+  ok(/Do not write a letter that is organised like these instructions/i.test(brief),
+     "it tells the writer not to reproduce the instructions' shape");
+  ok(/NEVER NARRATE THE LETTER/i.test(brief), "narrating the letter is forbidden");
+  for (const [what, re] of [
+    ["announcing that it is early", /no "I write knowing this is early"/],
+    ["labelling the engagement route", /no "One route:"/],
+    ["reaching out", /no "I am reaching out"/],
+  ]) ok(re.test(brief), `  including ${what}`);
+  ok(/If a sentence would survive being deleted, delete it/.test(brief),
+     "and filler is to be cut rather than tolerated");
+
+  // Nine scope items in one breath was the brief's list pasted in whole.
+  ok(/NEVER the whole list/.test(brief), "the scope list may not be reproduced entire");
+  ok(/Two or three items of scope that actually fit this scheme/.test(brief),
+     "  only the two or three that fit the scheme");
+
+  ok(/THE OPENING LINE IS THE WHOLE LETTER/.test(brief),
+     "the opening carries a specific, true observation");
+  ok(/Never write an abstract sentence to fill the space/.test(brief),
+     "  and abstraction is forbidden where the detail is thin");
+  ok(/could be about any project/.test(brief),
+     "  with the reason given: a generic sentence says it was not written for them");
 }
 
 console.log("\n=== the letter identifies who sent it ===\n");
