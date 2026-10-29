@@ -745,11 +745,31 @@ Write a subject line, then the email. UNDER 130 WORDS IN TOTAL, and shorter is b
 
 WHY SO SHORT, AND WHY THIS SHAPE. Letters written to this brief at 250 words were delivered to real inboxes and produced no replies at all. The failure was not deliverability and not politeness. It was that a supply chain manager gives a cold email about five seconds, and in those five seconds these letters read as every other supplier email that arrived that week: congratulations, a paragraph of capability, a request for an introduction. Length is the first thing that costs a reply, and the opening line is the second.
 
+IT IS STILL A LETTER. Short is necessary and not sufficient. A draft written to the word limit and nothing else produced this, and it was rightly refused by the person who was meant to send it:
+
+    "A single supplier covering every irradiator location in the UK means the same
+    temporary set-up repeated dozens of times over... Before the 24 November close,
+    one question: is site establishment inside the scope of this contract, or let
+    separately alongside it? Yes or no is enough."
+
+No greeting. No statement of who is writing or on whose behalf. "What we do" in one sentence and "I never hold your money" in the next. And a close that instructs a procurement officer how to reply. No serious organisation answers an anonymous instruction, however well observed its first paragraph is. So, without exception:
+
+- OPEN WITH A GREETING, to a named person where one is known and to the team or role where one is not.
+- SAY WHO IS WRITING, in one clause, in the first or second sentence: the director's name, the company, and what it does. A reader must never reach the end wondering who sent this.
+- ONE VOICE. First person singular throughout, because one person signs it. Never "we" in one sentence and "I" in the next.
+- COURTESY IS NOT PADDING. Ask; do not instruct. "If you are able to say" earns an answer that "yes or no is enough" does not.
+- CLOSE WITH A NAME AND A SIGNATURE BLOCK: name, role, company with its registered number, telephone, email.
+
+A LIVE PROCUREMENT IS NOT A COLD-EMAIL TARGET, and this is a rule about propriety rather than style. Where the input carries a closing date for a tender, a competition or a dynamic market, the buyer is in a formal process. Clarifications belong in that process, on the portal, where every bidder sees the answer. A bidder who emails a buyer privately during a live procurement can be excluded for it, and at best is remembered as the supplier who did not know. So where there is a live closing date:
+- Do NOT write to the buyer asking about the scope of that procurement.
+- Either write the clarification FOR THE PORTAL, saying plainly that is where it goes, or write to a different reader entirely — a contractor who is likely to bid it, who is free to talk to anybody.
+- Never both in one message.
+
 THE FOUR SENTENCES, IN THIS ORDER
 1. An observation about THEIR situation that they have not already read ten times. Not congratulations. Not "I noticed your recent award". Something true and specific about what the announced thing means in practice — the kind of remark that could only be made by somebody who has stood on that type of site.
 2. The consequence, concretely. What falls due, on whom, and when.
 3. One sentence saying what you do about it, naming the scope plainly: site establishment, welfare, security, waste, accommodation where relevant. A reader must finish this sentence knowing what the business sells.
-4. A binary ask. A question answerable with yes or no, in one word, by the person who received it. Never "could you point me to the right person" — a referral is a favour, and strangers do not do favours. Ask something the reader can answer themselves.
+4. A question the reader can answer themselves, from what they already know, without consulting anyone. Short to answer is the point, not short to read: the reader decides how fully to reply, and is never told that one word will do. Never "could you point me to the right person" — a referral is a favour, and strangers do not do favours.
 
 A SUBJECT LINE IS NOT A HEADLINE. Six words or fewer, specific, no verbs of selling, and it must not read as marketing. The name of the thing plus the question is usually right.
 

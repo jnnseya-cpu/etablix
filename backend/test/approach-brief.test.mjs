@@ -65,8 +65,30 @@ console.log("\n=== length and shape, which is what cost the replies ===\n");
   ok(Boolean(m), "a hard word limit is set", m ? m[0] : "none found");
   ok(m && Number(m[1]) <= 150, "  and it is tight enough to be read", m ? m[1] : "—");
 
-  ok(/binary ask|answerable with yes or no/i.test(brief),
-     "the close is a binary question the recipient can answer themselves");
+  ok(/answer themselves, from what they already know/i.test(brief),
+     "the close is a question the recipient can answer unaided");
+  ok(/never told that one word will do/i.test(brief),
+     "  and the reader is never instructed how briefly to reply");
+
+  // Short is necessary and not sufficient. The word limit alone produced a
+  // draft with no greeting, no sender and an order rather than a request.
+  for (const [what, re] of [
+    ["a greeting", /OPEN WITH A GREETING/],
+    ["who is writing", /SAY WHO IS WRITING/],
+    ["one voice throughout", /ONE VOICE/],
+    ["courtesy as a requirement", /COURTESY IS NOT PADDING/],
+    ["a signature block", /CLOSE WITH A NAME AND A SIGNATURE BLOCK/],
+  ]) ok(re.test(brief), `  and it requires ${what}`);
+
+  /**
+   * PROPRIETY, NOT STYLE. A bidder who emails a buyer privately during a live
+   * procurement can be excluded for it. Clarifications belong on the portal,
+   * where every bidder sees the answer.
+   */
+  ok(/A LIVE PROCUREMENT IS NOT A COLD-EMAIL TARGET/.test(brief),
+     "a live procurement is not treated as a cold-email target");
+  ok(/can be excluded for it/.test(brief),
+     "  and the brief says why, so it is not softened later");
   ok(/never ask to be pointed at the right person|Never ask .*pointed at/i.test(brief),
      "  and asking for a referral is forbidden, because a favour from a stranger is not given",
      brief.slice(brief.indexOf("Close with"), brief.indexOf("Close with") + 160));
