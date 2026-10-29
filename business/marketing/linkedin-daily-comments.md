@@ -25,8 +25,9 @@ people who would have looked you up now will not."*
 The director's instruction reverses it. **Every comment now sells ETABLIX and
 introduces it to the company that posted and to everyone reading** — naming the
 scope, the two halves of the work and the contracting position, punchily, with
-the USP carried every time. The governing version is in `CLAUDE.md` at the
-repository root.
+the USP carried every time. The governing version is the standing-instructions
+file at the repository root, which is loaded automatically by the tooling and so
+applies whether or not anybody remembers it.
 
 Why it was reversed, recorded so the argument is not had twice: nine comments
 written in October followed the old rule's spirit and sold nothing. The
