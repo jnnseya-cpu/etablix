@@ -205,15 +205,62 @@ root.addEventListener("click", async (e) => {
       // Shown in a textarea rather than as text, because the next thing that
       // happens to it is editing. A draft you cannot change on the spot gets
       // copied into a mail client and sent unread.
+      /**
+       * THE SUBJECT IS SEPARATED FROM THE BODY, AND BOTH ARE ONE TAP TO COPY.
+       *
+       * The draft arrives as one block with "Subject: ..." on the first line.
+       * Sending it means putting the subject in one field of a mail client and
+       * the body in another, and the gap between a good draft and a sent email
+       * is exactly that fiddling — select part of a textarea, copy, switch app,
+       * paste, come back, select the rest. On a phone it is worse, and this
+       * screen is read on a phone.
+       */
+      const raw = String(out.draft || "").trim();
+      const m = /^subject:\s*(.+?)\s*\n+([\s\S]*)$/i.exec(raw);
+      const subject = m ? m[1].trim() : "";
+      const body = m ? m[2].trim() : raw;
+
       slot.innerHTML = `<div style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px;">
         <div style="font-family:var(--font-head);font-size:0.72rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--amber,#9c7a3c);margin-bottom:6px;">
           A draft — read it, change it, send it yourself</div>
-        <textarea style="width:100%;min-height:220px;padding:10px 12px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;font-size:0.86rem;line-height:1.55;">${esc(out.draft)}</textarea>
-        <div class="muted" style="font-size:0.76rem;margin-top:5px;">Nothing has been sent. Check every fact against the announcement before it goes.</div>
+        ${subject ? `<label style="display:block;font-size:0.72rem;color:var(--muted,#6b7280);margin-bottom:3px;">Subject</label>
+        <div style="display:flex;gap:6px;margin-bottom:9px;">
+          <input class="draft-subject" value="${esc(subject)}" style="flex:1;padding:8px 10px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;font-size:0.86rem;">
+          <button class="btn-run" data-copy="subject" type="button">Copy</button>
+        </div>` : ""}
+        <label style="display:block;font-size:0.72rem;color:var(--muted,#6b7280);margin-bottom:3px;">Message</label>
+        <textarea class="draft-body" style="width:100%;min-height:220px;padding:10px 12px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;font-size:0.86rem;line-height:1.55;">${esc(body)}</textarea>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:7px;flex-wrap:wrap;">
+          <button class="btn-run" data-copy="body" type="button">Copy the message</button>
+          <span class="muted" style="font-size:0.76rem;">Nothing has been sent. Check every fact against the announcement before it goes.</span>
+        </div>
       </div>`;
       d.textContent = "Re-draft";
     } catch (err) { alert(err.message); d.textContent = "Draft the approach"; }
     d.disabled = false;
+    return;
+  }
+
+  /**
+   * Copy, with the clipboard API and a fallback, because this screen is served
+   * over https on a phone and also opened on a desktop browser that may refuse
+   * the permission. A copy button that silently does nothing is worse than no
+   * copy button, so the label says what happened either way.
+   */
+  const cp = e.target.closest("button[data-copy]");
+  if (cp) {
+    const wrap = cp.closest(".draft-slot") || cp.parentElement.parentElement;
+    const el = wrap.querySelector(cp.dataset.copy === "subject" ? ".draft-subject" : ".draft-body");
+    const text = el ? el.value : "";
+    const done = (ok) => {
+      const was = cp.textContent;
+      cp.textContent = ok ? "Copied" : "Press and hold to copy";
+      setTimeout(() => { cp.textContent = was; }, 1600);
+    };
+    try {
+      if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); done(true); }
+      else { el.select(); done(document.execCommand("copy")); }
+    } catch { try { el.select(); done(document.execCommand("copy")); } catch { done(false); } }
     return;
   }
 
