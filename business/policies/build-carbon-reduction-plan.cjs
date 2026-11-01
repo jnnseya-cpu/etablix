@@ -65,10 +65,18 @@ const d = B.doc({
     ["Reporting standard", `${PPN} — Taking account of carbon reduction plans in the procurement of major government contracts`],
     ["Publication date", "[date — must be within the last 12 months at the point any bid relies on it]"],
     ["Baseline year", "[baseline year]"],
-    ["Reporting year", "[current reporting year]"],
+    // DELIBERATELY LEFT FOR A PERSON, and the only bracket in this document.
+    // PPN 06/21 reads the reporting year against the company's own financial
+    // year, and a Carbon Reduction Plan that states the wrong reporting period
+    // is a worse defect than one that states none: the baseline, the emissions
+    // and the target all hang off it. Set it before the plan is uploaded.
+    ["Reporting year", "[current reporting year — set against the company's financial year before upload]"],
     ["Supplier", "JNN GLOBAL LTD, trading as ETABLIX · Company No. 15405437"],
-    ["Approved by", "[name], Managing Director, on behalf of the board"],
-    ["Published at", "[URL] — a UK website, as the standard requires"],
+    // Named and addressed rather than bracketed. brand.cjs says it plainly:
+    // "[name]" on a document uploaded to a buyer's portal reads as unfinished,
+    // and this plan is uploaded to buyer portals more often than any other.
+    ["Approved by", "Justin Ngolu Nseya MCIOB, Managing Director, on behalf of the board"],
+    ["Published at", "https://etablix.com/policies/net-zero — a UK website, as the standard requires"],
     ["Review", "Annually. A plan more than 12 months old does not meet the standard."],
   ],
 });
@@ -264,9 +272,9 @@ table([2600, 5700],
   ["", ""],
   [
     ["Signed", "[signature]"],
-    ["Name", "[name]"],
+    ["Name", "Justin Ngolu Nseya MCIOB"],
     ["Title", "Managing Director, for and on behalf of JNN GLOBAL LTD trading as ETABLIX"],
-    ["Date", "[date]"],
+    ["Date", ISSUE],
   ]);
 
 note("The four paragraphs above are the declaration wording the standard expects. They are reproduced rather than paraphrased. Do not sign them until sections 4 and 5 carry real figures — the declaration is a statement that they do.");

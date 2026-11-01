@@ -5,12 +5,19 @@
  * built and rendered twice: through the `docx` library for Word, and as HTML
  * that Playwright prints to PDF.
  *
- * That is not a flourish. LibreOffice in this environment ships without its
- * Writer module — `libswlo.so` is absent — so `soffice` cannot load a .docx
- * at all and the PDF cannot be converted from the Word file. Rendering both
- * from one list is also the only way to guarantee the two files say the same
- * thing, which matters more for a policy than for anything else: a Word copy
- * and a PDF copy of the same policy that differ is a governance defect.
+ * That is not a flourish. Rendering both from one list is the only way to
+ * guarantee the two files say the same thing, which matters more for a policy
+ * than for anything else: a Word copy and a PDF copy of the same policy that
+ * differ is a governance defect.
+ *
+ * It was also, for a while, the only way at all: this environment's
+ * LibreOffice shipped without its Writer module — `libswlo.so` absent — so
+ * `soffice` could not load a .docx and no PDF could be converted from the Word
+ * file. That is no longer true, and the note is corrected rather than deleted
+ * because it is the reason the renderer is built this way. `soffice --headless
+ * --convert-to pdf` now works on this image, which is how the playbook's
+ * preview PDF is rebuilt; it is still not how a policy's PDF is made, for the
+ * reason in the paragraph above.
  *
  * The print runs through Playwright rather than the Chromium command line
  * because only the protocol print exposes a footer template, and a policy of

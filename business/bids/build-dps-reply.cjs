@@ -9,7 +9,18 @@
  */
 const fs = require("fs");
 const path = require("path");
-const D = require("/tmp/claude-0/-home-user-etablix/fe91c2e4-7425-5fd0-aa86-a0a156d734f1/scratchpad/docxlib/node_modules/docx");
+const D = require((() => {
+  // RESOLVED, NOT HARDCODED. This was an absolute path into one session's
+  // scratchpad directory, committed to the repository, so every build in this
+  // folder failed the moment that directory stopped existing. `docx` is not a
+  // project dependency; it is found in the globally installed modules, and
+  // ETABLIX_DOCX overrides that for a checkout with its own copy.
+  if (process.env.ETABLIX_DOCX) return process.env.ETABLIX_DOCX;
+  try {
+    return require("path").join(
+      require("child_process").execSync("npm root -g").toString().trim(), "docx");
+  } catch { return "docx"; }
+})());
 const { Document, Packer, Paragraph, TextRun, AlignmentType } = D;
 
 const INK = "14181D", GOLD = "9C7A3C", SLATE = "5B6672";

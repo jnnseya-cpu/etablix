@@ -458,14 +458,39 @@ which is the only reason to send any of them.
 
 ## What you still have to supply
 
-Four things I cannot answer for you, and none should be guessed:
+**Two things, not four.** Two of the four were answerable from the company's
+own records and are now answered below; do not re-ask them at the keyboard.
 
-1. **Telephone number**, in international format.
-2. **VAT registration number**, or the decision to enter 15405437 and declare
-   that the company is not VAT registered.
-3. **Revenue and EBIT** for the last filed year, or the decision to leave them
-   blank because the first period is not yet filed.
-4. **The concurrent-engagement figure** in the production capacity answer.
+Still yours, and neither should be guessed:
+
+1. **VAT registration number** — or the decision to enter 15405437 as the tax
+   number and state plainly, in the additional information box, that the
+   company is not VAT registered. Only you know which is true today, and the
+   form is the wrong place to find out.
+2. **The concurrent-engagement figure** in the production capacity answer. That
+   is a capacity commitment, and a number entered to fill a required field is a
+   number a buyer will hold you to.
+
+### The two that are already settled
+
+**Telephone, international format: +44 7493 216101.** It is the number on the
+website and in the platform's own company record, so a different one on this
+form creates a second contact route nobody monitors.
+
+**Revenue and EBIT: leave blank, and say why in the additional information
+box.** This is not a judgement call and not an omission — JNN GLOBAL LTD has
+not yet reached its first accounting reference date, so no statutory accounts
+are due or filed at Companies House. The financial statements pack prepared for
+CHIC states exactly that on its cover. Write it in the same words:
+
+> The company has not yet reached its first accounting reference date, so no
+> statutory accounts are due or filed. Management information prepared by the
+> director from the company's own records is available on request.
+
+A blank field with that sentence beside it reads as a young company with its
+dates in order. A guessed figure in the same field is a false declaration on a
+supplier registration, and it is the kind that gets checked against Companies
+House automatically.
 
 Check the director's first and last name against Companies House before
 submitting. The entity check compares them, and "Ngolu Nseya" as a surname

@@ -18,8 +18,9 @@ the same contract.
 > the same contract. Consultancy at Turner & Townsend. Client side at UK Power
 > Reserve, running risk and change then pre-construction across a 628MW
 > programme of thirty-plus new-build generation and storage sites. Contractor
-> side at GE Vernova as construction subcontract manager on EPC and turnkey
-> projects across the UK, Ireland and Europe, including a 36-month project
+> side with a global grid-technology contractor as construction subcontract
+> manager on EPC and turnkey projects across the UK, Ireland and Europe,
+> including a 36-month project
 > carrying a 309-bed workforce village inside scope.
 >
 > Interfaces are arbitrated by people who have sat on every side.

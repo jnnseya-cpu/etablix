@@ -117,7 +117,7 @@ h2("3.1  The organisation");
 table([2400, 5900],
   ["", ""],
   [
-    ["Legal entity", "JNN GLOBAL LTD, trading as ETABLIX. [Company number]. Registered in England and Wales."],
+    ["Legal entity", "JNN GLOBAL LTD, trading as ETABLIX. Company number 15405437. Registered in England and Wales."],
     ["Countries of operation", "United Kingdom."],
     ["People", "One working director. No other employees, no agency workers, no overseas operations, no manufacturing, no direct labour."],
     ["What it sells", "Specification, procurement management and control of temporary site establishment and site services: site compounds, welfare, temporary power and water, access, logistics, security and the associated supply chain."],

@@ -4,6 +4,20 @@
     node build-gaps.cjs        # builds the gap register from gap-register.cjs
     python3 qa.py              # audits the built .docx and writes er.txt
 
+Each builder resolves the `docx` library from the globally installed modules,
+or from `ETABLIX_DOCX` if it is set. It used to be an absolute path into one
+session's scratchpad directory, which meant every build in this folder failed
+the moment that directory stopped existing.
+
+The `-preview.pdf` beside each document is the same document, converted:
+
+    soffice --headless --convert-to pdf --outdir . <document>.docx
+
+Rebuild it whenever the .docx is rebuilt. A preview that still carries the
+previous wording is worse than no preview, because it is the copy people
+forward — the playbook's preview was still offering Model C after the document
+beside it had stopped.
+
 Content is separated from layout so the specification can be edited without
 touching the document code, and reused for the other four packages.
 

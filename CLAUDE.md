@@ -95,8 +95,18 @@ entity to a third. A procurement officer checks Companies House. A trading name
 that does not resolve to a registered company is where a serious reader stops,
 and it undoes the work of any letter that explains the structure.
 
-The same discipline applies to the second trading name: pick one written form,
-use it every time, and name the legal entity beside it.
+**The second trading name is settled, so that it stops being a decision.** It
+is written, every time and everywhere:
+
+> **JNseya Construction Consultant, part of JNN GLOBAL LTD, company 15405437**
+
+Singular "Consultant", no "and", no "s". That is the form the professional
+indemnity policy records, which makes it the only form a reader can verify
+against a certificate — and a trading name that does not match the one on the
+insurance is a worse problem than an inelegant name. "JNseya Construction and
+Consultants" is wrong and must not be used again, including where it appears in
+a letter already sent: the next letter corrects it by being right, and nothing
+already sent is rewritten to pretend otherwise.
 
 Include the company number in the signature block of any approach to a
 procurement or supply-chain reader. It is the first thing they need and the

@@ -188,6 +188,75 @@ foot in the door where a client will not buy a full diagnostic.
 
 ---
 
+## 4A · The Site Establishment Requirements Report — the one deliverable with no fee
+
+**Added 1 November 2026. A RECOMMENDATION, NOT AN ADOPTED FIGURE.** The scope of
+service exists and is client-facing
+(`business/method/site-establishment-report-scope-of-service.md`); the fee does
+not, which means the first client to ask gets a number invented in front of
+them. That is the one circumstance in which this company prices badly, and it
+is avoidable in ten minutes.
+
+**What it is, for the purpose of pricing it.** Ten produced deliverables — a
+constraints drawing, a findings and action register, phased establishment and
+logistics layouts, a welfare and accommodation schedule, a temporary utilities
+demand and connection plan, a temporary works register with design briefs, a
+survey and investigation schedule, demobilisation and reinstatement
+requirements, a photographic baseline record and a readiness statement — plus a
+desk study, one attended day on site and one round of comments.
+
+It sits **above the mobilisation-readiness review** (£5,500–£15,000), which is
+one visit and a verdict, and **below the Site Management Requirements Package**
+(£14,000–£45,000), which writes the instruments a tenderer prices and a
+contract enforces. This report specifies the requirement; it does not issue it
+to market.
+
+**The effort, for a single site.** Two director days — the attended visit and
+the readiness statement — and about ten senior-consultant days: two on the desk
+study and document register, two on the constraints drawing and findings
+register, two on the phased layouts, one and a half on the welfare schedule and
+the utilities demand build-up, one and a half on the temporary works register,
+survey schedule and demobilisation requirements, and one on the revision round.
+Twelve chargeable days, and **no production engine behind it yet** — unlike the
+five deliverables in section 4, this one is written by hand, so the day count is
+the real one rather than a post-engine one.
+
+At the £1,400 blended day the adopted requirements-package band implies, twelve
+days is £16,800 before any margin on the risk of a fixed scope.
+
+**The recommendation, and the reason it is shaped this way.** Section 3's
+delegated-authority mechanic decides the top of the range, not the arithmetic: a
+fee just under £25,000 is signed by one commercial manager, and a fee above it
+buys three quotes and a supplier onboarding gate that takes weeks. So the first
+two bands stay under that threshold deliberately, and only the programme band —
+whose client runs a procurement exercise whatever the number — goes above it.
+
+| Band | Scope that makes the fee fixed | Recommended |
+|---|---|---|
+| **Single site** | One site, one compound, peak workforce under 200, one attended visit, one revision round | **£13,500** |
+| **Multi-compound** | Two sites or up to three compounds, or a live operational site where isolations, permits and an operator interface are in scope | **£19,500** |
+| **Programme** | Linear scheme, four or more compounds, or a workforce village inside the scope | **£32,000** |
+
+Three things to settle before these go into the catalogue, and they are the
+Managing Director's to settle, not mine:
+
+1. **A second visit is not in the fee.** The scope of service already says one
+   is agreed before it is made. Price it as a named addition rather than
+   absorbing it, or the band is not fixed.
+2. **Travel and accommodation for the visit.** Every other visiting band in the
+   catalogue carries the `visiting` expense profile; this one must too, or a
+   remote single site is delivered at a loss on the first engagement.
+3. **The reference request.** The scope of service asks the client to agree, in
+   the engagement letter, to confirm completion and act as a reference. That is
+   worth more than a discount at this stage and it is already written in; do not
+   trade the fee for it as well.
+
+Set them in `backend/lib/clientflow.js` as a `BAND(...)` triple with its
+`effort` stated, like every other deliverable, so the margin can be checked
+rather than assumed.
+
+---
+
 ## 5 · Model B — Management Integrator: the missing structure
 
 There is no price in the catalogue and no fee basis written anywhere. The

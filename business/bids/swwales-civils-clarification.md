@@ -51,7 +51,7 @@ lots — so that figure is not a value per lot and should not be read as one.
 > Kind regards,
 >
 > Justin Ngolu Nseya
-> Managing Director, JNN Global Ltd (company number 15405437), trading as ETABLIX
+> Managing Director, JNN GLOBAL LTD, trading as ETABLIX · Company number 15405437
 > contact@etablix.com · +44 7493 216101
 
 ## Why only one question, and why this one

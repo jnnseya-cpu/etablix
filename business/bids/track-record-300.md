@@ -26,16 +26,16 @@ They stay out, and the insight stands unattributed as our own framing.
 > What exists is in two parts.
 >
 > **The delivery record is the founder's, and it is quantified.** As
-> construction subcontract manager at GE Vernova he carried the civils, site
-> management and site infrastructure inside EPC and full turnkey contracts
-> across the UK, Ireland and Europe — including a 36-month programme with a
-> 309-bed workforce village inside the turnkey scope, where he priced that
-> scope, produced the site reports behind it and managed the civils and
-> site-services subcontractors delivering it. Earlier, at UK Power Reserve, he
-> ran risk and change and then pre-construction across a 628MW programme of
-> more than thirty new-build generation and storage sites, each needing access,
-> compound, temporary power, welfare and logistics before anything of value
-> happened.
+> construction subcontract manager for a global grid-technology contractor he
+> carried the civils, site management and site infrastructure inside EPC and
+> full turnkey contracts across the UK, Ireland and Europe — including a
+> 36-month programme with a 309-bed workforce village inside the turnkey
+> scope, where he priced that scope, produced the site reports behind it and
+> managed the civils and site-services subcontractors delivering it. Earlier,
+> at UK Power Reserve, he ran risk and change and then pre-construction across
+> a 628MW programme of more than thirty new-build generation and storage
+> sites, each needing access, compound, temporary power, welfare and logistics
+> before anything of value happened.
 >
 > **CONSTRUX and VERYX are built, not planned.** Sixteen deterministic engines,
 > the clause graph, bitemporal state and the adversarial challenger are
@@ -83,10 +83,20 @@ and has costed the route to getting it.
 you. The 628MW and thirty-plus sites came from my earlier notes and should be
 checked against your own record before it goes on a funded application.
 
-**Confirm the GE Vernova and UK Power Reserve descriptions are yours to make.**
-Describing your own role and the shape of the scope is ordinary CV practice.
-Contract values, client names beyond the employer, commercial terms and
-supplier names are not, and none appear here.
+**Confirm the two role descriptions are yours to make.** Describing your own
+role and the shape of the scope is ordinary CV practice. Contract values,
+client names, commercial terms and supplier names are not, and none appear
+here.
+
+**The grid employer is not named, and never will be.** The standing instruction
+is absolute: that company is not named as a reference, anywhere, in any form —
+and this document's own second paragraph says that putting it in a funding
+application would be using it as a sales lever. "A global grid-technology
+contractor" carries the whole credential: the scope, the scale, the territories
+and the role are what an assessor is weighing, and the letterhead adds nothing
+they can verify anyway. UK Power Reserve stays named, because no instruction
+covers it — but check that description is yours to make before it is submitted,
+which is the point of the paragraph above.
 
 **Do not add a case study.** Not a hypothetical, not an illustrative one, not a
 "representative" one. The specimen diagnostic is a fictional project and

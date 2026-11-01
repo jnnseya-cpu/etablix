@@ -42,8 +42,9 @@ gets checked.
 > origin of this solution and the productivity loss this programme exists to
 > address.
 >
-> **2. Site establishment inside a turnkey contract — GE Vernova.** Client
-> type: an EPC and turnkey contractor delivering for energy clients. Use case:
+> **2. Site establishment inside a turnkey contract.** Client type: a global
+> grid-technology contractor delivering EPC and full turnkey scope for energy
+> clients. Use case:
 > civils, site management and site infrastructure carried inside the main
 > contract, including a 309-bed workforce village on a 36-month project in the
 > north of Scotland. Context: remote, multi-year, with a workforce that could
