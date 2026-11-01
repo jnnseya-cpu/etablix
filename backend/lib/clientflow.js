@@ -129,6 +129,7 @@ export const stageIndex = (id) => Math.max(0, STAGE_IDS.indexOf(id));
  * and we are never funding a month we have not been paid for.
  */
 import { B_MONTHLY_FLOOR } from "./pricing.js";
+import { deliveryModelByCode } from "../../shared/constants.js";
 
 export const MODELS = {
   A: {
@@ -231,7 +232,36 @@ export const MODELS = {
 };
 
 export const MODEL_IDS = Object.keys(MODELS);
+
+/**
+ * ONE SET OF FACTS PER MODEL, ASSEMBLED FROM THE TWO PLACES THEY LIVE.
+ *
+ * MODELS above is the money: deposits, monthly fees, VAT treatment, the fee
+ * guides. `DELIVERY_MODELS` in shared/constants.js is the responsibility map:
+ * who holds the supplier contracts, who pays them, who runs the enquiry, and
+ * whether the model may be offered at all. Both are true of the same three
+ * appointments, and the one thing that must never happen is that they drift —
+ * a Model C quotation raised by a platform that knows Model C is not insured
+ * is a worse failure than having no record of it.
+ *
+ * So every model carries `offerable` through to the commercial side rather
+ * than any screen or template remembering it. Model C is not offerable today
+ * and the reason travels with the flag.
+ */
+for (const m of Object.values(MODELS)) {
+  const d = deliveryModelByCode(m.id);
+  if (!d) continue;
+  m.delivery = d.id;
+  m.offerable = d.offerable;
+  m.notOfferableBecause = d.notOfferableBecause || null;
+  m.holdsSupplierContracts = d.holdsSupplierContracts;
+  m.paysSuppliers = d.paysSuppliers;
+}
+
 export const model = (id) => MODELS[String(id || "A").toUpperCase()] || MODELS.A;
+
+/** The models that may be quoted to a client today. Order is A, B, C. */
+export const offerableModels = () => MODEL_IDS.map((id) => MODELS[id]).filter((m) => m.offerable);
 
 // ------------------------------------------------------------------- VAT
 

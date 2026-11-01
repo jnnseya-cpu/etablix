@@ -27,6 +27,8 @@
  *     how a supplier prices the wrong thing and is entitled to be paid for it.
  */
 
+import { DELIVERY_MODEL_FIELD } from "../../../shared/constants.js";
+
 /**
  * Pass one. Not the requirements — the register they are traced to.
  *
@@ -321,6 +323,7 @@ planning figure for validation by a competent person, and anything
 safety-critical is flagged for one rather than resolved.`;
 
 export const FIELDS = [
+  DELIVERY_MODEL_FIELD,
   { name: "client", label: "Client / organisation", type: "text", required: true },
   { name: "project", label: "Project / site — the name this package will carry", type: "text", required: true },
   { name: "handover", label: "Information handover date — the package is due ten working days after this", type: "date", required: true },

@@ -1388,6 +1388,8 @@ export async function loadOrganisation() {
               ? `<input name="${f.name}" ${f.required ? "required" : ""} placeholder="${esc(f.label)}" style="width:100%;margin-bottom:8px;">`
               : f.type === "date"
               ? `<label class="muted" style="font-size:0.8rem;">${esc(f.label)}${f.required ? " *" : ""}</label><br><input name="${f.name}" type="date" ${f.required ? "required" : ""} style="margin-bottom:8px;">`
+              : f.type === "select"
+              ? `<label class="muted" style="font-size:0.8rem;">${esc(f.label)}${f.required ? " *" : ""}</label><br><select name="${f.name}" ${f.required ? "required" : ""} style="margin-bottom:8px;">${(f.options || []).map((o, i) => `<option value="${esc(o)}">${esc((f.labels || f.options)[i])}</option>`).join("")}</select>`
               : `<label class="muted" style="font-size:0.8rem;">${esc(f.label)}${f.required ? " *" : ""}</label><textarea name="${f.name}" ${f.required ? "required" : ""} style="width:100%;min-height:90px;padding:10px 12px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;font-size:0.88rem;margin-bottom:8px;"></textarea>`
           )
           .join("")}

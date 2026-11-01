@@ -31,6 +31,8 @@
  * eleven o'clock the night before.
  */
 
+import { DELIVERY_MODEL_FIELD } from "../../../shared/constants.js";
+
 import { CHECKLIST_COLUMNS } from "../bidcheck.js";
 
 const COLS = CHECKLIST_COLUMNS.map((c) => `| ${c} `).join("") + "|";
@@ -408,11 +410,12 @@ flagged for the client's or our own construction solicitor rather than
 settled here.`;
 
 export const FIELDS = [
+  DELIVERY_MODEL_FIELD,
   { name: "client", label: "Client / contracting authority, as the invitation names them", type: "text", required: true },
   { name: "project", label: "Project / package as the invitation titles it", type: "text", required: true },
   { name: "deadline", label: "The submission deadline — the date and the time of day", type: "text", required: true },
   { name: "documents", label: "The invitation itself — ITT, PQQ, employer's requirements, conditions, forms. Upload them, or paste the text in full", type: "textarea", required: true },
-  { name: "context", label: "Which delivery model we intend to bid, and anything the invitation does not say that we know", type: "textarea" },
+  { name: "context", label: "Anything the invitation does not say that we know — and why the chosen delivery model is the right one to bid", type: "textarea" },
   { name: "evidence", label: "What we can actually evidence — accreditations held and in progress, insurance limits, comparable references, key people. NOTHING outside this may be claimed", type: "textarea" },
   { name: "clarifications", label: "Clarifications already issued by the client, and any answer received", type: "textarea" },
   { name: "portal", label: "How and where the bid is returned — portal, address, file naming, upload limits", type: "textarea" },

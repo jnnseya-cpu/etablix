@@ -28,6 +28,8 @@
  * run — the brief below states the convention and the reconciler enforces it.
  */
 
+import { DELIVERY_MODEL_FIELD } from "../../../shared/constants.js";
+
 import { PRICING_COLUMNS, UNITS } from "../tenderpack.js";
 
 const COLS = PRICING_COLUMNS.map((c) => `| ${c} `).join("") + "|";
@@ -394,6 +396,7 @@ settled. Nothing in this pack appoints ETABLIX as Principal Contractor under
 CDM 2015.`;
 
 export const FIELDS = [
+  DELIVERY_MODEL_FIELD,
   { name: "client", label: "Client / organisation", type: "text", required: true },
   { name: "project", label: "Project / site", type: "text", required: true },
   { name: "handover", label: "Date the approved requirements package was handed over — the pack is due ten working days after this", type: "date", required: true },

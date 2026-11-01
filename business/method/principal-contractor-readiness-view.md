@@ -241,6 +241,18 @@ answers it: the policy in force insures a consultant and does not respond to
 holding works contracts. The column above exists so the model is designed
 properly before it is sellable, not so it can be sold early.
 
+That is no longer only a rule somebody has to remember. The table above is now
+data in the platform — `DELIVERY_MODELS` in `shared/constants.js` — and one
+flag on the Model C record drives every control: the fee quotation cannot offer
+it, `POST /api/docs/generate` refuses a document that names it, an engagement
+cannot be opened under it, and the public pages, the deck and the outbound
+letters all state that it is not open for appointment and why. Each of the
+six deliverables that names a contracting party now asks which model the
+appointment is under and writes from the answer; with no model recorded the
+agent is forbidden from stating who contracts and must leave it as an open
+client decision. When cover exists that answers Model C, `offerable` changes in
+that one file and the controls follow. Nothing else needs editing.
+
 ## Where the sale sits today
 
 The principal contractor owns the release decision and the accountability

@@ -26,6 +26,8 @@
  * had to be made.
  */
 
+import { DELIVERY_MODEL_FIELD } from "../../../shared/constants.js";
+
 export const RECONCILE_TASK = `Do not write any part of the requirements package yet.
 
 Build the working paper the twelve deliverables are written from. It is not
@@ -338,6 +340,7 @@ not legal advice, and not a fire strategy. Nothing in it appoints ETABLIX as
 CDM Principal Contractor.`;
 
 export const FIELDS = [
+  DELIVERY_MODEL_FIELD,
   { name: "client", label: "Client / organisation", type: "text", required: true },
   { name: "project", label: "Project / village — the name this package will carry", type: "text", required: true },
   { name: "handover", label: "Information handover date — the package is due ten working days after this", type: "date", required: true },

@@ -146,5 +146,55 @@ ok(dEng.vatDeclared === "reverse", `the client's declared VAT position is READ, 
 ok(dEng.vatNeedsReview === true, "and flagged for finance because it disagrees with what we hold");
 ok(dEng.vatMode === "standard", "nothing changed the invoice by itself — a person decides");
 
+// -------------------- 5 · a model the insurance does not answer is refused
+//
+// Asserted against the live routes rather than against the source, because
+// the thing being tested is a refusal: a dropdown that no longer offers Model
+// C proves nothing about what the endpoint accepts, and the endpoint is what
+// a quotation is actually raised through.
+console.log("\n--- the model gate\n");
+
+r = await api("/api/clients", { json: {
+  client: `Prime Hopeful Ltd ${stamp}`, project: "Single-contract site services", deliverable: "prime",
+  model: "C", monthlyFee: 30000, vatMode: "standard",
+  contactName: "Dare Client", contactEmail: `dare${stamp}@client.test`,
+} }, T);
+ok(r.status === 409, `opening a Model C engagement is refused — ${r.status}`, r.body);
+ok(/not open for appointment/i.test(r.body.error || ""),
+   "and the refusal says so in the words a person needs", r.body.error);
+ok(/insures a consultant/i.test(r.body.error || ""),
+   "with the reason, so nobody has to go and look it up", r.body.error);
+ok(/Model A|Model B/.test(r.body.error || ""),
+   "and what to open it under instead", r.body.error);
+
+r = await api("/api/clients", { json: {
+  client: `Integrator Ltd ${stamp}`, project: "Integrated site services", deliverable: "integrator",
+  model: "B", monthlyFee: 30000, vatMode: "standard",
+  contactName: "Dare Client", contactEmail: `dare-b${stamp}@client.test`,
+} }, T);
+ok(r.status === 201, `and Model B still opens normally — ${r.status}`, r.body);
+
+r = await api("/api/docs/generate", { json: {
+  template: "quotation",
+  data: {
+    client: `Prime Hopeful Ltd ${stamp}`, project: "Single-contract site services",
+    model: "Model C — Prime Service Contractor",
+    lines: [{ description: "Complete site-services scope", qty: 1, rate: 100000 }],
+  },
+} }, T);
+ok(r.status === 400, `a fee quotation naming Model C is refused — ${r.status}`, r.body);
+ok(/not open for appointment/i.test(r.body.error || ""),
+   "because a quotation is an offer in writing", r.body.error);
+
+r = await api("/api/docs/generate", { json: {
+  template: "quotation",
+  data: {
+    client: `Integrator Ltd ${stamp}`, project: "Integrated site services",
+    model: "Model B — Management Integrator",
+    lines: [{ description: "Mobilisation and first month", qty: 1, rate: 30000 }],
+  },
+} }, T);
+ok(r.status === 201 || r.status === 200, `and a Model B quotation is raised — ${r.status}`, r.body);
+
 console.log(`\n=== ${pass} passed, ${fail} failed ===\n`);
 process.exit(fail ? 1 : 0);

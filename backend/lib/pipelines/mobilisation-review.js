@@ -20,6 +20,8 @@
  * confidence in a date that will not hold.
  */
 
+import { DELIVERY_MODEL_FIELD } from "../../../shared/constants.js";
+
 export const RECONCILE_TASK = `Do not write any part of the review yet.
 
 Build the working paper the eight deliverables are written from. It is not for
@@ -235,6 +237,7 @@ safety-critical is flagged for one rather than resolved. Nothing here is a
 design, a price or an instruction.`;
 
 export const FIELDS = [
+  DELIVERY_MODEL_FIELD,
   { name: "client", label: "Client / organisation", type: "text", required: true },
   { name: "project", label: "Project / site — the name this review will carry", type: "text", required: true },
   { name: "handover", label: "Information handover date — the review is due ten working days after this", type: "date", required: true },

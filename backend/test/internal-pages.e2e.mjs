@@ -224,6 +224,14 @@ try {
       if (!r.ok) return null;
       const j = await r.json();
       sessionStorage.setItem("etablix.token", j.token);
+      // THE USER OBJECT TOO, because login.js stores both and the Control
+      // Desk reads both. Storing only the token is not signing in: app.js
+      // and commercial.js both treat a missing user as no session and
+      // replace the page with the login screen. The desk assertions below
+      // were therefore reading whichever document won a race — index.html
+      // before the module graph finished, or login.html after it — which is
+      // why they passed and failed on the same build.
+      sessionStorage.setItem("etablix.user", JSON.stringify(j.user));
       return j.token;
     })()
   `);

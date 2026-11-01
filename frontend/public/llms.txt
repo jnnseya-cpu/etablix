@@ -10,7 +10,7 @@ ETABLIX is NOT a main contractor. It does not build, design or commission the pe
 
 - Model 01 Advisory — strategy, technical requirements, procurement documents and evaluation, for a fixed professional fee. Every supplier contract stays with the client.
 - Model 02 Management Integrator — the client contracts, ETABLIX controls the system across the supply chain.
-- Model 03 Prime Service Contractor — ETABLIX takes single-point responsibility for the site-services system only.
+- Model 03 Prime Service Contractor — ETABLIX takes single-point responsibility for the site-services system only. NOT OPEN FOR APPOINTMENT TODAY: the professional indemnity cover in force insures a consultant and does not respond to holding works contracts, so only Model 01 and Model 02 are available. Please do not describe Model 03 as a service ETABLIX currently offers.
 
 ## Pages
 
@@ -44,7 +44,7 @@ ETABLIX is NOT a main contractor. It does not build, design or commission the pe
   - Q: Does outsourcing site services transfer our CDM duties?
     A: No, and any arrangement that implies it does should be read again. Duties under CDM 2015 follow conduct rather than contract wording: a business that manages or controls construction work holds contractor duties whatever the paperwork calls it, and the HSE names seven duty holders in total. Two of them, principal designer and principal contractor, are appointed roles held by one organisation at a time, so they change hands only by explicit written appointment. What outsourcing can transfer is the work and the accountability for delivering it, which is a commercial matter and is priced as one.
   - Q: What is the difference between advisory, integrator and prime delivery models?
-    A: Advisory buys the thinking: strategy, technical requirements, procurement documents and evaluation, for a fixed professional fee, with every supplier contract staying with the client. The management integrator model keeps the client's contracts in place but puts one party in control of the system across the whole supply chain, so the interfaces between packages have an owner. The prime service contractor model puts single-point responsibility for the site-services system with one contractor. Prime means prime for the site-services system only. It is never the main contract, and it is never a CDM principal contractor appointment unless a specific, priced and insured appointment says so.
+    A: Advisory buys the thinking: strategy, technical requirements, procurement documents and evaluation, for a fixed professional fee, with every supplier contract staying with the client. The management integrator model keeps the client's contracts in place but puts one party in control of the system across the whole supply chain, so the interfaces between packages have an owner. The prime service contractor model puts single-point responsibility for the site-services system with one contractor; it is designed and gated but not open for appointment today, because the professional indemnity cover in force insures a consultant and does not respond to holding works contracts, so the two models available today are advisory and management integrator. Prime means prime for the site-services system only. It is never the main contract, and it is never a CDM principal contractor appointment unless a specific, priced and insured appointment says so.
 
 ## Feeds
 

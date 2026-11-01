@@ -33,6 +33,7 @@ import { reconcilePaymentsToEarned, controlNotes } from "./controlcheck.js";
 import { reconcileRegisterToMovements, interfaceNotes } from "./interfacecheck.js";
 import { reconcileChallenge, challengeNotes } from "./challengecheck.js";
 import { meter, callFromUsage, budgetFor, summarise } from "./l7/acu.js";
+import { deliveryBrief, DELIVERY_MODEL_FIELD } from "../../shared/constants.js";
 
 const DEFAULT_MODEL = "claude-opus-5";
 
@@ -1183,6 +1184,31 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
   const { model } = getProvider();
   assertInputs(agentId, inputs, documents);
 
+  /**
+   * THE APPOINTMENT, PUT IN FRONT OF THE AGENT RATHER THAN LEFT TO IT.
+   *
+   * Seven of these agents write text that names a contracting party: an
+   * Employer's Requirements clause, an interface matrix row, a payment
+   * mechanism, a tender instruction. Which party is correct depends entirely
+   * on the delivery model the engagement was signed under, and until now
+   * nothing in the system told the agent which one that was. So a Management
+   * Integrator engagement could produce a package that leaves the enquiry
+   * with the client, and an Advisory engagement could produce one that says
+   * ETABLIX contracts the suppliers — which is not a style error. It is a
+   * material misstatement of the commercial arrangement, in a document the
+   * client issues to the market.
+   *
+   * It is appended to the system prompt rather than mixed into the inputs
+   * because it is a constraint on everything written, not one more fact to be
+   * weighed against the others. Where no model is recorded the clause
+   * forbids stating who contracts at all and makes it an open decision — a
+   * visible gap rather than a confident guess.
+   */
+  const carriesModel = (brief.fields || []).some((f) => f.name === DELIVERY_MODEL_FIELD.name);
+  const appointment = carriesModel
+    ? `\n\n${deliveryBrief(inputs?.[DELIVERY_MODEL_FIELD.name])}`
+    : "";
+
   if (PIPELINE_AGENTS.has(agentId)) {
     const result = await runPipeline({
       spec: PIPELINE_SPECS[agentId],
@@ -1190,7 +1216,7 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
       model,
       // The standard travels with every pass; the brief alone is what the
       // report must contain, not how good it has to be.
-      system: `${brief.system}\n\n${STANDARD}`,
+      system: `${brief.system}${appointment}\n\n${STANDARD}`,
       brief,
       inputs,
       documents,
@@ -1285,7 +1311,7 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
     const response = await client().messages.stream({
       model,
       max_tokens: SINGLE_PASS_MAX_TOKENS,
-      system: brief.system,
+      system: `${brief.system}${appointment}`,
       messages: [{ role: "user", content: task }],
     }).finalMessage();
     if (response.stop_reason === "refusal") {

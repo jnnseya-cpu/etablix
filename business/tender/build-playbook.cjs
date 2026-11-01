@@ -256,6 +256,7 @@ doc.push(p("The routes at section 4 map onto the three ways ETABLIX is appointed
       "When the client wants the load gone rather than managed, and is willing to pay the stack at section 8 for it."],
   ], { bold: [0], size: 16 }));
 }
+doc.push(note("Model C is not open for appointment today, and nothing written from this playbook may offer it. The professional indemnity cover in force insures a consultant and does not respond to holding works contracts. It is set out here so the structure is designed and priced before it is sellable — where a client wants the load gone rather than managed, the answer today is Model B and the honest reason why."));
 doc.push(note("Model B and Model C are not a ladder. A client that needs the interfaces held but wants to keep its contracts and its price visibility is a Model B client permanently, and telling it otherwise is selling rather than advising."));
 doc.push(br());
 

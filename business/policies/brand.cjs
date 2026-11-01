@@ -22,17 +22,33 @@
  *   d.h1("1. Heading");  d.p("Words.");  d.bullet("A point.");
  *   d.build();
  *
- * `docx` is not a project dependency and is not in package.json. It lives in
- * the session scratchpad; set ETABLIX_DOCX to point elsewhere.
+ * `docx` is not a project dependency and is not in package.json. It is
+ * resolved from the globally installed modules, the same way playwright is
+ * below; set ETABLIX_DOCX to point somewhere else.
  */
 const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
 
+/**
+ * RESOLVED, NOT HARDCODED.
+ *
+ * This was an absolute path into one session's scratchpad directory, written
+ * into the repository. It worked for exactly as long as that session's
+ * scratchpad existed: a fresh container has no such directory, so every
+ * document builder — and the two test suites that drive them — failed on a
+ * missing module at a path that had a session id in it. Resolved from the
+ * global modules, the same mechanism playwright already used on the next
+ * line, it works in any session on any machine; ETABLIX_DOCX still overrides
+ * it for a local checkout that has its own copy.
+ */
+const GLOBAL_MODULES = (() => {
+  try { return execSync("npm root -g").toString().trim(); } catch { return ""; }
+})();
 const DOCX = process.env.ETABLIX_DOCX
-  || "/tmp/claude-0/-home-user-etablix/fe91c2e4-7425-5fd0-aa86-a0a156d734f1/scratchpad/docxlib/node_modules/docx";
+  || (GLOBAL_MODULES ? path.join(GLOBAL_MODULES, "docx") : "docx");
 const PLAYWRIGHT = process.env.ETABLIX_PLAYWRIGHT
-  || path.join(execSync("npm root -g").toString().trim(), "playwright");
+  || (GLOBAL_MODULES ? path.join(GLOBAL_MODULES, "playwright") : "playwright");
 
 const D = require(DOCX);
 const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,

@@ -343,10 +343,13 @@ the form that sells, and length in it is read as padding. Five bullets, about
 >   programme actually leak: the generator sized without the welfare load,
 >   accommodation opening after the workforce arrives, three suppliers
 >   invoicing the same standby labour.
-> - Three engagement models, so the risk sits where you want it. Advisory — we
->   specify, you contract. Management Integrator — you contract every supplier
->   directly, we control delivery, and we never hold your supply-chain money.
->   Prime Service Contractor — one contract for the whole temporary scope.
+> - Two engagement models open today, so the risk sits where you want it.
+>   Advisory — we specify, you contract. Management Integrator — you contract
+>   every supplier directly, we control delivery, and we never hold your
+>   supply-chain money. A third, Prime Service Contractor, puts the whole
+>   temporary scope on one contract; it is designed but not open for
+>   appointment, because our professional indemnity cover insures a consultant
+>   and does not respond to holding works contracts.
 > - Priced and programmed before mobilisation rather than during it: a number,
 >   an owner and an acceptance test against every line of it.
 > - Chartered construction leadership (MCIOB) across electricity transmission,

@@ -27,7 +27,7 @@ import path from "node:path";
 import fs from "node:fs";
 import { collection, insert, update, remove, mutate, recordLedger } from "../lib/store.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
-import { ROLES, ACCESS } from "../../shared/constants.js";
+import { ROLES, ACCESS, deliveryModelByCode, DELIVERY_MODEL_FIELD } from "../../shared/constants.js";
 import { acceptDocuments, describeFiles, UPLOAD_DIR } from "../lib/uploads.js";
 import { emit, emitDetached } from "../lib/comms.js";
 import { rateLimit } from "../lib/ratelimit.js";
@@ -42,7 +42,7 @@ import {
   DELIVERABLES, deliverable, REQUIREMENT_PACKS, packFor, buildChecklist,
   checklistState, nextAction, DECISIONS, DECISION_IDS, nextPeriodLabel,
   depositTerms, balanceTerms, money, diagnosticInputs, handoverDate, DIAGNOSTIC_FIELD_MAP, pipelineFor, followFor,
-  charge, vatModeFor, reverseChargeAvailable, declaredVatMode,
+  charge, vatModeFor, reverseChargeAvailable, declaredVatMode, offerableModels,
 } from "../lib/clientflow.js";
 import { diagnosticDates, releaseStatus, DIAGNOSTIC_WORKING_DAYS } from "../lib/workingdays.js";
 import { packStatement } from "../lib/tenderpack.js";
@@ -359,6 +359,34 @@ router.post("/", ...finance, (req, res) => {
   if (m.kind === "recurring" && monthlyFee <= 0) return res.status(400).json({ error: "A Model B or C engagement needs a monthly fee." });
   const vatChoice = vatModeOrError(b.vatMode, m.id);
   if (vatChoice.error) return res.status(400).json({ error: vatChoice.error });
+
+  /**
+   * THE MODEL GATE, AT THE POINT THE ENGAGEMENT IS OPENED.
+   *
+   * An engagement is where terms, a fee and a payment schedule start existing
+   * for a named client. Model C is designed, priced and gated in this system —
+   * which made it openable, and an opened Model C engagement is an offer to
+   * hold works contracts under a professional indemnity policy that insures a
+   * consultant and does not respond to them.
+   *
+   * It is refused here rather than warned about, and refused in the one place
+   * every route into an engagement passes through, because the catalogue, the
+   * fee calculator and the Commercial OS gates all read perfectly correct on
+   * the way to it. The six prime gates ask whether a particular appointment is
+   * safe; this asks the prior question of whether the company may take one at
+   * all today.
+   *
+   * It reads `offerable` off the model record, so this stops refusing when
+   * cover exists that answers Model C and the flag changes in
+   * shared/constants.js. Nothing here needs editing for that.
+   */
+  if (m.offerable === false) {
+    return res.status(409).json({
+      error: `${m.name} is not open for appointment. ${m.notOfferableBecause || ""} `.trim()
+        + ` Open the engagement under ${offerableModels().map((x) => x.name).join(" or ")}.`
+        + " The model may be planned and priced internally; it cannot be contracted until cover exists that answers it.",
+    });
+  }
 
   const year = new Date().getFullYear();
   // The highest sequence used this year, not the count of rows. Counting
@@ -755,6 +783,21 @@ router.post("/:id/deliverable", ...finance, acceptDocuments, async (req, res) =>
 });
 
 /**
+ * The appointment, read off the engagement rather than asked for again.
+ *
+ * The engagement record has carried A, B or C since it was opened — it sets
+ * the payment shape, the VAT treatment and the fee basis. The agents that
+ * write contracting language need the same fact, and asking the desk to type
+ * it a second time is how the two come to disagree. So it travels from the
+ * signed record into every run started from that engagement.
+ */
+const appointmentInput = (e) => {
+  const d = deliveryModelByCode(e?.model);
+  return d ? { [DELIVERY_MODEL_FIELD.name]: d.id } : {};
+};
+
+
+/**
  * POST /api/clients/:id/run-follow-on — assemble the tender pack from the
  * requirements package this engagement has already produced and approved.
  *
@@ -815,6 +858,7 @@ router.post("/:id/run-follow-on", ...finance, async (req, res) => {
         client: e.client,
         project: e.project,
         handover,
+        ...appointmentInput(e),
         // The approved package, whole. Workstream 13 assembles from it and adds
         // nothing to it, so it travels complete rather than summarised.
         [follow.into]: source.output,
@@ -924,7 +968,7 @@ router.post("/:id/run-diagnostic", ...finance, async (req, res) => {
       title: `${e.project} — ${deliverable(e.deliverable).name}`,
       runBy: req.user.name,
       engagementId: e.id,
-      inputs: { client: e.client, project: e.project, handover, ...diagnosticInputs(e) },
+      inputs: { client: e.client, project: e.project, handover, ...appointmentInput(e), ...diagnosticInputs(e) },
       files,
     });
     const dates = diagnosticDates(handover);

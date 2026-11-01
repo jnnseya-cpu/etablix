@@ -24,6 +24,8 @@
  * one tenderer's return and not another's is how an award becomes challengeable.
  */
 
+import { DELIVERY_MODEL_FIELD } from "../../../shared/constants.js";
+
 export const RECONCILE_TASK = `Do not write any part of the evaluation yet.
 
 Build the working paper. On a tender evaluation this is where the fee is
@@ -260,6 +262,7 @@ to any supplier. Where financial standing, legal exposure or a challenge risk
 arises, flag it for the client's own advisers rather than resolving it.`;
 
 export const FIELDS = [
+  DELIVERY_MODEL_FIELD,
   { name: "client", label: "Client / organisation", type: "text", required: true },
   { name: "project", label: "Project — and the package being evaluated", type: "text", required: true },
   { name: "handover", label: "Returns received date — the evaluation is due ten working days after this", type: "date", required: true },

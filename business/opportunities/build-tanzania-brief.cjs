@@ -98,7 +98,11 @@ table([1200, 2800, 4300],
   [
     ["A", "Advisory", "ETABLIX specifies, quantifies and tenders. The client procures and manages. Fixed fee."],
     ["B", "Management Integrator", "ETABLIX specifies, tenders, recommends and manages performance. The client contracts directly with each supplier and pays them directly — ETABLIX holds no supply chain money and takes no supplier margin. Management fee."],
-    ["C", "Prime Service Contractor", "ETABLIX contracts for the whole temporary site as a single package and carries the supply chain. One contract, one point of accountability."],
+    // Described so the structure is understood, flagged so it is not read as an
+    // offer. The professional indemnity cover in force insures a consultant and
+    // does not respond to holding works contracts, so A and B are what can be
+    // appointed today.
+    ["C", "Prime Service Contractor — not open for appointment today", "ETABLIX contracts for the whole temporary site as a single package and carries the supply chain. One contract, one point of accountability. Not available today: the professional indemnity cover in force insures a consultant and does not respond to holding works contracts, so appointments are taken under A and B only."],
   ]);
 
 p("Model B is the usual starting point on a large programme: a single accountable organisation for the site, without moving supply chain risk, and a bid comparison that is genuinely independent because nothing in it is marked up.");

@@ -15,7 +15,7 @@
 
 import { Router } from "express";
 import { requireAuth, requireRole } from "../middleware/auth.js";
-import { ROLES, ACCESS } from "../../shared/constants.js";
+import { ROLES, ACCESS, DELIVERY_MODELS, OFFERABLE_MODELS, deliveryModelLabel } from "../../shared/constants.js";
 import { collection, insert, update, remove, recordLedger, getSettings, saveSettings } from "../lib/store.js";
 import { sessionFromQuery } from "../middleware/auth.js";
 import { AGENT_BRIEFS } from "../lib/ai.js";
@@ -480,7 +480,18 @@ export const TEMPLATES = [
       F("client", "Client / company", "text", { required: true }),
       F("contact", "Addressee", "text"),
       F("project", "Engagement / project", "text", { required: true }),
-      F("model", "Delivery model", "select", { options: ["Model A — Advisory", "Model B — Management Integrator", "Model C — Prime Service Contractor"] }),
+      // THE LIST IS THE CONTROL, NOT A NOTE SOMEBODY HAS TO REMEMBER.
+      //
+      // A fee quotation is an offer in writing, and this dropdown used to
+      // carry all three models — so Prime Service Contractor could be
+      // quoted to a client from a screen, by anybody, in one click. The
+      // professional indemnity policy in force insures a consultant and
+      // does not respond to holding works contracts, so that quotation
+      // would have been an offer the company cannot stand behind. The
+      // options now come from the offerable list in shared/constants.js:
+      // when cover exists that answers Model C, the flag changes there and
+      // this dropdown follows.
+      F("model", "Delivery model", "select", { options: OFFERABLE_MODELS.map(deliveryModelLabel) }),
       LINES("Scope & fees (deliverable · qty · fee)"),
       F("assumptions", "Assumptions & exclusions", "textarea"),
       F("validityDays", "Validity (days)", "number", { placeholder: "30" }),
@@ -679,6 +690,44 @@ function capabilityBreach(data, templateId) {
   return null;
 }
 
+/**
+ * A DELIVERY MODEL THE COMPANY CANNOT STAND BEHIND, REFUSED AT THE ROUTE.
+ *
+ * The dropdown no longer offers Model C, and a dropdown is not a control: the
+ * endpoint accepts whatever is posted to it, and a fee quotation is an offer
+ * in writing. The professional indemnity policy in force insures a consultant
+ * and does not respond to holding works contracts, so a quotation naming
+ * Prime Service Contractor offers something the company cannot perform.
+ *
+ * Refused here, with the reason on the screen, rather than warned about: the
+ * day that matters is the day somebody is quoting under pressure, and that is
+ * exactly the day a warning gets clicked through.
+ *
+ * It is keyed off the model record, not off the words, so when cover exists
+ * that answers Model C the flag changes in shared/constants.js and this stops
+ * refusing it.
+ *
+ * It reads the delivery-model FIELD only, not every paragraph on the document.
+ * That is deliberate: the field is the declaration, and a sentence elsewhere
+ * saying "this is not a prime appointment" is correct writing rather than a
+ * breach. The words are left to a person; the declaration is not.
+ */
+function deliveryModelBreach(data) {
+  const named = String(data?.model || "").trim();
+  if (!named) return null;
+  const hit = DELIVERY_MODELS.find(
+    (m) => named === deliveryModelLabel(m) ||
+           new RegExp(`\\b${m.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(named),
+  );
+  if (!hit || hit.offerable) return null;
+  return (
+    `This document names ${deliveryModelLabel(hit)}, which is not open for appointment. ` +
+    `${hit.notOfferableBecause} ` +
+    `Quote ${OFFERABLE_MODELS.map(deliveryModelLabel).join(" or ")} instead. ` +
+    "The model may be described and planned for internally; it may not be offered to a client until cover exists that answers it."
+  );
+}
+
 function namingBreach(data) {
   for (const value of Object.values(data)) {
     if (typeof value !== "string" || !value) continue;
@@ -854,7 +903,7 @@ router.post("/generate", requireAuth, deliveryFinance, (req, res) => {
     else if (f.type === "number") data[f.name] = toNum(input[f.name]);
     else data[f.name] = clampStr(input[f.name], f.type === "textarea" ? 4000 : 300);
   }
-  const breach = namingBreach(data) || capabilityBreach(data, tpl.id);
+  const breach = namingBreach(data) || capabilityBreach(data, tpl.id) || deliveryModelBreach(data);
   if (breach) return res.status(400).json({ error: breach });
 
   // The ten working days are the promise, so the date is computed once

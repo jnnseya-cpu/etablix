@@ -33,6 +33,8 @@
  * exists to refuse. It is refused by a function rather than by a house style.
  */
 
+import { DELIVERY_MODEL_FIELD } from "../../../shared/constants.js";
+
 import { REGISTER_COLUMNS, MOVEMENT_COLUMNS, MOVEMENTS } from "../interfacecheck.js";
 
 const REG = REGISTER_COLUMNS.map((c) => `| ${c} `).join("") + "|";
@@ -358,6 +360,7 @@ resolved here. You do not appoint anybody, do not instruct change, do not
 accept work and do not close an interface: you record that somebody else has.`;
 
 export const FIELDS = [
+  DELIVERY_MODEL_FIELD,
   { name: "client", label: "Client / organisation", type: "text", required: true },
   { name: "project", label: "Project / site", type: "text", required: true },
   { name: "period", label: "The issue — issue number and date, and the period since the last one", type: "text", required: true },

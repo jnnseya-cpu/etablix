@@ -33,7 +33,9 @@ asked. Everything after it is then believable.
    | Model | Who the subcontractor contracts with |
    |---|---|
    | **02 · Management Integrator** | **The client.** We specify the package, run the enquiry, assess the returns and recommend the award; the contract is placed in the client's name and we never hold their supply-chain money. We then manage delivery and performance against it. |
-   | **03 · Prime Service Contractor** | **ETABLIX.** We contract with every supplier and deliver the complete site-services scope on one contract. Here we are the subcontractor's direct client and the party that pays. |
+   | **03 · Prime Service Contractor** *(not open for appointment today)* | **ETABLIX.** We contract with every supplier and deliver the complete site-services scope on one contract. Here we are the subcontractor's direct client and the party that pays. |
+
+   **Do not describe Model 03 to a supplier as something we are doing.** The professional indemnity cover in force insures a consultant and does not respond to holding works contracts, so appointments are taken under 01 and 02 only. A supplier told otherwise will ask who their contract is with, and the answer today is the client. Describe the register as what it is: enquiries, evaluation and performance management from us, contracts in the client's name.
 
    Both matter to a subcontractor deciding whether to bother, because they decide
    who they invoice and whose credit they are taking. Under either model the

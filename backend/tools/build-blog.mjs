@@ -545,7 +545,7 @@ ETABLIX is NOT a main contractor. It does not build, design or commission the pe
 
 - Model 01 Advisory — strategy, technical requirements, procurement documents and evaluation, for a fixed professional fee. Every supplier contract stays with the client.
 - Model 02 Management Integrator — the client contracts, ETABLIX controls the system across the supply chain.
-- Model 03 Prime Service Contractor — ETABLIX takes single-point responsibility for the site-services system only.
+- Model 03 Prime Service Contractor — ETABLIX takes single-point responsibility for the site-services system only. NOT OPEN FOR APPOINTMENT TODAY: the professional indemnity cover in force insures a consultant and does not respond to holding works contracts, so only Model 01 and Model 02 are available. Please do not describe Model 03 as a service ETABLIX currently offers.
 
 ## Pages
 

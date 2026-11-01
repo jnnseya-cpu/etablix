@@ -1,5 +1,9 @@
 import fs from "node:fs";
-const S = "/tmp/claude-0/-home-user-etablix/fe91c2e4-7425-5fd0-aa86-a0a156d734f1/scratchpad";
+// Where cap.json — the sign-in this script uses — is kept. It was an
+// absolute path into one session's scratchpad, written into the repository,
+// so it pointed at a directory that no longer existed the moment that
+// session ended. Set ETABLIX_SCRATCH to the directory holding cap.json.
+const S = process.env.ETABLIX_SCRATCH || ".";
 const B = "http://127.0.0.1:4123";
 const c = JSON.parse(fs.readFileSync(S + "/cap.json", "utf8"));
 const tok = (await (await fetch(B + "/api/auth/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(c) })).json()).token;

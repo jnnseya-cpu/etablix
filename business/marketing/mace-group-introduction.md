@@ -59,9 +59,12 @@ to her, and the introduction itself, which is the one that matters.
 >    we run the procurement, mobilisation, interfaces, commercial
 >    administration and supplier performance. ETABLIX never holds your
 >    supply-chain money.
-> 3. **Prime Service Contractor** — where it suits the project, we contract the
->    supply chain and carry single-point accountability for the whole temporary
->    scope from mobilisation to reinstatement.
+> 3. **Prime Service Contractor** — one contract for the whole temporary scope,
+>    with the supply chain ours. This model is designed but **not open for
+>    appointment today**: our professional indemnity cover insures a consultant
+>    and does not respond to holding works contracts, so we take appointments
+>    under the first two models only. I would rather say that here than at
+>    contract.
 >
 > We are most useful where a project has a large multi-package site
 > establishment or a workforce accommodation requirement, and where the
