@@ -10,20 +10,27 @@ business sells to hold Principal Contractor and Principal Designer themselves,
 on their own sites, and would read any suggestion otherwise as either a
 misunderstanding of the role or an attempt to compete with them.
 
-This document is written from the principal contractor's chair. **That is the
-point of it.** It is the customer's view: what the person buying site services
-is actually trying to achieve, and what they are accountable for while they do
-it.
+This document is written from the principal contractor's chair, and the voice
+has to be read past rather than copied. But it was first filed here as nothing
+more than the customer's motive, and that was too narrow a reading.
 
-So it is filed as competitor and customer intelligence, not as a description of
-anything ETABLIX performs. Nothing in it may be lifted into a letter, a comment
-or a proposal in a voice that puts this company in that seat. Where it says
-"as principal contractor, I would require", the correct ETABLIX reading is
-"this is what our client must be able to evidence, and here is the part of it
-we can produce for them".
+**The body of work it describes is work ETABLIX does — across all three
+delivery models.** Site control, establishment as a managed package, layouts
+tested against production, operational authority, the findings register, the
+four commercial questions, the evidence behind a release: that is the job. What
+changes between the three models is who holds the contracts, who directs the
+suppliers and who pays them. What never changes is that **the Principal
+Contractor appointment is the client's and stays the client's**, including
+under Model C, where "prime" means prime for the site-services system only and
+nothing beyond it.
 
-The companion document, `pre-construction-site-assessment.md`, is the method
-ETABLIX actually performs.
+So: read the content as the work, and the voice as the client's. Where it says
+"as principal contractor, I would require", the correct reading here is "this
+is what our client must be able to evidence, and here is the part of it we
+produce for them, under whichever model they have appointed us on".
+
+The section below maps it. The companion document,
+`pre-construction-site-assessment.md`, is the pre-construction method itself.
 
 ## Why it is worth having anyway
 
@@ -195,15 +202,54 @@ what evidence releases the next activity.**
 
 ---
 
-## How ETABLIX uses this without stepping into the role
+## The same work, across the three delivery models
 
-The principal contractor owns that release decision and the accountability
+The activities below are the ones this document describes. The columns say who
+does each, under each model. Read a column downwards to see what an appointment
+actually buys.
+
+| Activity | A · Advisory | B · Management Integrator | C · Prime Service Contractor |
+|---|---|---|---|
+| Site visit, findings register, constraints drawing | **ETABLIX** | **ETABLIX** | **ETABLIX** |
+| Site-establishment package scope and boundaries | **ETABLIX** | **ETABLIX** | **ETABLIX** |
+| Phased layouts tested against the delivery sequence | **ETABLIX** | **ETABLIX** | **ETABLIX** |
+| Temporary works register and design briefs | **ETABLIX** | **ETABLIX** | **ETABLIX** |
+| Temporary utilities demand and connection plan | **ETABLIX** | **ETABLIX** | **ETABLIX** |
+| Tender documents and evaluation model | **ETABLIX** | **ETABLIX** | n/a — scope is ours |
+| Running the enquiry and evaluating returns | Client | **ETABLIX** | **ETABLIX** |
+| **Who holds the supplier contracts** | **Client** | **Client** | **ETABLIX** |
+| **Who pays the suppliers** | **Client** | **Client** — we never hold their money | **ETABLIX** |
+| Mobilisation and site establishment delivery | Client | **ETABLIX** directs | **ETABLIX** delivers |
+| Interface management between supplier packages | Client | **ETABLIX** | **ETABLIX** |
+| Operational authority on a live site — isolations, permits, who can stop work | **Client/operator, always** | **Client/operator, always** | **Client/operator, always** |
+| Performance management against the specification | Client | **ETABLIX** | **ETABLIX** |
+| Demobilisation and reinstatement | Specified by us | **ETABLIX** directs | **ETABLIX** delivers |
+| **The release decision — what may proceed** | **Client** | **Client** | **Client** |
+| **CDM Principal Contractor / Principal Designer** | **Never ETABLIX** | **Never ETABLIX** | **Never ETABLIX** |
+
+Three rows carry the whole commercial argument and should be read together:
+**who holds the contracts**, **who pays the suppliers**, and **who makes the
+release decision**. Under A and B the client holds every contract and pays
+every supplier, and we never touch their supply-chain money. Under all three,
+the release decision and the CDM appointments stay with the client. That is not
+modesty; it is where they lawfully sit, and a supplier who offers to take them
+on is telling you they do not understand the regime.
+
+**Model C may be described and planned for internally. It must not be offered,
+quoted or implied to a prospect or client** until insurance is in place that
+answers it: the policy in force insures a consultant and does not respond to
+holding works contracts. The column above exists so the model is designed
+properly before it is sellable, not so it can be sold early.
+
+## Where the sale sits today
+
+The principal contractor owns the release decision and the accountability
 attached to it. What they frequently do not have, at the moment they need it,
 is the **evidence base for the site-establishment part of it** — the scope, the
 capacities, the phased layouts, the temporary works register, the utilities
 demand, the removal obligations.
 
-That is the sale, and it is an Advisory sale: we produce what they need to make
-their decision, they contract every supplier, and we never hold their
-supply-chain money. The decision stays theirs, which is the only place it can
-lawfully sit.
+Under Advisory we produce exactly that and they do the rest. Under Management
+Integrator we also run the enquiry, the mobilisation and the interfaces, while
+they still hold every contract and we still never hold their money. Either way
+the decision stays theirs.
