@@ -75,6 +75,22 @@ Three things it does not do, and one date that matters more than the rest:
   operational control as Management Integrator. Those need contractors' all
   risks and product liability, and a different conversation with an
   underwriter. Advisory work is fully covered; the other two models are not.
+
+  **The operative position, decided 1 November 2026: Advisory and Management
+  Integrator are offered; Prime Service Contractor is not.** That is what the
+  platform enforces and what the public pages, the deck and the outbound
+  letters now say. The paragraph above is the reason Model C is closed, and it
+  stands. Its reading of Model B is a judgement rather than a policy wording —
+  under Management Integrator the client holds every supplier contract and
+  pays every supplier, and ETABLIX directs and administers, which is work a
+  consultant's policy is far likelier to answer than holding a works contract
+  is. **It is nonetheless an open question for the underwriter, and the
+  question to put to them is narrow:** does the policy respond where ETABLIX
+  runs the enquiry, directs mobilisation and manages the interfaces between
+  packages, while every contract sits with the client and we hold none of
+  their supply-chain money? Get that in writing. If the answer is no, Model B
+  closes the same way Model C has, and `offerable` in
+  `shared/constants.js` is the one place it changes.
 - **NEVER LET IT LAPSE.** The retroactive date is inception, 26 October 2026,
   and it was confirmed that it cannot be backdated. That costs nothing today
   because there is no delivered client advisory work behind it. But the
