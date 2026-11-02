@@ -47,7 +47,9 @@ the energy rating rather than the power rating sizing the compound on a
 long-duration battery; the thank-you list read as the interface map, with site
 establishment the line that belongs to none of the named partners; the compound
 competing with the permanent asset for a fixed acreage, settled when the
-permanent layout is drawn rather than at mobilisation.
+permanent layout is drawn rather than at mobilisation; the establishment
+already on the ground for enabling or remediation works, sized for that job and
+transferred to the main works by default.
 
 **This supersedes** the "never pitch, never name ETABLIX" rule in
 `business/marketing/linkedin-daily-comments.md`. That rule's reasoning — that a
