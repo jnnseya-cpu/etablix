@@ -49,7 +49,8 @@ establishment the line that belongs to none of the named partners; the compound
 competing with the permanent asset for a fixed acreage, settled when the
 permanent layout is drawn rather than at mobilisation; the establishment
 already on the ground for enabling or remediation works, sized for that job and
-transferred to the main works by default.
+transferred to the main works by default; the preliminaries as the only part of
+a crowded framework's call-off price that is not commoditised.
 
 **This supersedes** the "never pitch, never name ETABLIX" rule in
 `business/marketing/linkedin-daily-comments.md`. That rule's reasoning — that a
