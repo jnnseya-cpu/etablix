@@ -45,7 +45,9 @@ mobilisation of the workforce; working inside a live energised asset;
 pre-FID cost planning for a developer; repetition across many small sites;
 the energy rating rather than the power rating sizing the compound on a
 long-duration battery; the thank-you list read as the interface map, with site
-establishment the line that belongs to none of the named partners.
+establishment the line that belongs to none of the named partners; the compound
+competing with the permanent asset for a fixed acreage, settled when the
+permanent layout is drawn rather than at mobilisation.
 
 **This supersedes** the "never pitch, never name ETABLIX" rule in
 `business/marketing/linkedin-daily-comments.md`. That rule's reasoning — that a
