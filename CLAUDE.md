@@ -42,7 +42,9 @@ this rule exists to prevent. Angles already used: greenfield site with nothing
 on it; remoteness and no local supply chain; scale and walking distance;
 predictable delivery; wellbeing at headcount; demobilisation at energisation;
 mobilisation of the workforce; working inside a live energised asset;
-pre-FID cost planning for a developer; repetition across many small sites.
+pre-FID cost planning for a developer; repetition across many small sites;
+the energy rating rather than the power rating sizing the compound on a
+long-duration battery.
 
 **This supersedes** the "never pitch, never name ETABLIX" rule in
 `business/marketing/linkedin-daily-comments.md`. That rule's reasoning — that a
