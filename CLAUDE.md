@@ -21,18 +21,33 @@ halves plus the contracting position:
 
 - **The paper** — output specification, package boundaries, tender documents.
 - **The site** — procurement, mobilisation, and the interfaces between suppliers.
-- **"You hold every supplier contract; I never hold your money."** This single
+- **"You hold every supplier contract; we never hold your money."** This single
   sentence is what separates ETABLIX from an ordinary intermediary. It belongs
   in almost every comment.
 
+**These three are the comment.** If everything else has to be cut, what stays is
+the USP, ETABLIX named so a stranger knows what the business is, and the sell —
+to the author of the post and to everyone reading over their shoulder. The
+observation about their project is what earns the right to say it; it is not the
+point of the comment.
+
 **Form:**
 
-- Always first person. Never "we at ETABLIX" in the third person.
+- **The firm speaks, not the man.** ETABLIX is named, and the company is "we".
+  Never "I write the specification", and above all never "I never hold your
+  money" — in the singular that sentence describes a sole trader, and it is the
+  sentence doing the most work in the whole comment. A procurement reader
+  deciding whether to put this business on a supplier list hears "we" and "I"
+  very differently. This matches the signal-email brief, which has always had
+  the company act as "we".
+- **It still posts from the director's own profile**, which was never about
+  pronouns. A named person writing "ETABLIX does this scope" reads as the person
+  who runs it. The same words from a company page read as an advertisement. The
+  observation is his and the expertise is his; the business is the thing being
+  introduced.
 - 60–90 words. Ceiling 110. Longer than the post is not read.
 - ONE idea. Not three.
 - No emoji, no hashtags, no links.
-- Post from the director's own profile rather than the company page where there
-  is a choice — a named person reads as a peer, a page reads as marketing.
 
 **Never the same argument twice.** The test a comment has to pass: *could this
 have been written for any of the others?* If yes, it is not finished. Nine
