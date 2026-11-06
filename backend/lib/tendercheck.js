@@ -498,6 +498,14 @@ export function tenderStatement(result) {
 const ITEM_REF_FIELDS = [
   "id", "ref", "refs", "against", "description", "desc", "item", "name",
   "note", "notes", "narrative", "basis", "reason", "scopeItemId", "tags",
+  // The estimating engine's own row names, so a schedule read from an
+  // estimating run is read as readily as a table somebody typed. `what` is
+  // that engine's description field and `quantityBasis` is where a basis
+  // reference sits; omitting either would mean the estimate of record read
+  // as an estimate carrying no references at all, which is the one failure
+  // mode worse than not reading it — every claimed allowance would be
+  // reported absent, on a schedule that carries all of them.
+  "what", "quantityBasis",
 ];
 
 /** Everything on a line that could be text, joined, for reference scanning. */
@@ -535,8 +543,9 @@ function isContingencyLine(item) {
   const kind = String(it.kind ?? it.type ?? it.category ?? "").toLowerCase();
   if (/contingenc/.test(kind)) return true;
   // A line called "Central contingency" with no kind field is the same thing,
-  // and is how it appears in most estimates.
-  return /\bcontingenc/i.test(String(it.description ?? it.name ?? it.item ?? it.id ?? ""));
+  // and is how it appears in most estimates. `what` is the estimating
+  // engine's description field and is read here for the same reason.
+  return /\bcontingenc/i.test(String(it.description ?? it.what ?? it.name ?? it.item ?? it.id ?? ""));
 }
 
 const round2 = (n) => Math.round(n * 100) / 100;
@@ -594,7 +603,9 @@ export function reconcileRegistersToEstimate({
   assumptions = "",
   clarifications = "",
   estimateItems = [],
+  refusedLines = [],
   contingency = null,
+  source = null,
   tolerance = 0.01,
 } = {}) {
   const rk = rowsOf(risks, "risk", RK_WANTED);
@@ -641,6 +652,37 @@ export function reconcileRegistersToEstimate({
   const registeredRisks = new Set(rk.map((r) => r.ref));
   const registeredAssumptions = new Set(as.map((r) => r.ref));
 
+  // THE REFUSED LINES, SCANNED FIRST, SO THEY CAN SUPPRESS A WORSE FINDING.
+  //
+  // The estimating engine does not drop an inadmissible line silently: it
+  // refuses it, keeps it, and says its own total is understated by however
+  // much the line was worth. A risk allowance sitting on such a line is in
+  // the schedule and is not in the price, and it is a different finding from
+  // an allowance that was never written down — the money was identified, the
+  // line exists, and one lineage field is missing. The fix is different too:
+  // fix the line, do not price the risk again.
+  //
+  // It is computed before the risk loop because it must REPLACE the
+  // claimed-and-not-priced finding for the same reference rather than sit
+  // beside it. Reporting both would say the decision about where the money
+  // would sit "was made and never arrived", which is untrue and points at
+  // the wrong remedy: it arrived, on a line the engine would not admit.
+  const allowanceOnRefusedLine = [];
+  const refused = Array.isArray(refusedLines) ? refusedLines.filter(Boolean) : [];
+  for (const row of refused) {
+    const text = itemText(row);
+    for (const kind of ["risk", "assumption", "clarification"]) {
+      for (const ref of refsIn(text, kind)) {
+        allowanceOnRefusedLine.push({
+          ref,
+          line: String(row.id ?? "(unidentified line)"),
+          faults: Array.isArray(row.faults) ? row.faults.slice(0, 2) : [],
+        });
+      }
+    }
+  }
+  const refusedRefs = new Set(allowanceOnRefusedLine.map((x) => x.ref));
+
   const allowanceClaimedNotPriced = [];
   const valueDisagrees = [];
   const fundedTwice = [];
@@ -656,7 +698,7 @@ export function reconcileRegistersToEstimate({
     const lines = pricedRefs.get(row.ref) || [];
     const onContingency = contingencyRefs.has(row.ref);
 
-    if (inEstimate && !lines.length) {
+    if (inEstimate && !lines.length && !refusedRefs.has(row.ref)) {
       allowanceClaimedNotPriced.push({
         ref: row.ref,
         claimed: places.filter((p) => p !== "CENTRAL CONTINGENCY").join(" and "),
@@ -761,7 +803,8 @@ export function reconcileRegistersToEstimate({
 
   const faults =
     allowanceClaimedNotPriced.length + pricedNotRegistered.length + fundedTwice.length +
-    valueDisagrees.length + (contingencyCover.ok ? 0 : 1) + answerNotInEstimate.length;
+    valueDisagrees.length + (contingencyCover.ok ? 0 : 1) + answerNotInEstimate.length +
+    allowanceOnRefusedLine.length;
 
   return {
     allowanceClaimedNotPriced,
@@ -770,12 +813,20 @@ export function reconcileRegistersToEstimate({
     valueDisagrees,
     contingencyCover,
     answerNotInEstimate,
+    allowanceOnRefusedLine,
+    // WHERE THE PRICED LINES CAME FROM, CARRIED ON THE RESULT.
+    //
+    // A reader of this result must be able to tell whether it tested the
+    // estimate of record or a table somebody retyped, because the two
+    // deserve different amounts of trust and they otherwise look identical.
+    source: source || { kind: "supplied", say: "priced lines supplied with the run" },
     compared: {
       risks: rk.length,
       assumptions: as.length,
       clarifications: cl.length,
       pricedLines: priced.length,
       contingencyLines: contingencyLines.length,
+      refusedLines: refused.length,
       referencedRefs: pricedRefs.size,
     },
     faults,
@@ -817,6 +868,12 @@ export function estimateCrossNotes(result) {
     out.push(`THE CONTINGENCY IS SPENT BEFORE SUBMISSION — ${r.contingencyCover.say}. `
       + "Every row is defensible on its own and the total is not funded.");
   }
+  if (r.allowanceOnRefusedLine?.length) {
+    out.push(`AN ALLOWANCE ON A LINE THE ENGINE REFUSED — ${r.allowanceOnRefusedLine
+      .map((x) => `${x.ref} on ${x.line}${x.faults.length ? ` (${x.faults[0]})` : ""}`).join("; ")}. `
+      + "The line exists and is not in the total, so the money was identified and is not in the price. "
+      + "The fix is the line, not another allowance: pricing the risk again would fund it twice the moment the line is admitted.");
+  }
   if (r.answerNotInEstimate?.length) {
     out.push(`AN ANSWER THAT SAYS IT CHANGED THE PRICE, WHERE THE PRICE DOES NOT CARRY IT — ${r.answerNotInEstimate
       .map((x) => `${x.ref} ("${x.said}")`).join("; ")}. `
@@ -830,15 +887,25 @@ export function estimateCrossStatement(result) {
   if (!result) return "the registers were not compared to the estimate";
   const c = result.compared || {};
   if (!c.pricedLines) {
+    // A schedule read from a run whose every line the engine refused is NOT
+    // "no lines supplied". The estimate exists, it was read, and the engine
+    // would not admit any of it — which is a far louder fact than an absent
+    // field, and reporting the two in the same words buries it.
+    if (c.refusedLines) {
+      return `the estimate was read and the engine admitted none of it — all ${c.refusedLines} line(s) were refused, `
+        + `so its own total is understated by the whole of the schedule and the registers' claims cannot be tested against it`
+        + (result.source?.say ? ` (${result.source.say})` : "");
+    }
     return "no priced estimate lines were supplied, so the registers' claims about the price could not be tested";
   }
   if (!c.risks && !c.clarifications) {
     return `${c.pricedLines} priced line(s) and no readable register to compare them to`;
   }
+  const from = result.source?.say ? `, ${result.source.say}` : "";
   if (result.ok) {
-    return `${c.risks} risk(s) and ${c.clarifications} clarification(s) reconcile to ${c.pricedLines} priced line(s): `
+    return `${c.risks} risk(s) and ${c.clarifications} clarification(s) reconcile to ${c.pricedLines} priced line(s)${from}: `
       + "every claimed allowance is in the price, every allowance in the price is registered, nothing is funded twice, "
       + `and ${result.contingencyCover?.say || "the contingency holds"}`;
   }
-  return `${result.faults} fault(s) between the registers and the price`;
+  return `${result.faults} fault(s) between the registers and the price${from}`;
 }

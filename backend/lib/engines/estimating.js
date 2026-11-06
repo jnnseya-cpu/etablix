@@ -166,7 +166,19 @@ export function price({ lines = [], scopeItems = [], quotes = [], approvedExclus
   // sends somebody to look at a line that is fine.
   const checked = lines.map((l) => ({ ...priced(l, { asAt }), given: l }));
   const good = checked.filter((c) => c.ok);
-  const refused = checked.filter((c) => !c.ok).map((c) => ({ id: c.given?.id || null, faults: c.faults }));
+  // A REFUSED LINE KEEPS ITS DESCRIPTION.
+  //
+  // It carried only a reference and its faults, which made two readers worse
+  // off. A person reading "4.12 refused: no source date" has to go and find
+  // out what 4.12 is before the refusal means anything. And the register
+  // cross-check, which looks for risk references in a line's text, could not
+  // see that the refused line was the one carrying the RK-1 allowance — so an
+  // allowance sitting on a line the engine would not admit read as an
+  // allowance nobody had written down, which is a different defect with a
+  // different fix.
+  const refused = checked
+    .filter((c) => !c.ok)
+    .map((c) => ({ id: c.given?.id || null, what: c.given?.what ?? c.row?.what ?? null, faults: c.faults }));
 
   const estimateItems = good.map((c) => ({
     id: c.row.id, scopeItemId: c.row.scopeItemId, quantity: c.row.quantity, rate: c.row.rate, total: c.row.total,

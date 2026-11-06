@@ -36,6 +36,7 @@ import {
   reconcileTenderRegisters, checkSiteVisit, tenderNotes,
   reconcileRegistersToEstimate, estimateLines, estimateCrossNotes,
 } from "./tendercheck.js";
+import { estimateOfRecord, estimateOfRecordNotes } from "./estimateofrecord.js";
 import { checkPosition, positionNotes } from "./positionguard.js";
 import { meter, callFromUsage, budgetFor, summarise } from "./l7/acu.js";
 import { deliveryBrief, DELIVERY_MODEL_FIELD } from "../../shared/constants.js";
@@ -1154,15 +1155,44 @@ function withBidCheck(result, inputs = {}) {
    * report agreement. `estimateCrossStatement` is what says so, and it is
    * read on the approval screen whether or not there are findings.
    */
-  const priced = estimateLines(inputs.estimate || "");
-  const cross = priced.length
-    ? reconcileRegistersToEstimate({
+  /**
+   * THE ESTIMATE OF RECORD FIRST, AND A PASTED TABLE ONLY IF THERE IS NO RUN.
+   *
+   * Naming an estimating run is a statement that the registers are to be
+   * checked against the price as the engine admitted it. If that run cannot
+   * be read, the check does NOT fall back to whatever was pasted: a check
+   * that silently degrades from the strong form to the weak form reports the
+   * weak form's result in the strong form's words, and nobody downstream can
+   * tell which they are reading. The failure to read it is a note of its own.
+   */
+  const named = String(inputs.estimaterun || "").trim();
+  const record = named ? estimateOfRecord(named) : null;
+
+  let cross = null;
+  if (record && record.ok) {
+    cross = reconcileRegistersToEstimate({
+      risks: data.b6 || "",
+      assumptions: data.b6 || "",
+      clarifications: data.b5 || "",
+      estimateItems: record.lines,
+      refusedLines: record.refused,
+      source: { kind: "run", runId: record.runId, approved: record.approved, say: record.say },
+    });
+  } else if (!record) {
+    const priced = estimateLines(inputs.estimate || "");
+    if (priced.length) {
+      cross = reconcileRegistersToEstimate({
         risks: data.b6 || "",
         assumptions: data.b6 || "",
         clarifications: data.b5 || "",
         estimateItems: priced,
-      })
-    : null;
+        source: {
+          kind: "pasted",
+          say: `read from ${priced.length} priced line(s) pasted with this run, which is a copy of the estimate and not the estimate of record`,
+        },
+      });
+    }
+  }
 
   return {
     ...result,
@@ -1171,9 +1201,11 @@ function withBidCheck(result, inputs = {}) {
     siteVisitCheck: visit,
     positionCheck: position,
     estimateCrossCheck: cross,
+    estimateRecord: record,
     notes: [
       ...bidNotes(check),
       ...tenderNotes(registers),
+      ...estimateOfRecordNotes(record),
       ...estimateCrossNotes(cross),
       ...(visit.ok ? [] : [`SITE VISIT — ${visit.say}.`]),
       ...positionNotes(position),

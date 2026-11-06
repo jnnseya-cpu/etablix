@@ -38,7 +38,7 @@ BASELINE_HANDED_OVER → CLOSED.
 | 4.3 · Site visit with a pricing agenda | `checkSiteVisit` in `tendercheck.js`, plus three fields on the bid agent | Reports an unrecorded visit, an observation that does not say whether it was observed, stated or unconfirmed, and a bid with no visit that does not name what was priced blind |
 | 5 · Clarifications and risks as linked records | Bid file b5, b6, reconciled by `tendercheck.js` — to each other, and to the priced estimate | Six rules across the registers and six more against the price; the double count is proved on the estimate rather than read off a cell |
 | 6 · Programme before price | `PROGRAMMED`, before `PRICED` | The order is the lifecycle's, not a convention |
-| 7 · Supply-chain prices and the estimate | `l7/estimating.js` — `applyMarkups`, `detectDoubleMarkup`, `checkRiskRelease`, `normaliseQuote` | Arithmetic is a deterministic service; no model may assert a total |
+| 7 · Supply-chain prices and the estimate | `l7/estimating.js` — `applyMarkups`, `detectDoubleMarkup`, `checkRiskRelease`, `normaliseQuote`; the priced schedule read back by `estimateofrecord.js` | Arithmetic is a deterministic service; no model may assert a total, and the bid's registers are checked against the schedule the engine admitted rather than a retyped copy of it |
 | 8 · Technical offer against the scoring | `COMPOSED`; bid file b4, reconciled by `bidcheck.js` | A required deliverable with no response is caught by machine |
 | 9 · Settle, approve, submit | `PRICE_RELEASED` gate **G4**, `CONSISTENT → SUBMITTED` gate **G5** | G4 blocks on unapproved cost items, P80 margin below policy, arithmetic faults, an estimate that has not frozen, and an estimate programmed to freeze before what it prices. G5 blocks on an unbacked claim, a critical finding, or a price that does not reconcile |
 | 10 · Control the bid after submission | `CLARIFYING`, `BAFO`, `OUTCOME_RECORDED`, `quoteValidity()` in `l7/estimating.js` | Quotes are tested against the validity period being offered, so a lapse inside it is found before the extension is confirmed |
@@ -166,10 +166,48 @@ to an unmatched £18,000 risk is **not** reconciled: the figures agreeing is a
 coincidence, and treating it as a link is how two unrelated numbers become a
 reconciliation. A link exists because somebody wrote it down.
 
-The priced lines come from a new optional field on the bid agent, read as a
-markdown table like everything else here. Without it the cross-check does not
-run and its statement says the claims could not be tested — never that they
-passed.
+**And it reads the estimate of record, not a copy of it.** The bid names an
+estimating-engine run; `backend/lib/estimateofrecord.js` resolves it and hands
+the cross-check the schedule as the engine admitted it — the same object the
+price was approved from.
+
+That distinction is not pedantry. A pasted table is correct at the moment it
+was taken and at no moment after: the estimate moves, the copy does not, and
+the cross-check goes on passing against a price that no longer exists — with
+more confidence than before, because now it has read "the estimate". A check
+that is wrong is worse than a check that is narrow, because nobody allows for
+it. A copy is also retyped, and retyping is where £18,000 becomes £1,800;
+the cross-check's strongest alarm is exactly the one a transcription error
+fabricates, and an alarm whose commonest cause is a typo gets switched off.
+
+Three rules in the resolver:
+
+- **It refuses rather than falling back.** A named run that does not exist, is
+  another agent's, or carries no schedule does **not** silently fall back to
+  whatever was pasted. A check that degrades from the strong form to the weak
+  form reports the weak form's result in the strong form's words. The failure
+  to read it is its own note, phrased as a failure of the check rather than of
+  the estimate: *the registers were therefore NOT checked against the price.*
+- **An unapproved estimate is read, and said to be unapproved.** A bid and its
+  estimate are worked up at the same time. Refusing until approval would mean
+  the check only ever ran after the moment it was useful.
+- **A line the engine refused is a finding of its own, and it replaces the
+  weaker one.** `price()` does not drop an inadmissible line: it refuses it,
+  keeps it, and reports its own total as understated. An allowance sitting on
+  such a line is in the schedule and not in the price — the money *was*
+  identified, so "the decision was made and never arrived" is untrue and
+  points at the wrong remedy. Fix the line; pricing the risk again would fund
+  it twice the moment the line is admitted. For this to work, `price()` now
+  keeps the description on a refused row, which it did not: a refusal reading
+  only "4.12 refused" was less useful to a person too.
+
+The pasted table still works, for a bid being built before any estimate
+exists, and the result records which of the two it read — a copy and the
+record look identical afterwards, and they deserve different amounts of
+trust. Without either, the statement says the claims could not be tested,
+never that they passed. And a schedule whose every line the engine refused is
+reported as exactly that, not as "no lines supplied": the estimate exists, it
+was read, and none of it was admitted.
 
 ### Gap 4 — validity and revalidation
 
@@ -297,9 +335,7 @@ pinned by tests first. The judgement above is left as it stood rather than
 rewritten now the work is done, because the order a thing was built in is part
 of the record of why.
 
-What is **not** built, and is the honest remaining gap: the cross-check reads
-the priced lines from a field on the bid agent, not from the estimate the
-estimating engine holds. When the two are the same data the check gets
-stronger for nothing; until then it tests the estimate somebody pasted in,
-which is better than testing the register against itself and short of testing
-the estimate of record.
+The gap that section used to record — the cross-check reading a pasted copy
+rather than the estimate the estimating engine holds — is closed. The bid
+names a run and the registers are tested against the schedule that run
+admitted.

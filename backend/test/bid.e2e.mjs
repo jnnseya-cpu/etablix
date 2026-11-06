@@ -59,6 +59,51 @@ console.log("\n--- the agent\n");
      "and it asks what we can actually evidence, which is the input that stops an invented certificate");
 }
 
+// --- THE ESTIMATE OF RECORD, FIRST
+//
+// The cross-check can read a pasted table, and a pasted table is a copy: it
+// is correct at the moment it was taken and at no moment after. The estimate
+// of record is a run of the estimating engine, and the bid names it rather
+// than retyping it. So the estimate is priced first, here, and the bid run
+// below points at it.
+console.log("\n--- the estimate of record\n");
+const efd = new FormData();
+efd.append("title", "Priced schedule for ITT-2026-114");
+efd.append("inputs", JSON.stringify({
+  records: JSON.stringify({
+    asAt: "2026-09-01",
+    lines: [
+      // All ten lineage fields, because the engine refuses a line missing any
+      // one of them — a line nobody can say later what it was priced from is
+      // unpriced, not priced badly. The refusal is the engine's and is not
+      // worked around here.
+      { id: "1.01", what: "Preliminaries and site establishment, on the AS-1 basis", quantity: 1, unit: "item", rate: 148000, total: 148000,
+        source: "firm_quote", sourceDate: "2026-08-20", currency: "GBP", quantityBasis: "measured from the tender layout",
+        productivity: "n/a, lump sum", validUntil: "2026-11-30", exclusions: ["HV supply"], escalation: "fixed to 2027-03",
+        confidence: "firm_quote", approvedBy: "J Nseya" },
+      { id: "1.02", what: "Welfare and accommodation, 60 weeks", quantity: 60, unit: "wk", rate: 1600, total: 96000,
+        source: "firm_quote", sourceDate: "2026-08-20", currency: "GBP", quantityBasis: "60 weeks from the tender programme",
+        productivity: "n/a, hire rate", validUntil: "2026-11-30", exclusions: ["consumables"], escalation: "fixed to 2027-03",
+        confidence: "firm_quote", approvedBy: "J Nseya" },
+    ],
+  }),
+}));
+const eStarted = await fetch(`${B}/api/agents/estimating/run`, { method: "POST", headers: { Authorization: "Bearer " + T }, body: efd });
+const eBody = await J(eStarted);
+const estimateRunId = eBody.run?.id;
+ok(eStarted.status === 202 && Boolean(estimateRunId), `the estimating engine runs (${eStarted.status})`, eBody);
+
+let eRun = null;
+for (let i = 0; i < 300; i += 1) {
+  const g = await api(`/api/agents/runs/${estimateRunId}`, {}, T);
+  eRun = g.body.run || g.body;
+  if (eRun?.status && eRun.status !== "running") break;
+  await wait(1000);
+}
+ok(eRun?.status === "awaiting_approval", `and finishes (${eRun?.status})`, eRun?.notes);
+ok((eRun?.machine?.result?.lines || []).length === 2,
+   "carrying a priced schedule of two admissible lines", eRun?.machine?.result?.refused);
+
 // --- run it
 console.log("\n--- the run\n");
 const fd = new FormData();
@@ -70,14 +115,10 @@ fd.append("inputs", JSON.stringify({
   documents: "INVITATION TO TENDER ITT-2026-114 rev C. 4.2 The Tenderer shall submit a method statement of no more than six pages. 5.1 Prices shall be submitted on the Employer's pricing template. 6.4 Evidence of public liability insurance of not less than £10m.",
   evidence: "Public liability £5m bound; £10m quoted, not yet bound. No SSIP registration held.",
   context: "We intend to bid Management Integrator.",
-  // The priced lines, so the register's claims about where the money sits can
-  // be tested against the estimate rather than against themselves. AS-1 is in
-  // the bid file's own assumption register; a reference to something that is
-  // not would be reported as money against a record that does not exist.
-  estimate: `| Ref | Description | Value | Covers |
-|---|---|---|---|
-| 1.01 | Preliminaries and site establishment | 148,000 | AS-1 |
-| 1.02 | Welfare and accommodation, 60 weeks | 96,000 | - |`,
+  // THE ESTIMATE NAMED, NOT PASTED. The register's claims about where each
+  // allowance sits are tested against the schedule the engine admitted,
+  // which is the same object the price was approved from.
+  estimaterun: `Run ${estimateRunId}`,
 }));
 const started = await fetch(`${B}/api/agents/bid/run`, { method: "POST", headers: { Authorization: "Bearer " + T }, body: fd });
 const startedBody = await J(started);
@@ -125,11 +166,20 @@ console.log("\n--- the submission-completeness check\n");
 // risk whose allowance is in the price from one whose allowance is a sentence
 // saying it is.
 {
+  const rec = run?.estimateRecord;
+  ok(rec?.ok === true && rec?.runId === estimateRunId,
+     "the bid read the estimate of record, resolved from the run it named", rec);
+  ok(rec?.approved === false && /awaiting_approval/.test(rec?.say || ""),
+     "AN UNAPPROVED ESTIMATE IS STILL READ AND SAID TO BE UNAPPROVED — a bid and its estimate are worked up at the same time, and a check that waits for approval only ever runs after it was useful",
+     rec?.say);
+
   const x = run?.estimateCrossCheck;
-  ok(Boolean(x), "the cross-check ran, because priced lines were supplied", Object.keys(run || {}));
+  ok(Boolean(x), "the cross-check ran against it", Object.keys(run || {}));
   ok(x?.compared?.pricedLines === 2, `both priced lines were read (${x?.compared?.pricedLines})`, x?.compared);
-  ok(x?.ok === true, "and the registers reconcile to the price", x);
-  ok((run?.notes || []).every((n) => !/NOT IN THE PRICE|FUNDED TWICE|DOES NOT EXIST/.test(n)),
+  ok(x?.source?.kind === "run" && x?.source?.runId === estimateRunId,
+     "and the result records WHICH estimate it read — a copy and the record look identical afterwards", x?.source);
+  ok(x?.ok === true, "the registers reconcile to the price", x);
+  ok((run?.notes || []).every((n) => !/NOT IN THE PRICE|FUNDED TWICE|DOES NOT EXIST|ESTIMATE OF RECORD WAS NOT READ/.test(n)),
      "so it writes no note either", run?.notes);
 }
 
@@ -145,7 +195,7 @@ ok(r.body.runId === id, "carrying the run it came from, so it can be traced and 
 ok(r.body.missing?.length === 0, "with every one of the eight parts found", r.body.missing);
 ok(/complete against the invitation's own checklist/.test(r.body.data?.packStatement || ""),
    "and the completeness result travels onto the document", (r.body.data?.packStatement || "").slice(0, 120));
-ok(/reconcile to 2 priced line/.test(r.body.data?.packStatement || ""),
+ok(new RegExp(`read from estimating run ${estimateRunId}`).test(r.body.data?.packStatement || ""),
    "ALONGSIDE THE REGISTERS AGAINST THE PRICE — a bid file that certifies its submission was complete and says nothing about whether the allowances are in the estimate has certified the easier of the two",
    r.body.data?.packStatement);
 ok(r.body.issue?.required === true && r.body.issue?.ok === false,

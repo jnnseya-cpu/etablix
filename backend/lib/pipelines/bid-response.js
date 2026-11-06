@@ -469,7 +469,8 @@ export const FIELDS = [
   // identically. It is optional because a bid is often worked up before the
   // estimate exists; supplied, it is the difference between reconciling the
   // register against itself and reconciling it against the price.
-  { name: "estimate", label: "Priced estimate lines, as a table — Ref, Description, Value, and what each covers (RK-1, CL-4). Optional; without it the risk allowances cannot be checked against the price", type: "textarea" },
+  { name: "estimaterun", label: "The estimating run that holds the priced schedule — its run reference. Preferred over pasting the lines below: it reads the estimate of record rather than a copy of it", type: "text" },
+  { name: "estimate", label: "Priced estimate lines, as a table — Ref, Description, Value, and what each covers (RK-1, CL-4). Used only when no estimating run is given; a pasted table is correct at the moment it was taken and at no moment after", type: "textarea" },
 ];
 
 export const SECTIONS = [

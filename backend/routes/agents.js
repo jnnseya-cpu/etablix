@@ -163,6 +163,11 @@ async function workPipeline(runId, agent, inputs, runBy, visualFiles = [], resum
       // self-delivery or holding the supply chain.
       ...(r.tenderCheck ? { tenderCheck: r.tenderCheck } : {}),
       ...(r.estimateCrossCheck ? { estimateCrossCheck: r.estimateCrossCheck } : {}),
+      // Which estimate the cross-check read, kept even when reading it
+      // failed. "The strongest check did not run" is a fact about this bid
+      // and it must survive the run, or a later reader sees a quiet result
+      // and takes it for a clean one.
+      ...(r.estimateRecord ? { estimateRecord: r.estimateRecord } : {}),
       ...(r.siteVisitCheck ? { siteVisitCheck: r.siteVisitCheck } : {}),
       ...(r.positionCheck ? { positionCheck: r.positionCheck } : {}),
       // Workstream 5's payment reconciliation, for the same reason again: the
