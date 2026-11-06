@@ -1,162 +1,210 @@
-# MaresConnect PQQ — the position, and the one clarification to raise
+# MaresConnect PQQ — the decision, and what replaces it
 
 **Tender 681481-2026 · MaresConnect 750 MW HVDC Interconnector System**
-Issued through Oracle Aconex by **WSP UK Ltd** as procurement adviser, not by
-MaresConnect directly. Submission enabled. Received 6 November 2026.
+Both PQQ documents read (MC-WSP-PR-1A1B-PQQ-00001-P01 and
+MC-WSP-PR-2A2B-PQQ-00001-P01, both P01, issued 4 November 2026). Issued through
+Oracle Aconex by **WSP UK Ltd** as Consulting Engineer; MaresConnect Interconnector
+Limited is the promoter. Both documents are marked Confidential and are held
+under the executed NDA.
 
-| Date | What |
+**Decision: do not submit. Decline the invitation through Aconex.**
+
+Not a judgement call. Three independent minimum requirements each disqualify on
+their own, and one of them also closes the consortium route.
+
+---
+
+## Why it is closed, in the PQQ's own terms
+
+### 1. Financial thresholds — §5.2 and §7.2.1.1, both documents
+
+| Measure | LOT 1A | LOT 1B | LOT 2A | LOT 2B |
+|---|---|---|---|---|
+| Minimum turnover | €500m | €500m | €500m | €500m |
+| Minimum net assets | €200m | €200m | €200m | €200m |
+
+Required **in both of the last two audited accounts**. JNN GLOBAL LTD has not
+reached its first accounting reference date, so there are no audited accounts at
+all. This is not a near miss to be argued around in a clarification.
+
+### 2. The consortium route is closed by the same clause
+
+Table 5 in each document applies **the same €500m / €200m thresholds to each
+Joint Venture or Consortium Member individually**, in addition to assessing the
+group as a whole. §7.2.1.3 then says that both the group *and* each member must
+meet each key measure "or the Candidate may be rejected".
+
+So ETABLIX cannot be carried as the site-services member of an EPC consortium.
+Joining one would not merely fail for us — it would put the whole consortium at
+risk of rejection. That is worth knowing before anybody is approached about it.
+
+### 3. The technical minimums are manufacturing requirements
+
+| LOT | What §5.2 requires the Candidate to be able to do |
 |---|---|
-| **3 December 2026** | PQQ clarification requests close |
-| **16 December 2026, 17:00 GMT** | PQQ submission deadline (see the clock warning below) |
+| 1A | Manufacture VSC HVDC technology, fully developed, tested and commercially deployable |
+| 1B | Manufacture HVAC GIS technology, on the same basis |
+| 2A | Develop and test 320 kV HVDC XLPE cables; supply tested fibre optic cable; develop and test 400 kV HVAC underground cables |
+| 2B | Develop and test 400 kV cables |
+
+These select cable and switchgear manufacturers. There is no reading of them
+that a consultancy satisfies.
+
+### 4. Scale of the shortlist, for completeness
+
+Up to **three** Candidates shortlisted for LOTs 1A and 1B; up to **seven** for
+2A and 2B. Even without the above, this is a field of global HVDC primes.
 
 ---
 
-## The finding: there is no LOT this company can bid
+## The question from 21 October is now answered
 
-All four LOTs are EPC for permanent works.
+That email asked whether early enabling works would be procured as a separate
+package or within the paired EPC LOTs. The PQQ answers it twice over.
 
-| Grouping | LOT | Scope |
-|---|---|---|
-| 1 | 1A | EPC for HVDC Converter Stations |
-| 1 | 1B | EPC for the Irish 400 kV AC Tail Substation |
-| 2 | 2A | EPC for the HVDC subsea and underground cable system, and the associated HVAC underground cable system |
-| 2 | 2B | EPC for the HVAC underground cable system in Ireland |
+**"Early Works Contract(s)" is a defined term**: *"the separate Early Work
+Contract/pre-FID agreements that MaresConnect may choose to enter into at the
+Preferred Bidder(s) appointment, including a Front End Engineering Design (FEED)
+Contract and/or **Civil and Structural Enabling Works Contract**."*
 
-The pairing rule makes it worse rather than better: a Candidate applying for 1A
-must also apply for 1B, and the same for 2A and 2B. There is no route by which a
-Candidate takes one half of a grouping.
+It then appears as a scope item in **all four LOTs** — §2.5.1(vii), §2.5.2(iv),
+§2.5.3(vi) and §2.5.4(iv) — and again at **Stage 5** of the procurement process.
 
-**ETABLIX does not undertake EPC scope**, and the 21 October email to
-procurement said so in terms: not the converter stations, not the Irish 400 kV
-substation, not the cable systems. Nothing in this invitation changes that.
-Submitting a PQQ against an EPC LOT would be scored as an EPC respondent, score
-badly for the right reason, and put a recorded failure on the file of the only
-major interconnector procurement this business has reached.
+So: the enabling works are not a separate procurement. They are inside the EPC
+LOTs, and they are contracted **with the Preferred Bidder at pre-FID stage**.
 
-**It also answers the question asked on 21 October and never replied to.** That
-email asked whether early enabling works would be procured as a separate package
-or within the paired EPC LOTs. The LOT structure answers it: there is no separate
-enabling or site-services package at PQQ stage, so that scope sits inside the EPC
-LOTs — which makes the route to this project a supply-chain route to whoever is
-appointed, not a Candidate route.
+**The date that matters is 15 May 2028**, when pre-FID agreements are entered.
+The Preferred Bidder is not notified until 28 April 2028. Nobody — including
+MaresConnect — knows today who the counterparty for that enabling works contract
+will be.
 
-**Read the attached PQQ documents before acting on this.** Both PQQs came with
-the invitation and have not been read here. The reading above is from the LOT
-titles in the invitation letter. If either PQQ carves out site establishment,
-temporary works, construction compounds or workforce accommodation, that changes
-the answer and nothing below applies.
+| Stage | Date |
+|---|---|
+| PQQ submission | 16 December 2026 |
+| PQQ evaluation complete | 15 January 2027 |
+| ITT issued | 5 March 2027 |
+| ITT submission | 26 November 2027 |
+| Preferred Bidder(s) appointed | 28 April 2028 |
+| **Pre-FID agreements entered (FEED and/or enabling works)** | **15 May 2028** |
+| Contract award | 17 April 2029 |
 
----
-
-## Three things to do, in this order
-
-### 1. Acknowledge receipt through Aconex — today
-
-The letter requests it, the portal records it, and it costs one click. A
-Candidate who does not acknowledge looks like a Candidate who is not reading.
-
-### 2. Raise one RFI before 3 December
-
-Not a PQQ submission. One clarification, through Aconex, which is where all
-substantive communication must go. The text is below.
-
-### 3. Then decline formally, or stay in
-
-Once the RFI is answered. Declining an invitation you cannot fulfil, having
-asked an intelligent question first, is a better record than a failed PQQ or a
-silent non-submission. The Decline Invitation button is on the same screen; do
-not use it before the RFI is answered.
+**That is the real horizon on this project: eighteen months, and the approach is
+to the appointed contractor, not to MaresConnect.**
 
 ---
 
-## The RFI
+## Do not raise the RFI drafted before the documents were read
 
-> **Subject:** Clarification — site establishment and temporary works within the LOT structure
+The earlier draft asked whether site establishment sits inside the EPC scopes.
+**That question is answered in §2.5 of the document itself.** Asking it would
+tell WSP's evaluation team that the PQQ had not been read — which is a worse
+outcome than not asking, and it would be circulated to every other Candidate
+without attribution but with the question visible.
+
+Three further constraints make the RFI route wrong here:
+
+- **§1.11.4** — MaresConnect and its representatives "will not enter into
+  detailed discussions on the requirements… with individual respondents". The
+  clarification mechanism is for clarification *of the PQQ document*, not for
+  commercial questions.
+- **§1.11.10(d)** — contacting any officer or employee of MaresConnect before
+  contract award about any aspect of the project, except as specified in the
+  PQQ, **may result in disqualification**. That is wider than NDA clause 4.1.5
+  and it binds while we are a Candidate.
+- **§1.11.8** — Candidates are prohibited from discussing any aspect of their
+  response with other Candidates. The informal route to an EPC bidder is closed
+  for as long as we hold Candidate status.
+
+The last point is the practical reason to decline rather than drift: **declining
+ends Candidate status**, and with it the canvassing and collusion restrictions
+that attach to it. The NDA continues regardless, clause 4.1.5 included.
+
+---
+
+## The decline note
+
+Submit through Aconex using Decline Invitation, with this text.
+
+> **MaresConnect PQQ — notification of decision not to submit**
 >
-> Each of the four LOTs is EPC for permanent works: the converter stations, the
-> Irish 400 kV tail substation and the HVDC and HVAC cable systems. Two related
-> questions on the temporary site environment that supports them.
+> Thank you for the invitation to participate in the PQQ for the MaresConnect
+> 750 MW HVDC Interconnector System.
 >
-> 1. Are site establishment, construction compounds, welfare, temporary
->    utilities, logistics and workforce accommodation included within the EPC
->    LOT scopes, or will any part of that scope be procured separately by
->    MaresConnect?
+> Having reviewed both PQQ documents, ETABLIX will not be submitting. The
+> minimum requirements are decisive rather than marginal: we do not meet the
+> €500m turnover and €200m net assets thresholds across two audited accounts,
+> and we do not manufacture VSC HVDC, GIS or HV cable systems. We would not meet
+> them as a consortium member either, since Table 5 applies the same thresholds
+> to each member individually.
 >
-> 2. If it sits within the EPC scopes: does MaresConnect hold, or intend to
->    hold, a supply-chain register on which specialist providers of that scope
->    can be recorded for appointed contractors to draw on? And at what point
->    would MaresConnect be prepared to give the written consent contemplated by
->    clause 4.2 of the executed NDA, given the restriction at clause 4.1.5 on
->    initiating contact with suppliers in connection with the Proposed
->    Transaction?
+> We say so now rather than submit a response that could not succeed, so that
+> your evaluation team is not asked to review one.
 >
-> We ask in order not to submit a PQQ response against LOTs we are not qualified
-> to deliver. ETABLIX does not undertake EPC scope and would not be bidding the
-> converter stations, the substation or the cable systems. Our scope is the
-> temporary site environment around the permanent works.
+> One note for the record, offered as information rather than as a request for
+> discussion. ETABLIX plans and procures the temporary site environment around
+> permanent works — construction compounds and welfare, temporary power and
+> utilities, security, waste, logistics, workforce accommodation, and
+> demobilisation with reinstatement. We note that Section 2.5 places a Civil and
+> Structural Enabling Works Contract within each LOT scope, to be entered with
+> the Preferred Bidder at pre-FID stage. If MaresConnect holds a supply-chain
+> register, or would accept a capability note held on file against that scope,
+> we would be glad to provide one. We will approach no party about this project
+> without the written consent contemplated by clause 4.2 of the
+> non-disclosure agreement.
 >
-> ETABLIX, part of JNN GLOBAL LTD, company 15405437.
+> Our obligations under that agreement continue, and the PQQ documentation will
+> be handled accordingly.
+>
+> Justin Nseya MCIOB, Managing Director
+> ETABLIX, part of JNN GLOBAL LTD, company 15405437
 
-**Why it is shaped this way.** Question 1 is the bid/no-bid question and it has
-one of two answers, both of which are useful. Question 2 is the only question
-that can open a route if the answer to the first is "within the EPC scopes" —
-and it is asked as a procurement question rather than a pitch, because an RFI
-read by WSP and visible to MaresConnect's own observers is the wrong place to
-sell. The closing paragraph is what makes it credible: a Candidate who says what
-they will not bid is not fishing.
+**Why it is shaped this way.** The first half is the honest reason, given in the
+document's own terms so that nobody has to work out what we misunderstood — a
+Candidate who cites §5.2 back accurately has plainly read it. The second half
+does the only useful thing left: it puts the capability on record against the
+one scope line in this project that is ours, names the stage it arises at, and
+asks for nothing that could be read as canvassing. The last sentence is there
+because it costs nothing and because clause 4.1.5 would otherwise be the first
+thing a careful reader wondered about.
 
-**It may be circulated.** The letter says clarification responses of general
-relevance may be issued to all Candidates without naming who asked. Question 1
-is general; expect the answer to reach every Candidate, which is fine. Question 2
-names this company, so if it is circulated, every EPC Candidate learns there is a
-site-services specialist asking about their supply chain — which is not a bad
-outcome, but it should be a deliberate one rather than a surprise.
+**Do not attach anything.** No capability statement, no CV. §1.6 and §6 both say
+marketing material should not be provided unless it supports a specific answer,
+and this is not an answer.
 
 ---
 
-## The clock, which is four hours out
+## What this episode is evidence for
 
-The portal header shows **Closing: 16/12/2026 5:00:00 PM GST (GMT +04:00)**. The
-letter says **17:00 GMT**. Gulf Standard Time is four hours ahead of GMT, so
-17:00 GST is 13:00 GMT — four hours earlier than the letter states.
+`business/strategy/the-bottleneck.md` concluded: twelve procurement threads, no
+revenue, every one blocked on the same locked door, so stop applying and sell
+one diagnostic.
 
-Almost certainly this is the timezone on the Aconex user profile rather than an
-error by WSP: Aconex displays deadlines in the viewing user's own zone. **Set the
-Aconex profile timezone to GMT before doing anything else**, then read the
-countdown again. Working a December deadline off a clock four hours wrong is an
-avoidable way to be excluded, and the letter's own warning about allowing time to
-upload exists because people do exactly that.
+**MaresConnect is the strongest possible example.** The gate was €500m of
+turnover in each of two audited years. No amount of documentation, insurance,
+accreditation or persistence was ever going to open it, and none of that was
+knowable until the PQQ arrived — an NDA, an Aconex registration and six weeks
+after the expression of interest.
 
-If the portal still disagrees with the letter after the profile is corrected, it
-is a second RFI — and a short one, because it affects every Candidate and
-pointing it out is the sort of thing a serious bidder does.
+The lesson is not that this was wasted. The relationship is intact, the NDA is
+executed, the process is understood, and WSP — who advise on a great many UK
+infrastructure procurements — now have a specialist on file who read a 61-page
+PQQ properly and declined it honestly in the same week.
 
----
-
-## The consortium question, and the NDA line around it
-
-The invitation is addressed to "your organisation / consortium", so a Candidate
-may bid as a consortium. In principle ETABLIX could sit inside an EPC consortium
-as the site-services member. Two cautions, and they are firm.
-
-**Do not use the Candidate list as a target list.** Who else was invited is
-confidential information received under the NDA. Approaching a firm because this
-procurement told you they are bidding is a use of confidential information for a
-purpose the NDA does not permit.
-
-**Clause 4.1.5 restricts initiating contact** with any representative, adviser,
-landlord, lender, customer or supplier of the Group in connection with the
-Proposed Transaction. It is limited to this transaction, so ordinary business
-development with the same firms on other work is unaffected — but anything about
-MaresConnect needs the written consent that clause 4.2 provides for, which is
-precisely what question 2 of the RFI asks about. Ask; do not assume either way.
+The lesson is about **where qualification is tested**. It is tested at PQQ, on
+audited accounts, and the answer is the same at every major EPC procurement in
+this sector. The diagnostic sale is not a smaller version of this route. It is
+the only route that does not have this door in it.
 
 ---
 
-## What is not in doubt
+## Two things to do once the decline is sent
 
-This remains the right relationship to hold even with no biddable LOT. The NDA is
-executed, Aconex access is live, the PQQ documents are in hand, and the procuring
-adviser is WSP — who advise on a great many UK infrastructure procurements, and
-for whom a specialist that declines honestly and asks a sharp question is a
-better contact than one that submits a hopeless PQQ.
+**Set a reminder for March 2028.** Not for the PQQ, which is over, but for the
+window between Preferred Bidder notification (28 April 2028) and pre-FID
+agreements (15 May 2028). That is when the enabling works counterparty becomes
+knowable, and it is the one date on this project that is still worth something.
+
+**Correct the Aconex profile timezone.** The portal rendered the close as 17:00
+GST against the document's 17:00 GMT — four hours apart. It is moot for this
+submission, but the same account will be used for the next procurement, and a
+deadline read four hours late is an avoidable exclusion.
