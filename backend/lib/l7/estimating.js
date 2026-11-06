@@ -528,8 +528,12 @@ export function evaluatedCost(raw = {}) {
  * The comparison table, and the one sentence that makes it worth producing:
  * whether the cheapest quote is also the cheapest evaluated cost.
  */
-export function compareQuotes(raws = []) {
+export function compareQuotes(raws = [], { when = null, extendedTo = null } = {}) {
   const quotes = (Array.isArray(raws) ? raws : []).map(evaluatedCost);
+  // Validity is reported beside the comparison and never used to drop a row.
+  // Removing a lapsed quote from the table changes the ranking silently,
+  // which is the one thing a comparison must not do.
+  const validity = when ? quoteValidity(raws, when, { extendedTo }) : null;
   const evaluable = quotes.filter((q) => q.evaluable);
   const quoted = quotes.filter((q) => q.value !== null);
   const byQuoted = [...quoted].sort((a, b) => a.value - b.value)[0] || null;
@@ -543,6 +547,7 @@ export function compareQuotes(raws = []) {
   return {
     quotes,
     complete,
+    validity,
     lowestQuoted: byQuoted ? { id: byQuoted.id, supplier: byQuoted.supplier, value: byQuoted.value } : null,
     lowestEvaluated: byEvaluated
       ? { id: byEvaluated.id, supplier: byEvaluated.supplier, evaluated: byEvaluated.evaluated }
@@ -559,6 +564,82 @@ export function compareQuotes(raws = []) {
         : inverted
           ? `THE LOWEST QUOTE IS NOT THE LOWEST COST: ${byQuoted.supplier} quoted lowest, ${byEvaluated.supplier} evaluates lowest`
           : `${byEvaluated.supplier} is lowest on both quoted price and evaluated cost`,
+    validitySay: validity ? validity.say : "validity not tested — no date supplied",
+  };
+}
+
+/**
+ * VALIDITY — the date on the quote that nobody reads until it matters.
+ *
+ * `normaliseQuote` carries `validUntil` through and, until now, nothing
+ * looked at it. That is the ordinary shape of this failure: the field exists,
+ * it is populated, it is on the comparison sheet, and no process asks the
+ * question it answers.
+ *
+ * The question is simple and it has a date in it. A bid submitted on the 16th
+ * against a quote that lapses on the 10th is a bid built on a price the
+ * supplier is no longer offering, and the first anybody hears of it is the
+ * conversation after award where the number has moved. Nothing has gone
+ * wrong procedurally. Every quote was obtained properly, compared properly
+ * and included properly, and the bid is still wrong.
+ *
+ * It gets worse on an extension. A buyer who asks for tender validity to run
+ * another ninety days is asking the bidder to hold a price built from
+ * supplier quotes that lapse inside that window — and the bidder who agrees
+ * without revalidating has given away the difference. The procedure's
+ * control is to revalidate before confirming, and this is the list of what
+ * must be revalidated.
+ *
+ * TWO THINGS IT REFUSES TO DO. A quote with no validity date is not treated
+ * as valid for ever; it is reported as unknown, which is the honest reading
+ * and the one that prompts somebody to ask. And a lapsed quote is never
+ * quietly dropped from a comparison — it stays in the table, marked, because
+ * removing it changes the ranking silently.
+ */
+export function quoteValidity(raws = [], when, { extendedTo = null } = {}) {
+  const at = instant(when);
+  const horizon = extendedTo ? instant(extendedTo) : at;
+  const quotes = (Array.isArray(raws) ? raws : []).map((raw) => {
+    const q = normaliseQuote(raw);
+    const until = q.validUntil ? instant(q.validUntil) : null;
+    if (at === null) {
+      return { ...q, validity: "UNKNOWN", lapsesBefore: null,
+               say: "no date to test validity against" };
+    }
+    if (until === null) {
+      return { ...q, validity: "UNSTATED", lapsesBefore: null,
+               say: "the quote states no validity date, which is not the same as being valid" };
+    }
+    if (until < at) {
+      return { ...q, validity: "LAPSED", lapsesBefore: true,
+               say: `lapsed on ${q.validUntil}, before the date it is being relied on` };
+    }
+    if (horizon !== null && until < horizon) {
+      return { ...q, validity: "LAPSES_IN_WINDOW", lapsesBefore: true,
+               say: `valid at submission but lapses on ${q.validUntil}, inside the validity period being held` };
+    }
+    return { ...q, validity: "VALID", lapsesBefore: false, say: `valid to ${q.validUntil}` };
+  });
+
+  const lapsed = quotes.filter((q) => q.validity === "LAPSED");
+  const inWindow = quotes.filter((q) => q.validity === "LAPSES_IN_WINDOW");
+  const unstated = quotes.filter((q) => q.validity === "UNSTATED");
+  const revalidate = [...lapsed, ...inWindow, ...unstated]
+    .map((q) => ({ id: q.id, supplier: q.supplier, validity: q.validity, validUntil: q.validUntil }));
+
+  return {
+    quotes,
+    lapsed: lapsed.length,
+    lapsesInWindow: inWindow.length,
+    unstated: unstated.length,
+    revalidate,
+    ok: revalidate.length === 0 && at !== null,
+    say: at === null
+      ? "no date supplied, so validity could not be tested"
+      : revalidate.length === 0
+        ? `all ${quotes.length} quote(s) hold${extendedTo ? ` to ${extendedTo}` : ""}`
+        : `${revalidate.length} of ${quotes.length} quote(s) must be revalidated before this price is confirmed`
+          + (lapsed.length ? ` — ${lapsed.length} already lapsed` : ""),
   };
 }
 

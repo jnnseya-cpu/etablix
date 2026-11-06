@@ -32,6 +32,8 @@ import { reconcileChecklistToResponse, bidNotes } from "./bidcheck.js";
 import { reconcilePaymentsToEarned, controlNotes } from "./controlcheck.js";
 import { reconcileRegisterToMovements, interfaceNotes } from "./interfacecheck.js";
 import { reconcileChallenge, challengeNotes } from "./challengecheck.js";
+import { reconcileTenderRegisters, checkSiteVisit, tenderNotes } from "./tendercheck.js";
+import { checkPosition, positionNotes } from "./positionguard.js";
 import { meter, callFromUsage, budgetFor, summarise } from "./l7/acu.js";
 import { deliveryBrief, DELIVERY_MODEL_FIELD } from "../../shared/constants.js";
 
@@ -1095,13 +1097,59 @@ function withPackCheck(result) {
  * Neither is something to leave to somebody's eye at eleven o'clock the night
  * before the deadline, which is exactly when a bid file is read.
  */
-function withBidCheck(result) {
+function withBidCheck(result, inputs = {}) {
   const { data } = splitPipelineOutput(result.output, BR.SECTIONS);
   const check = reconcileChecklistToResponse(data[BR.CHECKLIST_SECTION] || "", data[BR.RESPONSE_SECTION] || "");
+
+  /**
+   * THE SECOND AND THIRD READINGS OF THE SAME BID FILE.
+   *
+   * The checklist reconciliation above asks whether everything required was
+   * answered. It does not ask whether the uncertainty registers agree with
+   * each other, and it does not ask whether the document claims something
+   * the company may not claim. Those are different questions with different
+   * failure modes, and both are invisible to a reader who finds each section
+   * individually correct.
+   *
+   * The tender registers reconcile the five record types: an answered
+   * clarification that landed nowhere, an open one carried nowhere, a limit
+   * the buyer cannot see, a risk funded twice or not at all.
+   *
+   * The position guard reads the whole output for the three claims this
+   * business must never make. It is the first time those prohibitions are
+   * checked in what the system writes rather than only stated in what it is
+   * told.
+   */
+  const registers = reconcileTenderRegisters({
+    clarifications: data.b5 || "",
+    assumptions: data.b6 || "",
+    risks: data.b6 || "",
+    qualifications: data.b6 || "",
+    opportunities: data.b6 || "",
+  });
+  const visit = checkSiteVisit({
+    visited: /\bno\b/i.test(String(inputs.sitevisit || "")) && !/\byes\b/i.test(String(inputs.sitevisit || ""))
+      ? "no"
+      : (inputs.sitevisit ? "yes" : null),
+    date: inputs.sitevisit || "",
+    observations: inputs.observations || "",
+    pricedBlind: inputs.pricedblind || "",
+  });
+  const position = checkPosition(result.output || "");
+
   return {
     ...result,
     bidCheck: check,
-    notes: [...bidNotes(check), ...(result.notes || [])],
+    tenderCheck: registers,
+    siteVisitCheck: visit,
+    positionCheck: position,
+    notes: [
+      ...bidNotes(check),
+      ...tenderNotes(registers),
+      ...(visit.ok ? [] : [`SITE VISIT — ${visit.say}.`]),
+      ...positionNotes(position),
+      ...(result.notes || []),
+    ],
   };
 }
 
@@ -1225,7 +1273,7 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
       resume,
     });
     if (agentId === "tender-pack") return withPackCheck(result);
-    if (agentId === "bid") return withBidCheck(result);
+    if (agentId === "bid") return withBidCheck(result, inputs);
     if (agentId === "controls") return withControlCheck(result);
     if (agentId === "design") return withInterfaceCheck(result);
     if (agentId === "challenge") return withChallengeCheck(result);

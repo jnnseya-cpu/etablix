@@ -27,7 +27,7 @@ import {
 import {
   RATE_COMPONENTS, VALUE_CONTROLS, dimensionOf, applyMarkups,
   detectDoubleMarkup, checkRiskRelease, checkOverride, checkValueControls,
-  assure, checkBuildUp, normaliseQuote, evaluatedCost, compareQuotes,
+  assure, checkBuildUp, normaliseQuote, evaluatedCost, compareQuotes, quoteValidity,
 } from "../lib/l7/estimating.js";
 import {
   LENSES, SEVERITIES, finding, checkIndependence, checkDisposition, review,
@@ -363,6 +363,45 @@ ok(!checkOverride({ reason: "r", role: "CD", oldValue: 1, newValue: 2, at: "when
   const n = normaliseQuote(A);
   ok(n.exclusions.length === 2 && n.comparable === false,
      "normaliseQuote still reports what it always did");
+}
+
+/**
+ * The date on the quote that nobody reads until it matters. normaliseQuote
+ * has always carried validUntil and nothing has ever looked at it.
+ */
+{
+  const qs = [
+    { id: "Q1", supplier: "Alpha", value: 220000, validUntil: "2026-12-10" },
+    { id: "Q2", supplier: "Beta", value: 242000, validUntil: "2027-03-01" },
+    { id: "Q3", supplier: "Gamma", value: 250000 },
+  ];
+
+  const atSubmission = quoteValidity(qs, "2026-12-16");
+  ok(atSubmission.lapsed === 1,
+     "A QUOTE THAT LAPSED BEFORE THE BID WAS SUBMITTED — every step was done properly and the price is still wrong",
+     atSubmission.say);
+  ok(atSubmission.unstated === 1,
+     "and a quote with no validity date is unstated, not valid for ever", atSubmission.unstated);
+  ok(atSubmission.revalidate.length === 2 && !atSubmission.ok,
+     "both go on the revalidation list", atSubmission.revalidate);
+
+  // The extension is where the money goes quietly.
+  const held = quoteValidity(qs, "2026-11-20", { extendedTo: "2027-02-01" });
+  ok(held.lapsesInWindow === 1,
+     "AGREEING AN EXTENSION HOLDS A PRICE BUILT FROM QUOTES THAT LAPSE INSIDE IT", held.say);
+  ok(quoteValidity(qs, "2026-11-20").lapsesInWindow === 0,
+     "and without an extension the same quote is simply valid");
+
+  ok(!quoteValidity(qs, "whenever").ok && /no date supplied/.test(quoteValidity(qs, "whenever").say),
+     "an unreadable reference date tests nothing and says so", quoteValidity(qs, "whenever").say);
+
+  // A lapsed quote stays in the comparison. Dropping it changes the ranking
+  // silently, which is the one thing a comparison must not do.
+  const c = compareQuotes(qs, { when: "2026-12-16" });
+  ok(c.quotes.length === 3, "every quote stays in the table, lapsed or not", c.quotes.length);
+  ok(/1 already lapsed/.test(c.validitySay), "with validity reported beside the ranking", c.validitySay);
+  ok(compareQuotes(qs).validity === null && /not tested/.test(compareQuotes(qs).validitySay),
+     "and compareQuotes without a date behaves exactly as it did before");
 }
 
 {

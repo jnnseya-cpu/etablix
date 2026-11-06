@@ -256,6 +256,19 @@ State the deadline for raising clarifications and how many working days are
 left to it. A clarification schedule delivered after the window closes is a
 list of things we now have to price as risks.
 
+Set the schedule out as a table with these columns, in this order, because the
+registers are reconciled against each other by machine after you have written:
+
+| Ref | Question | Status | What changed | Carried to |
+
+References are CL-1, CL-2 and so on. Status is one of RAISED, ANSWERED,
+UNANSWERED or WITHDRAWN and nothing else. For an ANSWERED row, "What changed"
+names the estimate line, the programme activity or the document the answer
+moved — or says NO CHANGE in those words. For a RAISED or UNANSWERED row at
+the cut-off, "Carried to" names the AS, RK or QU reference the question
+becomes, because an unanswered question is priced by somebody either way and a
+bid that submits one as still open has priced it by accident.
+
 ## 6 · Bid position and risk
 The commercial reading, for the bid owner.
 
@@ -282,6 +295,22 @@ by one organisation at a time, so neither arrives by accident — but contractor
 duties follow conduct. If the invitation would make us Principal Contractor,
 say so in terms, because that is a priced and insured decision and not a
 paperwork detail.
+
+**The assumptions, as a table.** | Ref | Assumption | Basis | Limits the offer |
+Qualification | — references AS-1, AS-2 and so on. "Limits the offer" is Yes or
+No. Where it is Yes the row names the QU reference that puts the limit in front
+of the buyer, because an assumption that narrows what is being offered and
+never reaches the qualifications schedule is a departure only the evaluator
+discovers.
+
+**The risks, as a table.** | Ref | Cause, event, impact | Allowance sits |
+Value | Treatment | Accepted by | — references RK-1, RK-2 and so on.
+"Allowance sits" is exactly one of PACKAGE QUOTE, CENTRAL CONTINGENCY, BASE
+ESTIMATE or NONE. Naming two is the double count: the same exposure funded
+twice makes the bid dearer by an amount nobody can find afterwards. A row with
+no value, no contractual treatment and nobody's acceptance is a record of a
+worry rather than a funded response, and NONE must be a decision somebody took
+rather than a blank nobody filled.
 
 **Bid, no-bid, or bid with conditions.** A recommendation, with the two or
 three facts it rests on. This is a recommendation to a named person who
@@ -421,6 +450,16 @@ export const FIELDS = [
   { name: "portal", label: "How and where the bid is returned — portal, address, file naming, upload limits", type: "textarea" },
   { name: "history", label: "Our history with this client and this framework, and anything already known about the competition", type: "textarea" },
   { name: "constraints", label: "What we will not accept — liability, indemnity, payment terms, scope we do not deliver", type: "textarea" },
+  // THE SITE VISIT, AND THE DISTINCTION THE RECORD EXISTS FOR.
+  //
+  // Not visiting is a permitted answer and often the right one. Not saying
+  // whether you visited is not, and neither is a note that does not separate
+  // what was seen from what somebody said on the day. In a dispute the only
+  // question about a site observation is which of the three it was, and the
+  // answer is decided by how it was written down at the time.
+  { name: "sitevisit", label: "Site visit — was one made, and on what date? If none was made, say so", type: "text" },
+  { name: "observations", label: "What the visit established. Begin every line OBSERVED, STATED or UNCONFIRMED — seen by us, told to us, or still to be confirmed", type: "textarea" },
+  { name: "pricedblind", label: "If no visit was made: what has been priced without seeing it", type: "textarea" },
 ];
 
 export const SECTIONS = [
