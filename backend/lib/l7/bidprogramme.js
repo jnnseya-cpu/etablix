@@ -190,6 +190,7 @@ export function checkBidProgramme({
   } else {
     estimateFreeze = { dated: true, passed: true, say: `the estimate froze on ${dates.estimate}` };
   }
+  estimateFreeze.judgedAt = today ? String(today) : null;
   estimateFreeze.orderFaults = estimateOrderFaults.length;
   if (estimateOrderFaults.length) {
     estimateFreeze.say += `; and it is programmed to freeze before ${estimateOrderFaults
@@ -246,7 +247,7 @@ export function programmeNotes(result) {
 }
 
 /**
- * The facts the G4 price release gate reads.
+ * The facts the G4 price release gate and the G5 submission gate read.
  *
  * Deliberately two, and deliberately not `faults`. Handing the gate the whole
  * fault count would make a price release wait on a named owner for the site
@@ -257,7 +258,19 @@ export function programmeNotes(result) {
  * Returns an empty object for a missing result, so the gate reports the fact
  * as unknown rather than reading a default. A gate does not pass on a missing
  * fact, and "the bid programme was never checked" is exactly the state in
- * which a price should not be released.
+ * which a price should neither be released nor sent.
+ *
+ * BOTH GATES READ THE SAME TWO FACTS AND MEAN DIFFERENT THINGS BY THEM. G4
+ * will not approve a figure from an estimate that is still moving; G5 will
+ * not send a figure the approval no longer covers, because the freeze was
+ * slipped to take in a late quotation after the price was released.
+ *
+ * `freezeJudgedAt` is the reference date the freeze was judged against. It is
+ * not a gate condition — there is no way to express "recently enough" in a
+ * declarative equality — and it is carried because a boolean read twice from
+ * one computation proves nothing at the second read. On the decision event a
+ * person can see the freeze was judged against a date three weeks old, which
+ * is the only signal available that the fact was not recomputed.
  */
 export function gateFacts(result) {
   if (!result || !result.estimateFreeze) return {};
@@ -265,6 +278,7 @@ export function gateFacts(result) {
     bidProgramme: {
       estimateFreezePassed: result.estimateFreeze.passed === true,
       estimateOrderFaults: result.estimateFreeze.orderFaults ?? 0,
+      freezeJudgedAt: result.estimateFreeze.judgedAt ?? null,
     },
   };
 }

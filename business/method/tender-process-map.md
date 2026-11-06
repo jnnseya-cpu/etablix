@@ -32,7 +32,7 @@ BASELINE_HANDED_OVER → CLOSED.
 |---|---|---|
 | 1 · Receive, record, secure | `PACK_INGESTED`; bid file parts b1–b3 (requirements register, compliance matrix, submission checklist and timetable) | Document register and returnables are the agent's first pass |
 | 2 · Bid / no-bid | `QUALIFIED → DECIDED_PURSUE`, gate **G0_PURSUE**, engine `l7/bidscore.js` | Blocks unless the score has been run **and** no hard stop is unresolved |
-| 3 · Mobilise the bid team, work backwards | `l7/bidprogramme.js`, read by gate **G4_PRICE_RELEASE** | Blocks a price release on an estimate that has not frozen, or one programmed to freeze before what it prices |
+| 3 · Mobilise the bid team, work backwards | `l7/bidprogramme.js`, read by gates **G4_PRICE_RELEASE** and **G5_SUBMISSION_RELEASE** | Blocks a price release on an estimate that has not frozen, or one programmed to freeze before what it prices — and blocks the submission again on the same two facts, because the approval must still cover what is being sent |
 | 4.1 · Who does every part of the job | `SCOPE_DECOMPOSED`, gate **G2_SCOPE_FREEZE** | Blocks on any unallocated scope item, and on any interface *excluded by both sides* |
 | 4.2 · Read the contract for exposure | `CONTRACT_POSITIONED`, gate **G3_CONTRACT_POSITION**, `l7/clauses.js` | Blocks on an unreviewed clause or an open high-severity contract finding |
 | 4.3 · Site visit with a pricing agenda | `checkSiteVisit` in `tendercheck.js`, plus three fields on the bid agent | Reports an unrecorded visit, an observation that does not say whether it was observed, stated or unconfirmed, and a bid with no visit that does not name what was priced blind |
@@ -40,7 +40,7 @@ BASELINE_HANDED_OVER → CLOSED.
 | 6 · Programme before price | `PROGRAMMED`, before `PRICED` | The order is the lifecycle's, not a convention |
 | 7 · Supply-chain prices and the estimate | `l7/estimating.js` — `applyMarkups`, `detectDoubleMarkup`, `checkRiskRelease`, `normaliseQuote`; the priced schedule read back by `estimateofrecord.js` | Arithmetic is a deterministic service; no model may assert a total, and the bid's registers are checked against the schedule the engine admitted rather than a retyped copy of it |
 | 8 · Technical offer against the scoring | `COMPOSED`; bid file b4, reconciled by `bidcheck.js` | A required deliverable with no response is caught by machine |
-| 9 · Settle, approve, submit | `PRICE_RELEASED` gate **G4**, `CONSISTENT → SUBMITTED` gate **G5** | G4 blocks on unapproved cost items, P80 margin below policy, arithmetic faults, an estimate that has not frozen, and an estimate programmed to freeze before what it prices. G5 blocks on an unbacked claim, a critical finding, or a price that does not reconcile |
+| 9 · Settle, approve, submit | `PRICE_RELEASED` gate **G4**, `CONSISTENT → SUBMITTED` gate **G5** | G4 blocks on unapproved cost items, P80 margin below policy, arithmetic faults, an estimate that has not frozen, and an estimate programmed to freeze before what it prices. G5 blocks on an unbacked claim, a critical finding, a price that does not reconcile, and — reading the same two programme facts again — an estimate that is no longer frozen or whose freeze has moved since the price was released |
 | 10 · Control the bid after submission | `CLARIFYING`, `BAFO`, `OUTCOME_RECORDED`, `quoteValidity()` in `l7/estimating.js` | Quotes are tested against the validity period being offered, so a lapse inside it is found before the extension is confirmed |
 | 11 · Reconcile and hand to operations | `BASELINE_HANDED_OVER` gate **G6_AWARD**, then `CLOSED` gate **G7_LESSONS** | A win cannot reach closed without passing through the handover and the lessons gate. A no-bid closes from QUALIFIED and a loss from OUTCOME_RECORDED, both ungated — deliberately: a decision not to bid is a decision, not a failure |
 
@@ -96,6 +96,31 @@ facts that matter stop being enforced along with the rest. And because a
 missing fact fails a gate rather than defaulting, a bid with no production
 programme at all is refused at G4 — which is the correct answer to "we never
 wrote one".
+
+**G5 reads the same two facts, and means something different by them.** G4
+will not approve a figure from an estimate that is still moving. G5 will not
+*send* a figure the approval no longer covers — which is the job
+`price.reconciles` already does for the figure itself, and the estimate freeze
+is the other half of the same question. The failure it catches is ordinary and
+nobody's fault in particular: a late quotation arrives after the price is
+released, the freeze is slipped a week to take it in, the estimate is reworked,
+and the submission goes out against a figure G4 never saw. Every individual act
+was reasonable and the approval has stopped covering the bid.
+
+The two gates refuse in different words, deliberately and with a test pinning
+it: a refusal that explains the wrong thing sends somebody to fix the wrong
+document.
+
+**What the second read does not do.** A gate reading a boolean twice catches a
+regression only if the fact is *recomputed* from the programme between the two
+reads. A caller that computes `gateFacts()` once and hands the same object to
+both gates has proved nothing at the second, and no declarative condition can
+tell the difference — "recently enough" is not an equality. So
+`bidProgramme.freezeJudgedAt` carries the reference date onto the decision
+event, where a person can see the freeze was judged against a date three weeks
+old. The gate does not police it, and there is a test asserting that a fact
+judged eleven months ago still passes — recording that the gate cannot tell,
+rather than implying it can.
 
 ### Gap 2 — the site visit as a bid input
 

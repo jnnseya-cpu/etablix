@@ -181,6 +181,30 @@ export const GATES = [
       { kind: "redteam", lens: "any", severity: "CRITICAL", say: "an open critical finding" },
       { kind: "fact", fact: "evidence.unbackedClaims", is: 0, say: "a claim in the submission has no approved evidence" },
       { kind: "fact", fact: "price.reconciles", is: true, say: "the submitted price does not reconcile to the approved price" },
+      // THE SAME TWO PROGRAMME FACTS AS G4, READ AGAIN, FOR A DIFFERENT REASON.
+      //
+      // G4 reads them to stop a price being APPROVED from an estimate that is
+      // still moving. G5 reads them to stop a price being SENT that is no
+      // longer the price that was approved — which is the job the requirement
+      // above it already does for the figure itself, and the estimate freeze
+      // is the other half of the same question.
+      //
+      // The failure this catches is ordinary and it is nobody's fault in
+      // particular: a late quotation arrives after the price is released, the
+      // estimate freeze is slipped a week to take it in, the estimate is
+      // reworked, and the submission goes out against a figure G4 never saw.
+      // Every individual act was reasonable and the approval no longer covers
+      // what is being sent.
+      //
+      // WHAT THIS DOES NOT DO. A gate reading a boolean twice catches a
+      // regression only if the fact is RECOMPUTED from the programme between
+      // the two reads. A caller that computes gateFacts() once and hands the
+      // same object to both gates has proved nothing at the second, and no
+      // condition here can tell the difference. `bidProgramme.freezeJudgedAt`
+      // is carried so that the date the freeze was judged against is on the
+      // decision event, where a person can see it is three weeks old.
+      { kind: "fact", fact: "bidProgramme.estimateFreezePassed", is: true, say: "the estimate is not frozen at submission, so what is being sent is not what the price release approved" },
+      { kind: "fact", fact: "bidProgramme.estimateOrderFaults", is: 0, say: "the estimate freeze now sits before something it prices, so the programme has moved since the price was released" },
       { kind: "approval", roles: ["SUBMISSION_SIGNATORY"], quorum: 1, segregation: true, authorityForValue: true },
     ],
   },

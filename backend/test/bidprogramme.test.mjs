@@ -198,5 +198,99 @@ const APPROVED = { approvals: [{ by: "u2", role: "COMMERCIAL_AUTHORITY", decisio
   ok(v.ok, "AND THE PRICE GATE STILL PASSES — it reads the estimate, not the whole plan", v.failures);
 }
 
+console.log("\n=== and G5 reads the same two facts, for a different reason ===\n");
+//
+// G4 stops a price being APPROVED from an estimate that is still moving. G5
+// stops a price being SENT that the approval no longer covers — a late
+// quotation lands, the freeze is slipped a week to take it in, the estimate
+// is reworked, and the submission goes out against a figure G4 never saw.
+const G5_OTHERWISE_CLEAN = {
+  manifest: { hardGateFailures: 0 },
+  findings: [],
+  evidence: { unbackedClaims: 0 },
+  price: { reconciles: true },
+};
+const SIGNED = {
+  approvals: [{ by: "u3", role: "SUBMISSION_SIGNATORY", decision: "APPROVED" }],
+  author: "u1",
+  value: 0,
+  signatoryLimits: { u3: Infinity },
+};
+{
+  const frozen = checkBidProgramme({ activities: GOOD, buyerDeadline: "2026-12-16", today: "2026-12-02" });
+  const v = evaluate("G5_SUBMISSION_RELEASE", { ...G5_OTHERWISE_CLEAN, ...gateFacts(frozen) }, SIGNED);
+  ok(v.ok, "a submission off a frozen programme passes the submission gate", v.failures);
+}
+{
+  // The regression the second read exists for: G4 passed in week one, and by
+  // submission the freeze has been moved out past today.
+  const slipped = checkBidProgramme({
+    activities: { ...GOOD, estimate: A("2026-12-14") },
+    buyerDeadline: "2026-12-16", today: "2026-12-02",
+  });
+  const v = evaluate("G5_SUBMISSION_RELEASE", { ...G5_OTHERWISE_CLEAN, ...gateFacts(slipped) }, SIGNED);
+  ok(!v.ok, "A FREEZE SLIPPED AFTER THE PRICE WAS RELEASED DOES NOT SUBMIT");
+  ok(v.failures.some((f) => /what the price release approved/.test(f.reason)),
+     "and G5 refuses in ITS OWN terms — the figure is no longer the one that was approved, which sends somebody to the right document",
+     v.failures.map((f) => f.reason));
+}
+{
+  // The same fault at the two gates must not produce the same sentence: a
+  // refusal that explains the wrong thing sends somebody to fix the wrong
+  // document.
+  const moving = checkBidProgramme({ activities: GOOD, buyerDeadline: "2026-12-16", today: "2026-11-21" });
+  const facts = gateFacts(moving);
+  const g4 = evaluate("G4_PRICE_RELEASE", { ...G4_OTHERWISE_CLEAN, ...facts }, APPROVED);
+  const g5 = evaluate("G5_SUBMISSION_RELEASE", { ...G5_OTHERWISE_CLEAN, ...facts }, SIGNED);
+  const r4 = g4.failures.find((f) => /estimateFreezePassed/.test(f.requirement))?.reason;
+  const r5 = g5.failures.find((f) => /estimateFreezePassed/.test(f.requirement))?.reason;
+  ok(!g4.ok && !g5.ok, "both gates refuse the same unfrozen estimate");
+  ok(r4 && r5 && r4 !== r5, "AND THEY SAY DIFFERENT THINGS ABOUT IT", { g4: r4, g5: r5 });
+  ok(/will be submitted/.test(r4), "G4 refuses about approving a figure that will change", r4);
+  ok(/no longer the price that was approved|price release approved/.test(r5),
+     "G5 refuses about sending a figure the approval no longer covers", r5);
+}
+{
+  const inverted = checkBidProgramme({
+    activities: { ...GOOD, estimate: A("2026-11-12") },
+    buyerDeadline: "2026-12-16", today: "2026-12-02",
+  });
+  const v = evaluate("G5_SUBMISSION_RELEASE", { ...G5_OTHERWISE_CLEAN, ...gateFacts(inverted) }, SIGNED);
+  ok(!v.ok && v.failures.some((f) => /the programme has moved since the price was released/.test(f.reason)),
+     "an inverted freeze does not submit either, and the refusal names the movement", v.failures.map((f) => f.reason));
+}
+{
+  const v = evaluate("G5_SUBMISSION_RELEASE", G5_OTHERWISE_CLEAN, SIGNED);
+  ok(!v.ok && v.failures.some((f) => f.unknown && /estimateFreezePassed/.test(f.requirement)),
+     "AND A SUBMISSION WITH NO PRODUCTION PROGRAMME IS REFUSED AS UNKNOWN at G5 as well",
+     v.failures.map((f) => f.requirement));
+}
+{
+  // The fault neither gate blocks on, checked at G5 too, because the argument
+  // for keeping the gates narrow has to hold at both of them.
+  const unowned = checkBidProgramme({
+    activities: { ...GOOD, surveys: { date: "2026-11-18", owner: "Commercial" } },
+    buyerDeadline: "2026-12-16", today: "2026-12-02",
+  });
+  const v = evaluate("G5_SUBMISSION_RELEASE", { ...G5_OTHERWISE_CLEAN, ...gateFacts(unowned) }, SIGNED);
+  ok(v.ok, "an unowned activity still does not stop a submission — both gates read the estimate, not the whole plan", v.failures);
+}
+
+console.log("\n=== the date the freeze was judged against is carried, not asserted ===\n");
+{
+  const r = checkBidProgramme({ activities: GOOD, buyerDeadline: "2026-12-16", today: "2026-12-02" });
+  ok(gateFacts(r).bidProgramme.freezeJudgedAt === "2026-12-02",
+     "the reference date travels with the fact", gateFacts(r).bidProgramme);
+  ok(gateFacts(checkBidProgramme({ activities: GOOD, buyerDeadline: "2026-12-16" })).bidProgramme.freezeJudgedAt === null,
+     "and is null when there was none, rather than today invented for it");
+  // It is NOT a gate condition. A boolean read twice from one computation
+  // proves nothing at the second read, and no declarative equality can
+  // express "recently enough" — so the date is on the decision event for a
+  // person to notice, and the gate does not pretend to police it.
+  const stale = { ...G5_OTHERWISE_CLEAN, bidProgramme: { estimateFreezePassed: true, estimateOrderFaults: 0, freezeJudgedAt: "2026-01-01" } };
+  ok(evaluate("G5_SUBMISSION_RELEASE", stale, SIGNED).ok,
+     "A FACT JUDGED ELEVEN MONTHS AGO STILL PASSES — the gate cannot tell, and this records that it cannot rather than implying it can");
+}
+
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);
