@@ -160,12 +160,12 @@ const G4_OTHERWISE_CLEAN = {
 const APPROVED = { approvals: [{ by: "u2", role: "COMMERCIAL_AUTHORITY", decision: "APPROVED" }], author: "u1" };
 {
   const frozen = checkBidProgramme({ activities: GOOD, buyerDeadline: "2026-12-16", today: "2026-12-02" });
-  const v = evaluate("G4_PRICE_RELEASE", { ...G4_OTHERWISE_CLEAN, ...gateFacts(frozen) }, APPROVED);
+  const v = evaluate("G4_PRICE_RELEASE", { ...G4_OTHERWISE_CLEAN, ...gateFacts(frozen) }, APPROVED, { at: "2026-12-02" });
   ok(v.ok, "a clean estimate on a frozen programme passes the price gate", v.failures);
 }
 {
   const moving = checkBidProgramme({ activities: GOOD, buyerDeadline: "2026-12-16", today: "2026-11-21" });
-  const v = evaluate("G4_PRICE_RELEASE", { ...G4_OTHERWISE_CLEAN, ...gateFacts(moving) }, APPROVED);
+  const v = evaluate("G4_PRICE_RELEASE", { ...G4_OTHERWISE_CLEAN, ...gateFacts(moving) }, APPROVED, { at: "2026-11-21" });
   ok(!v.ok, "AN UNFROZEN ESTIMATE DOES NOT RELEASE A PRICE");
   ok(v.failures.some((f) => /will be submitted/.test(f.reason)),
      "and the refusal names what is wrong rather than refusing", v.failures.map((f) => f.reason));
@@ -175,12 +175,12 @@ const APPROVED = { approvals: [{ by: "u2", role: "COMMERCIAL_AUTHORITY", decisio
     activities: { ...GOOD, estimate: A("2026-11-12") },
     buyerDeadline: "2026-12-16", today: "2026-12-02",
   });
-  const v = evaluate("G4_PRICE_RELEASE", { ...G4_OTHERWISE_CLEAN, ...gateFacts(inverted) }, APPROVED);
+  const v = evaluate("G4_PRICE_RELEASE", { ...G4_OTHERWISE_CLEAN, ...gateFacts(inverted) }, APPROVED, { at: "2026-12-02" });
   ok(!v.ok && v.failures.some((f) => /before something it prices/.test(f.reason)),
      "A FREEZE BEFORE WHAT IT PRICES DOES NOT RELEASE A PRICE EITHER", v.failures.map((f) => f.reason));
 }
 {
-  const v = evaluate("G4_PRICE_RELEASE", G4_OTHERWISE_CLEAN, APPROVED);
+  const v = evaluate("G4_PRICE_RELEASE", G4_OTHERWISE_CLEAN, APPROVED, { at: "2026-12-02" });
   ok(!v.ok && v.failures.some((f) => f.unknown && /estimateFreezePassed/.test(f.requirement)),
      "AND A BID WITH NO PRODUCTION PROGRAMME AT ALL IS REFUSED AS UNKNOWN, not passed by default",
      v.failures.map((f) => f.requirement));
@@ -194,7 +194,7 @@ const APPROVED = { approvals: [{ by: "u2", role: "COMMERCIAL_AUTHORITY", decisio
     buyerDeadline: "2026-12-16", today: "2026-12-02",
   });
   ok(unowned.faults > 0, "the unowned activity is still a fault", unowned.unowned);
-  const v = evaluate("G4_PRICE_RELEASE", { ...G4_OTHERWISE_CLEAN, ...gateFacts(unowned) }, APPROVED);
+  const v = evaluate("G4_PRICE_RELEASE", { ...G4_OTHERWISE_CLEAN, ...gateFacts(unowned) }, APPROVED, { at: "2026-12-02" });
   ok(v.ok, "AND THE PRICE GATE STILL PASSES — it reads the estimate, not the whole plan", v.failures);
 }
 
@@ -218,7 +218,7 @@ const SIGNED = {
 };
 {
   const frozen = checkBidProgramme({ activities: GOOD, buyerDeadline: "2026-12-16", today: "2026-12-02" });
-  const v = evaluate("G5_SUBMISSION_RELEASE", { ...G5_OTHERWISE_CLEAN, ...gateFacts(frozen) }, SIGNED);
+  const v = evaluate("G5_SUBMISSION_RELEASE", { ...G5_OTHERWISE_CLEAN, ...gateFacts(frozen) }, SIGNED, { at: "2026-12-02" });
   ok(v.ok, "a submission off a frozen programme passes the submission gate", v.failures);
 }
 {
@@ -228,7 +228,7 @@ const SIGNED = {
     activities: { ...GOOD, estimate: A("2026-12-14") },
     buyerDeadline: "2026-12-16", today: "2026-12-02",
   });
-  const v = evaluate("G5_SUBMISSION_RELEASE", { ...G5_OTHERWISE_CLEAN, ...gateFacts(slipped) }, SIGNED);
+  const v = evaluate("G5_SUBMISSION_RELEASE", { ...G5_OTHERWISE_CLEAN, ...gateFacts(slipped) }, SIGNED, { at: "2026-12-02" });
   ok(!v.ok, "A FREEZE SLIPPED AFTER THE PRICE WAS RELEASED DOES NOT SUBMIT");
   ok(v.failures.some((f) => /what the price release approved/.test(f.reason)),
      "and G5 refuses in ITS OWN terms — the figure is no longer the one that was approved, which sends somebody to the right document",
@@ -240,8 +240,8 @@ const SIGNED = {
   // document.
   const moving = checkBidProgramme({ activities: GOOD, buyerDeadline: "2026-12-16", today: "2026-11-21" });
   const facts = gateFacts(moving);
-  const g4 = evaluate("G4_PRICE_RELEASE", { ...G4_OTHERWISE_CLEAN, ...facts }, APPROVED);
-  const g5 = evaluate("G5_SUBMISSION_RELEASE", { ...G5_OTHERWISE_CLEAN, ...facts }, SIGNED);
+  const g4 = evaluate("G4_PRICE_RELEASE", { ...G4_OTHERWISE_CLEAN, ...facts }, APPROVED, { at: "2026-11-21" });
+  const g5 = evaluate("G5_SUBMISSION_RELEASE", { ...G5_OTHERWISE_CLEAN, ...facts }, SIGNED, { at: "2026-11-21" });
   const r4 = g4.failures.find((f) => /estimateFreezePassed/.test(f.requirement))?.reason;
   const r5 = g5.failures.find((f) => /estimateFreezePassed/.test(f.requirement))?.reason;
   ok(!g4.ok && !g5.ok, "both gates refuse the same unfrozen estimate");
@@ -255,12 +255,12 @@ const SIGNED = {
     activities: { ...GOOD, estimate: A("2026-11-12") },
     buyerDeadline: "2026-12-16", today: "2026-12-02",
   });
-  const v = evaluate("G5_SUBMISSION_RELEASE", { ...G5_OTHERWISE_CLEAN, ...gateFacts(inverted) }, SIGNED);
+  const v = evaluate("G5_SUBMISSION_RELEASE", { ...G5_OTHERWISE_CLEAN, ...gateFacts(inverted) }, SIGNED, { at: "2026-12-02" });
   ok(!v.ok && v.failures.some((f) => /the programme has moved since the price was released/.test(f.reason)),
      "an inverted freeze does not submit either, and the refusal names the movement", v.failures.map((f) => f.reason));
 }
 {
-  const v = evaluate("G5_SUBMISSION_RELEASE", G5_OTHERWISE_CLEAN, SIGNED);
+  const v = evaluate("G5_SUBMISSION_RELEASE", G5_OTHERWISE_CLEAN, SIGNED, { at: "2026-12-02" });
   ok(!v.ok && v.failures.some((f) => f.unknown && /estimateFreezePassed/.test(f.requirement)),
      "AND A SUBMISSION WITH NO PRODUCTION PROGRAMME IS REFUSED AS UNKNOWN at G5 as well",
      v.failures.map((f) => f.requirement));
@@ -272,24 +272,95 @@ const SIGNED = {
     activities: { ...GOOD, surveys: { date: "2026-11-18", owner: "Commercial" } },
     buyerDeadline: "2026-12-16", today: "2026-12-02",
   });
-  const v = evaluate("G5_SUBMISSION_RELEASE", { ...G5_OTHERWISE_CLEAN, ...gateFacts(unowned) }, SIGNED);
+  const v = evaluate("G5_SUBMISSION_RELEASE", { ...G5_OTHERWISE_CLEAN, ...gateFacts(unowned) }, SIGNED, { at: "2026-12-02" });
   ok(v.ok, "an unowned activity still does not stop a submission — both gates read the estimate, not the whole plan", v.failures);
 }
 
-console.log("\n=== the date the freeze was judged against is carried, not asserted ===\n");
+console.log("\n=== and the gate can now tell a recomputed fact from a cached one ===\n");
+//
+// This is what makes reading the same boolean at two gates worth anything. A
+// cached `true` is indistinguishable from a `true`, so the facts carry the
+// date they were judged against and the gate compares it to the time the
+// decision is being recorded.
+const FRESH_REQ = (v) => v.failures.find((f) => /freezeJudgedAt/.test(f.requirement));
 {
   const r = checkBidProgramme({ activities: GOOD, buyerDeadline: "2026-12-16", today: "2026-12-02" });
   ok(gateFacts(r).bidProgramme.freezeJudgedAt === "2026-12-02",
      "the reference date travels with the fact", gateFacts(r).bidProgramme);
   ok(gateFacts(checkBidProgramme({ activities: GOOD, buyerDeadline: "2026-12-16" })).bidProgramme.freezeJudgedAt === null,
      "and is null when there was none, rather than today invented for it");
-  // It is NOT a gate condition. A boolean read twice from one computation
-  // proves nothing at the second read, and no declarative equality can
-  // express "recently enough" — so the date is on the decision event for a
-  // person to notice, and the gate does not pretend to police it.
-  const stale = { ...G5_OTHERWISE_CLEAN, bidProgramme: { estimateFreezePassed: true, estimateOrderFaults: 0, freezeJudgedAt: "2026-01-01" } };
-  ok(evaluate("G5_SUBMISSION_RELEASE", stale, SIGNED).ok,
-     "A FACT JUDGED ELEVEN MONTHS AGO STILL PASSES — the gate cannot tell, and this records that it cannot rather than implying it can");
+}
+{
+  // THE DEFECT THE WHOLE MECHANISM EXISTS FOR. G4 ran in week one and passed.
+  // The submission carries G4's facts, unchanged, three weeks later. Both
+  // booleans still say the estimate is frozen, and nothing was re-read.
+  const g4Facts = gateFacts(checkBidProgramme({ activities: GOOD, buyerDeadline: "2026-12-16", today: "2026-11-21" }));
+  const v = evaluate("G5_SUBMISSION_RELEASE", { ...G5_OTHERWISE_CLEAN, ...g4Facts }, SIGNED, { at: "2026-12-12" });
+  ok(!v.ok, "A SUBMISSION CARRYING THE PRICE RELEASE'S OWN FACTS IS REFUSED");
+  ok(/not re-read for this submission/.test(FRESH_REQ(v)?.reason || ""),
+     "and the refusal says the programme was not re-read, not that the estimate is wrong", FRESH_REQ(v)?.reason);
+  ok(FRESH_REQ(v)?.ageDays === 21,
+     "with the age of the fact stated — two days and four months are different conversations", FRESH_REQ(v));
+}
+{
+  const r = checkBidProgramme({ activities: GOOD, buyerDeadline: "2026-12-16", today: "2026-12-12" });
+  const v = evaluate("G5_SUBMISSION_RELEASE", { ...G5_OTHERWISE_CLEAN, ...gateFacts(r) }, SIGNED, { at: "2026-12-12" });
+  ok(v.ok, "and re-reading the programme on the day of the submission passes", v.failures);
+}
+{
+  // Yesterday is allowed. A desk that reads the programme in the morning and
+  // signs the next day has not cached anything.
+  const r = checkBidProgramme({ activities: GOOD, buyerDeadline: "2026-12-16", today: "2026-12-11" });
+  ok(evaluate("G5_SUBMISSION_RELEASE", { ...G5_OTHERWISE_CLEAN, ...gateFacts(r) }, SIGNED, { at: "2026-12-12" }).ok,
+     "a fact one day old is read for this decision, not carried from an earlier one");
+}
+{
+  const facts = { ...G5_OTHERWISE_CLEAN, bidProgramme: { estimateFreezePassed: true, estimateOrderFaults: 0, freezeJudgedAt: "2027-03-01" } };
+  const v = evaluate("G5_SUBMISSION_RELEASE", facts, SIGNED, { at: "2026-12-12" });
+  ok(!v.ok && /it is fabricated/.test(FRESH_REQ(v)?.reason || ""),
+     "A FACT JUDGED AGAINST A DATE THAT HAS NOT ARRIVED IS NOT STALE, IT IS FABRICATED — somebody set the reference date forward and every date-based judgement under it is unsafe",
+     FRESH_REQ(v)?.reason);
+}
+{
+  // One day of grace in front, because a caller east of UTC computing "today"
+  // locally legitimately produces tomorrow's UTC date.
+  const facts = { ...G5_OTHERWISE_CLEAN, bidProgramme: { estimateFreezePassed: true, estimateOrderFaults: 0, freezeJudgedAt: "2026-12-13" } };
+  ok(evaluate("G5_SUBMISSION_RELEASE", facts, SIGNED, { at: "2026-12-12" }).ok,
+     "but a single day ahead is a time zone, not a fabrication");
+}
+{
+  const facts = { ...G5_OTHERWISE_CLEAN, bidProgramme: { estimateFreezePassed: true, estimateOrderFaults: 0 } };
+  const v = evaluate("G5_SUBMISSION_RELEASE", facts, SIGNED, { at: "2026-12-12" });
+  ok(!v.ok && FRESH_REQ(v)?.unknown === true,
+     "AN UNSTAMPED FACT IS UNKNOWN, and a gate does not pass on an unknown", FRESH_REQ(v));
+  ok(/carries no stamp/.test(FRESH_REQ(v)?.reason || ""),
+     "and the refusal names the missing stamp rather than blaming the fact — that is the state a caller is in before it is taught to stamp",
+     FRESH_REQ(v)?.reason);
+}
+{
+  const facts = { ...G5_OTHERWISE_CLEAN, bidProgramme: { estimateFreezePassed: true, estimateOrderFaults: 0, freezeJudgedAt: "last Tuesday" } };
+  const v = evaluate("G5_SUBMISSION_RELEASE", facts, SIGNED, { at: "2026-12-12" });
+  ok(!v.ok && /is not a date/.test(FRESH_REQ(v)?.reason || ""),
+     "an unreadable stamp is reported, never parsed at", FRESH_REQ(v)?.reason);
+}
+{
+  const r = checkBidProgramme({ activities: GOOD, buyerDeadline: "2026-12-16", today: "2026-12-12" });
+  const v = evaluate("G5_SUBMISSION_RELEASE", { ...G5_OTHERWISE_CLEAN, ...gateFacts(r) }, SIGNED);
+  ok(!v.ok && FRESH_REQ(v)?.unknown === true,
+     "WITH NO DECISION TIME IT IS UNKNOWN — nothing here reads a clock, so a gate asked without one refuses rather than guessing",
+     FRESH_REQ(v)?.reason);
+}
+{
+  // The property that makes this an audit trail: re-evaluating a recorded
+  // decision against its own stamp gives the answer it gave on the day. A
+  // verdict that changes when you look at it again is not a record.
+  const r = checkBidProgramme({ activities: GOOD, buyerDeadline: "2026-12-16", today: "2026-12-12" });
+  const facts = { ...G5_OTHERWISE_CLEAN, ...gateFacts(r) };
+  ok(evaluate("G5_SUBMISSION_RELEASE", facts, SIGNED, { at: "2026-12-12" }).ok
+     && evaluate("G5_SUBMISSION_RELEASE", facts, SIGNED, { at: "2026-12-12" }).ok,
+     "the same facts and the same decision time give the same verdict, however often it is asked");
+  ok(!evaluate("G5_SUBMISSION_RELEASE", facts, SIGNED, { at: "2027-06-01" }).ok,
+     "and asking months later refuses — correct, because those facts would not release that submission today");
 }
 
 console.log(`\n${pass} passed, ${fail} failed\n`);

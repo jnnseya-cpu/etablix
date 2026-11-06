@@ -419,16 +419,37 @@ ok(TRANSITIONS.every((t) => STATES.includes(t.from) && STATES.includes(t.to)), "
 ok(TRANSITIONS.filter((t) => t.gate).every((t) => GATES.some((g) => g.id === t.gate && g.from === t.from && g.to === t.to)),
    "and every guarded transition agrees with its gate's own from and to");
 
+const TODAY = new Date().toISOString().slice(0, 10);
 const priceFacts = {
   costItems: [{ id: "c1", status: "APPROVED" }, { id: "c2", status: "APPROVED" }],
   findings: [], scenarios: { P80: { margin: 0.07 } }, policy: { minMarginP80: 0.05 },
   estimate: { arithmeticFaults: 0 },
-  bidProgramme: { estimateFreezePassed: true, estimateOrderFaults: 0 },
+  // RELATIVE, NOT A LITERAL DATE. transition() stamps the decision with the
+  // real clock, and the freshness requirement compares the two — so a
+  // hardcoded date here would pass today and fail the day after tomorrow,
+  // which is the failure mode this suite has already been bitten by once.
+  bidProgramme: { estimateFreezePassed: true, estimateOrderFaults: 0, freezeJudgedAt: TODAY },
 };
 {
   const t = transition({ state: "PRICED", to: "PRICE_RELEASED", facts: priceFacts, approvals: [{ by: "u2", role: "COMMERCIAL_AUTHORITY", decision: "APPROVED" }], author: "u1" });
   ok(t.ok && t.state === "PRICE_RELEASED", "a met gate releases the price");
   ok(t.decision.type === "gate.passed", "and leaves a decision event");
+}
+{
+  // The decision's own stamp is the reference its freshness requirements read,
+  // so the gate and the event it produces agree about when this happened. A
+  // transition recorded in March against facts judged in December is refused
+  // by the same mechanism that refuses a cached fact at the submission gate.
+  const t = transition({
+    state: "PRICED", to: "PRICE_RELEASED", facts: priceFacts,
+    approvals: [{ by: "u2", role: "COMMERCIAL_AUTHORITY", decision: "APPROVED" }], author: "u1",
+    at: "2027-03-01T09:00",
+  });
+  ok(!t.ok, "A TRANSITION STAMPED LONG AFTER ITS FACTS WERE JUDGED IS REFUSED");
+  ok(t.decision.at === "2027-03-01T09:00",
+     "and the decision event carries the same instant the gate was judged against — one clock, not two", t.decision.at);
+  ok(t.verdict.failures.some((f) => /freezeJudgedAt/.test(f.requirement)),
+     "named as the stale fact rather than as a general refusal", t.verdict.failures.map((f) => f.requirement));
 }
 {
   const t = transition({ state: "PRICED", to: "PRICE_RELEASED", facts: priceFacts, approvals: [{ by: "u1", role: "COMMERCIAL_AUTHORITY", decision: "APPROVED" }], author: "u1" });

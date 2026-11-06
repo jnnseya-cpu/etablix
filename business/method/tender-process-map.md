@@ -111,16 +111,39 @@ The two gates refuse in different words, deliberately and with a test pinning
 it: a refusal that explains the wrong thing sends somebody to fix the wrong
 document.
 
-**What the second read does not do.** A gate reading a boolean twice catches a
-regression only if the fact is *recomputed* from the programme between the two
-reads. A caller that computes `gateFacts()` once and hands the same object to
-both gates has proved nothing at the second, and no declarative condition can
-tell the difference — "recently enough" is not an equality. So
-`bidProgramme.freezeJudgedAt` carries the reference date onto the decision
-event, where a person can see the freeze was judged against a date three weeks
-old. The gate does not police it, and there is a test asserting that a fact
-judged eleven months ago still passes — recording that the gate cannot tell,
-rather than implying it can.
+**And the gate can tell a recomputed fact from a cached one.** Reading the
+same boolean twice catches a regression only if somebody recomputed it in
+between, and a cached `true` is indistinguishable from a `true`. So the gate
+engine has a fifth requirement kind, `fresh`, alongside `fact`, `all`,
+`redteam` and `scenario`:
+
+```js
+{ kind: "fresh", fact: "bidProgramme.freezeJudgedAt", withinDays: 1, say: "…" }
+```
+
+It reads the date the fact was judged against and compares it to the time the
+decision is being recorded — `transition`'s own `at`, the same instant that
+goes on the decision event. **Nothing in the gate engine reads a clock**: the
+reference time is supplied, so re-evaluating a recorded decision against its
+own stamp gives the answer it gave on the day. A gate whose verdict changes
+when you look at it again is not an audit trail. On the REST route the
+server's clock is used and the request's own date is ignored, because the one
+thing that must not answer "was this computed for this decision" is the thing
+being judged.
+
+Four failures, and they are not the same failure:
+
+| | Verdict |
+|---|---|
+| **No decision time** | Unknown. Nothing here guesses at now. |
+| **No stamp** | Unknown, and the refusal names the missing stamp rather than blaming the fact — that is the state a caller is in before it is taught to stamp |
+| **Stale** | Refused, with the age stated: two days and four months are different conversations |
+| **Ahead of the decision** | Refused as **fabricated**, not stale. A fact judged against a date that has not arrived means somebody set the reference date forward, and every date-based judgement resting on it is unsafe. One day of grace, because a caller east of UTC computing "today" locally legitimately produces tomorrow's UTC date |
+
+`withinDays: 1` at both gates — the programme was read on the day of the
+decision or the day before. A desk that reads it in the morning and signs the
+next day has cached nothing; a caller handing G5 the facts G4 used three weeks
+earlier is refused, and that is the defect the whole mechanism exists for.
 
 ### Gap 2 — the site visit as a bid input
 

@@ -154,7 +154,7 @@ console.log("\n--- the calculators, over the wire\n");
 {
   const j = await (await post("/api/l7/gate", {
     from: "PRICED", to: "PRICE_RELEASED",
-    facts: { costItems: [{ id: "c", status: "APPROVED" }], findings: [], scenarios: { P80: { margin: 0.07 } }, policy: { minMarginP80: 0.05 }, estimate: { arithmeticFaults: 0 }, bidProgramme: { estimateFreezePassed: true, estimateOrderFaults: 0 } },
+    facts: { costItems: [{ id: "c", status: "APPROVED" }], findings: [], scenarios: { P80: { margin: 0.07 } }, policy: { minMarginP80: 0.05 }, estimate: { arithmeticFaults: 0 }, bidProgramme: { estimateFreezePassed: true, estimateOrderFaults: 0, freezeJudgedAt: new Date().toISOString().slice(0, 10) } },
     approvals: [{ by: "u1", role: "COMMERCIAL_AUTHORITY", decision: "APPROVED" }], author: "u1",
   })).json();
   ok(j.ok === false && /approver is the author/.test(j.verdict.failures[0].reason), "segregation of duties refuses a self-approval over the wire", j.verdict.failures[0].reason);

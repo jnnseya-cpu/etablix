@@ -177,11 +177,18 @@ router.post("/gate", (req, res) => {
     }));
   }
   if (!b.gate) return res.status(400).json({ error: "Either a gate, or a from and a to, is required." });
+  // THE REFERENCE TIME IS THE SERVER'S, NEVER THE REQUEST'S.
+  //
+  // A freshness requirement asks whether a fact was computed for this
+  // decision, and the one thing that must not be able to answer that is the
+  // thing being judged. A caller supplying its own "now" alongside its own
+  // stamp can make any fact as fresh as it likes. "Would this gate pass
+  // right now" is the question this endpoint answers, so now is taken here.
   res.json(evaluate(String(b.gate), b.facts || {}, {
     approvals: b.approvals || [], author: b.author || null,
     value: b.value === undefined ? null : b.value,
     signatoryLimits: b.signatoryLimits || {},
-  }));
+  }, { at: new Date().toISOString() }));
 });
 
 /** GET /api/l7/gate/remaining — what a bid in a given state must still pass. */

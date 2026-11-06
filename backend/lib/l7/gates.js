@@ -33,6 +33,8 @@
  * it guards so the two cannot describe different bids.
  */
 
+import { instant } from "./evidence.js";
+
 /** The bid lifecycle, in order. */
 export const STATES = [
   "DISCOVERED",
@@ -166,6 +168,10 @@ export const GATES = [
       // no named owner is a real fault and it is not this gate's business.
       { kind: "fact", fact: "bidProgramme.estimateFreezePassed", is: true, say: "the estimate has not frozen, so the price being released is not the price that will be submitted" },
       { kind: "fact", fact: "bidProgramme.estimateOrderFaults", is: 0, say: "the estimate is programmed to freeze before something it prices" },
+      // And the two above must have been read for THIS decision. A cached
+      // true is indistinguishable from a true, which is the whole reason a
+      // boolean was not enough.
+      { kind: "fresh", fact: "bidProgramme.freezeJudgedAt", withinDays: 1, say: "the bid programme was not read for this price release" },
       { kind: "approval", roles: ["COMMERCIAL_AUTHORITY"], quorum: 1, segregation: true },
     ],
   },
@@ -196,15 +202,18 @@ export const GATES = [
       // Every individual act was reasonable and the approval no longer covers
       // what is being sent.
       //
-      // WHAT THIS DOES NOT DO. A gate reading a boolean twice catches a
-      // regression only if the fact is RECOMPUTED from the programme between
-      // the two reads. A caller that computes gateFacts() once and hands the
-      // same object to both gates has proved nothing at the second, and no
-      // condition here can tell the difference. `bidProgramme.freezeJudgedAt`
-      // is carried so that the date the freeze was judged against is on the
-      // decision event, where a person can see it is three weeks old.
+      // AND THE FRESHNESS REQUIREMENT BELOW IS WHAT CLOSES IT. A gate reading
+      // a boolean twice catches a regression only if the fact is RECOMPUTED
+      // between the two reads, and a cached `true` is indistinguishable from
+      // a `true`. So the facts carry the date they were judged against and
+      // the gate compares it to the decision's own time.
       { kind: "fact", fact: "bidProgramme.estimateFreezePassed", is: true, say: "the estimate is not frozen at submission, so what is being sent is not what the price release approved" },
       { kind: "fact", fact: "bidProgramme.estimateOrderFaults", is: 0, say: "the estimate freeze now sits before something it prices, so the programme has moved since the price was released" },
+      // THIS IS THE REQUIREMENT THAT MAKES THE SECOND READ WORTH ANYTHING.
+      // Without it, G5 re-reading the same two booleans catches the slipped
+      // freeze only if somebody happened to recompute them; with it, a
+      // submission carrying G4's facts unchanged is refused for exactly that.
+      { kind: "fresh", fact: "bidProgramme.freezeJudgedAt", withinDays: 1, say: "the bid programme was not re-read for this submission, so these facts are the ones the price release used" },
       { kind: "approval", roles: ["SUBMISSION_SIGNATORY"], quorum: 1, segregation: true, authorityForValue: true },
     ],
   },
@@ -267,9 +276,103 @@ function read(facts, path) {
 
 const SEVERITY_ORDER = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
 
+const DAY = 24 * 60 * 60 * 1000;
+
+/**
+ * Whole UTC days, floored, so dates and timestamps compare like for like.
+ *
+ * `instant` reads a bare "2026-11-06" as the END of that day, which is the
+ * right answer for "valid until" and the wrong one here: a stamp bearing
+ * today's date would read as ten hours in the future against a decision
+ * recorded at two in the afternoon. Comparing day indices makes both of them
+ * the sixth of November, which is what anybody writing either of them meant.
+ */
+const dayIndex = (t) => Math.floor(t / DAY);
+
+/**
+ * THE FRESHNESS REQUIREMENT, AND WHY A BOOLEAN WAS NOT ENOUGH.
+ *
+ * A gate that reads `estimateFreezePassed` proves something only if the fact
+ * was computed for THAT decision. Read the same fact at two gates and the
+ * second read catches a regression only if somebody recomputed it in between;
+ * a caller that computes the facts once and hands the same object to both
+ * gates has proved nothing at the second, and an equality cannot tell.
+ *
+ * So a fact may be required to carry a stamp saying when it was computed, and
+ * the stamp is compared against the time the decision is being recorded —
+ * `transition`'s own `at`, which is the same instant that goes on the
+ * decision event. Nothing here reads a clock: the reference time is supplied,
+ * so re-evaluating an old decision against its own `at` gives the answer it
+ * gave on the day. A gate whose verdict changes when you look at it again is
+ * not an audit trail.
+ *
+ * FOUR WAYS IT FAILS, AND THEY ARE NOT THE SAME FAILURE.
+ *
+ *   · NO DECISION TIME. Nothing was supplied to compare against. Unknown, and
+ *     a gate does not pass on an unknown.
+ *   · NO STAMP. The fact arrived without one. Unknown for the same reason —
+ *     and this is the state a caller is in before it is taught to stamp, so
+ *     the refusal has to name the stamp rather than blame the fact.
+ *   · STALE. The stamp is readable and older than the gate allows. This is
+ *     the cached object, and the age is reported because "two days" and "four
+ *     months" are different conversations.
+ *   · AHEAD OF THE DECISION. A fact judged against a date that has not
+ *     arrived is not stale, it is FABRICATED: somebody set the reference date
+ *     forward, and every date-based judgement resting on it is unsafe. One
+ *     day of grace, because a caller east of UTC computing "today" locally
+ *     legitimately produces tomorrow's UTC date, and a forward-set date is
+ *     weeks out rather than hours.
+ */
+function evaluateFreshness(req, facts, at) {
+  const label = req.fact;
+  const within = Number(req.withinDays ?? 1);
+
+  const nowAt = instant(at);
+  if (at === null || at === undefined || at === "") {
+    return { requirement: label, reason: `no decision time was supplied, so nothing can say whether ${label} was computed for this decision`, unknown: true };
+  }
+  if (nowAt === null) {
+    return { requirement: label, reason: `the decision time "${String(at).slice(0, 40)}" is not a date, so freshness cannot be judged`, unknown: true };
+  }
+
+  const raw = read(facts, label);
+  if (raw === undefined || raw === null || String(raw).trim() === "") {
+    return {
+      requirement: label,
+      reason: `${label} carries no stamp saying when it was computed, so the fact above it cannot be shown to have been read for this decision rather than carried from an earlier one`,
+      unknown: true,
+    };
+  }
+  const stampAt = instant(raw);
+  if (stampAt === null) {
+    return { requirement: label, reason: `${label} is "${String(raw).slice(0, 40)}", which is not a date`, actual: raw };
+  }
+
+  const ageDays = dayIndex(nowAt) - dayIndex(stampAt);
+  if (ageDays < -1) {
+    return {
+      requirement: label,
+      reason: `${label} is ${-ageDays} day(s) AHEAD of this decision — a fact judged against a date that has not arrived is not stale, it is fabricated, and every date-based judgement resting on it is unsafe`,
+      actual: raw,
+      ageDays,
+    };
+  }
+  if (ageDays > within) {
+    return {
+      requirement: label,
+      reason: `${req.say || `${label} is stale`} — it was computed ${ageDays} day(s) before this decision, against a limit of ${within}`,
+      actual: raw,
+      ageDays,
+    };
+  }
+  return null;
+}
+
 /** One requirement, evaluated. Returns null when met, a failure when not. */
-function evaluateRequirement(req, facts) {
+function evaluateRequirement(req, facts, { at = null } = {}) {
   switch (req.kind) {
+    case "fresh":
+      return evaluateFreshness(req, facts, at);
     case "fact": {
       const value = read(facts, req.fact);
       if (value === undefined) {
@@ -388,8 +491,18 @@ export function checkApproval(req, { approvals = [], author = null, value = null
   };
 }
 
-/** Evaluate a gate against the facts. Blocks; never warns. */
-export function evaluate(gateId, facts = {}, approvalContext = {}) {
+/**
+ * Evaluate a gate against the facts. Blocks; never warns.
+ *
+ * `at` is the time the decision is being recorded, and it is only read by
+ * `fresh` requirements. It is supplied rather than taken from a clock so that
+ * re-evaluating a recorded decision against its own stamp gives the answer it
+ * gave on the day; a gate whose verdict changes when you look at it again is
+ * not an audit trail. `transition` passes the same instant it puts on the
+ * decision event. Without it a `fresh` requirement is unknown, and a gate
+ * does not pass on an unknown.
+ */
+export function evaluate(gateId, facts = {}, approvalContext = {}, { at = null } = {}) {
   const gate = GATE_BY_ID.get(String(gateId));
   if (!gate) return { ok: false, gate: String(gateId), reason: "no such gate", failures: [{ requirement: "gate", reason: "no such gate" }] };
 
@@ -401,7 +514,7 @@ export function evaluate(gateId, facts = {}, approvalContext = {}) {
       if (!approval.ok) failures.push({ requirement: "approval", reason: approval.reason, detail: approval });
       continue;
     }
-    const fail = evaluateRequirement(req, facts);
+    const fail = evaluateRequirement(req, facts, { at });
     if (fail) failures.push(fail);
   }
   return {
@@ -447,7 +560,9 @@ export function transition({ state, to, facts = {}, approvals = [], author = nul
       decision: { type: "bid.transitioned", from, to: target, gate: null, by: by || null, at: stamp },
     };
   }
-  const verdict = evaluate(move.gate, facts, { approvals, author, value, signatoryLimits });
+  // The decision's own stamp is the reference a freshness requirement reads,
+  // so the gate and the event it produces agree about when this happened.
+  const verdict = evaluate(move.gate, facts, { approvals, author, value, signatoryLimits }, { at: stamp });
   const decision = {
     type: verdict.ok ? "gate.passed" : "gate.blocked",
     gate: move.gate,
