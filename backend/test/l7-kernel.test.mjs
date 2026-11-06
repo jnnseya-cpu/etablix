@@ -134,7 +134,16 @@ ok(checkClaims({ claims: [], evidence: [], bidId: "B1", deadline: "2026-09-20" }
    "a response with no claims has nothing to prove and passes");
 
 {
-  const list = lapsingBy([cert, { ...cert, id: "EV-2", source: { ...cert.source, expiresAt: "2027-01-01" } }], "2026-12-01");
+  // EVERY DATE HERE IS RELATIVE, AND THAT IS THE POINT OF THE COMMENT.
+  // This assertion was written with `cert` expiring at today + 30 and the
+  // question hard-coded as "2026-12-01". It passed for as long as today + 30
+  // still fell on or before that date and then began failing every run, for
+  // no reason connected to the code it tests — a test that reports a defect
+  // because the calendar moved costs exactly as much to investigate as a real
+  // one. Both ends are now offsets, so it asks the same question on any day.
+  const soon = { ...cert };                                            // today + 30
+  const later = { ...cert, id: "EV-2", source: { ...cert.source, expiresAt: iso(400) } };
+  const list = lapsingBy([soon, later], iso(45));
   ok(list.length === 1 && list[0].id === "EV-1", "the renewal list finds what lapses by a date", list);
 }
 {

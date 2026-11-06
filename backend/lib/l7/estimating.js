@@ -459,6 +459,109 @@ export function normaliseQuote(raw = {}) {
   };
 }
 
+/**
+ * COMPARING QUOTES ON WHAT THEY WOULD ACTUALLY COST.
+ *
+ * `normaliseQuote` above refuses to let an exclusion be summarised away, and
+ * that is the right first move: it says a price is not comparable. It does not
+ * make it comparable, and until something does, the exclusions sit in a column
+ * nobody adds up and the lowest quoted number wins the meeting.
+ *
+ * The arithmetic is not difficult and that is exactly why it gets done in
+ * somebody's head. A £220,000 quote that excludes £18,000 of cranage and
+ * £12,000 of testing is a £250,000 evaluated cost, and a £242,000 inclusive
+ * quote is cheaper — by eight thousand pounds and by a margin nobody sees
+ * while the two sit side by side as "220" and "242". Scale that across
+ * fifteen packages and the bid is built on a comparison that was never made.
+ *
+ * So: evaluated cost is the quoted value plus the priced value of everything
+ * the quote leaves out. Three rules follow, and each is a failure this has to
+ * refuse rather than smooth over.
+ *
+ *   · AN EXCLUSION WITH NO PRICE CANNOT BE EVALUATED. It is not zero. A
+ *     quote carrying one is returned as incomparable with the exclusion
+ *     named, because the honest answer is that somebody must price it before
+ *     the comparison means anything.
+ *   · A QUALIFICATION IS NOT AN EXCLUSION. "Subject to survey" has no number
+ *     and adding one would invent a fact. Qualifications are carried through
+ *     and counted, never priced away.
+ *   · THE CHEAPEST QUOTE AND THE CHEAPEST EVALUATED COST ARE DIFFERENT
+ *     ANSWERS, and when they disagree the disagreement is the finding. It is
+ *     stated rather than resolved silently in favour of either.
+ *
+ * Nothing here selects a supplier. It produces the table a person selects
+ * from, with the arithmetic done by machine because the routing table says
+ * arithmetic is never the model's to assert.
+ */
+export function evaluatedCost(raw = {}) {
+  const q = normaliseQuote(raw);
+  const priced = [];
+  const unpriced = [];
+  for (const e of Array.isArray(raw.exclusions) ? raw.exclusions : []) {
+    // An exclusion may be a bare string (named, unpriced) or { item, value }.
+    const item = typeof e === "string" ? e : String(e?.item ?? e?.name ?? "").trim();
+    const value = typeof e === "string" ? null : money(e?.value);
+    if (value === null || value === undefined) unpriced.push(item || "unnamed exclusion");
+    else priced.push({ item: item || "unnamed exclusion", value });
+  }
+  const added = priced.reduce((t, x) => t + x.value, 0);
+  const evaluated = q.value === null || unpriced.length ? null : q.value + added;
+  return {
+    ...q,
+    // normaliseQuote reports the exclusions as it received them; these two
+    // split that list by whether the comparison can use it.
+    pricedExclusions: priced,
+    unpricedExclusions: unpriced,
+    added,
+    evaluated,
+    evaluable: evaluated !== null,
+    say: evaluated === null
+      ? (q.value === null
+          ? "the quoted value could not be read, so there is no evaluated cost"
+          : `cannot be evaluated: ${unpriced.length} exclusion(s) carry no price — ${unpriced.join(", ")}`)
+      : `quoted ${q.value}, plus ${priced.length} priced exclusion(s) worth ${added}, evaluated at ${evaluated}`
+        + (q.qualifications.length ? ` — ${q.qualifications.length} qualification(s) remain open` : ""),
+  };
+}
+
+/**
+ * The comparison table, and the one sentence that makes it worth producing:
+ * whether the cheapest quote is also the cheapest evaluated cost.
+ */
+export function compareQuotes(raws = []) {
+  const quotes = (Array.isArray(raws) ? raws : []).map(evaluatedCost);
+  const evaluable = quotes.filter((q) => q.evaluable);
+  const quoted = quotes.filter((q) => q.value !== null);
+  const byQuoted = [...quoted].sort((a, b) => a.value - b.value)[0] || null;
+  const byEvaluated = [...evaluable].sort((a, b) => a.evaluated - b.evaluated)[0] || null;
+  const blocked = quotes.filter((q) => !q.evaluable);
+  // A ranking built on a partial field is a ranking of the quotes somebody
+  // happened to finish pricing, so it is reported as incomplete rather than
+  // presented as an answer.
+  const complete = blocked.length === 0 && quotes.length > 0;
+  const inverted = Boolean(byQuoted && byEvaluated && byQuoted.id !== byEvaluated.id);
+  return {
+    quotes,
+    complete,
+    lowestQuoted: byQuoted ? { id: byQuoted.id, supplier: byQuoted.supplier, value: byQuoted.value } : null,
+    lowestEvaluated: byEvaluated
+      ? { id: byEvaluated.id, supplier: byEvaluated.supplier, evaluated: byEvaluated.evaluated }
+      : null,
+    inverted,
+    blocked: blocked.map((q) => ({ id: q.id, supplier: q.supplier, why: q.say })),
+    openQualifications: quotes
+      .filter((q) => q.qualifications.length)
+      .map((q) => ({ id: q.id, supplier: q.supplier, qualifications: q.qualifications })),
+    say: !quotes.length
+      ? "no quotes to compare"
+      : !complete
+        ? `${blocked.length} of ${quotes.length} quote(s) cannot be evaluated until their exclusions are priced`
+        : inverted
+          ? `THE LOWEST QUOTE IS NOT THE LOWEST COST: ${byQuoted.supplier} quoted lowest, ${byEvaluated.supplier} evaluates lowest`
+          : `${byEvaluated.supplier} is lowest on both quoted price and evaluated cost`,
+  };
+}
+
 /** The facts the G4 price gate reads. */
 export function gateFacts(assurance) {
   const arithmetic = assurance.tests.find((t) => t.id === "arithmetic");

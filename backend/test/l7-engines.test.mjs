@@ -27,7 +27,7 @@ import {
 import {
   RATE_COMPONENTS, VALUE_CONTROLS, dimensionOf, applyMarkups,
   detectDoubleMarkup, checkRiskRelease, checkOverride, checkValueControls,
-  assure, checkBuildUp, normaliseQuote,
+  assure, checkBuildUp, normaliseQuote, evaluatedCost, compareQuotes,
 } from "../lib/l7/estimating.js";
 import {
   LENSES, SEVERITIES, finding, checkIndependence, checkDisposition, review,
@@ -322,6 +322,47 @@ ok(!checkOverride({ reason: "r", role: "CD", oldValue: 1, newValue: 2, at: "when
   ok(q.exclusions.length === 1 && q.qualifications.length === 1, "EXCLUSIONS AND QUALIFICATIONS SURVIVE NORMALISATION");
   ok(!q.comparable && /not directly comparable/.test(q.say),
      "and the quote is marked not comparable — three prices for three scopes is not three prices for one", q.say);
+}
+
+/**
+ * Saying a price is not comparable is the first move. Making it comparable is
+ * the one that changes an award, and the arithmetic is easy enough that it
+ * gets done in somebody's head and therefore not at all.
+ */
+{
+  const A = { id: "Q1", supplier: "Alpha", value: 220000,
+              exclusions: [{ item: "cranage", value: 18000 }, { item: "testing", value: 12000 }] };
+  const B = { id: "Q2", supplier: "Beta", value: 242000 };
+
+  const a = evaluatedCost(A);
+  ok(a.evaluated === 250000, "a quote plus its priced exclusions is the evaluated cost", a.evaluated);
+  ok(a.added === 30000 && a.pricedExclusions.length === 2, "and the additions are itemised, not folded in", a.added);
+
+  const c = compareQuotes([A, B]);
+  ok(c.lowestQuoted.supplier === "Alpha", "Alpha quotes lowest", c.lowestQuoted);
+  ok(c.lowestEvaluated.supplier === "Beta", "BETA COSTS LESS — the cheaper quote is the dearer job", c.lowestEvaluated);
+  ok(c.inverted === true && /NOT THE LOWEST COST/.test(c.say),
+     "and the inversion is stated rather than resolved quietly in favour of the lower number", c.say);
+
+  // An exclusion nobody has priced is not worth zero, and a table that treats
+  // it as zero is the comparison this exists to prevent.
+  const d = compareQuotes([A, B, { id: "Q3", supplier: "Gamma", value: 200000, exclusions: ["scaffold"] }]);
+  ok(d.complete === false, "a field with an unpriced exclusion in it is not a complete comparison");
+  ok(d.blocked.length === 1 && /scaffold/.test(d.blocked[0].why),
+     "the blocking exclusion is named, so somebody can go and price it", d.blocked[0]);
+  ok(d.quotes.find((q) => q.id === "Q3").evaluated === null,
+     "and the unpriced quote carries no evaluated cost at all — null, never zero");
+
+  // A qualification has no number and inventing one would be fabrication.
+  const e = evaluatedCost({ id: "Q4", supplier: "Delta", value: 100000, qualifications: ["subject to survey"] });
+  ok(e.evaluated === 100000, "a qualification does not change the evaluated cost");
+  ok(/1 qualification\(s\) remain open/.test(e.say),
+     "but it is carried to the table rather than priced away", e.say);
+
+  // The existing contract must not have moved.
+  const n = normaliseQuote(A);
+  ok(n.exclusions.length === 2 && n.comparable === false,
+     "normaliseQuote still reports what it always did");
 }
 
 {
