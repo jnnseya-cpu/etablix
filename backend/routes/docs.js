@@ -34,6 +34,7 @@ import { mayIssue, issueState, CHALLENGE_REQUIRED } from "../lib/l7/issue.js";
 import { splitPipelineOutput } from "../lib/sections.js";
 import { packStatement } from "../lib/tenderpack.js";
 import { bidStatement } from "../lib/bidcheck.js";
+import { estimateCrossStatement } from "../lib/tendercheck.js";
 import { controlStatement } from "../lib/controlcheck.js";
 import { interfaceStatement } from "../lib/interfacecheck.js";
 
@@ -842,7 +843,17 @@ router.get("/from-run/:id", requireAuth, deliveryFinance, (req, res) => {
       // The bid's own completeness check, printed in the bid file rather than
       // left in the run notes — so it is on the record that the submission
       // was checked before it was sent, and by what.
-      ...(run.bidCheck ? { packStatement: bidStatement(run.bidCheck) } : {}),
+      // The registers against the price, printed alongside it on the same
+      // reasoning. A bid file that states its submission was complete and
+      // says nothing about whether the risk allowances are in the estimate
+      // has certified the easier of the two things.
+      ...(run.bidCheck
+        ? {
+            packStatement: run.estimateCrossCheck
+              ? `${bidStatement(run.bidCheck)} ${estimateCrossStatement(run.estimateCrossCheck)}.`
+              : bidStatement(run.bidCheck),
+          }
+        : {}),
       // The month's payment reconciliation, printed on the certificate so the
       // client can see that the money was checked and against what.
       ...(run.controlCheck ? { packStatement: controlStatement(run.controlCheck) } : {}),

@@ -8,6 +8,7 @@
 import {
   reconcileTenderRegisters, checkSiteVisit, tenderNotes, tenderStatement,
   refsIn, allowancePlaces, CLARIFICATION_STATUS, OBSERVATION_KINDS,
+  reconcileRegistersToEstimate, estimateCrossNotes, estimateCrossStatement,
 } from "../lib/tendercheck.js";
 
 let pass = 0, fail = 0;
@@ -206,6 +207,263 @@ ok(OBSERVATION_KINDS.length === 3, "there are three kinds and no fourth", OBSERV
   const v = checkSiteVisit({});
   ok(!v.ok && v.visited === null,
      "and saying nothing at all is not the same as recording that no visit was made", v.say);
+}
+
+
+console.log("\n=== the registers against the price ===\n");
+
+// A risk register making four claims about where the money sits.
+const RK_REG = `| Ref | Cause, event, impact | Allowance sits | Value | Treatment | Accepted by |
+|---|---|---|---|---|---|
+| RK-1 | Ground conditions worse than the trial pits | PACKAGE QUOTE | 18,000 | Priced in the groundworks package | J Nseya |
+| RK-2 | Outage window slips, welfare stands idle | CENTRAL CONTINGENCY | 12,000 | Accepted | J Nseya |
+| RK-3 | Local accommodation unavailable at peak | CENTRAL CONTINGENCY | 9,000 | Accepted | J Nseya |
+| RK-4 | Access road needs a temporary bellmouth | BASE ESTIMATE | 6,500 | Priced in preliminaries | J Nseya |`;
+
+const CLEAN_ESTIMATE = [
+  { id: "4.12", description: "Groundworks package — includes allowance for RK-1", total: "18,000" },
+  { id: "2.03", description: "Temporary bellmouth to site access (RK-4)", total: "6,500" },
+  { id: "9.01", description: "Central contingency — covers RK-2, RK-3", total: "21,000" },
+];
+
+{
+  const r = reconcileRegistersToEstimate({ risks: RK_REG, estimateItems: CLEAN_ESTIMATE });
+  ok(r.ok, "a register whose claims are all in the price reconciles", { f: r.faults, ...r });
+  ok(r.compared.pricedLines === 2 && r.compared.contingencyLines === 1,
+     "the contingency line is told apart from the priced lines by its own name", r.compared);
+  ok(/21000 of risk against a contingency of 21000/.test(r.contingencyCover.say),
+     "and the contingency arithmetic is stated, not assumed", r.contingencyCover.say);
+  ok(/reconcile to 2 priced line/.test(estimateCrossStatement(r)), "the statement says what was compared", estimateCrossStatement(r));
+  ok(estimateCrossNotes(r).length === 0, "and a clean cross-check writes no notes", estimateCrossNotes(r));
+}
+
+console.log("\n=== 1 · the allowance that is claimed and is not there ===\n");
+{
+  // RK-1 says the money is in the groundworks package. The groundworks
+  // package does not mention it. Every document reads correctly.
+  const r = reconcileRegistersToEstimate({
+    risks: RK_REG,
+    estimateItems: [
+      { id: "4.12", description: "Groundworks package", total: "18,000" },
+      { id: "2.03", description: "Temporary bellmouth to site access (RK-4)", total: "6,500" },
+      { id: "9.01", description: "Central contingency — covers RK-2, RK-3", total: "21,000" },
+    ],
+  });
+  ok(!r.ok && r.allowanceClaimedNotPriced.some((x) => x.ref === "RK-1"),
+     "A CLAIM ABOUT THE PRICE THAT THE PRICE DOES NOT CARRY", r.allowanceClaimedNotPriced);
+  ok(/never arrived/.test(estimateCrossNotes(r).join(" ")), "and the note says what that means");
+}
+{
+  // The contingency does not exist at all, and two risks are funded from it.
+  const r = reconcileRegistersToEstimate({
+    risks: RK_REG,
+    estimateItems: [
+      { id: "4.12", description: "Groundworks (RK-1)", total: "18,000" },
+      { id: "2.03", description: "Bellmouth (RK-4)", total: "6,500" },
+    ],
+  });
+  ok(r.allowanceClaimedNotPriced.filter((x) => x.claimed === "CENTRAL CONTINGENCY").length === 2,
+     "TWO RISKS FUNDED FROM A CONTINGENCY THAT IS NOT IN THE ESTIMATE", r.allowanceClaimedNotPriced);
+  ok(!r.contingencyCover.ok && r.contingencyCover.available === null,
+     "and the cover test says the contingency was never stated", r.contingencyCover);
+}
+
+console.log("\n=== 2 · money against a record that does not exist ===\n");
+{
+  const r = reconcileRegistersToEstimate({
+    risks: RK_REG,
+    estimateItems: [...CLEAN_ESTIMATE, { id: "5.40", description: "Allowance for RK-7 piling risk", total: "4,000" }],
+  });
+  ok(!r.ok && r.pricedNotRegistered.some((x) => x.ref === "RK-7"),
+     "FOUR THOUSAND POUNDS AGAINST AN RK-7 THAT DOES NOT EXIST", r.pricedNotRegistered);
+  ok(/uncovered/.test(estimateCrossNotes(r).join(" ")), "and the note names the consequence, which is the exposure");
+}
+{
+  // The same, on the contingency rather than a priced line.
+  const r = reconcileRegistersToEstimate({
+    risks: RK_REG,
+    estimateItems: [
+      { id: "4.12", description: "Groundworks (RK-1)", total: "18,000" },
+      { id: "2.03", description: "Bellmouth (RK-4)", total: "6,500" },
+      { id: "9.01", description: "Central contingency — RK-2, RK-3, RK-9", total: "21,000" },
+    ],
+  });
+  ok(r.pricedNotRegistered.some((x) => x.ref === "RK-9" && x.lines[0] === "(contingency)"),
+     "a contingency covering a risk nobody registered is the same defect", r.pricedNotRegistered);
+}
+
+console.log("\n=== 3 · the double count, proved rather than read off a cell ===\n");
+{
+  // RK-1's cell says PACKAGE QUOTE only. The register reconciles against
+  // itself perfectly. The money is in the groundworks package AND in the
+  // contingency, and only the estimate shows it.
+  const r = reconcileRegistersToEstimate({
+    risks: RK_REG,
+    estimateItems: [
+      { id: "4.12", description: "Groundworks package incl. RK-1", total: "18,000" },
+      { id: "2.03", description: "Bellmouth (RK-4)", total: "6,500" },
+      { id: "9.01", description: "Central contingency — RK-1, RK-2, RK-3", total: "39,000" },
+    ],
+  });
+  ok(!r.ok && r.fundedTwice.some((x) => x.ref === "RK-1"),
+     "FUNDED TWICE — and the register alone could never have shown it", r.fundedTwice);
+  ok(/nobody can find afterwards/.test(estimateCrossNotes(r).join(" ")),
+     "the note says where the duplication actually costs money", estimateCrossNotes(r));
+  // And the register's own double-count test, on the same data, finds nothing.
+  const self = reconcileTenderRegisters({ risks: RK_REG });
+  ok(self.doubleCounted.length === 0,
+     "THE REGISTER-TO-REGISTER CHECK SEES NOTHING HERE, WHICH IS WHY THIS ONE EXISTS", self.doubleCounted);
+}
+
+console.log("\n=== 4 · the register and the estimate disagreeing about a figure ===\n");
+{
+  const r = reconcileRegistersToEstimate({
+    risks: RK_REG,
+    estimateItems: [
+      { id: "4.12", description: "Groundworks package incl. RK-1", total: "4,000" },
+      { id: "2.03", description: "Bellmouth (RK-4)", total: "6,500" },
+      { id: "9.01", description: "Central contingency — RK-2, RK-3", total: "21,000" },
+    ],
+  });
+  const d = r.valueDisagrees.find((x) => x.ref === "RK-1");
+  ok(d && d.register === 18000 && d.estimate === 4000,
+     "EIGHTEEN THOUSAND IN THE REGISTER, FOUR IN THE LINE THAT CARRIES IT", r.valueDisagrees);
+  ok(/two numbers/.test(estimateCrossNotes(r).join(" ")), "and settlement cannot be held on two numbers");
+}
+{
+  // Two lines between them carrying the registered value is not a disagreement.
+  const r = reconcileRegistersToEstimate({
+    risks: RK_REG,
+    estimateItems: [
+      { id: "4.12a", description: "Groundworks, RK-1 part one", total: "10,000" },
+      { id: "4.12b", description: "Groundworks, RK-1 part two", total: "8,000" },
+      { id: "2.03", description: "Bellmouth (RK-4)", total: "6,500" },
+      { id: "9.01", description: "Central contingency — RK-2, RK-3", total: "21,000" },
+    ],
+  });
+  ok(r.valueDisagrees.length === 0, "an allowance split across two lines adds up and is not a fault", r.valueDisagrees);
+}
+{
+  // A line whose value cannot be read is not reported as a disagreement.
+  // "Unreadable" and "wrong" are different findings and the estimating
+  // engine owns the first one.
+  const r = reconcileRegistersToEstimate({
+    risks: RK_REG,
+    estimateItems: [
+      { id: "4.12", description: "Groundworks incl. RK-1", total: "see package" },
+      { id: "2.03", description: "Bellmouth (RK-4)", total: "6,500" },
+      { id: "9.01", description: "Central contingency — RK-2, RK-3", total: "21,000" },
+    ],
+  });
+  ok(r.valueDisagrees.length === 0,
+     "AN UNREADABLE FIGURE IS NOT A DISAGREEMENT — it is not this module's finding to make", r.valueDisagrees);
+}
+
+console.log("\n=== 5 · the contingency spent before the bid is submitted ===\n");
+{
+  const r = reconcileRegistersToEstimate({
+    risks: RK_REG,
+    estimateItems: [
+      { id: "4.12", description: "Groundworks incl. RK-1", total: "18,000" },
+      { id: "2.03", description: "Bellmouth (RK-4)", total: "6,500" },
+      { id: "9.01", description: "Central contingency — RK-2, RK-3", total: "15,000" },
+    ],
+  });
+  ok(!r.contingencyCover.ok && r.contingencyCover.claimed === 21000 && r.contingencyCover.available === 15000,
+     "TWENTY-ONE THOUSAND OF RISK AGAINST A FIFTEEN THOUSAND CONTINGENCY", r.contingencyCover);
+  ok(/6000 of the register has no money behind it/.test(r.contingencyCover.say),
+     "and it states the shortfall rather than the ratio", r.contingencyCover.say);
+  ok(/defensible on its own/.test(estimateCrossNotes(r).join(" ")), "the note says why nobody caught it");
+}
+{
+  const r = reconcileRegistersToEstimate({
+    risks: RK_REG,
+    estimateItems: [
+      { id: "4.12", description: "Groundworks incl. RK-1", total: "18,000" },
+      { id: "2.03", description: "Bellmouth (RK-4)", total: "6,500" },
+    ],
+    contingency: { value: "21,000", description: "central contingency covering RK-2 and RK-3" },
+  });
+  ok(r.ok, "the contingency may be passed separately rather than as a line", { f: r.faults, c: r.contingencyCover });
+}
+{
+  const r = reconcileRegistersToEstimate({
+    risks: RK_REG,
+    estimateItems: [
+      { id: "4.12", description: "Groundworks incl. RK-1", total: "18,000" },
+      { id: "2.03", description: "Bellmouth (RK-4)", total: "6,500" },
+      { id: "9.01", kind: "CONTINGENCY", description: "Allowed against RK-2 and RK-3", total: "21,000" },
+    ],
+  });
+  ok(r.ok, "or marked by a kind field rather than by its wording", { f: r.faults, c: r.contingencyCover });
+}
+
+console.log("\n=== 6 · an answer that says it changed the price ===\n");
+{
+  const cl = `| Ref | Question | Status | What changed | Carried to |
+|---|---|---|---|---|
+| CL-1 | Is the HV supply client-provided? | ANSWERED | Estimate line 4.12 reduced, generation cut | - |
+| CL-2 | Where is the water connection? | ANSWERED | Drawing 102 reissued | - |`;
+  const r = reconcileRegistersToEstimate({
+    clarifications: cl,
+    estimateItems: [{ id: "4.12", description: "Groundworks package", total: "18,000" }],
+  });
+  ok(r.answerNotInEstimate.length === 1 && r.answerNotInEstimate[0].ref === "CL-1",
+     "AN ANSWER RECORDED AS PRICED IN, WHERE NO LINE CARRIES IT", r.answerNotInEstimate);
+  ok(!r.answerNotInEstimate.some((x) => x.ref === "CL-2"),
+     "and an answer that changed a drawing is not this check's business", r.answerNotInEstimate);
+}
+{
+  const cl = `| Ref | Question | Status | What changed | Carried to |
+|---|---|---|---|---|
+| CL-1 | Is the HV supply client-provided? | ANSWERED | Estimate line 4.12 reduced | - |`;
+  const r = reconcileRegistersToEstimate({
+    clarifications: cl,
+    estimateItems: [{ id: "4.12", description: "Groundworks package, revised per CL-1", total: "12,000" }],
+  });
+  ok(r.answerNotInEstimate.length === 0, "and when the line carries the reference, the reply is implemented", r);
+}
+
+console.log("\n=== what it refuses to infer ===\n");
+{
+  // An unreferenced line for exactly eighteen thousand pounds, sitting next
+  // to an unmatched eighteen-thousand-pound risk. The figures agree. Nothing
+  // says they are the same money, and guessing is how two unrelated numbers
+  // become a reconciliation.
+  const r = reconcileRegistersToEstimate({
+    risks: RK_REG,
+    estimateItems: [
+      { id: "4.12", description: "Groundworks package", total: "18,000" },
+      { id: "2.03", description: "Bellmouth (RK-4)", total: "6,500" },
+      { id: "9.01", description: "Central contingency — RK-2, RK-3", total: "21,000" },
+    ],
+  });
+  ok(r.allowanceClaimedNotPriced.some((x) => x.ref === "RK-1"),
+     "A MATCHING FIGURE IS NOT A LINK — the allowance is still reported as absent", r.allowanceClaimedNotPriced);
+}
+{
+  const r = reconcileRegistersToEstimate({ risks: RK_REG, estimateItems: [] });
+  ok(/could not be tested/.test(estimateCrossStatement(r)),
+     "with no priced lines it says the claims could not be tested, not that they passed", estimateCrossStatement(r));
+}
+{
+  const r = reconcileRegistersToEstimate({});
+  ok(r.faults === 0 && /could not be tested/.test(estimateCrossStatement(r)),
+     "and on nothing at all it invents no findings", r);
+}
+{
+  ok(estimateCrossNotes(null).length === 0 && /were not compared/.test(estimateCrossStatement(null)),
+     "a cross-check that never ran says so rather than reporting silence as agreement");
+}
+{
+  // Quantity times rate is a total nobody wrote down, and it is read.
+  const r = reconcileRegistersToEstimate({
+    risks: `| Ref | Cause, event, impact | Allowance sits | Value | Treatment | Accepted by |
+|---|---|---|---|---|---|
+| RK-1 | Standby welfare during the outage | PACKAGE QUOTE | 6,000 | Priced | J Nseya |`,
+    estimateItems: [{ id: "7.1", description: "Welfare standby, RK-1", quantity: "4", rate: "1,500" }],
+  });
+  ok(r.ok, "a line priced as quantity times rate is read as its product", { f: r.faults, v: r.valueDisagrees });
 }
 
 console.log(`\n${pass} passed, ${fail} failed\n`);

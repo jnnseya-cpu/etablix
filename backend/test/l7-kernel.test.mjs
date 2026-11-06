@@ -423,6 +423,7 @@ const priceFacts = {
   costItems: [{ id: "c1", status: "APPROVED" }, { id: "c2", status: "APPROVED" }],
   findings: [], scenarios: { P80: { margin: 0.07 } }, policy: { minMarginP80: 0.05 },
   estimate: { arithmeticFaults: 0 },
+  bidProgramme: { estimateFreezePassed: true, estimateOrderFaults: 0 },
 };
 {
   const t = transition({ state: "PRICED", to: "PRICE_RELEASED", facts: priceFacts, approvals: [{ by: "u2", role: "COMMERCIAL_AUTHORITY", decision: "APPROVED" }], author: "u1" });

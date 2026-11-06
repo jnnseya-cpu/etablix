@@ -34,8 +34,27 @@
  *   · AN ACTIVITY WITH NO OWNER HAPPENS TO NOBODY. The commonest entry on a
  *     bid plan is a date with a department against it.
  *
- * It reports. It does not block, because a bid plan that fails on the first
- * day of a six-week bid is normal and the point is that somebody sees it.
+ * IT REPORTS, WITH ONE EXCEPTION, AND THE EXCEPTION IS THE ESTIMATE.
+ *
+ * A bid plan that fails on the first day of a six-week bid is normal, and the
+ * point of reporting is that somebody sees it. An unowned site visit must not
+ * stop a price being released; it is a planning fault, not a pricing one.
+ *
+ * Two of these faults are different in kind, because they are faults in the
+ * price itself rather than in the plan for producing it, and `gateFacts`
+ * hands exactly those two to the G4 price release gate:
+ *
+ *   · THE ESTIMATE HAS NOT FROZEN. Releasing a price from an estimate that is
+ *     still moving releases a number that will not be the number submitted.
+ *     The approval is then of something that no longer exists, and the
+ *     signature is on a figure nobody can reproduce.
+ *   · THE ESTIMATE IS PROGRAMMED TO FREEZE BEFORE WHAT IT PRICES. If the
+ *     freeze sits before the supplier returns, the survey, the clarification
+ *     cut-off or the design freeze, the price does not rest on the prices.
+ *     Every other date can be wrong and recoverable; this one invalidates the
+ *     figure being approved.
+ *
+ * Everything else in this module reports.
  */
 
 import { instant } from "./evidence.js";
@@ -151,6 +170,33 @@ export function checkBidProgramme({
     }
   }
 
+  // THE ESTIMATE FREEZE, SEPARATED OUT, BECAUSE G4 READS IT.
+  //
+  // Not whether a date was typed: whether the freeze has HAPPENED, as of a
+  // reference date somebody supplied. With no reference date there is nothing
+  // to compare against, and "we cannot tell" is reported as not frozen rather
+  // than waved through — a price released against an unknown is released
+  // against nothing.
+  const estimateAt = instant(dates.estimate);
+  const nowAt = today ? instant(today) : null;
+  const estimateOrderFaults = outOfOrder.filter((x) => x.first === "estimate" || x.second === "estimate");
+  let estimateFreeze;
+  if (estimateAt === null) {
+    estimateFreeze = { dated: false, passed: false, say: "the bid programme carries no readable estimate freeze date, so nothing says the estimate has stopped moving" };
+  } else if (nowAt === null) {
+    estimateFreeze = { dated: true, passed: false, say: `the estimate freeze is dated ${dates.estimate} and no reference date was given, so whether it has passed is unknown` };
+  } else if (estimateAt > nowAt) {
+    estimateFreeze = { dated: true, passed: false, say: `the estimate freeze is dated ${dates.estimate}, which is still ahead; the estimate is still moving` };
+  } else {
+    estimateFreeze = { dated: true, passed: true, say: `the estimate froze on ${dates.estimate}` };
+  }
+  estimateFreeze.orderFaults = estimateOrderFaults.length;
+  if (estimateOrderFaults.length) {
+    estimateFreeze.say += `; and it is programmed to freeze before ${estimateOrderFaults
+      .map((x) => (x.second === "estimate" ? x.first : x.second))
+      .join(", ")}`;
+  }
+
   const faults =
     missing.length + unreadableDates.length + unowned.length + outOfOrder.length + (contingency.ok ? 0 : 1);
 
@@ -161,6 +207,7 @@ export function checkBidProgramme({
     outOfOrder,
     contingency,
     overdue,
+    estimateFreeze,
     planned: Object.keys(dates).length,
     faults,
     ok: faults === 0,
@@ -196,4 +243,28 @@ export function programmeNotes(result) {
       + "A plan whose activities are behind it is a record, not a plan.");
   }
   return out;
+}
+
+/**
+ * The facts the G4 price release gate reads.
+ *
+ * Deliberately two, and deliberately not `faults`. Handing the gate the whole
+ * fault count would make a price release wait on a named owner for the site
+ * visit, which is a real fault and not this gate's business. A gate that
+ * blocks on things it should not is a gate somebody routes around, and then
+ * the two facts that matter stop being enforced along with the rest.
+ *
+ * Returns an empty object for a missing result, so the gate reports the fact
+ * as unknown rather than reading a default. A gate does not pass on a missing
+ * fact, and "the bid programme was never checked" is exactly the state in
+ * which a price should not be released.
+ */
+export function gateFacts(result) {
+  if (!result || !result.estimateFreeze) return {};
+  return {
+    bidProgramme: {
+      estimateFreezePassed: result.estimateFreeze.passed === true,
+      estimateOrderFaults: result.estimateFreeze.orderFaults ?? 0,
+    },
+  };
 }

@@ -13,6 +13,11 @@ eleven steps are already gates that cannot be walked past.
 So the useful output is not a new workflow. It is the small number of places
 where the procedure knows something the platform does not.
 
+**All four of those places are now built**, additively, with the existing
+contracts pinned by tests first. Section 2 records what each one is and what it
+refuses; section 5 is kept as written, as the record of the order they were
+judged worth building in.
+
 ---
 
 ## 1 · The eleven steps against the eighteen states
@@ -27,16 +32,16 @@ BASELINE_HANDED_OVER → CLOSED.
 |---|---|---|
 | 1 · Receive, record, secure | `PACK_INGESTED`; bid file parts b1–b3 (requirements register, compliance matrix, submission checklist and timetable) | Document register and returnables are the agent's first pass |
 | 2 · Bid / no-bid | `QUALIFIED → DECIDED_PURSUE`, gate **G0_PURSUE**, engine `l7/bidscore.js` | Blocks unless the score has been run **and** no hard stop is unresolved |
-| 3 · Mobilise the bid team, work backwards | — | **Gap 1** |
+| 3 · Mobilise the bid team, work backwards | `l7/bidprogramme.js`, read by gate **G4_PRICE_RELEASE** | Blocks a price release on an estimate that has not frozen, or one programmed to freeze before what it prices |
 | 4.1 · Who does every part of the job | `SCOPE_DECOMPOSED`, gate **G2_SCOPE_FREEZE** | Blocks on any unallocated scope item, and on any interface *excluded by both sides* |
 | 4.2 · Read the contract for exposure | `CONTRACT_POSITIONED`, gate **G3_CONTRACT_POSITION**, `l7/clauses.js` | Blocks on an unreviewed clause or an open high-severity contract finding |
-| 4.3 · Site visit with a pricing agenda | `business/method/pre-construction-site-assessment.md` | Method exists; not an input the bid pipeline asks for — **Gap 2** |
-| 5 · Clarifications and risks as linked records | Bid file b5 (clarification schedule), b6 (bid position and risk) | Written, not reconciled — **Gap 3** |
+| 4.3 · Site visit with a pricing agenda | `checkSiteVisit` in `tendercheck.js`, plus three fields on the bid agent | Reports an unrecorded visit, an observation that does not say whether it was observed, stated or unconfirmed, and a bid with no visit that does not name what was priced blind |
+| 5 · Clarifications and risks as linked records | Bid file b5, b6, reconciled by `tendercheck.js` — to each other, and to the priced estimate | Six rules across the registers and six more against the price; the double count is proved on the estimate rather than read off a cell |
 | 6 · Programme before price | `PROGRAMMED`, before `PRICED` | The order is the lifecycle's, not a convention |
 | 7 · Supply-chain prices and the estimate | `l7/estimating.js` — `applyMarkups`, `detectDoubleMarkup`, `checkRiskRelease`, `normaliseQuote` | Arithmetic is a deterministic service; no model may assert a total |
 | 8 · Technical offer against the scoring | `COMPOSED`; bid file b4, reconciled by `bidcheck.js` | A required deliverable with no response is caught by machine |
-| 9 · Settle, approve, submit | `PRICE_RELEASED` gate **G4**, `CONSISTENT → SUBMITTED` gate **G5** | G4 blocks on unapproved cost items, P80 margin below policy, arithmetic faults. G5 blocks on an unbacked claim, a critical finding, or a price that does not reconcile |
-| 10 · Control the bid after submission | `CLARIFYING`, `BAFO`, `OUTCOME_RECORDED` | States exist; validity revalidation is **Gap 4** |
+| 9 · Settle, approve, submit | `PRICE_RELEASED` gate **G4**, `CONSISTENT → SUBMITTED` gate **G5** | G4 blocks on unapproved cost items, P80 margin below policy, arithmetic faults, an estimate that has not frozen, and an estimate programmed to freeze before what it prices. G5 blocks on an unbacked claim, a critical finding, or a price that does not reconcile |
+| 10 · Control the bid after submission | `CLARIFYING`, `BAFO`, `OUTCOME_RECORDED`, `quoteValidity()` in `l7/estimating.js` | Quotes are tested against the validity period being offered, so a lapse inside it is found before the extension is confirmed |
 | 11 · Reconcile and hand to operations | `BASELINE_HANDED_OVER` gate **G6_AWARD**, then `CLOSED` gate **G7_LESSONS** | A win cannot reach closed without passing through the handover and the lessons gate. A no-bid closes from QUALIFIED and a loss from OUTCOME_RECORDED, both ungated — deliberately: a decision not to bid is a decision, not a failure |
 
 Two controls in the platform have no counterpart in the procedure at all, and
@@ -53,7 +58,7 @@ both are stronger than anything in it:
 
 ---
 
-## 2 · What the procedure knows that the platform did not
+## 2 · What the procedure knew that the platform did not — and now does
 
 ### Gap 1 — the bid production programme
 
@@ -68,9 +73,29 @@ misses its own internal dates and arrives at settlement with three packages
 unpriced, where every individual deadline was met except the ones nobody wrote
 down.
 
-**Not built.** It would need a small artefact hung off `DECIDED_PURSUE`, with an
-internal submission deadline distinct from the buyer's, and a gate condition at
-G4 that the estimate freeze has passed.
+**Built** — `backend/lib/l7/bidprogramme.js`. Ten activities, nine ordering
+constraints that cannot invert, a named owner per activity (a department is
+rejected: it cannot be telephoned on the Friday a return is late), and the gap
+between the internal submission deadline and the buyer's, which is the only
+contingency a bid really has.
+
+**And wired to G4**, which is the part that makes it a control rather than a
+report. `gateFacts()` hands the price release gate exactly two of the
+programme's facts:
+
+- `bidProgramme.estimateFreezePassed` — a price released from an estimate that
+  is still moving is an approval of a figure that will change before
+  submission, and the signature ends up on a number nobody can reproduce.
+- `bidProgramme.estimateOrderFaults` — an estimate programmed to freeze before
+  the supplier returns, the survey, the clarification cut-off or the design
+  freeze does not rest on the prices it claims to carry.
+
+Not the fault count. A price release must not wait on a named owner for the
+site visit: a gate that blocks on everything is routed around, and then the two
+facts that matter stop being enforced along with the rest. And because a
+missing fact fails a gate rather than defaulting, a bid with no production
+programme at all is refused at G4 — which is the correct answer to "we never
+wrote one".
 
 ### Gap 2 — the site visit as a bid input
 
@@ -81,8 +106,14 @@ and what still needs formal confirmation — which is the distinction the
 procedure insists on, and the one that decides whether an assumption is
 defensible later.
 
-**Not built.** The cheapest version is three fields on the bid agent and one
-line in the bid position: visited or not, and if not, what was priced blind.
+**Built** — `checkSiteVisit` in `backend/lib/tendercheck.js`, with three fields
+on the bid agent. Not visiting is a permitted answer and often the right one;
+not saying whether you visited is not, and neither is a note that fails to
+separate what was seen from what somebody said on the day. Every observation
+must begin OBSERVED, STATED or UNCONFIRMED, because in a dispute the only
+question about a site observation is which of the three it was, and that is
+decided by how it was written down at the time. A bid with no visit must name
+what was priced blind.
 
 ### Gap 3 — five record types, and the rule that closes them
 
@@ -103,8 +134,42 @@ already uses — `reconcileScopeToPrice`, `reconcileChecklistToResponse`,
 `reconcilePaymentsToEarned`, `reconcileRegisterToMovements`. The bid file writes
 b5 and b6 as prose and nothing compares them to the estimate.
 
-**Not built.** It belongs as a sixth `*check.js` module on the established
-pattern: reconcile, notes, statement, called after the run like the others.
+**Built, in two layers**, because one layer was not enough.
+
+`reconcileTenderRegisters` in `backend/lib/tendercheck.js` compares the five
+registers to each other: a clarification status that cannot be read, an answer
+that landed nowhere, an open question carried nowhere, a limit the buyer cannot
+see, a risk funded in two places, a risk funded in none. Six rules on the
+established pattern — reconcile, notes, statement.
+
+That layer has one weakness and it is the important one: **every fact it reads
+was typed into the same document by the same person.** A register saying "the
+allowance sits in the groundworks package, £18,000" reconciles perfectly
+against itself — whether or not the groundworks package carries it, and whether
+or not there is a groundworks package. The register is a claim about the price.
+Until something reads the price, the honest version and the hopeful version are
+written identically.
+
+So `reconcileRegistersToEstimate` reads the price. Six comparisons:
+
+| It finds | Why the register alone cannot |
+|---|---|
+| An allowance claimed and not in any priced line | The decision about where the money would sit was made and never reached the estimator — the commonest version, because the register and the estimate are written by different people |
+| Money in the estimate against a record that does not exist | Either the register was pruned after the estimate was built, or the reference is wrong; if it is wrong, the exposure the money was for is uncovered |
+| The same reference on a priced line **and** on the contingency | This is the double count proved rather than read off a cell, in the file that gets added up |
+| The register and the estimate disagreeing about a figure | Both documents are internally consistent, so no reader can tell which number is the bid's; settlement cannot be held on two |
+| The risks pointing at central contingency exceeding the contingency | Every row is defensible and the total is not funded — arithmetic, which is why it belongs to a machine and not a review meeting |
+| An answer recorded as having changed the estimate, where no line carries it | "Priced in, estimate updated" is a sentence; a reference on a priced line is the implementation |
+
+What it refuses to do is guess. An unreferenced line for exactly £18,000 next
+to an unmatched £18,000 risk is **not** reconciled: the figures agreeing is a
+coincidence, and treating it as a link is how two unrelated numbers become a
+reconciliation. A link exists because somebody wrote it down.
+
+The priced lines come from a new optional field on the bid agent, read as a
+markdown table like everything else here. Without it the cross-check does not
+run and its statement says the claims could not be tested — never that they
+passed.
 
 ### Gap 4 — validity and revalidation
 
@@ -113,7 +178,12 @@ carries `validUntil` and nothing reads it. The procedure's control is to
 revalidate critical quotes, labour availability and inflation exposure *before*
 confirming an extension — the moment a bid quietly becomes unprofitable.
 
-**Not built.** One function over the quote set and the tender validity date.
+**Built** — `quoteValidity()` in `backend/lib/l7/estimating.js`, over the quote
+set and the tender validity date. A quote stating no validity date is reported
+as UNSTATED, which is not the same as being valid; one that holds at submission
+and lapses inside the validity period being offered is reported separately from
+one already lapsed, because they are different conversations with the supplier.
+`normaliseQuote` is untouched and its existing behaviour is pinned by a test.
 
 ---
 
@@ -165,6 +235,33 @@ everything that calls it today is unaffected.
 Three places where the procedure describes something ETABLIX must not do, and
 the platform is right to lack it.
 
+**All three are now checked in what the system writes, not only stated in what
+it is told** — `backend/lib/positionguard.js`. The reason is that an
+instruction is a thing a model is asked to follow and a check is a thing that
+happens, and the difference matters more here than anywhere else, because all
+three failures read perfectly well. There is nothing obviously wrong with a
+sentence saying ETABLIX will manage the construction phase, or that we will
+install the compound, or that we will contract the suppliers. They are
+ordinary, confident, competent-sounding construction English. They are also,
+in order: an unlawful assumption of a statutory role, a claim to a capability
+the company does not have, and an offer the insurance does not answer.
+
+The guard matches a **claim** — a first-person subject joined to a prohibited
+predicate — and ignores the same predicate anywhere else. "The Principal
+Contractor shall…" is correct in an Employer's Requirements clause addressed
+to somebody else, and "we do not take the Principal Contractor appointment" is
+the sentence the business wants to see. The cost of that choice is that an
+unusual phrasing slips through; the cost of the other choice is a guard that
+fires on every correct document and is therefore turned off within a week. One
+rule is standalone, because the possessive *is* the subject: "our own plant
+will be mobilised in week three" never names the company and is the claim all
+the same — and it is the phrasing somebody reaches for precisely when they are
+describing a capability that is not there.
+
+It reports rather than blocks. The independent challenger is where a bid is
+stopped; a guard that blocked on a regular-expression match would be overruled
+the first time it was wrong, and overruled permanently.
+
 **Principal contractor duties.** Step 4.3 says to allow for CDM planning and
 coordination "where bidding as principal contractor". ETABLIX never is. The
 constraint is in `shared/constants.js` as a delivery invariant and in the agent
@@ -182,7 +279,7 @@ engagement and document routes, and no tendering procedure overrides it.
 
 ---
 
-## 5 · The four gaps, in the order worth building
+## 5 · The order they were built in, and why — kept as written
 
 1. **Gap 3, the five record types and their reconciliation.** Highest value, and
    it fits the existing `*check.js` pattern exactly, so it costs the least to
@@ -195,5 +292,14 @@ engagement and document routes, and no tendering procedure overrides it.
 4. **Gap 2, the site visit as a bid input.** Smallest, and partly covered by
    method documents already.
 
-Say which and they get built the same way this one was: additively, with the
-existing contracts pinned by tests first.
+All four are built, in that order, additively, with the existing contracts
+pinned by tests first. The judgement above is left as it stood rather than
+rewritten now the work is done, because the order a thing was built in is part
+of the record of why.
+
+What is **not** built, and is the honest remaining gap: the cross-check reads
+the priced lines from a field on the bid agent, not from the estimate the
+estimating engine holds. When the two are the same data the check gets
+stronger for nothing; until then it tests the estimate somebody pasted in,
+which is better than testing the register against itself and short of testing
+the estimate of record.

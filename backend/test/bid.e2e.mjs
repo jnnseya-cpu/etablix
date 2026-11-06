@@ -70,6 +70,14 @@ fd.append("inputs", JSON.stringify({
   documents: "INVITATION TO TENDER ITT-2026-114 rev C. 4.2 The Tenderer shall submit a method statement of no more than six pages. 5.1 Prices shall be submitted on the Employer's pricing template. 6.4 Evidence of public liability insurance of not less than £10m.",
   evidence: "Public liability £5m bound; £10m quoted, not yet bound. No SSIP registration held.",
   context: "We intend to bid Management Integrator.",
+  // The priced lines, so the register's claims about where the money sits can
+  // be tested against the estimate rather than against themselves. AS-1 is in
+  // the bid file's own assumption register; a reference to something that is
+  // not would be reported as money against a record that does not exist.
+  estimate: `| Ref | Description | Value | Covers |
+|---|---|---|---|
+| 1.01 | Preliminaries and site establishment | 148,000 | AS-1 |
+| 1.02 | Welfare and accommodation, 60 weeks | 96,000 | - |`,
 }));
 const started = await fetch(`${B}/api/agents/bid/run`, { method: "POST", headers: { Authorization: "Bearer " + T }, body: fd });
 const startedBody = await J(started);
@@ -110,6 +118,21 @@ console.log("\n--- the submission-completeness check\n");
      "and there is no completeness note — a bid that reconciles produces none", run?.notes);
 }
 
+// --- the registers against the price
+//
+// The register reconciliation reads the bid file against itself. This one
+// leaves the document and reads the estimate, which is the only way to tell a
+// risk whose allowance is in the price from one whose allowance is a sentence
+// saying it is.
+{
+  const x = run?.estimateCrossCheck;
+  ok(Boolean(x), "the cross-check ran, because priced lines were supplied", Object.keys(run || {}));
+  ok(x?.compared?.pricedLines === 2, `both priced lines were read (${x?.compared?.pricedLines})`, x?.compared);
+  ok(x?.ok === true, "and the registers reconcile to the price", x);
+  ok((run?.notes || []).every((n) => !/NOT IN THE PRICE|FUNDED TWICE|DOES NOT EXIST/.test(n)),
+     "so it writes no note either", run?.notes);
+}
+
 // --- approve, then mint
 console.log("\n--- the numbered bid file\n");
 r = await api(`/api/agents/runs/${id}/decision`, { json: { decision: "approve", note: "Reviewed for the e2e" } }, T);
@@ -122,6 +145,9 @@ ok(r.body.runId === id, "carrying the run it came from, so it can be traced and 
 ok(r.body.missing?.length === 0, "with every one of the eight parts found", r.body.missing);
 ok(/complete against the invitation's own checklist/.test(r.body.data?.packStatement || ""),
    "and the completeness result travels onto the document", (r.body.data?.packStatement || "").slice(0, 120));
+ok(/reconcile to 2 priced line/.test(r.body.data?.packStatement || ""),
+   "ALONGSIDE THE REGISTERS AGAINST THE PRICE — a bid file that certifies its submission was complete and says nothing about whether the allowances are in the estimate has certified the easier of the two",
+   r.body.data?.packStatement);
 ok(r.body.issue?.required === true && r.body.issue?.ok === false,
    "THE DRAFT ALREADY SAYS IT CANNOT BE ISSUED — said here rather than at the mint, because somebody who learns at four o'clock that a challenge is needed has lost the afternoon they needed to run it",
    r.body.issue);

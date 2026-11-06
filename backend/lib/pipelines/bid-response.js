@@ -460,6 +460,16 @@ export const FIELDS = [
   { name: "sitevisit", label: "Site visit — was one made, and on what date? If none was made, say so", type: "text" },
   { name: "observations", label: "What the visit established. Begin every line OBSERVED, STATED or UNCONFIRMED — seen by us, told to us, or still to be confirmed", type: "textarea" },
   { name: "pricedblind", label: "If no visit was made: what has been priced without seeing it", type: "textarea" },
+
+  // THE PRICED LINES, SO THE REGISTER'S CLAIMS CAN BE TESTED AGAINST THEM.
+  //
+  // The risk register says where each allowance sits. Until something reads
+  // the estimate, that is an unexamined claim about a document nobody has
+  // opened, and the honest version and the hopeful version are written
+  // identically. It is optional because a bid is often worked up before the
+  // estimate exists; supplied, it is the difference between reconciling the
+  // register against itself and reconciling it against the price.
+  { name: "estimate", label: "Priced estimate lines, as a table — Ref, Description, Value, and what each covers (RK-1, CL-4). Optional; without it the risk allowances cannot be checked against the price", type: "textarea" },
 ];
 
 export const SECTIONS = [

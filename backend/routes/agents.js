@@ -154,6 +154,17 @@ async function workPipeline(runId, agent, inputs, runBy, visualFiles = [], resum
       // reason: the bid file prints the result the desk approved against
       // rather than a second one worked out later from the same text.
       ...(r.bidCheck ? { bidCheck: r.bidCheck } : {}),
+      // The bid file's other three readings, kept for exactly the same
+      // reason, and until now not kept at all: their notes reached the
+      // approver and their results did not, so nothing downstream could cite
+      // the finding it was approved against. The registers reconciled to each
+      // other, the registers reconciled to the price, whether the site was
+      // visited, and whether the document claims a CDM appointment,
+      // self-delivery or holding the supply chain.
+      ...(r.tenderCheck ? { tenderCheck: r.tenderCheck } : {}),
+      ...(r.estimateCrossCheck ? { estimateCrossCheck: r.estimateCrossCheck } : {}),
+      ...(r.siteVisitCheck ? { siteVisitCheck: r.siteVisitCheck } : {}),
+      ...(r.positionCheck ? { positionCheck: r.positionCheck } : {}),
       // Workstream 5's payment reconciliation, for the same reason again: the
       // certificate prints the result the desk approved against.
       ...(r.controlCheck ? { controlCheck: r.controlCheck } : {}),

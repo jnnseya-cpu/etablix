@@ -40,6 +40,8 @@
  * challenge something specific to be about.
  */
 
+import { money } from "./controlcheck.js";
+
 /** The five reference forms, fixed, and given to the agent verbatim. */
 export const REF_FORMS = {
   clarification: "CL-<n>",
@@ -418,4 +420,425 @@ export function tenderStatement(result) {
       + "and every risk is funded once or declared unfunded on purpose";
   }
   return `${result.faults} fault(s) across ${result.read} register entries`;
+}
+
+/* ===================================================================
+ * THE CROSS-CHECK: THE REGISTERS AGAINST THE PRICE
+ *
+ * Everything above compares the registers to each other. That catches a
+ * record that changed stage without arriving anywhere, and it is worth
+ * having, but it has one weakness and the weakness is the important one:
+ * every fact it reads was typed by the same person into the same document.
+ *
+ * A risk register that says "allowance sits: central contingency, £18,000"
+ * reconciles perfectly against itself. It reconciles whether or not the
+ * contingency line in the estimate carries eighteen thousand pounds, whether
+ * or not it carries anything, and whether or not there is a contingency line
+ * at all. The register is a claim about the price. Until something reads the
+ * price, it is an unexamined claim, and the honest ones and the hopeful ones
+ * look exactly alike.
+ *
+ * SO THIS READS THE PRICE. Six comparisons, and each is a defect somebody
+ * has shipped:
+ *
+ *   1 · THE ALLOWANCE THAT IS CLAIMED AND IS NOT THERE. The register says the
+ *       money sits in a package quote or the base estimate. No priced line
+ *       references the risk. Somebody decided where the money would go and
+ *       the decision never reached the estimator — the commonest version of
+ *       this failure, because the register is written by the person running
+ *       the bid and the estimate by somebody else.
+ *
+ *   2 · THE ALLOWANCE THAT IS THERE AND IS NOT REGISTERED. A priced line
+ *       carries money against RK-7 and there is no RK-7. Either the register
+ *       was pruned after the estimate was built, or the reference is a typo,
+ *       and a typo here means the risk the money was for is not the risk the
+ *       bid thinks it has covered.
+ *
+ *   3 · THE DOUBLE COUNT, PROVED RATHER THAN ASSERTED. Two words in a cell
+ *       are a reading of a sentence. The same reference on a priced package
+ *       line AND on the contingency is the money, twice, in the file that
+ *       gets added up. This is the one that loses a bid by an amount nobody
+ *       can find afterwards, and it is the one worth being certain about.
+ *
+ *   4 · THE REGISTER AND THE ESTIMATE DISAGREEING ABOUT A FIGURE. RK-3 is
+ *       £12,000 in the register and £4,000 in the line that carries it. One
+ *       of them is wrong and no reader can tell which, because both documents
+ *       are internally consistent. Settlement is then held on two numbers.
+ *
+ *   5 · THE CONTINGENCY THAT IS SPENT BEFORE THE BID IS SUBMITTED. The risks
+ *       pointing at central contingency come to more than the contingency.
+ *       Every row is defensible and the total is not funded. This is
+ *       arithmetic, which is why it belongs to a machine and not to a review
+ *       meeting.
+ *
+ *   6 · THE ANSWER THAT SAYS IT CHANGED THE ESTIMATE, WHERE THE ESTIMATE DOES
+ *       NOT SAY SO. "CL-4: priced in, estimate updated" is the sentence the
+ *       rule above accepts, because the rule above can only read sentences.
+ *       Here it is accepted only if a priced line carries CL-4.
+ *
+ * WHAT IT WILL NOT DO. It will not guess that an unreferenced line is the
+ * allowance for an unmatched risk because the figures happen to agree. That
+ * inference is attractive and it is how two unrelated numbers become a
+ * reconciliation; the whole value of this module is that a link exists
+ * because somebody wrote it down, not because a machine found a coincidence.
+ *
+ * AND IT STILL REPORTS. The issue gate is where a bid stops.
+ * =================================================================== */
+
+
+/**
+ * The fields on a priced line that may carry a register reference. An
+ * estimate is somebody's spreadsheet and the reference lands wherever there
+ * was a column for it, so all of them are read and none is required.
+ *
+ * `id` is included deliberately: a line keyed RK-7-allowance is how a great
+ * many estimators record this, and refusing to read it would mean refusing
+ * the commonest honest case.
+ */
+const ITEM_REF_FIELDS = [
+  "id", "ref", "refs", "against", "description", "desc", "item", "name",
+  "note", "notes", "narrative", "basis", "reason", "scopeItemId", "tags",
+];
+
+/** Everything on a line that could be text, joined, for reference scanning. */
+function itemText(item) {
+  const it = item || {};
+  const parts = [];
+  for (const f of ITEM_REF_FIELDS) {
+    const v = it[f];
+    if (v === undefined || v === null) continue;
+    parts.push(Array.isArray(v) ? v.join(" ") : String(v));
+  }
+  return parts.join(" \n ");
+}
+
+/** The value of a priced line, from whichever of the usual fields carries it. */
+function itemValue(item) {
+  const it = item || {};
+  for (const f of ["total", "value", "amount", "allowance", "sum", "price"]) {
+    if (it[f] === undefined || it[f] === null || it[f] === "") continue;
+    const v = money(it[f]);
+    if (v !== null) return v;
+  }
+  // A quantity and a rate are a total nobody wrote down. The arithmetic is
+  // the estimating engine's; here it is only read, never corrected.
+  const q = money(it.quantity);
+  const r = money(it.rate);
+  if (q !== null && r !== null) return Math.round(q * r * 100) / 100;
+  return null;
+}
+
+/** Is this line the central contingency rather than a priced package line? */
+function isContingencyLine(item) {
+  const it = item || {};
+  if (it.contingency === true) return true;
+  const kind = String(it.kind ?? it.type ?? it.category ?? "").toLowerCase();
+  if (/contingenc/.test(kind)) return true;
+  // A line called "Central contingency" with no kind field is the same thing,
+  // and is how it appears in most estimates.
+  return /\bcontingenc/i.test(String(it.description ?? it.name ?? it.item ?? it.id ?? ""));
+}
+
+const round2 = (n) => Math.round(n * 100) / 100;
+
+const ESTIMATE_WANTED = {
+  id: ["ref", "line", "item", "code", "no", "number"],
+  description: ["description", "desc", "item", "narrative", "what", "scope"],
+  value: ["value", "total", "amount", "cost", "price", "sum"],
+  // Optional, because most estimates carry the reference in the description
+  // and some carry it in a column of its own. Both are read.
+  against: ["covers", "against", "risk", "registerref", "refs", "?"],
+};
+
+/**
+ * Priced estimate lines out of a markdown table, so the cross-check can be
+ * fed from the same place as everything else here.
+ *
+ * It is deliberately not an estimate parser. It reads a reference, some text
+ * and a figure; the arithmetic, the units and the mark-ups belong to
+ * `l7/estimating.js` and are not second-guessed from a table.
+ *
+ * A row whose figure will not parse is kept, with a null value, rather than
+ * dropped. A dropped line is a line the cross-check believes does not exist,
+ * which turns an unreadable number into a missing allowance — a different and
+ * more alarming finding than the true one.
+ */
+export function estimateLines(text) {
+  const rows = tableRows(text);
+  const out = [];
+  let idx = null;
+  for (const cells of rows) {
+    const found = headerIndex(cells, ESTIMATE_WANTED);
+    if (found) { idx = found; continue; }
+    if (!idx) continue;
+    const id = clean(cells[idx.id] ?? "");
+    const description = clean(cells[idx.description] ?? "");
+    const value = clean(cells[idx.value] ?? "");
+    if (!id && !description) continue;
+    const against = idx.against === undefined ? "" : clean(cells[idx.against] ?? "");
+    out.push({ id: id || description.slice(0, 40), description, value, against });
+  }
+  return out;
+}
+
+/**
+ * Reconcile the registers against the priced estimate.
+ *
+ * `estimateItems` is the priced lines, in whatever shape the estimate keeps
+ * them; contingency lines may be marked on the items themselves or passed
+ * separately as `contingency` — a number, or an object carrying a value and
+ * the references it covers.
+ */
+export function reconcileRegistersToEstimate({
+  risks = "",
+  assumptions = "",
+  clarifications = "",
+  estimateItems = [],
+  contingency = null,
+  tolerance = 0.01,
+} = {}) {
+  const rk = rowsOf(risks, "risk", RK_WANTED);
+  const as = rowsOf(assumptions, "assumption", AS_WANTED);
+  const cl = rowsOf(clarifications, "clarification", CL_WANTED);
+
+  const items = Array.isArray(estimateItems) ? estimateItems.filter(Boolean) : [];
+  const priced = items.filter((it) => !isContingencyLine(it));
+  const contingencyLines = items.filter(isContingencyLine);
+
+  // The contingency, from wherever it was given. A bare number is a value
+  // with no references, which is the usual case and is not a fault by itself.
+  let contingencyValue = null;
+  let contingencyText = contingencyLines.map(itemText).join(" \n ");
+  if (contingency !== null && contingency !== undefined) {
+    if (typeof contingency === "object") {
+      contingencyValue = itemValue(contingency);
+      contingencyText += ` \n ${itemText(contingency)}`;
+    } else {
+      contingencyValue = money(contingency);
+    }
+  }
+  if (contingencyValue === null && contingencyLines.length) {
+    const vals = contingencyLines.map(itemValue).filter((v) => v !== null);
+    if (vals.length) contingencyValue = round2(vals.reduce((a, b) => a + b, 0));
+  }
+
+  // Which references each side of the estimate carries, and what against each.
+  const pricedRefs = new Map();           // "RK-3" -> [ { id, value } ]
+  for (const it of priced) {
+    const text = itemText(it);
+    for (const kind of ["risk", "assumption", "clarification"]) {
+      for (const ref of refsIn(text, kind)) {
+        if (!pricedRefs.has(ref)) pricedRefs.set(ref, []);
+        pricedRefs.get(ref).push({ id: String(it.id ?? it.ref ?? "(unidentified line)"), value: itemValue(it) });
+      }
+    }
+  }
+  const contingencyRefs = new Set([
+    ...refsIn(contingencyText, "risk"),
+    ...refsIn(contingencyText, "assumption"),
+  ]);
+
+  const registeredRisks = new Set(rk.map((r) => r.ref));
+  const registeredAssumptions = new Set(as.map((r) => r.ref));
+
+  const allowanceClaimedNotPriced = [];
+  const valueDisagrees = [];
+  const fundedTwice = [];
+  let contingencyClaimed = 0;
+  const contingencyRows = [];
+
+  for (const row of rk) {
+    const places = allowancePlaces(row.where);
+    const inEstimate = places.includes("PACKAGE QUOTE") || places.includes("BASE ESTIMATE");
+    const inContingency = places.includes("CENTRAL CONTINGENCY");
+    const registerValue = money(row.value);
+
+    const lines = pricedRefs.get(row.ref) || [];
+    const onContingency = contingencyRefs.has(row.ref);
+
+    if (inEstimate && !lines.length) {
+      allowanceClaimedNotPriced.push({
+        ref: row.ref,
+        claimed: places.filter((p) => p !== "CENTRAL CONTINGENCY").join(" and "),
+        why: "no priced line in the estimate references it",
+      });
+    }
+    if (inContingency && contingencyLines.length + (contingency ? 1 : 0) === 0) {
+      allowanceClaimedNotPriced.push({
+        ref: row.ref,
+        claimed: "CENTRAL CONTINGENCY",
+        why: "there is no contingency line in the estimate to sit in",
+      });
+    }
+
+    if (inContingency && registerValue !== null) {
+      contingencyClaimed = round2(contingencyClaimed + registerValue);
+      contingencyRows.push({ ref: row.ref, value: registerValue });
+    }
+
+    // The double count, proved: on a priced line and on the contingency.
+    if (lines.length && onContingency) {
+      fundedTwice.push({
+        ref: row.ref,
+        lines: lines.map((l) => l.id),
+        why: "carried by a priced line and by the contingency",
+      });
+    }
+
+    // The two documents' own figures, compared.
+    if (registerValue !== null && lines.length) {
+      const vals = lines.map((l) => l.value).filter((v) => v !== null);
+      if (vals.length === lines.length) {
+        const total = round2(vals.reduce((a, b) => a + b, 0));
+        if (Math.abs(total - registerValue) > tolerance) {
+          valueDisagrees.push({
+            ref: row.ref,
+            register: registerValue,
+            estimate: total,
+            lines: lines.map((l) => l.id),
+          });
+        }
+      }
+    }
+  }
+
+  // Money in the estimate against a record that does not exist.
+  const pricedNotRegistered = [];
+  for (const [ref, lines] of pricedRefs) {
+    const isRisk = ref.startsWith("RK-");
+    const isAssumption = ref.startsWith("AS-");
+    if (isRisk && !registeredRisks.has(ref)) {
+      pricedNotRegistered.push({ ref, lines: lines.map((l) => l.id), kind: "risk" });
+    } else if (isAssumption && registeredAssumptions.has(ref) === false && as.length) {
+      // Only reported when there IS an assumption register to be absent from.
+      // With no register at all the finding is "there is no register", which
+      // is the other check's to make and not this one's to say six times.
+      pricedNotRegistered.push({ ref, lines: lines.map((l) => l.id), kind: "assumption" });
+    }
+  }
+  for (const ref of contingencyRefs) {
+    if (!ref.startsWith("RK-") || registeredRisks.has(ref)) continue;
+    pricedNotRegistered.push({ ref, lines: ["(contingency)"], kind: "risk" });
+  }
+
+  // The arithmetic nobody does: is the contingency big enough for the risks
+  // that point at it?
+  let contingencyCover = null;
+  if (!contingencyRows.length) {
+    contingencyCover = { ok: true, claimed: 0, available: contingencyValue, say: "no risk is funded from central contingency" };
+  } else if (contingencyValue === null) {
+    contingencyCover = {
+      ok: false, claimed: contingencyClaimed, available: null,
+      say: `${contingencyRows.length} risk(s) totalling ${contingencyClaimed} are funded from a central contingency the estimate does not state`,
+    };
+  } else if (contingencyClaimed > contingencyValue + tolerance) {
+    contingencyCover = {
+      ok: false, claimed: contingencyClaimed, available: contingencyValue,
+      say: `${contingencyClaimed} of risk is funded from a contingency of ${contingencyValue} — `
+        + `${round2(contingencyClaimed - contingencyValue)} of the register has no money behind it`,
+    };
+  } else {
+    contingencyCover = {
+      ok: true, claimed: contingencyClaimed, available: contingencyValue,
+      say: `${contingencyClaimed} of risk against a contingency of ${contingencyValue}`,
+    };
+  }
+
+  // An answer that says it moved the estimate, where the estimate does not
+  // carry it. Only for answers that claim the estimate: one that says it
+  // changed a drawing is the register check's business, not this one's.
+  const answerNotInEstimate = [];
+  for (const row of cl) {
+    const status = clean(row.status).toUpperCase().replace(/[^A-Z]/g, "");
+    if (status !== "ANSWERED") continue;
+    const said = clean(row.changed);
+    if (blank(said) || /^no change\b/i.test(said)) continue;
+    if (!/estimate|price|rate|cost|allowance|priced/i.test(said)) continue;
+    if (!pricedRefs.has(row.ref)) {
+      answerNotInEstimate.push({ ref: row.ref, said: said.slice(0, 120) });
+    }
+  }
+
+  const faults =
+    allowanceClaimedNotPriced.length + pricedNotRegistered.length + fundedTwice.length +
+    valueDisagrees.length + (contingencyCover.ok ? 0 : 1) + answerNotInEstimate.length;
+
+  return {
+    allowanceClaimedNotPriced,
+    pricedNotRegistered,
+    fundedTwice,
+    valueDisagrees,
+    contingencyCover,
+    answerNotInEstimate,
+    compared: {
+      risks: rk.length,
+      assumptions: as.length,
+      clarifications: cl.length,
+      pricedLines: priced.length,
+      contingencyLines: contingencyLines.length,
+      referencedRefs: pricedRefs.size,
+    },
+    faults,
+    ok: faults === 0,
+  };
+}
+
+/**
+ * The notes an approver reads. Separate from `tenderNotes` on purpose: these
+ * are findings about the price, and an approver who sees them mixed into
+ * register housekeeping reads them as housekeeping.
+ */
+export function estimateCrossNotes(result) {
+  const out = [];
+  if (!result) return out;
+  const r = result;
+
+  if (r.allowanceClaimedNotPriced?.length) {
+    out.push(`AN ALLOWANCE CLAIMED AND NOT IN THE PRICE — ${r.allowanceClaimedNotPriced
+      .map((x) => `${x.ref} (says ${x.claimed}; ${x.why})`).join("; ")}. `
+      + "The register records a decision about where the money would sit. The estimate does not carry it, so the decision was made and never arrived.");
+  }
+  if (r.pricedNotRegistered?.length) {
+    out.push(`MONEY AGAINST A RECORD THAT DOES NOT EXIST — ${r.pricedNotRegistered
+      .map((x) => `${x.ref} on ${x.lines.join(", ")}`).join("; ")}. `
+      + "Either the register was pruned after the estimate was built, or the reference is wrong; if it is wrong, the exposure the money was for is uncovered.");
+  }
+  if (r.fundedTwice?.length) {
+    out.push(`FUNDED TWICE, IN THE FILE THAT GETS ADDED UP — ${r.fundedTwice
+      .map((x) => `${x.ref} (${x.lines.join(", ")} and the contingency)`).join("; ")}. `
+      + "This is the double count proved rather than read off a cell, and it is the one that loses a bid by an amount nobody can find afterwards.");
+  }
+  if (r.valueDisagrees?.length) {
+    out.push(`THE REGISTER AND THE ESTIMATE DISAGREE — ${r.valueDisagrees
+      .map((x) => `${x.ref}: ${x.register} in the register, ${x.estimate} on ${x.lines.join(", ")}`).join("; ")}. `
+      + "Both documents are internally consistent, so no reader can tell which figure is the bid's. Settlement cannot be held on two numbers.");
+  }
+  if (r.contingencyCover && !r.contingencyCover.ok) {
+    out.push(`THE CONTINGENCY IS SPENT BEFORE SUBMISSION — ${r.contingencyCover.say}. `
+      + "Every row is defensible on its own and the total is not funded.");
+  }
+  if (r.answerNotInEstimate?.length) {
+    out.push(`AN ANSWER THAT SAYS IT CHANGED THE PRICE, WHERE THE PRICE DOES NOT CARRY IT — ${r.answerNotInEstimate
+      .map((x) => `${x.ref} ("${x.said}")`).join("; ")}. `
+      + "A reply is implemented when the line has moved. This one has been written down as implemented and no priced line references it.");
+  }
+  return out;
+}
+
+/** One sentence for the run log and the approval screen. */
+export function estimateCrossStatement(result) {
+  if (!result) return "the registers were not compared to the estimate";
+  const c = result.compared || {};
+  if (!c.pricedLines) {
+    return "no priced estimate lines were supplied, so the registers' claims about the price could not be tested";
+  }
+  if (!c.risks && !c.clarifications) {
+    return `${c.pricedLines} priced line(s) and no readable register to compare them to`;
+  }
+  if (result.ok) {
+    return `${c.risks} risk(s) and ${c.clarifications} clarification(s) reconcile to ${c.pricedLines} priced line(s): `
+      + "every claimed allowance is in the price, every allowance in the price is registered, nothing is funded twice, "
+      + `and ${result.contingencyCover?.say || "the contingency holds"}`;
+  }
+  return `${result.faults} fault(s) between the registers and the price`;
 }

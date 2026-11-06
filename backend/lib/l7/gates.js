@@ -152,6 +152,20 @@ export const GATES = [
       { kind: "redteam", lens: "commercial", severity: "HIGH", say: "an open high-severity commercial finding" },
       { kind: "scenario", metric: "P80.margin", atLeast: "policy.minMarginP80", say: "the P80 margin is below policy" },
       { kind: "fact", fact: "estimate.arithmeticFaults", is: 0, say: "a stored total does not match its calculation" },
+      // THE BID PRODUCTION PROGRAMME, AT THE ONE POINT WHERE IT IS NOT ADVICE.
+      //
+      // A price released from an estimate that has not frozen is an approval
+      // of a figure that will change before submission, and the signature
+      // ends up on a number nobody can reproduce. The second condition is
+      // the one that reads as a scheduling detail and is not: an estimate
+      // programmed to freeze before the supplier returns, the survey, the
+      // clarification cut-off or the design freeze does not rest on the
+      // prices it claims to carry.
+      //
+      // Only these two of the programme's faults are here. An activity with
+      // no named owner is a real fault and it is not this gate's business.
+      { kind: "fact", fact: "bidProgramme.estimateFreezePassed", is: true, say: "the estimate has not frozen, so the price being released is not the price that will be submitted" },
+      { kind: "fact", fact: "bidProgramme.estimateOrderFaults", is: 0, say: "the estimate is programmed to freeze before something it prices" },
       { kind: "approval", roles: ["COMMERCIAL_AUTHORITY"], quorum: 1, segregation: true },
     ],
   },

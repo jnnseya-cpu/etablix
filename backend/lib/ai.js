@@ -32,7 +32,10 @@ import { reconcileChecklistToResponse, bidNotes } from "./bidcheck.js";
 import { reconcilePaymentsToEarned, controlNotes } from "./controlcheck.js";
 import { reconcileRegisterToMovements, interfaceNotes } from "./interfacecheck.js";
 import { reconcileChallenge, challengeNotes } from "./challengecheck.js";
-import { reconcileTenderRegisters, checkSiteVisit, tenderNotes } from "./tendercheck.js";
+import {
+  reconcileTenderRegisters, checkSiteVisit, tenderNotes,
+  reconcileRegistersToEstimate, estimateLines, estimateCrossNotes,
+} from "./tendercheck.js";
 import { checkPosition, positionNotes } from "./positionguard.js";
 import { meter, callFromUsage, budgetFor, summarise } from "./l7/acu.js";
 import { deliveryBrief, DELIVERY_MODEL_FIELD } from "../../shared/constants.js";
@@ -1137,15 +1140,41 @@ function withBidCheck(result, inputs = {}) {
   });
   const position = checkPosition(result.output || "");
 
+  /**
+   * THE FOURTH READING, AND THE ONLY ONE THAT LEAVES THE DOCUMENT.
+   *
+   * The register reconciliation above compares the registers to each other.
+   * Every fact it reads was typed into the same document by the same person,
+   * so a risk register claiming its allowance sits in a package quote
+   * reconciles whether or not any package quote carries it.
+   *
+   * This reads the priced lines. It only runs when there are priced lines to
+   * read: the estimate is supplied separately and often does not exist yet,
+   * and a cross-check with nothing on one side of it must say so rather than
+   * report agreement. `estimateCrossStatement` is what says so, and it is
+   * read on the approval screen whether or not there are findings.
+   */
+  const priced = estimateLines(inputs.estimate || "");
+  const cross = priced.length
+    ? reconcileRegistersToEstimate({
+        risks: data.b6 || "",
+        assumptions: data.b6 || "",
+        clarifications: data.b5 || "",
+        estimateItems: priced,
+      })
+    : null;
+
   return {
     ...result,
     bidCheck: check,
     tenderCheck: registers,
     siteVisitCheck: visit,
     positionCheck: position,
+    estimateCrossCheck: cross,
     notes: [
       ...bidNotes(check),
       ...tenderNotes(registers),
+      ...estimateCrossNotes(cross),
       ...(visit.ok ? [] : [`SITE VISIT — ${visit.say}.`]),
       ...positionNotes(position),
       ...(result.notes || []),
