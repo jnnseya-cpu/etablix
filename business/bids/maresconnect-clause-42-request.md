@@ -43,6 +43,53 @@ reads as a follow-up rather than a cold approach.
 
 ---
 
+## Addendum 1, and what it is not
+
+On 6 November at 20:44 MaresConnect issued Addendum 1 to contact@etablix.com:
+editable versions of the PQQ documentation for all four LOTs, "identical in
+content to the previously issued versions and ... provided in an editable format
+to facilitate completion."
+
+**This is not evidence that the decline was not read.** Three things say so:
+
+- It is addressed **"Dear Candidates"**, plural. It is a distribution, not a
+  reply.
+- It carries **both** document sets, 1A/1B and 2A/2B, so it went to the whole
+  PQQ list irrespective of which LOTs any Candidate is pursuing.
+- Its content is purely administrative. Nothing in it responds to anything
+  ETABLIX wrote.
+
+And there is a reason a buyer deliberately does not prune that list. A
+procurement team that drops a Candidate from an addendum distribution creates
+the argument that an addendum was not issued to a Candidate -- a procedural
+challenge nobody wants on a 750 MW interconnector. Leaving the list exactly as
+issued is the careful thing to do, not an oversight. Reading it as a snub, and
+answering in that register, would be the only way to turn it into one.
+
+**The editable versions were checked rather than taken on trust**, because the
+whole decline rests on two numbers and a buyer saying "identical in content"
+while a threshold had moved is exactly the thing worth catching. Both documents
+are still revision **P01**, and every decisive gate is unchanged:
+
+| | LOT 1A / 1B | LOT 2A / 2B |
+|---|---|---|
+| Minimum turnover, in both of the last two audited years | EUR 500m | EUR 500m |
+| Minimum net assets | EUR 200m | EUR 200m |
+| Financial part completed by | each consortium member | each consortium member |
+| Shortlist | up to three (3) | up to seven (7) |
+| Section 5.2 capability | manufacture VSC HVDC / HVAC GIS technology | manufacturing capacity to fully develop and test 320 kV HVDC XLPE, 400 kV HVAC underground and 400 kV cables |
+
+So there is nothing to re-assess and nothing to reconsider. The decline stands
+on its own terms.
+
+**What the addendum does usefully give us is a reason for the email below to
+arrive now.** A follow-up two days after a decline needs no excuse, but one
+prompted by an addendum is better: it is plainly administrative, it explains
+itself, and it lets the two substantive asks travel without reading as a second
+bite. Send one email, not two.
+
+---
+
 ## Addressing
 
 **To:** procurement@maresconnect.ie
@@ -62,14 +109,22 @@ for. No capability statement, no CV, no specimen.
 
 ## The email
 
-> **Subject:** MaresConnect 750 MW HVDC — capability note on file, and a request under clause 4.2
+> **Subject:** MaresConnect 750 MW HVDC — Addendum 1, and two follow-up items
 >
 > Dear Mr Moneley,
 >
-> Further to our notification that ETABLIX, part of JNN GLOBAL LTD, company
-> 15405437, would not be submitting a PQQ response for the MaresConnect 750 MW
-> HVDC Interconnector System, I offered then to provide a capability note to be
-> held on file. I am writing to follow that up, and to ask one permission.
+> Thank you for Addendum 1 and the editable PQQ documentation.
+>
+> **So that your team is not holding a place for one:** the decision ETABLIX,
+> part of JNN GLOBAL LTD, company 15405437, notified through Aconex stands, and
+> no PQQ response will follow from us. We have no need of further PQQ material
+> and would be glad to be taken off the Candidate distribution if that is
+> straightforward. If it is simpler to leave the list as issued, that is
+> entirely fine; the documentation will continue to be held and handled under
+> the non-disclosure agreement either way.
+>
+> In that notification I offered to provide a capability note to be held on
+> file. Two items follow from it.
 >
 > **The scope.** ETABLIX plans and procures the temporary site environment
 > around permanent works: compound layout and sizing, temporary power and
@@ -80,22 +135,25 @@ for. No capability statement, no CV, no specimen.
 > Section 2.5 places a Civil and Structural Enabling Works Contract within each
 > LOT scope, to be entered with the Preferred Bidder at pre-FID stage. That is
 > the stage at which this scope is first priced, and it is priced by a bid team
-> with two converter stations to engineer and a submission date to meet. The
+> with a converter station or a cable system to engineer and a submission date
+> to meet. The
 > consequence is not poor work; it is that each bidder carries a different
 > allowance, built on a different set of assumptions, and the line is not
 > comparable between them.
 >
-> **What I am asking — either or both.**
+> **The two items — either or both.**
 >
 > 1. If MaresConnect holds a supply-chain register, or will accept a capability
 >    note held on file against that scope, I will provide one in whatever form
 >    you prefer.
 >
 > 2. Written consent under clause 4.2 of the non-disclosure agreement for
->    ETABLIX to approach the Lot 1A and Lot 1B bidders about temporary site
->    establishment. Clause 4.1.5 prevents us initiating that contact and we have
->    not done so. If consent is not something you wish to give, that is an
->    answer and we will hold to the restriction.
+>    ETABLIX to approach Candidates for any LOT about temporary site
+>    establishment in connection with this project. The Enabling Works Contract
+>    appears in all four LOT scopes, so the request is not confined to one of
+>    them. Clause 4.1.5 prevents us initiating that contact and we have not done
+>    so. If consent is not something you wish to give, that is an answer and we
+>    will hold to the restriction.
 >
 > It may help to say what we are not. ETABLIX is engaged as an adviser and
 > integrator: the client holds every supplier contract and pays every supplier
@@ -143,17 +201,29 @@ procurement officer ignores a request rather than declining it. A recorded no is
 more useful than silence: it closes the bidder route properly rather than
 leaving it ambiguous.
 
-**No date is asserted** for the decline note, because the sent date is not on
-this record. Add it if you want it — "Further to our notification of 3 November"
-reads better than "further to our notification" — but do not guess at it.
+**The decline note is no longer dated in the text at all.** Opening on Addendum
+1, which has a date we hold, removes the need for one — so the gap that would
+otherwise have had to be filled in by hand has gone. Nothing is guessed at.
+
+**The distribution-list request is an offer, not a demand.** "If it is simpler
+to leave the list as issued, that is entirely fine" is there because the buyer
+has a procedural reason to keep it intact, and asking them to take a step that
+creates challenge risk for them would be a poor first impression from a firm
+that wants to be on their supply-chain register.
 
 ---
 
 ## What this does not do
 
 It does not reach the EPC bidders. Nothing can, about this project, until Mares
-answers question 2 in writing. If the answer is yes, the bidder letters are
-quick to write and should name no confidential detail beyond what the public
-notice carries. If the answer is no or nothing comes back, the Lot 1A/1B route
-is closed and the target note should be amended to say so, rather than left
-reading "first priority" against an approach that cannot be made.
+answers item 2 in writing. If the answer is yes, the bidder letters are quick to
+write and must name no confidential detail beyond what the public notice
+carries. If the answer is no or nothing comes back, the route is closed and the
+target note should be amended to say so, rather than left reading "first
+priority" against an approach that cannot lawfully be made.
+
+**Two corrections to the target note while it is being amended.** It describes
+LOT 1B as the Irish 400 kV tail substation; §5.2 of the PQQ puts LOT 1B as
+manufacture of HVAC GIS technology, and the 400 kV cable scope sits in 2A and
+2B. And it makes the bidder approach "first priority", which it cannot be while
+4.1.5 stands — the first priority is the consent that would make it possible.
