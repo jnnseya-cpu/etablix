@@ -162,6 +162,13 @@ not a promise to ask by a date.
 > note held on file against the Enabling Works scope at Section 2.5, I will
 > provide one in whatever form you prefer.
 >
+> And a standing offer, which needs nothing from you today. Section 2.5 places
+> the Civil and Structural Enabling Works Contract with the Preferred Bidder at
+> pre-FID stage. If at that point an introduction to the Preferred Bidder on
+> that scope would be useful to the project, we would welcome it, on whatever
+> terms and at whatever moment suit you. We will not approach any party about
+> this project ourselves.
+>
 > Kind regards,
 >
 > Justin Nseya MCIOB
@@ -178,6 +185,41 @@ coming — keeps the one question the decline note left open alive, and asks for
 nothing that requires a decision from anybody. A reply of this length to an
 automated distribution reads as courtesy. The same length carrying a consent
 request would read as an approach.
+
+**THE INTRODUCTION IS THE BETTER ASK, AND IT NEEDS NO CONSENT AT ALL.**
+
+The consent route asks MaresConnect to permit something ETABLIX would then do.
+The introduction route asks MaresConnect to do it. The second is easier to
+grant, and it is easier for a reason that matters: **clause 4.1.5 restricts the
+Recipient from INITIATING contact.** If Mares makes the introduction, Mares
+initiated it. There is nothing for ETABLIX to seek consent for, because the
+prohibited act never happens. An introduction from the Discloser is not a
+4.1.5 breach by the Recipient under any reading of it.
+
+So this is not a weaker version of the consent ask. It is a route around the
+clause rather than through it, and the sentence "we will not approach any party
+about this project ourselves" is what makes that explicit — it reassures the
+reader that the offer is not a request to be let off the restriction.
+
+It also costs the reader nothing today. There is no decision to make, so there
+is nothing to refuse, and nothing goes on file as refused. It sits in Moneley's
+mind until the Preferred Bidder exists, which is the only moment it could ever
+have been useful.
+
+**And it is pitched at pre-FID, not at award, deliberately.** §2.5 places the
+Enabling Works Contract with the Preferred Bidder at pre-FID stage. By contract
+award the EPC has already priced the compound into its bid and the number is
+fixed; at Preferred Bidder it is still being settled. Naming the stage from the
+document also shows the PQQ was read, which after declining it is worth more
+than it costs.
+
+**What the consent ask is still for.** The commercially valuable moment is
+earlier than either — shortlisting, when several bidders are pricing the same
+enabling works line and none of them has settled it. Reaching them needs 4.2
+consent and nothing else will do, because there ETABLIX would be the one
+initiating. So both remain live: the introduction offered now as a standing
+one, and the consent request held for shortlisting. They are not alternatives
+and the first does not spend the second.
 
 **Attach nothing**, for the same reason as before: §1.6 and §6 say marketing
 material is not provided unless it supports a specific answer. The capability
@@ -293,8 +335,10 @@ that wants to be on their supply-chain register.
 
 ## What this does not do
 
-It does not reach the EPC bidders. Nothing can, about this project, until Mares
-answers item 2 in writing. If the answer is yes, the bidder letters are quick to
+It does not reach the EPC bidders. Nothing ETABLIX initiates can, about this
+project, until Mares answers the consent request in writing — but an
+introduction made by Mares is not something ETABLIX initiates, which is why the
+standing offer above is in the reply going now. If the answer is yes, the bidder letters are quick to
 write and must name no confidential detail beyond what the public notice
 carries. If the answer is no or nothing comes back, the route is closed and the
 target note should be amended to say so, rather than left reading "first
