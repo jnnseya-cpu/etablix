@@ -107,7 +107,85 @@ for. No capability statement, no CV, no specimen.
 
 ---
 
-## The email
+## Timing: the register ask now, the clause 4.2 ask later
+
+An earlier version of this note said to send one email carrying both items.
+That was right about not sending two emails days apart and wrong about when the
+consent ask lands.
+
+**The PQQ is live.** Returns are not in and no Candidate is shortlisted. Asking
+a procurement lead, in that window, for written permission to approach their
+Candidates is asking them to do the one thing their own §1.11.4 says they will
+not do — enter into dealings with individual respondents — and to do it on
+behalf of a third party. The likely answer is no, or nothing. A refusal
+recorded during the PQQ is then the settled position, and the second ask months
+later has to argue with it.
+
+**After shortlisting the same question is easy to grant.** The field is fixed
+and public to the parties, and an offer made on the same terms to every
+shortlisted bidder does not favour any of them. It arguably helps MaresConnect:
+the Enabling Works line at §2.5 becomes comparable between bids instead of each
+bidder carrying its own allowance on its own assumptions. That is the version a
+procurement lead can say yes to.
+
+So: **send the short reply below now.** Hold the consent request until
+shortlisting for LOTs 1A and 1B is announced, then send the longer version that
+follows it. Nothing is lost by waiting — clause 4.1.5 prevents the approach
+either way, and the decline note's undertaking is a statement of compliance,
+not a promise to ask by a date.
+
+---
+
+## The reply to send now
+
+> **Subject:** RE: Issue of editable versions of PQQ documentation — 681481-2026
+>
+> Dear Mr Moneley,
+>
+> Thank you for Addendum 1 and the editable documentation.
+>
+> So that no place is held for one: the decision ETABLIX, part of JNN GLOBAL
+> LTD, company 15405437, notified through Aconex stands, and no PQQ response
+> will follow from us. We have no need of further PQQ material and would be glad
+> to come off the Candidate distribution if that is straightforward — if it is
+> simpler to leave the list as issued that is entirely fine, and the
+> documentation will be held and handled under the non-disclosure agreement
+> either way.
+>
+> One item remains open from that notification. ETABLIX plans and procures the
+> temporary site environment around permanent works: compound layout and sizing,
+> temporary power and utilities, welfare and workforce accommodation, security,
+> waste, logistics, and demobilisation with reinstatement. We are engaged as an
+> adviser and integrator — the client holds every supplier contract and pays
+> every supplier directly — and we take no construction or design appointment.
+> If MaresConnect holds a supply-chain register, or will accept a capability
+> note held on file against the Enabling Works scope at Section 2.5, I will
+> provide one in whatever form you prefer.
+>
+> Kind regards,
+>
+> Justin Nseya MCIOB
+> Managing Director
+> ETABLIX, part of JNN GLOBAL LTD, company 15405437
+>
+> M +44 7493 216101 · E contact@etablix.com
+> A Groupe Nseya House, Kingstanding, Birmingham, B44 8DJ, United Kingdom
+> W etablix.com
+
+**Why it is this short.** It is a reply to an administrative addendum. It
+answers the only thing the addendum needed answering — that no response is
+coming — keeps the one question the decline note left open alive, and asks for
+nothing that requires a decision from anybody. A reply of this length to an
+automated distribution reads as courtesy. The same length carrying a consent
+request would read as an approach.
+
+**Attach nothing**, for the same reason as before: §1.6 and §6 say marketing
+material is not provided unless it supports a specific answer. The capability
+note is offered and sent only if asked for.
+
+---
+
+## The longer version, held until shortlisting
 
 > **Subject:** MaresConnect 750 MW HVDC — Addendum 1, and two follow-up items
 >
@@ -222,8 +300,25 @@ carries. If the answer is no or nothing comes back, the route is closed and the
 target note should be amended to say so, rather than left reading "first
 priority" against an approach that cannot lawfully be made.
 
-**Two corrections to the target note while it is being amended.** It describes
-LOT 1B as the Irish 400 kV tail substation; §5.2 of the PQQ puts LOT 1B as
-manufacture of HVAC GIS technology, and the 400 kV cable scope sits in 2A and
-2B. And it makes the bidder approach "first priority", which it cannot be while
-4.1.5 stands — the first priority is the consent that would make it possible.
+**A correction, recorded because it was first recorded the wrong way round.**
+An earlier version of this note said the target note described LOT 1B wrongly.
+It does not. The PQQ names the four LOTs:
+
+| LOT | Title as the PQQ gives it |
+|---|---|
+| 1A | EPC for HVDC Converter Stations |
+| 1B | EPC for Irish 400 kV AC Tail Substation |
+| 2A | EPC for the HVDC Subsea and Underground Cable System, and the associated HVAC underground cable system |
+| 2B | EPC for the HVAC underground cable system in Ireland (Dublin) |
+
+The target note's "Lot 1A, covering both converter stations, and Lot 1B,
+covering the Irish 400 kV tail substation" is right. What was confused with it
+is §5.2, which sets out what a Candidate must be able to MANUFACTURE to
+prequalify for a LOT — VSC HVDC for 1A, HVAC GIS for 1B. The LOT is an EPC
+contract for a substation; the gate on bidding for it is switchgear
+manufacture. Two different statements, both true, and the position note's own
+table is correctly headed "What §5.2 requires the Candidate to be able to do".
+
+**The one correction that does stand** is that the bidder approach cannot be
+"first priority" while clause 4.1.5 stands. The consent that would make it
+possible is.
