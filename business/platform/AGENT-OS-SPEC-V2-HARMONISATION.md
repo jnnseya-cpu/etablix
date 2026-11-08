@@ -75,21 +75,21 @@ force insures a consultant and does not respond to holding works contracts.
 | AT-02 | Advisory agent cannot award | `routes/clients.js` returns 409 on a non-offerable model |
 | AT-03 | Integrator recommendation never becomes an ETABLIX PO | `deliveryModelBreach` in `routes/docs.js` |
 | AT-04 | Prime label exists, CDM appointment unknown | `positionguard.js` — **built**, six rules, reports rather than blocks |
-| AT-05 | Model change with open hire keeps original liability | **Not built** — no hire aggregate |
-| AT-06 | Model 03 order exceeds headroom | **Not built** — no treasury reservation |
+| AT-05 | Model change with open hire keeps original liability | **Built** — `agentos/cutover.js`; mixed ownership blocked, not resolved |
+| AT-06 | Model 03 order exceeds headroom | **Built** — `agentos/treasury.js`; reserved transactionally so two orders cannot both fit |
 | **AT-07** | **72 + 50 + 8 at Skye → 130** | **BUILT** — `agentos/capacity.js` |
 | **AT-08** | **130 × 40 L, 10 m³, 2 m³ reserve → 5.2, 46.15 h, 36.92 h** | **BUILT** — `agentos/capacity.js` |
-| AT-09 | Overnight use added to a day-use brief | Partly — `village-requirements` pipeline; beds not separated from day-use |
+| AT-09 | Overnight use added to a day-use brief | **Built** — `bedRequirement` / `welfareSplit`; overnight held on its own approvals |
 | AT-10 | Quote excludes transport and connection | **Built** — `evaluatedCost` / `compareQuotes` in `l7/estimating.js` |
-| AT-11 | Eligibility expires between approval and dispatch | **Built** — `quoteValidity`; supplier eligibility states not built |
-| AT-12 | Cabin delivered, lift evidence missing | **Not built** — no asset receipt state |
-| AT-13 | Water and alarms failed, cabins installed | **Not built** — no opening gate |
+| AT-11 | Eligibility expires between approval and dispatch | **Built** — `agentos/eligibility.js`; per code, re-read at dispatch |
+| AT-12 | Cabin delivered, lift evidence missing | **Built** — `agentos/mobilisation.js`; a receipt is explicitly not an installation |
+| AT-13 | Water and alarms failed, cabins installed | **Built** — `openService`; per service and per area, no waiver of a mandatory |
 | AT-14 | Chat asks for energisation or gate bypass | **Built** — `agentos/autonomy.js`, A4 denied at the tool boundary, identically from an upload |
-| AT-15 | Stale sensor, contradictory observations | **Not built** |
-| AT-16 | Credible critical alarm, bounded callout once | **Not built** |
+| AT-15 | Stale sensor, contradictory observations | **Built** — `agentos/sla.js`; UNKNOWN, not met and not breached |
+| AT-16 | Credible critical alarm, bounded callout once | **Built** — `emergencyCallout`; capped, scoped, issued once |
 | **AT-17** | **£100k, 20%, 5%, 5% → £125k / £120k / £114k** | **BUILT** — `agentos/commercial.js` |
 | **AT-18** | **PV 60k, EV 48k, AC 55k → CPI 0.8727, SPI 0.8** | **BUILT** — `agentos/commercial.js` |
-| AT-19 | Unknown mixed CIS or VAT treatment | **Not built** |
+| AT-19 | Unknown mixed CIS or VAT treatment | **Built** — `agentos/tax.js`; blocks publication, raises a review |
 | AT-20 | Cabin 17 supports Phase B's fire loop | **Built** — `agentos/offhire.js`, held at OFF-02 with the notice clock still running |
 | AT-21 | Off-hire sent, no verified effective stop | **Built** — a sent message is not a received one; accrual continues |
 | AT-22 | Collection complete, land condition rejected | **Built** — return and reinstatement are separate facts |
@@ -97,13 +97,13 @@ force insures a consultant and does not respond to holding works contracts.
 | AT-24 | Supplier PDF instructs the agent | **Built** — documents are untrusted data; `security.e2e` |
 | AT-25 | Import a package with no verified approval | **Built** — `fromLegacyFamily` keeps an ambiguous mapping ambiguous |
 | AT-26 | England dewatering evidence on a Scottish project | **Built** — `agentos/jurisdiction.js`; the prerequisite stays UNRESOLVED |
-| AT-27 | Publish to CONSTRUX while the connector is down | **Not built** |
-| AT-28 | Replay a duplicate message | Partly — `rerun.e2e`, `upload-dedupe` |
+| AT-27 | Publish to CONSTRUX while the connector is down | **Built** — `agentos/outbox.js`; intent persists, ledger continues |
+| AT-28 | Replay a duplicate message | **Built** — `applyInbound`; key AND version, out-of-order audited |
 
-**Fourteen built, three partly, eleven not** — eight after the first pass, six
-more with items 1 to 3 of the build order below. The ones with exact arithmetic
-went first, because a specification that states its expected answer is a
-specification that can be turned into a test the same afternoon.
+**All twenty-eight built.** Eight after the first pass, six with items 1 to 3,
+and the last eleven with the seven aggregates in §6. The ones with exact
+arithmetic went first, because a specification that states its expected answer
+is a specification that can be turned into a test the same afternoon.
 
 ---
 
@@ -295,7 +295,51 @@ author has not worked there, which costs the same as being wrong.
 
 ---
 
-## 6 · Build order for what remains
+## 6 · The seven aggregates, and the eleven tests that needed them
+
+Each of the last eleven acceptance tests needed something that did not exist.
+Each aggregate is built around one failure that reads as success.
+
+| Aggregate | Module | The failure it prevents |
+|---|---|---|
+| Asset receipt and the seven mobilisation gates | `agentos/mobilisation.js` | A delivery note that looks like completion to every system that reads it. Receipt, installation, commissioning and opening are four gates, and `assetReceipt` returns `installed: false` explicitly so no caller can treat one as another |
+| Opening, per service and per area | same | A compound opening late instead of opening *partly*. Cabins installed with water unproven and the fire alarm failed opens for the services that pass, in the areas they cover — and **a release that waives a mandatory requirement is not restricted, it is unauthorised** |
+| Supplier and package eligibility | `agentos/eligibility.js` | One flag called "approved". A supplier eligible for office furniture is not eligible for electrics, and only the checks a scope actually attracts are applied — applying all of them to all is as wrong as applying none. Re-read at dispatch, so a lapse blocks that package and no other |
+| Hire agreement under a model cutover | `agentos/cutover.js` | The ledger has one model field, the new model's rules get applied to the whole of it, and the first anybody knows is a supplier invoice addressed to the party that did not order. Historical commitments keep their owner; mixed ownership with no verified assignment is **blocked** |
+| Treasury reservation | `agentos/treasury.js` | Two orders arriving in the same minute each seeing the same headroom. Reserved transactionally, before the order, and the excess is **blocked rather than queued** — a queued order binds when the queue drains |
+| Observation, SLA clocks and bounded callout | `agentos/sla.js` | A credit note issued off a stale sensor. A stale reading is a data-quality incident and the SLA state is **UNKNOWN**: marking it met is a lie and marking it breached pays a credit on a sensor fault. Four clocks, because a supplier who answers in four minutes and arrives in nine hours has met one target and missed another |
+| Tax determination | `agentos/tax.js` | A guessed VAT treatment. Assume reverse charge and a supply to an end user is understated; assume standard VAT and a construction supply is overstated. An unknown blocks publication above materiality and raises a scoped review |
+| Connector outbox and idempotency | `agentos/outbox.js` | Two opposite failures. Intent lost while a connector is down — so it persists and the ETABLIX ledger carries on, because a platform that stops when a downstream system does has made its own operation depend on somebody else's uptime. And a duplicate applied twice — so an idempotency key **and** an aggregate version, because the key alone misses an older message arriving after a newer one |
+| Beds, separated from day-use | `agentos/capacity.js` | Overnight accommodation treated as larger day-use welfare. Bed-nights rather than a headcount, cleaning turnaround taking rooms out of service, and overnight opening **held** on a use classification and fire approval that are the verifier's and not the layout's. The day-use welfare that passed stays open |
+
+`backend/test/agentos-aggregates.test.mjs` — 85 assertions, registered in
+`run-all.sh`.
+
+---
+
+## 7 · What is still not built
+
+Every acceptance test in the specification now passes. What remains is not a
+test but a surface:
+
+- **The four absent ET agents** — ET-TW, ET-ENV, ET-LOG, ET-PORT. The
+  jurisdiction profile is the substance ET-ENV would use and the off-hire
+  engine is part of ET-OFF's, so these are briefs and pipelines over engines
+  that now exist rather than new engines.
+- **ET-ORCH's case graph and owner ledger.** `l7/gates.js` owns the bid
+  lifecycle; a general workflow-ownership ledger across all ten workflows is a
+  different object.
+- **Persistence.** Every engine here is a pure function over inputs. The
+  specification's §10 aggregates, §11 API paths and the durable-workflow
+  runtime are the application around them, and none of it is written. That is
+  deliberate: an engine that is a function is testable to an exact figure,
+  which is how twenty-eight acceptance tests became twenty-eight passing
+  assertions. Wiring them to stored state is the next job and it is an
+  application job.
+
+---
+
+## 8 · Build order for what remains
 
 1. **Supplier and package eligibility states, with AT-11.** Thirteen states and
    the rule that matters — eligibility for office furniture does not establish
@@ -315,7 +359,7 @@ lifecycle rather than a function.
 
 ---
 
-## 7 · Two cautions on the specification itself
+## 9 · Two cautions on the specification itself
 
 **The Skye figures are a software fixture and the specification says so.** 100
 nominal, 130 peak, 300 m², 40 L/person/day — "These inputs test the software.

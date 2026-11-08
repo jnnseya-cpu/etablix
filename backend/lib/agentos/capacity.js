@@ -192,3 +192,96 @@ export function capacityNotes(peak, autonomy) {
   }
   return out;
 }
+
+/**
+ * OVERNIGHT ACCOMMODATION IS NOT LARGER DAY-USE WELFARE.
+ *
+ * A day-use welfare cabin sized for 130 people at shift overlap does not
+ * become sleeping accommodation for 40 by adding beds. The demand is
+ * different — bed-nights rather than a concurrency peak — and so is almost
+ * everything else: usable room stock against rooming constraints, arrival
+ * and departure profile, cleaning turnaround between occupants, and a fire
+ * and occupation approval that is a different approval from the one a day
+ * cabin holds.
+ *
+ * THE SPECIFIC HAZARD. Somebody adds "and they'll sleep there" to a brief
+ * late, the layout is already drawn, and the compound opens with people
+ * sleeping in a building consented for day use. On Skye that is a building
+ * warrant question with a use classification and a fire requirement attached,
+ * and it is decided by a verifier, not by the person who drew the layout.
+ *
+ * So overnight demand is computed separately, and overnight OPENING is held
+ * until the approvals that only overnight use needs are evidenced. Day-use
+ * opening is unaffected: the welfare that passed stays open.
+ */
+
+/** What only overnight use needs, and what a day cabin's consent does not cover. */
+export const OVERNIGHT_APPROVALS = ["fireApproval", "occupationApproval", "useClassification"];
+
+/**
+ * Beds, from bed-night demand rather than from a headcount.
+ *
+ * `bedNights` is demand over the period. `roomStock` is USABLE rooms, after
+ * rooming constraints. `turnaroundHours` is cleaning between occupants, which
+ * takes a room out of service and is the figure people leave out.
+ */
+export function bedRequirement({
+  bedNights = null, nights = null, roomStock = null, bedsPerRoom = 1,
+  turnaroundHours = null, arrivalsPerDay = null, approvals = {},
+} = {}) {
+  const demand = num(bedNights);
+  const n = num(nights);
+  const stock = num(roomStock);
+  const per = num(bedsPerRoom) ?? 1;
+  const turn = num(turnaroundHours);
+
+  const missing = [];
+  if (demand === null) missing.push("bed-night demand");
+  if (n === null || n <= 0) missing.push("the number of nights");
+  if (stock === null) missing.push("usable room stock");
+  if (missing.length) {
+    return { ok: false, bedsNeeded: null, missing, held: true,
+             say: `overnight demand cannot be computed without ${missing.join(" and ")} — and a headcount is not bed-night demand` };
+  }
+
+  const bedsNeeded = Math.ceil(demand / n);
+  const bedsAvailable = stock * per;
+  // Turnaround takes a room out of service; without it the figure is optimistic.
+  const effective = turn === null ? bedsAvailable : Math.floor(bedsAvailable * (1 - Math.min(turn, 24) / 24));
+  const shortfall = bedsNeeded - effective;
+
+  const absent = OVERNIGHT_APPROVALS.filter((k) => !(approvals && (approvals[k] === true || approvals[k] === "verified")));
+
+  return {
+    ok: shortfall <= 0 && absent.length === 0,
+    bedsNeeded,
+    bedsAvailable,
+    effectiveBeds: effective,
+    turnaroundApplied: turn !== null,
+    shortfall: shortfall > 0 ? shortfall : 0,
+    missingApprovals: absent,
+    // Overnight opening is held on its own approvals; day-use is untouched.
+    held: absent.length > 0 || shortfall > 0,
+    say: absent.length
+      ? `OVERNIGHT OPENING HELD — no ${absent.join(", no ")}. These are not the day cabin's consent: sleeping accommodation is a `
+        + "separate use classification with its own fire requirement, decided by the verifier and not by the layout"
+      : shortfall > 0
+        ? `${bedsNeeded} bed(s) needed against ${effective} effective`
+          + (turn === null ? " (no cleaning turnaround applied, so even that is optimistic)" : ` after ${turn}h turnaround`)
+          + ` — short by ${shortfall}`
+        : `${bedsNeeded} bed(s) needed against ${effective} effective, and the overnight approvals are held`,
+  };
+}
+
+/** Day-use and overnight, reported apart, because they open apart. */
+export function welfareSplit({ dayUse = null, overnight = null } = {}) {
+  return {
+    dayUse: dayUse || null,
+    overnight: overnight || null,
+    dayUseOpens: Boolean(dayUse && dayUse.ok),
+    overnightOpens: Boolean(overnight && overnight.ok),
+    say: `day-use ${dayUse && dayUse.ok ? "sized" : "not established"}; overnight `
+       + `${overnight ? (overnight.ok ? "sized and approved" : "HELD") : "not requested"}`
+       + ". The two are distinct and a held overnight opening does not close the welfare that passed",
+  };
+}
