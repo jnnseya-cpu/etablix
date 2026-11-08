@@ -17,7 +17,7 @@ See §1.
 
 ---
 
-## 1 · The conflict: "Principal Service Contractor"
+## 1 · The conflict, now corrected in the specification
 
 Specification §2 names Model 03 **Principal Service Contractor**. The platform
 **refuses that phrase**, at document generation, with this reason:
@@ -41,8 +41,20 @@ It is also already load-bearing in four places: `shared/constants.js`,
 (enforced at generation, including against text hidden in a line item) and
 `routes/playbook.js`.
 
-**So the harmonisation runs the other way.** The specification should be
-corrected to "Prime Service Contractor" at §2, and the platform left alone.
+**So the harmonisation ran the other way, and the specification is corrected.**
+`ETABLIX-Agent-Developer-Spec-v2.0.md` in this folder is the copy of record.
+Three occurrences changed — the §2 control matrix, the §2 label paragraph and
+AT-04 — and §2 now records *why*, so the next author does not revert it. The
+platform is unchanged.
+
+The reference at **R1** to the HSE's own principal contractor guidance is
+deliberately untouched: that one is about the statutory role and is correct.
+The phrase also survives in two places in the corrected spec, both of them
+prohibitions — the correction note at the head and the §2 rule saying never to
+write it. `seo.test` scans published HTML rather than repository documents, so
+a document naming the prohibition does not trip the guard that exists to stop
+a client reading the phrase.
+
 Everything else in §2 — the control matrix, who contracts, who pays, the
 subledger split, the cutover manifest — is consistent with `DELIVERY_MODELS`
 and is adopted below.
