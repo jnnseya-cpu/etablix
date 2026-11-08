@@ -56,12 +56,28 @@ const DAY = 86400000;
 const iso = (t) => new Date(t).toISOString().slice(0, 10);
 const P = store.collection("projects")[0].id;
 
-console.log("\n=== the twenty engines ===\n");
+console.log("\n=== the engines, and the three registers that must agree ===\n");
 
 console.log("--- the register and the briefs cannot drift\n");
+//
+// THIS USED TO BE A LITERAL COUNT AND THE LITERAL WAS THE PROBLEM.
+//
+// `cat.length === 16` caught an engine disappearing, which is what it was
+// for. It also had to be edited every time one was legitimately added, and on
+// the day four were added it failed four times over for the wrong reason —
+// burying the real finding, which was that the four had been put in the
+// engine registry and not in the agent register.
+//
+// So the guard is now AGREEMENT IN BOTH DIRECTIONS. Every engine must appear
+// in the agent register and in a domain; every engine-backed entry in those
+// registers must still have an engine. A removal from either side fails, an
+// addition to one side alone fails, and a legitimate addition to all three
+// needs no number changed anywhere.
 {
   const cat = reg.catalogue();
-  ok(cat.length === 20, `twenty engines are registered (${cat.length})` + " — the count is the guard: an engine that silently disappears from the registry disappears from the agent list too");
+  const slots = DOMAIN.flatMap((d) => d.agents.map((a) => ({ ...a, domain: d.id })));
+  ok(cat.length >= 20, `${cat.length} engines registered — a floor, not a literal, so an addition does not fail here`, cat.length);
+
   for (const e of cat) {
     ok(Boolean(AGENT_BRIEFS[e.id]), `${e.id} has a brief`);
     ok(typeof AGENT_BRIEFS[e.id]?.machine === "function", `${e.id}'s brief carries a machine hook, so the engine runs before the model`);
@@ -73,6 +89,52 @@ console.log("--- the register and the briefs cannot drift\n");
   }
   ok(cat.every((e) => e.depth <= 4), "and none of them claims level 5 or 6 — what was built is analysis and controlled workflow");
   ok(cat.every((e) => Object.keys(e.shape || {}).length > 0), "each publishes the record shape it reads, so an export can be written against it");
+
+  // THE OTHER DIRECTION, which a literal count could never give. An entry in
+  // the agent register whose engine has been deleted is the failure a count
+  // was standing in for, and it is caught here by name rather than by arithmetic.
+  {
+    const ids = new Set(cat.map((e) => e.id));
+    const orphanedBriefs = Object.keys(AGENT_BRIEFS)
+      .filter((id) => typeof AGENT_BRIEFS[id]?.machine === "function")
+      .filter((id) => !ids.has(id));
+    ok(orphanedBriefs.length === 0,
+       "EVERY MACHINE-BACKED BRIEF STILL HAS AN ENGINE — a brief whose engine was deleted would run the model with no facts",
+       orphanedBriefs);
+
+    const orphanedSlots = slots
+      .filter((a) => a.state === "built" && Number(a.depth) >= 3 && AGENT_BRIEFS[a.id] && typeof AGENT_BRIEFS[a.id].machine === "function")
+      .filter((a) => !ids.has(a.id));
+    ok(orphanedSlots.length === 0,
+       "and every engine-backed slot in the domain register still has one", orphanedSlots.map((a) => a.id));
+
+    const registered = new Set(AI_AGENTS.map((a) => a.id));
+    const missingFromRegister = cat.map((e) => e.id).filter((id) => !registered.has(id));
+    ok(missingFromRegister.length === 0,
+       "AND NO ENGINE IS IN THE REGISTRY AND ABSENT FROM THE AGENT REGISTER — the failure that four additions produced on 8 November",
+       missingFromRegister);
+  }
+}
+
+console.log("\n--- the notice gate knows the producers by name, not by job title\n");
+//
+// The gate on who may give a contractual notice was a list of job-title nouns
+// and it was defeated twice: once by a rename, once by four additions whose
+// titles used words nobody had thought of. The registry now tells the gate its
+// own names.
+{
+  const names = reg.catalogue().map((e) => e.agent).filter(Boolean);
+  ok(notice.registeredProducers().length >= names.length,
+     `the gate holds all ${names.length} producer name(s) from the registry`, notice.registeredProducers().length);
+  ok(names.every((n) => notice.isRegisteredProducer(n)),
+     "EVERY PRODUCER IS RECOGNISED BY NAME, so a title using a word no regex anticipated is still refused",
+     names.filter((n) => !notice.isRegisteredProducer(n)));
+  ok(notice.isRegisteredProducer("  portfolio CAPACITY   analyst "),
+     "and recognition survives capitalisation and spacing, because a display name is retyped by hand");
+  ok(!notice.isRegisteredProducer("J Nseya"),
+     "A PERSON IS NOT A PRODUCER — the gate exists to admit one and refuse the other");
+  ok(!notice.isRegisteredProducer("Commercial Manager"),
+     "nor is a human role, which is why Manager is absent from the registry and from the backstop");
 }
 
 console.log("\n--- a run is refused before it starts when the records cannot be read\n");

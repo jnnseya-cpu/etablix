@@ -29,6 +29,18 @@ const api = async (p, o = {}, tok) => {
   return { status: r.status, body: await J(r) };
 };
 
+// The two registers the API is checked against, imported rather than counted.
+// A number typed into a test is a number somebody has to maintain, and the
+// maintenance is what goes wrong: `=== 16` became `=== 20` became `=== 34`,
+// and on the day it had to change it failed for the wrong reason and buried
+// the real finding. engines.test.mjs holds the agreement check between the
+// registers; this file only asks that the API serves what they contain.
+const { ENGINES: ENGINE_REGISTRY } = await import("../lib/engines/index.js");
+const { AGENT_BRIEFS } = await import("../lib/ai.js");
+const REGISTERED_ENGINES = ENGINE_REGISTRY.length;
+const REGISTERED_AGENT_IDS = Object.keys(AGENT_BRIEFS);
+const REGISTERED_AGENTS = REGISTERED_AGENT_IDS.length;
+
 const SIXTEEN = ["obligation", "notice", "change", "estimating", "submission", "programme", "recovery",
                  "productivity", "safety", "audit", "model", "quantity", "asset", "commissioning", "handover-file", "lifecycle"];
 
@@ -41,7 +53,13 @@ ok(r.status === 200, "admin signs in");
 console.log("\n--- the catalogue\n");
 {
   const g = await api("/api/engines", {}, T);
-  ok(g.status === 200 && g.body.engines.length === 20, `twenty engines are published (${g.body.engines?.length})`);
+  // DERIVED, NOT A LITERAL. This was `=== 16`, then `=== 20`, and the edit was
+  // required by every legitimate addition while the thing it guarded against —
+  // an engine quietly disappearing — is better caught by comparing the two
+  // sides to each other. engines.test.mjs holds the agreement check; this one
+  // asks only that what the registry has is what the API serves.
+  ok(g.status === 200 && g.body.engines.length === REGISTERED_ENGINES,
+     `the API publishes every registered engine (${g.body.engines?.length} of ${REGISTERED_ENGINES})`, g.body.engines?.length);
   const ids = g.body.engines.map((e) => e.id);
   for (const id of SIXTEEN) ok(ids.includes(id), `${id} is in the catalogue`);
   ok(g.body.engines.every((e) => e.fields.length > 0), "each publishes the fields it takes");
@@ -58,9 +76,18 @@ console.log("\n--- every one of the sixteen is in the agent catalogue too\n");
   const g = await api("/api/agents", {}, T);
   ok(g.status === 200, "the agent catalogue reads");
   const byId = new Map((g.body.agents || []).map((a) => [a.id, a]));
-  ok(g.body.agents.length === 34,
-     `THIRTY-FOUR AGENTS, NOT FOURTEEN (${g.body.agents.length}) — the four added on 8 November are the specification's `
-     + `ET-TW, ET-ENV, ET-LOG and ET-PORT, built as engines rather than briefs so they inherit every rule the other thirty carry`);
+  // DERIVED FROM BOTH REGISTERS. A literal here failed on the day four agents
+  // were added and told nobody anything useful; what matters is that the API
+  // serves every agent that exists in either register and invents none.
+  ok(g.body.agents.length === REGISTERED_AGENTS,
+     `the API publishes every registered agent (${g.body.agents.length} of ${REGISTERED_AGENTS})`, g.body.agents.length);
+  {
+    const served = new Set((g.body.agents || []).map((a) => a.id));
+    const missing = REGISTERED_AGENT_IDS.filter((id) => !served.has(id));
+    const invented = [...served].filter((id) => !REGISTERED_AGENT_IDS.includes(id));
+    ok(missing.length === 0, "nothing in the register is missing from the API", missing);
+    ok(invented.length === 0, "and nothing the API serves is absent from the register", invented);
+  }
   for (const id of SIXTEEN) {
     const a = byId.get(id);
     ok(Boolean(a), `${id} is in the agent catalogue`);

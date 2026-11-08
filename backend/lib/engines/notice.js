@@ -205,6 +205,41 @@ export function draft({ project, eventId, kind = "event", clauseRef = null, effe
  * however the call arrives. A notice recorded as given by an agent is a
  * notice nobody gave, and the record would then be the evidence relied on.
  */
+/**
+ * The display names of every registered producer, pushed in by the registry.
+ *
+ * `engines/index.js` already imports this module, so the data flows one way
+ * and there is no cycle. The alternative — this module importing the registry
+ * — is circular, and the alternative to that is a list of job-title nouns,
+ * which is what has just been demoted to a backstop because it failed twice.
+ *
+ * "Manager" is deliberately absent from the backstop and will never appear
+ * from the registry either, because no producer is called one: "J Nseya,
+ * Commercial Manager, delegated" is a person with an authority, and admitting
+ * that is the whole purpose of the gate.
+ */
+const PRODUCERS = new Set();
+
+/** Called once by the registry at module load. Idempotent. */
+export function registerProducers(names = []) {
+  for (const n of names) {
+    const v = String(n ?? "").trim().toLowerCase();
+    if (v) PRODUCERS.add(v);
+  }
+  return PRODUCERS.size;
+}
+
+/** Is this name a registered producer, however it is capitalised or spaced? */
+export function isRegisteredProducer(who) {
+  const v = String(who ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+  return PRODUCERS.has(v);
+}
+
+/** What the gate currently knows, so a test can assert it is not empty. */
+export function registeredProducers() {
+  return [...PRODUCERS];
+}
+
 export function recordGiven({ project, eventId, clause, by = null, role = null, method = null, at = null, reference = null } = {}) {
   const faults = [];
   const who = String(by || "").trim();
@@ -222,16 +257,22 @@ export function recordGiven({ project, eventId, clause, by = null, role = null, 
   // engines.test.mjs asserts that EVERY registered display name is refused —
   // which is what stops this drifting again the next time something is
   // renamed. A real giver is a person's name, never a role noun.
-  // Extended again on 8 November 2026, when four producers were added whose
-  // names use nouns this list did not carry — Coordinator and Analyst. The
-  // registry walk in engines.test.mjs refused to pass and named them, which is
-  // the mechanism working: the gate did not drift, it was caught drifting. Any
-  // future producer whose title introduces a new role noun fails there first.
+  // THE LIST IS NOW THE BACKSTOP, NOT THE GATE.
   //
-  // "Manager" is deliberately NOT here. "J Nseya" giving a notice in the role
-  // "Commercial Manager, delegated" is a person with an authority, which is
-  // exactly what this gate exists to admit.
-  if (/\bagent|system|automation|\bbot\b|workstream|monitor|engine|platform|construx|veryx|assessor|estimator|generator|planner|analyser|analyzer|validator|reconciler|controller|coordinator|analyst|\breview\b|\bregister\b/i.test(who)) {
+  // It was the gate, and it failed the way a word list always fails: four
+  // producers were added in November whose titles used Coordinator and
+  // Analyst, neither of which was on it, and the gate admitted all four. The
+  // registry walk in engines.test.mjs is what caught that — the third time a
+  // rename or an addition has defeated this test by wording.
+  //
+  // So the real check is now the registry's own display names, pushed in by
+  // the module that owns them (see registerProducers below). A producer added
+  // tomorrow is refused because it is a producer, not because somebody
+  // remembered to add its job title here. The nouns stay underneath for the
+  // case where this module is used without the registry loaded, which is how
+  // a unit test imports it.
+  if (isRegisteredProducer(who)
+      || /\bagent|system|automation|\bbot\b|workstream|monitor|engine|platform|construx|veryx|assessor|estimator|generator|planner|analyser|analyzer|validator|reconciler|controller|coordinator|analyst|\breview\b|\bregister\b/i.test(who)) {
     faults.push(`"${who}" is not a person. Giving a contractual communication is reserved to a person with authority, and recording an agent as the giver would make this record the evidence relied on.`);
   }
   if (!String(role || "").trim()) faults.push("no authority stated. The question asked later is not who sent it but who was entitled to.");

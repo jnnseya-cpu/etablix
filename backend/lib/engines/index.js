@@ -367,6 +367,23 @@ export const ENGINES = [
 export const BY_ID = new Map(ENGINES.map((e) => [e.id, e]));
 
 /** The catalogue, without the functions. */
+/**
+ * EVERY PRODUCER'S DISPLAY NAME, HANDED TO THE NOTICE GATE.
+ *
+ * `notice.js` refuses to record a contractual notice as given by a producer,
+ * because that record would be the evidence relied on. It used to decide what
+ * a producer was from a list of job-title nouns, and that list was defeated
+ * twice — once by a rename and once by four additions whose titles used words
+ * nobody had thought of.
+ *
+ * This is the fix. The registry owns the names, so the registry tells the
+ * gate, and an engine added below is refused as a notice-giver the moment it
+ * is registered rather than when somebody remembers to update a regex. The
+ * data flows one way — this module already imports notice.js — so there is no
+ * cycle.
+ */
+notice.registerProducers(ENGINES.map((e) => e.agent).filter(Boolean));
+
 export function catalogue() {
   return ENGINES.map(({ id, agent, engine, depth, purpose, shape, fields }) => ({
     id, agent, engine, depth, purpose, shape,
