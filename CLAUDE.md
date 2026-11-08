@@ -100,6 +100,33 @@ sits inside `COMPANY_BRIEF`, all thirty inherit it, and
 `practitioner.test.mjs` fails if it ever reaches a subset again or is sent
 twice.
 
+### Every AI path, audited — because "everything" has to mean everything
+
+`AGENT_BRIEFS` is thirty agents and it is **not** every AI path in the
+platform. The complete set, and where each gets the standard:
+
+| Path | How many | Carries the standard |
+|---|---|---|
+| Hand-written agent briefs | 14 | `COMPANY_BRIEF` |
+| Generated engine briefs, from the engine registry | 16 | `COMPANY_BRIEF` |
+| `draftPrequal` — prequalification answers | 1 | `COMPANY_BRIEF` |
+| `draftApproach` — a first approach a prospect reads | 1 | `COMPANY_BRIEF` |
+| `draftScope` — a scope of works | 1 | `COMPANY_BRIEF` |
+| `testProvider` — a connectivity ping | 1 | **Exempt, correctly.** No system prompt; it asks the provider to say "ETABLIX AI online". Holding a ping to a writing standard would be absurd |
+| The L7 tender kernel — gates, engines, reconciliations | — | **No model call at all.** Its LLM port exists so the core never knows which SDK is underneath, and it constructs no prompts by design |
+| `backend/lib/signals/` | — | **No model call.** Outbound drafting goes through `draftApproach` above |
+
+Four provider calls exist in total: three in `ai.js` and one in
+`diagnostic.js`, which runs the pipeline for ten agents and is **handed** its
+system prompt rather than building one — so the brief cannot be bypassed on
+the path that produces the longest documents.
+
+`practitioner.test.mjs` asserts the call-site count in both files, each
+drafter by name, that `testProvider` stays a ping, and that the L7 adapter
+still constructs no prompts. **Adding a fifth model call anywhere fails the
+build** until somebody decides whether it carries the brief or is exempt. That
+is the only form in which an audit stays true.
+
 **What it must never erode.** Seniority is not licence to fill a gap. The
 standard sits alongside, and never above, the rules that the agent has no
 authority to approve or commit, that nothing may be invented, and that nothing

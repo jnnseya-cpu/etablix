@@ -25,6 +25,9 @@
  * be softened first.
  */
 import { AGENT_BRIEFS } from "../lib/ai.js";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 let pass = 0, fail = 0;
 const ok = (c, m, saw) => {
@@ -149,6 +152,82 @@ console.log("\n=== the standard does not contradict what already binds ===\n");
   // appointment. The duty-holder clause names the PC's duty as the PC's.
   const missing = ids.filter((id) => !/never described as main contractor/.test(systemOf(id)));
   ok(missing.length === 0, "and the CDM and main-contractor limits are untouched by it", missing);
+}
+
+console.log("\n=== and no model call escapes the brief ===\n");
+//
+// AGENT_BRIEFS is thirty of the platform's AI paths and it is not all of them.
+// draftPrequal, draftApproach and draftScope call the model directly,
+// outside the agent registry, and draftApproach writes a FIRST APPROACH that a
+// prospect reads — the single most customer-facing thing here. All three carry
+// COMPANY_BRIEF today. This asserts they still do, and that a fourth cannot be
+// added without somebody deciding it either carries the brief or is exempt.
+//
+// Source-level on purpose. The functions take their system prompt as an
+// argument, so no runtime check can see what they were given; only the text of
+// the file can.
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+const src = readFileSync(path.join(root, "backend/lib/ai.js"), "utf8");
+
+{
+  // Every call that actually sends a prompt to the provider.
+  const calls = src.split("\n")
+    .map((line, i) => ({ line: line.trim(), n: i + 1 }))
+    .filter((x) => /client\(\)\.(beta\.)?messages\.(stream|create)/.test(x.line));
+  ok(calls.length === 3,
+     `three provider call sites in ai.js (${calls.length}) — a new one must be accounted for below rather than appear silently`,
+     calls.map((c) => `${c.n}: ${c.line.slice(0, 60)}`));
+}
+{
+  // The three direct drafters, each by name, each required to build its system
+  // prompt from COMPANY_BRIEF.
+  for (const fn of ["draftPrequal", "draftApproach", "draftScope"]) {
+    const at = src.indexOf(`export async function ${fn}`);
+    ok(at > 0, `${fn} exists`, at);
+    if (at < 0) continue;
+    const body = src.slice(at, at + 4000);
+    ok(/system: `\$\{COMPANY_BRIEF\}/.test(body),
+       `${fn} builds its system prompt from COMPANY_BRIEF, so it is held to the same standard as the thirty agents`,
+       body.slice(0, 120));
+  }
+}
+{
+  // testProvider is the one exemption and it is correct. It sends "Reply with
+  // exactly: ETABLIX AI online" with no system prompt, to prove a key works.
+  // Holding a connectivity ping to a writing standard would be absurd; what
+  // matters is that it stays a ping.
+  const at = src.indexOf("export async function testProvider");
+  const body = src.slice(at, at + 700);
+  ok(at > 0 && !/system:/.test(body),
+     "testProvider is exempt and stays exempt — a connectivity ping with no system prompt, and no deliverable",
+     body.slice(0, 100));
+  ok(/ETABLIX AI online/.test(body), "and still only asks the provider to say it is there", body.slice(0, 160));
+}
+{
+  // The fourth provider call lives in diagnostic.js, which runs the pipeline
+  // for ten of the agents. It takes `system` as an argument, and ai.js passes
+  // brief.system — so the brief reaches it. What matters is that diagnostic.js
+  // never builds a system prompt of its own, because one built there would
+  // bypass COMPANY_BRIEF for exactly the ten agents that produce the longest
+  // documents.
+  const diag = readFileSync(path.join(root, "backend/lib/diagnostic.js"), "utf8");
+  const calls = diag.split("\n").filter((l) => /anthropic\.messages\.(stream|create)/.test(l));
+  ok(calls.length === 1, `one provider call in diagnostic.js (${calls.length})`, calls);
+  ok(!/system:\s*`/.test(diag),
+     "and diagnostic.js builds no system prompt of its own — it is handed one, so the brief cannot be bypassed on the pipeline path",
+     (diag.match(/system:[^\n]{0,60}/g) || []).slice(0, 3));
+}
+{
+  // The deterministic kernel is the other half of "everything". It must not
+  // acquire a prompt: the whole L7 bid lifecycle is gates, engines and
+  // reconciliations, and its LLM port exists so the core never knows which
+  // SDK is underneath. A prompt appearing in an adapter would be an adapter
+  // deciding what an answer is about.
+  const adapter = readFileSync(path.join(root, "backend/lib/l7/adapters/llm.js"), "utf8");
+  ok(/PROMPT CONSTRUCTION IS NOT AN ADAPTER CONCERN/.test(adapter),
+     "the L7 llm adapter still declares that it constructs no prompts");
+  ok(!/COMPANY_BRIEF|You are an?\b/.test(adapter),
+     "and carries none — so there is no second, unheld writing path through the tender kernel");
 }
 
 console.log(`\n${pass} passed, ${fail} failed\n`);
