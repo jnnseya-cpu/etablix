@@ -45,7 +45,7 @@ ok(serviceCode("99") === null && serviceCode("") === null, "and an unknown code 
   const clean = fromLegacyFamily("F5");
   ok(clean.ok && !clean.ambiguous && clean.codes[0] === "20", "a legacy family covering one code maps cleanly", clean);
   const amb = fromLegacyFamily("F2");
-  ok(amb.ok && amb.ambiguous && amb.codes.length === 5,
+  ok(amb.ok && amb.ambiguous && amb.codes.length === 5, // AT-25
      "AND ONE COVERING FIVE STAYS AMBIGUOUS — it is not resolved by guess", amb);
   ok(/cannot be assigned a code without a person/.test(amb.say), "saying a person has to read the package", amb.say);
   ok(!fromLegacyFamily("F9").ok, "an unknown family maps to nothing rather than to something plausible");
@@ -59,7 +59,7 @@ console.log("\n=== AT-07 · 72 + 50 + 8 distinct concurrent at Skye ===\n");
     nominal: 100,
     zone: "the defined service zone",
   });
-  ok(r.peak === 130, "PEAK IS 130 — the specification's figure", r.peak);
+  ok(r.peak === 130, "AT-07 · PEAK IS 130 — the specification's figure", r.peak);
   ok(r.nominal === 100, "and the brief's nominal 100 is preserved, not overwritten", r.nominal);
   ok(r.discrepancy && r.discrepancy.delta === 30,
      "WITH THE DISCREPANCY REPORTED — both figures belong to the client and one of them is wrong", r.discrepancy);
@@ -91,7 +91,7 @@ ok(peakConcurrency({}).ok === false, "and no cohorts gives no concurrency rather
 console.log("\n=== AT-08 · 130 people × 40 L/day, 10 m³ usable with 2 m³ reserve ===\n");
 {
   const r = storedAutonomy({ people: 130, litresPerPersonDay: 40, usable: 10, reserve: 2 });
-  ok(r.demandPerDay === 5.2, "DEMAND IS 5.2 m³/day — the specification's figure", r.demandPerDay);
+  ok(r.demandPerDay === 5.2, "AT-08 · DEMAND IS 5.2 m³/day — the specification's figure", r.demandPerDay);
   ok(r.grossHours === 46.15, "GROSS AUTONOMY IS 46.15 HOURS", r.grossHours);
   ok(r.operationalHours === 36.92, "AND 36.92 HOURS BEFORE THE 2 m³ RESERVE", r.operationalHours);
 }
@@ -116,7 +116,7 @@ ok(storedAutonomy({ people: 0, litresPerPersonDay: 40, usable: 10 }).ok === fals
 console.log("\n=== AT-17 · £100k direct, 20% markup, 5% contingency, 5% retention ===\n");
 {
   const r = pricingEnvelope({ directCost: 100000, markupPct: 20, contingencyPct: 5, retentionPct: 5, retentionApplies: true });
-  ok(r.budgetEnvelope === 125000, "BUDGET ENVELOPE £125,000", r.budgetEnvelope);
+  ok(r.budgetEnvelope === 125000, "AT-17 · BUDGET ENVELOPE £125,000", r.budgetEnvelope);
   ok(r.contractBaseline === 120000, "CONTRACT BASELINE £120,000", r.contractBaseline);
   ok(r.contingency === 5000, "with the £5,000 allowance separately controlled", r.contingency);
   ok(r.retention === 6000 && r.payableBeforeVat === 114000, "AND £114,000 BEFORE VAT AFTER 5% RETENTION", r);
@@ -145,7 +145,7 @@ ok(pricingEnvelope({ directCost: "about a hundred grand" }).ok === false,
 console.log("\n=== AT-18 · PV £60k, EV £48k, AC £55k ===\n");
 {
   const r = earnedValue({ pv: 60000, ev: 48000, ac: 55000, label: "Compound A" });
-  ok(r.cpi === 0.8727, "CPI 0.8727 — the specification's figure", r.cpi);
+  ok(r.cpi === 0.8727, "AT-18 · CPI 0.8727 — the specification's figure", r.cpi);
   ok(r.spi === 0.8, "SPI 0.8", r.spi);
   ok(r.costVariance === -7000 && r.scheduleVariance === -12000, "with both variances in money", r);
   ok(/not a client-certified valuation and not a payable invoice/.test(r.note),

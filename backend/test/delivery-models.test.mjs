@@ -46,10 +46,10 @@ console.log("\n=== three models, and only two of them are for sale ===\n");
 ok(DELIVERY_MODELS.length === 3, "all three are recorded — the one we cannot sell is designed, not deleted",
    DELIVERY_MODELS.map((m) => m.code).join(","));
 ok(OFFERABLE_MODELS.length === 2 && OFFERABLE_MODELS.every((m) => m.code !== "C"),
-   "exactly two are offerable today, and neither is C", OFFERABLE_MODELS.map((m) => m.code).join(","));
+   "AT-01 · exactly two are offerable today, and neither is C", OFFERABLE_MODELS.map((m) => m.code).join(","));
 
 const prime = deliveryModel("prime");
-ok(prime && prime.offerable === false, "Model C is flagged not offerable", prime && prime.offerable);
+ok(prime && prime.offerable === false, "AT-02 and AT-03 · Model C is flagged not offerable, which is what the engagement and document routes refuse on", prime && prime.offerable);
 ok(prime && /insures a consultant/i.test(prime.notOfferableBecause || ""),
    "and the reason travels with the flag, so no screen has to carry it", prime && prime.notOfferableBecause);
 

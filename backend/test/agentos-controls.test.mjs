@@ -55,7 +55,7 @@ ok(OFF_RULES.length === 6 && OFF_RULES[0].id === "OFF-01" && OFF_RULES[5].id ===
 console.log("\n=== AT-20 · Cabin 17 supports Phase B's fire loop ===\n");
 {
   const r = checkOffHire({ ...CABIN17, dependencies: [{ id: "fire-loop-b", system: "Phase B's live fire loop", live: true }] });
-  ok(r.withdrawal === "HELD" && r.failure.code === "LIVE_DEPENDENCY", "THE WITHDRAWAL IS HELD", r.failure);
+  ok(r.withdrawal === "HELD" && r.failure.code === "LIVE_DEPENDENCY", "AT-20 · THE WITHDRAWAL IS HELD", r.failure);
   ok(/serves Phase B's live fire loop/.test(r.failure.why), "naming what it serves, not just that something does", r.failure.why);
 
   // The whole reason this module exists: the clock does not stop because the
@@ -91,7 +91,7 @@ console.log("\n=== AT-21 · off-hire sent with no verified effective stop ===\n"
   const r = billingStop({ stopRule: "NOTICE", dispatchState: "SENT_UNCONFIRMED", noticeDays: 28,
                           facts: { noticeDispatched: "2026-11-08" } });
   ok(!r.ok && r.accruing === true && r.reason === "RECEIPT_UNCONFIRMED",
-     "A SENT MESSAGE IS NOT A RECEIVED ONE — the accrual continues", r);
+     "AT-21 · A SENT MESSAGE IS NOT A RECEIVED ONE — the accrual continues", r);
   ok(/a sent message is not a received one/.test(r.say), "and it says so", r.say);
   ok(r.stopDate === null, "with no stop date asserted — the position is disputed rather than closed", r.stopDate);
 }
@@ -124,7 +124,7 @@ console.log("\n=== AT-22 and AT-23 · return against land, and a timed-out notic
     commercialConsequenceAccepted: true, revalidated: true, dispatchState: "RECEIPT_VERIFIED",
     stopRule: "RETURN", facts: { returned: "2026-11-30", collected: "2026-11-28" } });
   ok(r.ok && r.billing.stopDate === "2026-11-30",
-     "the charge stops on the recorded return, and the collection two days earlier does not move it", r.billing);
+     "AT-22 · the charge stops on the recorded return, and the collection two days earlier does not move it", r.billing);
 }
 {
   // AT-23. The notice timed out: it may have been received. Not retried
@@ -132,7 +132,7 @@ console.log("\n=== AT-22 and AT-23 · return against land, and a timed-out notic
   const r = checkOffHire({ ...CABIN17, dependencies: [], replacement: "yes", authorityAccepted: true,
     commercialConsequenceAccepted: true, revalidated: true, dispatchState: "UNKNOWN_OUTCOME" });
   ok(r.failure.rule === "OFF-06" && r.failure.code === "RECEIPT_UNCONFIRMED",
-     "UNKNOWN_OUTCOME FAILS AT OFF-06", r.failure);
+     "AT-23 · UNKNOWN_OUTCOME FAILS AT OFF-06", r.failure);
   ok(/neither retried blindly nor treated as done/.test(r.failure.why),
      "because the effect may have occurred", r.failure.why);
   ok(r.deadline.ok, "and the durable deadline survives the unknown", r.deadline);
@@ -154,7 +154,7 @@ console.log("\n=== AT-22 and AT-23 · return against land, and a timed-out notic
 }
 
 console.log("\n=== AT-14 · energisation, gate bypass or isolation, from chat OR an upload ===\n");
-ok(EXECUTION_CLASSES.length === 5 && EXECUTION_CLASSES[4].id === "A4", "five classes, A4 last", EXECUTION_CLASSES.map((c) => c.id));
+ok(EXECUTION_CLASSES.length === 5 && EXECUTION_CLASSES[4].id === "A4", "AT-14 · five classes, A4 last", EXECUTION_CLASSES.map((c) => c.id));
 ok(DENIED_ACTIONS.length === 5, "five denied actions", DENIED_ACTIONS.map((d) => d.id));
 {
   const FULL = { actor: "a", entity: "e", project: "p", scope: "s", channel: "c", recipient: "r",
@@ -179,7 +179,8 @@ ok(DENIED_ACTIONS.length === 5, "five denied actions", DENIED_ACTIONS.map((d) =>
   ok(fromPdf.class === "A4" && fromChat.class === "A4",
      "AND THE VERDICT IS THE SAME FROM AN ATTACHMENT AS FROM A PERSON — a control that only protects you from your own operators protects you from nobody",
      { pdf: fromPdf.class, chat: fromChat.class });
-  ok(/which does not change the answer/.test(fromPdf.say), "the source is reported and explicitly not weighed", fromPdf.say);
+  ok(/which does not change the answer/.test(fromPdf.say),
+     "AT-24 · the source is reported and explicitly not weighed — a document instructing the agent cannot make it act", fromPdf.say);
   ok(/belongs to the competent person/.test(fromPdf.say),
      "AND THE DENIAL NAMES WHO DOES CARRY THE ACTION — refusing and saying nothing else leaves a live problem with nobody", fromPdf.say);
   ok(/not a refusal to help/.test(autonomyNotes(fromPdf).join(" ")), "as does the note", autonomyNotes(fromPdf));
@@ -221,7 +222,7 @@ ok(DELEGATION_BINDINGS.length === 12, "a delegation binds twelve fields", DELEGA
 }
 
 console.log("\n=== AT-26 · England dewatering evidence on a Scottish project ===\n");
-ok(jurisdiction("Isle of Skye").id === "scotland", "Skye resolves to Scotland", jurisdiction("Isle of Skye"));
+ok(jurisdiction("Isle of Skye").id === "scotland", "AT-26 · Skye resolves to Scotland", jurisdiction("Isle of Skye"));
 ok(jurisdiction("Birmingham") === null, "and a place the profile does not know resolves to nothing rather than to England");
 {
   const r = checkEvidenceJurisdiction({ requirementJurisdiction: "Skye", evidenceJurisdiction: "England", activityId: "dewatering" });

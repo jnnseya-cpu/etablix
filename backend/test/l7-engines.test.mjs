@@ -335,7 +335,7 @@ ok(!checkOverride({ reason: "r", role: "CD", oldValue: 1, newValue: 2, at: "when
   const B = { id: "Q2", supplier: "Beta", value: 242000 };
 
   const a = evaluatedCost(A);
-  ok(a.evaluated === 250000, "a quote plus its priced exclusions is the evaluated cost", a.evaluated);
+  ok(a.evaluated === 250000, "AT-10 · a quote plus its priced exclusions is the evaluated cost", a.evaluated);
   ok(a.added === 30000 && a.pricedExclusions.length === 2, "and the additions are itemised, not folded in", a.added);
 
   const c = compareQuotes([A, B]);

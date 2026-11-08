@@ -32,7 +32,7 @@ const ok = (c, m, saw) => {
 
 console.log("\n=== AT-12 · cabin delivered, ground and lift evidence missing ===\n");
 ok(MOB_GATES.length === 7 && MOB_GATES[0].id === "order" && MOB_GATES[6].id === "remove",
-   "seven gates, order to remove", MOB_GATES.map((g) => g.id));
+   "AT-12 · seven gates, order to remove", MOB_GATES.map((g) => g.id));
 {
   const r = assetReceipt({ asset: "cabin-17", serial: "C17", receivedAt: "2026-11-08", receiptedBy: "site manager" });
   ok(r.ok && r.state === "RECEIPTED", "the cabin is receipted", r.state);
@@ -60,7 +60,7 @@ console.log("\n=== AT-13 · water and alarms failed while cabins are installed =
     ],
     acceptingParty: "Managing Director",
   });
-  ok(!r.ok && r.state === "CLOSED", "COMPOUND A DOES NOT OPEN", r.state);
+  ok(!r.ok && r.state === "CLOSED", "AT-13 · COMPOUND A DOES NOT OPEN", r.state);
   ok(/A release that waives a mandatory requirement is not restricted, it is unauthorised/.test(r.say),
      "and opening the welfare around a failed mandatory service is not a restricted release", r.say);
 }
@@ -95,7 +95,7 @@ console.log("\n=== AT-13 · water and alarms failed while cabins are installed =
 }
 
 console.log("\n=== AT-11 · eligibility, per code, and expiring between award and dispatch ===\n");
-ok(SUPPLIER_STATES.length === 14 && SUPPLIER_STATES[0] === "CANDIDATE", "the supplier state ladder", SUPPLIER_STATES.length);
+ok(SUPPLIER_STATES.length === 14 && SUPPLIER_STATES[0] === "CANDIDATE", "AT-11 · the supplier state ladder", SUPPLIER_STATES.length);
 {
   const r = supplierEligibility({ supplier: "Acme Furniture", code: "11", competences: ["14"] });
   ok(!r.ok && r.reason === "NO_COMPETENCE_FOR_CODE",
@@ -126,7 +126,7 @@ ok(SUPPLIER_STATES.length === 14 && SUPPLIER_STATES[0] === "CANDIDATE", "the sup
 }
 
 console.log("\n=== AT-05 · model change with an open hire and no assignment ===\n");
-ok(MANIFEST_CATEGORIES.length === 7, "the manifest accounts for seven categories", MANIFEST_CATEGORIES);
+ok(MANIFEST_CATEGORIES.length === 7, "AT-05 · the manifest accounts for seven categories", MANIFEST_CATEGORIES);
 const FULL_MANIFEST = { contracts: 12, openOrders: 4, invoices: 9, retentions: 2, warranties: 3, noticeTimers: 5, legalEntities: 2 };
 {
   const r = checkCutover({ fromModel: "02", toModel: "03", effectiveFrom: "2026-11-01", signed: true,
@@ -159,7 +159,7 @@ console.log("\n=== AT-06 · Model 03 order exceeds headroom, and concurrent comm
 {
   const r = reserve({ authorised: "1000000", committed: "400000" }, { id: "o1", amount: "700000", model: "C" });
   ok(!r.ok && r.reason === "INSUFFICIENT_HEADROOM" && r.shortfall === 100000,
-     "a single order beyond headroom is blocked, short by the difference", r);
+     "AT-06 · a single order beyond headroom is blocked, short by the difference", r);
 }
 {
   // The concurrency case: each fits alone, together they do not.
@@ -184,7 +184,7 @@ ok(!reserve({}, { id: "x", amount: "1", model: "C" }).ok,
    "no recorded limit blocks binding rather than assuming unlimited");
 
 console.log("\n=== AT-15 · a stale sensor and contradictory observations ===\n");
-ok(SLA_CLOCKS.length === 4, "four clocks, tracked separately", SLA_CLOCKS);
+ok(SLA_CLOCKS.length === 4, "AT-15 · four clocks, tracked separately", SLA_CLOCKS);
 {
   const r = classifyObservation({ source: "wastewater level sensor", reading: "HIGH",
     observedAt: "2026-11-06T02:00", now: "2026-11-08T10:00", freshnessHours: 6 });
@@ -215,7 +215,7 @@ console.log("\n=== AT-16 · a credible critical alarm the contract covers ===\n"
 {
   const r = emergencyCallout({ observation: { certifies: true }, contractAllows: true,
     bound: { cap: "£2,000", scope: "one tanker collection" } });
-  ok(r.ok && r.issued && /issued once/.test(r.say), "A BOUNDED CALLOUT IS ISSUED ONCE", r.say);
+  ok(r.ok && r.issued && /issued once/.test(r.say), "AT-16 · A BOUNDED CALLOUT IS ISSUED ONCE", r.say);
   ok(/restoration workflow and the authority record continue separately/.test(r.say),
      "and the restoration and authority workflows continue separately", r.say);
 }
@@ -231,7 +231,7 @@ console.log("\n=== AT-16 · a credible critical alarm the contract covers ===\n"
 console.log("\n=== AT-19 · unknown mixed-service CIS or VAT treatment ===\n");
 {
   const r = determineTax({ facts: { constructionOperations: true }, amount: "50000", materialityThreshold: "1000", scope: "code 13 package" });
-  ok(!r.ok && r.blocksPublication, "AN UNDETERMINED TREATMENT BLOCKS FINANCIAL PUBLICATION", r);
+  ok(!r.ok && r.blocksPublication, "AT-19 · AN UNDETERMINED TREATMENT BLOCKS FINANCIAL PUBLICATION", r);
   ok(r.reviewTask && r.reviewTask.kind === "TAX_REVIEW" && r.reviewTask.needs.length > 0,
      "and raises a scoped review rather than a guess", r.reviewTask);
   ok(/a default is wrong somewhere/.test(r.say), "because a default is wrong in one direction or the other", r.say);
@@ -261,7 +261,7 @@ console.log("\n=== AT-19 · unknown mixed-service CIS or VAT treatment ===\n");
 console.log("\n=== AT-27 · publish to CONSTRUX while the connector is unavailable ===\n");
 {
   const q = queueIntent({ queue: [], applied: [] }, { id: "i1", type: "PublishAvailability", connector: "construx", payload: { beds: 40 } });
-  ok(q.ok && q.queued, "the intent is queued", q.say);
+  ok(q.ok && q.queued, "AT-27 · the intent is queued", q.say);
   const down = reconcileQueue(q.state, { connector: "construx", available: false });
   ok(down.waiting.join() === "i1" && down.sent.length === 0,
      "ETABLIX STAYS OPERATIONAL AND NOTHING IS LOST while the connector is down", down);
@@ -279,7 +279,7 @@ console.log("\n=== AT-27 · publish to CONSTRUX while the connector is unavailab
 console.log("\n=== AT-28 · replay a duplicate telemetry, invoice or collection message ===\n");
 {
   const first = applyInbound({ eventIds: [], versions: {} }, { eventId: "e1", aggregateId: "hire-17", aggregateVersion: 9, data: { collected: true } });
-  ok(first.applied, "the first delivery applies", first.say);
+  ok(first.applied, "AT-28 · the first delivery applies", first.say);
   const replay = applyInbound(first.seen, { eventId: "e1", aggregateId: "hire-17", aggregateVersion: 9 });
   ok(replay.ok && !replay.applied && replay.duplicate, "THE REPLAY APPLIES THE EFFECT ONCE", replay);
 }
@@ -303,7 +303,7 @@ console.log("\n=== AT-28 · replay a duplicate telemetry, invoice or collection 
 ok(!applyInbound({}, { eventId: "e1" }).ok, "an event with no aggregate or version is refused rather than applied once and hoped about");
 
 console.log("\n=== AT-09 · overnight use added to a day-use cabin brief ===\n");
-ok(OVERNIGHT_APPROVALS.length === 3, "three approvals only overnight use needs", OVERNIGHT_APPROVALS);
+ok(OVERNIGHT_APPROVALS.length === 3, "AT-09 · three approvals only overnight use needs", OVERNIGHT_APPROVALS);
 {
   const r = bedRequirement({ bedNights: 1200, nights: 30, roomStock: 50, bedsPerRoom: 1, turnaroundHours: 3, approvals: {} });
   ok(r.held && r.missingApprovals.length === 3, "OVERNIGHT OPENING IS HELD until its own approvals are evidenced", r.missingApprovals);

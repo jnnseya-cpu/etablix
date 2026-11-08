@@ -22,7 +22,7 @@ const fires = (text, rule) => checkPosition(text).findings.some((f) => f.rule ==
 
 console.log("\n=== 1 · the CDM appointment, which is not ours to take ===\n");
 ok(fires("ETABLIX will act as Principal Contractor for the site-services scope.", "cdm"),
-   "acting as Principal Contractor");
+   "AT-04 · acting as Principal Contractor");
 ok(fires("We are appointed as the Principal Designer for the temporary works.", "cdm"),
    "appointed as Principal Designer");
 ok(fires("ETABLIX shall be the principal contractor for this package.", "cdm"),
