@@ -56,12 +56,12 @@ const DAY = 86400000;
 const iso = (t) => new Date(t).toISOString().slice(0, 10);
 const P = store.collection("projects")[0].id;
 
-console.log("\n=== the sixteen engines ===\n");
+console.log("\n=== the twenty engines ===\n");
 
 console.log("--- the register and the briefs cannot drift\n");
 {
   const cat = reg.catalogue();
-  ok(cat.length === 16, `sixteen engines are registered (${cat.length})`);
+  ok(cat.length === 20, `twenty engines are registered (${cat.length})` + " — the count is the guard: an engine that silently disappears from the registry disappears from the agent list too");
   for (const e of cat) {
     ok(Boolean(AGENT_BRIEFS[e.id]), `${e.id} has a brief`);
     ok(typeof AGENT_BRIEFS[e.id]?.machine === "function", `${e.id}'s brief carries a machine hook, so the engine runs before the model`);

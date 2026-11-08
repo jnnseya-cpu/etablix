@@ -1,9 +1,9 @@
 /**
- * THE SIXTEEN DETERMINISTIC ENGINES, AND HOW THEY ARE RUN.
+ * THE TWENTY DETERMINISTIC ENGINES, AND HOW THEY ARE RUN.
  *
  * Ten agents in this system are model-driven: they read documents and write a
  * deliverable, and five of them reconcile their own output by machine
- * afterwards. These sixteen are the other shape. The arithmetic IS the
+ * afterwards. These twenty are the other shape. The arithmetic IS the
  * deliverable — whether a time bar has expired, whether a claim was notified
  * inside it, whether a programme's logic holds, whether a system was balanced
  * before it was set to work — and the model's job is the report.
@@ -38,6 +38,10 @@ import * as productivity from "./productivity.js";
 import * as safety from "./safety.js";
 import * as audit from "./audit.js";
 import * as model from "./model.js";
+import * as temporaryworks from "./temporaryworks.js";
+import * as land from "./land.js";
+import * as logistics from "./logistics.js";
+import * as portfolioCapacity from "./portfolio-capacity.js";
 import * as quantity from "./quantity.js";
 import * as asset from "./asset.js";
 import * as commissioning from "./commissioning.js";
@@ -160,6 +164,57 @@ export const ENGINES = [
       if (!r.ok) return { stop: true, say: r.why };
       const res = estimating.price(r.value);
       return { text: block("The priced schedule", res), result: res };
+    },
+  },
+  {
+    id: "temporaryworks", agent: "Temporary Works Coordinator", engine: "risk", depth: 3,
+    purpose: "The temporary works register: checker independence, check category against risk category, a permit to load issued before the load, and a named coordinator.",
+    shape: { designs: "[{id,designer,checker,riskCategory,checkCategory,loaded,loadedAt}]", permits: "[{designId,issuedAt}]", coordinator: "name" },
+    fields: [RECORDS_FIELD],
+    boundary: "ETABLIX does not design or check temporary works. This reads a register maintained by the appointed designers and checkers and reports what it does not evidence.",
+    run(inputs) {
+      const r = readRecords(inputs.records);
+      if (!r.ok) return { stop: true, say: r.why };
+      const res = temporaryworks.check(r.value);
+      return { text: block("The temporary works register", res), result: res };
+    },
+  },
+  {
+    id: "land", agent: "Land and Environmental Coordinator", engine: "contracts", depth: 3,
+    purpose: "Consents and conditions against the jurisdiction that governs them, and every monitored condition owned and dated.",
+    shape: { jurisdiction: "england|scotland|a place name", requirements: "[{id,activity,jurisdiction,evidenceJurisdiction,validUntil,conditions:[{id,frequency,owner}]}]", asAt: "date" },
+    fields: [RECORDS_FIELD],
+    boundary: "This routes a question to the right regulator and refuses a mismatch. It does not decide applicability, which the appointed team verifies against the effective version.",
+    run(inputs) {
+      const r = readRecords(inputs.records);
+      if (!r.ok) return { stop: true, say: r.why };
+      const res = land.check(r.value);
+      return { text: block("Consents and conditions, by jurisdiction", res), result: res };
+    },
+  },
+  {
+    id: "logistics", agent: "Logistics and Transport Coordinator", engine: "planning", depth: 3,
+    purpose: "Gate throughput against bookings, seats by stop against the shift that needs them, and a protected fallback for a cancelled vehicle.",
+    shape: { gates: "[{id,window,windowMinutes,minutesPerVehicle}]", bookings: "[{gate,window}]", transport: "[{stop,shift,seats}]", shifts: "[{stop,shift,people}]", fallback: "text" },
+    fields: [RECORDS_FIELD],
+    run(inputs) {
+      const r = readRecords(inputs.records);
+      if (!r.ok) return { stop: true, say: r.why };
+      const res = logistics.check(r.value);
+      return { text: block("Gate, seat and route capacity", res), result: res };
+    },
+  },
+  {
+    id: "portfolio-capacity", agent: "Portfolio Capacity Analyst", engine: "resource", depth: 4,
+    purpose: "One supplier across several projects: the delivery slot two of them cannot both have, and the concentration no single project can see.",
+    shape: { orders: "[{project,supplier,window,value}]", concentrationLimitPct: 40 },
+    fields: [RECORDS_FIELD],
+    boundary: "Supplier, window and project only. No price, rate or contract term crosses a project boundary, because protecting customer-specific rates across projects is the condition on this analysis existing at all.",
+    run(inputs) {
+      const r = readRecords(inputs.records);
+      if (!r.ok) return { stop: true, say: r.why };
+      const res = portfolioCapacity.check(r.value);
+      return { text: block("Portfolio capacity and supplier exposure", res), result: res };
     },
   },
   {

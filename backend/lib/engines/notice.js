@@ -222,7 +222,16 @@ export function recordGiven({ project, eventId, clause, by = null, role = null, 
   // engines.test.mjs asserts that EVERY registered display name is refused —
   // which is what stops this drifting again the next time something is
   // renamed. A real giver is a person's name, never a role noun.
-  if (/\bagent|system|automation|\bbot\b|workstream|monitor|engine|platform|construx|veryx|assessor|estimator|generator|planner|analyser|analyzer|validator|reconciler|controller|\breview\b|\bregister\b/i.test(who)) {
+  // Extended again on 8 November 2026, when four producers were added whose
+  // names use nouns this list did not carry — Coordinator and Analyst. The
+  // registry walk in engines.test.mjs refused to pass and named them, which is
+  // the mechanism working: the gate did not drift, it was caught drifting. Any
+  // future producer whose title introduces a new role noun fails there first.
+  //
+  // "Manager" is deliberately NOT here. "J Nseya" giving a notice in the role
+  // "Commercial Manager, delegated" is a person with an authority, which is
+  // exactly what this gate exists to admit.
+  if (/\bagent|system|automation|\bbot\b|workstream|monitor|engine|platform|construx|veryx|assessor|estimator|generator|planner|analyser|analyzer|validator|reconciler|controller|coordinator|analyst|\breview\b|\bregister\b/i.test(who)) {
     faults.push(`"${who}" is not a person. Giving a contractual communication is reserved to a person with authority, and recording an agent as the giver would make this record the evidence relied on.`);
   }
   if (!String(role || "").trim()) faults.push("no authority stated. The question asked later is not who sent it but who was entitled to.");

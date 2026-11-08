@@ -599,6 +599,11 @@ export function collection(name) {
 
 /** Append-only collections that must not grow for ever. */
 const CAPS = {
+  // The Agent OS command log grows one row per computation. Capped, because
+  // the engines are pure functions and a replayed command re-reads its stored
+  // outcome rather than needing the whole history kept.
+  agentosCommands: 2000,
+  agentosEvidence: 2000,
   notifications: 500,
   deliveries: 500,
   agentTasks: 300,

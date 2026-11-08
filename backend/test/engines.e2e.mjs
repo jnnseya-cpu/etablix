@@ -1,5 +1,5 @@
 /**
- * The sixteen engines over HTTP, as agents and on their own.
+ * The twenty engines over HTTP, as agents and on their own.
  *
  *   BASE=http://localhost:3391 node backend/test/engines.e2e.mjs
  *
@@ -32,7 +32,7 @@ const api = async (p, o = {}, tok) => {
 const SIXTEEN = ["obligation", "notice", "change", "estimating", "submission", "programme", "recovery",
                  "productivity", "safety", "audit", "model", "quantity", "asset", "commissioning", "handover-file", "lifecycle"];
 
-console.log("\n=== the sixteen engines, reachable ===\n");
+console.log("\n=== the twenty engines, reachable ===\n");
 
 let r = await api("/api/auth/login", { json: { email: "admin@etablix.com", password: "etablix-admin-2026" } });
 const T = r.body.token;
@@ -41,7 +41,7 @@ ok(r.status === 200, "admin signs in");
 console.log("\n--- the catalogue\n");
 {
   const g = await api("/api/engines", {}, T);
-  ok(g.status === 200 && g.body.engines.length === 16, `sixteen engines are published (${g.body.engines?.length})`);
+  ok(g.status === 200 && g.body.engines.length === 20, `twenty engines are published (${g.body.engines?.length})`);
   const ids = g.body.engines.map((e) => e.id);
   for (const id of SIXTEEN) ok(ids.includes(id), `${id} is in the catalogue`);
   ok(g.body.engines.every((e) => e.fields.length > 0), "each publishes the fields it takes");
@@ -58,7 +58,9 @@ console.log("\n--- every one of the sixteen is in the agent catalogue too\n");
   const g = await api("/api/agents", {}, T);
   ok(g.status === 200, "the agent catalogue reads");
   const byId = new Map((g.body.agents || []).map((a) => [a.id, a]));
-  ok(g.body.agents.length === 30, `thirty agents, not fourteen (${g.body.agents.length})`);
+  ok(g.body.agents.length === 34,
+     `THIRTY-FOUR AGENTS, NOT FOURTEEN (${g.body.agents.length}) — the four added on 8 November are the specification's `
+     + `ET-TW, ET-ENV, ET-LOG and ET-PORT, built as engines rather than briefs so they inherit every rule the other thirty carry`);
   for (const id of SIXTEEN) {
     const a = byId.get(id);
     ok(Boolean(a), `${id} is in the agent catalogue`);

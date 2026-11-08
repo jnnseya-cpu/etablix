@@ -333,7 +333,7 @@ NO GENERIC INFORMATION, EVER. The six tests below are written for a report and t
 ${STANDARD}`;
 
 /**
- * THE SIXTEEN DETERMINISTIC ENGINES, TURNED INTO BRIEFS.
+ * THE TWENTY DETERMINISTIC ENGINES, TURNED INTO BRIEFS.
  *
  * Generated from the engine registry rather than written out here, so a brief
  * and the engine behind it cannot drift: an agent whose brief describes a

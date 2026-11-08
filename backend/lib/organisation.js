@@ -160,6 +160,71 @@ export const CONTRACT_FUNDED = [
  */
 export const AI_AGENTS = [
   {
+    id: "temporaryworks",
+    name: "Temporary Works Coordinator",
+    inputs: [
+      "The temporary works register as the appointed designers and checkers maintain it: design, designer, checker, risk category and check category",
+      "Permits to load, with the date each was issued",
+      "The named temporary works coordinator",
+    ],
+    outputs: [
+      "Designs with no checker, or a checker who is the designer — a design checked by its author is not checked",
+      "Checks at a lower category than the design's own risk category, which is a signature with nothing behind it",
+      "Loads with no permit, and permits issued after the load, which makes them a record rather than a control",
+    ],
+    boundary: "ETABLIX does not design or check temporary works. This reads a register maintained by the appointed designers and checkers and reports what it does not evidence.",
+    backing: ["engine", "llm"],
+    desk: "Feeds the design and mobilisation screens; a design not released is a lift not released.",
+  },
+  {
+    id: "land",
+    name: "Land and Environmental Coordinator",
+    inputs: [
+      "The project's jurisdiction, and each consent or requirement with the jurisdiction it was issued under",
+      "Expiry dates, and each permit's monitored conditions with a frequency and an owner",
+    ],
+    outputs: [
+      "Evidence filed against the wrong jurisdiction, which is the failure that is invisible on a register — the document is real, so the row looks closed",
+      "The correct route named: SEPA and a building warrant in Scotland, the Environment Agency and the Building Regulations in England",
+      "Conditions with no monitoring frequency and no owner, which are not being monitored",
+    ],
+    boundary: "This routes a question to the right regulator and refuses a mismatch. It does not decide applicability, which the appointed team verifies against the effective version.",
+    backing: ["engine", "llm"],
+    desk: "Feeds the consents register; an unresolved prerequisite blocks the service it governs.",
+  },
+  {
+    id: "logistics",
+    name: "Logistics and Transport Coordinator",
+    inputs: [
+      "Gate windows with their length and the minutes a vehicle takes to process, and the deliveries booked into each",
+      "Transport by stop and shift with its seats, and the headcount waiting at each stop",
+      "The approved fallback for a cancelled vehicle",
+    ],
+    outputs: [
+      "Gate windows booked beyond their throughput, with the number of vehicles that queue onto the public highway",
+      "Seat shortfalls by stop — a vehicle with capacity in total and none where forty people wait has no capacity there",
+      "A missing fallback, which on a remote site is not an inconvenience but people who cannot leave",
+    ],
+    boundary: "Reports capacity against bookings. It does not book, dispatch or instruct a driver.",
+    backing: ["engine", "llm"],
+    desk: "Feeds the live operations board and the delivery schedule.",
+  },
+  {
+    id: "portfolio-capacity",
+    name: "Portfolio Capacity Analyst",
+    inputs: [
+      "Orders across projects: project, supplier, delivery window and value",
+      "The concentration limit above which one supplier is a single point of failure",
+    ],
+    outputs: [
+      "Slot conflicts — one supplier, one window, more than one project, where each team can see its own order and neither can see the other's",
+      "Supplier concentration across the portfolio, which no single project can see and every one of them reports as fine",
+    ],
+    boundary: "Supplier, window and project only. No price, rate or contract term crosses a project boundary, because protecting customer-specific rates across projects is the condition on this analysis existing at all.",
+    backing: ["engine", "llm"],
+    desk: "Feeds the portfolio screen; visible to the Managing Director and not to a project team.",
+  },
+  {
     id: "opportunity",
     name: "Workstream 1 — Opportunity Intelligence",
     inputs: ["Target sectors and regions", "Project types and client lists", "Minimum project size", "Expected mobilisation dates"],
@@ -970,6 +1035,8 @@ export const ENGINES = [
         was: "planned: Generating a programme is the easy part. What earns its place is interrogation: open-ended activities, missing predecessors, procurement disconnected from installation, hidden negative float, unsupported productivity, excessive critical-path sensitivity." },
       { id: "recovery", name: "Recovery Agent", state: "built", depth: 4,
         was: "planned: Recovery options with their cost and programme trade-offs, and time-impact analysis against a baseline that has not been quietly rewritten." },
+      { id: "logistics", name: "Logistics and Transport Coordinator", state: "built", depth: 3,
+        was: "planned: The gate is the constraint nobody models. A booking system that accepts bookings irrespective of gate throughput queues the deliveries onto the public highway." },
     ],
   },
   {
@@ -986,6 +1053,8 @@ export const ENGINES = [
       { id: "commercial", name: "Commercial and Procurement Agent", state: "built", depth: 3 },
       { id: "productivity", name: "Productivity Agent", state: "built", depth: 3,
         was: "planned: Labour and plant output measured against what was priced, per control account, which is the only honest early warning on a cost overrun." },
+      { id: "portfolio-capacity", name: "Portfolio Capacity Analyst", state: "built", depth: 4,
+        was: "planned: One supplier, several projects, and the delivery slot two of them cannot both have. Supplier, window and project only — no price or term crosses a project boundary." },
     ],
   },
   {
@@ -999,6 +1068,8 @@ export const ENGINES = [
       { id: "safety", name: "Safety Assurance Agent", state: "built", depth: 3,
         was: "planned: RAMS completeness, permit expiry, training gaps, recurring observations, method statements cross-checked against planned activity. It administers; it never supervises. It must never be sold as replacing a competent safety professional or a person on site." },
       { id: "audit", name: "Audit Agent", state: "built", depth: 3 },
+      { id: "temporaryworks", name: "Temporary Works Coordinator", state: "built", depth: 3,
+        was: "planned: The register is always full and the structures are not always verified. The failure is never that nobody designed it — it is a check by the designer, a check at the wrong category, or a permit to load issued after the load." },
     ],
   },
   {
@@ -1035,6 +1106,8 @@ export const ENGINES = [
       { id: "notice", name: "Notice Agent", state: "built", depth: 4,
         was: "planned: Drafts a notice when an event occurs and the clock starts. It drafts only: a binding contractual communication passes an authorised commercial gate, always." },
       { id: "change", name: "Change and Entitlement Agent", state: "built", depth: 4 },
+      { id: "land", name: "Land and Environmental Coordinator", state: "built", depth: 3,
+        was: "planned: Consents against the jurisdiction that governs them. An English dewatering position statement filed against a Scottish prerequisite leaves a register showing closed and a site discharging without authorisation." },
     ],
   },
   {

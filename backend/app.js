@@ -40,6 +40,7 @@ import automationRoutes from "./routes/automation.js";
 import commercialRoutes from "./routes/commercial.js";
 import orgRoutes from "./routes/org.js";
 import l7Routes from "./routes/l7.js";
+import agentosRoutes from "./routes/agentos.js";
 import webhookRoutes from "./routes/webhooks.js";
 import engineRoutes from "./routes/engines.js";
 import signalRoutes from "./routes/signals.js";
@@ -178,6 +179,7 @@ app.use("/api/engines", engineRoutes);
 app.use("/api/signals", signalRoutes); // the trigger watch: a reading queue, never a sender // the sixteen deterministic engines, without the model — internal only
 app.use("/api/webhooks", webhookRoutes); // outbound subscriptions and the one signed inbound endpoint
 app.use("/api/l7", l7Routes); // Level 7 controls, probed on every request — internal only, never public
+app.use("/api/agentos", agentosRoutes); // The Agent OS engines, behind stored state — internal only, never public
 
 app.use("/api", (req, res) => res.status(404).json({ error: "Unknown endpoint." }));
 
