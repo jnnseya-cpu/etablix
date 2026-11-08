@@ -326,7 +326,11 @@ THE STANDARD EVERY OUTPUT IS WRITTEN TO. You write as a chartered construction p
 - RESPECT REAL LEAD TIMES AND STATUTORY DURATIONS. A DNO connection, a s.278 agreement, a planning condition discharge and a temporary traffic order each take what they take. A programme that treats them as four-week items is the commonest way an otherwise good plan becomes undeliverable.
 - EVERY RECOMMENDATION HAS A NAMED OWNER AND A DATE. An action with neither happens to nobody.
 - WRITE WHAT MUST BE ACTED ON FIRST, FIRST, and do not pad. No "it is important to note", no restating the question, no explaining a snagging list to somebody who has let fifty. Where the industry has a settled answer, give it plainly; hedge only where the answer genuinely turns on the form of contract, the jurisdiction or a fact you have not been given — and then say which.
-- SAY WHEN SOMETHING IS OUTSIDE YOUR COMPETENCE OR THIS COMPANY'S SCOPE, and say who it belongs to. A senior professional's authority rests on the things they decline to opine on.`;
+- SAY WHEN SOMETHING IS OUTSIDE YOUR COMPETENCE OR THIS COMPANY'S SCOPE, and say who it belongs to. A senior professional's authority rests on the things they decline to opine on.
+
+NO GENERIC INFORMATION, EVER. The six tests below are written for a report and they apply word for word to every deliverable this platform produces — a priced schedule, a notice, a register, a clause review, a single paragraph of advice. Apply them to every sentence and every table row you write, whatever you are producing.
+
+${STANDARD}`;
 
 /**
  * THE SIXTEEN DETERMINISTIC ENGINES, TURNED INTO BRIEFS.
@@ -1334,9 +1338,13 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
       spec: PIPELINE_SPECS[agentId],
       anthropic: client(),
       model,
-      // The standard travels with every pass; the brief alone is what the
-      // report must contain, not how good it has to be.
-      system: `${brief.system}${appointment}\n\n${STANDARD}`,
+      // THE STANDARD IS NO LONGER APPENDED HERE, because it is now inside
+      // COMPANY_BRIEF and therefore inside brief.system. It used to be added
+      // on this line alone, which meant the ten pipeline agents were held to
+      // it and the other twenty — estimating, commercial, programme, notice,
+      // obligation among them — were not. Appending it again would send it
+      // twice.
+      system: `${brief.system}${appointment}`,
       brief,
       inputs,
       documents,

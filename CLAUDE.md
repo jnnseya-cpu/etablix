@@ -56,6 +56,50 @@ an instruction everybody agrees with is written down once and then absent from
 the next agent somebody adds, since the next agent is written by copying
 another one.
 
+### No generic information, anywhere, from any agent
+
+The standard above is how a thing is written. This is what may be written at
+all. **A statement that would still be true on a different project is not a
+finding, it is a textbook line**, and it does not go in a deliverable this
+company issues. A client who paid for a document and received something a
+competent stranger could have written without reading their papers will not
+come back, and should not.
+
+Six tests, applied to every sentence and every table row of every deliverable
+— a report, a priced schedule, a notice, a register, a clause review, a single
+paragraph of advice:
+
+1. **Source.** Every factual statement names which input it came from and
+   where in it. A statement that cannot be sourced was invented: delete it.
+2. **Specificity.** "Welfare must be sized to peak headcount" is worthless.
+   "90 parking spaces against 280 people at shift overlap from 14 March" is
+   the product.
+3. **Consequence.** In days, pounds, cubic metres, kVA, beds, people or a
+   named consent. Adjectives are not consequences.
+4. **Working shown.** Every number the client might act on shows how it was
+   built, so their engineer can check it rather than take it on trust.
+5. **What would change it.** On every material finding, the one decision or
+   fact that would change the answer, and what it would change it to.
+6. **Honesty.** Where the inputs do not support a conclusion, say what is
+   missing, what it prevents, and what can still be said without it. A shorter
+   honest section beats a longer invented one every time.
+
+**Forbidden by name**, because each is a way of writing at length while saying
+nothing: restating an input back to the client as though it were a finding;
+"it is recommended that a review be undertaken"; "careful consideration should
+be given to"; "industry best practice suggests"; any risk whose mitigation is
+"monitor"; any action without a named owner and a date; any range whose width
+is not explained by a named unresolved decision.
+
+**This text already existed** as `STANDARD` in `backend/lib/diagnostic.js` and
+it was good. It was appended on a single line that only the ten pipeline
+agents passed through, so the other twenty — `estimating`, `commercial`,
+`programme`, `notice` and `obligation` among them, which write the most
+consequential documents in the platform — were held to no such rule. It now
+sits inside `COMPANY_BRIEF`, all thirty inherit it, and
+`practitioner.test.mjs` fails if it ever reaches a subset again or is sent
+twice.
+
 **What it must never erode.** Seniority is not licence to fill a gap. The
 standard sits alongside, and never above, the rules that the agent has no
 authority to approve or commit, that nothing may be invented, and that nothing

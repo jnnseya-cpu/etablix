@@ -81,6 +81,48 @@ for (const [what, re] of CLAUSES) {
   ok(missing.length === 0, what, missing.slice(0, 4));
 }
 
+console.log("\n=== no generic information, and every agent is held to it ===\n");
+//
+// These six tests were written for the diagnostic report and they were good.
+// They were also appended on ONE line, for the ten pipeline agents only, so
+// the other twenty — estimating, commercial, programme, notice and obligation
+// among them, which write the most consequential documents in the platform —
+// were held to no such rule. The standard now sits inside COMPANY_BRIEF and
+// this section is why it cannot quietly go back to reaching a subset.
+const GENERIC = [
+  ["every factual statement names its source", /1\. SOURCE/],
+  ["specificity, as a numbered test and not an aspiration", /2\. SPECIFICITY/],
+  ["A STATEMENT TRUE ON ANOTHER PROJECT IS A TEXTBOOK LINE, NOT A FINDING", /would still be true on a different\s+project is not a finding/],
+  ["consequence in days, pounds, cubic metres, kVA, beds, people or a named consent", /3\. CONSEQUENCE/],
+  ["the working shown, so their engineer can check it rather than take it on trust", /4\. WORKING SHOWN/],
+  ["what would change the answer, named", /5\. WHAT WOULD CHANGE IT/],
+  ["honesty about what the inputs do not support", /6\. HONESTY/],
+  ["\"industry best practice suggests\" forbidden by name", /industry best practice suggests/],
+  ["a risk whose mitigation is \"monitor\" forbidden by name", /mitigation is "monitor"/],
+  ["\"it is recommended that a review be undertaken\" forbidden by name", /a review be undertaken/],
+  ["restating an input back as though it were a finding, forbidden", /restating an input back/],
+  ["and it is stated to apply to every deliverable, not only a report", /appl(y|ies) word for word to every deliverable/],
+];
+for (const [what, re] of GENERIC) {
+  const missing = ids.filter((id) => !re.test(systemOf(id)));
+  ok(missing.length === 0, what, missing.slice(0, 4));
+}
+{
+  // The specific regression this guards. Ten agents had it; twenty did not.
+  const engineIds = ids.filter((id) => AGENT_BRIEFS[id] && typeof AGENT_BRIEFS[id].machine === "function");
+  const missing = engineIds.filter((id) => !/2\. SPECIFICITY/.test(systemOf(id)));
+  ok(engineIds.length >= 10 && missing.length === 0,
+     `all ${engineIds.length} deterministic-engine agents are held to it too — these were the ones it never reached`,
+     missing);
+}
+{
+  // And it must not be sent twice. It is long, it costs tokens on every pass,
+  // and a brief that repeats itself is a brief somebody will later trim in the
+  // wrong place.
+  const doubled = ids.filter((id) => (systemOf(id).match(/2\. SPECIFICITY/g) || []).length > 1);
+  ok(doubled.length === 0, "and sent once, not twice, now that it is no longer appended per-path", doubled);
+}
+
 console.log("\n=== the standard does not contradict what already binds ===\n");
 //
 // A professional register is the one place a well-meant instruction could
