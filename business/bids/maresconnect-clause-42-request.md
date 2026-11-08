@@ -136,7 +136,7 @@ not a promise to ask by a date.
 
 ---
 
-## The reply to send now
+## The one email — declines, and leaves every door open
 
 > **Subject:** RE: Issue of editable versions of PQQ documentation — 681481-2026
 >
@@ -146,28 +146,32 @@ not a promise to ask by a date.
 >
 > So that no place is held for one: the decision ETABLIX, part of JNN GLOBAL
 > LTD, company 15405437, notified through Aconex stands, and no PQQ response
-> will follow from us. We have no need of further PQQ material and would be glad
-> to come off the Candidate distribution if that is straightforward — if it is
-> simpler to leave the list as issued that is entirely fine, and the
-> documentation will be held and handled under the non-disclosure agreement
-> either way.
+> will follow from us. The PQQ documentation will continue to be held and
+> handled under the non-disclosure agreement.
 >
-> One item remains open from that notification. ETABLIX plans and procures the
-> temporary site environment around permanent works: compound layout and sizing,
-> temporary power and utilities, welfare and workforce accommodation, security,
-> waste, logistics, and demobilisation with reinstatement. We are engaged as an
-> adviser and integrator — the client holds every supplier contract and pays
-> every supplier directly — and we take no construction or design appointment.
-> If MaresConnect holds a supply-chain register, or will accept a capability
-> note held on file against the Enabling Works scope at Section 2.5, I will
-> provide one in whatever form you prefer.
+> What remains open is the offer made in that notification. ETABLIX plans and
+> procures the temporary site environment around permanent works: compound
+> layout and sizing, temporary power and utilities, welfare and workforce
+> accommodation, security, waste, logistics, and demobilisation with
+> reinstatement. We are engaged as an adviser and integrator — the client holds
+> every supplier contract and pays every supplier directly — and we take no
+> construction or design appointment. Fixed scope, fixed fee.
 >
-> And a standing offer, which needs nothing from you today. Section 2.5 places
-> the Civil and Structural Enabling Works Contract with the Preferred Bidder at
-> pre-FID stage. If at that point an introduction to the Preferred Bidder on
-> that scope would be useful to the project, we would welcome it, on whatever
-> terms and at whatever moment suit you. We will not approach any party about
-> this project ourselves.
+> Three things follow from that, none of which needs a decision from you today.
+>
+> **A capability note on file.** If MaresConnect holds a supply-chain register,
+> or will accept a note held against the Enabling Works scope at Section 2.5, I
+> will provide one in whatever form you prefer.
+>
+> **An introduction once there is a Preferred Bidder.** Section 2.5 places the
+> Civil and Structural Enabling Works Contract with the Preferred Bidder at
+> pre-FID stage, in each LOT. If at that point an introduction on that scope
+> would be useful to the project, we would welcome it, on whatever terms and at
+> whatever moment suit you. We will not approach any party about this project
+> ourselves.
+>
+> **Later phases and other packages.** Where this scope arises again, here or
+> elsewhere, we would be glad to be considered.
 >
 > Kind regards,
 >
@@ -179,12 +183,30 @@ not a promise to ask by a date.
 > A Groupe Nseya House, Kingstanding, Birmingham, B44 8DJ, United Kingdom
 > W etablix.com
 
-**Why it is this short.** It is a reply to an administrative addendum. It
-answers the only thing the addendum needed answering — that no response is
-coming — keeps the one question the decline note left open alive, and asks for
-nothing that requires a decision from anybody. A reply of this length to an
-automated distribution reads as courtesy. The same length carrying a consent
-request would read as an approach.
+**Everything in it is zero-effort for the reader.** "None of which needs a
+decision from you today" is the load-bearing sentence: a procurement lead
+mid-PQQ has no authority to grant anything and no time to consider it, so every
+item is written to be read now and acted on later or not at all. Nothing can be
+refused, so nothing goes on file as refused.
+
+**The request to come off the Candidate distribution is gone.** It was in an
+earlier draft and it was wrong twice over: it asks the reader to do something,
+and it removes ETABLIX from the information flow on a project it wants to stay
+near. Being on the list costs nothing but an obligation already owed under the
+agreement, and the line about handling the documentation covers that. Nothing
+in this letter closes anything.
+
+**The order matters.** The decline comes first, in two sentences, because it is
+the only thing the addendum needed answering and burying it under an offer
+would look evasive. The three doors come after, as separate short paragraphs
+rather than a numbered list, so each can be read on its own by somebody
+skimming.
+
+**The three are deliberately different in kind.** One is a document they file.
+One is an act they might perform at a stage named from their own document. One
+is a standing availability with no occasion attached. A reader who has no use
+for the first two can still say yes to the third, and a letter offering only
+one thing gets one answer or none.
 
 **THE INTRODUCTION IS THE BETTER ASK, AND IT NEEDS NO CONSENT AT ALL.**
 
