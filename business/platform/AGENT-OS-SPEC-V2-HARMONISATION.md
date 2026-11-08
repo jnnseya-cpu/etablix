@@ -72,24 +72,25 @@ force insures a consultant and does not respond to holding works contracts.
 | AT-11 | Eligibility expires between approval and dispatch | **Built** — `quoteValidity`; supplier eligibility states not built |
 | AT-12 | Cabin delivered, lift evidence missing | **Not built** — no asset receipt state |
 | AT-13 | Water and alarms failed, cabins installed | **Not built** — no opening gate |
-| AT-14 | Chat asks for energisation or gate bypass | Partly — A4 denial is not a modelled class |
+| AT-14 | Chat asks for energisation or gate bypass | **Built** — `agentos/autonomy.js`, A4 denied at the tool boundary, identically from an upload |
 | AT-15 | Stale sensor, contradictory observations | **Not built** |
 | AT-16 | Credible critical alarm, bounded callout once | **Not built** |
 | **AT-17** | **£100k, 20%, 5%, 5% → £125k / £120k / £114k** | **BUILT** — `agentos/commercial.js` |
 | **AT-18** | **PV 60k, EV 48k, AC 55k → CPI 0.8727, SPI 0.8** | **BUILT** — `agentos/commercial.js` |
 | AT-19 | Unknown mixed CIS or VAT treatment | **Not built** |
-| AT-20 | Cabin 17 supports Phase B's fire loop | **Not built** — the OFF-01..06 engine |
-| AT-21 | Off-hire sent, no verified effective stop | **Not built** |
-| AT-22 | Collection complete, land condition rejected | **Not built** |
-| AT-23 | Notice times out, model down | Partly — `l7` durable gates; UNKNOWN_OUTCOME not modelled |
+| AT-20 | Cabin 17 supports Phase B's fire loop | **Built** — `agentos/offhire.js`, held at OFF-02 with the notice clock still running |
+| AT-21 | Off-hire sent, no verified effective stop | **Built** — a sent message is not a received one; accrual continues |
+| AT-22 | Collection complete, land condition rejected | **Built** — return and reinstatement are separate facts |
+| AT-23 | Notice times out, model down | **Built** — UNKNOWN_OUTCOME fails OFF-06; the deadline survives it |
 | AT-24 | Supplier PDF instructs the agent | **Built** — documents are untrusted data; `security.e2e` |
 | AT-25 | Import a package with no verified approval | **Built** — `fromLegacyFamily` keeps an ambiguous mapping ambiguous |
-| AT-26 | England dewatering evidence on a Scottish project | **Not built** — no jurisdiction profile |
+| AT-26 | England dewatering evidence on a Scottish project | **Built** — `agentos/jurisdiction.js`; the prerequisite stays UNRESOLVED |
 | AT-27 | Publish to CONSTRUX while the connector is down | **Not built** |
 | AT-28 | Replay a duplicate message | Partly — `rerun.e2e`, `upload-dedupe` |
 
-**Eight built, five partly, fifteen not.** The four with exact arithmetic are
-all built, because a specification that states its expected answer is a
+**Fourteen built, three partly, eleven not** — eight after the first pass, six
+more with items 1 to 3 of the build order below. The ones with exact arithmetic
+went first, because a specification that states its expected answer is a
 specification that can be turned into a test the same afternoon.
 
 ---
@@ -194,40 +195,115 @@ direction: `notice`, `obligation`, `change`, `recovery`, `safety`, `model`,
 
 ---
 
-## 5 · Build order for what remains
+## 5 · Items 1 to 3, built
 
-1. **The off-hire dependency engine, OFF-01 to OFF-06, with AT-20 to AT-23.**
-   The specification's own increment 1 and the right first build: it is the
-   vertical slice that touches authority, dependency, notice clock, dispatch
-   and reconciliation at once. Cabin 17 serving Phase B's live fire loop is a
-   better test than any synthetic one, because the commercial answer and the
-   safety answer point in opposite directions.
-2. **Autonomy classes A0–A4, mapped onto the existing L0–L7.** `l7/policy.js`
-   already has eight levels with risk classes; the specification has five
-   execution classes with delegation binding. These are the same idea at
-   different granularities and should be one table, not two. A4 — deny tool
-   and command — is the one with no equivalent and it is the one worth having:
-   energisation, isolation, gate actuation and evidence fabrication refused at
-   the tool boundary rather than declined in prose.
-3. **Jurisdiction profiles, England and Scotland, with AT-26.** Small, and it
-   prevents a specific and embarrassing error: discharging a Scottish
-   prerequisite with English guidance. On Skye this is SEPA rather than the
-   Environment Agency, and building standards rather than Building Regulations.
-4. **Supplier and package eligibility states, with AT-11.** Thirteen states and
-   the rule that matters — eligibility for office furniture does not establish
-   competence for electrics or transport.
-5. **The mobilisation gates, with AT-12 and AT-13.** Order, dispatch, lift,
-   connect, open, change, remove. The platform has G0–G7 for a bid; this is
-   the same machinery for a physical asset, and `l7/gates.js` can carry it.
-6. **ET-TW, ET-ENV, ET-LOG, ET-PORT.**
+### 1 · The off-hire engine · `backend/lib/agentos/offhire.js`
 
-Items 1 to 3 are each a day's work on the established `*check.js` and
-`gates.js` patterns. Items 4 to 6 are the specification's increments 2 and 3
-and are a different size of job.
+OFF-01 to OFF-06 in sequence, stopping at the first failure, with the
+remaining rules reported as **not reached** rather than as passed. Order is
+not a preference: reading the dependency graph for an actor who may not act
+is wasted work, and pinning a contract clause for an action that is not
+permitted pins the wrong thing.
+
+**Two findings, kept apart, and this is the point of the module.** Cabin 17 is
+empty, costs hire, and its panel still serves Phase B's live fire loop. The
+withdrawal is `HELD`. The charge is `ACCRUING`. Both are returned, because a
+single verdict would lose whichever the caller did not ask about — and the
+failure that costs money is the second one being forgotten while everybody
+attends to the first. The notice deadline is computed and reported **through
+the hold**: an asset decided three weeks ago to be returned, held on a
+dependency and forgotten commercially, costs another full charge period.
+
+**And a sent message does not stop billing.** Ten facts are recorded
+separately — request, notice dispatch, supplier confirmation,
+contract-effective stop, isolation, collection, return, damage, accrued hire,
+invoice closure — and none implies another. `billingStop` will not name a stop
+date without the evidence the agreement requires: a dispatched notice returns
+`RECEIPT_UNCONFIRMED` and a running accrual, and where the contract stops
+charges on **return**, a completed collection does not do it. The fact the
+contract names is the one that counts, not whichever happened first.
+
+### 2 · The five execution classes · `backend/lib/agentos/autonomy.js`
+
+A0 observe, A1 reversible internal write, A2 delegated act, A3 prepare and
+route, A4 **deny**. Mapped onto the existing L0–L7 ladder in `l7/policy.js`
+rather than placed beside it.
+
+**A4 is the one that matters and it is checked first.** Before any permission
+is read, because a denied action does not become permitted by arriving with a
+valid delegation. Five denials: energise or isolate live equipment, actuate a
+gate or bypass its emergency control, impersonate a competent person, bypass a
+mandatory hold, fabricate field or regulator evidence.
+
+**The verdict does not vary with the source.** The specification's own test
+asks for energisation "from chat or uploaded note". Text in a supplier's PDF,
+a site diary or a drawing comment is data. A platform that denies a request
+typed by a person and performs the same request found in an attachment has a
+control that protects it from its own operators and from nobody else. The
+source is reported and explicitly not weighed.
+
+**And every denial names who does carry the action.** Refusing to energise a
+panel and saying nothing else leaves somebody with a live problem and no
+route. The actions on this list are not forbidden in the world, only forbidden
+here.
+
+Two bindings, and they are different bindings. An **A2 delegation** binds the
+actor and the shape — twelve fields, and a partial one is not a delegation but
+a preference. Note the case the cap exists for: £900 against a £1,000
+per-action threshold and £4,500 already used against a £5,000 cumulative cap
+passes the threshold and fails the cap. An **A3 authority** binds the
+*payload*: payload, attachments, evidence, contract and authorisation snapshot
+compared field for field, so a material change invalidates an authority that
+has not yet been used. A changed attachment is the easy one to miss and it is
+checked.
+
+### 3 · Jurisdiction profiles · `backend/lib/agentos/jurisdiction.js`
+
+England and Scotland as separate regimes, not one with regional variations.
+Four regulated activities with their route on each side: dewatering, site
+run-off, building consent, procurement.
+
+**AT-26 is the failure that is invisible on a register.** An Environment
+Agency position statement for temporary dewatering is genuine and correctly
+issued. Filed against a Scottish prerequisite it leaves the site discharging
+without authorisation while the row shows closed. So the requirement stays
+**UNRESOLVED**, the English document is called *inapplicable* rather than
+wrong, and the correct route is named — a water activity authorised by SEPA.
+
+An unknown jurisdiction **fails closed** rather than defaulting to England,
+which is the direction that error always runs.
+
+The vocabulary is carried too: on Skye it is a **building warrant** from a
+**verifier** against the **Scottish building standards**, and the regulator is
+**SEPA**. Asking a Highland client for "Building Regs sign-off" tells them the
+author has not worked there, which costs the same as being wrong.
+
+`backend/test/agentos-controls.test.mjs` — 67 assertions, registered in
+`run-all.sh`.
 
 ---
 
-## 6 · Two cautions on the specification itself
+## 6 · Build order for what remains
+
+1. **Supplier and package eligibility states, with AT-11.** Thirteen states and
+   the rule that matters — eligibility for office furniture does not establish
+   competence for electrics or transport.
+2. **The mobilisation gates, with AT-12 and AT-13.** Order, dispatch, lift,
+   connect, open, change, remove. The platform has G0–G7 for a bid; this is
+   the same machinery for a physical asset, and `l7/gates.js` can carry it.
+3. **ET-TW, ET-ENV, ET-LOG, ET-PORT**, and with them AT-05, AT-06, AT-15 to
+   AT-19 and AT-27, each of which needs an aggregate that does not exist yet —
+   a hire agreement, a treasury reservation, a sensor reading, a tax
+   determination, a connector queue.
+
+These are the specification's increments 2 and 3 and are a different size of
+job from items 1 to 3 above. Nothing in them is blocked; each needs its
+aggregate built first, and an aggregate is a schema, a migration and a
+lifecycle rather than a function.
+
+---
+
+## 7 · Two cautions on the specification itself
 
 **The Skye figures are a software fixture and the specification says so.** 100
 nominal, 130 peak, 300 m², 40 L/person/day — "These inputs test the software.
