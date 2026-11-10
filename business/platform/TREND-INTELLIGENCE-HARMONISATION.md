@@ -112,6 +112,28 @@ having read a licence; reading one *improves* what that feed can do. The
 remaining act is a person reading terms, which cannot be automated because
 reading the terms is the task. It stays in §7 with an owner.
 
+**What promotion requires, and why it is four fields.** `terms`,
+`permittedUses`, `termsUrl` and `termsReadBy`, recorded together. Three of the
+four is ignored and the partial record is reported by name, because whether a
+publisher's terms permit use in a paid product is a legal judgement about
+copyright and database right, and an unattributed judgement is worth nothing:
+there is nobody to ask what was decided and nothing to re-read if it turns out
+to be wrong. `permittedUses` takes the narrowest true answer — a licence that
+permits counting and not citing gets `detection` alone, and that source then
+cannot evidence anything, which is correct.
+
+**One modelling error this found.** The first version had trade press prove
+*attention*, which is a context-only class. A trade-press feed could therefore
+never corroborate, which meant reading its licence changed nothing that
+mattered — and the whole point of reading one is that it lets a feed
+corroborate. It was also wrong on the facts: attention is a measure of how many
+people looked at something, and an article reporting that a main contractor has
+been appointed is reporting a decision. §3 lists curated industry RSS as
+"context or corroboration", not as attention. Both the portal and the press now
+prove a decision, and the difference in reliability lives where the
+specification puts it — `qualityScore`, 85 against 55, which confidence weights
+at 35%.
+
 **Two entries the registration refuses.** An entry with no address, or with
 neither a name nor an organisation, is refused with the reason rather than
 completed from its id. The first version derived all fourteen fields from
@@ -330,7 +352,7 @@ automated.
 
 | # | Item | Owner | By |
 |---|---|---|---|
-| 1 | **Read the licences.** The registration is built and runs on every sweep; what it cannot do is read terms. All 25 feeds are registered as context-only for that reason, so none can corroborate or support an automated action. Reading the two enabled ones — Construction Enquirer and Construction Index — is the whole of the near-term work and changes what they are allowed to do. | Justin Nseya | 24 Nov 2026 |
+| 1 | **Read the two licences.** Run `docker exec etablix node backend/tools/signals-terms.mjs construction-enquirer construction-index` on the VPS — neither host is reachable from a build session, which is why the tool runs where the sweep does. It prints the clauses bearing on copying and reuse with the URL and the date, and decides nothing. Read them, decide whether they permit using a headline and summary inside a product this business charges for, and add the four fields to the live list. That promotes each source from `context` to `decision`, and two promoted independent families are what corroboration needs. Until then nothing the engine reads can release anything by itself, which is the correct state and not a fault. | Justin Nseya | 24 Nov 2026 |
 | 2 | Decide whether this engine is ever to serve a second paying tenant. If yes, PostgreSQL with forced row-level security is the first piece of work, and TI-02's database clause is the acceptance test. If no, record that decision here so the gap in §3 above stops reading as an omission. | Justin Nseya | 24 Nov 2026 |
 | 3 | Confirm the two enabled feeds' licences permit use in a paid product (§19 sale readiness). Construction Enquirer and Construction Index are trade press; neither licence has been read. | Justin Nseya | 1 Dec 2026 |
 | 4 | Add the test suite to the deploy path. `deploy/update-all.sh` verifies the build hash and does **not** run `backend/test/run-all.sh`. That is the last remaining way something built here could silently stop working in production. | Justin Nseya | 24 Nov 2026 |

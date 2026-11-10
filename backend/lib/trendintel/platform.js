@@ -51,7 +51,7 @@
  */
 
 import { collection, insert, update } from "../store.js";
-import { registerSource, independentFamilies } from "./sources.js";
+import { registerSource, independentFamilies, PROVES } from "./sources.js";
 import { ingestBatch } from "./observations.js";
 import { scoreTopic, movement, median } from "./score.js";
 import { resolveEffective } from "./brief.js";
@@ -112,11 +112,40 @@ const SECTOR_FAMILY = {
   industrial: "sector_press_industrial", epc: "sector_press_epc",
 };
 
-/** A procurement portal states a decision; trade press reports attention. */
+/**
+ * WHAT A SOURCE CAN PROVE, AND THE DISTINCTION I HAD WRONG.
+ *
+ * The first version returned "attention" for trade press. Attention is a
+ * context-only class, so a trade-press feed could never corroborate anything
+ * — which meant reading its licence changed nothing that mattered, and the
+ * whole point of reading one is that it lets a feed corroborate.
+ *
+ * It was also wrong on the facts. Attention is a measure of how many people
+ * looked at something: Wikimedia pageviews, a chart position. A trade-press
+ * article reporting that a main contractor has been appointed is reporting a
+ * DECISION — the same class of fact a procurement portal publishes, at lower
+ * reliability because it is second-hand. §3 lists curated industry RSS as
+ * "context or corroboration", not as attention.
+ *
+ * Reliability is what `qualityScore` is for, and the specification models it
+ * there rather than in the proof class: the portal gets 85 and the trade press
+ * 55, and the confidence arithmetic weights source quality at 35%. So both
+ * prove a decision and one is trusted more, which is the honest shape.
+ *
+ * An entry may still declare `proves` itself — a genuine attention source
+ * would — and what it declares wins over this heuristic.
+ */
 function provesOf(src) {
+  const declared = String(src.proves || "").trim();
+  if (PROVES.includes(declared)) return declared;
+  return "decision";
+}
+
+/** The portal publishes the record; the trade press reports it second-hand. */
+function qualityOf(src) {
   const url = String(src.url || "");
-  if (/find-tender|contracts-finder|ted\.europa|procurement|notice/i.test(url)) return "decision";
-  return "attention";
+  const primary = /find-tender|contracts-finder|ted\.europa|procurement|notice|\bapi\b/i.test(url);
+  return primary ? 85 : 55;
 }
 
 function familyOf(src) {
@@ -158,7 +187,27 @@ export function registerPlatformSources(list = []) {
       refused.push({ sourceId: String(src.id), why: "this entry names neither a source nor an organisation, so the registration would have no owner and §3 requires one" });
       continue;
     }
-    const termsRead = typeof src.terms === "string" && src.terms.trim() && src.terms !== TERMS_UNREAD;
+    /**
+     * A SOURCE IS PROMOTED ON FOUR FIELDS, NOT ONE.
+     *
+     * The first version keyed off `terms` alone and derived the permitted uses
+     * from it, which meant a one-word note in the right field promoted a feed
+     * out of context-only and let it corroborate. Reading a publisher's terms
+     * is a legal judgement about copyright and database right, and an
+     * unattributed judgement is worth nothing: there is nobody to ask what
+     * they decided and nothing to re-read if it turns out to be wrong.
+     *
+     * So the four travel together — what the licence says, which uses it
+     * permits, the page it was read on, and who read it — and three of the
+     * four is ignored. `backend/tools/signals-terms.mjs` prints the clauses
+     * and says so; it decides nothing itself.
+     */
+    const termsRead = Boolean(
+      typeof src.terms === "string" && src.terms.trim() && src.terms !== TERMS_UNREAD
+      && Array.isArray(src.permittedUses) && src.permittedUses.length
+      && String(src.termsUrl || "").trim()
+      && String(src.termsReadBy || "").trim(),
+    );
     const reg = registerSource({
       sourceId: String(src.id),
       sourceFamily: familyOf(src),
@@ -169,7 +218,11 @@ export function registerPlatformSources(list = []) {
       accessMode: /json|api/i.test(String(src.url || "")) ? "notice_api" : "feed",
       owner: String(src.org || src.name || src.id),
       terms: termsRead ? String(src.terms) : TERMS_UNREAD,
-      permittedUses: termsRead ? ["detection", "evidence"] : ["detection"],
+      // The uses the licence actually permits, as recorded, never widened to
+      // the ones that would be convenient. A licence that permits counting
+      // and not citing gets detection alone, and the source then cannot
+      // evidence anything — which is the correct outcome and not a gap.
+      permittedUses: termsRead ? [...src.permittedUses].map(String) : ["detection"],
       territories: ["GB"],
       languages: ["en"],
       cadence: "per sweep, on the trigger watch schedule",
@@ -179,17 +232,40 @@ export function registerPlatformSources(list = []) {
       failureStatus: src.enabled === false ? "disabled" : "healthy",
       // An unread licence makes it context only, enforced rather than noted.
       proves: termsRead ? provesOf(src) : "context",
-      staleAfterHours: provesOf(src) === "decision" ? 168 : 48,
-      qualityScore: provesOf(src) === "decision" ? 85 : 55,
+      // A notice stays true for longer than a news item: an open-ended
+      // dynamic market published eight months ago is still the live record,
+      // while a report of an appointment is stale within the week.
+      staleAfterHours: qualityOf(src) === 85 ? 168 : 48,
+      qualityScore: qualityOf(src),
     });
-    if (reg.ok) registered.push({ ...reg.source, enabled: src.enabled !== false, termsRead });
+    if (reg.ok) {
+      registered.push({
+        ...reg.source, enabled: src.enabled !== false, termsRead,
+        // The provenance of the judgement, carried on the registration so the
+        // register can be asked who decided and on what page.
+        termsUrl: termsRead ? String(src.termsUrl) : null,
+        termsReadBy: termsRead ? String(src.termsReadBy) : null,
+        termsReadAt: termsRead ? String(src.termsReadAt || "") || null : null,
+      });
+    }
     else refused.push({ sourceId: String(src.id), why: reg.say });
   }
   const unread = registered.filter((r) => !r.termsRead);
+  // A source that carries SOME of the four is the case worth naming: somebody
+  // started and stopped, and silence would read as nobody having looked.
+  const partial = list
+    .filter((src) => src && src.id && registered.some((r) => r.sourceId === String(src.id)))
+    .filter((src) => !registered.find((r) => r.sourceId === String(src.id))?.termsRead)
+    .filter((src) => src.terms || src.termsUrl || src.termsReadBy || (Array.isArray(src.permittedUses) && src.permittedUses.length))
+    .map((src) => ({
+      sourceId: String(src.id),
+      missing: ["terms", "permittedUses", "termsUrl", "termsReadBy"].filter((f) =>
+        f === "permittedUses" ? !(Array.isArray(src[f]) && src[f].length) : !String(src[f] || "").trim()),
+    }));
   return {
-    registered, refused,
+    registered, refused, partial,
     unreadTerms: unread.map((r) => r.sourceId),
-    say: `${registered.length} source(s) registered, ${registered.filter((r) => r.enabled).length} enabled, ${refused.length} refused. ${unread.length} carry no read licence and are therefore context-only: each can add context and none can satisfy the corroboration minimum or release an automated action on its own, which is the honest consequence of not having read a licence rather than a note about it.`,
+    say: `${registered.length} source(s) registered, ${registered.filter((r) => r.enabled).length} enabled, ${refused.length} refused. ${unread.length} carry no read licence and are therefore context-only: each can add context and none can satisfy the corroboration minimum or release an automated action on its own, which is the honest consequence of not having read a licence rather than a note about it.${partial.length ? ` ${partial.length} source(s) carry part of the record and are still treated as unread: ${partial.map((x) => `${x.sourceId} is missing ${x.missing.join(", ")}`).join("; ")}. Three of the four fields is an unattributed judgement, and there is nobody to ask what was decided.` : ""}`,
   };
 }
 

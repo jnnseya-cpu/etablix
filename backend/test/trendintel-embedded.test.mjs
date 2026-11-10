@@ -177,9 +177,48 @@ console.log("\n=== the 25 registered feeds, under the registry they were missing
   ok(out.unreadTerms.length === list.length && out.registered.every((s) => s.contextOnly),
      "AND EVERY ONE IS CONTEXT-ONLY BECAUSE ITS LICENCE HAS NOT BEEN READ — which means none can satisfy the corroboration minimum or release an automated action on its own. That is the enforced consequence of not having read a licence rather than a note about it",
      out.unreadTerms.length);
+  ok(out.registered.every((s) => s.proves === "context"),
+     "an unread licence makes the source prove CONTEXT, whatever it would otherwise prove", [...new Set(out.registered.map((s) => s.proves))]);
   ok(/honest consequence of not having read a licence/.test(out.say), "and the report says so in those terms", out.say.slice(0, 80));
   ok(out.registered.every((s) => s.terms === TERMS_UNREAD || s.terms.length > 0),
      "with the unread ones marked unread rather than filled in with something plausible");
+
+  // Reading a licence has to CHANGE something, or reading one is pointless.
+  const base = { id: "t1", name: "A publisher", url: "https://a.invalid/feed", enabled: true };
+  const read4 = registerPlatformSources([{
+    ...base, terms: "Headline and link permitted with attribution; no bulk reproduction",
+    permittedUses: ["detection", "evidence"], termsUrl: "https://a.invalid/terms",
+    termsReadBy: "a named person", termsReadAt: "2026-11-10",
+  }]).registered[0];
+  ok(read4.termsRead && read4.contextOnly === false && read4.proves === "decision",
+     "A READ LICENCE PROMOTES THE SOURCE OUT OF CONTEXT-ONLY — which is the whole point of reading one: it is what lets a feed corroborate",
+     { proves: read4.proves, contextOnly: read4.contextOnly });
+  ok(read4.permittedUses.join() === "detection,evidence" && read4.termsReadBy === "a named person",
+     "carrying the uses the licence actually permits and the name of whoever decided, not a derived pair", read4.permittedUses);
+
+  // And three of the four is an unattributed judgement.
+  for (const drop of ["terms", "permittedUses", "termsUrl", "termsReadBy"]) {
+    const partialSrc = {
+      ...base, terms: "x", permittedUses: ["detection"], termsUrl: "https://a.invalid/terms", termsReadBy: "somebody",
+    };
+    delete partialSrc[drop];
+    const r = registerPlatformSources([partialSrc]);
+    ok(r.registered[0].termsRead === false && r.registered[0].contextOnly === true,
+       `without ${drop} the source stays unread and context-only — three of the four fields is a judgement with nobody accountable for it`,
+       { drop, termsRead: r.registered[0].termsRead });
+    ok(r.partial.length === 1 && r.partial[0].missing.includes(drop),
+       `and the partial record is REPORTED rather than silently ignored, naming ${drop} as the gap`, r.partial);
+  }
+
+  // Reliability lives in the quality score, not in the proof class.
+  const portal = registerPlatformSources([{ id: "p", name: "Portal", url: "https://x.invalid/api/notices", enabled: true }]).registered[0];
+  const press = registerPlatformSources([{ id: "q", name: "Press", url: "https://y.invalid/feed/", enabled: true }]).registered[0];
+  ok(portal.qualityScore === 85 && press.qualityScore === 55,
+     "A PORTAL PUBLISHING THE RECORD IS TRUSTED MORE THAN A SECOND-HAND REPORT OF IT, and that difference lives in the quality score which confidence weights at 35% — not in the proof class, which was the error that made a trade-press feed permanently unable to corroborate",
+     { portal: portal.qualityScore, press: press.qualityScore });
+  ok(portal.staleAfterHours === 168 && press.staleAfterHours === 48,
+     "and a notice stays current longer than a news item: an open-ended market published months ago is still the record, while a report of an appointment is stale within the week",
+     { portal: portal.staleAfterHours, press: press.staleAfterHours });
 }
 
 console.log("\n=== a signal becomes an observation, and four rewrites stay one family ===\n");
@@ -368,6 +407,22 @@ console.log("\n=== readiness is never inferred, so nothing releases itself ===\n
 }
 
 /* ─── 3 · and none of it is visible ────────────────────────────────────── */
+
+console.log("\n=== the one human act is reduced to reading printed text ===\n");
+{
+  const tool = read("backend/tools/signals-terms.mjs");
+  ok(/import \{ politeFetch \} from "\.\.\/lib\/signals\/fetch\.js";/.test(tool),
+     "the terms tool fetches through the watch's own polite fetcher, so robots.txt and the per-host rate limit apply to it too");
+  const code = tool.split("\n").filter((l) => !/^\s*(\*|\/\/|\/\*)/.test(l)).join("\n");
+  ok(!/\binsert\(|\bupdate\(|writeFileSync|appendFileSync/.test(code),
+     "IT WRITES NOTHING — not the source list, not the store. Whether a publisher's terms permit use in a paid product is a legal judgement about copyright and database right, and it is not a decision an engine may take",
+     (code.match(/insert\(|update\(|writeFileSync/g) || []));
+  ok(!/sendMail|smtp|nodemailer/.test(code), "and it has no send path, like the watch it serves");
+  ok(/termsReadBy/.test(tool) && /permittedUses is the narrowest true answer/.test(tool),
+     "it prints the four fields to record and says to take the narrowest true answer rather than the most useful one");
+  ok(/That is not permission/.test(tool),
+     "AND IT SAYS THAT FINDING NO TERMS IS NOT PERMISSION — a source with no discoverable terms stays context-only, which is the trap this tool would otherwise set");
+}
 
 console.log("\n=== nothing a visitor can reach mentions any of it ===\n");
 

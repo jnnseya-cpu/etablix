@@ -186,12 +186,52 @@ own, and both of those are enforced rather than intended.
   an agent carries no AI or agent language — because those words can end up in
   a draft a customer reads.
 
-**The one place a licence matters.** All 25 feeds register as `public_keyless`
-and all 25 are **context-only**, because none of their licences has been read.
-That is enforced, not noted: a context-only source cannot satisfy the
-corroboration minimum and cannot on its own support an automated action. Read
-a feed's terms and its registration changes; until then the engine treats it
-as context, which is the honest consequence.
+**The one place a licence matters, and the only human act left.** All 25 feeds
+register as `public_keyless` and all 25 as **context-only**, because none of
+their licences has been read. That is enforced, not noted: a context-only
+source cannot satisfy the corroboration minimum and cannot on its own support
+an automated action. Combined with readiness never being inferred from a feed,
+nothing the engine reads can release anything by itself today.
+
+Reading a licence **promotes** a source — `context` becomes `decision`, and two
+promoted independent families are what corroboration needs. It takes four
+fields recorded together on the live source entry, and three of the four is
+ignored:
+
+```
+"terms": "<the licence in your own words, naming the clause>",
+"termsUrl": "<the page it was read on>",
+"termsReadBy": "<who read it>",
+"termsReadAt": "<the date>",
+"permittedUses": ["detection", "evidence"]
+```
+
+**Why all four.** Whether a publisher's terms permit using their headlines
+inside a product this business charges for is a legal judgement about copyright
+and database right. An unattributed judgement is worth nothing — there is
+nobody to ask what was decided and nothing to re-read if it turns out to be
+wrong — so a source carrying part of the record stays unread, and the partial
+record is reported rather than silently ignored.
+
+`permittedUses` is the **narrowest true answer**, not the most useful one:
+`detection` means the movement may be counted and nothing stored or shown;
+`evidence` means the headline may be cited and linked; `measurement` means the
+record may be kept for the retention period. A licence that permits counting
+and not citing gets `detection` alone, and that source then cannot evidence
+anything. That is the correct outcome.
+
+`backend/tools/signals-terms.mjs`, run in the container where the sites are
+actually reachable, finds each source's terms page through the watch's own
+polite fetcher, quotes the clauses bearing on copying and reuse with the URL
+and the date, and **decides nothing and writes nothing**. Finding no terms is
+not permission: a source with no discoverable terms stays context-only.
+
+**Reliability is a score, not a class.** A portal publishing the record is
+trusted at 85 and a second-hand report of it at 55, and confidence weights
+source quality at 35%. An earlier version made trade press prove *attention*,
+which is a context-only class — so a trade-press feed could never corroborate
+and reading its licence changed nothing that mattered. Both prove a decision;
+one is trusted less.
 
 ## LinkedIn comments
 
