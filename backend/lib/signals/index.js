@@ -21,6 +21,7 @@
 import { collection, insert, update } from "../store.js";
 import { politeFetch } from "./fetch.js";
 import { publishedContact, scrub, isRoleAddress } from "./contact.js";
+import { embeddedPass } from "../trendintel/platform.js";
 import { TRIGGERS, SECTORS, SECTOR_LABEL, sources, sourcesFile, seedStatus, fingerprint, score, extract, classify, stage, STAGE_LABEL, OPEN_TRIGGERS, CONFIRMED_TRIGGERS, namedOrgs, extractDeadline, resolveUrl, WORKS, hasWorks, NOT_OURS, notOurs, nextLink, noticeTargets } from "./parse.js";
 
 // Re-exported so every caller keeps one import, and so the split between what
@@ -325,6 +326,43 @@ export async function sweep({ minScore = 3, enrich = true } = {}) {
       else out.skipped++;
     }
   }
+
+  /**
+   * AND THE SAME PASS READS WHAT IT FOUND AS DEMAND.
+   *
+   * This watch finds moments. Scoring them — whether a segment is moving
+   * against its own comparable windows, whether the movement is corroborated
+   * by more than one independent source family, whether anything can be said
+   * about it at all — is the Trend Intelligence engine's job, and it runs
+   * HERE rather than on a schedule of its own.
+   *
+   * Three reasons it belongs on this line and nowhere else:
+   *
+   *   · The observations are the signals. A second job reading the same feeds
+   *     would double every count and halve every host's patience.
+   *   · The score lands on the signal rows this pass just wrote, so the queue
+   *     a person already reads is the only queue. A parallel list of scored
+   *     opportunities is how both lists stop being read.
+   *   · It cannot be forgotten. A separate schedule is a thing somebody has
+   *     to enable, and an engine nobody enabled is an engine that does not
+   *     exist.
+   *
+   * IT NEVER TAKES THE SWEEP DOWN. `embeddedPass` catches per step and
+   * reports; this still wraps it, because the one thing worse than the demand
+   * read failing is the watch failing with it. And it adds no send path:
+   * there is no transport in it, as there is none in this module.
+   */
+  try {
+    out.demand = embeddedPass({
+      signals: out.queued,
+      sources: sources(),
+      summary: null,
+      leads: [],
+    });
+  } catch (err) {
+    out.demand = { ok: false, line: `Demand reading: failed — ${String(err?.message || err).slice(0, 160)}` };
+  }
+
   return out;
 }
 

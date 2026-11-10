@@ -47,6 +47,10 @@ import * as asset from "./asset.js";
 import * as commissioning from "./commissioning.js";
 import * as handover from "./handover.js";
 import * as lifecycle from "./lifecycle.js";
+import * as demand from "./demand.js";
+import * as priority from "./priority.js";
+import * as briefing from "./briefing.js";
+import * as uptake from "./uptake.js";
 
 /** Parse the records field, and refuse the run rather than guess. */
 export function readRecords(raw, { required = true } = {}) {
@@ -215,6 +219,75 @@ export const ENGINES = [
       if (!r.ok) return { stop: true, say: r.why };
       const res = portfolioCapacity.check(r.value);
       return { text: block("Portfolio capacity and supplier exposure", res), result: res };
+    },
+  },
+  {
+    id: "demand", agent: "Demand Reader", engine: "tender", depth: 3,
+    purpose: "What the market is asking for, by segment, against its own comparable windows — and, with the same weight, what could not be read at all.",
+    shape: { windowDays: "comparable window length in days, default 28" },
+    fields: [
+      { name: "windowDays", label: "Comparable window in days (28 unless there is a reason)", type: "text", required: false },
+    ],
+    boundary: "This reports movement and evidence. It makes no recommendation and no decision: whether a movement is worth acting on belongs to the strategist, and whether it may be acted on belongs to policy.",
+    run(inputs) {
+      const days = Number(String(inputs.windowDays || "").trim()) || 28;
+      if (days < 7 || days > 180) return { stop: true, say: `a ${days}-day window is outside 7 to 180 days. Shorter than a week has no baseline and longer than six months is not a trend, it is a history.` };
+      const r = demand.read({ windowDays: days });
+      if (!r.ok) return { stop: true, say: r.reason };
+      return { text: block("What the market is asking for", r), result: r };
+    },
+  },
+  {
+    id: "priority", agent: "Demand Priority Analyst", engine: "tender", depth: 3,
+    purpose: "The segments ranked, each with its score breakdown, its vetoes on the same line as its number, and the channels that actually exist.",
+    shape: { readiness: "{ segment: 0-100 } — supplied by somebody who knows the supplier coverage and the commitments" },
+    fields: [
+      { name: "windowDays", label: "Comparable window in days (28 unless there is a reason)", type: "text", required: false },
+      { ...RECORDS_FIELD, required: false, label: 'Readiness by segment as JSON, e.g. {"readiness":{"welfare":80}}. Anything absent is unevidenced, which is a veto on activation and not a low score.' },
+    ],
+    boundary: "This recommends and cannot authorise anything. Readiness is never inferred from a feed: whether this business can serve a movement depends on supplier coverage, lead times and existing commitments, and no public source knows any of those.",
+    run(inputs) {
+      const r0 = readRecords(inputs.records, { required: false });
+      if (!r0.ok) return { stop: true, say: r0.why };
+      const days = Number(String(inputs.windowDays || "").trim()) || 28;
+      const r = priority.rank({ windowDays: days, readiness: r0.value?.readiness || {} });
+      if (!r.ok) return { stop: true, say: r.reason };
+      return { text: block("Demand, ranked", r), result: r };
+    },
+  },
+  {
+    id: "briefing", agent: "Priority Brief Coordinator", engine: "tender", depth: 3,
+    purpose: "One draft brief for the highest-ranked eligible segment, carrying every standing prohibition, or a refusal naming the gate that stopped it.",
+    shape: { segment: "optional: the one segment to draft for", readiness: "{ segment: 0-100 }" },
+    fields: [
+      { name: "segment", label: "One segment to draft for, or leave empty for the highest ranked", type: "text", required: false },
+      { ...RECORDS_FIELD, required: false, label: 'Readiness by segment as JSON, e.g. {"readiness":{"welfare":80}}.' },
+    ],
+    boundary: "This drafts. It never approves, and a draft steers nothing until a second named person approves that exact revision. Where no claim is approved for a topic it writes an empty claim list rather than inventing one.",
+    run(inputs) {
+      const r0 = readRecords(inputs.records, { required: false });
+      if (!r0.ok) return { stop: true, say: r0.why };
+      const r = briefing.draft({
+        segment: String(inputs.segment || "").trim() || null,
+        readiness: r0.value?.readiness || {},
+      });
+      if (!r.ok) return { stop: true, say: r.reason };
+      return { text: block("The draft priority brief", r), result: r };
+    },
+  },
+  {
+    id: "uptake", agent: "Demand Uptake Analyst", engine: "tender", depth: 3,
+    purpose: "Enquiries against eligible readership, this window versus the one before, labelled for the method that produced it.",
+    shape: { windowDays: "window length in days, default 28" },
+    fields: [
+      { name: "windowDays", label: "Window in days (28 unless there is a reason)", type: "text", required: false },
+    ],
+    boundary: "This can recommend a pause and cannot amend policy, approve anything or change a threshold. Every result is observational because this site has no assignment, and a result read before its window closes recommends nothing.",
+    run(inputs) {
+      const days = Number(String(inputs.windowDays || "").trim()) || 28;
+      const r = uptake.measure({ windowDays: days });
+      if (!r.ok) return { stop: true, say: r.reason };
+      return { text: block("Demand uptake", r), result: r };
     },
   },
   {

@@ -50,7 +50,7 @@ list of habits, and a document missing them reads as competent and is not:
 
 **Where it lives, and why there.** `COMPANY_BRIEF` in `backend/lib/ai.js`,
 which every agent brief and every generated engine brief is built from, so all
-thirty inherit it at once. `backend/test/practitioner.test.mjs` fails the build
+thirty-eight inherit it at once. `backend/test/practitioner.test.mjs` fails the build
 if any brief lacks it or if any of the clauses above is softened away — because
 an instruction everybody agrees with is written down once and then absent from
 the next agent somebody adds, since the next agent is written by copying
@@ -96,26 +96,26 @@ it was good. It was appended on a single line that only the ten pipeline
 agents passed through, so the other twenty — `estimating`, `commercial`,
 `programme`, `notice` and `obligation` among them, which write the most
 consequential documents in the platform — were held to no such rule. It now
-sits inside `COMPANY_BRIEF`, all thirty inherit it, and
+sits inside `COMPANY_BRIEF`, all thirty-eight inherit it, and
 `practitioner.test.mjs` fails if it ever reaches a subset again or is sent
 twice.
 
 ### Every AI path, audited — because "everything" has to mean everything
 
-`AGENT_BRIEFS` is thirty agents and it is **not** every AI path in the
+`AGENT_BRIEFS` is thirty-eight agents and it is **not** every AI path in the
 platform. The complete set, and where each gets the standard:
 
 | Path | How many | Carries the standard |
 |---|---|---|
 | Hand-written agent briefs | 14 | `COMPANY_BRIEF` |
-| Generated engine briefs, from the engine registry | 16 | `COMPANY_BRIEF` |
+| Generated engine briefs, from the engine registry | 24 | `COMPANY_BRIEF` |
 | `draftPrequal` — prequalification answers | 1 | `COMPANY_BRIEF` |
 | `draftApproach` — a first approach a prospect reads | 1 | `COMPANY_BRIEF` |
 | `draftScope` — a scope of works | 1 | `COMPANY_BRIEF` |
 | `testProvider` — a connectivity ping | 1 | **Exempt, correctly.** No system prompt; it asks the provider to say "ETABLIX AI online". Holding a ping to a writing standard would be absurd |
 | The L7 tender kernel — gates, engines, reconciliations | — | **No model call at all.** Its LLM port exists so the core never knows which SDK is underneath, and it constructs no prompts by design |
 | `backend/lib/signals/` | — | **No model call.** Outbound drafting goes through `draftApproach` above |
-| `backend/lib/trendintel/` — the Trend Intelligence inference gateway | — | **No model call.** `selectRoute()` chooses between an authorised host gateway, a deployment-supplied route and deterministic templates, and the CALLER supplies the attempt. The obvious implementation puts the provider call here, which would be a second writing path with no brief on it; `practitioner.test.mjs` reads the source of all ten modules and fails if any acquires a provider call or a system prompt |
+| `backend/lib/trendintel/` — the demand-reading engine and its inference gateway | — | **No model call.** `selectRoute()` chooses between an authorised host gateway, a deployment-supplied route and deterministic templates, and the CALLER supplies the attempt. The obvious implementation puts the provider call here, which would be a second writing path with no brief on it; `practitioner.test.mjs` reads the source of every module in the directory and fails if any acquires a provider call or a system prompt. Its four worker engines — `demand`, `priority`, `briefing`, `uptake` — are in the engine registry and therefore in the generated-brief count above |
 
 Four provider calls exist in total: three in `ai.js` and one in
 `diagnostic.js`, which runs the pipeline for ten agents and is **handed** its
@@ -128,6 +128,16 @@ still constructs no prompts. **Adding a fifth model call anywhere fails the
 build** until somebody decides whether it carries the brief or is exempt. That
 is the only form in which an audit stays true.
 
+**And the two numbers in the table above are now checked against the registry
+itself.** They had already drifted: this file said sixteen generated engine
+briefs and thirty agents when the registry held twenty and thirty-four, and
+nothing failed — which is precisely the claim this section makes about itself
+being untrue. `practitioner.test.mjs` now reads the two rows out of this file
+and compares them to the real count of hand-written and machine-backed briefs,
+so adding an engine without correcting the table fails the build. A number in
+a document that nothing compares against the code is a number that is wrong
+and does not know it.
+
 **What it must never erode.** Seniority is not licence to fill a gap. The
 standard sits alongside, and never above, the rules that the agent has no
 authority to approve or commit, that nothing may be invented, and that nothing
@@ -135,6 +145,53 @@ may imply CDM Principal Contractor, Principal Designer, self-delivery or that
 ETABLIX holds the supplier contracts. A confident document resting on a missing
 fact is the worst thing this platform can produce, which is why no brief tells
 an agent to sound authoritative and the test asserts that none does.
+
+## The demand-reading engine is embedded, and invisible
+
+It reads public feeds, scores demand by segment and narrows what a handful of
+agents lead with. It is **not** a second product and it has no surface of its
+own, and both of those are enforced rather than intended.
+
+**Where it is wired, and why there.**
+
+| Seam | What drives it |
+|---|---|
+| Sources | `backend/lib/signals/` — the trigger watch's 25 registered feeds ARE the source collector. They gained a §3 registration, not a second list |
+| Observations | every signal the sweep queues becomes an observation **on the same pass**, inside `sweep()`. A second job reading the same feeds would double every count and halve every host's patience |
+| First-party | `lib/reach.js` already counts what is read, with crawlers excluded. That is the eligible-session denominator, and it needed no analytics tag and no third-party key |
+| Scoring | runs inside the existing sweep and writes the band onto the **existing signal row**. There is no second queue, because a second queue is how a reading list dies |
+| Control | the brief reaches five of the thirty-eight agents as DATA appended in `runAgent`, after the appointment and therefore after everything that constrains |
+| Outcomes | enquiries and page views that already exist. Nothing is instrumented and nothing is estimated |
+| Schedule | the `signal_watch` rule it already runs on. **No fourteenth rule**: an engine that only runs once somebody enables it does not run |
+
+**Four things it must never do, each with the check that stops it.**
+
+- **It cannot relax anything.** A brief may narrow what an agent may say and
+  may never widen it. `narrowsOnly()` refuses a brief that offers a claim the
+  installation has not approved or that drops a standing prohibition, and the
+  six standing prohibitions — Principal Contractor, Principal Designer,
+  self-delivery, holding the supplier contracts, holding the client's money,
+  any price — are carried into every brief rather than assumed.
+- **It cannot acquire a send path.** The watch finds moments and never sends.
+  `trendintel-embedded.test.mjs` reads the source and fails on a fetch, a
+  mailer or an outbox write.
+- **It cannot infer readiness.** Whether this business can serve a movement
+  depends on supplier coverage, lead times and existing commitments, and no
+  public feed knows any of them. Unevidenced readiness is a **veto**, not a
+  low score, so nothing scored from a feed alone ever reaches a brief.
+- **It cannot become visible.** No page was built for it, internal included.
+  The test asserts that not one file under `frontend/public` mentions it, that
+  the public API does not reach it, that no business document outside
+  `business/platform/` names it, and that the text the brief puts in front of
+  an agent carries no AI or agent language — because those words can end up in
+  a draft a customer reads.
+
+**The one place a licence matters.** All 25 feeds register as `public_keyless`
+and all 25 are **context-only**, because none of their licences has been read.
+That is enforced, not noted: a context-only source cannot satisfy the
+corroboration minimum and cannot on its own support an automated action. Read
+a feed's terms and its registration changes; until then the engine treats it
+as context, which is the honest consequence.
 
 ## LinkedIn comments
 

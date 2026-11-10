@@ -230,6 +230,39 @@ const src = readFileSync(path.join(root, "backend/lib/ai.js"), "utf8");
      "and carries none — so there is no second, unheld writing path through the tender kernel");
 }
 {
+  /**
+   * AND THE AUDIT TABLE IN CLAUDE.md IS COMPARED TO THE REGISTRY.
+   *
+   * That section claims to be an audit and claims that an audit only stays
+   * true if adding a path fails the build. It said sixteen generated engine
+   * briefs and thirty agents while the registry held twenty and thirty-four,
+   * and nothing failed — so the one claim it made about itself was the one
+   * thing in it that was wrong.
+   *
+   * The numbers are read out of the document and compared to the real count.
+   * Adding an engine without correcting the table now fails here, which is
+   * the only arrangement under which a number in a document means anything.
+   */
+  const claude = readFileSync(path.join(root, "CLAUDE.md"), "utf8");
+  const ids = Object.keys(AGENT_BRIEFS);
+  const generated = ids.filter((id) => typeof AGENT_BRIEFS[id]?.machine === "function");
+  const handWritten = ids.length - generated.length;
+
+  const handRow = /\|\s*Hand-written agent briefs\s*\|\s*(\d+)\s*\|/.exec(claude);
+  const genRow = /\|\s*Generated engine briefs, from the engine registry\s*\|\s*(\d+)\s*\|/.exec(claude);
+  ok(Boolean(handRow) && Boolean(genRow), "both audit rows are still in CLAUDE.md to be checked", { handRow: Boolean(handRow), genRow: Boolean(genRow) });
+  ok(handRow && Number(handRow[1]) === handWritten,
+     `CLAUDE.md's count of hand-written briefs matches the registry (${handRow?.[1]} claimed, ${handWritten} real)`,
+     { claimed: handRow?.[1], real: handWritten });
+  ok(genRow && Number(genRow[1]) === generated.length,
+     `AND ITS COUNT OF GENERATED ENGINE BRIEFS MATCHES (${genRow?.[1]} claimed, ${generated.length} real) — a number in a document that nothing compares against the code is a number that is wrong and does not know it`,
+     { claimed: genRow?.[1], real: generated.length });
+  const words = { 30: "thirty", 34: "thirty-four", 38: "thirty-eight", 42: "forty-two" };
+  ok(claude.includes(`all ${words[ids.length] ?? ids.length} inherit it`),
+     `and the prose says all ${words[ids.length] ?? ids.length} inherit the brief, which is ${ids.length}`,
+     ids.length);
+}
+{
   // THE FIFTH PATH THAT ALMOST BECAME A FIFTH CALL SITE.
   //
   // The Trend Intelligence inference gateway chooses between a host AI route,

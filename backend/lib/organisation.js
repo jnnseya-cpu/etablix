@@ -160,6 +160,70 @@ export const CONTRACT_FUNDED = [
  */
 export const AI_AGENTS = [
   {
+    id: "demand",
+    name: "Demand Reader",
+    inputs: [
+      "The observations the trigger watch recorded on its own sweeps, by segment, with the source family each came from",
+      "The source register: what each feed proves, whether its licence has been read, and the hours after which it is stale",
+    ],
+    outputs: [
+      "Movement per segment against its own comparable windows, as a log lift and a robust deviation rather than a percentage change on one week",
+      "The trend class, and an expiry — 24 hours for a breaking topic, seven days for a persistent one, because a finding with no expiry gets acted on in a fortnight",
+      "WHAT COULD NOT BE READ, with the same weight as what could: a silent segment is a gap in reading, and a reader cannot otherwise tell that from an absence of demand",
+    ],
+    boundary: "This reports movement and evidence and makes no recommendation. A segment with fewer than four comparable periods is labelled insufficient history and held draft-only, because the baseline and the deviation are both guesses at that point.",
+    backing: ["engine", "llm"],
+    desk: "Reads what the trigger watch already collected; the score lands on the signal rows the queue already shows.",
+  },
+  {
+    id: "priority",
+    name: "Demand Priority Analyst",
+    inputs: [
+      "The segments the Demand Reader classified, with their movement and their corroborating source families",
+      "Readiness by segment, supplied by somebody who knows the supplier coverage, the lead times and what the team is already committed to",
+    ],
+    outputs: [
+      "A ranked list with the score breakdown on every row, and the vetoes on the same line as the number — a row that says 86 and nothing else reads as an instruction",
+      "Unevidenced readiness as a VETO on activation rather than a low score, which is the difference between a topic that cannot be served and one that scores badly",
+      "Only the channels that have an adapter in this release, and the reserved ones named as unavailable rather than recommended",
+    ],
+    boundary: "This recommends and cannot authorise anything. Readiness is never inferred from a public feed: no source knows this business's supplier coverage or its commitments, so a topic without it stays in watch.",
+    backing: ["engine", "llm"],
+    desk: "Feeds the reading queue's ordering; nothing it produces reaches a customer.",
+  },
+  {
+    id: "briefing",
+    name: "Priority Brief Coordinator",
+    inputs: [
+      "The highest-ranked eligible segment, and the installation's approved claims and standing prohibitions",
+      "The observations behind that segment, cited by reference rather than copied",
+    ],
+    outputs: [
+      "ONE draft brief for the scope, because two briefs in the same market and topic is an SEO agent and a marketing agent being told different things about the same page in the same week",
+      "Every standing prohibition carried into the brief rather than assumed, and an empty claim list where nothing is approved rather than an invented one",
+      "A refusal naming the gate that stopped it, which is the common answer when readiness is unevidenced",
+    ],
+    boundary: "This drafts and never approves. A draft steers nothing until a second named person approves that exact revision, and an invented claim inside an approved brief is a claim in a published page with a chain of approvals behind it.",
+    backing: ["engine", "llm"],
+    desk: "Produces the record that narrows what five agents lead with; it cannot widen what any of them may say.",
+  },
+  {
+    id: "uptake",
+    name: "Demand Uptake Analyst",
+    inputs: [
+      "Eligible readership from the site's own counter, with crawlers excluded, as the denominator",
+      "Enquiries as the conversion, from the rows the platform already holds",
+    ],
+    outputs: [
+      "The rate this window against the window before, with small cohorts suppressed rather than published as a percentage of eleven",
+      "The result labelled observational, because this site has no assignment and a number that moved after a change is not evidence the change moved it",
+      "A pause recommendation where a guardrail is breached, and nothing at all where the window has not closed",
+    ],
+    boundary: "This can recommend a pause and cannot amend policy, approve anything or move a threshold. A playbook change is proposed for review and re-run against the historical window before it is used.",
+    backing: ["engine", "llm"],
+    desk: "Reads the site counter and the enquiry rows; it instruments nothing and estimates nothing.",
+  },
+  {
     id: "temporaryworks",
     name: "Temporary Works Coordinator",
     inputs: [
@@ -1009,6 +1073,14 @@ export const ENGINES = [
     name: "Tender and Commercial Engine",
     purpose: "From an opportunity arriving to a submission uploaded, with every requirement a controlled obligation before anybody writes a word.",
     agents: [
+      { id: "demand", name: "Demand Reader", state: "built", depth: 3,
+        was: "planned: a watcher that finds moments and never reads them as demand. The movement, the corroboration and the silence are three different findings and a queue sorted by score shows none of them." },
+      { id: "priority", name: "Demand Priority Analyst", state: "built", depth: 3,
+        was: "planned: a ranked list of movements. The number is the easy half; the veto on the same row is what stops a rank being read as a decision." },
+      { id: "briefing", name: "Priority Brief Coordinator", state: "built", depth: 3,
+        was: "planned: one brief per scope, drafted and never approved, carrying the prohibitions rather than assuming them." },
+      { id: "uptake", name: "Demand Uptake Analyst", state: "built", depth: 3,
+        was: "planned: enquiries against eligible readership, labelled observational, with nothing recommended before the window closes." },
       { id: "opportunity", name: "Opportunity Agent", state: "built", depth: 3 },
       // The paid advisory entry, and the product everything else was built
       // around. It sits here because scope intelligence happens BEFORE a bid

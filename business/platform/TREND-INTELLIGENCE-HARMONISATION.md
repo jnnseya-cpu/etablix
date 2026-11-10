@@ -21,8 +21,9 @@ the specification's own stated hypotheses and have not been tested here.
 
 ## 1 · The engine, built and tested
 
-Eleven deterministic modules in `backend/lib/trendintel/`, 3,033 lines, plus
-an 835-line typed API at `/api/trendintel` and 1,341 lines of test.
+Twelve deterministic modules in `backend/lib/trendintel/`, plus four worker
+engines in the platform's own engine registry, an internal control plane at
+`/api/trendintel`, and three test suites.
 
 | Module | What it owns | Spec |
 |---|---|---|
@@ -37,6 +38,7 @@ an 835-line typed API at `/api/trendintel` and 1,341 lines of test.
 | `measurement.js` | The eleven fields frozen at approval, outcome classification, small-cohort suppression, observational versus incremental labelling, the erasure log and its replay after restore | §10, §15, §18 |
 | `installation.js` | The six-field minimum profile, draft-only defaults, explicit write enablement, the four-period threshold, profile-driven resolution, the five build gates and the twenty-item hard release gate | §12, §14, §20 |
 | `openapi.js` | The published specification, **generated** from the constants the handlers enforce: 23 paths, 32 error codes each carrying the reason it exists, the Growth Brief imported under components | Appendix A, §16 |
+| `platform.js` | **The embedding.** Nothing in it is a new capability: every function connects something the engine needs to something this platform already had — see §6 | §1, §3, §4, §14 |
 
 **The contract is on disk, not described.**
 `contracts/growth-brief.v1.schema.yaml` is Appendix A's YAML extracted
@@ -68,7 +70,7 @@ of TI-01 to TI-22 stops being named inside an assertion.
 
 ---
 
-## 2 · The overlap nobody should build twice
+## 2 · The overlap, now closed
 
 **This platform already reads signals.** `backend/lib/signals/` is 2,040 lines
 across four files, with four operator tools (`signals-sweep`, `signals-check`,
@@ -97,11 +99,25 @@ record are:
 | `retentionDays` | What the retention job deletes and when. |
 | `failureStatus` | Whether a silent feed is a gap or an outage. A gap is unknown data; an outage is excluded from scoring. |
 
-**Consequence, in work:** bringing the 25 existing sources under the §3
-registry is a one-off exercise of roughly half a day — the fields are known for
-the two enabled feeds and have to be read off the licence page for the rest —
-and it cannot be automated, because reading a feed's terms is the task. It is
-**not** done in this commit and is listed in §6 below with an owner.
+**What was done about it.** All 25 are now registered under §3 on every sweep,
+by `registerPlatformSources()`, which derives twelve of the fourteen fields and
+records the two it cannot — `terms` and `permittedUses` — as **unread** rather
+than filling them in with something plausible. The consequence is enforced, not
+noted: a source whose licence has not been read is registered as
+**context-only**, which means it cannot satisfy the corroboration minimum and
+cannot on its own support an automated action. All 25 are in that state today.
+
+So the registry is complete and the engine behaves correctly without anybody
+having read a licence; reading one *improves* what that feed can do. The
+remaining act is a person reading terms, which cannot be automated because
+reading the terms is the task. It stays in §7 with an owner.
+
+**Two entries the registration refuses.** An entry with no address, or with
+neither a name nor an organisation, is refused with the reason rather than
+completed from its id. The first version derived all fourteen fields from
+whatever an entry happened to carry, so `{id: "nope"}` — a half-finished line
+or a typo in the live list — produced a complete, healthy-looking registration
+for a source that could not be read. The test now asserts the refusal.
 
 **Find a Tender.** The specification cites it as source S4 and this repository
 already carries procurement-portal entries. `find-tender.service.gov.uk` is not
@@ -250,11 +266,71 @@ rather than glossed:
 
 ---
 
-## 6 · What remains, with an owner and a date
+## 6 · The embedding: where the platform's own machinery drives it
+
+Built on its own the engine is a second product — its own sources, its own
+queue, its own surface, driven by nobody. Every piece works and nothing
+changes, which is the most expensive kind of correct there is. Seven seams
+connect it instead.
+
+| Seam | What drives it, and why there |
+|---|---|
+| **Sources** | `backend/lib/signals/` — the trigger watch, 2,040 lines and 25 registered feeds — **is** the source collector of §4. It is not replaced and gains no second list. §4 says that worker needs no model, and it does not have one. |
+| **Observations** | every signal the sweep queues becomes an observation on the **same pass**, inside `sweep()`, through `ingestBatch` so the four-part key and the duplicate-versus-conflict rules apply. A second job reading the same feeds would double every count and halve every host's patience. |
+| **Provenance** | the signal's own fingerprint is the observation's provenance key, so the collapse of four rewrites of one award into one source family uses the mechanism the watch already had rather than a second one. |
+| **First party** | `lib/reach.js` already counts what is read on the site with crawlers excluded. That is §3's first-party aggregate and §18's eligible-session denominator, and it needed no analytics tag and no third-party credential — the keyless requirement met by something that was already there. |
+| **Scoring** | runs inside the existing sweep and writes the band onto the **existing signal row**. There is no second queue for somebody to read, because a second queue is how a reading list dies. The existing page renders none of the new fields, so nothing changed on screen. |
+| **Control** | the brief reaches five of the thirty-eight agents in `runAgent`, appended as DATA after the appointment clause and therefore after everything that constrains. Both run paths carry it — the pipeline agents and the single-call agents — because a control layer that reaches one of two reaches neither reliably. The other thirty-three send a prompt that is byte-for-byte what it was before. |
+| **Outcomes** | enquiries and page views that already exist. Nothing is instrumented and nothing is estimated, and a downstream conversion the platform does not actually receive is not counted. |
+| **Schedule** | the `signal_watch` rule it already runs on. **No fourteenth rule was added**: a new rule is a new switch somebody has to find, and an engine that only runs once a person enables it does not run. |
+
+**The four §4 workers are in the platform's own registers**, not in a registry
+of their own: `demand`, `priority`, `briefing` and `uptake`, each in the engine
+registry, the agent register and the domain register under the Tender and
+Commercial Engine — because an eighth engine group *is* the separate product.
+That takes the platform to 38 agents and 24 engines, and the agreement checks
+that already existed caught every place a single addition had to be made.
+
+### What it refuses to do, with the check that stops it
+
+- **It cannot relax anything.** `narrowsOnly()` refuses a brief that offers a
+  claim the installation has not approved, or that drops a standing
+  prohibition. The six — Principal Contractor, Principal Designer,
+  self-delivery, holding the supplier contracts, holding the client's money,
+  any price — are carried into every drafted brief rather than assumed. A
+  record in a database does not get to relax the company's position.
+- **It cannot acquire a send path.** The watch's founding rule is that it finds
+  moments and never sends. `trendintel-embedded.test.mjs` reads the source of
+  `platform.js` with comments stripped and fails on a fetch, a mailer or an
+  outbox write.
+- **It cannot infer readiness.** No public feed knows this business's supplier
+  coverage, lead times or commitments. Unevidenced readiness is a **veto**, so
+  every segment scored from feeds alone stays in watch — asserted on real
+  observations rather than on an empty store.
+- **It cannot become visible.** No page exists for it, internal included. The
+  test asserts that not one file under `frontend/public` mentions it, that the
+  sitemap, robots and llms files do not list it, that the key-authenticated
+  public API does not reach it, that no business document outside
+  `business/platform/` names it, that every route on the control plane sits
+  below `router.use(requireAuth)` with no handler registered above that line,
+  and that the text the brief puts in front of an agent carries no AI or agent
+  language — because those words can end up in a draft a customer reads.
+
+**Why the control plane still exists.** `/api/trendintel` is an internal
+control plane beside `/api/l7` and `/api/agentos`, which are the same shape and
+carry the same "internal only, never public" note. What made the engine
+separate was not that it had an API; it was that nothing in the platform called
+it. The seven seams above are the answer to that, and the API is what a person
+uses to approve a brief — the one act in the whole workflow that must not be
+automated.
+
+---
+
+## 7 · What remains, with an owner and a date
 
 | # | Item | Owner | By |
 |---|---|---|---|
-| 1 | Register the 25 existing sources in `signals-sources.json` under the §3 fourteen-field registry — reading each feed's licence for `terms` and `permittedUses`, and setting `staleAfterHours` per source. Until this is done no existing source can support a fresh automated action, because an unknown stale-after limit returns unknown and unknown is not fresh. | Justin Nseya | 24 Nov 2026 |
+| 1 | **Read the licences.** The registration is built and runs on every sweep; what it cannot do is read terms. All 25 feeds are registered as context-only for that reason, so none can corroborate or support an automated action. Reading the two enabled ones — Construction Enquirer and Construction Index — is the whole of the near-term work and changes what they are allowed to do. | Justin Nseya | 24 Nov 2026 |
 | 2 | Decide whether this engine is ever to serve a second paying tenant. If yes, PostgreSQL with forced row-level security is the first piece of work, and TI-02's database clause is the acceptance test. If no, record that decision here so the gap in §3 above stops reading as an omission. | Justin Nseya | 24 Nov 2026 |
 | 3 | Confirm the two enabled feeds' licences permit use in a paid product (§19 sale readiness). Construction Enquirer and Construction Index are trade press; neither licence has been read. | Justin Nseya | 1 Dec 2026 |
 | 4 | Add the test suite to the deploy path. `deploy/update-all.sh` verifies the build hash and does **not** run `backend/test/run-all.sh`. That is the last remaining way something built here could silently stop working in production. | Justin Nseya | 24 Nov 2026 |

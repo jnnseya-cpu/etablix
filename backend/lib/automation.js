@@ -30,6 +30,8 @@ import { watched, live as contractDeadlines } from "./l7/watch.js";
 import { use } from "./l7/ports.js";
 import { sweepRetention } from "./retention.js";
 import { sweep as signalSweep } from "./signals/index.js";
+import { embeddedPass } from "./trendintel/platform.js";
+import { summary as reachSummary } from "./reach.js";
 import fs from "node:fs";
 import path from "node:path";
 import { dataDir } from "./store.js";
@@ -427,6 +429,35 @@ export async function runAutomation(trigger = "schedule") {
           }, `${worth.length} new approach signal(s)`);
         }
         checks.push(`Trigger watch: ${out.checked} source(s), ${out.queued.length} queued, ${out.blocked} barred by robots, ${out.unchanged} unchanged`);
+
+        /**
+         * THE DEMAND READ RIDES THIS RULE, AND THE SITE'S OWN READERSHIP
+         * JOINS IT HERE.
+         *
+         * The sweep itself records the moments it queued and scores the
+         * segments. What it cannot see is the other half of the first-party
+         * picture: what was actually read on the site, and how many enquiries
+         * arrived. Both are already recorded — `reach.summary()` counts pages
+         * with bots excluded, and the enquiry is a lead row — so the engine
+         * needs no analytics tag and no third-party credential to measure
+         * anything, which is the keyless requirement being met by something
+         * that was already here.
+         *
+         * It is on this rule rather than a rule of its own on purpose. A
+         * fourteenth rule is a fourteenth switch somebody has to find, and an
+         * engine that only runs once a person enables it does not run.
+         */
+        try {
+          const reading = embeddedPass({
+            signals: [],
+            sources: [],
+            summary: reachSummary({ days: 1 }),
+            leads: collection("leads").filter((l) => (Date.parse(String(l.createdAt || "")) || 0) > Date.now() - DAY),
+          });
+          checks.push(reading.line);
+        } catch (err) {
+          checks.push(`Demand reading: failed \u2014 ${err.message}`);
+        }
       } catch (err) {
         checks.push(`Trigger watch: failed \u2014 ${err.message}`);
       }

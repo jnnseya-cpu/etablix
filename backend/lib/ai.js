@@ -38,6 +38,7 @@ import {
 } from "./tendercheck.js";
 import { estimateOfRecord, estimateOfRecordNotes } from "./estimateofrecord.js";
 import { checkPosition, positionNotes } from "./positionguard.js";
+import { briefForAgent, briefBlock } from "./trendintel/platform.js";
 import { meter, callFromUsage, budgetFor, summarise } from "./l7/acu.js";
 import { deliveryBrief, DELIVERY_MODEL_FIELD } from "../../shared/constants.js";
 
@@ -1333,6 +1334,47 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
     ? `\n\n${deliveryBrief(inputs?.[DELIVERY_MODEL_FIELD.name])}`
     : "";
 
+  /**
+   * THE CURRENT PRIORITY, WHERE ONE HAS BEEN APPROVED.
+   *
+   * This is the whole point of the demand-reading engine: it is a control
+   * layer over the agents that already exist, not an agent of its own. It
+   * changes what a handful of them lead with, at run time, through a record
+   * that was approved by a second named person and that expires on a date.
+   *
+   * FOUR THINGS ABOUT HOW IT IS ADDED, AND EACH ONE IS A RULE RATHER THAN A
+   * CHOICE.
+   *
+   *   · IT IS DATA AND IT SAYS SO. The block names itself as a record, states
+   *     that it carries no authority, and states that anything above it wins.
+   *     Text that arrives in a prompt looking like an instruction gets
+   *     followed like one, so it is labelled before it is read.
+   *   · IT CAN ONLY NARROW. `briefForAgent` refuses a brief that offers a
+   *     claim the installation never approved or that drops a standing
+   *     prohibition. A record in a database does not get to relax this
+   *     company's position on Principal Contractor, self-delivery, holding
+   *     the supplier contracts or quoting a price.
+   *   · IT REACHES FIVE AGENTS, NOT THIRTY-FOUR. An agent whose output a
+   *     demand brief has nothing to say about gets nothing, and its prompt is
+   *     byte-for-byte what it was before this existed.
+   *   · IT IS APPENDED AFTER THE APPOINTMENT AND THEREFORE AFTER EVERYTHING
+   *     THAT CONSTRAINS, so the last word belongs to the constraints and not
+   *     to this week's priority.
+   *
+   * Where nothing is approved, or it has expired, or it does not resolve for
+   * this market and channel, this is the empty string and the run is
+   * unchanged. That is the normal case.
+   */
+  let priority = "";
+  try {
+    const resolved = briefForAgent(agentId);
+    priority = briefBlock(resolved);
+  } catch {
+    // A fault in the demand engine must never stop an agent run. An empty
+    // string is the correct degradation: the agent does what it did before.
+    priority = "";
+  }
+
   if (PIPELINE_AGENTS.has(agentId)) {
     const result = await runPipeline({
       spec: PIPELINE_SPECS[agentId],
@@ -1344,7 +1386,7 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
       // it and the other twenty — estimating, commercial, programme, notice,
       // obligation among them — were not. Appending it again would send it
       // twice.
-      system: `${brief.system}${appointment}`,
+      system: `${brief.system}${appointment}${priority}`,
       brief,
       inputs,
       documents,
@@ -1439,7 +1481,7 @@ export async function runAgent(agentId, inputs, runBy, { onStage, visuals, resum
     const response = await client().messages.stream({
       model,
       max_tokens: SINGLE_PASS_MAX_TOKENS,
-      system: `${brief.system}${appointment}`,
+      system: `${brief.system}${appointment}${priority}`,
       messages: [{ role: "user", content: task }],
     }).finalMessage();
     if (response.stop_reason === "refusal") {
