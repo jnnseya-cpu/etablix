@@ -41,6 +41,7 @@ import commercialRoutes from "./routes/commercial.js";
 import orgRoutes from "./routes/org.js";
 import l7Routes from "./routes/l7.js";
 import agentosRoutes from "./routes/agentos.js";
+import trendintelRoutes from "./routes/trendintel.js";
 import webhookRoutes from "./routes/webhooks.js";
 import engineRoutes from "./routes/engines.js";
 import signalRoutes from "./routes/signals.js";
@@ -180,6 +181,7 @@ app.use("/api/signals", signalRoutes); // the trigger watch: a reading queue, ne
 app.use("/api/webhooks", webhookRoutes); // outbound subscriptions and the one signed inbound endpoint
 app.use("/api/l7", l7Routes); // Level 7 controls, probed on every request — internal only, never public
 app.use("/api/agentos", agentosRoutes); // The Agent OS engines, behind stored state — internal only, never public
+app.use("/api/trendintel", trendintelRoutes); // Trend Intelligence: keyless signals, briefs, approved owned-surface writes — internal only, never public
 
 app.use("/api", (req, res) => res.status(404).json({ error: "Unknown endpoint." }));
 

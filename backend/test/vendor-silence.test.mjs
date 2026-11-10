@@ -110,14 +110,35 @@ const builders = walk(path.join(root, "business"))
   .filter((f) => !f.startsWith(INTERNAL_ENGINEERING));
 scan(builders, "no document builder or business document outside business/platform names the vendor");
 
+/* EACH EXEMPT FILE IS NAMED, WITH ITS REASON.
+ *
+ * This used to be a count — "at most one" — and a count is the wrong guard
+ * here for the same reason a magic number is the wrong guard anywhere: it
+ * catches a deletion and says nothing about a substitution. Three files named
+ * with three reasons cannot be quietly swapped for three others, and a new
+ * file cannot inherit the exemption by arriving in the right directory. */
+const VENDOR_EXEMPT = {
+  "business/platform/L7-ITT-BID-ENGINE-SPEC.md":
+    "an architecture specification whose provider table is the point of it. Not a deliverable — and the title is exactly the kind that gets forwarded, so if it is ever issued the provider rows come out first",
+  "business/platform/Trend-Intelligence-AI-Build-Spec-v2.3.md":
+    "a third-party build specification held VERBATIM as the copy of record. It names a local inference runtime in its own source list. Editing a received document to pass our own test would make the copy of record a copy of nothing",
+};
 {
   /* Prove the exclusion is narrow, and say out loud what is inside it. */
   const inside = walk(INTERNAL_ENGINEERING)
     .filter((f) => /\.(cjs|js|md|html)$/.test(f))
     .filter((f) => VENDOR.test(fs.readFileSync(f, "utf8")))
     .map((f) => path.relative(root, f));
-  ok(inside.length <= 1,
-     `the exemption covers at most one internal engineering file — currently ${inside.length}: ${inside.join(", ") || "none"}`,
+  const unnamed = inside.filter((f) => !(f in VENDOR_EXEMPT));
+  ok(unnamed.length === 0,
+     `EVERY EXEMPT INTERNAL FILE IS NAMED WITH ITS REASON — a file cannot inherit the exemption by arriving in the right directory${unnamed.length ? `: ${unnamed.join(", ")}` : ""}`,
+     unnamed);
+  const gone = Object.keys(VENDOR_EXEMPT).filter((f) => !inside.includes(f));
+  ok(gone.length === 0,
+     "and every named exemption is still needed, so the list does not outlive the files it excuses",
+     gone);
+  ok(inside.length <= Object.keys(VENDOR_EXEMPT).length,
+     `the exemption covers ${inside.length} internal engineering file(s): ${inside.join(", ") || "none"}`,
      inside.join("\n      "));
   ok(inside.every((f) => f.startsWith("business/platform/")),
      "and everything claiming it is inside business/platform");

@@ -28,7 +28,7 @@ cleanup() {
 trap cleanup EXIT
 
 echo "=== unit ==="
-for t in clientflow.test delivery-models.test public-claims.test tendercheck.test positionguard.test bidprogramme.test estimateofrecord.test practitioner.test agentos.test agentos-controls.test agentos-aggregates.test lock.test approach-brief.test credentials.test ratelimit.test retired-urls.test workingdays.test pricing.test tenderpack.test seo.test editorial.test reach.test deletion.test bidcheck.test controlcheck.test interfacecheck.test challengecheck.test platformwrite.test engines.test preflight.test mobile.test contrast.test after-login.test samplecopy.test l7-properties.test l7-kernel.test l7-engines.test l7-runtime.test architecture.test mock.test indexnow.test deploy.test mail.test backup.test backup-stamp.test vendor-silence.test signals.test bid-documents.test render-brief.test bid-documents.test pipeline.test concurrent.test store-kill.test; do
+for t in clientflow.test delivery-models.test public-claims.test tendercheck.test positionguard.test bidprogramme.test estimateofrecord.test practitioner.test trendintel.test agentos.test agentos-controls.test agentos-aggregates.test lock.test approach-brief.test credentials.test ratelimit.test retired-urls.test workingdays.test pricing.test tenderpack.test seo.test editorial.test reach.test deletion.test bidcheck.test controlcheck.test interfacecheck.test challengecheck.test platformwrite.test engines.test preflight.test mobile.test contrast.test after-login.test samplecopy.test l7-properties.test l7-kernel.test l7-engines.test l7-runtime.test architecture.test mock.test indexnow.test deploy.test mail.test backup.test backup-stamp.test vendor-silence.test signals.test bid-documents.test render-brief.test bid-documents.test pipeline.test concurrent.test store-kill.test; do
   printf '  %-22s ' "$t"
   if node "backend/test/$t.mjs" > "$LOGS/$t.log" 2>&1; then echo "ok"; else echo "FAILED  → $LOGS/$t.log"; fail=1; fi
 done
@@ -45,7 +45,7 @@ for _ in $(seq 1 40); do sleep 0.25; curl -sf "http://localhost:$PORT/api/health
 curl -sf "http://localhost:$PORT/api/health" >/dev/null || { echo "the server did not come up — $LOGS/server.log"; exit 1; }
 
 echo "=== end to end ==="
-SUITES="money.e2e internal-pages.e2e platform.e2e engines.e2e clientflow.e2e enquiry-to-engagement.e2e portal-promises.e2e upload-dedupe.test pipeline.e2e l7.e2e agentos.e2e bid.e2e control.e2e interfaces.e2e challenge.e2e retention.e2e draft-shapes.e2e circle.e2e security.e2e seo.e2e canonical.e2e"
+SUITES="money.e2e internal-pages.e2e platform.e2e engines.e2e clientflow.e2e enquiry-to-engagement.e2e portal-promises.e2e upload-dedupe.test pipeline.e2e l7.e2e agentos.e2e trendintel.e2e bid.e2e control.e2e interfaces.e2e challenge.e2e retention.e2e draft-shapes.e2e circle.e2e security.e2e seo.e2e canonical.e2e"
 [ "${SOAK:-0}" = "1" ] && SUITES="$SUITES soak.e2e"
 for t in $SUITES; do
   printf '  %-28s ' "$t"

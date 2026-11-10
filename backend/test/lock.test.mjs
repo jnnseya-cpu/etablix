@@ -137,6 +137,33 @@ function okCalls(src) {
   ok(found.size === 28, `twenty-eight proved and no more invented (${found.size})`, [...found.keys()].filter((k) => !wanted.includes(k)));
 }
 
+console.log("\n=== and all twenty-two Trend Intelligence conformance scenarios ===\n");
+//
+// The same lock, the same reason, a different specification. TI-01 to TI-22
+// are the reference conformance scenarios in §21 of the Trend Intelligence
+// build specification, and every one of them is about something that READS AS
+// SUCCESS — a replayed batch inflating a count, a 403 that confirms an id
+// exists, a worker that crashed after the provider succeeded, a template
+// billed as a draft, a late billing event restoring access, a restore
+// resurrecting deleted evidence. A marker only counts inside an ok() call.
+{
+  const suites = fs.readdirSync(here).filter((f) => f.endsWith(".mjs") && f !== "lock.test.mjs");
+  const found = new Map();
+  for (const f of suites) {
+    const text = okCalls(fs.readFileSync(path.join(here, f), "utf8"));
+    for (const m of text.match(/TI-\d{2}/g) || []) {
+      if (!found.has(m)) found.set(m, []);
+      if (!found.get(m).includes(f)) found.get(m).push(f);
+    }
+  }
+  const wanted = Array.from({ length: 22 }, (_, i) => `TI-${String(i + 1).padStart(2, "0")}`);
+  const unproved = wanted.filter((a) => !found.has(a));
+  ok(unproved.length === 0,
+     "EVERY ONE OF TI-01 TO TI-22 IS NAMED INSIDE AN ASSERTION — the conformance list is the list of ways this kind of system is known to fail, so a scenario that stops being proved is a failure mode that stops being watched",
+     unproved);
+  ok(found.size === 22, `twenty-two proved and no more invented (${found.size})`, [...found.keys()].filter((k) => !wanted.includes(k)));
+}
+
 /* ─── 3 · every rule set is locked by id ────────────────────────────────── */
 
 console.log("\n=== every rule set is locked by id, so a rename fails too ===\n");
@@ -158,6 +185,16 @@ const { DISPATCH_STATES } = await import("../lib/agentos/outbox.js");
 const { WORKFLOWS, TASK_STATES, HELD_STATES } = await import("../lib/agentos/orchestration.js");
 const { OVERNIGHT_APPROVALS } = await import("../lib/agentos/capacity.js");
 const { DELIVERY_MODELS, OFFERABLE_MODELS } = await import("../../shared/constants.js");
+const { OPPORTUNITY_WEIGHTS, CONFIDENCE_WEIGHTS, VETOES } = await import("../lib/trendintel/score.js");
+const { ACCESS_PATHS, PROVES, CONTEXT_ONLY, REGISTRATION_FIELDS } = await import("../lib/trendintel/sources.js");
+const { BRIEF_REQUIRED, BRIEF_CHANNELS, ROUTES_AVAILABLE } = await import("../lib/trendintel/brief.js");
+const { INFERENCE_MODES, REQUEST_FIELDS, RESPONSE_FIELDS, ROUTE_STATUS } = await import("../lib/trendintel/inference.js");
+const { LIVE_ACTION_KINDS, DRAFT_ACTION_KINDS, PATCHABLE_FIELDS, OUT_OF_SCOPE_FIELDS, ACTION_STATES, PREFLIGHT_CHECKS } = await import("../lib/trendintel/actions.js");
+const { RECEIPT_STATES, ADAPTER_CAPABILITIES } = await import("../lib/trendintel/adapter.js");
+const { PLANS, ENTITLEMENT_STATES, OFFLINE_ENTITLEMENT_FIELDS } = await import("../lib/trendintel/entitlement.js");
+const { HYPOTHESIS_FIELDS, CONTROL_METHODS, CAUSAL_METHODS, GUARDRAIL_KINDS } = await import("../lib/trendintel/measurement.js");
+const { MINIMUM_PROFILE, BASELINE_SOURCES, MODES, RELEASE_GATES, HARD_RELEASE_GATE } = await import("../lib/trendintel/installation.js");
+const { OBSERVATION_FIELDS } = await import("../lib/trendintel/observations.js");
 
 const ids = (list, key = "id") => list.map((x) => (typeof x === "string" ? x : x[key])).join(",");
 
@@ -206,6 +243,60 @@ const LOCKS = [
    "BLOCKED,WAITING_AUTHORITY,WAITING_INPUT"],
   ["the three overnight approvals", OVERNIGHT_APPROVALS.join(","), "fireApproval,occupationApproval,useClassification"],
   ["the three delivery models", ids(DELIVERY_MODELS), "advisory,integrator,prime"],
+
+  // Trend Intelligence. Every one of these is a list the specification states
+  // and an implementation would otherwise drift from one field at a time.
+  ["the five opportunity weights", Object.entries(OPPORTUNITY_WEIGHTS).map(([k, v]) => `${k}=${v}`).join(","),
+   "demand=0.25,fit=0.25,intent=0.2,timing=0.15,readiness=0.15"],
+  ["the four confidence weights, with model certainty deliberately absent",
+   Object.entries(CONFIDENCE_WEIGHTS).map(([k, v]) => `${k}=${v}`).join(","),
+   "sourceQuality=0.35,corroboration=0.25,coverage=0.2,freshness=0.2"],
+  ["the six scoring vetoes", ids(VETOES),
+   "out-of-market,unsupported-claim,restricted-topic,inventory-unavailable,illegal-targeting,readiness-absent"],
+  ["the three access paths", ACCESS_PATHS.join(","), "public_keyless,host_mediated,file_import"],
+  ["the four proof classes", PROVES.join(","), "intent,decision,attention,context"],
+  ["and which of them cannot corroborate alone", CONTEXT_ONLY.join(","), "attention,context"],
+  ["the fourteen source registration fields", REGISTRATION_FIELDS.join(","),
+   "sourceId,sourceFamily,accessPath,accessMode,owner,terms,permittedUses,territories,languages,cadence,ingestionLagMinutes,quota,retentionDays,failureStatus"],
+  ["the ten observation fields", OBSERVATION_FIELDS.join(","),
+   "sourceId,sourceFamily,sourceRecordId,revision,observedAt,windowStart,windowEnd,metric,value,unit"],
+  ["the twenty-two required Growth Brief fields", BRIEF_REQUIRED.join(","),
+   "schema_version,brief_id,brief_version,tenant_id,platform_id,market,locale,topic_id,opportunity_score,confidence,valid_from,expires_at,evidence_ids,audience,intent,approved_claim_ids,cta_id,allowed_channels,prohibited_claims,objective,experiment_id,policy_version"],
+  ["the six-value channel enum", BRIEF_CHANNELS.join(","), "seo,organic_social,sales_enablement,owned_placement,lifecycle,paid"],
+  ["and the two routes v1 actually ships", ROUTES_AVAILABLE.join(","), "seo,organic_social"],
+  ["the three inference modes", INFERENCE_MODES.join(","), "host,deployment,deterministic"],
+  ["the eight structured-request fields", REQUEST_FIELDS.join(","),
+   "installationId,requestId,purpose,modelAlias,schemaRevision,input,deadlineMs,tokenLimit"],
+  ["the five response fields", RESPONSE_FIELDS.join(","), "requestId,output,resolvedModel,usage,status"],
+  ["the six route statuses", ROUTE_STATUS.join(","), "ok,invalid_output,rate_limited,unavailable,unauthorised,timeout"],
+  ["the two live action kinds", LIVE_ACTION_KINDS.join(","), "seo_metadata_patch,owned_content_patch"],
+  ["the two draft artefact kinds", DRAFT_ACTION_KINDS.join(","), "seo_page_draft,organic_social_draft"],
+  ["the three patchable fields", PATCHABLE_FIELDS.join(","), "title,description,body_block"],
+  ["what is out of scope for v1 automation rather than merely gated", OUT_OF_SCOPE_FIELDS.join(","),
+   "url,slug,redirects,canonical,robots,noindex,structured_data,schema,permissions,template_code,sitemap"],
+  ["the ten action states", ACTION_STATES.join(","),
+   "proposed,validated,pending_approval,approved,queued,executing,applied,failed,reconciliation_required,rolled_back"],
+  ["the eight preflight checks", PREFLIGHT_CHECKS.join(","),
+   "schema,scope,assetAllowlist,entitlement,freeze,briefFresh,evidence,approvedClaims"],
+  ["the three receipt states, because collapsing unknown into not-found is the duplicate it prevents",
+   RECEIPT_STATES.join(","), "applied,not_found,unknown"],
+  ["the four adapter methods", ADAPTER_CAPABILITIES.join(","), "get_asset,apply_patch,get_receipt,restore_patch"],
+  ["the four packages", ids(PLANS), "internal,starter,growth,enterprise"],
+  ["the five entitlement statuses", ENTITLEMENT_STATES.join(","), "trial,active,grace,suspended,ended"],
+  ["the five offline entitlement fields", OFFLINE_ENTITLEMENT_FIELDS.join(","), "deploymentId,features,limit,expiry,keyId"],
+  ["the eleven fields frozen at brief approval", HYPOTHESIS_FIELDS.join(","),
+   "hypothesis,baseline,primaryOutcome,segment,controlMethod,minimumDetectableEffect,observationTarget,windowStart,windowEnd,guardrails,owner"],
+  ["the four control methods", CONTROL_METHODS.join(","), "holdout,matched_control,window_comparison,none"],
+  ["and which two of them support an incremental estimate", CAUSAL_METHODS.join(","), "holdout,matched_control"],
+  ["the seven guardrail kinds", GUARDRAIL_KINDS.join(","),
+   "cost_per_qualified_outcome,conversion_rate,unsubscribe_rate,cancellation_rate,refund_rate,policy_incident,stock_unavailable"],
+  ["the six minimum profile fields", MINIMUM_PROFILE.join(","),
+   "platformSlug,defaultMarket,defaultLocale,topicScope,outcome,sources"],
+  ["what a new installation enables and nothing more", BASELINE_SOURCES.join(","), "first_party,manual_import"],
+  ["the three installation modes", MODES.join(","), "draft_only,shadow,live"],
+  ["the five build-order gates", ids(RELEASE_GATES), "G1,G2,G3,G4,G5"],
+  ["the twenty items of the hard release gate", HARD_RELEASE_GATE.join(","),
+   "noCustomerProviderSecrets,noHostAi,noExternalAnalytics,noOauth,noThirdPartyConnector,thirdPartyEgressBlocked,localInferenceProfile,firstPartyActivitySimulated,oneSharedBriefGenerated,realModelOutput,seoChangeApprovedAndApplied,marketingChangeApprovedAndApplied,nativeSurfacePublished,eligibleVisitsCaptured,configuredOutcomesCaptured,measurementReportProduced,priorRevisionRestored,noNewKeysRequested,noExternalDestinationContacted,auditChainComplete"],
 ];
 
 for (const [what, actual, expected] of LOCKS) {

@@ -115,6 +115,7 @@ platform. The complete set, and where each gets the standard:
 | `testProvider` — a connectivity ping | 1 | **Exempt, correctly.** No system prompt; it asks the provider to say "ETABLIX AI online". Holding a ping to a writing standard would be absurd |
 | The L7 tender kernel — gates, engines, reconciliations | — | **No model call at all.** Its LLM port exists so the core never knows which SDK is underneath, and it constructs no prompts by design |
 | `backend/lib/signals/` | — | **No model call.** Outbound drafting goes through `draftApproach` above |
+| `backend/lib/trendintel/` — the Trend Intelligence inference gateway | — | **No model call.** `selectRoute()` chooses between an authorised host gateway, a deployment-supplied route and deterministic templates, and the CALLER supplies the attempt. The obvious implementation puts the provider call here, which would be a second writing path with no brief on it; `practitioner.test.mjs` reads the source of all ten modules and fails if any acquires a provider call or a system prompt |
 
 Four provider calls exist in total: three in `ai.js` and one in
 `diagnostic.js`, which runs the pipeline for ten agents and is **handed** its

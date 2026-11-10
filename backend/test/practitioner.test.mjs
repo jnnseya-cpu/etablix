@@ -25,7 +25,7 @@
  * be softened first.
  */
 import { AGENT_BRIEFS } from "../lib/ai.js";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -228,6 +228,39 @@ const src = readFileSync(path.join(root, "backend/lib/ai.js"), "utf8");
      "the L7 llm adapter still declares that it constructs no prompts");
   ok(!/COMPANY_BRIEF|You are an?\b/.test(adapter),
      "and carries none — so there is no second, unheld writing path through the tender kernel");
+}
+{
+  // THE FIFTH PATH THAT ALMOST BECAME A FIFTH CALL SITE.
+  //
+  // The Trend Intelligence inference gateway chooses between a host AI route,
+  // a deployment-supplied route and deterministic templates. The obvious
+  // implementation makes the provider call there, and that would be a second
+  // writing path with no brief on it. It is a ROUTER AND A VALIDATOR instead:
+  // the caller supplies the attempt, the gateway bounds the request and
+  // refuses a non-conforming output. So the audit's count of four provider
+  // calls stays true, and this asserts it rather than trusting the comment.
+  const dir = path.join(root, "backend/lib/trendintel");
+  const files = readdirSync(dir).filter((f) => f.endsWith(".js"));
+  ok(files.length >= 9, `${files.length} Trend Intelligence modules present`, files);
+  const callers = [];
+  const prompters = [];
+  for (const f of files) {
+    const text = readFileSync(path.join(dir, f), "utf8");
+    text.split("\n").forEach((line, n) => {
+      if (/^\s*(\*|\/\/)/.test(line)) return;
+      if (/messages\.(stream|create)|anthropic|openai|fetch\s*\(/i.test(line)) callers.push(`${f}:${n + 1}`);
+      if (/\bsystem:\s*[`"']|COMPANY_BRIEF|You are an?\s/.test(line)) prompters.push(`${f}:${n + 1}`);
+    });
+  }
+  ok(callers.length === 0,
+     "NO MODULE IN backend/lib/trendintel MAKES A PROVIDER CALL OR AN OUTBOUND REQUEST — the inference gateway routes and validates, and the four provider call sites asserted above are still the whole set",
+     callers);
+  ok(prompters.length === 0,
+     "and none of them constructs a system prompt, so there is no second unheld writing path through the signal engine either",
+     prompters);
+  const gateway = readFileSync(path.join(dir, "inference.js"), "utf8");
+  ok(/CONSTRUCTS NO PROMPTS AND MAKES NO PROVIDER CALL/.test(gateway),
+     "the gateway declares the rule at the top of the file, where the next person to add a call will read it");
 }
 
 console.log(`\n${pass} passed, ${fail} failed\n`);
