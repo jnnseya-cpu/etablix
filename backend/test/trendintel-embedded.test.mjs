@@ -424,6 +424,29 @@ console.log("\n=== the one human act is reduced to reading printed text ===\n");
      "AND IT SAYS THAT FINDING NO TERMS IS NOT PERMISSION — a source with no discoverable terms stays context-only, which is the trap this tool would otherwise set");
 }
 
+console.log("\n=== it has one report, and it is a command rather than a page ===\n");
+{
+  const tool = read("backend/tools/demand-status.mjs");
+  const code = tool.split("\n").filter((l) => !/^\s*(\*|\/\/|\/\*)/.test(l)).join("\n");
+  ok(!/\binsert\(|\bupdate\(|writeFileSync|appendFileSync|\bremove\(/.test(code),
+     "THE STATUS TOOL WRITES NOTHING, which is why the deploy routine can run it under --check as well as for real",
+     (code.match(/insert\(|update\(|writeFileSync|remove\(/g) || []));
+  ok(!/sendMail|smtp|nodemailer|politeFetch|fetch\s*\(/.test(code),
+     "and it neither fetches nor sends: it reads the store and the registers and reports");
+  ok(/What needs you/.test(tool) && /signals-terms\.mjs/.test(tool),
+     "it ends on the one thing that needs a person and prints the exact command for it");
+  ok(/a deploy never overwrites/.test(tool),
+     "AND IT SAYS THE EDIT GOES ON THE LIVE LIST — the repository copy seeds once and is never read again, so an edit there would look right and change nothing");
+
+  const deploy = read("deploy/update-all.sh");
+  ok(/node backend\/tools\/demand-status\.mjs/.test(deploy),
+     "the one command the operator already runs now reports the demand read, so there is nothing new to learn");
+  ok(/auto-deploy/i.test(deploy) && /every five minutes/.test(deploy),
+     "and it says plainly that this is not how code is deployed — cron does that — so nobody runs it expecting a deploy");
+  ok(/READ-ONLY IN BOTH MODES/.test(deploy),
+     "with the reason the status call is safe under --check stated where somebody editing the script will read it");
+}
+
 console.log("\n=== nothing a visitor can reach mentions any of it ===\n");
 
 // The words that would give it away. Deliberately broad: the risk is not that

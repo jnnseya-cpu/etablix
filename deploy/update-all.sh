@@ -4,6 +4,12 @@
 #   /opt/etablix/deploy/update-all.sh            deploy, verify, apply the pending write
 #   /opt/etablix/deploy/update-all.sh --check    change nothing, just report
 #
+# AUTO-DEPLOY ALREADY BRINGS THE CODE DOWN. cron runs deploy/autodeploy.sh
+# every five minutes and a push reaches the live site by itself, so this is not
+# how code gets deployed — it is how you find out whether it did, apply the one
+# write that is left to a person, and read what the demand engine is doing. On
+# a box where auto-deploy is working, step 1 finds nothing to do and says so.
+#
 # WHY THIS EXISTS WHEN update.sh ALREADY DOES THE SAFE WORK. update.sh
 # deliberately stops short of writing to live data: it tells you the 35 queued
 # signals need their links mended and leaves the decision to a person, which
@@ -56,5 +62,15 @@ else
   docker exec "$NAME" node backend/tools/signals-relink.mjs --write
 fi
 
-say "4. What still needs you"
+say "4. The demand read — is it reading, and what is stopping it"
+# READ-ONLY IN BOTH MODES, which is why it runs even under --check.
+#
+# The engine has no page on purpose: it rides the trigger watch's own sweep and
+# writes its band onto the signal rows the queue already shows. The cost of
+# that is there is no way to tell whether it is working, which is how an
+# invisible thing becomes an absent one. This is the only place it reports.
+docker exec "$NAME" node backend/tools/demand-status.mjs || \
+  echo "    the demand read could not be queried — the container answered an error above"
+
+say "5. What still needs you"
 "$REPO/deploy/update.sh" --check | sed -n '/What needs you/,$p'
