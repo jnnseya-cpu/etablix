@@ -301,7 +301,10 @@ transferred to the main works by default; the preliminaries as the only part of
 a crowded framework's call-off price that is not commoditised; a linear scheme
 having no single compound but a sequence of them, with welfare that has to stay
 within reach of a working face that keeps moving; what an investor actually
-reads on a site visit before the permanent asset is legible.
+reads on a site visit before the permanent asset is legible; a cross-border
+link putting a converter station in each jurisdiction, so one compound
+specification answers to two building-control regimes and two environmental
+regulators.
 
 **This supersedes** the "never pitch, never name ETABLIX" rule in
 `business/marketing/linkedin-daily-comments.md`. That rule's reasoning — that a
