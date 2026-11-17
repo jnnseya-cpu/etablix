@@ -109,5 +109,41 @@ ok(/Central Digital Platform/i.test(home),
 ok(/holds no ISO certification and no SSIP registration|no ISO certification and no SSIP/i.test(home),
    "and what it does not hold is named in the same breath");
 
+console.log("\n=== the data controller is the company, never a trading name ===\n");
+//
+// The privacy notice said "Data controller: ETABLIX, a Groupe Nseya brand"
+// until 17 November 2026. A trading name is not a legal person and cannot
+// control personal data, and it is the same failure as a trading name that
+// does not resolve at Companies House: a reader checking the ICO register for
+// "ETABLIX" finds nothing. UK GDPR Article 13(1)(a) asks for the identity of
+// the controller, and the identity is the registered company.
+{
+  const privacyPath = path.join(PUBLIC, "policies/privacy.html");
+  const privacy = fs.readFileSync(privacyPath, "utf8");
+  const body = privacy.slice(privacy.indexOf("policy-body"));
+
+  const controllerLines = body.split(/\n/).filter((l) => /data controller/i.test(l));
+  ok(controllerLines.length > 0, "the privacy notice states who the controller is", controllerLines.length);
+  ok(controllerLines.every((l) => /JNN GLOBAL LTD/.test(l)),
+     "EVERY STATEMENT OF THE CONTROLLER NAMES JNN GLOBAL LTD — a trading name is not a legal person and cannot control personal data",
+     controllerLines.find((l) => !/JNN GLOBAL LTD/.test(l)));
+  ok(!controllerLines.some((l) => /controller:\s*ETABLIX|controller is ETABLIX/i.test(l)),
+     "and none of them names a trading name as the controller, which is the sentence this guard exists to stop coming back",
+     controllerLines.find((l) => /controller:\s*ETABLIX/i.test(l)));
+  ok(/company (number )?15405437/i.test(body),
+     "with the company number, so a reader can check it at Companies House");
+  ok(/Information Commissioner's Office under reference/i.test(body) && /C2089949/.test(body),
+     "AND THE ICO REGISTRATION REFERENCE, so the same reader can check it on the regulator's own register",
+     /C2089949/.test(body));
+}
+{
+  // Not sprayed across the site. The company number belongs in every footer;
+  // the registration reference belongs where somebody looking for it goes.
+  const carrying = pages.filter((f) => /C2089949/.test(fs.readFileSync(f, "utf8"))).map(rel);
+  ok(carrying.length === 1 && carrying[0].endsWith("policies/privacy.html"),
+     "the ICO reference appears on the privacy notice and nowhere else — repeating it on twenty footers makes neither it nor the company number easier to find",
+     carrying);
+}
+
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);

@@ -342,6 +342,26 @@ removed.
 **JNN GLOBAL LTD**, company number 15405437, registered office Groupe Nseya
 House, Kingstanding, Birmingham B44 8DJ. Director: **Justin Ngolu Nseya**.
 
+**ICO registration: C2089949.** The data controller is the company, never a
+trading name — a trading name is not a legal person and cannot control
+personal data. The privacy notice said "Data controller: ETABLIX, a Groupe
+Nseya brand" until 17 November 2026, which is the same failure as a trading
+name that does not resolve at Companies House: a reader checking the ICO
+register for "ETABLIX" finds nothing. It now names JNN GLOBAL LTD with the
+company number and the registration reference, under UK GDPR Article 13(1)(a).
+
+**Where it goes, and where it does not.** The privacy notice, and a PQQ or
+supplier questionnaire that asks for it. Not the page footers — the company
+number belongs there and the registration reference does not, and repeating it
+on twenty pages makes neither easier to find.
+
+**Unverified from here.** `ico.org.uk` is not reachable from a build session,
+so the reference has been recorded exactly as supplied and has not been checked
+against the public register. Before it is quoted in a tender, search the ICO
+register for JNN GLOBAL LTD and confirm the reference resolves. A registration
+number on a privacy notice that returns nothing on the regulator's own register
+is worse than no number at all. Owner: Justin Nseya. By: 24 November 2026.
+
 ### Naming the company — every time, in every outbound message
 
 Wherever the company is named in a signal email or any outbound approach, it is:
