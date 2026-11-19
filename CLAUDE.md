@@ -254,9 +254,25 @@ halves plus the contracting position:
 
 - **The paper** — output specification, package boundaries, tender documents.
 - **The site** — procurement, mobilisation, and the interfaces between suppliers.
-- **"You hold every supplier contract; we never hold your money."** This single
-  sentence is what separates ETABLIX from an ordinary intermediary. It belongs
-  in almost every comment.
+- **"You hold every supplier contract."** The contracting position is what
+  separates ETABLIX from an ordinary intermediary, and it belongs in almost
+  every comment.
+
+**Two things that belong in a letter and NOT in a comment.** Director's
+instruction, 19 November 2026.
+
+- **"we never hold your money" is dropped.** The full sentence —"you hold every
+  supplier contract; we never hold your money" — stays in an email to a
+  procurement or supply-chain reader, who will ask. In a public thread it
+  answers a question nobody has asked, and raising it plants the thought rather
+  than settling it. The first half carries the position on its own.
+- **The legal entity and the company number are dropped.** A comment is
+  **ETABLIX**, on its own, every time. See the carve-out in the naming section
+  below: it is a deliberate exception to a rule that is otherwise absolute, and
+  the reason is that a comment has no signature block and a 90-word ceiling.
+
+Everything already drafted before that date keeps what it had. Nothing is
+rewritten to pretend the rule was always this one.
 
 **These three are the comment.** If everything else has to be cut, what stays is
 the USP, ETABLIX named so a stranger knows what the business is, and the sell —
@@ -281,6 +297,8 @@ point of the comment.
 - 60–90 words. Ceiling 110. Longer than the post is not read.
 - ONE idea. Not three.
 - No emoji, no hashtags, no links.
+- **ETABLIX alone.** No "part of JNN GLOBAL LTD", no company number, and no
+  "we never hold your money".
 
 **Never the same argument twice.** The test a comment has to pass: *could this
 have been written for any of the others?* If yes, it is not finished. Nine
@@ -373,6 +391,21 @@ Wherever the company is named in a signal email or any outbound approach, it is:
 on first use, and **ETABLIX** alone thereafter in the same message. Never
 ETABLIX on its own at first mention. Never a shortened or varied form of the
 legal name.
+
+**The one carve-out: a LinkedIn comment is ETABLIX alone.** Director's
+instruction, 19 November 2026. This is a real exception to a rule that is
+otherwise absolute, so the reason is written down rather than left to be
+re-argued: a comment has no signature block for a company number to sit in,
+the reader who wants the entity is one click from the profile that carries it,
+and eight words of legal name inside a 90-word ceiling is spent out of the
+observation that earns the right to say anything at all. The rule above is
+about a letter a procurement officer files and checks. A comment is not that
+document.
+
+**It does not travel.** A signal email, an introduction, a bid return, a
+capability statement, a prequalification answer and anything with a signature
+block carry the full form. If the next thing being written has a "Kind
+regards" at the bottom, the carve-out does not apply to it.
 
 **Why this is a rule and not a preference.** Three different forms have already
 gone to three different readers: "JNseya Construction Consultant" to one,
