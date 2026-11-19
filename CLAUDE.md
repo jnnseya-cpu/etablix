@@ -306,7 +306,9 @@ link putting a converter station in each jurisdiction, so one compound
 specification answers to two building-control regimes and two environmental
 regulators; a supply-chain jobs announcement counting factory and office roles,
 which is a different number in a different place from the construction headcount
-a compound is sized against.
+a compound is sized against; an enterprise zone putting several projects into
+one local market on the same dates, so each compound is planned against a pool
+the others are bidding into.
 
 **This supersedes** the "never pitch, never name ETABLIX" rule in
 `business/marketing/linkedin-daily-comments.md`. That rule's reasoning — that a
