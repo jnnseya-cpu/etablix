@@ -109,13 +109,56 @@ console.log("\n=== the files that quote the error are named, with the reason ===
 console.log("\n=== the correct form is still on the site, not merely un-forbidden ===\n");
 {
   const site = walk(path.join(ROOT, "frontend/public")).filter((f) => f.endsWith(".html"));
-  const carrying = site.filter((f) => /a Groupe Nseya brand/.test(text(f)));
+  // The strapline is now a link, so the words are split by markup. Read what a
+  // reader reads: strip tags and entities, then look for the sentence.
+  const reads = (f) => text(f)
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;|&#8599;/g, " ")
+    .replace(/\s+/g, " ");
+  const carrying = site.filter((f) => /[Aa] Groupe Nseya brand/.test(reads(f)));
   ok(carrying.length >= 10,
-     `${carrying.length} public pages carry "a Groupe Nseya brand" — a rule that only forbids things lets the right answer disappear without anything failing`,
+     `${carrying.length} public pages read "a Groupe Nseya brand" — a rule that only forbids things lets the right answer disappear without anything failing`,
      carrying.length);
   const footer = path.join(ROOT, "frontend/public/index.html");
   ok(/Groupe Nseya are trading names of JNN GLOBAL LTD/.test(text(footer)),
      "and the footer still resolves the brand to the registered company");
+}
+
+console.log("\n=== and the strapline takes the reader to the group, on every page that carries it ===\n");
+{
+  // A strapline naming a group that a reader cannot reach is the Companies
+  // House failure in a second form: the name is there and resolves to nothing.
+  const GROUP_URL = "https://www.nseyagroup.com";
+  const site = walk(path.join(ROOT, "frontend/public")).filter((f) => f.endsWith(".html"));
+  const reads = (f) => text(f).replace(/<[^>]*>/g, "").replace(/&nbsp;|&#8599;/g, " ").replace(/\s+/g, " ");
+  const carrying = site.filter((f) => /[Aa] Groupe Nseya brand/.test(reads(f)));
+  const unlinked = carrying.filter((f) => !text(f).includes(GROUP_URL)).map(rel);
+  ok(unlinked.length === 0,
+     `every one of the ${carrying.length} pages carrying the strapline links the words "Groupe Nseya" to ${GROUP_URL}`,
+     unlinked);
+
+  // The link is on the strapline words themselves, not somewhere else on the page.
+  const ANCHOR = new RegExp(`<a href="${GROUP_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"[^>]*>\\s*Groupe Nseya`);
+  const misplaced = carrying.filter((f) => !ANCHOR.test(text(f))).map(rel);
+  ok(misplaced.length === 0,
+     "and the anchor wraps the words Groupe Nseya, so the reader clicks the name rather than hunting for it",
+     misplaced);
+
+  // New tab, and no referrer leak — the same treatment CONSTRUX and VERYX get.
+  const sloppy = carrying.filter((f) => {
+    const m = text(f).match(new RegExp(`<a href="${GROUP_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"[^>]*>`, "g")) || [];
+    return m.some((tag) => !/target="_blank"/.test(tag) || !/rel="noopener"/.test(tag));
+  }).map(rel);
+  ok(sloppy.length === 0,
+     'each link opens in a new tab with rel="noopener" — the site does not throw its own reader out to another domain',
+     sloppy);
+
+  // A page title cannot hold markup. The three title fields stay plain text.
+  const about = text(path.join(ROOT, "frontend/public/about.html"));
+  const titles = about.match(/<title>[^<]*<\/title>|<meta (?:property="og:title"|name="twitter:title") content="[^"]*">/g) || [];
+  ok(titles.length === 3 && titles.every((t) => !t.includes("<a href")),
+     "and the three title fields on about.html stay plain text — a link in a <title> is markup in a search result",
+     titles.length);
 }
 
 console.log("\n=== the mark itself is unchanged, so nothing about it needed updating ===\n");
