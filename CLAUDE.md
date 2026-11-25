@@ -407,6 +407,33 @@ capability statement, a prequalification answer and anything with a signature
 block carry the full form. If the next thing being written has a "Kind
 regards" at the bottom, the carve-out does not apply to it.
 
+### The logo strapline, and the one word it may never contain
+
+The strapline is **"a Groupe Nseya brand"**. Director's decision, 25 November
+2026, on new artwork supplied the same day.
+
+**"a … company" is never used, in any word order.** It asserts a parent entity.
+There is one legal entity — JNN GLOBAL LTD, company 15405437 — with no group,
+no holding company and no subsidiary. An endorsement line sends a procurement
+officer to Companies House looking for the endorser, and the one thing this
+business has already learned the hard way is that a name which does not resolve
+there is where a serious reader stops. ETABLIX is a trading name, not a
+subsidiary, so "brand" is accurate and "company" is not.
+
+**And the word order is "Groupe Nseya", matching the registered office** at
+Groupe Nseya House. Not "Nseya Groupe", not "Nseya Group". Two lockups were
+supplied on 25 November and they differed from each other by one letter —
+Groupe against Group — which is how quickly a fourth and fifth form of the name
+appear once one is allowed to vary.
+
+**If the group is ever genuinely renamed**, it does not start from a logo. The
+registered office building name, the 54 files that carry the present form, the
+professional indemnity certificate recording *JNseya Construction Consultant*
+and a Companies House check all move together or none of them do.
+`backend/test/brand-naming.test.mjs` fails the build if a published page or an
+outbound document acquires the endorsement form or a reversed word order, and
+`brand/STRAPLINE-CORRECTION.md` is the brief that goes to the designer.
+
 **Why this is a rule and not a preference.** Three different forms have already
 gone to three different readers: "JNseya Construction Consultant" to one,
 "JNseya Construction and Consultants" to another, "ETABLIX" with no legal
