@@ -81,15 +81,42 @@ To deploy immediately rather than waiting for the next tick:
 
     cd /opt/etablix && ./deploy/deploy.sh
 
-The same script runs either way. It defers while a run is in flight, builds the
-image, starts a candidate container, **health-checks the candidate before
-touching the live one**, and only then switches. If the candidate does not
-answer, nothing changes and it tells you so.
+The same script runs either way, in this order:
+
+1. defers while an agent run is in flight;
+2. resets the checkout to the pushed commit;
+3. **runs the whole test suite against that commit and refuses the deploy if
+   anything fails** — before the build, so a failing commit is never compiled
+   and the live container is not touched;
+4. builds the image;
+5. starts a candidate container and **health-checks the candidate before
+   touching the live one**;
+6. asks again whether a run is in flight, because steps 3 to 5 take minutes;
+7. switches, recording the previous image so `./deploy/rollback.sh` is one
+   command.
+
+**The test gate is step 3, and it is the one that stops a wrong deploy rather
+than a broken one.** Everything else asks whether the build runs; only this
+asks whether it is correct. A failure prints the failing test names straight
+into the deploy log and names the full output at
+`/var/log/etablix-test-gate.log`.
+
+It needs bash and Node 22 on the host — both already installed by the VPS
+runbook — and it **refuses rather than skipping** if either is missing, because
+a gate that skips itself when it cannot run is a comment. It takes several
+minutes; cron holds a `flock`, so a slow run skips a tick instead of stacking
+up. The suite makes its own scratch data directory, so a deploy-time run cannot
+see or touch the live store.
+
+To deploy without it, deliberately and on the record — it is logged as
+`deploying <commit> unverified`:
+
+    ETABLIX_TEST_GATE=0 ./deploy/deploy.sh
 
 If nothing is reaching the live site, the first thing to check is whether cron
-is actually installed:
+is actually installed, and whether the gate can run at all:
 
-    /opt/etablix-autodeploy.sh --status
+    /opt/etablix/deploy/autodeploy.sh --status
 
 Check what landed:
 

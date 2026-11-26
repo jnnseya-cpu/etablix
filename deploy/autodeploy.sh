@@ -6,6 +6,7 @@
 #
 #   ETABLIX_AUTODEPLOY=0                  turn it OFF (default: on)
 #   ETABLIX_AUTODEPLOY_TARGET=staging     send it to staging instead (default: live)
+#   ETABLIX_TEST_GATE=0                   deploy WITHOUT running the suite (default: on)
 #
 # WHY THIS IS SAFE TO POINT AT LIVE. Every protection that mattered lives in
 # deploy.sh and runs on every tick:
@@ -16,8 +17,15 @@
 #     "busy" every minute, so a deploy cannot recreate the container under
 #     somebody who is mid-run — that is what used to destroy runs, and it is
 #     handled where it belongs rather than by refusing to deploy at all;
+#   · it RUNS THE WHOLE TEST SUITE against the commit it is about to build,
+#     and refuses the deploy if anything fails — before the build, so a bad
+#     commit is not even compiled and the live container is never read, let
+#     alone touched. That was the last hole: everything else here asks whether
+#     the build RUNS, and nothing asked whether it is CORRECT;
 #   · it builds the new image, starts it on a spare name, and HEALTH-CHECKS
 #     IT BEFORE ANYTHING IS SWITCHED, refusing to swap if it does not answer;
+#   · it asks again whether a run is in flight IMMEDIATELY BEFORE the swap,
+#     because the minutes spent testing and building are the exposure;
 #   · it records the previous image, so ./rollback.sh is one command.
 #
 # Install (as root) — two lines, and it is done:
@@ -81,6 +89,24 @@ if [ "${1:-}" = "--status" ]; then
   else
     echo "scripts:      NOT FOUND — no deploy.sh under $REPO/deploy or $BESIDE."
     echo "              Set ETABLIX_REPO in /etc/default/etablix to the checkout."
+  fi
+  if [ "${ETABLIX_TEST_GATE:-1}" = "1" ]; then
+    MISSING=""
+    command -v bash >/dev/null 2>&1 || MISSING="bash"
+    if command -v node >/dev/null 2>&1; then
+      NMAJ=$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)
+      [ "$NMAJ" -lt 22 ] && MISSING="${MISSING:+$MISSING, }node $(node -v) (need 22+)"
+    else
+      MISSING="${MISSING:+$MISSING, }node"
+    fi
+    if [ -n "$MISSING" ]; then
+      echo "test gate:    ON — but WILL REFUSE EVERY DEPLOY: missing $MISSING"
+      echo "              Install it, or set ETABLIX_TEST_GATE=0 to deploy unverified."
+    else
+      echo "test gate:    ON — the full suite must pass before anything is built"
+    fi
+  else
+    echo "test gate:    OFF (ETABLIX_TEST_GATE=0) — commits deploy UNVERIFIED"
   fi
   if [ -f "$PAUSE" ]; then
     echo "paused:       YES — $PAUSE exists, nothing will deploy until it is removed"

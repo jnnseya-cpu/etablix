@@ -85,20 +85,105 @@ else
 fi
 
 # ---- 1. never interrupt work in flight -------------------------------------
-WAITED=0
-while true; do
-  BUSY=$(docker exec "$NAME" wget -qO- http://localhost:3000/api/health 2>/dev/null | grep -o '"busy":true' || true)
-  [ -z "$BUSY" ] && break
-  if [ "$WAITED" -ge "${ETABLIX_BUSY_MAX:-14400}" ]; then
-    say "a run has been going for ${WAITED}s — deploying anyway"; break
-  fi
-  say "an agent run is in progress — deferring"; sleep 60; WAITED=$((WAITED + 60))
-done
+#
+# CALLED TWICE, AND THE SECOND CALL IS THE ONE THAT MATTERS. Checking once here
+# and then swapping minutes later protects nothing: the gap between the check
+# and the swap is the whole exposure, and the build, the npm install and the
+# candidate health check already spend several minutes inside it. The test gate
+# at step 1b spends several more. So the question is asked again immediately
+# before the container is stopped, when the answer is still true.
+wait_for_idle() {
+  WAITED=0
+  while true; do
+    BUSY=$(docker exec "$NAME" wget -qO- http://localhost:3000/api/health 2>/dev/null | grep -o '"busy":true' || true)
+    [ -z "$BUSY" ] && break
+    if [ "$WAITED" -ge "${ETABLIX_BUSY_MAX:-14400}" ]; then
+      say "a run has been going for ${WAITED}s — deploying anyway"; break
+    fi
+    say "an agent run is in progress — deferring"; sleep 60; WAITED=$((WAITED + 60))
+  done
+}
+wait_for_idle
 
 say "deploying $TARGET (live was ${RUNNING:-nothing})"
 git reset --hard "$TARGET"
 SHORT=$(git rev-parse --short=12 HEAD)
 echo "$SHORT" > BUILD_COMMIT
+
+# ---- 1b. THE TEST GATE: a failing suite never reaches live ------------------
+#
+# This was the last hole in "nothing silently changes". Every protection below
+# this line asks whether the build RUNS. None of them asked whether it is
+# CORRECT. A commit that deleted a guard, softened a brief, broke a notice
+# period or dropped a statutory duty-holder built cleanly, answered
+# /api/health, swapped in, and served.
+#
+# So the suite runs here, on the checkout that was just reset to $TARGET — the
+# exact commit about to be built — and a failure exits before `docker build`.
+# The live container has not been touched at that point; it has not even been
+# read. Nothing to roll back, because nothing moved.
+#
+# WHY ON THE HOST AND NOT IN THE IMAGE. The image is correct for serving and
+# wrong for testing. `.dockerignore` strips deploy/, *.md, business/ and brand/
+# from the build context, so deploy.test, practitioner.test, brand-naming.test,
+# public-claims.test and vendor-silence.test — the tests that read the
+# documents rather than the code — cannot see their inputs inside it. And
+# node:22-alpine has no bash, which run-all.sh needs for `set -o pipefail`
+# (dash refuses it; that is checked, not assumed). Adding bash and four more
+# COPY lines to the production image to make its tests runnable is how a
+# production image stops being one.
+#
+# Node 22 on the host is already a prerequisite of this deployment — see
+# deploy/README.md line 40 and GO-LIVE-RUNBOOK.md, both of which apt-install it
+# — so the gate asks for nothing new. It is NOT guarded by `command -v node`
+# the way announce() is. announce() notifies search engines and is allowed to
+# be absent; a gate that skips itself when it cannot run is not a gate, it is a
+# comment. If the tooling is missing it REFUSES, and says what to install.
+#
+#   ETABLIX_TEST_GATE=0     deploy without it, deliberately and on the record
+#
+# The suite takes several minutes. That is the point: it costs one build's wait
+# to find out, and cron holds a flock so a slow run skips a tick rather than
+# stacking up. It binds its own ports and makes its own scratch data directory
+# with mktemp, so it cannot see or touch the live store.
+TEST_GATE=${ETABLIX_TEST_GATE:-1}
+GATE_LOG=${ETABLIX_TEST_LOG:-/var/log/etablix-test-gate.log}
+
+if [ "$TEST_GATE" != "1" ]; then
+  say "TEST GATE OFF (ETABLIX_TEST_GATE=0) — deploying $SHORT unverified"
+else
+  if ! command -v bash >/dev/null 2>&1; then
+    say "REFUSING TO DEPLOY: no bash on this host. run-all.sh needs it for 'set -o pipefail'. Install it, or set ETABLIX_TEST_GATE=0 to deploy unverified. Live untouched."
+    exit 1
+  fi
+  if ! command -v node >/dev/null 2>&1; then
+    say "REFUSING TO DEPLOY: no node on this host, so the suite cannot run. Install Node 22 (deploy/README.md line 40), or set ETABLIX_TEST_GATE=0 to deploy unverified. Live untouched."
+    exit 1
+  fi
+  NODE_MAJOR=$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)
+  if [ "$NODE_MAJOR" -lt 22 ]; then
+    say "REFUSING TO DEPLOY: node $(node -v) on this host; the store uses node:sqlite and needs 22 or later. Live untouched."
+    exit 1
+  fi
+  # The suite imports express and the SDK through ESM, which does not honour
+  # NODE_PATH, so the modules have to be beside the code rather than borrowed.
+  if [ ! -d node_modules ] || [ package-lock.json -nt node_modules ]; then
+    say "installing test dependencies"
+    if ! npm ci --omit=dev >>"$GATE_LOG" 2>&1; then
+      say "REFUSING TO DEPLOY: npm ci failed — see $GATE_LOG. Live untouched."
+      exit 1
+    fi
+  fi
+  say "running the full suite against $SHORT before building"
+  if bash backend/test/run-all.sh >"$GATE_LOG" 2>&1; then
+    say "suite passed on $SHORT — building"
+  else
+    say "REFUSING TO DEPLOY: the suite FAILED on $SHORT. Nothing was built and the live container has not been touched. Failures:"
+    grep -E 'FAILED' "$GATE_LOG" | sed 's/^/    /' | tee -a "$LOG"
+    say "full output: $GATE_LOG"
+    exit 1
+  fi
+fi
 
 # ---- 2. build, tagged with the commit --------------------------------------
 docker build --pull --build-arg BUILD_COMMIT="$SHORT" -t "etablix:$SHORT" -t etablix:candidate . >>"$LOG" 2>&1
@@ -125,6 +210,10 @@ fi
 say "candidate $SHORT healthy — switching"
 
 # ---- 4. switch, keeping the way back ---------------------------------------
+#
+# Ask again. Everything between step 1 and here took minutes, and a run that
+# started in that time is a run this swap would destroy.
+wait_for_idle
 [ -n "$PREV_IMAGE" ] && echo "$PREV_IMAGE" > /var/lib/etablix-previous-image
 docker stop -t "$GRACE" "$NAME" >>"$LOG" 2>&1 || true    # -t: let it shut down gracefully
 docker rm "$NAME" >>"$LOG" 2>&1 || true

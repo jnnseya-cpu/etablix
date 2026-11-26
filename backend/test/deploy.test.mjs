@@ -56,6 +56,66 @@ ok(/REFUSING TO DEPLOY: the new build did not report healthy/.test(deploy),
    "a candidate that does not answer is refused and the live container is never touched");
 ok(/etablix-previous-image/.test(deploy), "and the previous image is recorded, so rollback is one command");
 
+// --- the test gate: a failing suite never reaches live
+//
+// EVERY ASSERTION ABOVE ASKS WHETHER THE BUILD RUNS. None asked whether it is
+// correct, so a commit that softened a brief, dropped a duty-holder or deleted
+// a guard built cleanly, answered /api/health and served. That was the last
+// hole in "nothing silently changes", and these hold it shut.
+console.log("\n--- the test gate\n");
+{
+  const gate = deploy.slice(deploy.indexOf("1b. THE TEST GATE"));
+  ok(deploy.includes("1b. THE TEST GATE"), "deploy.sh has a test gate at all");
+
+  // It must sit BEFORE the build. A gate after `docker build` wastes the build;
+  // a gate after the swap is not a gate.
+  ok(deploy.indexOf("1b. THE TEST GATE") < deploy.indexOf("docker build --pull"),
+     "and it runs BEFORE docker build, so a failing commit is never even built");
+  ok(deploy.indexOf("1b. THE TEST GATE") < deploy.indexOf("4. switch, keeping the way back"),
+     "and long before the swap");
+
+  ok(/bash backend\/test\/run-all\.sh/.test(gate),
+     "it runs the WHOLE suite — run-all.sh, not a chosen subset, because a subset is how a guard stops being run");
+  ok(/REFUSING TO DEPLOY: the suite FAILED/.test(gate),
+     "a failing suite REFUSES the deploy rather than warning about it");
+  ok(/the live container has not been touched/.test(gate),
+     "and says the live container was not touched, which is true because nothing was built yet");
+  ok(/grep -E 'FAILED'/.test(gate),
+     "the refusal names the failing tests inline, so the deploy log alone says what broke");
+
+  // The three ways the gate could quietly stop being a gate.
+  ok(/no bash on this host/.test(gate),
+     "missing bash REFUSES — run-all.sh needs it for 'set -o pipefail' and dash will not do");
+  ok(/no node on this host/.test(gate),
+     "missing node REFUSES rather than skipping; Node 22 is already a prerequisite of this deployment");
+  ok(/-lt 22/.test(gate) && /node:sqlite/.test(gate),
+     "and a node older than 22 REFUSES, because the store needs node:sqlite");
+  ok(!/command -v node >\/dev\/null 2>&1 && bash backend/.test(gate),
+     "the suite is NOT guarded by `command -v node` the way announce() is — a gate that skips itself when it cannot run is a comment, not a gate");
+
+  // Turning it off has to be deliberate and on the record.
+  ok(/ETABLIX_TEST_GATE:-1/.test(gate),
+     "the gate is ON by default");
+  ok(/TEST GATE OFF \(ETABLIX_TEST_GATE=0\)[\s\S]{0,40}unverified/.test(gate),
+     "and turning it off says so in the deploy log, naming the commit as unverified");
+
+  // It must not be able to see the live store.
+  const runall = read("backend/test/run-all.sh");
+  ok(/DATA=\$\(mktemp -d\)/.test(runall) && /ETABLIX_DATA_DIR=\$DATA/.test(runall),
+     "and the suite it runs makes its own scratch data directory, so a deploy-time test run cannot touch the live store");
+}
+
+// --- the idle check is asked twice, because the gap is the exposure
+{
+  ok(/wait_for_idle\(\) \{/.test(deploy), "the in-flight-work check is a function");
+  const calls = (deploy.match(/^wait_for_idle$/gm) || []).length;
+  ok(calls === 2,
+     "and it is called twice — once up front and again immediately before the swap. Checking once and swapping minutes later protects nothing, and the gate spends several of those minutes",
+     calls);
+  ok(deploy.lastIndexOf("\nwait_for_idle") > deploy.indexOf("4. switch, keeping the way back"),
+     "the second call is inside step 4, where the answer is still true when the container is stopped");
+}
+
 // --- the status command, because "is it on?" should not need reading a script
 console.log("\n--- answering the question without reading the script\n");
 ok(/--status/.test(auto), "autodeploy.sh --status exists");
@@ -85,6 +145,12 @@ console.log("\n--- the runbook agrees with the script\n");
   }
   ok(/A push deploys itself to live/.test(runbook), "and says what actually happens instead");
   ok(/etc\/cron\.d\/etablix-autodeploy/.test(runbook), "with the cron line to install, because that is the part that does the work");
+  ok(/test gate is step 3/.test(runbook) && /ETABLIX_TEST_GATE=0/.test(runbook),
+     "and it documents the test gate and the one way to bypass it");
+  ok(/etablix-test-gate\.log/.test(runbook),
+     "naming the log a failure writes, because that is the next thing anybody needs");
+  ok(!/\/opt\/etablix-autodeploy\.sh --status/.test(runbook),
+     "and it no longer sends you to the stale copy at /opt that autodeploy.sh itself warns about");
 }
 
 // --- every command the runbook tells somebody to type must exist
@@ -175,7 +241,13 @@ console.log("\n--- a deploy fetches the base image, so a runtime fix arrives\n")
 {
   for (const f of ["deploy.sh", "staging.sh"]) {
     const sh = fs.readFileSync(path.join(root, "deploy", f), "utf8");
-    const builds = [...sh.matchAll(/docker build[^\n]*/g)].map((m) => m[0]);
+    // COMMAND LINES ONLY. This matched the raw file, so a COMMENT mentioning
+    // `docker build` failed the build for prose — which is a test that will
+    // eventually be deleted for being wrong rather than fixed. A comment
+    // cannot pull an image, so comment lines are not builds.
+    const builds = sh.split("\n")
+      .filter((l) => !/^\s*#/.test(l))
+      .flatMap((l) => [...l.matchAll(/docker build[^\n]*/g)].map((m) => m[0]));
     ok(builds.length > 0, `${f} builds an image`);
     for (const b of builds) {
       ok(/\s--pull\b/.test(b),
