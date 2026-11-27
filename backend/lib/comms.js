@@ -127,8 +127,23 @@ const cleanGreeting = (g) =>
     .replace(/[\s,]+$/, "")
     .trim();
 
+// THE SIGNATURE BLOCK CARRIES THE LEGAL ENTITY AND THE COMPANY NUMBER.
+//
+// It said "A Groupe Nseya brand" and nothing else until 27 November 2026, and
+// the HTML banner said "PART OF GROUPE NSEYA" — the endorsement form, which
+// asserts a parent entity that does not exist. There is one registered
+// company. A supplier then wrote back to us describing ETABLIX as "part of
+// Groupe Nseya", having learned it from our own header: the exact failure the
+// naming rule exists to stop, arriving by the one route nothing was checking.
+//
+// brand-naming.test.mjs reads frontend/public, business/ and brand/. It does
+// NOT read backend/, so the website was corrected and every outbound email
+// kept the error. It now reads this file too.
+//
+// The LinkedIn carve-out does not reach here. The rule is that anything with a
+// signature block carries the full form, and this IS the signature block.
 export const SIGNATURE_TEXT = [
-  "ETABLIX — Integrated Site Services · A Groupe Nseya brand",
+  "ETABLIX — Integrated Site Services, part of JNN GLOBAL LTD, company 15405437",
   "Groupe Nseya House, Kingstanding, Birmingham, B44 8DJ",
   "contact@etablix.com · +44 7493 216101 · https://etablix.com",
 ].join("\n");
@@ -150,7 +165,7 @@ export function renderEmailHtml({ subject, bodyLines, severity = "info", details
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:10px;overflow:hidden;">
   <tr><td style="background:#14181d;padding:22px 32px;">
     <div style="font-family:Arial Black,Arial,sans-serif;font-size:22px;font-weight:900;letter-spacing:-0.5px;color:#ffffff;">ETABLIX</div>
-    <div style="font-family:Arial,sans-serif;font-size:10px;font-weight:bold;letter-spacing:3px;color:#c9a96a;margin-top:3px;">INTEGRATED SITE SERVICES &nbsp;&middot;&nbsp; PART OF GROUPE NSEYA</div>
+    <div style="font-family:Arial,sans-serif;font-size:10px;font-weight:bold;letter-spacing:3px;color:#c9a96a;margin-top:3px;">INTEGRATED SITE SERVICES &nbsp;&middot;&nbsp; A GROUPE NSEYA BRAND</div>
   </td></tr>
   <tr><td style="height:4px;background:${accent};font-size:0;line-height:0;">&nbsp;</td></tr>
   <tr><td style="padding:30px 32px 8px;font-family:Arial,Helvetica,sans-serif;">
@@ -160,7 +175,7 @@ export function renderEmailHtml({ subject, bodyLines, severity = "info", details
   </td></tr>
   <tr><td style="padding:18px 32px 26px;font-family:Arial,Helvetica,sans-serif;border-top:1px solid #e3e6ea;">
     <p style="margin:0;font-size:12px;line-height:1.7;color:#5b6672;">
-      <b style="color:#14181d;">ETABLIX</b> — Integrated Site Services &middot; A Groupe Nseya brand<br>
+      <b style="color:#14181d;">ETABLIX</b> — Integrated Site Services, part of JNN GLOBAL LTD, company 15405437<br>
       Groupe Nseya House, Kingstanding, Birmingham, B44 8DJ<br>
       <a href="mailto:contact@etablix.com" style="color:#9c7a3c;">contact@etablix.com</a> &middot; +44&nbsp;7493&nbsp;216101 &middot; <a href="https://etablix.com" style="color:#9c7a3c;">etablix.com</a>
     </p>

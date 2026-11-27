@@ -59,6 +59,20 @@ const files = [
   ...walk(path.join(ROOT, "frontend/public")),
   ...walk(path.join(ROOT, "business")),
   ...walk(path.join(ROOT, "brand")),
+  // THE EMAIL TEMPLATES, WHICH WERE THE BLIND SPOT.
+  //
+  // This list read the website and the business documents. It did not read
+  // backend/, so when the endorsement form was taken off 45 published pages on
+  // 25 November, every outbound email kept it: the banner on all of them said
+  // "PART OF GROUPE NSEYA" and the signature block named no legal entity and
+  // no company number.
+  //
+  // On 27 November a supplier replied to an approval email describing ETABLIX
+  // as "part of Groupe Nseya". They had not guessed it. They copied our header.
+  // A guard that reads the pages nobody receives and not the email everybody
+  // receives is a guard that reports success while the error goes out the door.
+  path.join(ROOT, "backend/lib/comms.js"),
+  path.join(ROOT, "backend/lib/catalog.js"),
   path.join(ROOT, "CLAUDE.md"),
   path.join(ROOT, "README.md"),
 ].filter((f) => fs.existsSync(f));
@@ -159,6 +173,32 @@ console.log("\n=== and the strapline takes the reader to the group, on every pag
   ok(titles.length === 3 && titles.every((t) => !t.includes("<a href")),
      "and the three title fields on about.html stay plain text — a link in a <title> is markup in a search result",
      titles.length);
+}
+
+console.log("\n=== the outbound signature block carries the legal entity, not the brand ===\n");
+{
+  // THE RULE: anything with a signature block carries "ETABLIX, part of JNN
+  // GLOBAL LTD, company 15405437". The LinkedIn carve-out is for a comment with
+  // no signature block and a 90-word ceiling. An email has both a signature
+  // block and a "Kind regards", so the carve-out cannot reach it — and this is
+  // the document a procurement officer files and checks.
+  const comms = text(path.join(ROOT, "backend/lib/comms.js"));
+  ok(/part of JNN GLOBAL LTD, company 15405437/.test(comms),
+     "the plain-text and HTML signature blocks name JNN GLOBAL LTD with the company number");
+  const blocks = (comms.match(/part of JNN GLOBAL LTD, company 15405437/g) || []).length;
+  ok(blocks >= 2,
+     `both signature blocks carry it, not one — a plain-text footer that differs from the HTML footer is two companies to a reader who sees both (found ${blocks})`,
+     blocks);
+  // CODE LINES ONLY. The comment above the signature block quotes the old
+  // banner in order to explain why it changed, and a guard that fails on the
+  // explanation of its own rule is a guard somebody deletes rather than fixes.
+  // This is the second one this week: deploy.test read `docker build` out of a
+  // comment and demanded --pull on it.
+  const commsCode = comms.split("\n").filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l)).join("\n");
+  ok(!/PART OF GROUPE NSEYA/i.test(commsCode),
+     'AND THE BANNER NO LONGER SAYS "PART OF GROUPE NSEYA" — that is the endorsement form, asserting a parent entity above a single registered company, and it was live in every email for two days after the website was corrected');
+  ok(/Groupe Nseya House/.test(comms),
+     "the registered office keeps the building name, which is a postal address and not a claim about structure");
 }
 
 console.log("\n=== the mark itself is unchanged, so nothing about it needed updating ===\n");
