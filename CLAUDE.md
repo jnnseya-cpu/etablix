@@ -353,9 +353,28 @@ removed.
 - **Never name GE Vernova as a reference**, anywhere, in any form.
 - **No AI or agent language** anywhere a customer reads. Do not raise it; never
   deny it; answer it properly if asked.
-- **Only accreditations genuinely held.** There is no ISO certification and no
-  SSIP registration. PI and PL are £5,000,000 each, in force from 26 October
-  2026.
+- **Only accreditations genuinely held.** **Constructionline Gold**, held from
+  27 November 2026, which carries the **Common Assessment Standard** at
+  desktop-assessment level and **SSIP** certification — the health and safety
+  pass/fail on most utility and local authority gates. PI and PL are £5,000,000
+  each, in force from 26 October 2026. **There is still no ISO 9001, 14001 or
+  45001 certification**, and Gold is never offered as an equivalent: it
+  *assesses* quality and environmental arrangements and certifies to no ISO
+  standard, which is the one overclaim a procurement officer can disprove in a
+  single question. **No agent may state a membership or certificate number or
+  an expiry date** — the references sit with the business, a questionnaire
+  answer is a declaration, and an invented reference is a false one.
+  `public-claims.test.mjs` allows "Constructionline Gold" as the only positive
+  form, so a page claiming CHAS, SafeContractor or a bare "SSIP registered"
+  still fails the build.
+
+  **This line denied SSIP until 27 November 2026 and it was correct until the
+  day it was not.** The denial sat in `COMPANY_BRIEF`, so all thirty-eight
+  agents — `draftPrequal` among them — were instructed to answer "no SSIP" on
+  a form. A stale denial of something now held is not the safe direction of
+  error: it loses the gate before the bid is read. The certificate references
+  are still outstanding, and until they are recorded nothing may quote one.
+  Owner: Justin Nseya. By: 1 December 2026.
 
 ### The entity
 

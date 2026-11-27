@@ -129,11 +129,30 @@ now. There is a small-supplier tier for firms with fewer than ten employees and
 under £1m turnover, which this company qualifies for. Confirm current fees with
 Achilles directly — the published figures found were undated.
 
-**14. SSIP or the Common Assessment Standard.** CAS replaced PAS 91, which was
-withdrawn in April 2023, and is the benchmark buyers now mean when they ask for
-it. Most SSIP schemes require insurance evidence, so this was blocked behind
-item 6 as well. It is the health and safety pass/fail on nearly every utility
-and local authority gate.
+**14. SSIP or the Common Assessment Standard — DONE, 27 November 2026.**
+**Constructionline Gold**, which carries the Common Assessment Standard at
+desktop-assessment level (Platinum is the on-site level) and an SSIP
+certificate. CAS replaced PAS 91, withdrawn April 2023, and is the benchmark
+buyers mean when they ask for it; it is the health and safety pass/fail on
+nearly every utility and local authority gate. This was blocked behind item 6,
+and the insurance bound on 26 October released it.
+
+**What it changes.** On a CAS-accepting buyer the selection questionnaire is
+largely answered by the reference rather than written from scratch, which is
+days back on every bid — and days were never the problem: the gate failed
+before the quality of the bid was ever read.
+
+**What it does not change.** It is not ISO. Item 15 stands. Gold *assesses*
+quality and environmental arrangements and certifies to no ISO standard, and
+offering it as an equivalent is the one overclaim it makes available.
+
+**Still outstanding, and nothing may quote one until it is recorded:** the
+Constructionline membership number, the SSIP certificate number and issuing
+scheme (Once For All Health & Safety, formerly Acclaim), and the expiry or
+renewal date of each. A certificate that expires before a submission deadline
+is valid today and worthless to that bid — the L7 kernel already tests exactly
+that, against `CERTIFICATE` evidence with an `expiresAt`, so the references
+belong there rather than in prose. Owner: Justin Nseya. By: 1 December 2026.
 
 **15. ISO 9001 only when a bid demands it.** A recent trade warning is explicit
 that ISO certification does not by itself satisfy UVDB, so buying it first

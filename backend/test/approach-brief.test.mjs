@@ -28,6 +28,17 @@ const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..",
 const src = fs.readFileSync(path.join(root, "backend", "lib", "ai.js"), "utf8");
 const brief = src.slice(src.indexOf("You draft a FIRST APPROACH"), src.indexOf("`,", src.indexOf("You draft a FIRST APPROACH")));
 
+// WHAT THE DRAFTER ACTUALLY RECEIVES is COMPANY_BRIEF followed by the brief
+// above — draftApproach builds `system: `${COMPANY_BRIEF}...`` , which
+// practitioner.test asserts for every drafter by name. The insurance and
+// accreditation guards below used to read `brief` alone, so they were only
+// ever testing half of what is sent; when the accreditation facts moved into
+// COMPANY_BRIEF on 27 November 2026 they failed, correctly, and the fix is to
+// test the whole of it rather than to move the guard somewhere quieter.
+const companyStart = src.indexOf("const COMPANY_BRIEF");
+const company = src.slice(companyStart, src.indexOf("`;", companyStart));
+const effective = company + "\n" + brief;
+
 let pass = 0, fail = 0;
 const ok = (c, m, saw) => {
   if (c) { pass++; console.log(`  ✓ ${m}`); }
@@ -130,10 +141,25 @@ console.log("\n=== naming the company ===\n");
 
 console.log("\n=== what may and may not be claimed ===\n");
 {
-  ok(/£5,000,000/.test(brief), "the cover actually held may be stated");
-  ok(/no ISO certification/i.test(brief) && /no SSIP registration/i.test(brief),
-     "and the two that are not held are named");
-  ok(/Employers' Liability \(Compulsory Insurance\) Act 1969/.test(brief),
+  ok(/£5,000,000/.test(effective), "the cover actually held may be stated");
+  // THE ACCREDITATION FACTS ARE NOT HERE, AND THAT IS THE POINT.
+  //
+  // This brief used to carry "there is no ISO certification and no SSIP
+  // registration" — which became false on 27 November 2026 when Constructionline
+  // Gold was issued, and which had reached exactly ONE drafter. SSIP appeared
+  // once in the whole of ai.js, so draftPrequal, the agent that answers
+  // prequalification questionnaires, had no accreditation guidance at all.
+  // The facts now sit in COMPANY_BRIEF, which all thirty-eight inherit, and
+  // this brief is a line shorter for it — which matters, because it has a word
+  // ceiling and the provider declined every call made with a two-thousand-word
+  // brief.
+  ok(!/\bSSIP\b|no ISO certification/.test(brief),
+     "this brief no longer states the accreditations itself — the denial it used to carry became false the day Gold was issued, and it only ever reached this one drafter");
+  ok(/Claim more insurance or accreditation than the appointment above names/.test(brief),
+     "it defers to the appointment, so one correction in COMPANY_BRIEF reaches all thirty-eight agents rather than this one");
+  ok(/state any membership number, certificate number or expiry date/i.test(brief),
+     "and it still forbids a certificate number here, because this is the brief that writes to a stranger");
+  ok(/Employers' Liability \(Compulsory Insurance\) Act 1969/.test(effective),
      "with the employers' liability exemption written out rather than left blank");
   ok(!/Do not claim any certification, accreditation or insurance\. None is held\./.test(src),
      "the old blanket denial is gone — it became false on 26 October 2026");

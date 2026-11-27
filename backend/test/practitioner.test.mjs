@@ -296,5 +296,47 @@ const src = readFileSync(path.join(root, "backend/lib/ai.js"), "utf8");
      "the gateway declares the rule at the top of the file, where the next person to add a call will read it");
 }
 
+console.log("\n=== what may be claimed reaches all thirty-eight, not one drafter ===\n");
+//
+// CONSTRUCTIONLINE GOLD WAS ISSUED ON 27 NOVEMBER 2026 AND IT CARRIES SSIP.
+//
+// Until then the only accreditation statement anywhere in ai.js was a line in
+// the draftApproach brief saying none was held. "SSIP" appeared ONCE in the
+// whole file. So the denial was both false and narrow: draftPrequal — the
+// agent that answers prequalification questionnaires, where an accreditation
+// field is a declaration — had no guidance at all, and an agent with no
+// guidance about a certificate is an agent that can invent one.
+//
+// This is the same failure this whole file exists to catch, in a second form:
+// a rule everybody agrees with, appended on a path only some agents take.
+{
+  // COMPANY_BRIEF is not exported, so read it out of the source the same way
+  // approach-brief.test reads the drafter briefs.
+  const start = src.indexOf("const COMPANY_BRIEF");
+  const brief = src.slice(start, src.indexOf("`;", start));
+  ok(/Constructionline Gold/.test(brief),
+     "COMPANY_BRIEF names the accreditation actually held, so all thirty-eight inherit it at once");
+  ok(/Common Assessment Standard/.test(brief) && /\bSSIP\b/.test(brief),
+     "with the standard it carries and the health-and-safety certification inside it — the pass/fail on most utility and local authority gates");
+  ok(/NO ISO 9001, 14001 or 45001 certification/.test(brief),
+     "and what is still not held, by number rather than as a vague absence");
+  ok(/never offered as an ISO equivalent/.test(brief),
+     "the one overclaim Gold makes available is refused in the brief rather than left to each agent's judgement");
+  ok(/certifies to no ISO standard/.test(brief),
+     "with the reason, so an agent asked to justify it has the answer rather than a rule");
+  ok(/NEVER state a membership number, a certificate number or an expiry date/.test(brief),
+     "no agent may state a reference: a questionnaire answer is a declaration and an invented reference is a false one");
+  ok(/reference supplied on request/.test(brief),
+     "and it gives the words to write instead, because a rule with no replacement gets broken by the next agent that needs the field filled");
+  ok(/£5,000,000 each, in force/.test(brief),
+     "the cover actually held is stated with its figure — the most useful fact this company has, and a brief that denies it forbids it");
+  ok(/Employers' Liability \(Compulsory Insurance\) Act 1969/.test(brief),
+     "the employers' liability exemption stays written out, by the Act that gives it");
+
+  // The old denial must not survive anywhere in the file.
+  ok(!/no SSIP registration/.test(src),
+     "and the sentence 'no SSIP registration' is gone from ai.js entirely — a stale denial of something now held loses the gate before the bid is read");
+}
+
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);

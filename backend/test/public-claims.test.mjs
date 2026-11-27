@@ -65,8 +65,14 @@ const RULES = [
     allowed: /exempt|no employer|not carry|supplier|subcontractor|you hold|required|require|gate|certificate beats|checklist|attach|maintain insurance|evidence it on request/i },
   { what: "ISO certification", find: /\bISO\s?9001|\bISO\s?14001|\bISO\s?45001/i,
     allowed: /no ISO|holds no|does not hold|not certified|when a (specific )?(bid|requirement)|supplier|subcontractor|required|checklist|attach/i },
+  // CONSTRUCTIONLINE GOLD IS HELD FROM 27 NOVEMBER 2026, AND IT CARRIES SSIP.
+  // This rule used to permit only a denial, which was right until the day it
+  // was not: the card then understated the business and a buyer screening on
+  // SSIP excluded it on its own say-so. "Constructionline Gold" is the one
+  // positive form allowed, because it is the product actually held — a page
+  // claiming CHAS, SafeContractor or a bare "SSIP registered" still fails.
   { what: "SSIP or Constructionline registration", find: /\bSSIP\b|Constructionline|\bCHAS\b|SafeContractor/i,
-    allowed: /no SSIP|holds no|does not hold|not registered|supplier|subcontractor|required|require|checklist|attach|RIDDOR/i },
+    allowed: /Constructionline Gold|no SSIP|holds no|does not hold|not registered|supplier|subcontractor|required|require|checklist|attach|RIDDOR/i },
 ];
 
 for (const file of pages) {
@@ -106,8 +112,24 @@ ok(/no employers'? liability/i.test(home),
    "said plainly rather than left for a procurement team to discover");
 ok(/Central Digital Platform/i.test(home),
    "the one registration the company does hold is named");
-ok(/holds no ISO certification and no SSIP registration|no ISO certification and no SSIP/i.test(home),
-   "and what it does not hold is named in the same breath");
+ok(/Constructionline Gold/.test(home) && /Common Assessment Standard/.test(home) && /\bSSIP\b/.test(home),
+   "the accreditation actually held is named, with the standard it carries — a card that understates the business fails a buyer screening on SSIP just as surely as an overstatement fails a reader");
+ok(/no ISO 9001, 14001 or 45001 certification/i.test(home),
+   "and what is still NOT held is named in the same breath, by number");
+ok(/certifies to no ISO standard/i.test(home),
+   "with the one overclaim this makes available refused on the page itself: Gold assesses quality and environmental arrangements, it does not certify to an ISO standard");
+
+// THE ONE NEW WAY TO LIE, NOW THAT SOMETHING IS HELD.
+// Constructionline Gold assesses the themes ISO 9001/14001/45001 cover. The
+// short step from "assessed" to "equivalent" is the overclaim a procurement
+// officer can disprove in one question, so no page may take it.
+{
+  const EQUIV = /(equivalent|equal|as good as|in lieu of|same as)[^.]{0,40}ISO|ISO[^.]{0,40}(equivalent|or equivalent)/i;
+  const offenders = pages.filter((f) => EQUIV.test(fs.readFileSync(f, "utf8"))).map(rel);
+  ok(offenders.length === 0,
+     "no page offers Constructionline Gold, CAS or SSIP as an ISO equivalent",
+     offenders);
+}
 
 console.log("\n=== the data controller is the company, never a trading name ===\n");
 //
