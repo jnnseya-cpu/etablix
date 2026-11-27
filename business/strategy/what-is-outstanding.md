@@ -130,12 +130,52 @@ under £1m turnover, which this company qualifies for. Confirm current fees with
 Achilles directly — the published figures found were undated.
 
 **14. SSIP or the Common Assessment Standard — DONE, 27 November 2026.**
-**Constructionline Gold**, which carries the Common Assessment Standard at
-desktop-assessment level (Platinum is the on-site level) and an SSIP
-certificate. CAS replaced PAS 91, withdrawn April 2023, and is the benchmark
-buyers mean when they ask for it; it is the health and safety pass/fail on
-nearly every utility and local authority gate. This was blocked behind item 6,
-and the insurance bound on 26 October released it.
+**Constructionline Gold**, which carries the Common Assessment Standard and an
+SSIP certificate from **Once For All Health & Safety** (the scheme formerly
+branded Acclaim — worth knowing, because a buyer who last assessed us under the
+old name will ask for it by that name). CAS was developed with Build UK and
+superseded PAS 91, withdrawn April 2023; it is the health and safety pass/fail
+on nearly every utility and local authority gate. This was blocked behind item
+6, and the insurance bound on 26 October released it.
+
+**Confirmed from Constructionline's own Gold page**, not from a reseller's
+guide: *"Our Gold membership includes an SSIP from Once For All Health &
+Safety."* Third-party guides contradict each other on whether SSIP is bundled
+at Gold, so the operator's own wording is the record.
+
+**Two things that page does NOT say**, and so are not claimed anywhere:
+
+- **The CAS assessment level.** The standard has a desktop and a site-based
+  level. The Gold page does not state which Gold carries and does not mention
+  Platinum at all. An earlier draft of this entry asserted "desktop level,
+  Platinum is on-site" from a search snippet; that is now removed from the
+  brief, the public card and the standing instructions. Read it off the
+  certificate. Owner:
+  Justin Nseya.
+- **Anything about ISO.** The page never offers Gold as an ISO equivalent, which
+  is consistent with item 15 and with the guard now in `public-claims.test`.
+
+**And one trap the page itself sets.** It markets Gold as going "above and
+beyond PAS 91 requirements". **PAS 91 must never be claimed** — it was withdrawn
+in April 2023, and offering compliance with a withdrawn standard tells a buyer
+the writer has not checked. `COMPANY_BRIEF` now forbids it by name.
+
+**Which buyers this opens, per Constructionline's own page** — their claim about
+their own customers, not independently verified, and not quotable as an ETABLIX
+reference: VINCI, Wates, BAM Construction, Kier and Balfour Beatty are named as
+sourcing suppliers at Gold level. Those are target readers already, and three of
+them appear in the LinkedIn comment record. The commercial consequence is
+specific: on a CAS-accepting buyer the selection questionnaire is answered by
+the reference rather than written from scratch, which is days back per bid —
+and days were never the binding constraint. The gate failed before the quality
+of the bid was ever read.
+
+**Marketplace is included and is not set up.** Gold carries access to
+Constructionline's Marketplace, a buyer-facing channel this business has now
+paid for and is not using. Build the supplier profile against the same position
+the rest of the platform holds — Advisory and Management Integrator, no CDM
+appointment, no self-delivery, no price. Owner: Justin Nseya. By: 8 December
+2026.
 
 **What it changes.** On a CAS-accepting buyer the selection questionnaire is
 largely answered by the reference rather than written from scratch, which is
@@ -147,9 +187,9 @@ quality and environmental arrangements and certifies to no ISO standard, and
 offering it as an equivalent is the one overclaim it makes available.
 
 **Still outstanding, and nothing may quote one until it is recorded:** the
-Constructionline membership number, the SSIP certificate number and issuing
-scheme (Once For All Health & Safety, formerly Acclaim), and the expiry or
-renewal date of each. A certificate that expires before a submission deadline
+Constructionline membership number, the SSIP certificate number, the CAS
+assessment level, and the expiry or renewal date of each. The issuing scheme is
+settled — Once For All Health & Safety. A certificate that expires before a submission deadline
 is valid today and worthless to that bid — the L7 kernel already tests exactly
 that, against `CERTIFICATE` evidence with an `expiresAt`, so the references
 belong there rather than in prose. Owner: Justin Nseya. By: 1 December 2026.

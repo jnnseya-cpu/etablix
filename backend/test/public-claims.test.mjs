@@ -71,6 +71,13 @@ const RULES = [
   // SSIP excluded it on its own say-so. "Constructionline Gold" is the one
   // positive form allowed, because it is the product actually held — a page
   // claiming CHAS, SafeContractor or a bare "SSIP registered" still fails.
+  // PAS 91 WAS WITHDRAWN IN APRIL 2023, and Constructionline's own Gold page
+  // still markets Gold as going "above and beyond PAS 91 requirements". So the
+  // words are in front of whoever writes the next capability statement, and
+  // claiming compliance with a withdrawn standard tells a buyer the writer did
+  // not check. The Common Assessment Standard is the live one and may be named.
+  { what: "PAS 91, which was withdrawn in April 2023", find: /\bPAS\s?91\b/i,
+    allowed: /withdrawn|superseded|replaced|no longer|never claim/i },
   { what: "SSIP or Constructionline registration", find: /\bSSIP\b|Constructionline|\bCHAS\b|SafeContractor/i,
     allowed: /Constructionline Gold|no SSIP|holds no|does not hold|not registered|supplier|subcontractor|required|require|checklist|attach|RIDDOR/i },
 ];

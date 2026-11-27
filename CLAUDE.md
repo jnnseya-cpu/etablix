@@ -354,9 +354,16 @@ removed.
 - **No AI or agent language** anywhere a customer reads. Do not raise it; never
   deny it; answer it properly if asked.
 - **Only accreditations genuinely held.** **Constructionline Gold**, held from
-  27 November 2026, which carries the **Common Assessment Standard** at
-  desktop-assessment level and **SSIP** certification — the health and safety
-  pass/fail on most utility and local authority gates. PI and PL are £5,000,000
+  27 November 2026, which carries the **Common Assessment Standard** —
+  developed with Build UK, and the standard that superseded PAS 91 — and an
+  **SSIP certificate from Once For All Health & Safety**, the health and safety
+  pass/fail on most utility and local authority gates. **Never claim PAS 91
+  itself**: it was withdrawn in April 2023, and Constructionline's own Gold page
+  still markets against it, so the temptation is there. Offering compliance with
+  a withdrawn standard tells a buyer the writer has not checked. **The CAS
+  assessment level is not claimed anywhere** — the standard has a desktop and a
+  site-based level, and which one this membership carries is a fact to read off
+  the certificate, not to infer from a tier name. PI and PL are £5,000,000
   each, in force from 26 October 2026. **There is still no ISO 9001, 14001 or
   45001 certification**, and Gold is never offered as an equivalent: it
   *assesses* quality and environmental arrangements and certifies to no ISO

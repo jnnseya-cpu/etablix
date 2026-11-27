@@ -318,6 +318,12 @@ console.log("\n=== what may be claimed reaches all thirty-eight, not one drafter
      "COMPANY_BRIEF names the accreditation actually held, so all thirty-eight inherit it at once");
   ok(/Common Assessment Standard/.test(brief) && /\bSSIP\b/.test(brief),
      "with the standard it carries and the health-and-safety certification inside it — the pass/fail on most utility and local authority gates");
+  ok(/Once For All Health & Safety/.test(brief),
+     "and the SSIP scheme is named, because a buyer who last assessed us under the old Acclaim branding will ask for it by that name");
+  ok(/Never claim PAS 91 itself/.test(brief) && /withdrawn in April 2023/.test(brief),
+     "PAS 91 is forbidden by name with its withdrawal date — Constructionline's own Gold page markets against PAS 91, so the words are in front of whoever writes next");
+  ok(!/desktop-assessment|desktop-audit/i.test(brief),
+     "and the CAS assessment level is NOT claimed: the standard has a desktop and a site-based level, the operator's Gold page states neither, and a level inferred from a tier name is a guess inside a declaration");
   ok(/NO ISO 9001, 14001 or 45001 certification/.test(brief),
      "and what is still not held, by number rather than as a vague absence");
   ok(/never offered as an ISO equivalent/.test(brief),
