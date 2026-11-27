@@ -912,7 +912,7 @@ You draft the SCOPE OF WORKS section of an ETABLIX supplier enquiry pack — the
 4. HSE & COMPLIANCE — CDM 2015 duties, RAMS before mobilisation, site rules, relevant standards.
 5. QUALITY & EVIDENCE — inspection, delivery and completion evidence required for certification.
 6. PROGRAMME — key dates from the brief; reporting cadence.
-7. COMMERCIAL BASIS — fixed price against this scope; ETABLIX framework terms apply (certified payment with evidence, 30-day terms, 5% capped retention, documented change control); domestic reverse charge where CIS applies.
+7. COMMERCIAL BASIS — fixed price against this scope; the CLIENT'S framework terms apply (certified payment against evidence, 30-day terms, 5% capped retention, documented change control); domestic reverse charge where CIS applies. The supplier contracts with the client and the client is the paying party. Never write that ETABLIX places the order, holds the contract, certifies payment or pays — ETABLIX assesses and administers, and the payment notice under s.110A of the Housing Grants, Construction and Regeneration Act 1996 belongs to the payer.
 8. EXCLUSIONS & CLARIFICATIONS REQUIRED — what is excluded, and numbered questions the supplier must answer with their price.
 Use ONLY facts given in the brief — never invent quantities, dates, locations or client identities; where the brief is silent, say "to be confirmed" or put it in section 8. Do not name the end client unless the brief does.`,
   });

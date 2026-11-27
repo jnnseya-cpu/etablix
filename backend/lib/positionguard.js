@@ -101,6 +101,64 @@ const RULES = [
     predicate: /\b(?:will|shall|we)\b[^.;]{0,40}\b(?:contract|engage|appoint|employ)\b[^.;]{0,25}\b(?:the\s+)?(?:suppliers?|subcontractors?|supply chain)\b/i,
     why: "Under Advisory and Management Integrator the client holds every supplier contract. The policy in force insures a consultant and does not respond to holding works contracts.",
   },
+  // THE OPERATIONAL FORMS, WHICH THE TWO RULES AROUND THEM MISSED.
+  //
+  // holds-contracts and holds-money were written against the sentences
+  // somebody puts in a PROPOSAL — "we will contract the suppliers", "we will
+  // pay the supply chain". Both fire on those. Neither fired on the sentences
+  // the platform actually SENDS:
+  //
+  //   "ETABLIX purchase order 1234 — this order and those terms form your
+  //    contract"
+  //   "This is our payment notice. The sum we intend to pay…"
+  //   "ETABLIX remittance — paid to your verified account"
+  //
+  // Those went out of catalog.js to real suppliers and passed this guard
+  // clean, because a purchase order is a noun and a remittance is a noun, and
+  // the rules were looking for a verb with "the suppliers" after it. An order
+  // in our name IS the supplier contract, and a payment notice in our name IS
+  // the statutory act of a paying party — stronger evidence of the position
+  // than any paragraph in a proposal.
+  //
+  // All three exclude a sentence naming the CLIENT as the actor, because "the
+  // client's purchase order" and "the client certifies and pays" are the
+  // correct forms and have to stay sayable.
+  {
+    id: "issues-order",
+    // STANDALONE for the same reason own-plant is: the possessive IS the
+    // subject. "Our payment notice" never names the company and is the claim
+    // all the same, and checkPosition skips a non-standalone rule on any
+    // sentence without the subject in it — which is why these three fired on
+    // a test string and not on the template that shipped.
+    standalone: true,
+    label: "a purchase order or framework terms in our own name",
+    predicate: /(?![^.;]*\bclient\b)\b(?:ETABLIX|our)\s+(?:purchase\s+order|framework\s+terms)\b/i,
+    why: "The client places the order and holds the terms. An order in our name is the supplier contract held by us, and the policy insuring a consultant does not answer it.",
+  },
+  {
+    id: "issues-payment-notice",
+    // STANDALONE for the same reason own-plant is: the possessive IS the
+    // subject. "Our payment notice" never names the company and is the claim
+    // all the same, and checkPosition skips a non-standalone rule on any
+    // sentence without the subject in it — which is why these three fired on
+    // a test string and not on the template that shipped.
+    standalone: true,
+    label: "a payment notice, pay less notice or remittance in our own name",
+    predicate: /(?![^.;]*\bclient\b)\b(?:ETABLIX|our)\s+(?:payment\s+notice|pay\s?less\s+notice|remittance|payment\s+certificate)\b/i,
+    why: "The payment notice under s.110A of the Housing Grants, Construction and Regeneration Act 1996 is the paying party's statutory act. Issuing one in our name makes us the payer. We assess; the client certifies.",
+  },
+  {
+    id: "pays-the-supplier",
+    // STANDALONE for the same reason own-plant is: the possessive IS the
+    // subject. "Our payment notice" never names the company and is the claim
+    // all the same, and checkPosition skips a non-standalone rule on any
+    // sentence without the subject in it — which is why these three fired on
+    // a test string and not on the template that shipped.
+    standalone: true,
+    label: "a first-person commitment to pay the supplier",
+    predicate: /(?![^.;]*\bclient\b)\b(?:we|ETABLIX)\b[^.;]{0,24}\b(?:intend to pay|will pay|shall pay|make payment|remit)\b/i,
+    why: "\u201cYou hold every supplier contract; we never hold your money.\u201d A sum we commit to paying is money we are holding.",
+  },
   {
     id: "holds-money",
     label: "ETABLIX paying the supply chain",
@@ -171,5 +229,32 @@ export function positionStatement(result) {
   if (!result) return "the position guard did not run";
   return result.say;
 }
+
+/**
+ * THE MODEL C ALLOWANCE, AS ONE NAMED THING.
+ *
+ * Model C — Prime Service Contractor — is the one delivery model under which
+ * ETABLIX does hold the supplier contracts and does pay the supply chain, and
+ * it may be described INTERNALLY while the policy insuring a consultant makes
+ * it unofferable to a client. checkPosition takes `{ allow: [...] }` for that.
+ *
+ * It is exported as a set because a caller that retypes the list gets it
+ * wrong the moment a rule is added — which happened the first time: the only
+ * caller named holds-contracts and holds-money, and the three operational
+ * rules above then blocked a sentence the allowance was supposed to permit.
+ * A list written out by hand in each caller is the failure this whole file is
+ * an argument against.
+ *
+ * CDM and self-delivery are NOT in it. Model C is prime for the site-services
+ * system only: it never carries a Principal Contractor appointment and never
+ * means own labour or own plant.
+ */
+export const MODEL_C_RULES = Object.freeze([
+  "holds-contracts",
+  "holds-money",
+  "issues-order",
+  "issues-payment-notice",
+  "pays-the-supplier",
+]);
 
 export { RULES as POSITION_RULES };

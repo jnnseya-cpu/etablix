@@ -11,7 +11,8 @@
  * denies the thing. A guard that fires on those is turned off within a week,
  * so the false-positive tests below matter at least as much as the others.
  */
-import { checkPosition, positionNotes, positionStatement, POSITION_RULES } from "../lib/positionguard.js";
+import { readFileSync } from "node:fs";
+import { checkPosition, positionNotes, positionStatement, POSITION_RULES, MODEL_C_RULES } from "../lib/positionguard.js";
 
 let pass = 0, fail = 0;
 const ok = (c, m, saw) => {
@@ -73,8 +74,12 @@ ok(!fires("We specify the installation rather than carrying it out.", "self-deli
 console.log("\n=== the one legitimate exception, named explicitly ===\n");
 {
   const modelC = "Under Model C, ETABLIX will contract the suppliers and we will pay the supply chain.";
-  ok(!checkPosition(modelC, { allow: ["holds-contracts", "holds-money"] }).ok === false,
+  ok(checkPosition(modelC, { allow: MODEL_C_RULES }).ok,
      "an internal description of Model C passes when the rules are allowed by name");
+  ok(!checkPosition(modelC, { allow: ["holds-contracts", "holds-money"] }).ok,
+     "AND A HAND-TYPED ALLOWANCE IS NOW INCOMPLETE — naming only the two original rules leaves pays-the-supplier firing, which is exactly why the set is exported instead of retyped");
+  ok(!MODEL_C_RULES.includes("cdm") && !MODEL_C_RULES.includes("self-delivery") && !MODEL_C_RULES.includes("own-plant"),
+     "and the allowance does not reach CDM or self-delivery: Model C is prime for the site-services system only, never a Principal Contractor appointment and never own labour");
   ok(!checkPosition(modelC).ok,
      "and the same sentence without that allowance is still a breach — the exception is never implicit");
 }
@@ -86,7 +91,80 @@ console.log("\n=== shape ===\n");
      "one finding per rule, with the occurrences counted — three sentences are one problem", { f: r.findings.length, o: r.occurrences });
   ok(r.findings[0].sentence.length <= 180, "the quoted sentence is trimmed for a note");
 }
-ok(POSITION_RULES.length === 6, "six rules across the three refusals", POSITION_RULES.map((r) => r.id));
+ok(POSITION_RULES.length === 9, "nine rules across the three refusals", POSITION_RULES.map((r) => r.id));
+
+console.log("\n=== THE OPERATIONAL FORMS, WHICH SHIPPED PAST THIS GUARD ===\n");
+//
+// On 27 November 2026 a supplier replied to an approval email expecting to
+// agree payment terms with ETABLIX. They were not confused: catalog.js had
+// been sending "ETABLIX purchase order", "this is our payment notice", "the
+// sum we intend to pay" and "ETABLIX remittance" to real suppliers, and every
+// one of them passed this guard clean.
+//
+// TWO REASONS IT MISSED THEM, and both are worth keeping written down.
+//
+// First, holds-contracts and holds-money look for a VERB with "the suppliers"
+// after it — the shape of a sentence in a proposal. A purchase order is a
+// noun. A remittance is a noun. Neither rule could see an entire payment
+// machinery addressed in the second person.
+//
+// Second, checkPosition skips a non-standalone rule on any sentence without
+// the subject in it, and "accept our framework terms" has no subject but
+// "our". own-plant already carried a comment explaining exactly this, for
+// exactly this reason. The new rules repeat its flag rather than its mistake.
+{
+  const caught = (text, rule) => {
+    const r = checkPosition(text);
+    return !r.ok && r.findings.some((f) => f.rule === rule);
+  };
+  ok(caught("ETABLIX purchase order 1234 for the welfare units is issued at the agreed sum below.", "issues-order"),
+     "AN ORDER IN OUR NAME IS THE SUPPLIER CONTRACT — the client places the order; we administer it");
+  ok(caught("Set up your payment structure and accept our framework terms.", "issues-order"),
+     'and so are "our framework terms" — the possessive is the subject, which is why the rule is standalone');
+  ok(caught("This is our payment notice for your application 12.", "issues-payment-notice"),
+     "A PAYMENT NOTICE IN OUR NAME MAKES US THE PAYER — s.110A of the Housing Grants, Construction and Regeneration Act 1996 is the paying party's statutory act, and we assess rather than certify");
+  ok(caught("ETABLIX remittance — application 12 paid.", "issues-payment-notice"),
+     "and a remittance is the same claim after the fact");
+  ok(caught("The sum we intend to pay and its basis are set out below.", "pays-the-supplier"),
+     "a sum we commit to paying is money we are holding");
+
+  // THE CORRECT FORMS MUST STAY SAYABLE, or the rules get switched off.
+  for (const [what, text] of [
+    ["the client's order", "The client purchase order 1234 for the welfare units is issued at the agreed sum below, on the client framework terms."],
+    ["the client's notice", "The client payment notice for your application 12 is set out below: the sum the client intends to pay."],
+    ["the client paying", "ETABLIX assesses the applications, and the client certifies and pays."],
+    ["us administering", "ETABLIX administers the contract on the client behalf and is not a party to it."],
+    ["the denial itself", "ETABLIX is not a party to that contract and never holds the money."],
+  ]) ok(checkPosition(text).ok, `and "${what}" still passes — a guard that forbids the right answer is a guard somebody disables`);
+}
+
+console.log("\n=== every outbound template is run through the live guard ===\n");
+//
+// NOT A COPY OF THE RULES. The templates are checked with checkPosition
+// itself, so a rule added later covers them without anybody remembering to
+// come back here. This is the wiring that was missing: the guard existed, the
+// templates existed, and nothing ever put one through the other.
+{
+  const { CATEGORIES } = await import("../lib/catalog.js");
+  const events = CATEGORIES.flatMap((c) => c.events);
+  ok(events.length > 80, `${events.length} notification templates read`, events.length);
+
+  const breaching = events
+    .map((e) => ({ code: e.code, r: checkPosition(`${e.subject}. ${e.line}`) }))
+    .filter((x) => !x.r.ok)
+    .map((x) => `${x.code}: ${x.r.findings.map((f) => f.rule).join(", ")}`);
+  ok(breaching.length === 0,
+     "NO TEMPLATE CLAIMS A POSITION THE BUSINESS CANNOT STAND BEHIND — these are the only sentences the platform sends without a human writing them, so they are the last place a prohibition should be checked and the first place it was not",
+     breaching);
+
+  // The scope of works is written by an agent and read by a supplier.
+  const ai = readFileSync(new URL("../lib/ai.js", import.meta.url), "utf8");
+  const scope = ai.slice(ai.indexOf("COMMERCIAL BASIS"), ai.indexOf("COMMERCIAL BASIS") + 600);
+  ok(/CLIENT'S framework terms/.test(scope),
+     "draftScope tells the agent the framework terms are the CLIENT'S, not ours");
+  ok(/Never write that ETABLIX places the order/.test(scope) && /s\.110A/.test(scope),
+     "and names the statutory section, so an agent asked why has the answer rather than a rule");
+}
 ok(checkPosition("").ok, "empty text claims nothing");
 ok(checkPosition(null).ok, "and neither does nothing at all");
 

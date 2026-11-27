@@ -199,8 +199,15 @@ const { OBSERVATION_FIELDS } = await import("../lib/trendintel/observations.js")
 const ids = (list, key = "id") => list.map((x) => (typeof x === "string" ? x : x[key])).join(",");
 
 const LOCKS = [
-  ["the three position refusals", ids(POSITION_RULES),
-   "cdm,cdm-duty,self-delivery,own-plant,holds-contracts,holds-money"],
+  // THREE RULES WERE ADDED ON 27 NOVEMBER 2026, DELIBERATELY, and this lock is
+  // the record of that decision rather than an obstacle to it. A supplier had
+  // replied to an approval email expecting to agree payment terms with
+  // ETABLIX, because catalog.js was sending "ETABLIX purchase order", "this is
+  // our payment notice" and "ETABLIX remittance" and all three passed the
+  // guard: the original rules looked for a verb with "the suppliers" after it,
+  // and a purchase order is a noun.
+  ["the position refusals", ids(POSITION_RULES),
+   "cdm,cdm-duty,self-delivery,own-plant,holds-contracts,issues-order,issues-payment-notice,pays-the-supplier,holds-money"],
   ["the bid programme's ten activities", ids(ACTIVITIES),
    "enquiries,returns,surveys,clarifications,design,estimate,review,settlement,signature,internal"],
   ["and its nine ordering constraints", ORDER.map((o) => `${o[0]}>${o[1]}`).join(","),
